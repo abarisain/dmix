@@ -30,7 +30,7 @@
         <activity android:name=".AlbumsActivity" android:label="@string/albums"/>
         <activity android:name=".SongsActivity" android:label="@string/artists"/>
         <activity android:name=".AboutActivity" android:label="@string/about"/>
-        <service android:exported="true" android:name="StreamingService" />
+        <service android:enabled="true" android:name="StreamingService" />
     </application>
 	<uses-sdk android:minSdkVersion="2" />
 </manifest> 
