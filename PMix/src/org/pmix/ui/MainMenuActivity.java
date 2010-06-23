@@ -21,13 +21,16 @@ import org.a0z.mpd.event.TrackPositionListener;
 import org.pmix.ui.CoverAsyncHelper.CoverDownloadListener;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -92,6 +95,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	private static Toast notification = null;
 	
+	private StreamingService streamingServiceBound;
+	private boolean isStreamServiceBound;
 	
 	private ButtonEventHandler buttonEventHandler;
 	
@@ -120,6 +125,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		MPDApplication app = (MPDApplication)getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addTrackPositionListener(this);
+		app.setActivity(this);
 		
 		//registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
 		registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION) );
@@ -140,8 +146,6 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		MPDApplication app = (MPDApplication)getApplicationContext();
-		app.setActivity(this);
 		myLogger.log(Level.INFO, "onStart");
 	}
 	
@@ -164,7 +168,9 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	private void init() {
 		setContentView(R.layout.main);
-
+		
+		isStreamServiceBound = false;
+		
 		artistNameText = (TextView) findViewById(R.id.artistName);
 		albumNameText = (TextView) findViewById(R.id.albumName);
 		songNameText = (TextView) findViewById(R.id.songName);
@@ -454,9 +460,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		case PLAYLIST:
 			i = new Intent(this, PlaylistActivity.class);
 			startActivityForResult(i, PLAYLIST);
+			// TODO juste pour s'y retrouver
 			return true;
 		case STREAM:
-			//showAlert("Hai")
+			startService(new Intent(this, StreamingService.class));
 			return true;
 		default:
 			// showAlert("Menu Item Clicked", "Not yet implemented", "ok", null,
@@ -575,14 +582,14 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		MPDApplication app = (MPDApplication)getApplicationContext();
-		app.unsetActivity(this);
 		myLogger.log(Level.INFO, "onStop");
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		MPDApplication app = (MPDApplication)getApplicationContext();
+		app.unsetActivity(this);
 		myLogger.log(Level.INFO, "onDestroy");
 	}
 	
@@ -633,5 +640,46 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
 		
 	}
+
+	private ServiceConnection mConnection = new ServiceConnection() {
+	    public void onServiceConnected(ComponentName className, IBinder service) {
+	        // This is called when the connection with the service has been
+	        // established, giving us the service object we can use to
+	        // interact with the service.  Because we have bound to a explicit
+	        // service that we know is running in our own process, we can
+	        // cast its IBinder to a concrete class and directly access it.
+	        streamingServiceBound = ((StreamingService.LocalBinder)service).getService();
+
+	        // Tell the user about this for our demo.
+	        Toast.makeText((MPDApplication)getApplication(), "Connected to service", Toast.LENGTH_SHORT).show();
+	    }
+
+	    public void onServiceDisconnected(ComponentName className) {
+	        // This is called when the connection with the service has been
+	        // unexpectedly disconnected -- that is, its process crashed.
+	        // Because it is running in our same process, we should never
+	        // see this happen.
+	    	streamingServiceBound = null;
+	        Toast.makeText((MPDApplication)getApplication(), "Service disconnected", Toast.LENGTH_SHORT).show();
+	    }
+	};
+
+	void doBindService() {
+	    // Establish a connection with the service.  We use an explicit
+	    // class name because we want a specific service implementation that
+	    // we know will be running in our own process (and thus won't be
+	    // supporting component replacement by other applications).
+	    bindService(new Intent(this, StreamingService.class), mConnection, Context.BIND_AUTO_CREATE);
+	    isStreamServiceBound = true;
+	}
+
+	void doUnbindService() {
+	    if (isStreamServiceBound) {
+	        // Detach our existing connection.
+	        unbindService(mConnection);
+	        isStreamServiceBound = false;
+	    }
+	}
+
 	
 }

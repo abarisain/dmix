@@ -11,17 +11,18 @@ public final class R {
     public static final class attr {
     }
     public static final class drawable {
-        public static final int even_stripe=0x7f020006;
+        public static final int even_stripe=0x7f020007;
         public static final int gmpcnocover=0x7f020000;
         public static final int ic_menu_pmix_albums=0x7f020001;
         public static final int ic_menu_pmix_artists=0x7f020002;
         public static final int ic_menu_pmix_playlist=0x7f020003;
         public static final int icon=0x7f020004;
         public static final int lastfm_red=0x7f020005;
-        public static final int odd_stripe=0x7f020007;
-        public static final int solid_blue=0x7f020009;
-        public static final int solid_green=0x7f02000a;
-        public static final int solid_red=0x7f020008;
+        public static final int odd_stripe=0x7f020008;
+        public static final int solid_blue=0x7f02000a;
+        public static final int solid_green=0x7f02000b;
+        public static final int solid_red=0x7f020009;
+        public static final int stat_notify_musicplayer=0x7f020006;
     }
     public static final class id {
         public static final int AbsoluteLayout=0x7f050013;
@@ -31,8 +32,10 @@ public final class R {
         public static final int albumCoverProgress=0x7f050009;
         public static final int albumName=0x7f050004;
         public static final int artistName=0x7f050003;
+        public static final int artistalbum=0x7f050019;
         public static final int back=0x7f05000b;
         public static final int forward=0x7f05000d;
+        public static final int icon=0x7f050017;
         public static final int mainInfo=0x7f050014;
         public static final int next=0x7f05000e;
         public static final int picture=0x7f050015;
@@ -45,6 +48,7 @@ public final class R {
         public static final int text1=0x7f050002;
         public static final int track=0x7f05000f;
         public static final int trackTime=0x7f050006;
+        public static final int trackname=0x7f050018;
         public static final int versionText=0x7f050000;
         public static final int volume=0x7f050011;
     }
@@ -58,7 +62,8 @@ public final class R {
         public static final int main=0x7f030006;
         public static final int playlist_list_item=0x7f030007;
         public static final int settings=0x7f030008;
-        public static final int wificonnectionsettings=0x7f030009;
+        public static final int statusbar=0x7f030009;
+        public static final int wificonnectionsettings=0x7f03000a;
     }
     public static final class string {
         public static final int about=0x7f040031;
