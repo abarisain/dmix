@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout android:theme="@android:style/Theme.Translucent" android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:layout_width="fill_parent">
+<LinearLayout android:theme="@android:style/Theme.Translucent" android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:layout_width="fill_parent" android:background="#aa000000">
 
 <TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center" android:id="@+id/artistName" android:textSize="25sp"></TextView>
 <TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center" android:id="@+id/albumName" android:textSize="20sp"></TextView>
@@ -18,8 +18,7 @@ android:layout_width="150px" android:id="@+id/albumCover" android:padding="10px"
 </LinearLayout>
 
 </LinearLayout>
-
-<LinearLayout android:layout_width="fill_parent" android:gravity="center" android:layout_height="fill_parent"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@android:drawable/ic_media_previous" android:id="@+id/prev"></ImageButton>
+<LinearLayout android:layout_width="fill_parent" android:gravity="center" android:layout_height="fill_parent" ><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@android:drawable/ic_media_previous" android:id="@+id/prev"></ImageButton>
 <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@android:drawable/ic_media_rew" android:id="@+id/back"></ImageButton>
 <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@android:drawable/ic_media_play" android:id="@+id/playpause"></ImageButton>
 <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@android:drawable/ic_media_ff" android:id="@+id/forward"></ImageButton>

@@ -422,7 +422,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		menu.add(0,ALBUMS, 1, R.string.albums).setIcon(R.drawable.ic_menu_pmix_albums);
 		menu.add(0,FILES, 2, R.string.files).setIcon(android.R.drawable.ic_menu_agenda);
 		menu.add(0,PLAYLIST, 3, R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
-		menu.add(0,STREAM, 4, R.string.settings).setIcon(android.R.drawable.ic_menu_slideshow);
+		menu.add(0,STREAM, 4, R.string.stream).setIcon(android.R.drawable.ic_menu_slideshow);
 		menu.add(0,SETTINGS, 5, R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
 		
 		return result;
@@ -456,8 +456,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			startActivityForResult(i, PLAYLIST);
 			return true;
 		case STREAM:
-			i = new Intent(this, PlaylistActivity.class);
-			startActivityForResult(i, PLAYLIST);
+			//showAlert("Hai")
 			return true;
 		default:
 			// showAlert("Menu Item Clicked", "Not yet implemented", "ok", null,

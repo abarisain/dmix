@@ -9,7 +9,7 @@
     		android:name=".MPDApplication">
     		<!-- android:debuggable="true" --> 
         <activity android:name=".MainMenuActivity" android:label="@string/app_name"
-        		  android:launchMode="singleTop"> <!--  android:theme="@android:style/Theme.WallpaperSettings"--> 
+        		  android:launchMode="singleTop"  android:theme="@android:style/Theme.Wallpaper.NoTitleBar"> 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
