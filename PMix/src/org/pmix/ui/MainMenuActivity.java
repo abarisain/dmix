@@ -100,6 +100,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	
 	private ButtonEventHandler buttonEventHandler;
 	
+	private boolean streamingMode;
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -169,7 +170,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private void init() {
 		setContentView(R.layout.main);
 		
-		isStreamServiceBound = false;
+		streamingMode = false;
 		
 		artistNameText = (TextView) findViewById(R.id.artistName);
 		albumNameText = (TextView) findViewById(R.id.albumName);
@@ -330,13 +331,24 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		public void onClick(View v) {
 			MPDApplication app = (MPDApplication)getApplication();
 			MPD mpd = app.oMPDAsyncHelper.oMPD;
+			Intent i = null;
 			try {
 				switch(v.getId()) {
 					case R.id.next:
 						mpd.next();
+						if(((MPDApplication) getApplication()).isStreamingMode()) {
+							i = new Intent(app, StreamingService.class);
+							i.setAction("org.pmix.RESET_STREAMING");
+							startService(i);
+						}
 						break;
 					case R.id.prev:
 						mpd.previous();
+						if(((MPDApplication) getApplication()).isStreamingMode()) {
+							i = new Intent(app, StreamingService.class);
+							i.setAction("org.pmix.RESET_STREAMING");
+							startService(i);
+						}
 						break;
 					case R.id.back:
 						mpd.seek(lastElapsedTime - TRACK_STEP);
@@ -373,6 +385,12 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 					case R.id.playpause:
 						// Implements the ability to stop playing (may be useful for streams)
 						mpd.stop();
+						Intent i;
+						if(((MPDApplication) getApplication()).isStreamingMode()) {
+							i = new Intent(app, StreamingService.class);
+							i.setAction("org.pmix.STOP_STREAMING");
+							startService(i);
+						}
 						break;
 					default:
 						return false;
@@ -396,13 +414,21 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		try {
 			switch (keyCode) {
 			case KeyEvent.KEYCODE_VOLUME_UP:
-				progressBarVolume.incrementProgressBy(VOLUME_STEP);
-				app.oMPDAsyncHelper.oMPD.adjustVolume(VOLUME_STEP);
-				return true;
+				if(((MPDApplication) getApplication()).isStreamingMode()) {
+					return super.onKeyDown(keyCode, event);
+				} else {
+					progressBarVolume.incrementProgressBy(VOLUME_STEP);
+					app.oMPDAsyncHelper.oMPD.adjustVolume(VOLUME_STEP);
+					return true;
+				}
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
-				progressBarVolume.incrementProgressBy(-VOLUME_STEP);
-				app.oMPDAsyncHelper.oMPD.adjustVolume(-VOLUME_STEP);
-				return true;
+				if(((MPDApplication) getApplication()).isStreamingMode()) {
+					return super.onKeyDown(keyCode, event);
+				} else {
+					progressBarVolume.incrementProgressBy(-VOLUME_STEP);
+					app.oMPDAsyncHelper.oMPD.adjustVolume(-VOLUME_STEP);
+					return true;
+				}
 			case KeyEvent.KEYCODE_DPAD_LEFT:
 				app.oMPDAsyncHelper.oMPD.previous();
 				return true;
@@ -463,7 +489,20 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			// TODO juste pour s'y retrouver
 			return true;
 		case STREAM:
-			startService(new Intent(this, StreamingService.class));
+			if(((MPDApplication) getApplication()).isStreamingMode()) { // yeah, yeah getApplication for that may be ugly but ...
+				i = new Intent(this, StreamingService.class);
+				i.setAction("org.pmix.KILL");
+				stopService(i);
+				((MPDApplication) getApplication()).setStreamingMode(false);
+				Toast.makeText(this, "Streaming OFF", Toast.LENGTH_SHORT).show();
+			} else {
+				i = new Intent(this, StreamingService.class);
+				i.setAction("org.pmix.START_STREAMING");
+				startService(i);
+				((MPDApplication) getApplication()).setStreamingMode(true);
+				Toast.makeText(this, "Streaming ON", Toast.LENGTH_SHORT).show();
+			}
+
 			return true;
 		default:
 			// showAlert("Menu Item Clicked", "Not yet implemented", "ok", null,

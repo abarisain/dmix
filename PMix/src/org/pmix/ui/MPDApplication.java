@@ -27,6 +27,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	private DialogClickListener oDialogClickListener;
 	
 	private boolean bWifiConnected = false;
+	private boolean streamingMode = false;
 	private Activity currentActivity;
 	
 	public static final int SETTINGS = 5;
@@ -262,6 +263,14 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	public boolean isWifiConnected() {
 		return bWifiConnected;
+	}
+
+	public void setStreamingMode(boolean streamingMode) {
+		this.streamingMode = streamingMode;
+	}
+
+	public boolean isStreamingMode() {
+		return streamingMode;
 	}
 	
 }

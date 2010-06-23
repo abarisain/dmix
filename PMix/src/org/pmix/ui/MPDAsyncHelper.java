@@ -174,6 +174,10 @@ public class MPDAsyncHelper extends Handler {
 		conInfo.iPort = iPort;
 		conInfo.sPassword = sPassword;
 	}
+	
+	public String getConnectionInfoServer() {
+		return conInfo.sServer;
+	}
 	public void doConnect()
 	{
 		oMPDAsyncWorker.obtainMessage(EVENT_CONNECT, conInfo).sendToTarget();
