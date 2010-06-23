@@ -1,0 +1,5 @@
+version 0.4
+- deprecated and renamed Pos based methods, implemented Id based commands, see javadoc.
+- support for plchanges
+- support for streams
+- support for m3u playlists for streams

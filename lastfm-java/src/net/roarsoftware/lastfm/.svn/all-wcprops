@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/93/trunk/lastfm-java/src/net/roarsoftware/lastfm
+END
+Album.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Album.java
+END
+Playlist.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Playlist.java
+END
+Chart.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Chart.java
+END
+Caller.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/93/trunk/lastfm-java/src/net/roarsoftware/lastfm/Caller.java
+END
+MusicEntry.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/MusicEntry.java
+END
+Library.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Library.java
+END
+Track.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Track.java
+END
+Artist.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Artist.java
+END
+Authenticator.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Authenticator.java
+END
+Geo.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Geo.java
+END
+Tag.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Tag.java
+END
+ImageSize.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/ImageSize.java
+END
+Result.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Result.java
+END
+User.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/User.java
+END
+ImageHolder.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/ImageHolder.java
+END
+Event.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Event.java
+END
+Period.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Period.java
+END
+Venue.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Venue.java
+END
+Image.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Image.java
+END
+Session.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Session.java
+END
+CallException.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/CallException.java
+END
+PaginatedResult.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/PaginatedResult.java
+END
+Tasteometer.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Tasteometer.java
+END
+Group.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Group.java
+END
+Radio.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/85/trunk/lastfm-java/src/net/roarsoftware/lastfm/Radio.java
+END

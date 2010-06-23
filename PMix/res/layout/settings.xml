@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"  android:key="preferencescreen"> 
+	<PreferenceCategory android:title="@string/pmixSettings"> 
+		<!-- Connection Settings -->
+		<PreferenceScreen android:title="@string/connectionSettings" 
+						  android:summary="@string/connectionSettingsDescription" 
+						  android:key="connectionScreen">
+						  
+			<intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="org.pmix.ui"
+                    android:targetClass="org.pmix.ui.WifiConnectionSettings" />
+		
+		</PreferenceScreen>
+		<!-- Outputs -->
+		<PreferenceScreen  android:key="outputsScreen" android:title="@string/outputs" android:summary="@string/outputsDescription">
+			<PreferenceCategory android:key="outputsCategory" android:id="@+id/preferenceOutput" android:title="@string/outputs">  
+			</PreferenceCategory>  
+		</PreferenceScreen>
+		<!--  Other settings -->
+		<CheckBoxPreference
+			android:key="random"
+			android:title="@string/random"
+			android:summary="@string/randomDescription"
+			android:persistent="false"
+		/>
+		<CheckBoxPreference
+			android:key="repeat"
+			android:title="@string/repeat"
+			android:summary="@string/repeatDescription"
+			android:persistent="false"
+		/>
+		<CheckBoxPreference
+			android:key="albumartist"
+			android:title="@string/albumartist"
+			android:summary="@string/albumartistDescription"
+			android:persistent="true"
+		/>
+		<!--  Server Information -->
+		<PreferenceScreen android:key="informationScreen" android:title="@string/serverInformation" android:summary="@string/serverInformationDescription">
+			<PreferenceCategory android:key="outputs" android:id="@+id/preferenceOutput" android:title="@string/serverInformation">
+			    <EditTextPreference  
+			           android:key="version"  
+			           android:title="@string/version"
+			           android:defaultValue=""
+			           android:enabled="false" />   
+			    <EditTextPreference  
+			           android:key="artists"  
+			           android:title="@string/artists"
+			           android:defaultValue=""
+			           android:enabled="false" />
+			    <EditTextPreference  
+			           android:key="albums"  
+			           android:title="@string/albums"
+			           android:defaultValue=""
+			           android:enabled="false" />
+			    <EditTextPreference  
+			           android:key="songs"  
+			           android:title="@string/songs"
+			           android:defaultValue=""
+			           android:enabled="false" />
+			</PreferenceCategory>  
+		</PreferenceScreen>
+		<!-- About -->
+		<PreferenceScreen android:title="@string/about" 
+						  android:summary="@string/aboutDescription" 
+						  android:key="aboutScreen">
+						  
+			<intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="org.pmix.ui"
+                    android:targetClass="org.pmix.ui.AboutActivity" />
+		
+		</PreferenceScreen>
+	</PreferenceCategory>
+</PreferenceScreen>

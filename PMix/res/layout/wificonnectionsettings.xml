@@ -1,0 +1,35 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"  android:key="preferencescreen">
+	<PreferenceCategory android:title="@string/preferredConnection">
+		<PreferenceScreen android:title="@string/wlanBasedSettings" android:summary="@string/wlanBasedSettingsDescription" android:key="wifibasedScreen">
+			<PreferenceCategory android:title="@string/chooseWLAN" android:key="wifibasedCategory">
+			</PreferenceCategory>
+		</PreferenceScreen>	
+	</PreferenceCategory>
+	<PreferenceCategory android:visible="false" android:title="Default connection" android:key="defaultCategory">
+		<PreferenceScreen android:title="@string/defaultSettings" android:summary="@string/defaultSettingsDescription" android:key="defaultScreen">
+	
+			<intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="org.pmix.ui"
+                    android:targetClass="org.pmix.ui.ConnectionSettings" />
+        </PreferenceScreen>
+        <!-- 
+		<EditTextPreference  
+	           android:key="hostname"  
+	           android:title="@string/host"  
+	           android:summary="@string/hostDescription"
+	           />  
+	    <EditTextPreference  
+	           android:key="port"
+	           android:title="@string/port"
+	           android:defaultValue="6600"
+	           android:summary="@string/portDescription"
+	           />  
+	    <EditTextPreference
+	           android:key="password"
+	           android:title="@string/password"
+	           android:defaultValue=""
+	           android:password="true"
+	           android:summary="@string/passwordDescription" /> 
+	            -->
+	</PreferenceCategory>
+</PreferenceScreen>

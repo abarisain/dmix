@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">PMix</string>
+	<string name="artists">Artists</string>
+	<string name="playlists">Playlists</string>
+	<string name="files">Files</string>
+	<string name="albums">Albums</string>
+	<string name="settings">Settings</string>
+	<string name="volume">Volume</string>
+	<string name="track">Track</string>
+	<string name="ok">OK</string>
+	<string name="quit">Quit</string>
+	<string name="retry">Retry</string>
+	<string name="loading">Loading...</string>
+	<string name="loadingAlbums">Loading Albums...</string>
+	<string name="loadingArtists">Loading Artists...</string>
+	<string name="serverAddress">Server Address :</string>
+	<string name="playlist">Playlist</string>
+	<string name="addAlbum">Add Album</string>
+	<string name="addArtist">Add Artist</string>
+	<string name="removeSong">Remove Song</string>
+	<string name="clear">Clear</string>
+	<string name="addDirectory">Add Directory</string>
+	<string name="mainMenu">Main Menu</string>
+	<string name="playlistCleared">Playlist cleared</string>
+	<string name="deletedSongFromPlaylist">Deleted song from playlist</string>
+	<string name="albumAdded">Album %s added</string>
+	<string name="addedDirectoryToPlaylist">Added directory to playlist</string>
+	<string name="artistAdded">Artist added</string>
+	<string name="host">Host</string>
+	<string name="hostDescription">MPD-Server Hostname or IP-Address</string>
+	<string name="port">Port</string>
+	<string name="portDescription">MPD-Server port (Default: 6600)</string>
+	<string name="password">Password</string>
+	<string name="passwordDescription">Password for the Server</string>
+	<string name="random">Random</string>
+	<string name="randomDescription">Enable/Disable random</string>
+	<string name="repeat">Repeat</string>
+	<string name="repeatDescription">Enable/Disable repeat</string>
+	<string name="albumartist">Album Artist</string>
+	<string name="albumartistDescription">Use Album Artist tag in Artists view</string>
+	<string name="version">Version</string>
+	<string name="songs">Songs</string>
+	<string name="serverInformation">Server Information</string>
+	<string name="serverInformationDescription">Different MPD-Server information such as version, songcount...</string>
+	<string name="connectionSettings">Connection settings</string>
+	<string name="connectionSettingsDescription">Set MPD-Host/Port and password</string>
+	<string name="outputs">Outputs</string>
+	<string name="outputsDescription">Enable/Disable MPD-Outputs</string>
+	<string name="pmixSettings">PMix settings</string>
+	<string name="songAdded">Song %s added</string>
+	<string name="about">About</string>
+	<string name="aboutDescription">About PMix</string>
+	<string name="waitForWLAN">Waiting for WLAN to be connected...</string>
+	<string name="connectionFailed">Connection Failed</string>
+	<string name="connectionFailedMessage">Connection to MPD-Server failed! Check if the Server is running and reachable. (%s)</string>
+	<string name="connecting">Connecting...</string>
+	<string name="connectingToServer">Connecting to MPD-Server.</string>
+	<string name="connected">Connected</string>
+	<string name="notInRange">Not in range, remembered</string>
+	
+	<string name="preferredConnection">Preferred connection</string>
+	<string name="chooseWLAN">Choose a WLAN network</string>
+	<string name="wlanBasedSettings">WLAN based connection</string>
+	<string name="defaultSettings">Default connection settings</string>
+	<string name="wlanBasedSettingsDescription">Set WLAN based MPD-Host/Port and password</string>
+	<string name="defaultSettingsDescription">Set default MPD-Host/Port and password</string>
+	
+	
+	
+</resources>

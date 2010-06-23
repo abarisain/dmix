@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<drawable name="even_stripe">#e5edfa</drawable>
+	<drawable name="odd_stripe">#ffffffff</drawable>
+	<drawable name="solid_red">#f00</drawable>
+	<drawable name="solid_blue">#0000ff</drawable>
+	<drawable name="solid_green">#f0f0</drawable>
+</resources>

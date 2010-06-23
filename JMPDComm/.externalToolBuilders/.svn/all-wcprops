@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/61/trunk/jmpdcomm/.externalToolBuilders
+END
+com.atlassw.tools.eclipse.checkstyle.CheckstyleBuilder.launch
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/!svn/ver/61/trunk/jmpdcomm/.externalToolBuilders/com.atlassw.tools.eclipse.checkstyle.CheckstyleBuilder.launch
+END
+New_Builder.launch
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/61/trunk/jmpdcomm/.externalToolBuilders/New_Builder.launch
+END
+de.mvmsoft.checkclipse.CheckclipseBuilder.launch
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/!svn/ver/61/trunk/jmpdcomm/.externalToolBuilders/de.mvmsoft.checkclipse.CheckclipseBuilder.launch
+END
