@@ -81,8 +81,7 @@ public class StreamingService extends Service
 		app.oMPDAsyncHelper.addConnectionListener(this);
 		streamSource = "http://"+app.oMPDAsyncHelper.getConnectionInfoServer()+":"
 							+app.oMPDAsyncHelper.getConnectionInfoPortStreaming()+"/";
-		Toast.makeText(this, "Source : "+streamSource+"|", Toast.LENGTH_SHORT).show();
-        //showNotification();
+		//showNotification();
         /*if (!mIsSupposedToBePlaying) {
             mIsSupposedToBePlaying = true;
             notifyChange(PLAYSTATE_CHANGED);
@@ -183,7 +182,7 @@ public class StreamingService extends Service
 			mediaPlayer.reset();
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mediaPlayer.setDataSource(streamSource);
-			mediaPlayer.prepare();
+			mediaPlayer.prepareAsync();
 			showNotification();
 		} catch (IOException e) {
 			// Error ? Notify the user ! (Another day)
