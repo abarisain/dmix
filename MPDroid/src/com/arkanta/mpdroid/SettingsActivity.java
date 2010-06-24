@@ -51,7 +51,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		super.onCreate(savedInstanceState);
 		MPDApplication app = (MPDApplication)getApplicationContext();
 		addPreferencesFromResource(R.layout.settings);
-		Log.i("PMix", "onCreate");
+		//Log.i("MPDroid", "onCreate");
 		
 		
 		onPreferenceClickListener = new OutputPreferenceClickListener();
@@ -153,7 +153,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference)
 	{
-		Log.d("PMix", preferenceScreen.getKey());
+		Log.d("MPDroid", preferenceScreen.getKey());
 		MPDApplication app = (MPDApplication)getApplication();
 		
 		// Is it the connectionscreen which is called?

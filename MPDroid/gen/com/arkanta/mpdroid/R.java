@@ -153,7 +153,7 @@ public final class R {
         public static final int loadingAlbums=0x7f04000c;
         public static final int loadingArtists=0x7f04000d;
         public static final int mainMenu=0x7f040015;
-        public static final int mpdroidSettings=0x7f040042;
+        public static final int mpdroidSettings=0x7f040044;
         public static final int mpdroidSettingsSettings=0x7f04002f;
         public static final int notInRange=0x7f040039;
         public static final int ok=0x7f040008;
@@ -166,6 +166,8 @@ public final class R {
         public static final int playlists=0x7f040002;
         public static final int port=0x7f04001d;
         public static final int portDescription=0x7f04001e;
+        public static final int portStreaming=0x7f040042;
+        public static final int portStreamingDescription=0x7f040043;
         public static final int preferredConnection=0x7f04003a;
         public static final int quit=0x7f040009;
         public static final int random=0x7f040021;

@@ -78,7 +78,8 @@ public class StreamingService extends Service
 		MPDApplication app = (MPDApplication)getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addConnectionListener(this);
-		streamSource = "http://"+app.oMPDAsyncHelper.getConnectionInfoServer()+":8000";
+		streamSource = "http://"+app.oMPDAsyncHelper.getConnectionInfoServer()+":"
+							+app.oMPDAsyncHelper.getConnectionInfoPortStreaming();
         //showNotification();
         /*if (!mIsSupposedToBePlaying) {
             mIsSupposedToBePlaying = true;
@@ -101,16 +102,16 @@ public class StreamingService extends Service
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent.getAction().equals("com.arkanta.mpdroidSTART_STREAMING")) {
+		if (intent.getAction().equals("com.arkanta.mpdroid.START_STREAMING")) {
 			//streaming_enabled = true;
 			resumeStreaming();
-		} else if (intent.getAction().equals("com.arkanta.mpdroidSTOP_STREAMING")) {
+		} else if (intent.getAction().equals("com.arkanta.mpdroid.STOP_STREAMING")) {
 			stopStreaming();
-		} else if (intent.getAction().equals("com.arkanta.mpdroidRESET_STREAMING")) {
+		} else if (intent.getAction().equals("com.arkanta.mpdroid.RESET_STREAMING")) {
 			stopStreaming();
 			resumeStreaming();
 		}
-		//Toast.makeText(this, "onStartCommand  : "+(intent.getAction() == "org.pmix.START_STREAMING"), Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "onStartCommand  : "+(intent.getAction() == "com.arkanta.mpdroid.START_STREAMING"), Toast.LENGTH_SHORT).show();
 	    // We want this service to continue running until it is explicitly
 	    // stopped, so return sticky.
 	    return START_STICKY;
@@ -162,7 +163,7 @@ public class StreamingService extends Service
 			        status.flags |= Notification.FLAG_ONGOING_EVENT;
 			        status.icon = R.drawable.icon;
 			        status.contentIntent = PendingIntent.getActivity(this, 0,
-			                new Intent("org.pmix.ui.PLAYBACK_VIEWER")
+			                new Intent("com.arkanta.mpdroid.PLAYBACK_VIEWER")
 			                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
 			        
 			        startForeground(STREAMINGSERVICE_STATUS, status);

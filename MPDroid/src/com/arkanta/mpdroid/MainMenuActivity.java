@@ -60,7 +60,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	private Logger myLogger = Logger.global;
 	
-	public static final String PREFS_NAME = "pmix.properties";
+	public static final String PREFS_NAME = "mpdroid.properties";
 
 	public static final int PLAYLIST = 1;
 	

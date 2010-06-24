@@ -168,16 +168,21 @@ public class MPDAsyncHelper extends Handler {
 	 * @param iPort
 	 * @param sPassword
 	 */
-	public void setConnectionInfo(String sServer, int iPort, String sPassword)
+	public void setConnectionInfo(String sServer, int iPort, String sPassword, int iPortStreaming)
 	{
 		conInfo.sServer = sServer;
 		conInfo.iPort = iPort;
 		conInfo.sPassword = sPassword;
+		conInfo.iPortStreaming = iPortStreaming;
 	}
 	
 	public String getConnectionInfoServer() {
 		return conInfo.sServer;
 	}
+	public int getConnectionInfoPortStreaming() {
+		return conInfo.iPortStreaming;
+	}
+	
 	public void doConnect()
 	{
 		oMPDAsyncWorker.obtainMessage(EVENT_CONNECT, conInfo).sendToTarget();
@@ -336,6 +341,7 @@ public class MPDAsyncHelper extends Handler {
 		public String sServer;
 		public int iPort;
 		public String sPassword;
+		public int iPortStreaming;
 	}
 	
 }

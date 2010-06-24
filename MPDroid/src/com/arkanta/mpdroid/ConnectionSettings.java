@@ -95,5 +95,13 @@ public class ConnectionSettings extends PreferenceActivity {
 		toCategory.addPreference(prefPassword);
 		onContentChanged();
 		
+		EditTextPreference prefStreamingPort = new EditTextPreference(this);
+		prefStreamingPort.setDialogTitle(R.string.portStreaming);
+		prefStreamingPort.setTitle(R.string.portStreaming);
+		prefStreamingPort.setSummary(R.string.portStreamingDescription);
+		prefStreamingPort.setDefaultValue("8000");
+		prefStreamingPort.setKey(keyPrefix+"portStreaming");
+		toCategory.addPreference(prefStreamingPort);
+		
 	}
 }

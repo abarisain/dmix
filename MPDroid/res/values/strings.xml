@@ -70,4 +70,6 @@
 	
 <string name="stream">Streaming</string>
 <string name="buffering">Buffering ...</string>
+<string name="portStreaming">Streaming port</string>
+<string name="portStreamingDescription">MPD-Streaming port (Default: 8000)</string>
 </resources>

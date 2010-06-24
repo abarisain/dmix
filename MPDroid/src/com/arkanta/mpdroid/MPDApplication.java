@@ -98,13 +98,15 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
 			String sServer = settings.getString(wifiSSID + "hostname", "");
 			int iPort = Integer.getInteger(settings.getString(wifiSSID + "port", "6600"), 6600);
+			int iPortStreaming = Integer.getInteger(settings.getString(wifiSSID + "portStreaming", "8000"), 8000);
 			String sPassword = settings.getString(wifiSSID + "password", "");
-			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword);	
+			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);	
 		} else if (!settings.getString("hostname", "").equals("")) {
 				String sServer = settings.getString("hostname", "");
 				int iPort = Integer.getInteger(settings.getString("port", "6600"), 6600);
+				int iPortStreaming = Integer.getInteger(settings.getString("portStreaming", "8000"), 8000);
 				String sPassword = settings.getString("password", "");
-				oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword);
+				oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
 		} else {
 			// Absolutely no settings defined! Open Settings!
 			currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
@@ -148,12 +150,14 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			String sServer = settings.getString(wifiSSID + "hostname", "");
 			int iPort = Integer.getInteger(settings.getString(wifiSSID + "port", "6600"), 6600);
 			String sPassword = settings.getString(wifiSSID + "password", "");
-			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword);	
+			int iPortStreaming = Integer.getInteger(settings.getString(wifiSSID + "portStreaming", "8000"), 8000);
+			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);	
 		} else if (!settings.getString("hostname", "").equals("")) {
 				String sServer = settings.getString("hostname", "");
 				int iPort = Integer.getInteger(settings.getString("port", "6600"), 6600);
 				String sPassword = settings.getString("password", "");
-				oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword);
+				int iPortStreaming = Integer.getInteger(settings.getString("portStreaming", "8000"), 8000);
+				oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
 		} else {
 			return;
 		}

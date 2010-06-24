@@ -9,8 +9,8 @@
 		<PreferenceScreen android:title="@string/defaultSettings" android:summary="@string/defaultSettingsDescription" android:key="defaultScreen">
 	
 			<intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="org.pmix.ui"
-                    android:targetClass="org.pmix.ui.ConnectionSettings" />
+                    android:targetPackage="com.arkanta.mpdroid"
+                    android:targetClass="com.arkanta.mpdroid.ConnectionSettings" />
         </PreferenceScreen>
         <!-- 
 		<EditTextPreference  
