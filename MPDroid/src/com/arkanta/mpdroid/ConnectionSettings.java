@@ -95,6 +95,7 @@ public class ConnectionSettings extends PreferenceActivity {
 		toCategory.addPreference(prefPassword);
 		onContentChanged();
 		
+		//Meh.
 		EditTextPreference prefStreamingPort = new EditTextPreference(this);
 		prefStreamingPort.setDialogTitle(R.string.portStreaming);
 		prefStreamingPort.setTitle(R.string.portStreaming);
