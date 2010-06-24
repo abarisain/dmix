@@ -34,6 +34,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.widget.RemoteViews;
@@ -56,7 +57,7 @@ public class StreamingService extends Service
 	private String streamSource;
 	private Boolean buffering;
 	private String oldStatus;
-	//private Boolean streaming_enabled; //So we know if we've been called
+	//private Boolean streaming_enabled; //So we know if we've been called.
     public class LocalBinder extends Binder {
     	StreamingService getService() {
             return StreamingService.this;
@@ -79,7 +80,8 @@ public class StreamingService extends Service
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addConnectionListener(this);
 		streamSource = "http://"+app.oMPDAsyncHelper.getConnectionInfoServer()+":"
-							+app.oMPDAsyncHelper.getConnectionInfoPortStreaming();
+							+app.oMPDAsyncHelper.getConnectionInfoPortStreaming()+"/";
+		Toast.makeText(this, "Source : "+streamSource+"|", Toast.LENGTH_SHORT).show();
         //showNotification();
         /*if (!mIsSupposedToBePlaying) {
             mIsSupposedToBePlaying = true;
@@ -179,9 +181,9 @@ public class StreamingService extends Service
 			return;
 		try {
 			mediaPlayer.reset();
-			mediaPlayer.setDataSource(streamSource);
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-			mediaPlayer.prepareAsync();
+			mediaPlayer.setDataSource(streamSource);
+			mediaPlayer.prepare();
 			showNotification();
 		} catch (IOException e) {
 			// Error ? Notify the user ! (Another day)
@@ -301,13 +303,13 @@ public class StreamingService extends Service
 	}
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
-		Toast.makeText(this, "onError", Toast.LENGTH_SHORT).show();
-		mediaPlayer.reset();
+		//Toast.makeText(this, "onError", Toast.LENGTH_SHORT).show();
+		//mediaPlayer.reset();
 		return false;
 	}
 	@Override
 	public boolean onInfo(MediaPlayer mp, int what, int extra) {
-		Toast.makeText(this, "onInfo :", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "onInfo :", Toast.LENGTH_SHORT).show();
 		return false;
 	}
 

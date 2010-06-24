@@ -7,8 +7,8 @@
 						  android:key="connectionScreen">
 						  
 			<intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="com.arkanta.mpdroid.ui"
-                    android:targetClass="com.arkanta.mpdroid.ui.WifiConnectionSettings" />
+                    android:targetPackage="com.arkanta.mpdroid"
+                    android:targetClass="com.arkanta.mpdroid.WifiConnectionSettings" />
 		
 		</PreferenceScreen>
 		<!-- Outputs -->
@@ -66,8 +66,8 @@
 						  android:key="aboutScreen">
 						  
 			<intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="com.arkanta.mpdroid.ui"
-                    android:targetClass="com.arkanta.mpdroid.ui.AboutActivity" />
+                    android:targetPackage="com.arkanta.mpdroid"
+                    android:targetClass="com.arkanta.mpdroid.AboutActivity" />
 		
 		</PreferenceScreen>
 	</PreferenceCategory>
