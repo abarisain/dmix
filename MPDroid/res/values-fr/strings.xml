@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">MPDroid</string>
+	<string name="artists">Artistes</string>
+	<string name="playlists">Playlists</string>
+	<string name="files">Fichiers</string>
+	<string name="albums">Albums</string>
+	<string name="settings">Paramètres</string>
+	<string name="volume">Volume</string>
+	<string name="track">Piste</string>
+	<string name="ok">OK</string>
+	<string name="quit">Quitter</string>
+	<string name="retry">Réessayer</string>
+	<string name="loading">Chargement ...</string>
+	<string name="loadingAlbums">Chargement des Albums ...</string>
+	<string name="loadingArtists">Chargement des Artistes ...</string>
+	<string name="serverAddress">Addresse du serveur :</string>
+	<string name="playlist">Playlist</string>
+	<string name="addAlbum">Ajouter un Album</string>
+	<string name="addArtist">Ajouter un Artiste</string>
+	<string name="removeSong">Enlever la chanson</string>
+	<string name="clear">Clear</string>
+	<string name="addDirectory">Ajouter Dossier</string>
+	<string name="mainMenu">Menu Principal</string>
+	<string name="playlistCleared">Playlist vidée</string>
+	<string name="deletedSongFromPlaylist">Chanson enlevée de la playlist</string>
+	<string name="albumAdded">Album %s ajouté</string>
+	<string name="addedDirectoryToPlaylist">Dossier ajouté à la playlist</string>
+	<string name="artistAdded">Artiste ajouté</string>
+	<string name="host">Hôte</string>
+	<string name="hostDescription">IP ou nom du serveur MPD</string>
+	<string name="port">Port</string>
+	<string name="portDescription">Port du serveur MPD (Defaut: 6600)</string>
+	<string name="password">Mot de passe</string>
+	<string name="passwordDescription">Mot de passe du Server</string>
+	<string name="random">Random</string>
+	<string name="randomDescription">Activer/Désactiver random</string>
+	<string name="repeat">Répeter</string>
+	<string name="repeatDescription">Activer/Désactiver répetition</string>
+	<string name="albumartist">Album Artiste</string>
+	<string name="albumartistDescription">Utiliser le tag Album Artiste dans la vue Artistes</string>
+	<string name="version">Version</string>
+	<string name="songs">Chansons</string>
+	<string name="serverInformation">Information serveur</string>
+	<string name="serverInformationDescription">Information du serveur MPD comme la version, le nombre de chansons ...</string>
+	<string name="connectionSettings">Paramètres de connexion</string>
+	<string name="connectionSettingsDescription">Définir l\'addresse/port et mot de passe du serveur MPD</string>
+	<string name="outputs">Sorties</string>
+	<string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
+	<string name="mpdroidSettings">Paramètres MPDroid</string>
+	<string name="songAdded">Chanson %s ajoutée</string>
+	<string name="about">A Propos</string>
+	<string name="aboutDescription">A Propos de MPDroid</string>
+	<string name="waitForWLAN">Attente du WIFI ...</string>
+	<string name="connectionFailed">Echec de la connexion</string>
+	<string name="connectionFailedMessage">Echec de la connexion au serveur MPD ! Verifiez que le serveur est atteignable (%s)</string>
+	<string name="connecting">Connexion ...</string>
+	<string name="connectingToServer">Connexion au serveur MPD.</string>
+	<string name="connected">Connecté</string>
+	<string name="notInRange">Pas à portée, enregistré</string>
+	
+	<string name="preferredConnection">Connexion preferée</string>
+	<string name="chooseWLAN">Choisissez un réseau wifi</string>
+	<string name="wlanBasedSettings">Connexion par WIFI</string>
+	<string name="defaultSettings">Paramètres de connexion par défaut</string>
+	<string name="wlanBasedSettingsDescription">Définir l\'addresseport du serveur MPD (WIFI)</string>
+	<string name="defaultSettingsDescription">Définir l\'addresseport et mot de passe du serveur MPD par défaut</string>
+	
+	
+	
+<string name="stream">Streaming</string>
+<string name="buffering">Mise en cache ...</string>
+</resources>
