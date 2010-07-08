@@ -249,6 +249,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		WifiInfo info = mWifiManager.getConnectionInfo();
         return info.getSSID();
 	}
+	
 
 	public void setWifiConnected(boolean bWifiConnected) {
 		this.bWifiConnected = bWifiConnected;

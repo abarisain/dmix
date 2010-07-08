@@ -32,6 +32,12 @@
         <activity android:name=".SongsActivity" android:label="@string/artists"/>
         <activity android:name=".AboutActivity" android:label="@string/about"/>
         <service android:enabled="true" android:name="StreamingService" />
+        <receiver android:name="com.arkanta.mpdroid.RemoteControlReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+            </intent-filter>
+        </receiver>
     </application>
-	<uses-sdk android:minSdkVersion="6" android:targetSdkVersion="6"/>
+	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="8"/>
 </manifest> 
