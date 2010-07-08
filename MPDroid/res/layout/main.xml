@@ -46,15 +46,16 @@
 		android:gravity="center"
 		android:layout_height="wrap_content">
 
-		<ImageButton android:id="@+id/prev" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@android:drawable/ic_media_previous"/><ImageButton android:id="@+id/back" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@android:drawable/ic_media_rew" android:visibility="gone"/>
-		
-		<ImageButton android:id="@+id/playpause" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@android:drawable/ic_media_play"/>
-		<ImageButton android:id="@+id/forward" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@android:drawable/ic_media_ff" android:visibility="gone"/>
-		<ImageButton android:id="@+id/next" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@android:drawable/ic_media_next"/>
+		<ImageButton android:id="@+id/prev" android:layout_width="60dp"
+			android:layout_height="60dp" android:src="@android:drawable/ic_media_previous"  android:background="@drawable/transparent"/>
+		<ImageButton android:id="@+id/back" android:layout_width="60dp"
+			android:layout_height="60dp" android:src="@android:drawable/ic_media_rew" android:visibility="gone"/>
+		<ImageButton android:id="@+id/playpause" android:layout_width="60dp"
+			android:layout_height="60dp" android:src="@android:drawable/ic_media_play" android:background="@drawable/transparent"/>
+		<ImageButton android:id="@+id/forward" android:layout_width="60dp"
+			android:layout_height="60dp" android:src="@android:drawable/ic_media_ff" android:visibility="gone"/>
+		<ImageButton android:id="@+id/next" android:layout_width="60dp"
+			android:layout_height="60dp" android:src="@android:drawable/ic_media_next" android:background="@drawable/transparent"/>
 
 	</LinearLayout>
 	
