@@ -3,7 +3,10 @@ package com.arkanta.mpdroid;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -26,6 +29,10 @@ import com.arkanta.mpdroid.R.string;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -37,6 +44,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -51,30 +59,72 @@ public class StreamingService extends Service
 		OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener {
 	
 	public static final int STREAMINGSERVICE_STATUS = 1;	
+	public static final String CMD_REMOTE="com.arkanta.mpdroid.REMOTE_COMMAND";
+	public static final String CMD_COMMAND="COMMAND";
+	public static final String CMD_PAUSE="PAUSE";
+	public static final String CMD_STOP="STOP";
+	public static final String CMD_PLAY="PLAY";
+	public static final String CMD_PLAYPAUSE="PLAYPAUSE";
+	public static final String CMD_PREV="PREV";
+	public static final String CMD_NEXT="NEXT";
+	public static final String CMD_DIE="DIE"; //Just in case
 	
 	private MediaPlayer mediaPlayer;
+	private AudioManager mAudioManager;
 	private Timer timer = new Timer();
 	private String streamSource;
 	private Boolean buffering;
 	private String oldStatus;
+	private Boolean isPlaying;
+	private Boolean isPaused; //The distinction needs to be made so the service doesn't start whenever it want
+	private Integer lastStartID;
 	//private Boolean streaming_enabled; //So we know if we've been called.
     public class LocalBinder extends Binder {
     	StreamingService getService() {
             return StreamingService.this;
         }
     }
+    private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            String cmd = intent.getStringExtra(CMD_COMMAND);
+            if (cmd.equals(CMD_NEXT)) {
+                next();
+            } else if (cmd.equals(CMD_PREV)) {
+                prev();
+            } else if (cmd.equals(CMD_PLAYPAUSE)) {
+                if (isPaused == false) {
+                    pauseStreaming();
+                } else {
+                    resumeStreaming();
+                }
+            } else if (cmd.equals(CMD_PAUSE)) {
+            	pauseStreaming();
+            } else if (cmd.equals(CMD_STOP)) {
+            	stop();
+            }
+        }
+    };
 
 	public void onCreate() {
 		super.onCreate();
 		mediaPlayer = new MediaPlayer();
 		buffering = true;
 		oldStatus = "";
+		isPlaying = true;
+		isPaused = false;
+		lastStartID = 0;
 		//streaming_enabled = false;
 		mediaPlayer.setOnBufferingUpdateListener(this);
 		mediaPlayer.setOnCompletionListener(this);
 		mediaPlayer.setOnPreparedListener(this);
 		mediaPlayer.setOnErrorListener(this);
 		mediaPlayer.setOnInfoListener(this);
+		
+	    mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+	    mAudioManager.registerMediaButtonEventReceiver(new ComponentName(getPackageName(),
+	    		RemoteControlReceiver.class.getName()));
 		
 		MPDApplication app = (MPDApplication)getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
@@ -90,6 +140,8 @@ public class StreamingService extends Service
 	
     @Override
     public void onDestroy() {
+    	mAudioManager.registerMediaButtonEventReceiver(new ComponentName(this.getPackageName(),
+         		RemoteControlReceiver.class.getName()));
     	mediaPlayer.stop();
     	mediaPlayer.release();
     	mediaPlayer = null;
@@ -103,6 +155,7 @@ public class StreamingService extends Service
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		lastStartID = startId;
 		if (intent.getAction().equals("com.arkanta.mpdroid.START_STREAMING")) {
 			//streaming_enabled = true;
 			resumeStreaming();
@@ -111,6 +164,23 @@ public class StreamingService extends Service
 		} else if (intent.getAction().equals("com.arkanta.mpdroid.RESET_STREAMING")) {
 			stopStreaming();
 			resumeStreaming();
+		} else if (intent.getAction().equals(CMD_REMOTE)) {
+			String cmd = intent.getStringExtra(CMD_COMMAND);
+	        if (cmd.equals(CMD_NEXT)) {
+	            next();
+	        } else if (cmd.equals(CMD_PREV)) {
+	            prev();
+	        } else if (cmd.equals(CMD_PLAYPAUSE)) {
+	            if (isPaused == false) {
+	            	pauseStreaming();
+	            } else {
+	            	resumeStreaming();
+	            }
+	        } else if (cmd.equals(CMD_PAUSE)) {
+	        	pauseStreaming();
+	        } else if (cmd.equals(CMD_STOP)) {
+	        	stop();
+	        }
 		}
 		//Toast.makeText(this, "onStartCommand  : "+(intent.getAction() == "com.arkanta.mpdroid.START_STREAMING"), Toast.LENGTH_SHORT).show();
 	    // We want this service to continue running until it is explicitly
@@ -174,8 +244,41 @@ public class StreamingService extends Service
 
 	}
 	
+	public void pauseStreaming() {
+		if(isPlaying == false)
+			return;
+		isPlaying = false;
+		isPaused = true;
+		buffering = false;
+		MPDApplication app = (MPDApplication)getApplication();
+		MPD mpd = app.oMPDAsyncHelper.oMPD;
+		try {
+			String state = mpd.getStatus().getState();
+			if(state.equals(MPDStatus.MPD_STATE_PLAYING))
+				mpd.pause();
+		} catch (MPDServerException e) {
+			Logger.global.log(Level.WARNING, e.getMessage());
+		}
+		mediaPlayer.stop();
+	}
+
 	public void resumeStreaming() {
 		buffering = true;
+		MPDApplication app = (MPDApplication)getApplication();
+		MPD mpd = app.oMPDAsyncHelper.oMPD;
+        mAudioManager.registerMediaButtonEventReceiver(new ComponentName(this.getPackageName(),
+        		RemoteControlReceiver.class.getName()));
+		if (isPaused == true) {
+			try {
+				String state = mpd.getStatus().getState();
+				if(state.equals(MPDStatus.MPD_STATE_PAUSED)) {
+					mpd.pause();
+				}
+				isPaused = false;
+			} catch (MPDServerException e) {
+				Logger.global.log(Level.WARNING, e.getMessage());
+			}
+		}
 		if (mediaPlayer == null)
 			return;
 		try {
@@ -187,9 +290,11 @@ public class StreamingService extends Service
 		} catch (IOException e) {
 			// Error ? Notify the user ! (Another day)
 			buffering = false; //Obviously if it failed we are not buffering.
+			isPlaying = false;
 		} catch (IllegalStateException e) {
 			//wtf what state ?
 			Toast.makeText(this, "Error IllegalStateException isPlaying : "+mediaPlayer.isPlaying(), Toast.LENGTH_SHORT).show();
+			isPlaying = false;
 		}
 	}
 	
@@ -201,6 +306,47 @@ public class StreamingService extends Service
 		stopForeground(true);
 	}
 	
+	public void prev() {
+		MPDApplication app = (MPDApplication)getApplication();
+		MPD mpd = app.oMPDAsyncHelper.oMPD;
+		try {
+			mpd.previous();		
+		} catch (MPDServerException e) {
+			Logger.global.log(Level.WARNING, e.getMessage());
+		}
+		stopStreaming();
+		resumeStreaming();
+	}
+	
+	public void next() {
+		MPDApplication app = (MPDApplication)getApplication();
+		MPD mpd = app.oMPDAsyncHelper.oMPD;
+		try {
+			mpd.next();
+		} catch (MPDServerException e) {
+			Logger.global.log(Level.WARNING, e.getMessage());
+		}
+		stopStreaming();
+		resumeStreaming();
+	}
+	
+	public void stop() {
+		MPDApplication app = (MPDApplication)getApplication();
+		MPD mpd = app.oMPDAsyncHelper.oMPD;
+		try {
+			mpd.stop();
+		} catch (MPDServerException e) {
+			Logger.global.log(Level.WARNING, e.getMessage());
+		}
+		stopStreaming();
+		die();
+	}
+	
+	public void die() {
+		((MPDApplication) getApplication()).setStreamingMode(false);
+		Toast.makeText(this, "Streaming OFF", Toast.LENGTH_SHORT).show();
+		stopSelfResult(lastStartID);
+	}
 	@Override
 	public void trackChanged(MPDTrackChangedEvent event) {
 		oldStatus = "";
@@ -244,9 +390,12 @@ public class StreamingService extends Service
 				if(state == oldStatus)
 					return;
 				if(state == MPDStatus.MPD_STATE_PLAYING) {
-					resumeStreaming();	
+					isPaused = false;
+					resumeStreaming();
+					isPlaying = true;
 				} else {
 					oldStatus = state;
+					isPlaying = false;
 					stopStreaming();
 				}
 			}
