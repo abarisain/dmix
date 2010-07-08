@@ -36,6 +36,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -419,7 +420,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		try {
 			switch (keyCode) {
 			case KeyEvent.KEYCODE_VOLUME_UP:
-				if(((MPDApplication) getApplication()).isStreamingMode()) {
+				if(((MPDApplication) getApplication()).isStreamingMode()) { 
 					return super.onKeyDown(keyCode, event);
 				} else {
 					progressBarVolume.incrementProgressBy(VOLUME_STEP);
@@ -459,7 +460,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		menu.add(0,ALBUMS, 1, R.string.albums).setIcon(R.drawable.ic_menu_pmix_albums);
 		menu.add(0,FILES, 2, R.string.files).setIcon(android.R.drawable.ic_menu_agenda);
 		menu.add(0,PLAYLIST, 3, R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
-		menu.add(0,STREAM, 4, R.string.stream).setIcon(android.R.drawable.ic_menu_slideshow);
+		menu.add(0,STREAM, 4, R.string.stream).setIcon(android.R.drawable.ic_menu_upload_you_tube);
 		menu.add(0,SETTINGS, 5, R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
 		
 		return result;
@@ -673,9 +674,17 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	public void onCoverDownloaded(Bitmap cover) {
 		coverSwitcherProgress.setVisibility(ProgressBar.INVISIBLE);
-		coverSwitcher.setImageDrawable(new BitmapDrawable(cover));
-		coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
-		
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		if(cover != null) {
+			cover.setDensity((int)metrics.density);
+			BitmapDrawable myCover = new BitmapDrawable(cover);
+			coverSwitcher.setImageDrawable(myCover);
+			coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
+		} else {
+			// Should not be happening, but happened.
+			onCoverNotFound();
+		}
 	}
 
 	public void onCoverNotFound() {

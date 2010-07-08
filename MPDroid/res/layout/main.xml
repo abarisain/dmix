@@ -8,37 +8,36 @@
 		android:textSize="25sp"
 		android:singleLine="true" 
 		android:gravity="center"
-		android:shadowColor = "#FFFFFF00"
-		android:shadowRadius="1.2" />	
+		android:shadowColor = "#FF000000"
+		android:shadowRadius="3.0" />	
 		
 		<TextView android:id="@+id/albumName" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:singleLine="true" android:text="" android:textSize="20sp" android:gravity="center" 		android:shadowColor = "#FFFFFF00"
-		android:shadowRadius="1.2" />
+		android:layout_height="wrap_content" android:singleLine="true" android:text="" android:textSize="20sp" android:gravity="center" 		android:shadowColor = "#FF000000"
+		android:shadowRadius="3.0" />
 		<!--  Don't Warp it, we need a better Layout management (resize the cover...) android:layout_height="wrap_content" -->	
 		
 		<TextView android:id="@+id/songName" android:layout_width="fill_parent" 
-		android:layout_height="wrap_content" android:singleLine="true"  android:text="" android:gravity="center"		android:shadowColor = "#FFFFFF00"
-		android:shadowRadius="1.2"/>	
+		android:layout_height="wrap_content" android:singleLine="true"  android:text="" android:gravity="center"		android:shadowColor = "#FF000000"
+		android:shadowRadius="3.0"/>	
 		<!--  Don't Warp it, we need a better Layout management (resize the cover...) android:layout_height="wrap_content" -->
 
-	<TextView android:id="@+id/trackTime" android:layout_height="wrap_content" android:textSize="12sp" android:layout_width="fill_parent" android:gravity="center" 		android:shadowColor = "#FFFFFF00"
-		android:shadowRadius="1.2"/><AbsoluteLayout android:id="@+id/absolutLayout"
-			android:layout_width="150px"
-			android:layout_height="150px"
-			android:layout_margin="10px"
+	<TextView android:id="@+id/trackTime" android:layout_height="wrap_content" android:textSize="12sp" android:layout_width="fill_parent" android:gravity="center" 		android:shadowColor = "#FF000000"
+		android:shadowRadius="3.0"/>
+		<AbsoluteLayout android:id="@+id/absolutLayout"
+			android:layout_width="150dp"
+			android:layout_height="150dp"
+			android:layout_margin="10dp"
 			android:padding="0px">
 		<ImageSwitcher android:id="@+id/albumCover"
-				android:layout_width="150px"
-				android:layout_height="150px"
+				android:layout_width="150dp"
+				android:layout_height="150dp"
 				android:layout_x="0px"
-				android:layout_y="0px"
-				android:shadowColor = "#FFFFFF00"
-				android:shadowRadius="1.2"></ImageSwitcher>
+				android:layout_y="0px"></ImageSwitcher>
 		<ProgressBar android:id="@+id/albumCoverProgress"
-				android:layout_width="120px"
-				android:layout_height="120px"
-				android:layout_x="15px"
-				android:layout_y="15px"
+				android:layout_width="120dp"
+				android:layout_height="120dp"
+				android:layout_x="15dp"
+				android:layout_y="15dp"
 				android:visible="false"
 				android:layout_alignParentTop="@+id/albumCover" />	
  	</AbsoluteLayout>
