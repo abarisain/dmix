@@ -1,6 +1,8 @@
 package com.arkanta.mpdroid;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -70,7 +72,8 @@ public class StreamingService extends Service
 	public static final String CMD_DIE="DIE"; //Just in case
 	
 	private MediaPlayer mediaPlayer;
-	private AudioManager mAudioManager;
+	private AudioManager audioManager;
+	private ComponentName remoteControlResponder;
 	private Timer timer = new Timer();
 	private String streamSource;
 	private Boolean buffering;
@@ -78,12 +81,62 @@ public class StreamingService extends Service
 	private Boolean isPlaying;
 	private Boolean isPaused; //The distinction needs to be made so the service doesn't start whenever it want
 	private Integer lastStartID;
-	//private Boolean streaming_enabled; //So we know if we've been called.
-    public class LocalBinder extends Binder {
-    	StreamingService getService() {
-            return StreamingService.this;
-        }
-    }
+	
+	private static Method registerMediaButtonEventReceiver; //Thanks you google again for this code
+	private static Method unregisterMediaButtonEventReceiver;
+
+	private static void initializeRemoteControlRegistrationMethods() {
+	   try {
+	      if (registerMediaButtonEventReceiver == null) {
+	    	  registerMediaButtonEventReceiver = AudioManager.class.getMethod(
+	               "registerMediaButtonEventReceiver",
+	               new Class[] { ComponentName.class } );
+	      }
+	      if (unregisterMediaButtonEventReceiver == null) {
+	    	  unregisterMediaButtonEventReceiver = AudioManager.class.getMethod(
+	               "unregisterMediaButtonEventReceiver",
+	               new Class[] { ComponentName.class } );
+	      }
+	   } catch (NoSuchMethodException nsme) {
+	      /* Aww we're not 2.2 */
+	   }
+	}
+	private void registerMediaButtonEvent() {
+		if (registerMediaButtonEventReceiver == null) {
+			return;
+		}
+		try {
+			registerMediaButtonEventReceiver.invoke(audioManager,
+					remoteControlResponder);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	private void unregisterMediaButtonEvent() {
+		if (unregisterMediaButtonEventReceiver == null) {
+			return;
+		}
+		try {
+			unregisterMediaButtonEventReceiver.invoke(audioManager,
+					remoteControlResponder);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -110,6 +163,7 @@ public class StreamingService extends Service
 	public void onCreate() {
 		super.onCreate();
 		mediaPlayer = new MediaPlayer();
+		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		buffering = true;
 		oldStatus = "";
 		isPlaying = true;
@@ -122,9 +176,12 @@ public class StreamingService extends Service
 		mediaPlayer.setOnErrorListener(this);
 		mediaPlayer.setOnInfoListener(this);
 		
-	    mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-	    mAudioManager.registerMediaButtonEventReceiver(new ComponentName(getPackageName(),
-	    		RemoteControlReceiver.class.getName()));
+		remoteControlResponder = new ComponentName(getPackageName(),
+                RemoteControlReceiver.class.getName());
+
+		initializeRemoteControlRegistrationMethods();
+		
+		registerMediaButtonEvent();
 		
 		MPDApplication app = (MPDApplication)getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
@@ -140,8 +197,7 @@ public class StreamingService extends Service
 	
     @Override
     public void onDestroy() {
-    	mAudioManager.registerMediaButtonEventReceiver(new ComponentName(this.getPackageName(),
-         		RemoteControlReceiver.class.getName()));
+    	unregisterMediaButtonEvent();
     	mediaPlayer.stop();
     	mediaPlayer.release();
     	mediaPlayer = null;
@@ -165,6 +221,9 @@ public class StreamingService extends Service
 			stopStreaming();
 			resumeStreaming();
 		} else if (intent.getAction().equals(CMD_REMOTE)) {
+			if(((MPDApplication) getApplication()).isStreamingMode() == false) {
+				return 0;
+			}
 			String cmd = intent.getStringExtra(CMD_COMMAND);
 	        if (cmd.equals(CMD_NEXT)) {
 	            next();
@@ -266,8 +325,7 @@ public class StreamingService extends Service
 		buffering = true;
 		MPDApplication app = (MPDApplication)getApplication();
 		MPD mpd = app.oMPDAsyncHelper.oMPD;
-        mAudioManager.registerMediaButtonEventReceiver(new ComponentName(this.getPackageName(),
-        		RemoteControlReceiver.class.getName()));
+		registerMediaButtonEvent();
 		if (isPaused == true) {
 			try {
 				String state = mpd.getStatus().getState();
@@ -439,7 +497,7 @@ public class StreamingService extends Service
 				} else {
 					oldStatus = state;
 					// Something's happening, like crappy network or MPD just stopped..
-					stopForeground(true); // Nothing is playing -> no notification. Also system can now kill us.
+					die();
 				}
 			}
 		}
