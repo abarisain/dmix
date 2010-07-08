@@ -462,7 +462,6 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		menu.add(0,PLAYLIST, 3, R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
 		menu.add(0,STREAM, 4, R.string.stream).setIcon(android.R.drawable.ic_menu_upload_you_tube);
 		menu.add(0,SETTINGS, 5, R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
-		
 		return result;
 	}
 

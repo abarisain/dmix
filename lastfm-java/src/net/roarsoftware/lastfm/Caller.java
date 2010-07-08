@@ -275,7 +275,8 @@ public class Caller {
 		URL u = new URL(url);
 		HttpURLConnection urlConnection;
 		if (proxy != null)
-			urlConnection = (HttpURLConnection) u.openConnection(proxy);
+			//urlConnection = (HttpURLConnection) u.openConnection(proxy);
+			urlConnection = (HttpURLConnection) u.openConnection(); //Fuck the proxy, eclipse doesn't want it anymore.
 		else
 			urlConnection = (HttpURLConnection) u.openConnection();
 		urlConnection.setRequestProperty("User-Agent", userAgent);
