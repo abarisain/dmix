@@ -36,6 +36,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -499,13 +501,13 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				i.setAction("com.arkanta.mpdroid.KILL");
 				stopService(i);
 				((MPDApplication) getApplication()).setStreamingMode(false);
-				Toast.makeText(this, "Streaming OFF", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
 			} else {
 				i = new Intent(this, StreamingService.class);
 				i.setAction("com.arkanta.mpdroid.START_STREAMING");
 				startService(i);
 				((MPDApplication) getApplication()).setStreamingMode(true);
-				Toast.makeText(this, "Streaming ON", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
 			}
 
 			return true;

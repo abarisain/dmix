@@ -45,7 +45,11 @@ import android.media.MediaPlayer.OnInfoListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -70,6 +74,7 @@ public class StreamingService extends Service
 	public static final String CMD_PREV="PREV";
 	public static final String CMD_NEXT="NEXT";
 	public static final String CMD_DIE="DIE"; //Just in case
+	public static Boolean isServiceRunning = false; 
 	
 	private MediaPlayer mediaPlayer;
 	private AudioManager audioManager;
@@ -137,6 +142,39 @@ public class StreamingService extends Service
 			e.printStackTrace();
 		}
 	}
+	
+	public static Boolean getStreamingServiceStatus() {
+		return isServiceRunning;
+	}
+	// And thanks to google ... again
+    private PhoneStateListener phoneStateListener = new PhoneStateListener() {
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            if (state == TelephonyManager.CALL_STATE_RINGING) {
+                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                int ringvolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
+                if (ringvolume > 0 && isPlaying) {                	
+                    isPaused=true;
+                    pauseStreaming();
+                }
+            } else if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                // pause the music while a conversation is in progress
+            	if(isPlaying == false)
+            		return;
+            	isPaused = (isPaused || isPlaying) && (((MPDApplication) getApplication()).isStreamingMode());
+                pauseStreaming();
+            } else if (state == TelephonyManager.CALL_STATE_IDLE) {
+                // start playing again
+                if (isPaused) {
+                    // resume playback only if music was playing
+                    // when the call was answered
+                    resumeStreaming();
+                }
+            }
+        }
+    };
+
+	
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -162,6 +200,7 @@ public class StreamingService extends Service
 
 	public void onCreate() {
 		super.onCreate();
+		isServiceRunning = true;
 		mediaPlayer = new MediaPlayer();
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		buffering = true;
@@ -183,6 +222,9 @@ public class StreamingService extends Service
 		
 		registerMediaButtonEvent();
 		
+        TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        tmgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
 		MPDApplication app = (MPDApplication)getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addConnectionListener(this);
@@ -197,6 +239,7 @@ public class StreamingService extends Service
 	
     @Override
     public void onDestroy() {
+    	isServiceRunning = false;
     	unregisterMediaButtonEvent();
     	mediaPlayer.stop();
     	mediaPlayer.release();
@@ -212,6 +255,10 @@ public class StreamingService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		lastStartID = startId;
+		if(((MPDApplication) getApplication()).isStreamingMode() == false) {
+			stopSelfResult(lastStartID);
+			return 0;
+		}
 		if (intent.getAction().equals("com.arkanta.mpdroid.START_STREAMING")) {
 			//streaming_enabled = true;
 			resumeStreaming();
@@ -221,9 +268,6 @@ public class StreamingService extends Service
 			stopStreaming();
 			resumeStreaming();
 		} else if (intent.getAction().equals(CMD_REMOTE)) {
-			if(((MPDApplication) getApplication()).isStreamingMode() == false) {
-				return 0;
-			}
 			String cmd = intent.getStringExtra(CMD_COMMAND);
 	        if (cmd.equals(CMD_NEXT)) {
 	            next();
@@ -309,6 +353,7 @@ public class StreamingService extends Service
 		isPlaying = false;
 		isPaused = true;
 		buffering = false;
+		mediaPlayer.stop(); // So it stops faster
 		MPDApplication app = (MPDApplication)getApplication();
 		MPD mpd = app.oMPDAsyncHelper.oMPD;
 		try {
@@ -316,12 +361,14 @@ public class StreamingService extends Service
 			if(state.equals(MPDStatus.MPD_STATE_PLAYING))
 				mpd.pause();
 		} catch (MPDServerException e) {
-			Logger.global.log(Level.WARNING, e.getMessage());
+			
 		}
-		mediaPlayer.stop();
 	}
 
 	public void resumeStreaming() {
+		//just to be sure, we do not want to start when we're not supposed to
+		if(((MPDApplication) getApplication()).isStreamingMode() == false)
+			return;
 		buffering = true;
 		MPDApplication app = (MPDApplication)getApplication();
 		MPD mpd = app.oMPDAsyncHelper.oMPD;
@@ -334,7 +381,7 @@ public class StreamingService extends Service
 				}
 				isPaused = false;
 			} catch (MPDServerException e) {
-				Logger.global.log(Level.WARNING, e.getMessage());
+				
 			}
 		}
 		if (mediaPlayer == null)
@@ -370,7 +417,7 @@ public class StreamingService extends Service
 		try {
 			mpd.previous();		
 		} catch (MPDServerException e) {
-			Logger.global.log(Level.WARNING, e.getMessage());
+			
 		}
 		stopStreaming();
 		resumeStreaming();
@@ -382,7 +429,7 @@ public class StreamingService extends Service
 		try {
 			mpd.next();
 		} catch (MPDServerException e) {
-			Logger.global.log(Level.WARNING, e.getMessage());
+			
 		}
 		stopStreaming();
 		resumeStreaming();
@@ -394,7 +441,7 @@ public class StreamingService extends Service
 		try {
 			mpd.stop();
 		} catch (MPDServerException e) {
-			Logger.global.log(Level.WARNING, e.getMessage());
+			
 		}
 		stopStreaming();
 		die();
@@ -402,7 +449,7 @@ public class StreamingService extends Service
 	
 	public void die() {
 		((MPDApplication) getApplication()).setStreamingMode(false);
-		Toast.makeText(this, "Streaming OFF", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "MPD Streaming Stopped (itself)", Toast.LENGTH_SHORT).show();
 		stopSelfResult(lastStartID);
 	}
 	@Override
@@ -473,6 +520,7 @@ public class StreamingService extends Service
 	public void onPrepared(MediaPlayer mp) {
 		// Buffering done
 		buffering = false;
+		isPlaying = true;
 		oldStatus = "";
 		showNotification();
 		mediaPlayer.start();
@@ -505,7 +553,7 @@ public class StreamingService extends Service
 	@Override
 	public void onBufferingUpdate(MediaPlayer mp, int percent) {
 		// TODO Auto-generated method stub
-		Toast.makeText(this, "Buf update", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "Buf update", Toast.LENGTH_SHORT).show();
 	}
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
