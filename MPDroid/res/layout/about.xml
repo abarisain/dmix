@@ -5,7 +5,9 @@
 
 	<TextView android:layout_width="fill_parent"
 	android:layout_height="wrap_content" android:gravity="center" android:textSize="25sp" android:padding="10px"
-	android:text="PMix is brought to you by the PMix developers. Visit us at http://code.google.com/p/pmix/!"/><TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:gravity="center" android:id="@+id/dreamText" android:text="(Sort of) Streaming support by Dream_Team" android:padding="10px"/>	
+	android:text="@string/aboutText1"/>
+	<TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:gravity="center"
+	android:text="@string/aboutText2" android:padding="10px"/>	
 	
 	
 	<TextView android:layout_width="fill_parent" android:id="@+id/versionText"  android:padding="10px"
@@ -13,7 +15,7 @@
 	
 	<TextView android:layout_width="fill_parent" android:padding="10px"
 	android:layout_height="wrap_content" android:singleLine="true"  android:gravity="center" 
-	android:text="Thanks to last.fm for providing album arts"/>	
+	android:text="@string/aboutLastFM"/>	
 		
 	<ImageView android:id="@+id/ImageView01" android:layout_width="wrap_content" 
 				android:layout_height="wrap_content" android:src="@drawable/lastfm_red" 

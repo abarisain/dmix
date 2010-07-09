@@ -65,11 +65,11 @@
 	<string name="defaultSettings">Paramètres de connexion par défaut</string>
 	<string name="wlanBasedSettingsDescription">Définir l\'addresse/port du serveur MPD (WIFI)</string>
 	<string name="defaultSettingsDescription">Définir l\'addresse/port et mot de passe du serveur MPD par défaut</string>
-	
-	
-	
-<string name="stream">Streaming</string>
-<string name="buffering">Mise en cache ...</string>
-<string name="portStreaming">Port streaming</string>
-<string name="portStreamingDescription">Port du streaming MPD (Defaut: 8000)</string>
+	<string name="stream">Streaming</string>
+	<string name="buffering">Mise en cache ...</string>
+	<string name="portStreaming">Port streaming</string>
+	<string name="portStreamingDescription">Port du streaming MPD (Defaut: 8000)</string>
+	<string name="aboutText1">MPDroid est un programme open-source de namelessDev. Visitez http://github.com/dreamteam69/dmix pour voir le code source !</string>
+	<string name="aboutText2">MPDroid est un fork de PMix (http://code.google.com/p/pmix/). Merci à eux !</string>
+	<string name="aboutLastFM">Merci à last.fm pour les pochettes d\'album</string>
 </resources>
