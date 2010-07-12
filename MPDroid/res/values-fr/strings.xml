@@ -72,4 +72,8 @@
 	<string name="aboutText1">MPDroid est un programme open-source de namelessDev. Visitez http://github.com/dreamteam69/dmix pour voir le code source !</string>
 	<string name="aboutText2">MPDroid est un fork de PMix (http://code.google.com/p/pmix/). Merci à eux !</string>
 	<string name="aboutLastFM">Merci à last.fm pour les pochettes d\'album</string>
+	<string name="search_label">Recherche</string>
+	<string name="search_hint">Rechercher dans la bibliothèque MPD ...</string>
+	<string name="search_hint_album">Recherche d\'album</string>
+	<string name="search_hint_artist">Recherche d\'artiste</string>
 </resources>

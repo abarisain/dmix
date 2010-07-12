@@ -19,17 +19,55 @@
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<receiver android:name=".MainMenuActivity$MyIntentReceiver" />
-
+            <!-- <meta-data android:name="android.app.default_searchable"
+                       android:value=".SearchActivity" />-->
 		</activity>
-		<activity android:name=".PlaylistActivity" android:label="@string/playlist" />
-		<activity android:name=".ArtistsActivity" android:label="@string/artists" />
+
+        <activity android:name=".SearchArtistActivity" android:label="@string/search_hint_artist">
+       		<intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                       android:resource="@xml/searchable_artist" />
+                       
+		</activity>
+        <activity android:name=".SearchAlbumActivity" android:label="@string/search_hint_album">
+       		<intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                       android:resource="@xml/searchable_album" />
+                       
+		</activity>
+        <!--<activity android:name=".SearchActivity" android:label="@string/search_label">
+       		<intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                       android:resource="@xml/searchable" />
+		</activity>-->
+		<activity android:name=".PlaylistActivity" android:label="@string/playlist">
+		</activity>
+		<activity android:name=".ArtistsActivity" android:label="@string/artists" >
+            <meta-data android:name="android.app.default_searchable"
+                       android:value=".SearchArtistActivity" />
+		</activity>
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		<activity android:name=".WifiConnectionSettings"
 			android:label="@string/settings" />
 		<activity android:name=".ConnectionSettings" android:label="@string/settings" />
 		<activity android:name=".FSActivity" android:label="@string/files" />
-		<activity android:name=".AlbumsActivity" android:label="@string/albums" />
-		<activity android:name=".SongsActivity" android:label="@string/artists" />
+		<activity android:name=".AlbumsActivity" android:label="@string/albums">
+            <meta-data android:name="android.app.default_searchable"
+                       android:value=".SearchAlbumActivity" />
+		</activity>
+		<activity android:name=".SongsActivity" android:label="@string/artists">
+            <!-- <meta-data android:name="android.app.default_searchable"
+                       android:value=".SearchActivity" /> -->
+		</activity>
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<service android:enabled="true" android:name="StreamingService" />
 		<receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">

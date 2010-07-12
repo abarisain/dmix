@@ -1,6 +1,7 @@
 package com.namelessdev.mpdroid;
 
 import java.util.List;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
