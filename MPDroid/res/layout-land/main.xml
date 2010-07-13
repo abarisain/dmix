@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout android:theme="@android:style/Theme.Translucent" android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:layout_width="fill_parent" android:background="#66000000">
+<!-- android:background="#66000000">-->
 
 <TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center" android:id="@+id/artistName" android:textSize="25sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
 <TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center" android:id="@+id/albumName" android:textSize="20sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>

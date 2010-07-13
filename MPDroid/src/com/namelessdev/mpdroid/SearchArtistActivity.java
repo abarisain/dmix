@@ -95,7 +95,7 @@ public class SearchArtistActivity extends ListActivity implements AsyncExecListe
 						MPDApplication app = (MPDApplication)getApplication();
 						ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ARTIST, sSelected.toString()));
 						app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-						//MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),sSelected), AlbumsActivity.this);
+						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.artistAdded),sSelected), SearchArtistActivity.this);
 					} catch (MPDServerException e) {
 						e.printStackTrace();
 					}

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.namelessdev.mpdroid" android:versionName="0.5"
-	android:versionCode="06">
+	package="com.namelessdev.mpdroid" android:versionCode="07" android:versionName="0.6">
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -25,7 +24,7 @@
 			-->
 		</activity>
 
-		<activity android:name=".SearchArtistActivity" android:label="@string/search_hint_artist">
+		<activity android:name=".SearchArtistActivity" android:label="@string/search">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -34,7 +33,7 @@
 				android:resource="@xml/searchable_artist" />
 
 		</activity>
-		<activity android:name=".SearchAlbumActivity" android:label="@string/search_hint_album">
+		<activity android:name=".SearchAlbumActivity" android:label="@string/search">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -43,13 +42,13 @@
 				android:resource="@xml/searchable_album" />
 
 		</activity>
-		<activity android:name=".SearchSongActivity" android:label="@string/search_label">
+		<activity android:name=".SearchSongActivity" android:label="@string/search">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<meta-data android:name="android.app.searchable"
-				android:resource="@xml/searchable_artist" />
+				android:resource="@xml/searchable_song" />
 		</activity>
 		<activity android:name=".PlaylistActivity" android:label="@string/playlist">
 		</activity>

@@ -47,7 +47,6 @@ public class SongsActivity extends BrowseActivity {
 					Music music = musics.get(iPosition);
 					try {
 						MPDApplication app = (MPDApplication)getApplication();
-
 						app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
 						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded),sSelected), SongsActivity.this);
 					} catch (MPDServerException e) {

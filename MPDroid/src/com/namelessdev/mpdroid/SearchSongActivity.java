@@ -23,7 +23,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class SearchSongActivity extends ListActivity implements AsyncExecListener {
-	private LinkedList<String> items;
+	private Collection<Music> items = null;
+	private ArrayList<Music> arrayItems = null;
 	private List<String> itemsList = null;
 	private int iJobID = -1;
 	private ProgressDialog pd;
@@ -43,10 +44,11 @@ public class SearchSongActivity extends ListActivity implements AsyncExecListene
 		}
 		setContentView(R.layout.artists);
 		setTitle(getTitle()+" : "+searchKeywords);
-		pd = ProgressDialog.show(SearchSongActivity.this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingArtists));		
+		pd = ProgressDialog.show(SearchSongActivity.this, getResources().getString(R.string.loading), getResources().getString(R.string.loading));		
 		//setTitle(getResources().getString(R.string.albums));
 		MPDApplication app = (MPDApplication)getApplication();
 		// Loading Albums asynchronous...
+		final String finalSearch = searchKeywords;
 		itemsList = new ArrayList<String>();
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
 		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
@@ -55,14 +57,11 @@ public class SearchSongActivity extends ListActivity implements AsyncExecListene
 			{
 				try {
 					MPDApplication app = (MPDApplication)getApplication();
-					items = app.oMPDAsyncHelper.oMPD.listAlbums();
-				} catch (MPDServerException e) {
-					
+					items = app.oMPDAsyncHelper.oMPD.search("any", finalSearch);
+				} catch (MPDServerException e) {	
 				}
 			}
 		});
-		
-		
 	}
 
     @Override
@@ -78,10 +77,12 @@ public class SearchSongActivity extends ListActivity implements AsyncExecListene
 		if(iJobID == jobID)
 		{
 			searchKeywords = searchKeywords.toLowerCase().trim();
-			for (String music : items) {
-				if(music.toLowerCase().contains(searchKeywords))
-					itemsList.add(music);
+			arrayItems = new ArrayList<Music>(items);
+			for (Music music : arrayItems) {
+				if(music.getTitle().toLowerCase().contains(searchKeywords))
+					itemsList.add(music.getTitle());
 			}
+			
 			// Use the ListViewButtonAdapter class to show the albums
 			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(SearchSongActivity.this, android.R.layout.simple_list_item_1, itemsList);
 			
@@ -89,12 +90,13 @@ public class SearchSongActivity extends ListActivity implements AsyncExecListene
 				@Override
 				public void OnAdd(CharSequence sSelected, int iPosition)
 				{
+					Music music = arrayItems.get(iPosition);
 					try {
 						MPDApplication app = (MPDApplication)getApplication();
-						ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, sSelected.toString()));
-						app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-						//MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),sSelected), AlbumsActivity.this);
+						app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
+						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded),sSelected), SearchSongActivity.this);
 					} catch (MPDServerException e) {
+						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}

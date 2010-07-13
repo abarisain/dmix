@@ -4,6 +4,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -30,7 +32,7 @@ class ListViewPlusView extends ViewGroup
 	ButtonListener mButtonListener;
 	PlusListener mParentListener;
 	int mPosition;
-	final int mButtonWidth = 35;
+	int mButtonWidth = 35;
 	
 	public ListViewPlusView(Context context) {
 		this(context, null, 0);
@@ -47,6 +49,9 @@ class ListViewPlusView extends ViewGroup
 		mButton.setOnClickListener(mButtonListener);
 		mButton.setImageResource(android.R.drawable.ic_input_add);
 		mButton.setBackgroundResource(android.R.drawable.btn_default_small);
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		mButtonWidth = (int) (35*((float)dm.densityDpi/160));
+		Log.i("MPDROIDDDSDQFSDFSDFSDFSDFSDFSDF",Integer.toString(dm.densityDpi/160)+" "+Integer.toString(mButtonWidth));
 		// ic_menu_add (circle with '') 
 		// ic_input_add (green '' sign)
 		// ic_input_delete (green '-' sign)
@@ -76,6 +81,7 @@ class ListViewPlusView extends ViewGroup
 		int top = getPaddingTop();
 		int right = r-l-getPaddingRight()-getPaddingLeft();
 		int bottom = b-t-getPaddingBottom();
+		
 		mText.layout(left, top, right-mButtonWidth, bottom);
 		mButton.layout(right-mButtonWidth, top, right, bottom);
 	}

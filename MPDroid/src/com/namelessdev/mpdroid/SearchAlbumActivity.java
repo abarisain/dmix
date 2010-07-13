@@ -93,7 +93,7 @@ public class SearchAlbumActivity extends ListActivity implements AsyncExecListen
 						MPDApplication app = (MPDApplication)getApplication();
 						ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, sSelected.toString()));
 						app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-						//MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),sSelected), AlbumsActivity.this);
+						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),sSelected), SearchAlbumActivity.this);
 					} catch (MPDServerException e) {
 						e.printStackTrace();
 					}
