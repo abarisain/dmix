@@ -32,6 +32,7 @@ public class FSActivity extends BrowseActivity {
 			MPDApplication app = (MPDApplication)getApplication();
 			if (this.getIntent().getStringExtra("directory") != null) {
 				currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory((String) this.getIntent().getStringExtra("directory"));
+				setTitle((String) getIntent().getStringExtra("directory"));
 			} else {
 				currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
 			}

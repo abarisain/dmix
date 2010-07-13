@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.namelessdev.mpdroid"
-	android:versionName="0.5" android:versionCode="06">
+	package="com.namelessdev.mpdroid" android:versionName="0.5"
+	android:versionCode="06">
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -19,41 +19,43 @@
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<receiver android:name=".MainMenuActivity$MyIntentReceiver" />
-            <!-- <meta-data android:name="android.app.default_searchable"
-                       android:value=".SearchActivity" />-->
+			<!--
+				<meta-data android:name="android.app.default_searchable"
+				android:value=".SearchActivity" />
+			-->
 		</activity>
 
-        <activity android:name=".SearchArtistActivity" android:label="@string/search_hint_artist">
-       		<intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable_artist" />
-                       
+		<activity android:name=".SearchArtistActivity" android:label="@string/search_hint_artist">
+			<intent-filter>
+				<action android:name="android.intent.action.SEARCH" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+			<meta-data android:name="android.app.searchable"
+				android:resource="@xml/searchable_artist" />
+
 		</activity>
-        <activity android:name=".SearchAlbumActivity" android:label="@string/search_hint_album">
-       		<intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable_album" />
-                       
+		<activity android:name=".SearchAlbumActivity" android:label="@string/search_hint_album">
+			<intent-filter>
+				<action android:name="android.intent.action.SEARCH" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+			<meta-data android:name="android.app.searchable"
+				android:resource="@xml/searchable_album" />
+
 		</activity>
-        <!--<activity android:name=".SearchActivity" android:label="@string/search_label">
-       		<intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable" />
-		</activity>-->
+		<activity android:name=".SearchSongActivity" android:label="@string/search_label">
+			<intent-filter>
+				<action android:name="android.intent.action.SEARCH" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+			<meta-data android:name="android.app.searchable"
+				android:resource="@xml/searchable_artist" />
+		</activity>
 		<activity android:name=".PlaylistActivity" android:label="@string/playlist">
 		</activity>
-		<activity android:name=".ArtistsActivity" android:label="@string/artists" >
-            <meta-data android:name="android.app.default_searchable"
-                       android:value=".SearchArtistActivity" />
+		<activity android:name=".ArtistsActivity" android:label="@string/artists">
+			<meta-data android:name="android.app.default_searchable"
+				android:value=".SearchArtistActivity" />
 		</activity>
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		<activity android:name=".WifiConnectionSettings"
@@ -61,14 +63,24 @@
 		<activity android:name=".ConnectionSettings" android:label="@string/settings" />
 		<activity android:name=".FSActivity" android:label="@string/files" />
 		<activity android:name=".AlbumsActivity" android:label="@string/albums">
-            <meta-data android:name="android.app.default_searchable"
-                       android:value=".SearchAlbumActivity" />
+			<meta-data android:name="android.app.default_searchable"
+				android:value=".SearchAlbumActivity" />
 		</activity>
 		<activity android:name=".SongsActivity" android:label="@string/artists">
-            <!-- <meta-data android:name="android.app.default_searchable"
-                       android:value=".SearchActivity" /> -->
+		</activity>
+		<activity android:name=".SongSearchMessage" android:label="@string/albums">
+			<meta-data android:name="android.app.default_searchable"
+				android:value=".SearchSongActivity" />
 		</activity>
 		<activity android:name=".AboutActivity" android:label="@string/about" />
+		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity"
+			android:theme="@android:style/Theme.NoTitleBar">
+			<!--
+				<intent-filter> <action
+				android:name="android.intent.action.TAB1ACTIVITY" /> <category
+				android:name="android.intent.category.TAB1" /> </intent-filter>
+			-->
+		</activity>
 		<service android:enabled="true" android:name="StreamingService" />
 		<receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">
 			<intent-filter android:priority="500">

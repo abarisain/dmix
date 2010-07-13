@@ -76,4 +76,6 @@
 	<string name="search_hint">Rechercher dans la bibliothèque MPD ...</string>
 	<string name="search_hint_album">Recherche d\'album</string>
 	<string name="search_hint_artist">Recherche d\'artiste</string>
+	<string name="libraryTabActivity">Bibliothèque</string>
+	<string name="songSearch">Afficher toutes les chansons n\'est pas une bonne idée. Utilisez la recherche !</string>
 </resources>

@@ -75,6 +75,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	public static final int SETTINGS = 5;
 	
 	public static final int STREAM = 6;
+	
+	public static final int LIBRARY = 7;
 
 	private TextView artistNameText;
 
@@ -461,9 +463,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
-		menu.add(0,ARTISTS, 0, R.string.artists).setIcon(R.drawable.ic_menu_pmix_artists);
+		/*menu.add(0,ARTISTS, 0, R.string.artists).setIcon(R.drawable.ic_menu_pmix_artists);
 		menu.add(0,ALBUMS, 1, R.string.albums).setIcon(R.drawable.ic_menu_pmix_albums);
-		menu.add(0,FILES, 2, R.string.files).setIcon(android.R.drawable.ic_menu_agenda);
+		menu.add(0,FILES, 2, R.string.files).setIcon(android.R.drawable.ic_menu_agenda);*/
+		menu.add(0,LIBRARY, 1, "Bilibiotheque").setIcon(R.drawable.ic_menu_pmix_playlist);
 		menu.add(0,PLAYLIST, 3, R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
 		menu.add(0,STREAM, 4, R.string.stream).setIcon(android.R.drawable.ic_menu_upload_you_tube);
 		menu.add(0,SETTINGS, 5, R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
@@ -488,6 +491,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		case FILES:
 			i = new Intent(this, FSActivity.class);
 			startActivityForResult(i, FILES);
+			return true;
+		case LIBRARY:
+			i = new Intent(this, LibraryTabActivity.class);
+			startActivityForResult(i, SETTINGS);
 			return true;
 		case SETTINGS:
 			i = new Intent(this, SettingsActivity.class);

@@ -30,12 +30,15 @@ public class AlbumsActivity extends BrowseActivity implements AsyncExecListener 
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+
 		setContentView(R.layout.artists);
-		
 		pd = ProgressDialog.show(AlbumsActivity.this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingAlbums));
 
-		setTitle(getResources().getString(R.string.albums));
-		
+		if (getIntent().getStringExtra("artist") != null) {
+			setTitle((String) getIntent().getStringExtra("artist"));
+		} else {
+			setTitle(getResources().getString(R.string.albums));	
+		}
 
 		MPDApplication app = (MPDApplication)getApplication();
 			

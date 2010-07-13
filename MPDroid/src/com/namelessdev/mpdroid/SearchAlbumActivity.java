@@ -42,8 +42,8 @@ public class SearchAlbumActivity extends ListActivity implements AsyncExecListen
 			return; //Bye !
 		}
 		setContentView(R.layout.artists);
-		pd = ProgressDialog.show(SearchAlbumActivity.this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingArtists));
-
+		setTitle(getTitle()+" : "+searchKeywords);
+		pd = ProgressDialog.show(SearchAlbumActivity.this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingArtists));		
 		//setTitle(getResources().getString(R.string.albums));
 		MPDApplication app = (MPDApplication)getApplication();
 		// Loading Albums asynchronous...

@@ -76,4 +76,6 @@
 	<string name="search_hint">Search in MPD\'s library ...</string>
 	<string name="search_hint_album">Album search</string>
 	<string name="search_hint_artist">Artist search</string>
+	<string name="libraryTabActivity">Library</string>
+	<string name="songSearch">Displaying all the songs is not a good idea. Please search for something.</string>
 </resources>
