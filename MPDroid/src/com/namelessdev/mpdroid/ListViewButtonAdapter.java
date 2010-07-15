@@ -46,19 +46,18 @@ class ListViewPlusView extends ViewGroup
 		mText.setPadding(0, 4, 0, 4);
 		mButton = new ImageButton(context, attrs, defStyle);
 		mButtonListener = new ButtonListener();
-		mButton.setOnClickListener(mButtonListener);
+		/*mButton.setOnClickListener(mButtonListener);
 		mButton.setImageResource(android.R.drawable.ic_input_add);
 		mButton.setBackgroundResource(android.R.drawable.btn_default_small);
 		DisplayMetrics dm = context.getResources().getDisplayMetrics();
-		mButtonWidth = (int) (35*((float)dm.densityDpi/160));
-		Log.i("MPDROIDDDSDQFSDFSDFSDFSDFSDFSDF",Integer.toString(dm.densityDpi/160)+" "+Integer.toString(mButtonWidth));
+		mButtonWidth = (int) (35*((float)dm.densityDpi/160));*/
 		// ic_menu_add (circle with '') 
 		// ic_input_add (green '' sign)
 		// ic_input_delete (green '-' sign)
 		// btn_default
 		setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
 		addView(mText);
-		addView(mButton);
+		//addView(mButton);
 	}
 	
 	void setText(CharSequence s) {

@@ -66,12 +66,19 @@ public class SearchSongActivity extends ListActivity implements AsyncExecListene
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-            Intent intent = new Intent(this, SongsActivity.class);
-            intent.putExtra("album", itemsList.get(position));
-            startActivityForResult(intent, -1);
+		Music music = arrayItems.get(position);
+		try {
+			MPDApplication app = (MPDApplication)getApplication();
+
+			app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
+			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded,music.getTitle()),music.getName()), SearchSongActivity.this);
+		} catch (MPDServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 	
-	@Override
+   
 	public void asyncExecSucceeded(int jobID) {
 		// TODO Auto-generated method stub
 		if(iJobID == jobID)

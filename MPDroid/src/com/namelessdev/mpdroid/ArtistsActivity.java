@@ -18,6 +18,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import android.content.SharedPreferences;
@@ -110,7 +111,20 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 			}
 		};
 
-		
+		getListView().setOnItemLongClickListener( new AdapterView.OnItemLongClickListener (){
+            @Override
+            public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
+				try {
+					MPDApplication app = (MPDApplication)getApplication();
+					ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ARTIST, items.get(position).toString()));
+					app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
+					MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.artistAdded), items.get(position)), ArtistsActivity.this);
+				} catch (MPDServerException e) {
+					e.printStackTrace();
+				}
+                return true;
+            }
+		});
 		
 		artistsAdapter.SetPlusListener(AddListener);
 		setListAdapter(artistsAdapter);

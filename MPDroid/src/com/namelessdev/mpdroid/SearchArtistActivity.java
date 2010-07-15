@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -63,7 +64,6 @@ public class SearchArtistActivity extends ListActivity implements AsyncExecListe
 			}
 		});
 		
-		
 	}
 
     @Override
@@ -72,7 +72,7 @@ public class SearchArtistActivity extends ListActivity implements AsyncExecListe
             intent.putExtra("artist", itemsList.get(position));
             startActivityForResult(intent, -1);
     }
-	
+    
 	@Override
 	public void asyncExecSucceeded(int jobID) {
 		// TODO Auto-generated method stub
@@ -101,7 +101,20 @@ public class SearchArtistActivity extends ListActivity implements AsyncExecListe
 					}
 				}
 			};
-			
+			getListView().setOnItemLongClickListener( new AdapterView.OnItemLongClickListener (){
+                @Override
+                public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
+            		try {
+            			MPDApplication app = (MPDApplication)getApplication();
+            			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ARTIST, itemsList.get(position).toString()));
+            			app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
+            			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.artistAdded),itemsList.get(position)), SearchArtistActivity.this);
+            		} catch (MPDServerException e) {
+            			e.printStackTrace();
+            		}
+                    return true;
+                }
+}			); 
 			almumsAdapter.SetPlusListener(AddListener);
 			setListAdapter(almumsAdapter);
 			

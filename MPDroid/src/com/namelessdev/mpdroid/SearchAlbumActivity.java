@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -99,7 +100,20 @@ public class SearchAlbumActivity extends ListActivity implements AsyncExecListen
 					}
 				}
 			};
-			
+			getListView().setOnItemLongClickListener( new AdapterView.OnItemLongClickListener (){
+                @Override
+                public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
+					try {
+						MPDApplication app = (MPDApplication)getApplication();
+						ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, itemsList.get(position).toString()));
+						app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
+						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),itemsList.get(position)), SearchAlbumActivity.this);
+					} catch (MPDServerException e) {
+						e.printStackTrace();
+					}
+                    return true;
+                }
+}			);
 			almumsAdapter.SetPlusListener(AddListener);
 			setListAdapter(almumsAdapter);
 			
