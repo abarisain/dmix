@@ -120,6 +120,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private ButtonEventHandler buttonEventHandler;
 	
 	private boolean streamingMode;
+	private boolean connected;
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -187,7 +188,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		setContentView(R.layout.main);
 		
 		streamingMode =  ((MPDApplication)getApplication()).isStreamingMode();
-		
+		connected = ((MPDApplication)getApplication()).oMPDAsyncHelper.oMPD.isConnected();
 		artistNameText = (TextView) findViewById(R.id.artistName);
 		albumNameText = (TextView) findViewById(R.id.albumName);
 		songNameText = (TextView) findViewById(R.id.songName);
@@ -489,7 +490,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MPDApplication app = (MPDApplication)getApplication();
 		MPD mpd = app.oMPDAsyncHelper.oMPD;
-		if(mpd.isMpdConnectionNull()) {
+		if(!mpd.isConnected()) {
 			if(menu.findItem(CONNECT) == null) {
 			    menu.findItem(LIBRARY).setEnabled(false);
 			    menu.findItem(PLAYLIST).setEnabled(false);
@@ -656,18 +657,27 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
 		// TODO Auto-generated method stub
-		
+		checkConnected();
 		/*MPDStatus status = event.getMpdStatus();
 		
 		String state = status.getState();*/
 	}
 
+	public void checkConnected() {
+		connected = ((MPDApplication)getApplication()).oMPDAsyncHelper.oMPD.isConnected();
+		if(connected) {
+			songNameText.setText(getResources().getString(R.string.noSongInfo));
+		} else {
+			songNameText.setText(getResources().getString(R.string.notConnected));
+		}
+		return;
+	}
+	
 	public void volumeChanged(MPDVolumeChangedEvent event) {
 		progressBarVolume.setProgress(event.getMpdStatus().getVolume());
 	}
@@ -749,7 +759,6 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		coverSwitcherProgress.setVisibility(ProgressBar.INVISIBLE);
 		coverSwitcher.setImageResource(R.drawable.gmpcnocover);
 		//coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
-		
 	}
 
 }

@@ -59,6 +59,7 @@
 	<string name="connectingToServer">Connexion au serveur MPD.</string>
 	<string name="connected">Connecté</string>
 	<string name="notConnected">Non connecté</string>
+	<string name="noSongInfo">Aucune information</string>
 	<string name="notInRange">Pas à portée, enregistré</string>
 	
 	<string name="preferredConnection">Connexion preferée</string>
