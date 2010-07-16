@@ -33,6 +33,7 @@ import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
 
 import android.app.Application;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
@@ -69,7 +70,9 @@ public class StreamingService extends Service
 		implements StatusChangeListener, OnPreparedListener, OnCompletionListener,
 		OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener {
 	
-	public static final int STREAMINGSERVICE_STATUS = 1;	
+	public static final int STREAMINGSERVICE_STATUS = 1;
+	public static final int STREAMINGSERVICE_PAUSED = 2;
+	public static final int STREAMINGSERVICE_STOPPED = 3;
 	public static final String CMD_REMOTE="com.namelessdev.mpdroid.REMOTE_COMMAND";
 	public static final String CMD_COMMAND="COMMAND";
 	public static final String CMD_PAUSE="PAUSE";
@@ -94,6 +97,18 @@ public class StreamingService extends Service
 	
 	private static Method registerMediaButtonEventReceiver; //Thanks you google again for this code
 	private static Method unregisterMediaButtonEventReceiver;
+	
+	private static final int IDLE_DELAY = 60000;
+	
+    private Handler delayedStopHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (isPlaying || isPaused || buffering ) {
+                return;
+            }
+            die();
+        }
+    };
 
 	private static void initializeRemoteControlRegistrationMethods() {
 	   try {
@@ -251,6 +266,20 @@ public class StreamingService extends Service
 	
     @Override
     public void onDestroy() {
+    	((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
+		RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
+        views.setImageViewResource(R.id.icon, R.drawable.icon);
+        Notification status = null;
+        views.setTextViewText(R.id.trackname, getString(R.string.streamStopped));
+	    views.setTextViewText(R.id.album, getString(R.string.app_name));
+	    views.setTextViewText(R.id.artist, "");
+		status = new Notification(R.drawable.icon,getString(R.string.streamStopped), System.currentTimeMillis());         
+        status.contentView = views;
+        status.icon = R.drawable.icon;
+        status.contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_STOPPED, status);
     	isServiceRunning = false;
     	unregisterMediaButtonEvent();
     	mediaPlayer.stop();
@@ -279,6 +308,8 @@ public class StreamingService extends Service
 		} else if (intent.getAction().equals("com.namelessdev.mpdroid.RESET_STREAMING")) {
 			stopStreaming();
 			resumeStreaming();
+		} else if (intent.getAction().equals("com.namelessdev.mpdroid.DIE")) {
+			die();
 		} else if (intent.getAction().equals(CMD_REMOTE)) {
 			String cmd = intent.getStringExtra(CMD_COMMAND);
 	        if (cmd.equals(CMD_NEXT)) {
@@ -317,7 +348,7 @@ public class StreamingService extends Service
 		} catch (MPDServerException e) {
 			// Do nothing cause I suck hard at android programming
 		}
-		if(statusMpd!=null)
+		if(statusMpd!=null && !isPaused)
 		{
 			String state = statusMpd.getState();
 			if(state != null)
@@ -328,6 +359,8 @@ public class StreamingService extends Service
 				int songId = statusMpd.getSongPos();
 				if(songId>=0)
 				{
+					((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
+					((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
 					stopForeground(true);
 					Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
 					RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
@@ -355,6 +388,22 @@ public class StreamingService extends Service
 			        startForeground(STREAMINGSERVICE_STATUS, status);
 				}
 			}
+		} else if(isPaused) {
+			RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
+	        views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
+	        Notification status = null;
+		    views.setTextViewText(R.id.trackname, getString(R.string.streamPaused));
+		    views.setTextViewText(R.id.album, getString(R.string.streamPauseBattery));
+		    views.setTextViewText(R.id.artist, "");
+			status = new Notification(R.drawable.icon,getString(R.string.streamPaused), System.currentTimeMillis());
+	        
+	        status.contentView = views;
+	        status.flags |= Notification.FLAG_ONGOING_EVENT;
+	        status.icon = R.drawable.icon;
+	        status.contentIntent = PendingIntent.getActivity(this, 0,
+	                new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
+	                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+	        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_PAUSED, status);
 		}
 
 	}
@@ -366,6 +415,7 @@ public class StreamingService extends Service
 		isPaused = true;
 		buffering = false;
 		mediaPlayer.stop(); // So it stops faster
+		showNotification();
 		MPDApplication app = (MPDApplication)getApplication();
 		MPD mpd = app.oMPDAsyncHelper.oMPD;
 		try {
@@ -461,7 +511,7 @@ public class StreamingService extends Service
 	
 	public void die() {
 		((MPDApplication) getApplication()).setStreamingMode(false);
-		Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
 		stopSelfResult(lastStartID);
 	}
 	@Override
@@ -494,6 +544,8 @@ public class StreamingService extends Service
 	public void stateChanged(MPDStateChangedEvent event) {
 		// TODO Auto-generated method stub
 		//Toast.makeText(this, "stateChanged :", Toast.LENGTH_SHORT).show();
+		Message msg = delayedStopHandler.obtainMessage();
+		delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
 		MPDApplication app = (MPDApplication)getApplication();
 		MPDStatus statusMpd = null;
 		try {
@@ -540,6 +592,8 @@ public class StreamingService extends Service
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		//Toast.makeText(this, "Completion", Toast.LENGTH_SHORT).show();
+		Message msg = delayedStopHandler.obtainMessage();
+		delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY); //Don't suck the battery too much
 		MPDApplication app = (MPDApplication)getApplication();
 		MPDStatus statusMpd = null;
 		try {

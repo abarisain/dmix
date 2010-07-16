@@ -8,6 +8,8 @@
 	<string name="settings">Paramètres</string>
 	<string name="volume">Volume</string>
 	<string name="track">Piste</string>
+	<string name="paused">En pause</string>
+	<string name="stopped">Arreté</string>
 	<string name="ok">OK</string>
 	<string name="quit">Quitter</string>
 	<string name="retry">Réessayer</string>
@@ -72,6 +74,9 @@
 	<string name="buffering">Mise en cache ...</string>
 	<string name="portStreaming">Port streaming</string>
 	<string name="portStreamingDescription">Port du streaming MPD (Defaut: 8000)</string>
+	<string name="streamStopped">Streaming arreté</string>
+	<string name="streamPaused">Streaming en pause</string>
+	<string name="streamPauseBattery">Pour économiser la batterie, coupez le streaming.</string>
 	<string name="aboutText1">MPDroid est un programme open-source de namelessDev. Visitez http://github.com/dreamteam69/dmix pour voir le code source !</string>
 	<string name="aboutText2">MPDroid est un fork de PMix (http://code.google.com/p/pmix/). Merci à eux !</string>
 	<string name="aboutLastFM">Merci à last.fm pour les pochettes d\'album</string>

@@ -199,9 +199,9 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		trackTime = (TextView) findViewById(R.id.trackTime);
 
 		Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
-		fadeIn.setDuration(ANIMATION_DURATION_MSEC);
+			fadeIn.setDuration(ANIMATION_DURATION_MSEC);
 		Animation fadeOut = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
-		fadeOut.setDuration(ANIMATION_DURATION_MSEC);
+			fadeOut.setDuration(ANIMATION_DURATION_MSEC);
 
 
 		coverSwitcher = (ImageSwitcher) findViewById(R.id.albumCover);
@@ -549,16 +549,16 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		case STREAM:
 			if(((MPDApplication) getApplication()).isStreamingMode()) { // yeah, yeah getApplication for that may be ugly but ...
 				i = new Intent(this, StreamingService.class);
-				i.setAction("com.namelessdev.mpdroid.KILL");
-				stopService(i);
+				i.setAction("com.namelessdev.mpdroid.DIE");
+				startService(i);
 				((MPDApplication) getApplication()).setStreamingMode(false);
-				Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
 			} else {
 				i = new Intent(this, StreamingService.class);
 				i.setAction("com.namelessdev.mpdroid.START_STREAMING");
 				startService(i);
 				((MPDApplication) getApplication()).setStreamingMode(true);
-				Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
 			}
 
 			return true;
