@@ -182,9 +182,15 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	@Override
 	public void connectionFailed(String message) {
 		System.out.println("Connection Failed: "+message);
-		if(ad!=null)
-			if(ad.isShowing())
-				ad.dismiss();
+		if(ad!=null) {
+			if(ad.isShowing()) {
+				try {
+					ad.dismiss();
+				} catch (IllegalArgumentException e) {
+					//We don't care, it has already been destroyed
+				}
+			}
+		}
 		if(connectionLocks.size()>0 && currentActivity.getClass() != null) 
 		{
 			if(currentActivity.getClass().equals(SettingsActivity.class))

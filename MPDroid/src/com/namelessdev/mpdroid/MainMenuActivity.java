@@ -46,6 +46,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageSwitcher;
@@ -107,6 +109,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private static final int VOLUME_STEP = 5;
 
 	private static final int TRACK_STEP = 10;
+
+	private static final int ANIMATION_DURATION_MSEC = 1000;
 
 	private static Toast notification = null;
 	
@@ -193,7 +197,12 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 		trackTime = (TextView) findViewById(R.id.trackTime);
 
-		
+		Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+		fadeIn.setDuration(ANIMATION_DURATION_MSEC);
+		Animation fadeOut = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+		fadeOut.setDuration(ANIMATION_DURATION_MSEC);
+
+
 		coverSwitcher = (ImageSwitcher) findViewById(R.id.albumCover);
 		coverSwitcher.setFactory(new ViewFactory() {
 
@@ -208,9 +217,13 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				return i;
 			}
 		});
+		coverSwitcher.setInAnimation(fadeIn);
+		coverSwitcher.setOutAnimation(fadeOut);
+
 		coverSwitcherProgress = (ProgressBar) findViewById(R.id.albumCoverProgress); 
 		coverSwitcherProgress.setIndeterminate(true);
 		coverSwitcherProgress.setVisibility(ProgressBar.INVISIBLE);
+		
 		
 		oCoverAsyncHelper = new CoverAsyncHelper();
 		oCoverAsyncHelper.addCoverDownloadListener(this);
@@ -623,7 +636,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 					progressBarTrack.setMax((int)actSong.getTime());
 					if(!lastAlbum.equals(album) || !lastArtist.equals(artist))
 					{
-						coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
+						//coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
 						coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
 						oCoverAsyncHelper.downloadCover(artist, album);
 						lastArtist = artist;
@@ -650,6 +663,9 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
 		// TODO Auto-generated method stub
 		
+		/*MPDStatus status = event.getMpdStatus();
+		
+		String state = status.getState();*/
 	}
 
 	public void volumeChanged(MPDVolumeChangedEvent event) {
@@ -720,7 +736,9 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			cover.setDensity((int)metrics.density);
 			BitmapDrawable myCover = new BitmapDrawable(cover);
 			coverSwitcher.setImageDrawable(myCover);
-			coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
+			//coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
+			coverSwitcher.showNext(); //Little trick so the animation gets displayed
+			coverSwitcher.showPrevious();
 		} else {
 			// Should not be happening, but happened.
 			onCoverNotFound();
@@ -730,7 +748,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	public void onCoverNotFound() {
 		coverSwitcherProgress.setVisibility(ProgressBar.INVISIBLE);
 		coverSwitcher.setImageResource(R.drawable.gmpcnocover);
-		coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
+		//coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
 		
 	}
 
