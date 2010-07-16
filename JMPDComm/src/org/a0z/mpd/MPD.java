@@ -186,6 +186,10 @@ public class MPD {
     MPDConnection getMpdConnection() {
         return this.mpdConnection;
     }
+    
+    public boolean isMpdConnectionNull() {
+        return (this.mpdConnection == null);
+    }
 
     /**
      * Increases or decreases volume by <code>modifier</code> amount.
@@ -193,6 +197,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server
      */
     public void adjustVolume(int modifier) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = Integer.toString(modifier);
         mpdConnection.sendCommand(MPD_CMD_VOLUME, args);
@@ -203,6 +210,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void clearError() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         mpdConnection.sendCommand(MPD_CMD_CLEARERROR);
     }
 
@@ -260,6 +270,9 @@ public class MPD {
     }
 
     private LinkedList<Music> genericSearch(String searchCommand, String type, String string) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[2];
         args[0] = type;
         args[1] = string;
@@ -306,6 +319,9 @@ public class MPD {
      * @see Directory
      */
     public LinkedList<FilesystemTreeEntry> getDir(String dir) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = dir;
 
@@ -348,6 +364,9 @@ public class MPD {
      * @see Directory
      */
     public Collection getDirRecursive(String dir) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = dir;
         //return mpdConnection.sendCommand(MPD_CMD_LSDIR, args);
@@ -385,7 +404,10 @@ public class MPD {
      * Returns MPD server version.
      * @return MPD Server version.
      */
-    public String getMpdVersion() {
+    public String getMpdVersion() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         int[] version = mpdConnection.getMpdVersion();
         StringBuffer sb = new StringBuffer();
 
@@ -422,6 +444,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatus getStatus() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         List<String> response = mpdConnection.sendCommand(MPD_CMD_STATUS);
         mpdStatus.updateStatus(response);
         return mpdStatus;
@@ -454,6 +479,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public LinkedList<String> listAlbums() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         return listAlbums(null);
     }
 
@@ -464,6 +492,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public LinkedList<String> listAlbums(String artist) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = null;
         if (artist == null) {
             args = new String[1];
@@ -490,6 +521,9 @@ public class MPD {
      * @return <code>FileStorage</code> with all songs and directories.
      */
     public Directory listAllFiles(String dir) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = dir;
         List<String> list = mpdConnection.sendCommand(MPD_CMD_LISTALL, args);
@@ -509,6 +543,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public LinkedList<String> listArtists() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = MPD_TAG_ARTIST;
         List<String> list = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, args);
@@ -546,6 +583,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void next() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         mpdConnection.sendCommand(MPD_CMD_NEXT);
     }
 
@@ -555,6 +595,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void password(String password) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = password;
         mpdConnection.sendCommand(MPD_CMD_PASSWORD, args);
@@ -565,6 +608,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void pause() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         mpdConnection.sendCommand(MPD_CMD_PAUSE);
     }
 
@@ -573,6 +619,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void play() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         mpdConnection.sendCommand(MPD_CMD_PLAY);
     }
 
@@ -581,6 +630,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server..
      */
     public void previous() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         mpdConnection.sendCommand(MPD_CMD_PREV);
     }
 
@@ -589,6 +641,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void refreshDatabase() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         mpdConnection.sendCommand(MPD_CMD_REFRESH);
     }
 
@@ -613,6 +668,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void seek(int songId, long position) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[2];
         args[0] = Integer.toString(songId);
         args[1] = Long.toString(position);
@@ -636,6 +694,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setRandom(boolean random) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = random ? "1" : "0";
         mpdConnection.sendCommand(MPD_CMD_RANDOM, args);
@@ -647,6 +708,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setRepeat(boolean repeat) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = repeat ? "1" : "0";
         mpdConnection.sendCommand(MPD_CMD_REPEAT, args);
@@ -658,6 +722,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setVolume(int volume) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         int vol = volume;
 
         if (volume > MAX_VOLUME) {
@@ -678,6 +745,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void shutdown() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         mpdConnection.sendCommand(MPD_CMD_KILL);
     }
 
@@ -689,6 +759,9 @@ public class MPD {
      * @see #skipTo(int)
      */
     public void skipToByPositon(int position) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = Integer.toString(position);
         mpdConnection.sendCommand(MPD_CMD_PLAY, args);
@@ -700,6 +773,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void skipTo(int id) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = Integer.toString(id);
         mpdConnection.sendCommand(MPD_CMD_PLAY_ID, args);
@@ -710,6 +786,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void stop() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         mpdConnection.sendCommand(MPD_CMD_STOP);
     }
 
@@ -727,6 +806,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setCrossfade(int time) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         int value = time;
         if (time < 0) {
             value = 0;
@@ -741,6 +823,9 @@ public class MPD {
      * 
      */
     public Collection<MPDOutput> getOutputs() throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
     	Collection<MPDOutput> list = new LinkedList<MPDOutput>();
         Iterator it = mpdConnection.sendCommand(MPD_CMD_OUTPUTS).iterator();
         while (it.hasNext()) {
@@ -754,12 +839,18 @@ public class MPD {
     }
 
     public void enableOutput(int id) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = Integer.toString(id);
         mpdConnection.sendCommand(MPD_CMD_OUTPUTENABLE, args);
     }
     
     public void disableOutput(int id) throws MPDServerException {
+    	if(mpdConnection == null) {
+    		throw new MPDServerException("MPD Connection is not established");
+    	}
         String[] args = new String[1];
         args[0] = Integer.toString(id);
         mpdConnection.sendCommand(MPD_CMD_OUTPUTDISABLE, args);

@@ -104,10 +104,10 @@ public class SearchAlbumActivity extends ListActivity implements AsyncExecListen
                 @Override
                 public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
 					try {
+						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),itemsList.get(position)), SearchAlbumActivity.this);
 						MPDApplication app = (MPDApplication)getApplication();
 						ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, itemsList.get(position).toString()));
 						app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),itemsList.get(position)), SearchAlbumActivity.this);
 					} catch (MPDServerException e) {
 						e.printStackTrace();
 					}

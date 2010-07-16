@@ -54,9 +54,11 @@
 	<string name="waitForWLAN">Attente du WIFI ...</string>
 	<string name="connectionFailed">Echec de la connexion</string>
 	<string name="connectionFailedMessage">Echec de la connexion au serveur MPD ! Verifiez que le serveur est atteignable (%s)</string>
+	<string name="connect">Connecter</string>
 	<string name="connecting">Connexion ...</string>
 	<string name="connectingToServer">Connexion au serveur MPD.</string>
 	<string name="connected">Connecté</string>
+	<string name="notConnected">Non connecté</string>
 	<string name="notInRange">Pas à portée, enregistré</string>
 	
 	<string name="preferredConnection">Connexion preferée</string>

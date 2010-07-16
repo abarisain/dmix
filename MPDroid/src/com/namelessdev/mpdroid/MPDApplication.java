@@ -15,12 +15,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
@@ -82,7 +85,6 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		{
 			disconnect();
 		}
-		
 	}
 	
 	
@@ -90,7 +92,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	{
 		oMPDAsyncHelper.disconnect();	
 	}
-	private void connect()
+	public void connect()
 	{
 		// Get Settings...
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);//getSharedPreferences("org.pmix", MODE_PRIVATE);
@@ -113,7 +115,9 @@ public class MPDApplication extends Application implements ConnectionListener, O
 				oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
 		} else {
 			// Absolutely no settings defined! Open Settings!
-			currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
+			if(currentActivity != null) {
+				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
+			}
 		}
 		connectMPD();
 
@@ -121,16 +125,17 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	private void connectMPD()
 	{
-
 		if(ad!=null)
 			ad.dismiss();
-		
+		if(!isNetworkConnected()) {
+			connectionFailed("No network.");
+			return;
+		}
 		ad = new ProgressDialog(currentActivity);
 		ad.setTitle(getResources().getString(R.string.connecting));
 		ad.setMessage(getResources().getString(R.string.connectingToServer));
 		ad.setCancelable(false);
 		ad.setOnKeyListener(new OnKeyListener() {
-			
 			@Override
 			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
 				// Handle all keys!
@@ -172,7 +177,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		System.out.println("Connection Failed: "+message);
 		if(ad!=null)
 			ad.dismiss();
-		if(connectionLocks.size()>0 && isWifiConnected()) 
+		if(connectionLocks.size()>0 && currentActivity.getClass() != null) 
 		{
 			if(currentActivity.getClass().equals(SettingsActivity.class))
 			{
@@ -260,12 +265,16 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		if(bWifiConnected) {
 			if(ad!=null)
 				ad.dismiss();
+			if(currentActivity==null && isStreamingMode()==false)
+				return;
 			connect();
 			//checkMonitorNeeded();
 		} else {
 			disconnect();
 			if(ad!=null)
 				ad.dismiss();
+			if(currentActivity==null)
+				return;
 			AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
 			test.setMessage(getResources().getString(R.string.waitForWLAN));
 			ad = test.show();
@@ -273,9 +282,19 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	}
 
 	public boolean isWifiConnected() {
-		return bWifiConnected;
+		return true;
+		//return bWifiConnected;
+		//TODO : DIRTY WIFI HACK :(
 	}
 
+	public boolean isNetworkConnected() {
+		ConnectivityManager conMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);  
+		if(conMgr.getActiveNetworkInfo() == null)
+			return false;
+		return (conMgr.getActiveNetworkInfo().isAvailable() &&
+	            conMgr.getActiveNetworkInfo().isConnected() );
+	}
+	
 	public void setStreamingMode(boolean streamingMode) {
 		this.streamingMode = streamingMode;
 	}

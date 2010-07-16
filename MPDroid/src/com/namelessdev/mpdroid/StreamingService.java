@@ -31,6 +31,7 @@ import com.namelessdev.mpdroid.R.string;
 import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
 
 
+import android.app.Application;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -63,6 +64,7 @@ import android.widget.Toast;
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id:  $
  */
+
 public class StreamingService extends Service
 		implements StatusChangeListener, OnPreparedListener, OnCompletionListener,
 		OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener {
@@ -153,6 +155,13 @@ public class StreamingService extends Service
     private PhoneStateListener phoneStateListener = new PhoneStateListener() {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
+        	MPDApplication app = (MPDApplication) getApplication();
+        	if(app == null)
+        		return;
+        	if(((MPDApplication) app).isStreamingMode() == false) {
+        		stopSelf();
+        		return;
+        	}
             if (state == TelephonyManager.CALL_STATE_RINGING) {
                 AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                 int ringvolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
@@ -164,7 +173,7 @@ public class StreamingService extends Service
                 // pause the music while a conversation is in progress
             	if(isPlaying == false)
             		return;
-            	isPaused = (isPaused || isPlaying) && (((MPDApplication) getApplication()).isStreamingMode());
+            	isPaused = (isPaused || isPlaying) && (app.isStreamingMode());
                 pauseStreaming();
             } else if (state == TelephonyManager.CALL_STATE_IDLE) {
                 // start playing again

@@ -101,10 +101,10 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 			public void OnAdd(CharSequence sSelected, int iPosition)
 			{
 				try {
+					MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.artistAdded), sSelected), ArtistsActivity.this);
 					MPDApplication app = (MPDApplication)getApplication();
 					ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ARTIST, sSelected.toString()));
 					app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-					MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.artistAdded), sSelected), ArtistsActivity.this);
 				} catch (MPDServerException e) {
 					e.printStackTrace();
 				}

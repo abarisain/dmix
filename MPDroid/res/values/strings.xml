@@ -54,9 +54,11 @@
 	<string name="waitForWLAN">Waiting for WLAN to be connected...</string>
 	<string name="connectionFailed">Connection Failed</string>
 	<string name="connectionFailedMessage">Connection to MPD-Server failed! Check if the Server is running and reachable. (%s)</string>
+	<string name="connect">Connect</string>
 	<string name="connecting">Connecting...</string>
 	<string name="connectingToServer">Connecting to MPD-Server.</string>
 	<string name="connected">Connected</string>
+	<string name="notConnected">Not connected</string>
 	<string name="notInRange">Not in range, remembered</string>
 	
 	<string name="preferredConnection">Preferred connection</string>

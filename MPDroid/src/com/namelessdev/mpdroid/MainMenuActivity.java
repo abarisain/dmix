@@ -77,6 +77,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	public static final int STREAM = 6;
 	
 	public static final int LIBRARY = 7;
+	
+	public static final int CONNECT = 8;
 
 	private TextView artistNameText;
 
@@ -140,13 +142,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addTrackPositionListener(this);
 		app.setActivity(this);
-		
 		//registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
 		registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION) );
 		
-		
 		//oMPDAsyncHelper.addConnectionListener(MPDConnectionHandler.getInstance(this));
-
 		init();
 		
 	}	
@@ -336,6 +335,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			}
 		});
 		
+		songNameText.setText(getResources().getString(R.string.notConnected));
 		myLogger.log(Level.INFO, "Initialization succeeded");
 	}
 
@@ -472,7 +472,27 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		menu.add(0,SETTINGS, 5, R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
 		return result;
 	}
-
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MPDApplication app = (MPDApplication)getApplication();
+		MPD mpd = app.oMPDAsyncHelper.oMPD;
+		if(mpd.isMpdConnectionNull()) {
+			if(menu.findItem(CONNECT) == null) {
+			    menu.findItem(LIBRARY).setEnabled(false);
+			    menu.findItem(PLAYLIST).setEnabled(false);
+			    menu.findItem(STREAM).setEnabled(false);
+			    menu.add(0,CONNECT, 0, R.string.connect);
+			}
+		} else {
+			if(menu.findItem(CONNECT) != null) {
+			    menu.findItem(LIBRARY).setEnabled(true);
+			    menu.findItem(PLAYLIST).setEnabled(true);
+			    menu.findItem(STREAM).setEnabled(true);
+			    menu.removeItem(CONNECT);
+			}
+		}
+	    return super.onPrepareOptionsMenu(menu);
+	}
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -497,13 +517,20 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			startActivityForResult(i, SETTINGS);
 			return true;
 		case SETTINGS:
-			i = new Intent(this, SettingsActivity.class);
-			startActivityForResult(i, SETTINGS);
+			if(((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD.isMpdConnectionNull()) {
+				startActivityForResult(new Intent(this, WifiConnectionSettings.class), SETTINGS);
+			} else {
+				i = new Intent(this, SettingsActivity.class);
+				startActivityForResult(i, SETTINGS);
+			}
 			return true;
 		case PLAYLIST:
 			i = new Intent(this, PlaylistActivity.class);
 			startActivityForResult(i, PLAYLIST);
 			// TODO juste pour s'y retrouver
+			return true;
+		case CONNECT:
+			((MPDApplication) getApplication()).connect();
 			return true;
 		case STREAM:
 			if(((MPDApplication) getApplication()).isStreamingMode()) { // yeah, yeah getApplication for that may be ugly but ...
@@ -645,6 +672,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	protected void onDestroy() {
 		super.onDestroy();
 		MPDApplication app = (MPDApplication)getApplicationContext();
+		app.oMPDAsyncHelper.removeStatusChangeListener(this);
+		app.oMPDAsyncHelper.removeTrackPositionListener(this);
 		app.unsetActivity(this);
 		myLogger.log(Level.INFO, "onDestroy");
 	}

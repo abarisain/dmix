@@ -243,6 +243,18 @@ public class MPDAsyncHelper extends Handler {
 	{
 		asyncExecListeners.remove(listener);
 	}
+	public void removeStatusChangeListener(StatusChangeListener listener)
+	{
+		statusChangedListeners.remove(listener);
+	}
+	public void removeTrackPositionListener(TrackPositionListener listener)
+	{
+		trackPositionListeners.remove(listener);
+	}
+	public void removeConnectionListener(ConnectionListener listener)
+	{
+		connectionListners.remove(listener);
+	}
 	
 	/**
 	 * Asynchronous worker thread-class for long during operations on JMPDComm
