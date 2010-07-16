@@ -125,8 +125,15 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	private void connectMPD()
 	{
-		if(ad!=null)
-			ad.dismiss();
+		if(ad!=null) {
+			if(ad.isShowing()) {
+				try {
+					ad.dismiss();
+				} catch (IllegalArgumentException e) {
+					//We don't care, it has already been destroyed
+				}
+			}
+		}
 		if(!isNetworkConnected()) {
 			connectionFailed("No network.");
 			return;
@@ -176,7 +183,8 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	public void connectionFailed(String message) {
 		System.out.println("Connection Failed: "+message);
 		if(ad!=null)
-			ad.dismiss();
+			if(ad.isShowing())
+				ad.dismiss();
 		if(connectionLocks.size()>0 && currentActivity.getClass() != null) 
 		{
 			if(currentActivity.getClass().equals(SettingsActivity.class))
@@ -263,16 +271,30 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	public void setWifiConnected(boolean bWifiConnected) {
 		this.bWifiConnected = bWifiConnected;
 		if(bWifiConnected) {
-			if(ad!=null)
-				ad.dismiss();
+			if(ad!=null) {
+				if(ad.isShowing()) {
+					try {
+						ad.dismiss();
+					} catch (IllegalArgumentException e) {
+						//We don't care, it has already been destroyed
+					}
+				}
+			}
 			if(currentActivity==null && isStreamingMode()==false)
 				return;
 			connect();
 			//checkMonitorNeeded();
 		} else {
 			disconnect();
-			if(ad!=null)
-				ad.dismiss();
+			if(ad!=null) {
+				if(ad.isShowing()) {
+					try {
+						ad.dismiss();
+					} catch (IllegalArgumentException e) {
+						//We don't care, it has already been destroyed
+					}
+				}
+			}
 			if(currentActivity==null)
 				return;
 			AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);

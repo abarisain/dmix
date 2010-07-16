@@ -182,7 +182,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private void init() {
 		setContentView(R.layout.main);
 		
-		streamingMode = false;
+		streamingMode =  ((MPDApplication)getApplication()).isStreamingMode();
 		
 		artistNameText = (TextView) findViewById(R.id.artistName);
 		albumNameText = (TextView) findViewById(R.id.albumName);
