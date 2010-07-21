@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -121,6 +123,9 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	
 	private boolean streamingMode;
 	private boolean connected;
+	
+	private Timer volTimer = new Timer();
+	private TimerTask volTimerTask = null;
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -253,7 +258,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			}
 		});
 		progressBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-			
+
 			
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromTouch) {
@@ -261,33 +266,36 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			}
 
 			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
+				volTimerTask = new TimerTask() {
+					public void run() {
+						MPDApplication app = (MPDApplication)getApplication();
+						try {
+							if ( lastSentVol != progress.getProgress()) {
+								lastSentVol = progress.getProgress();
+								app.oMPDAsyncHelper.oMPD.setVolume(lastSentVol);
+							}
+						}
+						catch( MPDServerException e) {
+							e.printStackTrace();
+						}
+			        }
+			        
+			        int lastSentVol = -1;
+			        SeekBar progress;
+			        public TimerTask setProgress(SeekBar prg) {
+			        	progress = prg;
+			        	return this;
+			        }
+				}.setProgress(seekBar);
 				
+				
+				volTimer.scheduleAtFixedRate(volTimerTask, 0, 100);
 			}
 
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				MPDApplication app = (MPDApplication)getApplication();
-				Runnable async = new Runnable(){
-					@SuppressWarnings("unchecked")
-					@Override
-					public void run() 
-					{
-						try {
-							MPDApplication app = (MPDApplication)getApplication();
-							app.oMPDAsyncHelper.oMPD.setVolume((int)progress);
-						} catch (MPDServerException e) {
-							e.printStackTrace();
-						}
-					}
-					public int progress;
-					public Runnable setProgress(int prg)
-					{
-						progress =prg;
-						return this;
-					}
-				}.setProgress(seekBar.getProgress());
-				
-				app.oMPDAsyncHelper.execAsync(async);
+				volTimerTask.cancel();
+				// Afraid this will run syncronious
+				volTimerTask.run();
 				
 				/*
 				try {
