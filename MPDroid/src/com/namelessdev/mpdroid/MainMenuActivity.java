@@ -44,10 +44,13 @@ import android.os.IBinder;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -127,6 +130,9 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private Timer volTimer = new Timer();
 	private TimerTask volTimerTask = null;
 	
+	private GestureDetector gestureDetector;
+	View.OnTouchListener gestureListener;
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -155,6 +161,16 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		//registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
 		registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION) );
 		
+		
+		gestureDetector = new GestureDetector(new MyGestureDetector());
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (gestureDetector.onTouchEvent(event)) {
+                    return true;
+                }
+                return false;
+            }
+        };
 		//oMPDAsyncHelper.addConnectionListener(MPDConnectionHandler.getInstance(this));
 		init();
 		
@@ -481,7 +497,6 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	}
 
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
@@ -494,6 +509,44 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		menu.add(0,SETTINGS, 5, R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
 		return result;
 	}
+	
+	@Override
+	public boolean onTouchEvent ( MotionEvent event) {
+        if (gestureDetector.onTouchEvent(event))
+	        return true;
+	    return false;
+	}
+
+	class MyGestureDetector extends SimpleOnGestureListener {
+	    private static final int SWIPE_MIN_DISTANCE = 120;
+	    private static final int SWIPE_MAX_OFF_PATH = 250;
+		private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                    return false;
+                // right to left swipe
+                if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                	// Next
+                	MPDApplication app = (MPDApplication)getApplication();
+        			MPD mpd = app.oMPDAsyncHelper.oMPD;
+        			
+                	mpd.next();
+                }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                	// Previous
+                	MPDApplication app = (MPDApplication)getApplication();
+        			MPD mpd = app.oMPDAsyncHelper.oMPD;
+        			
+                	mpd.previous();
+                }
+            } catch (Exception e) {
+                // nothing
+            }
+            return false;
+        }
+    }
+	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MPDApplication app = (MPDApplication)getApplication();
