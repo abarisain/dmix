@@ -5,6 +5,7 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.MPDStatus;
@@ -519,7 +520,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	}
 	
 	// Most of this comes from
-	// http://www.codeshogun.com/blog/2009/04/16/how-to-implement-swipe-action-in-android/ will need to extend SimpleOnGestureLirmine if it's a valid swipe, you will need to 
+	// http://www.codeshogun.com/blog/2009/04/16/how-to-implement-swipe-action-in-android/ 
 	//
 	class MyGestureDetector extends SimpleOnGestureListener {
 		private static final int SWIPE_MIN_DISTANCE = 120;
