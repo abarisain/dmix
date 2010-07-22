@@ -130,6 +130,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private Timer volTimer = new Timer();
 	private TimerTask volTimerTask = null;
 	
+	// Used for detecing sideways flings
 	private GestureDetector gestureDetector;
 	View.OnTouchListener gestureListener;
 	
@@ -163,14 +164,14 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		
 		
 		gestureDetector = new GestureDetector(new MyGestureDetector());
-        gestureListener = new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                if (gestureDetector.onTouchEvent(event)) {
-                    return true;
-                }
-                return false;
-            }
-        };
+		gestureListener = new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				if (gestureDetector.onTouchEvent(event)) {
+					return true;
+				}
+				return false;
+			}
+		};
 		//oMPDAsyncHelper.addConnectionListener(MPDConnectionHandler.getInstance(this));
 		init();
 		
@@ -512,40 +513,43 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	
 	@Override
 	public boolean onTouchEvent ( MotionEvent event) {
-        if (gestureDetector.onTouchEvent(event))
-	        return true;
-	    return false;
+		if (gestureDetector.onTouchEvent(event) 
+			return true;
+		return false;
 	}
-
+	
+	// Most of this comes from
+	// http://www.codeshogun.com/blog/2009/04/16/how-to-implement-swipe-action-in-android/ will need to extend SimpleOnGestureLirmine if it's a valid swipe, you will need to 
+	//
 	class MyGestureDetector extends SimpleOnGestureListener {
-	    private static final int SWIPE_MIN_DISTANCE = 120;
-	    private static final int SWIPE_MAX_OFF_PATH = 250;
+		private static final int SWIPE_MIN_DISTANCE = 120;
+		private static final int SWIPE_MAX_OFF_PATH = 250;
 		private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            try {
-                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-                    return false;
-                // right to left swipe
-                if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                	// Next
-                	MPDApplication app = (MPDApplication)getApplication();
-        			MPD mpd = app.oMPDAsyncHelper.oMPD;
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			try {
+				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+					return false;
+				// right to left swipe
+				if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+					// Next
+					MPDApplication app = (MPDApplication)getApplication();
+					MPD mpd = app.oMPDAsyncHelper.oMPD;
+					mpd.next();
+				}  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+					// Previous
+					MPDApplication app = (MPDApplication)getApplication();
+					MPD mpd = app.oMPDAsyncHelper.oMPD;
         			
-                	mpd.next();
-                }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                	// Previous
-                	MPDApplication app = (MPDApplication)getApplication();
-        			MPD mpd = app.oMPDAsyncHelper.oMPD;
-        			
-                	mpd.previous();
-                }
-            } catch (Exception e) {
-                // nothing
-            }
-            return false;
-        }
-    }
+					mpd.previous();
+				}
+			} catch (Exception e) {
+				// nothing
+			}
+			return false;
+		}
+	}
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
