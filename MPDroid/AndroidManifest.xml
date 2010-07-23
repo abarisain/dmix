@@ -72,6 +72,7 @@
 				android:value=".SearchSongActivity" />
 		</activity>
 		<activity android:name=".AboutActivity" android:label="@string/about" />
+		<activity android:name=".WarningActivity" android:label="@string/warningTitle"  android:theme="@android:style/Theme.Dialog" />
 		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity"
 			android:theme="@android:style/Theme.NoTitleBar">
 			<!--

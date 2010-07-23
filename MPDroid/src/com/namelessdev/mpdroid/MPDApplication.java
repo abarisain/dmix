@@ -3,14 +3,6 @@ package com.namelessdev.mpdroid;
 import java.util.Collection;
 import java.util.LinkedList;
 
-
-
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.R.string;
-
-import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -23,118 +15,112 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 
+import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
+
 public class MPDApplication extends Application implements ConnectionListener, OnSharedPreferenceChangeListener {
-	
+
 	private Collection<Activity> connectionLocks = new LinkedList<Activity>();
 	private AlertDialog ad;
 	private DialogClickListener oDialogClickListener;
-	
+
 	private boolean bWifiConnected = false;
 	private boolean streamingMode = false;
+	private boolean settingsShown = false;
+	private boolean warningShown = false;
+
 	private Activity currentActivity;
-	
+
 	public static final int SETTINGS = 5;
-	
-	
-	public void setActivity(Activity activity)
-	{
+
+	public void setActivity(Activity activity) {
 		currentActivity = activity;
 		connectionLocks.add(activity);
 		checkMonitorNeeded();
 		checkConnectionNeeded();
 	}
-	
-	public void unsetActivity(Activity activity)
-	{
+
+	public void unsetActivity(Activity activity) {
 		connectionLocks.remove(activity);
 		checkMonitorNeeded();
 		checkConnectionNeeded();
-		if(currentActivity == activity)
-			currentActivity=null;
+		if (currentActivity == activity)
+			currentActivity = null;
 	}
-	
-	private void checkMonitorNeeded()
-	{
-		if(connectionLocks.size()>0)
-		{
-			if(!oMPDAsyncHelper.isMonitorAlive())
+
+	private void checkMonitorNeeded() {
+		if (connectionLocks.size() > 0) {
+			if (!oMPDAsyncHelper.isMonitorAlive())
 				oMPDAsyncHelper.startMonitor();
-		}
-		else
+		} else
 			oMPDAsyncHelper.stopMonitor();
-		
+
 	}
-	private void checkConnectionNeeded()
-	{
-		if(connectionLocks.size()>0)
-		{
-			if(!oMPDAsyncHelper.oMPD.isConnected() &&
-			   !currentActivity.getClass().equals(WifiConnectionSettings.class))
-			{
+
+	private void checkConnectionNeeded() {
+		if (connectionLocks.size() > 0) {
+			if (!oMPDAsyncHelper.oMPD.isConnected() && !currentActivity.getClass().equals(WifiConnectionSettings.class)) {
 				connect();
 			}
-				
-		}
-		else
-		{
+
+		} else {
 			disconnect();
 		}
 	}
-	
-	
-	public void disconnect()
-	{
-		oMPDAsyncHelper.disconnect();	
+
+	public void disconnect() {
+		oMPDAsyncHelper.disconnect();
 	}
-	public void connect()
-	{
+
+	public void connect() {
 		// Get Settings...
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);//getSharedPreferences("org.pmix", MODE_PRIVATE);
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);// getSharedPreferences("org.pmix", MODE_PRIVATE);
 		settings.registerOnSharedPreferenceChangeListener(this);
 
 		String wifiSSID = getCurrentSSID();
-		
 
 		if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
 			String sServer = settings.getString(wifiSSID + "hostname", "");
-			int iPort = Integer.getInteger(settings.getString(wifiSSID + "port", "6600"), 6600);
-			int iPortStreaming = Integer.getInteger(settings.getString(wifiSSID + "portStreaming", "8000"), 8000);
+			int iPort = Integer.parseInt(settings.getString(wifiSSID + "port", "6600"));
+			int iPortStreaming = Integer.parseInt(settings.getString(wifiSSID + "portStreaming", "8000"));
 			String sPassword = settings.getString(wifiSSID + "password", "");
-			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);	
+			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
 		} else if (!settings.getString("hostname", "").equals("")) {
-				String sServer = settings.getString("hostname", "");
-				int iPort = Integer.getInteger(settings.getString("port", "6600"), 6600);
-				int iPortStreaming = Integer.getInteger(settings.getString("portStreaming", "8000"), 8000);
-				String sPassword = settings.getString("password", "");
-				oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
+			String sServer = settings.getString("hostname", "");
+			int iPort = Integer.parseInt(settings.getString("port", "6600"));
+			int iPortStreaming = Integer.parseInt(settings.getString("portStreaming", "6600"));
+			String sPassword = settings.getString("password", "");
+			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
 		} else {
 			// Absolutely no settings defined! Open Settings!
-			if(currentActivity != null) {
+			if (currentActivity != null && !settingsShown) {
 				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
+				settingsShown = true;
 			}
+		}
+		if (currentActivity != null && !settings.getBoolean("warningShown", false) && !warningShown) {
+			currentActivity.startActivity(new Intent(currentActivity, WarningActivity.class));
+			warningShown = true;
 		}
 		connectMPD();
 
 	}
 
-	private void connectMPD()
-	{
-		if(ad!=null) {
-			if(ad.isShowing()) {
+	private void connectMPD() {
+		if (ad != null) {
+			if (ad.isShowing()) {
 				try {
 					ad.dismiss();
 				} catch (IllegalArgumentException e) {
-					//We don't care, it has already been destroyed
+					// We don't care, it has already been destroyed
 				}
 			}
 		}
-		if(!isNetworkConnected()) {
+		if (!isNetworkConnected()) {
 			connectionFailed("No network.");
 			return;
 		}
