@@ -167,127 +167,123 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	@Override
 	public void connectionFailed(String message) {
-		System.out.println("Connection Failed: "+message);
-		if(ad!=null) {
-			if(ad.isShowing()) {
+		System.out.println("Connection Failed: " + message);
+		if (ad != null) {
+			if (ad.isShowing()) {
 				try {
 					ad.dismiss();
 				} catch (IllegalArgumentException e) {
-					//We don't care, it has already been destroyed
+					// We don't care, it has already been destroyed
 				}
 			}
 		}
-		if(connectionLocks.size()>0 && currentActivity.getClass() != null) 
-		{
-			if(currentActivity.getClass().equals(SettingsActivity.class))
-			{
-	
+		if (currentActivity == null) {
+			return;
+		}
+		if (currentActivity != null && connectionLocks.size() > 0 && currentActivity.getClass() != null) {
+			if (currentActivity.getClass().equals(SettingsActivity.class)) {
+
 				AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
 				test.setMessage("Connection failed, check your connection settings. (" + message + ")");
-				test.setPositiveButton("OK", new OnClickListener(){
-	
+				test.setPositiveButton("OK", new OnClickListener() {
+
 					@Override
 					public void onClick(DialogInterface arg0, int arg1) {
 						// TODO Auto-generated method stub
-						
+
 					}
 				});
 				ad = test.show();
-			}
-			else
-			{
-					System.out.println(this.getClass());
-					oDialogClickListener = new DialogClickListener();
-					AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
-					test.setTitle(getResources().getString(R.string.connectionFailed));
-					test.setMessage(String.format(getResources().getString(R.string.connectionFailedMessage), message));
-					test.setNegativeButton(getResources().getString(R.string.quit), oDialogClickListener);
-					test.setNeutralButton(getResources().getString(R.string.settings), oDialogClickListener);
-					test.setPositiveButton(getResources().getString(R.string.retry), oDialogClickListener);
-					ad = test.show();
+			} else {
+				System.out.println(this.getClass());
+				oDialogClickListener = new DialogClickListener();
+				AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
+				test.setTitle(getResources().getString(R.string.connectionFailed));
+				test.setMessage(String.format(getResources().getString(R.string.connectionFailedMessage), message));
+				test.setNegativeButton(getResources().getString(R.string.quit), oDialogClickListener);
+				test.setNeutralButton(getResources().getString(R.string.settings), oDialogClickListener);
+				test.setPositiveButton(getResources().getString(R.string.retry), oDialogClickListener);
+				ad = test.show();
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	public void connectionSucceeded(String message) {
 		ad.dismiss();
-		//checkMonitorNeeded();
+		// checkMonitorNeeded();
 	}
-	
+
 	public class DialogClickListener implements OnClickListener {
 
 		public void onClick(DialogInterface dialog, int which) {
-			switch(which) {
-				case AlertDialog.BUTTON3:
-					// Show Settings
-					currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
-					break;
-				case AlertDialog.BUTTON2:
-					currentActivity.finish();
-					break;
-				case AlertDialog.BUTTON1:
-					connectMPD();
-					break;
-					
+			switch (which) {
+			case AlertDialog.BUTTON3:
+				// Show Settings
+				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
+				break;
+			case AlertDialog.BUTTON2:
+				currentActivity.finish();
+				break;
+			case AlertDialog.BUTTON1:
+				connectMPD();
+				break;
+
 			}
 		}
 	}
 
 	private WifiManager mWifiManager;
-	
+
 	// Change this... (sag)
 	public MPDAsyncHelper oMPDAsyncHelper = null;
-	
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
-    	System.err.println("onCreate Application");
-    	
-		oMPDAsyncHelper = new MPDAsyncHelper();
-		oMPDAsyncHelper.addConnectionListener((MPDApplication)getApplicationContext());
+		System.err.println("onCreate Application");
 
-        mWifiManager = (WifiManager)getSystemService(WIFI_SERVICE);
-        
-        
+		oMPDAsyncHelper = new MPDAsyncHelper();
+		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
+
+		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+
 	}
-	
-	public String getCurrentSSID()
-	{
+
+	public String getCurrentSSID() {
 		WifiInfo info = mWifiManager.getConnectionInfo();
-        return info.getSSID();
+		return info.getSSID();
 	}
-	
 
 	public void setWifiConnected(boolean bWifiConnected) {
 		this.bWifiConnected = bWifiConnected;
-		if(bWifiConnected) {
-			if(ad!=null) {
-				if(ad.isShowing()) {
+		if (bWifiConnected) {
+			if (ad != null) {
+				if (ad.isShowing()) {
 					try {
 						ad.dismiss();
 					} catch (IllegalArgumentException e) {
-						//We don't care, it has already been destroyed
+						// We don't care, it has already been destroyed
 					}
 				}
 			}
-			if(currentActivity==null && isStreamingMode()==false)
+			if (currentActivity == null && isStreamingMode() == false)
 				return;
 			connect();
-			//checkMonitorNeeded();
+			// checkMonitorNeeded();
 		} else {
 			disconnect();
-			if(ad!=null) {
-				if(ad.isShowing()) {
+			if (ad != null) {
+				if (ad.isShowing()) {
 					try {
 						ad.dismiss();
 					} catch (IllegalArgumentException e) {
-						//We don't care, it has already been destroyed
+						// We don't care, it has already been destroyed
 					}
 				}
 			}
-			if(currentActivity==null)
+			if (currentActivity == null)
 				return;
 			AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
 			test.setMessage(getResources().getString(R.string.waitForWLAN));
@@ -297,18 +293,17 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	public boolean isWifiConnected() {
 		return true;
-		//return bWifiConnected;
-		//TODO : DIRTY WIFI HACK :(
+		// return bWifiConnected;
+		// TODO : DIRTY WIFI HACK :(
 	}
 
 	public boolean isNetworkConnected() {
-		ConnectivityManager conMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);  
-		if(conMgr.getActiveNetworkInfo() == null)
+		ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (conMgr.getActiveNetworkInfo() == null)
 			return false;
-		return (conMgr.getActiveNetworkInfo().isAvailable() &&
-	            conMgr.getActiveNetworkInfo().isConnected() );
+		return (conMgr.getActiveNetworkInfo().isAvailable() && conMgr.getActiveNetworkInfo().isConnected());
 	}
-	
+
 	public void setStreamingMode(boolean streamingMode) {
 		this.streamingMode = streamingMode;
 	}
@@ -316,5 +311,5 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	public boolean isStreamingMode() {
 		return streamingMode;
 	}
-	
+
 }
