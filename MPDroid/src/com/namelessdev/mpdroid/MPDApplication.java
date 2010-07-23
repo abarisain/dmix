@@ -139,27 +139,26 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 		oMPDAsyncHelper.doConnect();
 	}
-	
 
 	public void onSharedPreferenceChanged(SharedPreferences settings, String key) {
 		String wifiSSID = getCurrentSSID();
-		
+
 		if (key.equals("albumartist")) {
-			//clear current cached artist list on change of tag settings
+			// clear current cached artist list on change of tag settings
 			ArtistsActivity.items = null;
-			
+
 		} else if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
 			String sServer = settings.getString(wifiSSID + "hostname", "");
-			int iPort = Integer.getInteger(settings.getString(wifiSSID + "port", "6600"), 6600);
+			int iPort = Integer.parseInt(settings.getString(wifiSSID + "port", "6600"));
+			int iPortStreaming = Integer.parseInt(settings.getString(wifiSSID + "portStreaming", "8000"));
 			String sPassword = settings.getString(wifiSSID + "password", "");
-			int iPortStreaming = Integer.getInteger(settings.getString(wifiSSID + "portStreaming", "8000"), 8000);
-			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);	
+			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
 		} else if (!settings.getString("hostname", "").equals("")) {
-				String sServer = settings.getString("hostname", "");
-				int iPort = Integer.getInteger(settings.getString("port", "6600"), 6600);
-				String sPassword = settings.getString("password", "");
-				int iPortStreaming = Integer.getInteger(settings.getString("portStreaming", "8000"), 8000);
-				oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
+			String sServer = settings.getString("hostname", "");
+			int iPort = Integer.parseInt(settings.getString("port", "6600"));
+			int iPortStreaming = Integer.parseInt(settings.getString("portStreaming", "6600"));
+			String sPassword = settings.getString("password", "");
+			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
 		} else {
 			return;
 		}
