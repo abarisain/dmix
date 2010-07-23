@@ -514,7 +514,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	
 	@Override
 	public boolean onTouchEvent ( MotionEvent event) {
-		if (gestureDetector.onTouchEvent(event) 
+		if (gestureDetector.onTouchEvent(event))
 			return true;
 		return false;
 	}
