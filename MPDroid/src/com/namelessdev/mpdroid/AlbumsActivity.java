@@ -160,7 +160,7 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 					//MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),item), AlbumsActivity.this);
 				}
 				app.oMPDAsyncHelper.oMPD.play();
-				// Need to find some way of updating the main view here.
+				// TODO Need to find some way of updating the main view here.
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -172,7 +172,7 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 			Add(items.get((int)info.id).toString());
 			break;
 			
-		}// TODO Auto-generated method stub
+		}
 		return false;
 	}
 }
