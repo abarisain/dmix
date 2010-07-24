@@ -75,7 +75,6 @@ public class SearchAlbumActivity extends ListActivity implements AsyncExecListen
 	
 	@Override
 	public void asyncExecSucceeded(int jobID) {
-		// TODO Auto-generated method stub
 		if(iJobID == jobID)
 		{
 			searchKeywords = searchKeywords.toLowerCase().trim();
