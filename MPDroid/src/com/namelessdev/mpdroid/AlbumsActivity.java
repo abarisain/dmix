@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 
 import com.namelessdev.mpdroid.R;
@@ -17,12 +18,17 @@ import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
-public class AlbumsActivity extends BrowseActivity implements AsyncExecListener {
+public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickListener, AsyncExecListener {
 
 	private List<String> items;
 	private int iJobID = -1;
@@ -63,10 +69,29 @@ public class AlbumsActivity extends BrowseActivity implements AsyncExecListener 
 			}
 		});
 		
-		
+
+		registerForContextMenu(getListView());
 	}
 	
-	@Override
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+		//arrayListId = info.position;
+		//songId = (Integer)songlist.get(info.position).get("songid");
+		//title = (String)songlist.get(info.position).get("title");
+
+		menu.setHeaderTitle(items.get((int)info.id).toString());
+		MenuItem addItem = menu.add(ContextMenu.NONE, 0, 0, R.string.addAlbum);
+		addItem.setOnMenuItemClickListener(this);
+		
+		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 1, 0, R.string.addAndReplace);
+		addAndReplaceItem.setOnMenuItemClickListener(this);
+		
+    	
+    	
+    }
+    
+    @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Intent intent = new Intent(this, SongsActivity.class);
 		intent.putExtra("album", items.get(position));
@@ -98,20 +123,6 @@ public class AlbumsActivity extends BrowseActivity implements AsyncExecListener 
 					}
 				}
 			};
-			getListView().setOnItemLongClickListener( new AdapterView.OnItemLongClickListener (){
-                @Override
-                public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-					try {
-						MPDApplication app = (MPDApplication)getApplication();
-						ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, items.get(position).toString()));
-						app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),items.get(position)), AlbumsActivity.this);
-					} catch (MPDServerException e) {
-						e.printStackTrace();
-					}
-                    return true;
-                }
-}			);
 			almumsAdapter.SetPlusListener(AddListener);
 			setListAdapter(almumsAdapter);
 			
@@ -121,5 +132,47 @@ public class AlbumsActivity extends BrowseActivity implements AsyncExecListener 
 			app.oMPDAsyncHelper.removeAsyncExecListener(this);
 			pd.dismiss();
 		}
+	}
+
+	protected void Add(String item) {
+		try {
+			MPDApplication app = (MPDApplication)getApplication();
+			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, item));
+			app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
+			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),item), AlbumsActivity.this);
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	}
+		
+	@Override
+	public boolean onMenuItemClick(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+		case 1:
+			try {
+				MPDApplication app = (MPDApplication)getApplication();
+				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
+				
+				Add(items.get((int)info.id).toString());
+				if ( status.toString() == MPDStatus.MPD_STATE_PLAYING ) {
+					//MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),item), AlbumsActivity.this);
+				}
+				app.oMPDAsyncHelper.oMPD.play();
+				// Need to find some way of updating the main view here.
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+
+			break;
+		case 0:
+			Add(items.get((int)info.id).toString());
+			break;
+			
+		}// TODO Auto-generated method stub
+		return false;
 	}
 }
