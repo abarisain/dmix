@@ -146,7 +146,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		// registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
 		registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
 
-		gestureDetector = new GestureDetector(new MyGestureDetector());
+		gestureDetector = new GestureDetector(new MyGestureDetector(this));
 		gestureListener = new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if (gestureDetector.onTouchEvent(event)) {
@@ -485,6 +485,11 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		private static final int SWIPE_MIN_DISTANCE = 120;
 		private static final int SWIPE_MAX_OFF_PATH = 250;
 		private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+		private Activity context = null;
+
+		public MyGestureDetector(Activity activity) {
+			context = activity;
+		}
 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -494,14 +499,15 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				// right to left swipe
 				if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 					// Next
+					Toast.makeText(context, getResources().getString(R.string.next), Toast.LENGTH_SHORT).show();
 					MPDApplication app = (MPDApplication) getApplication();
 					MPD mpd = app.oMPDAsyncHelper.oMPD;
 					mpd.next();
 				} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 					// Previous
+					Toast.makeText(context, getResources().getString(R.string.previous), Toast.LENGTH_SHORT).show();
 					MPDApplication app = (MPDApplication) getApplication();
 					MPD mpd = app.oMPDAsyncHelper.oMPD;
-
 					mpd.previous();
 				}
 			} catch (Exception e) {

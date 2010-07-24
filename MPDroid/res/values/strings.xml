@@ -10,6 +10,8 @@
 	<string name="track">Track</string>
 	<string name="paused">Paused</string>
 	<string name="stopped">Stopped</string>
+	<string name="next">Next</string>
+	<string name="previous">Previous</string>
 	<string name="ok">OK</string>
 	<string name="quit">Quit</string>
 	<string name="retry">Retry</string>
