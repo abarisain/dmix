@@ -30,7 +30,7 @@
 	<string name="deletedSongFromPlaylist">Deleted song from playlist</string>
 	<string name="albumAdded">Album %s added</string>
 	<string name="addedDirectoryToPlaylist">Added directory to playlist</string>
-	<string name="artistAdded">Artist added</string>
+	<string name="artistAdded">Artist %s added</string>
 	<string name="host">Host</string>
 	<string name="hostDescription">MPD-Server Hostname or IP-Address</string>
 	<string name="port">Port</string>
