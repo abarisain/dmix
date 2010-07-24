@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 
 import com.namelessdev.mpdroid.R;
@@ -17,14 +18,18 @@ import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-public class ArtistsActivity extends BrowseActivity implements AsyncExecListener {
+public class ArtistsActivity extends BrowseActivity implements OnMenuItemClickListener, AsyncExecListener {
 	// Define this as public, more efficient due to the access of a anonymous inner class...
 	// TODO: Is static really the solution? No, should be cashed in JMPDComm ,but it loads 
 	// it only once with this "hotfix"...
@@ -71,8 +76,22 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 			// Yes, its our job which is done...
 			OnArtistsLoaded();
 		}
-	}
+		
 
+		registerForContextMenu(getListView());
+	}
+	
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+
+		menu.setHeaderTitle(items.get((int)info.id).toString());
+		MenuItem addItem = menu.add(ContextMenu.NONE, 0, 0, R.string.addArtist);
+		addItem.setOnMenuItemClickListener(this);
+		
+		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 1, 0, R.string.addAndReplace);
+		addAndReplaceItem.setOnMenuItemClickListener(this);
+    }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -91,7 +110,7 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 			OnArtistsLoaded();
 		}
 	}
-	
+
 	protected void OnArtistsLoaded()
 	{
 		ListViewButtonAdapter<String> artistsAdapter = new ListViewButtonAdapter<String>(ArtistsActivity.this, android.R.layout.simple_list_item_1, items);
@@ -100,34 +119,53 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 			@Override
 			public void OnAdd(CharSequence sSelected, int iPosition)
 			{
-				try {
-					MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.artistAdded), sSelected), ArtistsActivity.this);
-					MPDApplication app = (MPDApplication)getApplication();
-					ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ARTIST, sSelected.toString()));
-					app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-				} catch (MPDServerException e) {
-					e.printStackTrace();
-				}
+				Add(sSelected.toString());
 			}
 		};
-
-		getListView().setOnItemLongClickListener( new AdapterView.OnItemLongClickListener (){
-            @Override
-            public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-				try {
-					MPDApplication app = (MPDApplication)getApplication();
-					ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ARTIST, items.get(position).toString()));
-					app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-					MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.artistAdded), items.get(position)), ArtistsActivity.this);
-				} catch (MPDServerException e) {
-					e.printStackTrace();
-				}
-                return true;
-            }
-		});
-		
 		artistsAdapter.SetPlusListener(AddListener);
 		setListAdapter(artistsAdapter);
 		pd.dismiss();
+	}
+	
+	protected void Add(String item) {
+		try {
+			MPDApplication app = (MPDApplication)getApplication();
+			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ARTIST, item));
+			app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
+			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.artistAdded), item), ArtistsActivity.this);
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	}
+		
+	@Override
+	public boolean onMenuItemClick(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+		case 1:
+			try {
+				MPDApplication app = (MPDApplication)getApplication();
+				String status = app.oMPDAsyncHelper.oMPD.getStatus().getState();
+				app.oMPDAsyncHelper.oMPD.stop();
+				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
+				
+				Add(items.get((int)info.id).toString());
+				if ( status.equals(MPDStatus.MPD_STATE_PLAYING) ) {
+					app.oMPDAsyncHelper.oMPD.play();
+				}
+				// TODO Need to find some way of updating the main view here.
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+
+			break;
+		case 0:
+			Add(items.get((int)info.id).toString());
+			break;
+			
+		}
+		return false;
 	}
 }
