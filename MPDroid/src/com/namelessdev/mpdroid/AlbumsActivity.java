@@ -152,14 +152,14 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 		case 1:
 			try {
 				MPDApplication app = (MPDApplication)getApplication();
-				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+				String status = app.oMPDAsyncHelper.oMPD.getStatus().getState();
+				app.oMPDAsyncHelper.oMPD.stop();
 				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 				
 				Add(items.get((int)info.id).toString());
-				if ( status.toString() == MPDStatus.MPD_STATE_PLAYING ) {
-					//MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),item), AlbumsActivity.this);
+				if ( status.equals(MPDStatus.MPD_STATE_PLAYING) ) {
+					app.oMPDAsyncHelper.oMPD.play();
 				}
-				app.oMPDAsyncHelper.oMPD.play();
 				// TODO Need to find some way of updating the main view here.
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
