@@ -76,9 +76,6 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
     @Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-		//arrayListId = info.position;
-		//songId = (Integer)songlist.get(info.position).get("songid");
-		//title = (String)songlist.get(info.position).get("title");
 
 		menu.setHeaderTitle(items.get((int)info.id).toString());
 		MenuItem addItem = menu.add(ContextMenu.NONE, 0, 0, R.string.addAlbum);
@@ -86,9 +83,6 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 		
 		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 1, 0, R.string.addAndReplace);
 		addAndReplaceItem.setOnMenuItemClickListener(this);
-		
-    	
-    	
     }
     
     @Override
@@ -113,14 +107,7 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 				@Override
 				public void OnAdd(CharSequence sSelected, int iPosition)
 				{
-					try {
-						MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),sSelected), AlbumsActivity.this);
-						MPDApplication app = (MPDApplication)getApplication();
-						ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, sSelected.toString()));
-						app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-					} catch (MPDServerException e) {
-						e.printStackTrace();
-					}
+					Add(sSelected.toString());
 				}
 			};
 			almumsAdapter.SetPlusListener(AddListener);
