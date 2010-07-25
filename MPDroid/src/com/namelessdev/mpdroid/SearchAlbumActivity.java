@@ -28,7 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class SearchAlbumActivity extends ListActivity implements OnMenuItemClickListener, AsyncExecListener {
+public class SearchAlbumActivity extends BrowseActivity implements OnMenuItemClickListener, AsyncExecListener {
 	private LinkedList<String> items;
 	private List<String> itemsList = null;
 	private int iJobID = -1;
@@ -73,18 +73,6 @@ public class SearchAlbumActivity extends ListActivity implements OnMenuItemClick
 	}
 	
     @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-
-		menu.setHeaderTitle(itemsList.get((int)info.id).toString());
-		MenuItem addItem = menu.add(ContextMenu.NONE, 0, 0, R.string.addAlbum);
-		addItem.setOnMenuItemClickListener(this);
-		
-		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 1, 0, R.string.addAndReplace);
-		addAndReplaceItem.setOnMenuItemClickListener(this);
-    }
-    
-    @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
             Intent intent = new Intent(this, SongsActivity.class);
             intent.putExtra("album", itemsList.get(position));
@@ -119,47 +107,5 @@ public class SearchAlbumActivity extends ListActivity implements OnMenuItemClick
 			app.oMPDAsyncHelper.removeAsyncExecListener(this);
 			pd.dismiss();
 		}
-	}
-
-	protected void Add(String item) {
-		try {
-			MPDApplication app = (MPDApplication)getApplication();
-			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, item));
-			app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),item), this);
-		} catch (MPDServerException e) {
-			e.printStackTrace();
-		}
-	}
-		
-	@Override
-	public boolean onMenuItemClick(MenuItem item) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-		switch (item.getItemId()) {
-		case 1:
-			try {
-				MPDApplication app = (MPDApplication)getApplication();
-				String status = app.oMPDAsyncHelper.oMPD.getStatus().getState();
-				app.oMPDAsyncHelper.oMPD.stop();
-				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
-				
-				Add(itemsList.get((int)info.id).toString());
-				if ( status.equals(MPDStatus.MPD_STATE_PLAYING) ) {
-					app.oMPDAsyncHelper.oMPD.play();
-				}
-				// TODO Need to find some way of updating the main view here.
-			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-
-			break;
-		case 0:
-			Add(itemsList.get((int)info.id).toString());
-			break;
-			
-		}
-		return false;
 	}
 }
