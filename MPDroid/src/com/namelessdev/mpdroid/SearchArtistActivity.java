@@ -28,16 +28,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class SearchArtistActivity extends BrowseActivity implements OnMenuItemClickListener, AsyncExecListener {
-	private LinkedList<String> items;
-	private List<String> itemsList = null;
+public class SearchArtistActivity extends BrowseActivity implements AsyncExecListener {
+	private List<String> musicList = null;
 	private int iJobID = -1;
 	private ProgressDialog pd;
 	String searchKeywords = "";
 	
 	public SearchArtistActivity()
 	{
-		super(R.string.addArtist, R.string.artistAdded, MPD.MPD_SEARCH_ARTIST);		
+		super(R.string.addArtist, R.string.artistAdded, MPD.MPD_SEARCH_ARTIST);
+		items = new ArrayList<String>();
+		musicList = new ArrayList<String>();
 	}
 	
 	@Override
@@ -59,7 +60,6 @@ public class SearchArtistActivity extends BrowseActivity implements OnMenuItemCl
 		//setTitle(getResources().getString(R.string.albums));
 		MPDApplication app = (MPDApplication)getApplication();
 		// Loading Albums asynchronous...
-		itemsList = new ArrayList<String>();
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
 		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
 			@Override
@@ -67,7 +67,7 @@ public class SearchArtistActivity extends BrowseActivity implements OnMenuItemCl
 			{
 				try {
 					MPDApplication app = (MPDApplication)getApplication();
-					items = app.oMPDAsyncHelper.oMPD.listArtists();
+					musicList = app.oMPDAsyncHelper.oMPD.listArtists();
 				} catch (MPDServerException e) {
 					
 				}
@@ -81,7 +81,7 @@ public class SearchArtistActivity extends BrowseActivity implements OnMenuItemCl
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
             Intent intent = new Intent(this, AlbumsActivity.class);
-            intent.putExtra("artist", itemsList.get(position));
+            intent.putExtra("artist", items.get(position));
             startActivityForResult(intent, -1);
     }
     
@@ -91,13 +91,14 @@ public class SearchArtistActivity extends BrowseActivity implements OnMenuItemCl
 		if(iJobID == jobID)
 		{
 			searchKeywords = searchKeywords.toLowerCase().trim();
-			for (String music : items) {
+			for (String music : musicList) {
 				if(music.toLowerCase().contains(searchKeywords))
-					itemsList.add(music);
+					items.add(music);
 			}
+
 			
 			// Use the ListViewButtonAdapter class to show the albums
-			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(SearchArtistActivity.this, android.R.layout.simple_list_item_1, itemsList);
+			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(SearchArtistActivity.this, android.R.layout.simple_list_item_1, items);
 			
 			PlusListener AddListener = new PlusListener() {
 				@Override
