@@ -19,7 +19,7 @@ import android.widget.ListView;
 
 public class SongsActivity extends BrowseActivity {
 
-	private List<Music> musics = null;
+	private List<Music> dispMusic = null;
 
 	public SongsActivity()
 	{
@@ -36,9 +36,9 @@ public class SongsActivity extends BrowseActivity {
 			MPDApplication app = (MPDApplication)getApplication();
 			String album = (String) this.getIntent().getStringExtra("album");
 			this.setTitle(album);
-			musics = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, album));
+			dispMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, album));
 
-			for (Music music : musics) {
+			for (Music music : dispMusic) {
 				items.add(music.getTitle());
 			}
 
@@ -49,7 +49,7 @@ public class SongsActivity extends BrowseActivity {
 				@Override
 				public void OnAdd(CharSequence sSelected, int iPosition)
 				{
-					Music music = musics.get(iPosition);
+					Music music = dispMusic.get(iPosition);
 					try {
 						MPDApplication app = (MPDApplication)getApplication();
 						app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
@@ -69,21 +69,32 @@ public class SongsActivity extends BrowseActivity {
 		}
 		registerForContextMenu(getListView());	
 	}
-	
+    
+    @Override
+	protected void Add(String item) {
+    	Add(items.indexOf(item));
+	}
+    
 	@Override
 	/**
 	 * We also listen to item clicks here...
 	 */
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Music music = musics.get(position);
+		Add(position);
+	}    
+
+    protected void Add(int index)
+    {
+    	Music music = dispMusic.get(index);
 		try {
 			MPDApplication app = (MPDApplication)getApplication();
 
 			app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded,music.getTitle()),music.getName()), SongsActivity.this);
+			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded,music.getTitle()),music.getName()), this);
 		} catch (MPDServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+    }
+
 }
