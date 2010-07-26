@@ -21,15 +21,15 @@
 	<string name="serverAddress">Server Address :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Add and Replace</string><string name="addAlbum">Add Album</string>
-	<string name="addArtist">Add Artist</string>
+	<string name="addArtist">Add Artist</string><string name="addDirectory">Add Directory</string><string name="addSong">Add Song</string>
 	<string name="removeSong">Remove Song</string>
 	<string name="clear">Clear</string>
-	<string name="addDirectory">Add Directory</string>
+	
 	<string name="mainMenu">Main Menu</string>
 	<string name="playlistCleared">Playlist cleared</string>
 	<string name="deletedSongFromPlaylist">Deleted song from playlist</string>
 	<string name="albumAdded">Album %s added</string>
-	<string name="addedDirectoryToPlaylist">Added directory to playlist</string>
+	<string name="addedDirectoryToPlaylist">Added directory %s to playlist</string>
 	<string name="artistAdded">Artist %s added</string>
 	<string name="host">Host</string>
 	<string name="hostDescription">MPD-Server Hostname or IP-Address</string>
@@ -92,5 +92,6 @@
 	<string name="songSearch">Displaying all the songs is not a good idea. Please search for something.</string>
 	<string name="warningTitle">Please read</string>
 	<string name="warningText1">This will only display once.\n\nI have received a lot of emails about this app.\nFirst of all, if you don\'t know what a MPD server is, you should uninstall the application now, it is not made for you.\n\nSecondly, be careful and CHECK your data plan, this application can generate huge 3G bills if you don\'t double check your plan.\n\nLastly, thanks for your support. Some people reported bugs, others sent patches. Please go on !\nSince the market doesn\'t give me any mean to contact my users, please feel free to report a bug or send me a message at dreamteam69@gmail.com (or on github) and I will be happy to help you as soon as possible !\nBy the way, the screenshots on the market might not always reflect the current look of the application ;)</string>
+
 
 </resources>

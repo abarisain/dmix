@@ -30,13 +30,14 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 public class ArtistsActivity extends BrowseActivity implements AsyncExecListener {
-	// Define this as public, more efficient due to the access of a anonymous inner class...
-	// TODO: Is static really the solution? No, should be cashed in JMPDComm ,but it loads 
-	// it only once with this "hotfix"...
-	// public static List<String> items = null;
 	private int iJobID = -1;
 	private ProgressDialog pd;
 	private boolean albumartist;
+	
+	public ArtistsActivity()
+	{
+		super(R.string.addArtist, R.string.artistAdded, MPD.MPD_SEARCH_ARTIST);		
+	}
 	
 	@Override
 	public void onCreate(Bundle icicle) {
@@ -94,7 +95,7 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 
 	protected void OnArtistsLoaded()
 	{
-		ListViewButtonAdapter<String> artistsAdapter = new ListViewButtonAdapter<String>(ArtistsActivity.this, android.R.layout.simple_list_item_1, items);
+		ListViewButtonAdapter<String> artistsAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 		
 		PlusListener AddListener = new PlusListener() {
 			@Override

@@ -145,7 +145,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 		if (key.equals("albumartist")) {
 			// clear current cached artist list on change of tag settings
-			ArtistsActivity.items = null;
+			//ArtistsActivity.items = null;
 
 		} else if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
 			String sServer = settings.getString(wifiSSID + "hostname", "");

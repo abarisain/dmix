@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.a0z.mpd.Directory;
+import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.Music;
 
@@ -18,9 +19,17 @@ import android.view.View;
 import android.widget.ListView;
 
 public class FSActivity extends BrowseActivity {
-	private List<String> items = new ArrayList<String>();
 	private Directory currentDirectory = null;
 
+	public FSActivity()
+	{
+		// TODO Looks good but doesn't work. Disabled by not running the context menu registeration.
+		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPD.MPD_SEARCH_FILENAME);
+		items = new ArrayList<String>();
+		
+		
+	}
+	
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
@@ -79,7 +88,9 @@ public class FSActivity extends BrowseActivity {
 			e.printStackTrace();
 			this.setTitle(e.getMessage());
 		}
-
+		
+		// Disabled because it doesn't work.
+		//registerForContextMenu(getListView());	
 	}
 	
 	

@@ -35,6 +35,11 @@ public class SearchArtistActivity extends BrowseActivity implements OnMenuItemCl
 	private ProgressDialog pd;
 	String searchKeywords = "";
 	
+	public SearchArtistActivity()
+	{
+		super(R.string.addArtist, R.string.artistAdded, MPD.MPD_SEARCH_ARTIST);		
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

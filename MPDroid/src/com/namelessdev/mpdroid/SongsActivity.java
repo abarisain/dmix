@@ -21,11 +21,16 @@ public class SongsActivity extends BrowseActivity {
 
 	private List<Music> musics = null;
 
+	public SongsActivity()
+	{
+		super(R.string.addSong, R.string.songAdded, MPD.MPD_SEARCH_TITLE);
+		items = new ArrayList<String>();		
+	}
+	
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.artists);
-		List<String> items = new ArrayList<String>();
 
 		try {
 			MPDApplication app = (MPDApplication)getApplication();
@@ -62,7 +67,7 @@ public class SongsActivity extends BrowseActivity {
 			e.printStackTrace();
 			this.setTitle(e.getMessage());
 		}
-
+		registerForContextMenu(getListView());	
 	}
 	
 	@Override

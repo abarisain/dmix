@@ -28,8 +28,16 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	public static final int PLAYLIST = 3;
 	protected List<String> items;
 	
-	public BrowseActivity() {
+	String context;
+	int irAdd, irAdded;
+	public BrowseActivity(int rAdd, int rAdded, String pContext) {
 		super();
+		irAdd = rAdd;
+		irAdded = rAdded;
+		
+		//strAdd = getResources().getString(rAdd);
+		//strAdded = getResources().getString(rAdded);
+		context = pContext;
 		
 	}
 
@@ -81,7 +89,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
 		menu.setHeaderTitle(items.get((int)info.id).toString());
-		MenuItem addItem = menu.add(ContextMenu.NONE, 0, 0, R.string.addAlbum);
+		MenuItem addItem = menu.add(ContextMenu.NONE, 0, 0, getResources().getString(irAdd));
 		addItem.setOnMenuItemClickListener(this);
 		
 		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 1, 0, R.string.addAndReplace);
@@ -91,9 +99,9 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	protected void Add(String item) {
 		try {
 			MPDApplication app = (MPDApplication)getApplication();
-			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, item));
+			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(context, item));
 			app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),item), this);
+			MainMenuActivity.notifyUser(String.format(getResources().getString(irAdded),item), this);
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
