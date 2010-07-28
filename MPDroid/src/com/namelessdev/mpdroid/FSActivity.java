@@ -21,8 +21,7 @@ import android.widget.ListView;
 public class FSActivity extends BrowseActivity {
 	private Directory currentDirectory = null;
 
-	public FSActivity()
-	{
+	public FSActivity() {
 		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPD.MPD_SEARCH_FILENAME);
 		items = new ArrayList<String>();	
 	}
@@ -88,7 +87,6 @@ public class FSActivity extends BrowseActivity {
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-
 		// click on a file
 		if (position > currentDirectory.getDirectories().size() - 1 || currentDirectory.getDirectories().size() == 0) {
 
@@ -116,8 +114,7 @@ public class FSActivity extends BrowseActivity {
 			String dir;
 
 			dir = ((Directory) currentDirectory.getDirectories().toArray()[position]).getFullpath();
-			if(dir != null)
-			{
+			if(dir != null) {
 				intent.putExtra("directory", dir);
 				startActivityForResult(intent, -1);
 			}

@@ -60,8 +60,7 @@ public class ArtistsActivity extends BrowseActivity {
     }
 	
 	@Override
-	protected void asyncUpdate()
-	{
+	protected void asyncUpdate() {
 		try {
 			MPDApplication app = (MPDApplication)getApplication();
 			if(albumartist == true) {

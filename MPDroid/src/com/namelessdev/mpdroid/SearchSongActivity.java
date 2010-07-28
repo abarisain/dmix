@@ -82,8 +82,7 @@ public class SearchSongActivity extends BrowseActivity{
     
 
 	@Override
-	protected void asyncUpdate()
-	{
+	protected void asyncUpdate() {
 		String finalsearch = this.searchKeywords.toLowerCase();
 		
 		try {

@@ -71,14 +71,11 @@ public class SongsActivity extends BrowseActivity {
 			MPDApplication app = (MPDApplication)getApplication();
 			dispMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, album));
 		} catch (MPDServerException e) {
-			
 		}
 		
 		for (Music music : dispMusic) {
 			items.add(music.getTitle());
 		}
-		
-		super.asyncUpdate();
 	}
     
 }

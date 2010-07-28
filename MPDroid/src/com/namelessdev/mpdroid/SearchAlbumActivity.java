@@ -67,13 +67,11 @@ public class SearchAlbumActivity extends BrowseActivity{
     }
 	
     @Override
-	protected void asyncUpdate()
-	{
+	protected void asyncUpdate() {
     	try {
 			MPDApplication app = (MPDApplication)getApplication();
 			musicList = app.oMPDAsyncHelper.oMPD.listAlbums();
 		} catch (MPDServerException e) {
-			
 		}
 		
 		searchKeywords = searchKeywords.toLowerCase().trim();

@@ -60,10 +60,8 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		app.unsetActivity(this);
 	}
 	
-	public void UpdateList()
-	{
-		if ( pd == null )
-		{
+	public void UpdateList() {
+		if (pd == null) {
 			pd = ProgressDialog.show(this, getResources().getString(R.string.loading), getResources().getString(R.string.loading));
 		}
 		MPDApplication app = (MPDApplication)getApplication();
@@ -89,20 +87,18 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	
 		Intent i = null;
 		
 		switch (item.getItemId()) {
-	
-		case MAIN:
-			i = new Intent(this, MainMenuActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			return true;
-		case PLAYLIST:
-			i = new Intent(this, PlaylistActivity.class);
-			startActivityForResult(i, PLAYLIST);
-			return true;
+			case MAIN:
+				i = new Intent(this, MainMenuActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(i);
+				return true;
+			case PLAYLIST:
+				i = new Intent(this, PlaylistActivity.class);
+				startActivityForResult(i, PLAYLIST);
+				return true;
 		}
 		return false;
 	}
@@ -171,10 +167,8 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	
 	@Override
 	public void asyncExecSucceeded(int jobID) {
-		if ( iJobID == jobID)
-		{
-			if ( items != null )
-			{
+		if (iJobID == jobID) {
+			if (items != null) {
 				ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 				setListAdapter(listAdapter);
 			}
