@@ -23,11 +23,8 @@ public class FSActivity extends BrowseActivity {
 
 	public FSActivity()
 	{
-		// TODO Looks good but doesn't work. Disabled by not running the context menu registeration.
 		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPD.MPD_SEARCH_FILENAME);
-		items = new ArrayList<String>();
-		
-		
+		items = new ArrayList<String>();	
 	}
 	
 	@Override
@@ -35,64 +32,59 @@ public class FSActivity extends BrowseActivity {
 		super.onCreate(icicle);
 		setContentView(R.layout.files);
 
-		items.clear();
+		UpdateList();
+		registerForContextMenu(getListView());	
+	}
+	
+	@Override
+	protected void Add(String item) {
 		try {
-			// Get file system, try to use supplied sub directory if available
 			MPDApplication app = (MPDApplication)getApplication();
-			if (this.getIntent().getStringExtra("directory") != null) {
-				currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory((String) this.getIntent().getStringExtra("directory"));
-				setTitle((String) getIntent().getStringExtra("directory"));
+			Directory ToAdd = currentDirectory.getDirectory(item);
+			if(ToAdd != null) {
+				// Valid directory
+				app.oMPDAsyncHelper.oMPD.getPlaylist().add(ToAdd);
+				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item), FSActivity.this);
 			} else {
-				currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
+				Music music = currentDirectory.getFileByTitle(item);
+				if(music != null) {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
+					MainMenuActivity.notifyUser(getResources().getString(R.string.songAdded, item), FSActivity.this);
+				}
 			}
-			currentDirectory.refreshData();
-
-			Collection<Directory> directories = currentDirectory.getDirectories();
-			for (Directory child : directories) {
-				items.add(child.getName());
-			}
-
-			Collection<Music> musics = currentDirectory.getFiles();
-			for (Music music : musics) {
-				items.add(music.getTitle());
-			}
-
-			// Put the list on the screen...
-			ListViewButtonAdapter<String> fsentries = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-			PlusListener AddListener = new PlusListener() {
-				@Override
-				public void OnAdd(CharSequence sSelected, int iPosition)
-					{
-						try {
-							MPDApplication app = (MPDApplication)getApplication();
-							Directory ToAdd = currentDirectory.getDirectory(sSelected.toString());
-							if(ToAdd != null) {
-								// Valid directory
-								app.oMPDAsyncHelper.oMPD.getPlaylist().add(ToAdd);
-								MainMenuActivity.notifyUser(getResources().getString(R.string.addedDirectoryToPlaylist), FSActivity.this);
-							} else {
-								Music music = currentDirectory.getFileByTitle(sSelected.toString());
-								if(music != null) {
-									app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
-									MainMenuActivity.notifyUser(getResources().getString(R.string.songAdded, sSelected), FSActivity.this);
-								}
-							}
-						} catch (MPDServerException e) {
-							e.printStackTrace();
-						}
-					}
-				};
-			fsentries.SetPlusListener(AddListener);
-			setListAdapter(fsentries);
 		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	protected void asyncUpdate() {
+		MPDApplication app = (MPDApplication)getApplication();
+		if (this.getIntent().getStringExtra("directory") != null) {
+			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory((String) this.getIntent().getStringExtra("directory"));
+			setTitle((String) getIntent().getStringExtra("directory"));
+		} else {
+			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
+		}
+		
+		try {
+			currentDirectory.refreshData();
+		}
+		catch (MPDServerException e) {
 			e.printStackTrace();
 			this.setTitle(e.getMessage());
 		}
 		
-		// Disabled because it doesn't work.
-		//registerForContextMenu(getListView());	
+		Collection<Directory> directories = currentDirectory.getDirectories();
+		for (Directory child : directories) {
+			items.add(child.getName());
+		}
+
+		Collection<Music> musics = currentDirectory.getFiles();
+		for (Music music : musics) {
+			items.add(music.getTitle());
+		}
 	}
-	
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {

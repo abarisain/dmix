@@ -28,7 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickListener{
+public class AlbumsActivity extends BrowseActivity{
 	public AlbumsActivity() {
 		super(R.string.addAlbum, R.string.albumAdded, MPD.MPD_SEARCH_ALBUM);	
 	}
@@ -46,29 +46,9 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 			setTitle(getResources().getString(R.string.albums));	
 		}
 
-		MPDApplication app = (MPDApplication)getApplication();
-			
-		// Loading Albums asynchronous...
-		app.oMPDAsyncHelper.addAsyncExecListener(this);
-		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
-			@Override
-			public void run() 
-			{
-				
-				try {
-					MPDApplication app = (MPDApplication)getApplication();
-					if (getIntent().getStringExtra("artist") != null) {
-						items = app.oMPDAsyncHelper.oMPD.listAlbums((String) getIntent().getStringExtra("artist"));
-					} else {
-						items = app.oMPDAsyncHelper.oMPD.listAlbums();
-					}
-				} catch (MPDServerException e) {
-					
-				}
-			}
-		});
-		
 		registerForContextMenu(getListView());	
+	
+		UpdateList();
 	}
 	
     @Override
@@ -78,5 +58,18 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 		startActivityForResult(intent, -1);
 	}
 
+	@Override
+	protected void asyncUpdate()
+	{
+		try {
+			MPDApplication app = (MPDApplication)getApplication();
+			if (getIntent().getStringExtra("artist") != null) {
+				items = app.oMPDAsyncHelper.oMPD.listAlbums((String) getIntent().getStringExtra("artist"));
+			} else {
+				items = app.oMPDAsyncHelper.oMPD.listAlbums();
+			}
+		} catch (MPDServerException e) {
+		}
+	}
 
 }

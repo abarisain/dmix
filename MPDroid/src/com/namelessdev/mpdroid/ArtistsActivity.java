@@ -47,28 +47,9 @@ public class ArtistsActivity extends BrowseActivity {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		albumartist = settings.getBoolean("albumartist", false);
 
+		registerForContextMenu(getListView());
 		
-		MPDApplication app = (MPDApplication)getApplication();
-		
-		// Loading Artists asynchronous...
-		app.oMPDAsyncHelper.addAsyncExecListener(this);
-		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
-			@Override
-			public void run() {
-				try {
-					MPDApplication app = (MPDApplication)getApplication();
-					if(albumartist == true) {
-						items = app.oMPDAsyncHelper.oMPD.listAlbumArtists();
-					}else{
-						items = app.oMPDAsyncHelper.oMPD.listArtists();
-					}
-				} catch (MPDServerException e) {
-					
-				}
-			}
-		});
-
-		registerForContextMenu(getListView());	
+		UpdateList();
 	}
 	
     @Override
@@ -77,4 +58,18 @@ public class ArtistsActivity extends BrowseActivity {
             intent.putExtra("artist", items.get(position));
             startActivityForResult(intent, -1);
     }
+	
+	@Override
+	protected void asyncUpdate()
+	{
+		try {
+			MPDApplication app = (MPDApplication)getApplication();
+			if(albumartist == true) {
+				items = app.oMPDAsyncHelper.oMPD.listAlbumArtists();
+			} else {
+				items = app.oMPDAsyncHelper.oMPD.listArtists();
+			}
+		} catch (MPDServerException e) {
+		}
+	}
 }

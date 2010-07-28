@@ -21,7 +21,8 @@ import android.widget.ListView;
 public class SongsActivity extends BrowseActivity {
 
 	private List<Music> dispMusic = null;
-
+	String album = "";
+	
 	public SongsActivity() {
 		super(R.string.addSong, R.string.songAdded, MPD.MPD_SEARCH_TITLE);
 		items = new ArrayList<String>();		
@@ -29,31 +30,16 @@ public class SongsActivity extends BrowseActivity {
 	
 	@Override
 	public void onCreate(Bundle icicle) {
+		album = (String) this.getIntent().getStringExtra("album");
 		super.onCreate(icicle);
+
 		setContentView(R.layout.artists);
 
-		MPDApplication app = (MPDApplication)getApplication();
-		final String album = (String) this.getIntent().getStringExtra("album");
 		this.setTitle(album);
-		
 		pd = ProgressDialog.show(this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingSongs));
 
-
-		// Loading Albums asynchronous...
-		app.oMPDAsyncHelper.addAsyncExecListener(this);
-		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
-			@Override
-			public void run() {
-				try {
-					MPDApplication app = (MPDApplication)getApplication();
-					dispMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, album));
-				} catch (MPDServerException e) {
-					
-				}
-			}
-		});
-		
 		registerForContextMenu(getListView());	
+		UpdateList();
 	}
     
     @Override
@@ -80,14 +66,19 @@ public class SongsActivity extends BrowseActivity {
     }
 
 	@Override
-	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID) {
-			for (Music music : dispMusic) {
-				items.add(music.getTitle());
-			}
+	public void asyncUpdate() {
+		try {
+			MPDApplication app = (MPDApplication)getApplication();
+			dispMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, album));
+		} catch (MPDServerException e) {
 			
-			super.asyncExecSucceeded(jobID);
 		}
+		
+		for (Music music : dispMusic) {
+			items.add(music.getTitle());
+		}
+		
+		super.asyncUpdate();
 	}
     
 }

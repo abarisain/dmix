@@ -47,27 +47,14 @@ public class SearchSongActivity extends BrowseActivity{
 		} else {
 			return; //Bye !
 		}
+		
 		setContentView(R.layout.artists);
 		setTitle(getTitle()+" : "+searchKeywords);
 		pd = ProgressDialog.show(SearchSongActivity.this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingSongs));		
 		
-		MPDApplication app = (MPDApplication)getApplication();
-		// Loading Albums asynchronous...
-		final String finalSearch = searchKeywords;
-		app.oMPDAsyncHelper.addAsyncExecListener(this);
-		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
-			@Override
-			public void run() {
-				try {
-					MPDApplication app = (MPDApplication)getApplication();
-					arrayMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.search("any", finalSearch));
-				} catch (MPDServerException e) {	
-				}
-			}
-		});
-		
-
 		registerForContextMenu(getListView());
+		
+		UpdateList();
 	}
 
     @Override
@@ -93,18 +80,24 @@ public class SearchSongActivity extends BrowseActivity{
 		}
     }
     
-	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID) {
-			searchKeywords = searchKeywords.toLowerCase();
-			
-			for (Music music : arrayMusic) {
-				if(music.getTitle().toLowerCase().contains(searchKeywords)) {
-					items.add(music.getTitle());
-					dispMusic.add(music);
-				}
+
+	@Override
+	protected void asyncUpdate()
+	{
+		String finalsearch = this.searchKeywords.toLowerCase();
+		
+		try {
+			MPDApplication app = (MPDApplication)getApplication();
+			arrayMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.search("any", finalsearch));
+		} catch (MPDServerException e) {	
+		}
+		
+		
+		for (Music music : arrayMusic) {
+			if(music.getTitle().toLowerCase().contains(finalsearch)) {
+				items.add(music.getTitle());
+				dispMusic.add(music);
 			}
-			
-			super.asyncExecSucceeded(jobID);
 		}
 	}
 }

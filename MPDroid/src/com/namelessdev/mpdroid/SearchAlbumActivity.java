@@ -28,7 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class SearchAlbumActivity extends BrowseActivity implements AsyncExecListener {
+public class SearchAlbumActivity extends BrowseActivity{
 	private List<String> musicList = null;
 	String searchKeywords = "";
 	
@@ -53,25 +53,10 @@ public class SearchAlbumActivity extends BrowseActivity implements AsyncExecList
 		setContentView(R.layout.artists);
 		setTitle(getTitle()+" : "+searchKeywords);
 		pd = ProgressDialog.show(SearchAlbumActivity.this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingArtists));		
-		//setTitle(getResources().getString(R.string.albums));
-		MPDApplication app = (MPDApplication)getApplication();
-		// Loading Albums asynchronous...
-		app.oMPDAsyncHelper.addAsyncExecListener(this);
-		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
-			@Override
-			public void run() 
-			{
-				try {
-					MPDApplication app = (MPDApplication)getApplication();
-					musicList = app.oMPDAsyncHelper.oMPD.listAlbums();
-				} catch (MPDServerException e) {
-					
-				}
-			}
-		});
-		
 
 		registerForContextMenu(getListView());
+		
+		UpdateList();
 	}
 	
     @Override
@@ -81,16 +66,20 @@ public class SearchAlbumActivity extends BrowseActivity implements AsyncExecList
             startActivityForResult(intent, -1);
     }
 	
-	@Override
-	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID) {
-			searchKeywords = searchKeywords.toLowerCase().trim();
-			for (String music : musicList) {
-				if(music.toLowerCase().contains(searchKeywords))
-					items.add(music);
-			}
+    @Override
+	protected void asyncUpdate()
+	{
+    	try {
+			MPDApplication app = (MPDApplication)getApplication();
+			musicList = app.oMPDAsyncHelper.oMPD.listAlbums();
+		} catch (MPDServerException e) {
 			
-			super.asyncExecSucceeded(jobID);
+		}
+		
+		searchKeywords = searchKeywords.toLowerCase().trim();
+		for (String music : musicList) {
+			if(music.toLowerCase().contains(searchKeywords))
+				items.add(music);
 		}
 	}
 }

@@ -28,7 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class SearchArtistActivity extends BrowseActivity implements AsyncExecListener {
+public class SearchArtistActivity extends BrowseActivity{
 	private List<String> musicList = null;
 	String searchKeywords = "";
 	
@@ -54,24 +54,9 @@ public class SearchArtistActivity extends BrowseActivity implements AsyncExecLis
 		setTitle(getTitle()+" : "+searchKeywords);
 		pd = ProgressDialog.show(SearchArtistActivity.this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingArtists));
 
-		//setTitle(getResources().getString(R.string.albums));
-		MPDApplication app = (MPDApplication)getApplication();
-		// Loading Albums asynchronous...
-		app.oMPDAsyncHelper.addAsyncExecListener(this);
-		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
-			@Override
-			public void run() {
-				try {
-					MPDApplication app = (MPDApplication)getApplication();
-					musicList = app.oMPDAsyncHelper.oMPD.listArtists();
-				} catch (MPDServerException e) {
-					
-				}
-			}
-		});
-		
-		
 		registerForContextMenu(getListView());
+		
+		super.UpdateList();
 	}	
 	
     @Override
@@ -82,15 +67,19 @@ public class SearchArtistActivity extends BrowseActivity implements AsyncExecLis
     }
     
 	@Override
-	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID) {
-			searchKeywords = searchKeywords.toLowerCase().trim();
-			for (String music : musicList) {
-				if(music.toLowerCase().contains(searchKeywords))
-					items.add(music);
-			}
+	protected void asyncUpdate()
+	{
+		try {
+			MPDApplication app = (MPDApplication)getApplication();
+			musicList = app.oMPDAsyncHelper.oMPD.listArtists();
+		} catch (MPDServerException e) {
 			
-			super.asyncExecSucceeded(jobID);
+		}
+		
+		searchKeywords = searchKeywords.toLowerCase().trim();
+		for (String music : musicList) {
+			if(music.toLowerCase().contains(searchKeywords))
+				items.add(music);
 		}
 	}
 }

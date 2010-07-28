@@ -33,7 +33,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	
 	public static final int MAIN = 0;
 	public static final int PLAYLIST = 3;
-	protected List<String> items;
+	protected List<String> items = null;
 	
 	String context;
 	int irAdd, irAdded;
@@ -42,8 +42,6 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		irAdd = rAdd;
 		irAdded = rAdded;
 		
-		//strAdd = getResources().getString(rAdd);
-		//strAdded = getResources().getString(rAdded);
 		context = pContext;
 		
 	}
@@ -60,6 +58,24 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		super.onStop();
 		MPDApplication app = (MPDApplication)getApplicationContext();
 		app.unsetActivity(this);
+	}
+	
+	public void UpdateList()
+	{
+		if ( pd == null )
+		{
+			pd = ProgressDialog.show(this, getResources().getString(R.string.loading), getResources().getString(R.string.loading));
+		}
+		MPDApplication app = (MPDApplication)getApplication();
+		
+		// Loading Artists asynchronous...
+		app.oMPDAsyncHelper.addAsyncExecListener(this);
+		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
+			@Override
+			public void run() {
+				asyncUpdate();
+			}
+		});
 	}
 	
 	@Override
@@ -104,7 +120,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
     }
 
 
-
+    
 
     
 	protected void Add(String item) {
@@ -149,27 +165,22 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		return false;
 	}
     
-	@Override
-	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID)
-		{
-			// Yes, its our job which is done...
-			
-			// This should be the adapter to use I think since we no longer have a button in there, but the rows gets high with this one so 
-			// Leaves it up to the other one for the moment /Kent
-			//ArrayAdapter<String> notes = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-			//setListAdapter(notes);
-			
-			// Use the ListViewButtonAdapter class to show the albums
-			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-			setListAdapter(almumsAdapter);
-			
-			
-			// No need to listen further...
-			MPDApplication app = (MPDApplication)getApplication();
-			app.oMPDAsyncHelper.removeAsyncExecListener(this);
-			pd.dismiss();
-		}
+	protected void asyncUpdate() {
+		
 	}
 	
+	@Override
+	public void asyncExecSucceeded(int jobID) {
+		if ( iJobID == jobID)
+		{
+			if ( items != null )
+			{
+				ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+				setListAdapter(listAdapter);
+			}
+			pd.dismiss();
+			
+		}
+	
+	}
 }
