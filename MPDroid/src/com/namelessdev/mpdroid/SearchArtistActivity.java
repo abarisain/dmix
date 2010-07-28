@@ -30,12 +30,9 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class SearchArtistActivity extends BrowseActivity implements AsyncExecListener {
 	private List<String> musicList = null;
-	private int iJobID = -1;
-	private ProgressDialog pd;
 	String searchKeywords = "";
 	
-	public SearchArtistActivity()
-	{
+	public SearchArtistActivity() {
 		super(R.string.addArtist, R.string.artistAdded, MPD.MPD_SEARCH_ARTIST);
 		items = new ArrayList<String>();
 		musicList = new ArrayList<String>();
@@ -63,8 +60,7 @@ public class SearchArtistActivity extends BrowseActivity implements AsyncExecLis
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
 		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
 			@Override
-			public void run() 
-			{
+			public void run() {
 				try {
 					MPDApplication app = (MPDApplication)getApplication();
 					musicList = app.oMPDAsyncHelper.oMPD.listArtists();
@@ -87,35 +83,14 @@ public class SearchArtistActivity extends BrowseActivity implements AsyncExecLis
     
 	@Override
 	public void asyncExecSucceeded(int jobID) {
-		// TODO Auto-generated method stub
-		if(iJobID == jobID)
-		{
+		if(iJobID == jobID) {
 			searchKeywords = searchKeywords.toLowerCase().trim();
 			for (String music : musicList) {
 				if(music.toLowerCase().contains(searchKeywords))
 					items.add(music);
 			}
-
 			
-			// Use the ListViewButtonAdapter class to show the albums
-			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(SearchArtistActivity.this, android.R.layout.simple_list_item_1, items);
-			
-			PlusListener AddListener = new PlusListener() {
-				@Override
-				public void OnAdd(CharSequence sSelected, int iPosition)
-				{
-					Add(sSelected.toString());
-				}
-			};
-			almumsAdapter.SetPlusListener(AddListener);
-			setListAdapter(almumsAdapter);
-			
-			
-			// No need to listen further...
-			MPDApplication app = (MPDApplication)getApplication();
-			app.oMPDAsyncHelper.removeAsyncExecListener(this);
-			pd.dismiss();
+			super.asyncExecSucceeded(jobID);
 		}
 	}
-	
 }

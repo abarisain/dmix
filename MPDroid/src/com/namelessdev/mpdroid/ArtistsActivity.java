@@ -29,9 +29,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-public class ArtistsActivity extends BrowseActivity implements AsyncExecListener {
-	private int iJobID = -1;
-	private ProgressDialog pd;
+public class ArtistsActivity extends BrowseActivity {
 	private boolean albumartist;
 	
 	public ArtistsActivity() {
@@ -79,28 +77,4 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
             intent.putExtra("artist", items.get(position));
             startActivityForResult(intent, -1);
     }
-
-	@Override
-	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID) {
-			// Yes, its our job which is done, no need to listen further...
-			MPDApplication app = (MPDApplication)getApplication();
-			app.oMPDAsyncHelper.removeAsyncExecListener(this);
-			OnArtistsLoaded();
-		}
-	}
-
-	protected void OnArtistsLoaded() {
-		ListViewButtonAdapter<String> artistsAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-		
-		PlusListener AddListener = new PlusListener() {
-			@Override
-			public void OnAdd(CharSequence sSelected, int iPosition) {
-				Add(sSelected.toString());
-			}
-		};
-		artistsAdapter.SetPlusListener(AddListener);
-		setListAdapter(artistsAdapter);
-		pd.dismiss();
-	}
 }

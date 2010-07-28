@@ -30,8 +30,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class SearchAlbumActivity extends BrowseActivity implements AsyncExecListener {
 	private List<String> musicList = null;
-	private int iJobID = -1;
-	private ProgressDialog pd;
 	String searchKeywords = "";
 	
 	public SearchAlbumActivity() {
@@ -91,23 +89,8 @@ public class SearchAlbumActivity extends BrowseActivity implements AsyncExecList
 				if(music.toLowerCase().contains(searchKeywords))
 					items.add(music);
 			}
-			// Use the ListViewButtonAdapter class to show the albums
-			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(SearchAlbumActivity.this, android.R.layout.simple_list_item_1, items);
 			
-			PlusListener AddListener = new PlusListener() {
-				@Override
-				public void OnAdd(CharSequence sSelected, int iPosition) {
-					Add(sSelected.toString());
-				}
-			};
-			almumsAdapter.SetPlusListener(AddListener);
-			setListAdapter(almumsAdapter);
-			
-			
-			// No need to listen further...
-			MPDApplication app = (MPDApplication)getApplication();
-			app.oMPDAsyncHelper.removeAsyncExecListener(this);
-			pd.dismiss();
+			super.asyncExecSucceeded(jobID);
 		}
 	}
 }

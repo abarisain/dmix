@@ -9,10 +9,12 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.R.drawable;
 import com.namelessdev.mpdroid.R.string;
 
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -20,10 +22,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class BrowseActivity extends ListActivity implements OnMenuItemClickListener{
+public class BrowseActivity extends ListActivity implements OnMenuItemClickListener, AsyncExecListener{
 
+	protected int iJobID = -1;
+	protected ProgressDialog pd;
+	
 	public static final int MAIN = 0;
 	public static final int PLAYLIST = 3;
 	protected List<String> items;
@@ -96,6 +103,10 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		addAndReplaceItem.setOnMenuItemClickListener(this);
     }
 
+
+
+
+    
 	protected void Add(String item) {
 		try {
 			MPDApplication app = (MPDApplication)getApplication();
@@ -138,4 +149,27 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		return false;
 	}
     
+	@Override
+	public void asyncExecSucceeded(int jobID) {
+		if(iJobID == jobID)
+		{
+			// Yes, its our job which is done...
+			
+			// This should be the adapter to use I think since we no longer have a button in there, but the rows gets high with this one so 
+			// Leaves it up to the other one for the moment /Kent
+			//ArrayAdapter<String> notes = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+			//setListAdapter(notes);
+			
+			// Use the ListViewButtonAdapter class to show the albums
+			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+			setListAdapter(almumsAdapter);
+			
+			
+			// No need to listen further...
+			MPDApplication app = (MPDApplication)getApplication();
+			app.oMPDAsyncHelper.removeAsyncExecListener(this);
+			pd.dismiss();
+		}
+	}
+	
 }

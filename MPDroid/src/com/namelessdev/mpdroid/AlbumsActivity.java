@@ -28,11 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickListener, AsyncExecListener {
-
-	private int iJobID = -1;
-	private ProgressDialog pd;
-
+public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickListener{
 	public AlbumsActivity() {
 		super(R.string.addAlbum, R.string.albumAdded, MPD.MPD_SEARCH_ALBUM);	
 	}
@@ -82,32 +78,5 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 		startActivityForResult(intent, -1);
 	}
 
-	@Override
-	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID)
-		{
-			// Yes, its our job which is done...
-			ArrayAdapter<String> notes = new ArrayAdapter<String>(AlbumsActivity.this, android.R.layout.simple_list_item_1, items);
-			setListAdapter(notes);
-			
-			// Use the ListViewButtonAdapter class to show the albums
-			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(AlbumsActivity.this, android.R.layout.simple_list_item_1, items);
-			
-			PlusListener AddListener = new PlusListener() {
-				@Override
-				public void OnAdd(CharSequence sSelected, int iPosition)
-				{
-					Add(sSelected.toString());
-				}
-			};
-			almumsAdapter.SetPlusListener(AddListener);
-			setListAdapter(almumsAdapter);
-			
-			
-			// No need to listen further...
-			MPDApplication app = (MPDApplication)getApplication();
-			app.oMPDAsyncHelper.removeAsyncExecListener(this);
-			pd.dismiss();
-		}
-	}
+
 }
