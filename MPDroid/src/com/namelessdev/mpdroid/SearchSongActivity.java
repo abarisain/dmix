@@ -31,8 +31,7 @@ public class SearchSongActivity extends BrowseActivity implements AsyncExecListe
 	private ProgressDialog pd;
 	String searchKeywords = "";
 	
-	public SearchSongActivity()
-	{
+	public SearchSongActivity() {
 		super(R.string.addSong, R.string.songAdded, MPD.MPD_SEARCH_TITLE);
 		items = new ArrayList<String>();
 		dispMusic = new ArrayList<Music>();
@@ -60,8 +59,7 @@ public class SearchSongActivity extends BrowseActivity implements AsyncExecListe
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
 		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
 			@Override
-			public void run() 
-			{
+			public void run() {
 				try {
 					MPDApplication app = (MPDApplication)getApplication();
 					arrayMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.search("any", finalSearch));
@@ -99,13 +97,11 @@ public class SearchSongActivity extends BrowseActivity implements AsyncExecListe
     
 	public void asyncExecSucceeded(int jobID) {
 		// TODO Auto-generated method stub
-		if(iJobID == jobID)
-		{
+		if(iJobID == jobID) {
 			searchKeywords = searchKeywords.toLowerCase().trim();
 			
 			for (Music music : arrayMusic) {
-				if(music.getTitle().toLowerCase().contains(searchKeywords))
-				{
+				if(music.getTitle().toLowerCase().contains(searchKeywords)) {
 					items.add(music.getTitle());
 					dispMusic.add(music);
 				}
@@ -116,8 +112,7 @@ public class SearchSongActivity extends BrowseActivity implements AsyncExecListe
 			
 			PlusListener AddListener = new PlusListener() {
 				@Override
-				public void OnAdd(CharSequence sSelected, int iPosition)
-				{
+				public void OnAdd(CharSequence sSelected, int iPosition) {
 					Add(iPosition);
 				}
 			};

@@ -34,12 +34,12 @@ public class SearchAlbumActivity extends BrowseActivity implements AsyncExecList
 	private ProgressDialog pd;
 	String searchKeywords = "";
 	
-	public SearchAlbumActivity()
-	{
+	public SearchAlbumActivity() {
 		super(R.string.addAlbum, R.string.albumAdded, MPD.MPD_SEARCH_ALBUM);
 		items = new ArrayList<String>();
 		musicList = new ArrayList<String>();
 	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -85,8 +85,7 @@ public class SearchAlbumActivity extends BrowseActivity implements AsyncExecList
 	
 	@Override
 	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID)
-		{
+		if(iJobID == jobID) {
 			searchKeywords = searchKeywords.toLowerCase().trim();
 			for (String music : musicList) {
 				if(music.toLowerCase().contains(searchKeywords))
@@ -97,8 +96,7 @@ public class SearchAlbumActivity extends BrowseActivity implements AsyncExecList
 			
 			PlusListener AddListener = new PlusListener() {
 				@Override
-				public void OnAdd(CharSequence sSelected, int iPosition)
-				{
+				public void OnAdd(CharSequence sSelected, int iPosition) {
 					Add(sSelected.toString());
 				}
 			};

@@ -34,8 +34,7 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 	private ProgressDialog pd;
 	private boolean albumartist;
 	
-	public ArtistsActivity()
-	{
+	public ArtistsActivity() {
 		super(R.string.addArtist, R.string.artistAdded, MPD.MPD_SEARCH_ARTIST);		
 	}
 	
@@ -57,8 +56,7 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
 		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
 			@Override
-			public void run() 
-			{
+			public void run() {
 				try {
 					MPDApplication app = (MPDApplication)getApplication();
 					if(albumartist == true) {
@@ -84,8 +82,7 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 
 	@Override
 	public void asyncExecSucceeded(int jobID) {
-		if(iJobID == jobID)
-		{
+		if(iJobID == jobID) {
 			// Yes, its our job which is done, no need to listen further...
 			MPDApplication app = (MPDApplication)getApplication();
 			app.oMPDAsyncHelper.removeAsyncExecListener(this);
@@ -93,14 +90,12 @@ public class ArtistsActivity extends BrowseActivity implements AsyncExecListener
 		}
 	}
 
-	protected void OnArtistsLoaded()
-	{
+	protected void OnArtistsLoaded() {
 		ListViewButtonAdapter<String> artistsAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 		
 		PlusListener AddListener = new PlusListener() {
 			@Override
-			public void OnAdd(CharSequence sSelected, int iPosition)
-			{
+			public void OnAdd(CharSequence sSelected, int iPosition) {
 				Add(sSelected.toString());
 			}
 		};

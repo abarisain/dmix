@@ -21,8 +21,7 @@ public class SongsActivity extends BrowseActivity {
 
 	private List<Music> dispMusic = null;
 
-	public SongsActivity()
-	{
+	public SongsActivity() {
 		super(R.string.addSong, R.string.songAdded, MPD.MPD_SEARCH_TITLE);
 		items = new ArrayList<String>();		
 	}

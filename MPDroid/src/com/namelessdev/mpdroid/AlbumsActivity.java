@@ -33,8 +33,7 @@ public class AlbumsActivity extends BrowseActivity implements OnMenuItemClickLis
 	private int iJobID = -1;
 	private ProgressDialog pd;
 
-	public AlbumsActivity()
-	{
+	public AlbumsActivity() {
 		super(R.string.addAlbum, R.string.albumAdded, MPD.MPD_SEARCH_ALBUM);	
 	}
 	
