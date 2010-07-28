@@ -83,8 +83,7 @@ public class SongsActivity extends BrowseActivity {
 		Add(position);
 	}    
 
-    protected void Add(int index)
-    {
+    protected void Add(int index) {
     	Music music = dispMusic.get(index);
 		try {
 			MPDApplication app = (MPDApplication)getApplication();

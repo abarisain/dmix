@@ -84,8 +84,7 @@ public class SearchSongActivity extends BrowseActivity implements AsyncExecListe
     	Add(items.indexOf(item));
 	}
 	
-    protected void Add(int index)
-    {
+    protected void Add(int index) {
     	Music music = dispMusic.get(index);
 		try {
 			MPDApplication app = (MPDApplication)getApplication();
