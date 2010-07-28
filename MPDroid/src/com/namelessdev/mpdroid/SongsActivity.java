@@ -33,7 +33,7 @@ public class SongsActivity extends BrowseActivity {
 		setContentView(R.layout.artists);
 
 		MPDApplication app = (MPDApplication)getApplication();
-		String album = (String) this.getIntent().getStringExtra("album");
+		final String album = (String) this.getIntent().getStringExtra("album");
 		this.setTitle(album);
 		
 		pd = ProgressDialog.show(this, getResources().getString(R.string.loading), getResources().getString(R.string.loadingSongs));
@@ -41,7 +41,7 @@ public class SongsActivity extends BrowseActivity {
 
 		// Loading Albums asynchronous...
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
-		Runnable run = new Runnable(){
+		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable(){
 			@Override
 			public void run() {
 				try {
@@ -51,17 +51,7 @@ public class SongsActivity extends BrowseActivity {
 					
 				}
 			}
-			
-			String album;
-			public Runnable setAlbum(String album)
-			{
-				this.album = album;
-				return this;
-			}
-		}.setAlbum(album);
-		
-		iJobID = app.oMPDAsyncHelper.execAsync(run);
-		
+		});
 		
 		registerForContextMenu(getListView());	
 	}
