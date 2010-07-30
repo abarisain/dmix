@@ -79,7 +79,7 @@
 	<string name="streamStopped">Streaming stopped</string>
 	<string name="streamPaused">Streaming paused</string>
 	<string name="streamPauseBattery">For saving battery, stop streaming if not used</string>
-	<string name="aboutText1">MPDroid is open-source software brought you by namelessDev. Visit http://github.com/dreamteam69/dmix for source code !</string>
+	<string name="aboutText1">MPDroid is open-source software brought you by namelessDev and orrche. Visit http://github.com/dreamteam69/dmix for source code !</string>
 	<string name="aboutText2">MPDroid is a fork of PMix (http://code.google.com/p/pmix/). Thanks to them !</string>
 	<string name="aboutLastFM">Thanks to last.fm for providing album arts</string>
 	<string name="search">Search</string>
