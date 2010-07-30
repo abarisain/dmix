@@ -20,11 +20,13 @@
 	<string name="loadingArtists">Chargement des Artistes ...</string>
 	<string name="serverAddress">Addresse du serveur :</string>
 	<string name="playlist">Playlist</string>
-	<string name="addAlbum">Ajouter un Album</string>
-	<string name="addArtist">Ajouter un Artiste</string>
+	<string name="addAndReplace">Ajouter et remplacer</string>
+	<string name="addDirectory">Ajouter le dossier</string>
+	<string name="addSong">Ajouter la chanson</string>
+	<string name="addAlbum">Ajouter l\'Album</string>
+	<string name="addArtist">Ajouter l\'Artiste</string>
 	<string name="removeSong">Enlever la chanson</string>
 	<string name="clear">Clear</string>
-	<string name="addDirectory">Ajouter Dossier</string>
 	<string name="mainMenu">Menu Principal</string>
 	<string name="playlistCleared">Playlist vidée</string>
 	<string name="deletedSongFromPlaylist">Chanson enlevée de la playlist</string>
