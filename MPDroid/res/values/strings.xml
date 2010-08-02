@@ -17,14 +17,19 @@
 	<string name="retry">Retry</string>
 	<string name="loading">Loading...</string>
 	<string name="loadingAlbums">Loading Albums...</string>
-	<string name="loadingArtists">Loading Artists...</string><string name="loadingSongs">Loading Songs...</string>
+	<string name="loadingArtists">Loading Artists...</string>
+	<string name="loadingSongs">Loading Songs...</string>
 	<string name="serverAddress">Server Address :</string>
 	<string name="playlist">Playlist</string>
-	<string name="addAndReplace">Add and Replace</string><string name="addAlbum">Add Album</string>
-	<string name="addArtist">Add Artist</string><string name="addDirectory">Add Directory</string><string name="addSong">Add Song</string>
+	<string name="addAndReplace">Add and Replace</string>
+	<string name="addAlbum">Add Album</string>
+	<string name="addArtist">Add Artist</string>
+	<string name="addDirectory">Add Directory</string>
+	<string name="addSong">Add Song</string>
 	<string name="removeSong">Remove Song</string>
+	<string name="removeCountSongs">Remove %s Songs</string>
 	<string name="clear">Clear</string>
-	
+	<string name="cancel">Cancel</string>
 	<string name="mainMenu">Main Menu</string>
 	<string name="playlistCleared">Playlist cleared</string>
 	<string name="deletedSongFromPlaylist">Deleted song from playlist</string>
