@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.a0z.mpd.Music;
 import org.a0z.mpd.MPDPlaylist;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
 import org.a0z.mpd.event.MPDPlaylistChangedEvent;
@@ -40,6 +41,7 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	private int arrayListId;
 	private int songId;
 	private String title;
+	private boolean selectPos;
 	
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -49,6 +51,7 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		super.onCreate(icicle);
 		MPDApplication app = (MPDApplication)getApplication();
 		setContentView(R.layout.artists);
+		selectPos = false;
 		
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
@@ -106,10 +109,21 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		arrayListId = info.position;
 		songId = (Integer)songlist.get(info.position).get("songid");
 		title = (String)songlist.get(info.position).get("title");
+		selectPos = false;
 
 		menu.setHeaderTitle(title);
-		MenuItem addArtist = menu.add(ContextMenu.NONE, 0, 0, R.string.removeSong);
-		addArtist.setOnMenuItemClickListener(this);
+		MenuItem skipTo = menu.add(ContextMenu.NONE, 0, 0, "Skip to Here");
+		skipTo.setOnMenuItemClickListener(this);
+		MenuItem moveNext = menu.add(ContextMenu.NONE, 1, 1, "Play Next");
+		moveNext.setOnMenuItemClickListener(this);
+		MenuItem moveTop = menu.add(ContextMenu.NONE, 2, 2, "Move to First");
+		moveTop.setOnMenuItemClickListener(this);
+		MenuItem moveBot = menu.add(ContextMenu.NONE, 3, 3, "Move to Last");
+		moveBot.setOnMenuItemClickListener(this);
+		MenuItem selectPos = menu.add(ContextMenu.NONE, 4, 4, "Select New Pos");
+		selectPos.setOnMenuItemClickListener(this);
+		MenuItem removeSong = menu.add(ContextMenu.NONE, 5, 5, "Remove from Playlist");
+		removeSong.setOnMenuItemClickListener(this);
 	}
 
 
@@ -117,12 +131,51 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		MPDApplication app = (MPDApplication)getApplication();
 		switch (item.getItemId()) {
 		case 0:
+	 		// skip to selected Song			 
+		    try {
+		    	app.oMPDAsyncHelper.oMPD.skipTo(songId);
+		    } catch (MPDServerException e) {
+		    }
+			return true;
+		case 1:
+			try { // Move song to next in playlist
+				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1 );
+				MainMenuActivity.notifyUser("Song moved to next in list", this);
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		case 2:
+			try { // Move song to first in playlist
+				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0 );
+				MainMenuActivity.notifyUser("Song moved to first in list", this);
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		case 3:
+			try { // Move song to last in playlist
+				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+				app.oMPDAsyncHelper.oMPD.getPlaylist().move( songId, status.getPlaylistLength() - 1 );
+				MainMenuActivity.notifyUser("Song moved to last in list", this);
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		case 4:
+			{ // Select position to move to
+				selectPos = true;
+				MainMenuActivity.notifyUser("Select new position for song", this);
+			}
+			return true;
+		case 5:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().removeSong(songId);
-				songlist.remove(arrayListId); 
-				app.oMPDAsyncHelper.oMPD.getPlaylist().refresh(); // If not refreshed an intern Array of JMPDComm get out of sync and throws IndexOutOfBound
 				MainMenuActivity.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), this);
-				((SimpleAdapter)getListAdapter()).notifyDataSetChanged();
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -176,14 +229,31 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
+		if( selectPos )
+		{
+			selectPos = false;
+			MPDApplication app = (MPDApplication)getApplication();
+			try {
+				if( arrayListId < position ) {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move( songId, position - 1 );
+				}
+				else {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move( songId, position );
+				}
+			} catch( MPDServerException e) {
+			}
+			MainMenuActivity.notifyUser("Song move successful", this);
+		}
+/*
 		MPDApplication app = (MPDApplication)getApplication();
-		// Play selected Song
+ 		// Play selected Song
+ 
 		Music m = musics.get(position);
 	    try {
 	    	app.oMPDAsyncHelper.oMPD.skipTo(m.getSongId());
 	    } catch (MPDServerException e) {
 	    }
-			
+*/			
 	}
 
 	@Override
@@ -195,6 +265,33 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	@Override
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
 		// TODO Auto-generated method stub
+		MPDApplication app = (MPDApplication)getApplication();
+		songlist.clear();
+		try {
+			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
+			playlist.refresh();
+			musics = playlist.getMusics();
+			for(Music m : musics) {
+				HashMap<String,Object> item = new HashMap<String,Object>();
+				item.put( "songid", m.getSongId() );
+				item.put( "artist", m.getArtist() );
+				item.put( "title", m.getTitle() );
+				if(m.getSongId() == app.oMPDAsyncHelper.oMPD.getStatus().getSongId())
+					item.put( "play", android.R.drawable.ic_media_play );
+				else
+					item.put( "play", 0 );
+				songlist.add(item);
+			}
+			SimpleAdapter songs = new SimpleAdapter( 
+					this, 
+					songlist,
+					R.layout.playlist_list_item,
+					new String[] { "play",  "title","artist" },
+					new int[] { R.id.picture ,android.R.id.text1, android.R.id.text2 }  );
+			
+			setListAdapter( songs );
+		} catch (MPDServerException e) {
+		}
 		
 	}
 
