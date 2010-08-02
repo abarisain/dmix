@@ -178,17 +178,16 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 							Log.e("MPDroid", e.toString());
 						}
 					}
-				} catch ( Exception e ) {
-					Log.e("MPDroid", "Outer exception... " + e.toString());
-				}
-				
-				try {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().refresh(); // If not refreshed an intern Array of JMPDComm get out of sync and throws IndexOutOfBound
 					MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.removeCountSongs),count), this);
 					((SimpleAdapter)getListAdapter()).notifyDataSetChanged();
-				} catch (Exception e) {
+					
+				} catch ( MPDServerException e) {
 					Log.e("MPDroid", e.toString());
-				}
+				} catch ( Exception e ) {
+					Log.e("MPDroid", "General: " + e.toString());
+				} 
+				
 				this.finish();
 				break;
 			case R.id.Cancel:
