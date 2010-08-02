@@ -7,6 +7,7 @@ import java.util.List;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDServerException;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 
 import android.app.ListActivity;
@@ -42,9 +43,39 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
     
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Add(position);
+		// Doesn't feel right to make it that easy to add an compleate playlist
+    	// Add(position);
 	}    
 
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    	super.onCreateContextMenu(menu,v, menuInfo);
+
+		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 2, 0, "Delete");
+		addAndReplaceItem.setOnMenuItemClickListener(this);
+    }
+    
+    @Override
+	public boolean onMenuItemClick(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+		case 2:
+			try {
+				MPDApplication app = (MPDApplication)getApplication();
+				app.oMPDAsyncHelper.oMPD.deletePlaylist(items.get((int)info.id).toString());
+				// TODO A bit extreme but I'm lazy and tired. / Kent
+				UpdateList(); 
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+
+			break;
+		}
+		return super.onMenuItemClick(item);
+	}
+    
     @Override
 	protected void Add(String item) {
     	Add(items.indexOf(item));
@@ -62,7 +93,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 			e.printStackTrace();
 		}
     }
-
+    
 	/** 
 	 * An Update function for what is displayed on the screen
 	 */
