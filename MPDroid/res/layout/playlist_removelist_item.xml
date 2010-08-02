@@ -5,8 +5,8 @@
 	android:layout_gravity="left" >
 	<ImageView android:id="@+id/icon"
 		android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
-		android:layout_alignParentBottom="true" android:layout_width="32px"
-		android:layout_height="32px" />
+		android:layout_alignParentBottom="true" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:src="@drawable/ic_mp_move"/>
 	<ImageView android:gravity="center" android:id="@+id/picture"
 		android:layout_gravity="left" android:padding="4px"
 		android:layout_height="32px" android:layout_width="32px">
