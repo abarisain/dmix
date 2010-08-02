@@ -40,7 +40,6 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 		UpdateList();
 	}
 
-    
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		// Doesn't feel right to make it that easy to add an compleate playlist
@@ -63,6 +62,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 			try {
 				MPDApplication app = (MPDApplication)getApplication();
 				app.oMPDAsyncHelper.oMPD.deletePlaylist(items.get((int)info.id).toString());
+				
 				// TODO A bit extreme but I'm lazy and tired. / Kent
 				UpdateList(); 
 			} catch (MPDServerException e) {

@@ -56,6 +56,8 @@
 		</activity>
 		<activity android:name=".PlaylistManagerActivity" android:label="@string/playlist">
 		</activity>
+		<activity android:name=".PlaylistSaveActivity" android:label="@string/playlist">
+		</activity>
 		<activity android:name=".ArtistsActivity" android:label="@string/artists">
 			<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchArtistActivity" />
