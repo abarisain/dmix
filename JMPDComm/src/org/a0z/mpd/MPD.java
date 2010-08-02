@@ -838,6 +838,17 @@ public class MPD {
     	return list;
     }
 
+    public Collection<String> getPlaylists() throws MPDServerException {
+    	Collection<String> list = new LinkedList<String>();
+    	Iterator it = mpdConnection.sendCommand("listplaylists").iterator();
+        while (it.hasNext()) {
+        	String cmd[] = ((String) it.next()).split(": ");
+        	if ( cmd[0].equals("playlist"))
+        		list.add(cmd[1]);
+        }
+    	return list;
+    }
+    
     public void enableOutput(int id) throws MPDServerException {
     	if(mpdConnection == null) {
     		throw new MPDServerException("MPD Connection is not established");

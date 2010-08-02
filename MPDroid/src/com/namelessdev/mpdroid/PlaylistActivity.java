@@ -41,7 +41,8 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
 	public static final int REMOVE = 2;
-
+	public static final int MANAGER = 3;
+	
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
@@ -201,6 +202,7 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 
 		// TODO should be a plural string.
 		menu.add(0, REMOVE, 2, R.string.removeSong).setIcon(android.R.drawable.ic_menu_delete);
+		menu.add(0, MANAGER, 3, "Manager");
 		return result;
 	}
 
@@ -229,7 +231,10 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 			i = new Intent(this, PlaylistRemoveActivity.class);
 			startActivityForResult(i, REMOVE);
 			return true;
-
+		case MANAGER:
+			i = new Intent(this, PlaylistManagerActivity.class);
+			startActivityForResult(i, MANAGER);
+			return true;
 		default:
 			return false;
 		}
