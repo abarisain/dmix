@@ -80,13 +80,12 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 	}
 
 	/** 
-	 * Should mark the selected item for deletion 
+	 * Marks the selected item for deletion 
 	 * */
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		HashMap<String,Object> item = songlist.get(position);
-		Log.d("kent", "click");
 		item.get("marked");
 		if ( item.get("marked").equals(true)) {
 			item.put("marked", false);

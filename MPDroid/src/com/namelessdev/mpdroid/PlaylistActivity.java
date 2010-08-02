@@ -35,7 +35,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 public class PlaylistActivity extends ListActivity implements OnMenuItemClickListener, StatusChangeListener {
-	private ArrayList<HashMap<String,Object>> songlist = new ArrayList<HashMap<String,Object>>();
+	private ArrayList<HashMap<String,Object>> songlist;
 	private List<Music> musics;
 	private int arrayListId;
 	private int songId;
@@ -51,9 +51,25 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		MPDApplication app = (MPDApplication)getApplication();
 		setContentView(R.layout.artists);
 		
+
+		app.oMPDAsyncHelper.addStatusChangeListener(this);
+		ListView list = getListView();
+		/*
+		LinearLayout test = (LinearLayout)list.getChildAt(1);
+		ImageView img = (ImageView)test.findViewById(R.id.picture);
+		//ImageView img = (ImageView)((LinearLayout)list.getItemAtPosition(3)).findViewById(R.id.picture);
+		img.setImageDrawable(getResources().getDrawable(R.drawable.gmpcnocover));
+		*/
+		registerForContextMenu(list);
+	}
+
+	protected void update() 
+	{
+		MPDApplication app = (MPDApplication)getApplicationContext();
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			playlist.refresh();
+			songlist = new ArrayList<HashMap<String,Object>>();
 			musics = playlist.getMusics();
 			for(Music m : musics) {
 				HashMap<String,Object> item = new HashMap<String,Object>();
@@ -76,24 +92,24 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 			setListAdapter( songs );
 		} catch (MPDServerException e) {
 		}
-		app.oMPDAsyncHelper.addStatusChangeListener(this);
-		ListView list = getListView();
-		/*
-		LinearLayout test = (LinearLayout)list.getChildAt(1);
-		ImageView img = (ImageView)test.findViewById(R.id.picture);
-		//ImageView img = (ImageView)((LinearLayout)list.getItemAtPosition(3)).findViewById(R.id.picture);
-		img.setImageDrawable(getResources().getDrawable(R.drawable.gmpcnocover));
-		*/
-		registerForContextMenu(list);
+	
 	}
-
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
+
 		MPDApplication app = (MPDApplication)getApplicationContext();
 		app.setActivity(this);
+		update();
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+	}
+	
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -204,7 +220,7 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	@Override
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
 		// TODO Auto-generated method stub
-		
+		update();
 	}
 
 	@Override
