@@ -266,30 +266,6 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 
 	@Override
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
-		// TODO Auto-generated method stub
-		MPDApplication app = (MPDApplication) getApplication();
-		songlist.clear();
-		try {
-			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
-			playlist.refresh();
-			musics = playlist.getMusics();
-			for (Music m : musics) {
-				HashMap<String, Object> item = new HashMap<String, Object>();
-				item.put("songid", m.getSongId());
-				item.put("artist", m.getArtist());
-				item.put("title", m.getTitle());
-				if (m.getSongId() == app.oMPDAsyncHelper.oMPD.getStatus().getSongId())
-					item.put("play", android.R.drawable.ic_media_play);
-				else
-					item.put("play", 0);
-				songlist.add(item);
-			}
-			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_list_item, new String[] { "play", "title", "artist" },
-					new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
-
-			setListAdapter(songs);
-		} catch (MPDServerException e) {
-		}
 		update();
 	}
 

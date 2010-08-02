@@ -33,5 +33,5 @@
     
 	</LinearLayout>
 	<CheckBox android:layout_width="wrap_content" 
-		android:layout_height="wrap_content" android:id="@+id/removeCBox" android:focusable="false"/>
+		android:layout_height="wrap_content" android:id="@+id/removeCBox" android:focusable="false" android:clickable="false"/>
 </LinearLayout> 
