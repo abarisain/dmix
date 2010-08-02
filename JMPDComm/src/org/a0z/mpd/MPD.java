@@ -849,6 +849,10 @@ public class MPD {
     	return list;
     }
     
+    public void deletePlaylist(String name) throws MPDServerException {
+    	mpdConnection.sendCommand("rm", new String[] { name });    	
+    }
+    
     public void enableOutput(int id) throws MPDServerException {
     	if(mpdConnection == null) {
     		throw new MPDServerException("MPD Connection is not established");
