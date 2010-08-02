@@ -5,10 +5,11 @@
     android:layout_height="fill_parent"
     >
     
-    <ListView android:id="@android:id/list"
+    <com.namelessdev.mpdroid.TouchInterceptor android:id="@android:id/list"
         android:layout_width="fill_parent"
 		android:layout_height="0dip"
 		android:layout_weight="1"
+		android:drawSelectorOnTop="false"
 		android:fastScrollEnabled="true"/>
     
 
