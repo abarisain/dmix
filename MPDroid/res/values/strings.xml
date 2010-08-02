@@ -27,8 +27,9 @@
 	<string name="addDirectory">Add Directory</string>
 	<string name="addSong">Add Song</string>
 	<string name="removeSong">Remove Song</string>
+	<string name="removeCountSongs">Remove % Songs</string>
 	<string name="clear">Clear</string>
-	
+	<string name="cancel">Cancel</string>
 	<string name="mainMenu">Main Menu</string>
 	<string name="playlistCleared">Playlist cleared</string>
 	<string name="deletedSongFromPlaylist">Deleted song from playlist</string>
