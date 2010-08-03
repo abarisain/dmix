@@ -101,4 +101,9 @@
 	<string name="edit">Edit</string>
 	<string name="nowPlaying">Now Playing</string>
 	<string name="cancel">Cancel</string>
+	<string name="skipToHere">Skip to Here</string>
+	<string name="playNext">Play Next</string>
+	<string name="moveFirst">Move to First</string>
+	<string name="moveLast">Move to Last</string>
+	<string name="removeFromPlaylist">Remove from Playlist</string>
 </resources>

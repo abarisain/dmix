@@ -130,15 +130,15 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 		songId = (Integer) songlist.get(info.position).get("songid");
 		title = (String) songlist.get(info.position).get("title");
 		menu.setHeaderTitle(title);
-		MenuItem skipTo = menu.add(ContextMenu.NONE, 0, 0, "Skip to Here");
+		MenuItem skipTo = menu.add(ContextMenu.NONE, 0, 0, R.string.skipToHere);
 		skipTo.setOnMenuItemClickListener(this);
-		MenuItem moveNext = menu.add(ContextMenu.NONE, 1, 1, "Play Next");
+		MenuItem moveNext = menu.add(ContextMenu.NONE, 1, 1, R.string.playNext);
 		moveNext.setOnMenuItemClickListener(this);
-		MenuItem moveTop = menu.add(ContextMenu.NONE, 2, 2, "Move to First");
+		MenuItem moveTop = menu.add(ContextMenu.NONE, 2, 2, R.string.moveFirst);
 		moveTop.setOnMenuItemClickListener(this);
-		MenuItem moveBot = menu.add(ContextMenu.NONE, 3, 3, "Move to Last");
+		MenuItem moveBot = menu.add(ContextMenu.NONE, 3, 3, R.string.moveLast);
 		moveBot.setOnMenuItemClickListener(this);
-		MenuItem removeSong = menu.add(ContextMenu.NONE, 5, 5, "Remove from Playlist");
+		MenuItem removeSong = menu.add(ContextMenu.NONE, 5, 5, R.string.removeFromPlaylist);
 		removeSong.setOnMenuItemClickListener(this);
 	}
 

@@ -99,4 +99,9 @@
 	<string name="edit">Modifier</string>
 	<string name="nowPlaying">En cours</string>
 	<string name="cancel">Annuler</string>
+	<string name="skipToHere">Sauter vers ici</string>
+	<string name="playNext">Jouer après</string>
+	<string name="moveFirst">Déplacer en première position</string>
+	<string name="moveLast">Déplacer en dernière position</string>
+	<string name="removeFromPlaylist">Supprimer de la playlist</string>
 </resources>
