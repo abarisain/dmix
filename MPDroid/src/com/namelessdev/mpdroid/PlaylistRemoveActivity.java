@@ -35,7 +35,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		super.onCreate(icicle);
 		MPDApplication app = (MPDApplication) getApplication();
 		setContentView(R.layout.playlist_removelist_activity);
-		this.setTitle("Remove Songs");
+		this.setTitle("Edit playlist");
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 

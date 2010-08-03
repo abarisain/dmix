@@ -39,7 +39,7 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
-	public static final int REMOVE = 2;
+	public static final int EDIT = 2;
 
 	@Override
 	public void onCreate(Bundle icicle) {
@@ -188,9 +188,7 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		boolean result = super.onCreateOptionsMenu(menu);
 		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
 		menu.add(0, CLEAR, 1, R.string.clear).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-
-		// TODO should be a plural string.
-		menu.add(0, REMOVE, 2, R.string.removeSong).setIcon(android.R.drawable.ic_menu_delete);
+		menu.add(0, EDIT, 2, R.string.editPlaylist).setIcon(android.R.drawable.ic_menu_edit);
 		return result;
 	}
 
@@ -215,9 +213,9 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 				e.printStackTrace();
 			}
 			return true;
-		case REMOVE:
+		case EDIT:
 			i = new Intent(this, PlaylistRemoveActivity.class);
-			startActivityForResult(i, REMOVE);
+			startActivityForResult(i, EDIT);
 			return true;
 
 		default:
