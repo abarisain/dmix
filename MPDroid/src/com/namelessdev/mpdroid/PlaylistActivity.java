@@ -26,11 +26,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
-public class PlaylistActivity extends ListActivity implements OnMenuItemClickListener, StatusChangeListener {
+public class PlaylistActivity extends ListActivity implements OnClickListener, OnMenuItemClickListener, StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
 	private int arrayListId;
@@ -45,8 +49,8 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		MPDApplication app = (MPDApplication) getApplication();
-		setContentView(R.layout.artists);
-
+		setContentView(R.layout.playlist_activity);
+		this.setTitle(R.string.nowPlaying);
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		ListView list = getListView();
 		/*
@@ -54,14 +58,19 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		 * (ImageView)((LinearLayout)list.getItemAtPosition(3)).findViewById(R.id.picture);
 		 * img.setImageDrawable(getResources().getDrawable(R.drawable.gmpcnocover));
 		 */
-		/*
-		 * registerForContextMenu(list); Button button = (Button) findViewById(R.id.headerButton); button.setVisibility(View.VISIBLE);
-		 * 
-		 * TextView title = (TextView) findViewById(R.id.headerText); title.setText(this.getTitle());
-		 * 
-		 * ImageView icon = (ImageView) findViewById(R.id.headerIcon);
-		 * icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
-		 */
+
+		registerForContextMenu(list);
+
+		Button button = (Button) findViewById(R.id.headerButton);
+		button.setVisibility(View.VISIBLE);
+		button.setOnClickListener(this);
+
+		TextView title = (TextView) findViewById(R.id.headerText);
+		title.setText(this.getTitle());
+
+		ImageView icon = (ImageView) findViewById(R.id.headerIcon);
+		icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
+
 	}
 
 	protected void update() {
@@ -295,6 +304,18 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	public void volumeChanged(MPDVolumeChangedEvent event) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.headerButton:
+			Intent i = new Intent(this, PlaylistRemoveActivity.class);
+			startActivityForResult(i, EDIT);
+			break;
+		default:
+			break;
+		}
 	}
 
 }

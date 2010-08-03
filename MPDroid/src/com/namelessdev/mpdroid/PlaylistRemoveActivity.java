@@ -36,7 +36,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		MPDApplication app = (MPDApplication) getApplication();
-		setContentView(R.layout.playlist_removelist_activity);
+		setContentView(R.layout.playlist_editlist_activity);
 		this.setTitle(R.string.nowPlaying);
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
@@ -55,8 +55,8 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 					item.put("play", 0);
 				songlist.add(item);
 			}
-			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_removelist_item, new String[] { "play", "title",
-					"artist", "marked" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox });
+			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_editlist_item, new String[] { "play", "title", "artist",
+					"marked" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox });
 
 			setListAdapter(songs);
 		} catch (MPDServerException e) {
@@ -75,9 +75,6 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 		button = (Button) findViewById(R.id.Cancel);
 		button.setOnClickListener(this);
-
-		button = (Button) findViewById(R.id.headerButton);
-		button.setVisibility(View.VISIBLE);
 
 		TextView title = (TextView) findViewById(R.id.headerText);
 		title.setText(this.getTitle());
@@ -105,8 +102,8 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 					item.put("play", 0);
 				songlist.add(item);
 			}
-			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_removelist_item, new String[] { "play", "title",
-					"artist", "marked" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox });
+			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_editlist_item, new String[] { "play", "title", "artist",
+					"marked" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox });
 
 			setListAdapter(songs);
 		} catch (MPDServerException e) {
