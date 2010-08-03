@@ -26,31 +26,33 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
-public class PlaylistActivity extends ListActivity implements OnMenuItemClickListener, StatusChangeListener {
+public class PlaylistActivity extends ListActivity implements OnClickListener, OnMenuItemClickListener, StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
 	private int arrayListId;
 	private int songId;
 	private String title;
-	private boolean selectPos;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
-	public static final int REMOVE = 2;
 	public static final int MANAGER = 3;
 	public static final int SAVE = 4;
-	
+	public static final int EDIT = 2;
+
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		MPDApplication app = (MPDApplication) getApplication();
-		setContentView(R.layout.artists);
-		selectPos = false;
-
+		setContentView(R.layout.playlist_activity);
+		this.setTitle(R.string.nowPlaying);
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		ListView list = getListView();
 		/*
@@ -58,7 +60,19 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		 * (ImageView)((LinearLayout)list.getItemAtPosition(3)).findViewById(R.id.picture);
 		 * img.setImageDrawable(getResources().getDrawable(R.drawable.gmpcnocover));
 		 */
+
 		registerForContextMenu(list);
+
+		Button button = (Button) findViewById(R.id.headerButton);
+		button.setVisibility(View.VISIBLE);
+		button.setOnClickListener(this);
+
+		TextView title = (TextView) findViewById(R.id.headerText);
+		title.setText(this.getTitle());
+
+		ImageView icon = (ImageView) findViewById(R.id.headerIcon);
+		icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
+
 	}
 
 	protected void update() {
@@ -68,12 +82,13 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 			playlist.refresh();
 			songlist = new ArrayList<HashMap<String, Object>>();
 			musics = playlist.getMusics();
+			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			for (Music m : musics) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
 				item.put("artist", m.getArtist());
 				item.put("title", m.getTitle());
-				if (m.getSongId() == app.oMPDAsyncHelper.oMPD.getStatus().getSongId())
+				if (m.getSongId() == playingID)
 					item.put("play", android.R.drawable.ic_media_play);
 				else
 					item.put("play", 0);
@@ -100,7 +115,7 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	@Override
 	protected void onResume() {
 		super.onResume();
-
+		update();
 	}
 
 	@Override
@@ -116,20 +131,16 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		arrayListId = info.position;
 		songId = (Integer) songlist.get(info.position).get("songid");
 		title = (String) songlist.get(info.position).get("title");
-		selectPos = false;
-
 		menu.setHeaderTitle(title);
-		MenuItem skipTo = menu.add(ContextMenu.NONE, 0, 0, "Skip to Here");
+		MenuItem skipTo = menu.add(ContextMenu.NONE, 0, 0, R.string.skipToHere);
 		skipTo.setOnMenuItemClickListener(this);
-		MenuItem moveNext = menu.add(ContextMenu.NONE, 1, 1, "Play Next");
+		MenuItem moveNext = menu.add(ContextMenu.NONE, 1, 1, R.string.playNext);
 		moveNext.setOnMenuItemClickListener(this);
-		MenuItem moveTop = menu.add(ContextMenu.NONE, 2, 2, "Move to First");
+		MenuItem moveTop = menu.add(ContextMenu.NONE, 2, 2, R.string.moveFirst);
 		moveTop.setOnMenuItemClickListener(this);
-		MenuItem moveBot = menu.add(ContextMenu.NONE, 3, 3, "Move to Last");
+		MenuItem moveBot = menu.add(ContextMenu.NONE, 3, 3, R.string.moveLast);
 		moveBot.setOnMenuItemClickListener(this);
-		MenuItem selectPos = menu.add(ContextMenu.NONE, 4, 4, "Select New Pos");
-		selectPos.setOnMenuItemClickListener(this);
-		MenuItem removeSong = menu.add(ContextMenu.NONE, 5, 5, "Remove from Playlist");
+		MenuItem removeSong = menu.add(ContextMenu.NONE, 5, 5, R.string.removeFromPlaylist);
 		removeSong.setOnMenuItemClickListener(this);
 	}
 
@@ -146,7 +157,11 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		case 1:
 			try { // Move song to next in playlist
 				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
+				if (arrayListId < status.getSongPos()) {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos());
+				} else {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
+				}
 				MainMenuActivity.notifyUser("Song moved to next in list", this);
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
@@ -172,11 +187,6 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 				e.printStackTrace();
 			}
 			return true;
-		case 4: { // Select position to move to
-			selectPos = true;
-			MainMenuActivity.notifyUser("Select new position for song", this);
-		}
-			return true;
 		case 5:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().removeSong(songId);
@@ -200,11 +210,10 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		boolean result = super.onCreateOptionsMenu(menu);
 		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
 		menu.add(0, CLEAR, 1, R.string.clear).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-
-		// TODO should be a plural string.
-		menu.add(0, REMOVE, 2, R.string.removeSong).setIcon(android.R.drawable.ic_menu_delete);
+		menu.add(0, EDIT, 2, R.string.editPlaylist).setIcon(android.R.drawable.ic_menu_edit);
 		menu.add(0, MANAGER, 3, "Manager").setIcon(android.R.drawable.ic_menu_manage);
 		menu.add(0, SAVE, 4, "Save").setIcon(android.R.drawable.ic_menu_save);
+
 		return result;
 	}
 
@@ -229,9 +238,9 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 				e.printStackTrace();
 			}
 			return true;
-		case REMOVE:
+		case EDIT:
 			i = new Intent(this, PlaylistRemoveActivity.class);
-			startActivityForResult(i, REMOVE);
+			startActivityForResult(i, EDIT);
 			return true;
 		case MANAGER:
 			i = new Intent(this, PlaylistManagerActivity.class);
@@ -249,24 +258,15 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		if (selectPos) {
-			selectPos = false;
-			MPDApplication app = (MPDApplication) getApplication();
-			try {
-				if (arrayListId < position) {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, position - 1);
-				} else {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, position);
-				}
-			} catch (MPDServerException e) {
-			}
-			MainMenuActivity.notifyUser("Song move successful", this);
+
+		MPDApplication app = (MPDApplication) getApplication(); // Play selected Song
+
+		Music m = musics.get(position);
+		try {
+			app.oMPDAsyncHelper.oMPD.skipTo(m.getSongId());
+		} catch (MPDServerException e) {
 		}
-		/*
-		 * MPDApplication app = (MPDApplication)getApplication(); // Play selected Song
-		 * 
-		 * Music m = musics.get(position); try { app.oMPDAsyncHelper.oMPD.skipTo(m.getSongId()); } catch (MPDServerException e) { }
-		 */
+
 	}
 
 	@Override
@@ -321,6 +321,18 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	public void volumeChanged(MPDVolumeChangedEvent event) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.headerButton:
+			Intent i = new Intent(this, PlaylistRemoveActivity.class);
+			startActivityForResult(i, EDIT);
+			break;
+		default:
+			break;
+		}
 	}
 
 }

@@ -26,6 +26,7 @@
 	<string name="addAlbum">Ajouter l\'Album</string>
 	<string name="addArtist">Ajouter l\'Artiste</string>
 	<string name="removeSong">Enlever la chanson</string>
+	<string name="removeSongs">Enlever les chansons</string>
 	<string name="clear">Clear</string>
 	<string name="mainMenu">Menu Principal</string>
 	<string name="playlistCleared">Playlist vidée</string>
@@ -94,4 +95,13 @@
 	<string name="songSearch">Afficher toutes les chansons n\'est pas une bonne idée. Utilisez la recherche !</string>
 	<string name="warningTitle">Merci de lire ce qui suit.</string>
 	<string name="warningText1">Cette popup ne s\'affichera qu\'une seule fois.\n\nJ\'ai reçu beaucoup d\'emails à propos de cette application.\nPremièrement, si vous ne savez pas ce qu\'est un serveur MPD, passez vôtre chemin, cette application n\'est pas faite pour vous.\n\nDeuxièmement, vérifiez que vous avec un forfait approprié. Cette application peut engendrer d\'importantes factures de données 3G.±\n\nDernièrement, merci de vôtre support. Des personnes ont envoyé des bugs, d\'autres des patchs. Merci de continuer !\nPuisque le market ne me donne pas de moyen de répondre à un commentaire, et donc de communiquer avec les utilisateurs, merci de me contacter à dreamteam69@gmail.com ou sur github. Je serais très heureux de répondre à vos questions ! :)</string>
+	<string name="editPlaylist">Modifier</string>
+	<string name="edit">Modifier</string>
+	<string name="nowPlaying">En cours</string>
+	<string name="cancel">Annuler</string>
+	<string name="skipToHere">Sauter vers ici</string>
+	<string name="playNext">Jouer après</string>
+	<string name="moveFirst">Déplacer en première position</string>
+	<string name="moveLast">Déplacer en dernière position</string>
+	<string name="removeFromPlaylist">Supprimer de la playlist</string>
 </resources>

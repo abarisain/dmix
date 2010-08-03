@@ -27,9 +27,9 @@
 	<string name="addDirectory">Add Directory</string>
 	<string name="addSong">Add Song</string>
 	<string name="removeSong">Remove Song</string>
+	<string name="removeSongs">Remove Songs</string>
 	<string name="removeCountSongs">Remove %s Songs</string>
 	<string name="clear">Clear</string>
-	<string name="cancel">Cancel</string>
 	<string name="mainMenu">Main Menu</string>
 	<string name="playlistCleared">Playlist cleared</string>
 	<string name="deletedSongFromPlaylist">Deleted song from playlist</string>
@@ -97,7 +97,13 @@
 	<string name="songSearch">Displaying all the songs is not a good idea. Please search for something.</string>
 	<string name="warningTitle">Please read</string>
 	<string name="warningText1">This will only display once.\n\nI have received a lot of emails about this app.\nFirst of all, if you don\'t know what a MPD server is, you should uninstall the application now, it is not made for you.\n\nSecondly, be careful and CHECK your data plan, this application can generate huge 3G bills if you don\'t double check your plan.\n\nLastly, thanks for your support. Some people reported bugs, others sent patches. Please go on !\nSince the market doesn\'t give me any mean to contact my users, please feel free to report a bug or send me a message at dreamteam69@gmail.com (or on github) and I will be happy to help you as soon as possible !\nBy the way, the screenshots on the market might not always reflect the current look of the application ;)</string>
-
-
-
+	<string name="editPlaylist">Edit</string>
+	<string name="edit">Edit</string>
+	<string name="nowPlaying">Now Playing</string>
+	<string name="cancel">Cancel</string>
+	<string name="skipToHere">Skip to Here</string>
+	<string name="playNext">Play Next</string>
+	<string name="moveFirst">Move to First</string>
+	<string name="moveLast">Move to Last</string>
+	<string name="removeFromPlaylist">Remove from Playlist</string>
 </resources>
