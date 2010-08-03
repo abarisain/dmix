@@ -59,7 +59,7 @@
 	<string name="mpdroidSettingsSettings">MPDroid settings</string>
 	<string name="songAdded">Song %s added</string>
 	<string name="about">About</string>
-	<string name="aboutDescription">About PMix</string>
+	<string name="aboutDescription">About MPDroid</string>
 	<string name="waitForWLAN">Waiting for WLAN to be connected...</string>
 	<string name="connectionFailed">Connection Failed</string>
 	<string name="connectionFailedMessage">Connection to MPD-Server failed! Check if the Server is running and reachable. (%s)</string>
