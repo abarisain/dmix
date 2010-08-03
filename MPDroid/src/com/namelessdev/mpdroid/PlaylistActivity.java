@@ -96,7 +96,7 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	@Override
 	protected void onResume() {
 		super.onResume();
-
+		update();
 	}
 
 	@Override
