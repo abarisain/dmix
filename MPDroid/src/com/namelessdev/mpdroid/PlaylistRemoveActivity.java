@@ -43,13 +43,14 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 			playlist.refresh();
 			musics = playlist.getMusics();
+			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			for (Music m : musics) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
 				item.put("artist", m.getArtist());
 				item.put("title", m.getTitle());
 				item.put("marked", false);
-				if (m.getSongId() == app.oMPDAsyncHelper.oMPD.getStatus().getSongId())
+				if (m.getSongId() == playingID)
 					item.put("play", android.R.drawable.ic_media_play);
 				else
 					item.put("play", 0);
