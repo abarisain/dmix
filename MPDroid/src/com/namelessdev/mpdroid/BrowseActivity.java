@@ -165,13 +165,21 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		
 	}
 	
+	/** 
+	 * Update the view from the items list if items is set.
+	 */
+	public void updateFromItems()
+	{
+		if (items != null) {
+			ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+			setListAdapter(listAdapter);
+		}
+	}
+	
 	@Override
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {
-			if (items != null) {
-				ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-				setListAdapter(listAdapter);
-			}
+			updateFromItems();
 			pd.dismiss();
 			
 		}

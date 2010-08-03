@@ -64,8 +64,8 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 				app.oMPDAsyncHelper.oMPD.deletePlaylist(playlist);
 				
 				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.playlistDeleted),playlist), this);
-				// TODO A bit extreme but I'm lazy and tired. / Kent
-				UpdateList(); 
+				items.remove((int)info.id);
+				updateFromItems(); 
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
