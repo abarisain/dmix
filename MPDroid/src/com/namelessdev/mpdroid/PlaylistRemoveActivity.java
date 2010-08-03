@@ -23,8 +23,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 public class PlaylistRemoveActivity extends ListActivity implements StatusChangeListener, OnClickListener {
 	private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
@@ -35,7 +37,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		super.onCreate(icicle);
 		MPDApplication app = (MPDApplication) getApplication();
 		setContentView(R.layout.playlist_removelist_activity);
-		this.setTitle("Edit playlist");
+		this.setTitle(R.string.nowPlaying);
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 
@@ -74,6 +76,14 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		button = (Button) findViewById(R.id.Cancel);
 		button.setOnClickListener(this);
 
+		button = (Button) findViewById(R.id.headerButton);
+		button.setVisibility(View.VISIBLE);
+
+		TextView title = (TextView) findViewById(R.id.headerText);
+		title.setText(this.getTitle());
+
+		ImageView icon = (ImageView) findViewById(R.id.headerIcon);
+		icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
 	}
 
 	protected void update() {

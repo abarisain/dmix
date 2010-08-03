@@ -54,7 +54,14 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		 * (ImageView)((LinearLayout)list.getItemAtPosition(3)).findViewById(R.id.picture);
 		 * img.setImageDrawable(getResources().getDrawable(R.drawable.gmpcnocover));
 		 */
-		registerForContextMenu(list);
+		/*
+		 * registerForContextMenu(list); Button button = (Button) findViewById(R.id.headerButton); button.setVisibility(View.VISIBLE);
+		 * 
+		 * TextView title = (TextView) findViewById(R.id.headerText); title.setText(this.getTitle());
+		 * 
+		 * ImageView icon = (ImageView) findViewById(R.id.headerIcon);
+		 * icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
+		 */
 	}
 
 	protected void update() {
@@ -112,7 +119,6 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		arrayListId = info.position;
 		songId = (Integer) songlist.get(info.position).get("songid");
 		title = (String) songlist.get(info.position).get("title");
-
 		menu.setHeaderTitle(title);
 		MenuItem skipTo = menu.add(ContextMenu.NONE, 0, 0, "Skip to Here");
 		skipTo.setOnMenuItemClickListener(this);
