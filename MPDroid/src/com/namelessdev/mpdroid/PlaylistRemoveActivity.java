@@ -191,11 +191,12 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 			Integer songID = (Integer) itemFrom.get("songid");
 			MPDApplication app = (MPDApplication) getApplication();
 			try {
-				if (from < to) {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to - 1);
-				} else {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
-				}
+				// looks like it's not necessary
+				/*
+				 * if (from < to) { app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to - 1); } else {
+				 */
+				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
+				// }
 			} catch (MPDServerException e) {
 			}
 			MainMenuActivity.notifyUser("Updating ...", getApplication());
