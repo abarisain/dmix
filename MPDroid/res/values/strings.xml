@@ -75,6 +75,7 @@
 	<string name="playlistNameEditTitle">Playlist name</string>
 	<string name="playlistSave">Save playlist</string>
 	<string name="playlistDeleted">Playlist %s deleted</string>
+	<string name="deletePlaylist">Delete playlist</string>
 	<string name="preferredConnection">Preferred connection</string>
 	<string name="chooseWLAN">Choose a WLAN network</string>
 	<string name="wlanBasedSettings">WLAN based connection</string>

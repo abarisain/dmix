@@ -49,7 +49,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
     	super.onCreateContextMenu(menu,v, menuInfo);
 
-		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 2, 0, "Delete");
+		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 2, 0, R.string.deletePlaylist);
 		addAndReplaceItem.setOnMenuItemClickListener(this);
     }
     
