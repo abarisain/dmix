@@ -155,7 +155,11 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 		case 1:
 			try { // Move song to next in playlist
 				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
+				if (arrayListId < status.getSongPos()) {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos());
+				} else {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
+				}
 				MainMenuActivity.notifyUser("Song moved to next in list", this);
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
