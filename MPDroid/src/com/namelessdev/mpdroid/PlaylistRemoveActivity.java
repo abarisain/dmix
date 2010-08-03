@@ -59,6 +59,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 			setListAdapter(songs);
 		} catch (MPDServerException e) {
 		}
+
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 
 		ListView trackList = getListView();
@@ -114,8 +115,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 	@Override
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
-		// TODO Auto-generated method stub
-
+		update();
 	}
 
 	@Override
@@ -156,7 +156,21 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 	private TouchInterceptor.DropListener mDropListener = new TouchInterceptor.DropListener() {
 		public void drop(int from, int to) {
-			MainMenuActivity.notifyUser("To be implemented", getApplication());
+			if (from == to) {
+				return;
+			}
+			HashMap<String, Object> itemFrom = songlist.get(from);
+			Integer songID = (Integer) itemFrom.get("songid");
+			MPDApplication app = (MPDApplication) getApplication();
+			try {
+				if (from < to) {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to - 1);
+				} else {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
+				}
+			} catch (MPDServerException e) {
+			}
+			MainMenuActivity.notifyUser("Updating ...", getApplication());
 		}
 	};
 

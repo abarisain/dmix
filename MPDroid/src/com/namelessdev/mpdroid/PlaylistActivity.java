@@ -36,7 +36,6 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 	private int arrayListId;
 	private int songId;
 	private String title;
-	private boolean selectPos;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -47,7 +46,6 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		super.onCreate(icicle);
 		MPDApplication app = (MPDApplication) getApplication();
 		setContentView(R.layout.artists);
-		selectPos = false;
 
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		ListView list = getListView();
@@ -114,7 +112,6 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		arrayListId = info.position;
 		songId = (Integer) songlist.get(info.position).get("songid");
 		title = (String) songlist.get(info.position).get("title");
-		selectPos = false;
 
 		menu.setHeaderTitle(title);
 		MenuItem skipTo = menu.add(ContextMenu.NONE, 0, 0, "Skip to Here");
@@ -125,8 +122,6 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 		moveTop.setOnMenuItemClickListener(this);
 		MenuItem moveBot = menu.add(ContextMenu.NONE, 3, 3, "Move to Last");
 		moveBot.setOnMenuItemClickListener(this);
-		MenuItem selectPos = menu.add(ContextMenu.NONE, 4, 4, "Select New Pos");
-		selectPos.setOnMenuItemClickListener(this);
 		MenuItem removeSong = menu.add(ContextMenu.NONE, 5, 5, "Remove from Playlist");
 		removeSong.setOnMenuItemClickListener(this);
 	}
@@ -169,11 +164,6 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return true;
-		case 4: { // Select position to move to
-			selectPos = true;
-			MainMenuActivity.notifyUser("Select new position for song", this);
-		}
 			return true;
 		case 5:
 			try {
@@ -238,24 +228,15 @@ public class PlaylistActivity extends ListActivity implements OnMenuItemClickLis
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		if (selectPos) {
-			selectPos = false;
-			MPDApplication app = (MPDApplication) getApplication();
-			try {
-				if (arrayListId < position) {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, position - 1);
-				} else {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, position);
-				}
-			} catch (MPDServerException e) {
-			}
-			MainMenuActivity.notifyUser("Song move successful", this);
+
+		MPDApplication app = (MPDApplication) getApplication(); // Play selected Song
+
+		Music m = musics.get(position);
+		try {
+			app.oMPDAsyncHelper.oMPD.skipTo(m.getSongId());
+		} catch (MPDServerException e) {
 		}
-		/*
-		 * MPDApplication app = (MPDApplication)getApplication(); // Play selected Song
-		 * 
-		 * Music m = musics.get(position); try { app.oMPDAsyncHelper.oMPD.skipTo(m.getSongId()); } catch (MPDServerException e) { }
-		 */
+
 	}
 
 	@Override
