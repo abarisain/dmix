@@ -24,8 +24,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 	
 	
 	public PlaylistManagerActivity() {
-		super(R.string.addAlbum, R.string.albumAdded, MPD.MPD_SEARCH_ALBUM);	
-		// TODO Auto-generated constructor stub
+		super(R.string.addPlaylist, R.string.playlistAdded, MPD.MPD_SEARCH_ALBUM);
 	}
 
 	@Override
@@ -61,8 +60,10 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 		case 2:
 			try {
 				MPDApplication app = (MPDApplication)getApplication();
-				app.oMPDAsyncHelper.oMPD.deletePlaylist(items.get((int)info.id).toString());
+				String playlist = items.get((int)info.id).toString();
+				app.oMPDAsyncHelper.oMPD.deletePlaylist(playlist);
 				
+				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.playlistDeleted),playlist), this);
 				// TODO A bit extreme but I'm lazy and tired. / Kent
 				UpdateList(); 
 			} catch (MPDServerException e) {
@@ -87,7 +88,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 			MPDApplication app = (MPDApplication)getApplication();
 
 			app.oMPDAsyncHelper.oMPD.getPlaylist().load(playlist);
-			MainMenuActivity.notifyUser("Should have added the playlist " + playlist, this);
+			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.playlistAdded),playlist), this);
 		} catch (MPDServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

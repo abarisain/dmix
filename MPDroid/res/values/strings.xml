@@ -23,6 +23,7 @@
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Add and Replace</string>
 	<string name="addAlbum">Add Album</string>
+	<string name="addPlaylist">Add Playlist</string>
 	<string name="addArtist">Add Artist</string>
 	<string name="addDirectory">Add Directory</string>
 	<string name="addSong">Add Song</string>
@@ -34,6 +35,7 @@
 	<string name="playlistCleared">Playlist cleared</string>
 	<string name="deletedSongFromPlaylist">Deleted song from playlist</string>
 	<string name="albumAdded">Album %s added</string>
+	<string name="playlistAdded">Playlist %s added</string>
 	<string name="addedDirectoryToPlaylist">Added directory %s to playlist</string>
 	<string name="artistAdded">Artist %s added</string>
 	<string name="host">Host</string>
@@ -70,7 +72,9 @@
 	<string name="notConnected">Not connected</string>
 	<string name="noSongInfo">No song info</string>
 	<string name="notInRange">Not in range, remembered</string>
-	
+	<string name="playlistNameEditTitle">Playlist name</string>
+	<string name="playlistSave">Save playlist</string>
+	<string name="playlistDeleted">Playlist %s deleted</string>
 	<string name="preferredConnection">Preferred connection</string>
 	<string name="chooseWLAN">Choose a WLAN network</string>
 	<string name="wlanBasedSettings">WLAN based connection</string>
