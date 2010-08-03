@@ -3,12 +3,12 @@
 	android:layout_width="fill_parent" android:layout_height="46dp"
 	android:orientation="vertical" android:background="@android:drawable/title_bar">
 	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="45dp">
+		android:layout_height="fill_parent">
 		<ImageView android:gravity="center" android:id="@+id/headerIcon"
-			android:layout_gravity="center" android:padding="4px"
-			android:layout_height="38dp" android:layout_width="38dp">
+			android:layout_gravity="center"
+			android:layout_height="32dp" android:layout_width="32dp">
 		</ImageView>
-		<TextView android:id="@+id/headerText"
+		<TextView android:id="@+id/headerText"  android:paddingLeft="5dp"
 			android:layout_gravity="center" android:layout_weight="1"
 			android:layout_width="0dp" android:layout_height="wrap_content"
 			android:textSize="20sp" android:singleLine="true"
@@ -19,6 +19,4 @@
 			android:layout_height="35dp" android:id="@+id/headerButton"
 			android:text="@string/edit" android:layout_marginTop="4dp" />
 	</LinearLayout>
-	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="1dp" android:background="#ff555555" />
 </LinearLayout>
