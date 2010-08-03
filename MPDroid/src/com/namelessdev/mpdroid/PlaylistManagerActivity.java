@@ -23,6 +23,9 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class PlaylistManagerActivity extends BrowseActivity implements OnMenuItemClickListener{
 	
 	
+	static final int DELETE = 2;
+	
+	
 	public PlaylistManagerActivity() {
 		super(R.string.addPlaylist, R.string.playlistAdded, MPD.MPD_SEARCH_ALBUM);
 	}
@@ -49,7 +52,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
     	super.onCreateContextMenu(menu,v, menuInfo);
 
-		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 2, 0, R.string.deletePlaylist);
+		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0, R.string.deletePlaylist);
 		addAndReplaceItem.setOnMenuItemClickListener(this);
     }
     
@@ -57,7 +60,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 	public boolean onMenuItemClick(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
-		case 2:
+		case DELETE:
 			try {
 				MPDApplication app = (MPDApplication)getApplication();
 				String playlist = items.get((int)info.id).toString();
