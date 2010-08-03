@@ -76,6 +76,34 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 	}
 
+	protected void update() {
+		MPDApplication app = (MPDApplication) getApplicationContext();
+		try {
+			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
+			playlist.refresh();
+			songlist = new ArrayList<HashMap<String, Object>>();
+			musics = playlist.getMusics();
+			for (Music m : musics) {
+				HashMap<String, Object> item = new HashMap<String, Object>();
+				item.put("songid", m.getSongId());
+				item.put("artist", m.getArtist());
+				item.put("title", m.getTitle());
+				item.put("marked", false);
+				if (m.getSongId() == app.oMPDAsyncHelper.oMPD.getStatus().getSongId())
+					item.put("play", android.R.drawable.ic_media_play);
+				else
+					item.put("play", 0);
+				songlist.add(item);
+			}
+			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_removelist_item, new String[] { "play", "title",
+					"artist", "marked" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox });
+
+			setListAdapter(songs);
+		} catch (MPDServerException e) {
+		}
+
+	}
+
 	/**
 	 * Marks the selected item for deletion
 	 * */
