@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    
+    <include android:id="@+id/header" layout="@layout/generic_header" android:visibility="gone"/>
     <ListView android:id="@id/android:list"
         android:layout_width="fill_parent"
 		android:layout_height="0dip"
