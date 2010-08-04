@@ -18,21 +18,23 @@
 	<string name="loading">Chargement ...</string>
 	<string name="loadingAlbums">Chargement des Albums ...</string>
 	<string name="loadingArtists">Chargement des Artistes ...</string>
+	<string name="loadingSongs">Chargement des Chansons ...</string>
 	<string name="serverAddress">Addresse du serveur :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Ajouter et remplacer</string>
+	<string name="addPlaylist">Ajouter la Playlist</string>
 	<string name="addDirectory">Ajouter le dossier</string>
 	<string name="addSong">Ajouter la chanson</string>
 	<string name="addAlbum">Ajouter l\'Album</string>
 	<string name="addArtist">Ajouter l\'Artiste</string>
 	<string name="removeSong">Enlever la chanson</string>
 	<string name="removeSongs">Enlever les chansons</string>
-	<string name="clear">Clear</string>
+	<string name="removeCountSongs">%s chansons enlevées</string>
 	<string name="mainMenu">Menu Principal</string>
 	<string name="playlistCleared">Playlist vidée</string>
 	<string name="deletedSongFromPlaylist">Chanson enlevée de la playlist</string>
 	<string name="albumAdded">Album %s ajouté</string>
-	<string name="addedDirectoryToPlaylist">Dossier ajouté à la playlist</string>
+	<string name="addedDirectoryToPlaylist">Dossier %s ajouté à la playlist</string>
 	<string name="artistAdded">Artiste ajouté</string>
 	<string name="host">Hôte</string>
 	<string name="hostDescription">IP ou nom du serveur MPD</string>
@@ -68,7 +70,10 @@
 	<string name="notConnected">Non connecté</string>
 	<string name="noSongInfo">Aucune information</string>
 	<string name="notInRange">Pas à portée, enregistré</string>
-	
+	<string name="playlistNameEditTitle">Nom de la playlist</string>
+	<string name="playlistSave">Sauvegarder la Playlist</string>
+	<string name="playlistDeleted">Playlist %s supprimée</string>
+	<string name="deletePlaylist">Supprimer la Playlist</string>
 	<string name="preferredConnection">Connexion preferée</string>
 	<string name="chooseWLAN">Choisissez un réseau wifi</string>
 	<string name="wlanBasedSettings">Connexion par WIFI</string>
@@ -104,4 +109,7 @@
 	<string name="moveFirst">Déplacer en première position</string>
 	<string name="moveLast">Déplacer en dernière position</string>
 	<string name="removeFromPlaylist">Supprimer de la playlist</string>
+	<string name="manage">Gérer</string>
+	<string name="save">Sauvegarder</string>
+	<string name="clear">Vider</string>
 </resources>

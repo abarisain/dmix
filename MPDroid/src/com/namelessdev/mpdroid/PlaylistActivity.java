@@ -210,9 +210,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 		boolean result = super.onCreateOptionsMenu(menu);
 		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
 		menu.add(0, EDIT, 1, R.string.editPlaylist).setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(0, CLEAR, 2, R.string.clear).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-		menu.add(0, MANAGER, 3, "Manager").setIcon(android.R.drawable.ic_menu_manage);
-		menu.add(0, SAVE, 4, "Save").setIcon(android.R.drawable.ic_menu_save);
+		menu.add(0, SAVE, 2, R.string.save).setIcon(android.R.drawable.ic_menu_save);
+		menu.add(0, MANAGER, 3, R.string.manage).setIcon(android.R.drawable.ic_menu_manage);
+		menu.add(0, CLEAR, 4, R.string.clear).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
 		return result;
 	}
 

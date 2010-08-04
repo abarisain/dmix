@@ -29,7 +29,7 @@
 	<string name="addSong">Add Song</string>
 	<string name="removeSong">Remove Song</string>
 	<string name="removeSongs">Remove Songs</string>
-	<string name="removeCountSongs">Remove %s Songs</string>
+	<string name="removeCountSongs">Removed %s Songs</string>
 	<string name="clear">Clear</string>
 	<string name="mainMenu">Main Menu</string>
 	<string name="playlistCleared">Playlist cleared</string>
@@ -111,4 +111,7 @@
 	<string name="moveFirst">Move to First</string>
 	<string name="moveLast">Move to Last</string>
 	<string name="removeFromPlaylist">Remove from Playlist</string>
+	<string name="manage">Manage</string>
+	<string name="saveAs">Save As</string>
+	
 </resources>
