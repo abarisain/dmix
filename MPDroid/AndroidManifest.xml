@@ -54,6 +54,10 @@
 		</activity>
 		<activity android:name=".PlaylistRemoveActivity" android:label="@string/playlist" android:theme="@android:style/Theme.Black.NoTitleBar">
 		</activity>
+		<activity android:name=".PlaylistManagerActivity" android:label="@string/playlist">
+		</activity>
+		<activity android:name=".PlaylistSaveActivity" android:label="@string/playlist">
+		</activity>
 		<activity android:name=".ArtistsActivity" android:label="@string/artists">
 			<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchArtistActivity" />

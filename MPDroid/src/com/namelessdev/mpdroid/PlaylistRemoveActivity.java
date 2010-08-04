@@ -225,11 +225,19 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 			int count = 0;
 			try {
 
-				for (HashMap<String, Object> item : new ArrayList<HashMap<String, Object>>(songlist)) {
+				/* If in some future the view will not be closed when this action occures
+				 * its needed to make a copy of the songlist and remove the items from the 
+				 * original songlist in this for loop
+				 * 
+				 * And after update the view with 
+				 * ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+				 * 
+				 * But for now neither is nessesary 
+				 */
+				for (HashMap<String, Object> item : songlist) {
 					try {
 						if (item.get("marked").equals(true)) {
 							app.oMPDAsyncHelper.oMPD.getPlaylist().removeSong((Integer) item.get("songid"));
-							songlist.remove(item);
 							count++;
 						}
 					} catch (MPDServerException e) {
@@ -239,8 +247,6 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 				app.oMPDAsyncHelper.oMPD.getPlaylist().refresh(); // If not refreshed an intern Array of JMPDComm get out of sync and throws
 				// IndexOutOfBound
 				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
-				((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
-
 			} catch (MPDServerException e) {
 				Log.e("MPDroid", e.toString());
 			} catch (Exception e) {

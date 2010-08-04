@@ -43,6 +43,8 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
+	public static final int MANAGER = 3;
+	public static final int SAVE = 4;
 	public static final int EDIT = 2;
 
 	@Override
@@ -209,6 +211,8 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
 		menu.add(0, EDIT, 1, R.string.editPlaylist).setIcon(android.R.drawable.ic_menu_edit);
 		menu.add(0, CLEAR, 2, R.string.clear).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		menu.add(0, MANAGER, 3, "Manager").setIcon(android.R.drawable.ic_menu_manage);
+		menu.add(0, SAVE, 4, "Save").setIcon(android.R.drawable.ic_menu_save);
 		return result;
 	}
 
@@ -237,7 +241,14 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 			i = new Intent(this, PlaylistRemoveActivity.class);
 			startActivityForResult(i, EDIT);
 			return true;
-
+		case MANAGER:
+			i = new Intent(this, PlaylistManagerActivity.class);
+			startActivityForResult(i, MANAGER);
+			return true;
+		case SAVE:
+			i = new Intent(this, PlaylistSaveActivity.class);
+			startActivityForResult(i, SAVE);
+			return true;
 		default:
 			return false;
 		}

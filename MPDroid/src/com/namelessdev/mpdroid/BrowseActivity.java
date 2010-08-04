@@ -26,6 +26,10 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 	public static final int MAIN = 0;
 	public static final int PLAYLIST = 3;
+
+	public static final int ADD = 0;
+	public static final int ADDNREPLACE = 1;
+
 	protected List<String> items = null;
 
 	String context;
@@ -102,10 +106,9 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
 		menu.setHeaderTitle(items.get((int) info.id).toString());
-		MenuItem addItem = menu.add(ContextMenu.NONE, 0, 0, getResources().getString(irAdd));
+		MenuItem addItem = menu.add(ContextMenu.NONE, ADD, 0, getResources().getString(irAdd));
 		addItem.setOnMenuItemClickListener(this);
-
-		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, 1, 0, R.string.addAndReplace);
+		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0, R.string.addAndReplace);
 		addAndReplaceItem.setOnMenuItemClickListener(this);
 	}
 
@@ -124,7 +127,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	public boolean onMenuItemClick(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
-		case 1:
+		case ADDNREPLACE:
 			try {
 				MPDApplication app = (MPDApplication) getApplication();
 				String status = app.oMPDAsyncHelper.oMPD.getStatus().getState();
@@ -142,7 +145,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 			}
 
 			break;
-		case 0:
+		case ADD:
 			Add(items.get((int) info.id).toString());
 			break;
 
@@ -154,13 +157,20 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 	}
 
+	/**
+	 * Update the view from the items list if items is set.
+	 */
+	public void updateFromItems() {
+		if (items != null) {
+			ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+			setListAdapter(listAdapter);
+		}
+	}
+
 	@Override
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {
-			if (items != null) {
-				ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-				setListAdapter(listAdapter);
-			}
+			updateFromItems();
 			pd.dismiss();
 
 		}
