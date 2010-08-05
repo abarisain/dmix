@@ -91,13 +91,14 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 			playlist.refresh();
 			songlist = new ArrayList<HashMap<String, Object>>();
 			musics = playlist.getMusics();
+			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			for (Music m : musics) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
 				item.put("artist", m.getArtist());
 				item.put("title", m.getTitle());
 				item.put("marked", false);
-				if (m.getSongId() == app.oMPDAsyncHelper.oMPD.getStatus().getSongId())
+				if (m.getSongId() == playingID)
 					item.put("play", android.R.drawable.ic_media_play);
 				else
 					item.put("play", 0);
@@ -225,14 +226,13 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 			int count = 0;
 			try {
 
-				/* If in some future the view will not be closed when this action occures
-				 * its needed to make a copy of the songlist and remove the items from the 
-				 * original songlist in this for loop
+				/*
+				 * If in some future the view will not be closed when this action occures its needed to make a copy of the songlist and remove
+				 * the items from the original songlist in this for loop
 				 * 
-				 * And after update the view with 
-				 * ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+				 * And after update the view with ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
 				 * 
-				 * But for now neither is nessesary 
+				 * But for now neither is nessesary
 				 */
 				for (HashMap<String, Object> item : songlist) {
 					try {
