@@ -112,6 +112,6 @@
 	<string name="moveLast">Move to Last</string>
 	<string name="removeFromPlaylist">Remove from Playlist</string>
 	<string name="manage">Manage</string>
-	<string name="saveAs">Save As</string>
+	<string name="save">Save</string>
 	
 </resources>
