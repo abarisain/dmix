@@ -30,6 +30,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -675,18 +676,33 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 					MPDApplication app = (MPDApplication) getApplication();
 					Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
-					if (actSong == null)
-						return;
-					String artist = actSong.getArtist();
-					String title = actSong.getTitle();
-					String album = actSong.getAlbum();
+					
+					String artist = null;
+					String title = null;
+					String album = null;
+					int songMax = 0;
+					if (actSong == null || status.getPlaylistLength() == 0)
+					{
+						title = getResources().getString(R.string.noSongInfo);
+					}
+					else
+					{
+						Log.d("MPDroid", "We did find an artist");
+						artist = actSong.getArtist();
+						title = actSong.getTitle();
+						album = actSong.getAlbum();
+						songMax = (int) actSong.getTime();
+					}
+					
 					artist = artist == null ? "" : artist;
 					title = title == null ? "" : title;
 					album = album == null ? "" : album;
+					
 					artistNameText.setText(artist);
 					songNameText.setText(title);
 					albumNameText.setText(album);
-					progressBarTrack.setMax((int) actSong.getTime());
+					progressBarTrack.setMax(songMax);
+					
 					if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 						// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
 						coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
@@ -696,7 +712,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 					}
 				} else {
 					artistNameText.setText("");
-					songNameText.setText("");
+					songNameText.setText(R.string.noSongInfo);
 					albumNameText.setText("");
 					progressBarTrack.setMax(0);
 				}
