@@ -138,7 +138,6 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 				if (status.equals(MPDStatus.MPD_STATE_PLAYING)) {
 					app.oMPDAsyncHelper.oMPD.play();
 				}
-				// TODO Need to find some way of updating the main view here.
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
