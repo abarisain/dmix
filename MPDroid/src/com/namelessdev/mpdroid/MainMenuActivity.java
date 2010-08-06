@@ -30,6 +30,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -175,6 +176,24 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		myLogger.log(Level.INFO, "onResume");
+		// Annoyingly this seams to be run when the app starts the first time to.
+		// In case the playlist has changed while this activity wasn't visible (destroyed)
+		try {
+			MPDApplication app = (MPDApplication) getApplication();
+			app.oMPDAsyncHelper.oMPD.getPlaylist().refresh();
+		} catch (MPDServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// Just to make sure that we do actually get an update.
+		try { 
+			updateTrackInfo();
+		} catch ( Exception e) {
+			e.printStackTrace();
+		}
+
 		/*
 		 * WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE); int wifistate = wifi.getWifiState();
 		 * if(wifistate!=wifi.WIFI_STATE_ENABLED && wifistate!=wifi.WIFI_STATE_ENABLING) { setTitle("No WIFI"); return; }
@@ -459,11 +478,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
-		/*
-		 * menu.add(0,ARTISTS, 0, R.string.artists).setIcon(R.drawable.ic_menu_pmix_artists); menu.add(0,ALBUMS, 1,
-		 * R.string.albums).setIcon(R.drawable.ic_menu_pmix_albums); menu.add(0,FILES, 2,
-		 * R.string.files).setIcon(android.R.drawable.ic_menu_agenda);
-		 */
+
 		menu.add(0, LIBRARY, 1, R.string.libraryTabActivity).setIcon(R.drawable.ic_menu_music_library);
 		menu.add(0, PLAYLIST, 3, R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
 		menu.add(0, STREAM, 4, R.string.stream).setIcon(android.R.drawable.ic_menu_upload_you_tube);
@@ -643,9 +658,17 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private String lastArtist = "";
 	private String lastAlbum = "";
 
-	public void trackChanged(MPDTrackChangedEvent event) {
-
-		MPDStatus status = event.getMpdStatus();
+	public void updateTrackInfo()  {
+		MPDApplication app = (MPDApplication) getApplication();
+		try {
+			updateTrackInfo(app.oMPDAsyncHelper.oMPD.getStatus());
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	
+	}
+	
+	public void updateTrackInfo(MPDStatus status) {
 		if (status != null) {
 			String state = status.getState();
 			if (state != null) {
@@ -679,6 +702,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				}
 			}
 		}
+	}
+	
+	public void trackChanged(MPDTrackChangedEvent event) {
+		updateTrackInfo(event.getMpdStatus());
 	}
 
 	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
