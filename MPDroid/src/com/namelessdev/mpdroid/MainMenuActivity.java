@@ -30,7 +30,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -179,12 +178,12 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		myLogger.log(Level.INFO, "onResume");
 		// Annoyingly this seams to be run when the app starts the first time to.
 		// Just to make sure that we do actually get an update.
-		try { 
+		try {
 			updateTrackInfo();
-		} catch ( Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			MPDApplication app = (MPDApplication) getApplication();
 			progressBarVolume.setProgress(app.oMPDAsyncHelper.oMPD.getStatus().getVolume());
@@ -617,12 +616,12 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	// private MPDPlaylist playlist;
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
-		// Can someone explain why this is nessesary? 
-		// Maybe the song gets changed before the playlist? 
+		// Can someone explain why this is nessesary?
+		// Maybe the song gets changed before the playlist?
 		// Makes little sense tho.
-		try { 
+		try {
 			updateTrackInfo();
-		} catch ( Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -657,16 +656,16 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private String lastArtist = "";
 	private String lastAlbum = "";
 
-	public void updateTrackInfo()  {
+	public void updateTrackInfo() {
 		MPDApplication app = (MPDApplication) getApplication();
 		try {
 			updateTrackInfo(app.oMPDAsyncHelper.oMPD.getStatus());
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
-	
+
 	}
-	
+
 	public void updateTrackInfo(MPDStatus status) {
 		if (status != null) {
 			String state = status.getState();
@@ -676,6 +675,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 					MPDApplication app = (MPDApplication) getApplication();
 					Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
+					if (actSong == null)
+						return;
 					String artist = actSong.getArtist();
 					String title = actSong.getTitle();
 					String album = actSong.getAlbum();
@@ -702,7 +703,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			}
 		}
 	}
-	
+
 	public void trackChanged(MPDTrackChangedEvent event) {
 		updateTrackInfo(event.getMpdStatus());
 	}
