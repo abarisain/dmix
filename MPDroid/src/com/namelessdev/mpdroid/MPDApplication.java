@@ -19,6 +19,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import android.view.WindowManager.BadTokenException;
 
 import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
 
@@ -145,7 +146,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 		if (key.equals("albumartist")) {
 			// clear current cached artist list on change of tag settings
-			//ArtistsActivity.items = null;
+			// ArtistsActivity.items = null;
 
 		} else if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
 			String sServer = settings.getString(wifiSSID + "hostname", "");
@@ -202,7 +203,11 @@ public class MPDApplication extends Application implements ConnectionListener, O
 				test.setNegativeButton(getResources().getString(R.string.quit), oDialogClickListener);
 				test.setNeutralButton(getResources().getString(R.string.settings), oDialogClickListener);
 				test.setPositiveButton(getResources().getString(R.string.retry), oDialogClickListener);
-				ad = test.show();
+				try {
+					ad = test.show();
+				} catch (BadTokenException e) {
+					// Can't display it. Don't care.
+				}
 			}
 		}
 
@@ -258,35 +263,10 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	public void setWifiConnected(boolean bWifiConnected) {
 		this.bWifiConnected = bWifiConnected;
 		if (bWifiConnected) {
-			if (ad != null) {
-				if (ad.isShowing()) {
-					try {
-						ad.dismiss();
-					} catch (IllegalArgumentException e) {
-						// We don't care, it has already been destroyed
-					}
-				}
-			}
-			if (currentActivity == null && isStreamingMode() == false)
-				return;
 			connect();
 			// checkMonitorNeeded();
 		} else {
-			disconnect();
-			if (ad != null) {
-				if (ad.isShowing()) {
-					try {
-						ad.dismiss();
-					} catch (IllegalArgumentException e) {
-						// We don't care, it has already been destroyed
-					}
-				}
-			}
-			if (currentActivity == null)
-				return;
-			AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
-			test.setMessage(getResources().getString(R.string.waitForWLAN));
-			ad = test.show();
+			// disconnect();
 		}
 	}
 

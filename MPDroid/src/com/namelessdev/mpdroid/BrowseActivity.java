@@ -171,8 +171,13 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {
 			updateFromItems();
-			pd.dismiss();
-
+			try {
+				pd.dismiss();
+			} catch (Exception e) {
+				// I know that catching everything is bad, but do you want your program to crash because it couldn't stop an already stopped
+				// popup window ? No.
+				// So, do nothing.
+			}
 		}
 
 	}
