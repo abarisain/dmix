@@ -180,8 +180,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		// Annoyingly this seams to be run when the app starts the first time to.
 		// In case the playlist has changed while this activity wasn't visible (destroyed)
 		try {
-			MPDApplication app = (MPDApplication) getApplication();
-			app.oMPDAsyncHelper.oMPD.getPlaylist().refresh();
+		//	MPDApplication app = (MPDApplication) getApplication();
+		//	app.oMPDAsyncHelper.oMPD.getPlaylist().refresh();
 		} catch (MPDServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

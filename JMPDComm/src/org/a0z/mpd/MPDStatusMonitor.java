@@ -92,6 +92,8 @@ public class MPDStatusMonitor extends Thread {
 
                     //playlist
                     if (oldPlaylistVersion != playlistVersion && playlistVersion != -1) {
+                    	// Lets update our own copy
+                    	mpd.getPlaylist().refresh();
                         for (StatusChangeListener listener : statusChangedListeners) {
                             listener.playlistChanged(new MPDPlaylistChangedEvent(status, oldPlaylistVersion));
                         }
