@@ -145,7 +145,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 		if (key.equals("albumartist")) {
 			// clear current cached artist list on change of tag settings
-			//ArtistsActivity.items = null;
+			// ArtistsActivity.items = null;
 
 		} else if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
 			String sServer = settings.getString(wifiSSID + "hostname", "");
@@ -258,35 +258,10 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	public void setWifiConnected(boolean bWifiConnected) {
 		this.bWifiConnected = bWifiConnected;
 		if (bWifiConnected) {
-			if (ad != null) {
-				if (ad.isShowing()) {
-					try {
-						ad.dismiss();
-					} catch (IllegalArgumentException e) {
-						// We don't care, it has already been destroyed
-					}
-				}
-			}
-			if (currentActivity == null && isStreamingMode() == false)
-				return;
 			connect();
 			// checkMonitorNeeded();
 		} else {
-			disconnect();
-			if (ad != null) {
-				if (ad.isShowing()) {
-					try {
-						ad.dismiss();
-					} catch (IllegalArgumentException e) {
-						// We don't care, it has already been destroyed
-					}
-				}
-			}
-			if (currentActivity == null)
-				return;
-			AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
-			test.setMessage(getResources().getString(R.string.waitForWLAN));
-			ad = test.show();
+			// disconnect();
 		}
 	}
 
