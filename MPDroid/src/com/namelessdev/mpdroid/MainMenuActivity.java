@@ -184,7 +184,14 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		} catch ( Exception e) {
 			e.printStackTrace();
 		}
-
+		
+		try {
+			MPDApplication app = (MPDApplication) getApplication();
+			progressBarVolume.setProgress(app.oMPDAsyncHelper.oMPD.getStatus().getVolume());
+		} catch (MPDServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		/*
 		 * WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE); int wifistate = wifi.getWifiState();
 		 * if(wifistate!=wifi.WIFI_STATE_ENABLED && wifistate!=wifi.WIFI_STATE_ENABLING) { setTitle("No WIFI"); return; }
