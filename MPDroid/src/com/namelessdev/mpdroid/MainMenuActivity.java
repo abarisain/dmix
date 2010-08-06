@@ -139,10 +139,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		super.onCreate(icicle);
 		// WifiManager wifi = (WifiManager)getSystemService(WIFI_SERVICE);
 		myLogger.log(Level.INFO, "onCreate");
-		MPDApplication app = (MPDApplication) getApplication();
-		app.oMPDAsyncHelper.addStatusChangeListener(this);
-		app.oMPDAsyncHelper.addTrackPositionListener(this);
-		app.setActivity(this);
+
 		// registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
 		registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
 
@@ -169,6 +166,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	@Override
 	protected void onStart() {
 		super.onStart();
+		MPDApplication app = (MPDApplication) getApplication();
+		app.oMPDAsyncHelper.addStatusChangeListener(this);
+		app.oMPDAsyncHelper.addTrackPositionListener(this);
+		app.setActivity(this);
 		myLogger.log(Level.INFO, "onStart");
 	}
 
@@ -746,16 +747,16 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	@Override
 	protected void onStop() {
 		super.onStop();
+		MPDApplication app = (MPDApplication) getApplicationContext();
+		app.oMPDAsyncHelper.removeStatusChangeListener(this);
+		app.oMPDAsyncHelper.removeTrackPositionListener(this);
+		app.unsetActivity(this);
 		myLogger.log(Level.INFO, "onStop");
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		MPDApplication app = (MPDApplication) getApplicationContext();
-		app.oMPDAsyncHelper.removeStatusChangeListener(this);
-		app.oMPDAsyncHelper.removeTrackPositionListener(this);
-		app.unsetActivity(this);
 		myLogger.log(Level.INFO, "onDestroy");
 	}
 

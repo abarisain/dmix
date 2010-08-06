@@ -125,19 +125,24 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			connectionFailed("No network.");
 			return;
 		}
-		ad = new ProgressDialog(currentActivity);
-		ad.setTitle(getResources().getString(R.string.connecting));
-		ad.setMessage(getResources().getString(R.string.connectingToServer));
-		ad.setCancelable(false);
-		ad.setOnKeyListener(new OnKeyListener() {
-			@Override
-			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-				// Handle all keys!
-				return true;
+		if (currentActivity != null) {
+			ad = new ProgressDialog(currentActivity);
+			ad.setTitle(getResources().getString(R.string.connecting));
+			ad.setMessage(getResources().getString(R.string.connectingToServer));
+			ad.setCancelable(false);
+			ad.setOnKeyListener(new OnKeyListener() {
+				@Override
+				public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+					// Handle all keys!
+					return true;
+				}
+			});
+			try {
+				ad.show();
+			} catch (BadTokenException e) {
+				// Can't display it. Don't care.
 			}
-		});
-		ad.show();
-
+		}
 		oMPDAsyncHelper.doConnect();
 	}
 
