@@ -19,6 +19,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import android.view.WindowManager.BadTokenException;
 
 import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
 
@@ -202,7 +203,11 @@ public class MPDApplication extends Application implements ConnectionListener, O
 				test.setNegativeButton(getResources().getString(R.string.quit), oDialogClickListener);
 				test.setNeutralButton(getResources().getString(R.string.settings), oDialogClickListener);
 				test.setPositiveButton(getResources().getString(R.string.retry), oDialogClickListener);
-				ad = test.show();
+				try {
+					ad = test.show();
+				} catch (BadTokenException e) {
+					// Can't display it. Don't care.
+				}
 			}
 		}
 
