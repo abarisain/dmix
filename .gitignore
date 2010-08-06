@@ -1,3 +1,5 @@
-MPDroid/bin
-MPDroid/gen
-JMPDComm/JMPDComm.jar
+/MPDroid/bin
+/MPDroid/gen
+/JMPDComm/JMPDComm.jar
+/JMPDComm/classes
+/lastfm-java/bin
