@@ -79,7 +79,6 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
-			//playlist.refresh();
 			songlist = new ArrayList<HashMap<String, Object>>();
 			musics = playlist.getMusics();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();

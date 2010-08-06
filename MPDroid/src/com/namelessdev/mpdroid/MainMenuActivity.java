@@ -178,15 +178,6 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		super.onResume();
 		myLogger.log(Level.INFO, "onResume");
 		// Annoyingly this seams to be run when the app starts the first time to.
-		// In case the playlist has changed while this activity wasn't visible (destroyed)
-		try {
-		//	MPDApplication app = (MPDApplication) getApplication();
-		//	app.oMPDAsyncHelper.oMPD.getPlaylist().refresh();
-		} catch (MPDServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		// Just to make sure that we do actually get an update.
 		try { 
 			updateTrackInfo();
@@ -619,11 +610,12 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	// private MPDPlaylist playlist;
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
-		try {
-			MPDApplication app = (MPDApplication) getApplication();
-			app.oMPDAsyncHelper.oMPD.getPlaylist().refresh();
-		} catch (MPDServerException e) {
-			// TODO Auto-generated catch block
+		// Can someone explain why this is nessesary? 
+		// Maybe the song gets changed before the playlist? 
+		// Makes little sense tho.
+		try { 
+			updateTrackInfo();
+		} catch ( Exception e) {
 			e.printStackTrace();
 		}
 

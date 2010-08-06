@@ -41,7 +41,6 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 
-			playlist.refresh();
 			musics = playlist.getMusics();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			for (Music m : musics) {
@@ -88,7 +87,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
-			playlist.refresh();
+
 			songlist = new ArrayList<HashMap<String, Object>>();
 			musics = playlist.getMusics();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
@@ -244,12 +243,9 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 						Log.e("MPDroid", e.toString());
 					}
 				}
-				app.oMPDAsyncHelper.oMPD.getPlaylist().refresh(); // If not refreshed an intern Array of JMPDComm get out of sync and throws
-				// IndexOutOfBound
 				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
-			} catch (MPDServerException e) {
-				Log.e("MPDroid", e.toString());
-			} catch (Exception e) {
+			} 
+			catch (Exception e) {
 				Log.e("MPDroid", "General: " + e.toString());
 			}
 
