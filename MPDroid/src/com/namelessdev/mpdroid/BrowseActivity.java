@@ -126,27 +126,38 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 	@Override
 	public boolean onMenuItemClick(MenuItem item) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		final MPDApplication app = (MPDApplication) getApplication();
 		switch (item.getItemId()) {
 		case ADDNREPLACE:
-			try {
-				MPDApplication app = (MPDApplication) getApplication();
-				String status = app.oMPDAsyncHelper.oMPD.getStatus().getState();
-				app.oMPDAsyncHelper.oMPD.stop();
-				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
+			app.oMPDAsyncHelper.execAsync(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						String status = app.oMPDAsyncHelper.oMPD.getStatus().getState();
+						app.oMPDAsyncHelper.oMPD.stop();
+						app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 
-				Add(items.get((int) info.id).toString());
-				if (status.equals(MPDStatus.MPD_STATE_PLAYING)) {
-					app.oMPDAsyncHelper.oMPD.play();
+						Add(items.get((int) info.id).toString());
+						if (status.equals(MPDStatus.MPD_STATE_PLAYING)) {
+							app.oMPDAsyncHelper.oMPD.play();
+						}
+					} catch (MPDServerException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
 				}
-			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			});
 			break;
 		case ADD:
-			Add(items.get((int) info.id).toString());
+			app.oMPDAsyncHelper.execAsync(new Runnable() {
+				@Override
+				public void run() {
+					Add(items.get((int) info.id).toString());
+				}
+			});
+
 			break;
 
 		}
