@@ -227,7 +227,8 @@ public class MPDPlaylist {
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
 	 * @return current playlist version.
-	 * @deprecated Should only be used internaly now, refresh is suposed to be called whenever it's detected to be nessesary (i.e. lastPlaylistversion is updated). From MPDStatusMonitor.
+	 * @deprecated Should only be used internaly now, refresh is suposed to be called whenever it's detected to be nessesary (i.e.
+	 *             lastPlaylistversion is updated). From MPDStatusMonitor.
 	 */
 	public int refresh() throws MPDServerException {
 		if (firstRefreash) {

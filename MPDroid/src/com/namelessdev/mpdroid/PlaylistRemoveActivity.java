@@ -244,8 +244,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 					}
 				}
 				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
-			} 
-			catch (Exception e) {
+			} catch (Exception e) {
 				Log.e("MPDroid", "General: " + e.toString());
 			}
 

@@ -677,33 +677,30 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 					MPDApplication app = (MPDApplication) getApplication();
 					Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
-					
+
 					String artist = null;
 					String title = null;
 					String album = null;
 					int songMax = 0;
-					if (actSong == null || status.getPlaylistLength() == 0)
-					{
+					if (actSong == null || status.getPlaylistLength() == 0) {
 						title = getResources().getString(R.string.noSongInfo);
-					}
-					else
-					{
+					} else {
 						Log.d("MPDroid", "We did find an artist");
 						artist = actSong.getArtist();
 						title = actSong.getTitle();
 						album = actSong.getAlbum();
 						songMax = (int) actSong.getTime();
 					}
-					
+
 					artist = artist == null ? "" : artist;
 					title = title == null ? "" : title;
 					album = album == null ? "" : album;
-					
+
 					artistNameText.setText(artist);
 					songNameText.setText(title);
 					albumNameText.setText(album);
 					progressBarTrack.setMax(songMax);
-					
+
 					if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 						// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
 						coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
