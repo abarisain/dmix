@@ -28,6 +28,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -659,61 +660,82 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private String lastAlbum = "";
 
 	public void updateTrackInfo() {
-		MPDApplication app = (MPDApplication) getApplication();
-		try {
-			updateTrackInfo(app.oMPDAsyncHelper.oMPD.getStatus());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
-		}
-
+		new updateTrackInfoAsync().execute((MPDStatus[]) null);
 	}
 
 	public void updateTrackInfo(MPDStatus status) {
-		if (status != null) {
-			String state = status.getState();
-			if (state != null) {
-				int songId = status.getSongPos();
-				if (songId >= 0) {
+		new updateTrackInfoAsync().execute(status);
+	}
 
-					MPDApplication app = (MPDApplication) getApplication();
-					Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
+	public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
+		Music actSong = null;
+		MPDStatus status = null;
 
-					String artist = null;
-					String title = null;
-					String album = null;
-					int songMax = 0;
-					if (actSong == null || status.getPlaylistLength() == 0) {
-						title = getResources().getString(R.string.noSongInfo);
-					} else {
-						Log.d("MPDroid", "We did find an artist");
-						artist = actSong.getArtist();
-						title = actSong.getTitle();
-						album = actSong.getAlbum();
-						songMax = (int) actSong.getTime();
-					}
-
-					artist = artist == null ? "" : artist;
-					title = title == null ? "" : title;
-					album = album == null ? "" : album;
-
-					artistNameText.setText(artist);
-					songNameText.setText(title);
-					albumNameText.setText(album);
-					progressBarTrack.setMax(songMax);
-
-					if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
-						// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
-						coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
-						oCoverAsyncHelper.downloadCover(artist, album);
-						lastArtist = artist;
-						lastAlbum = album;
-					}
-				} else {
-					artistNameText.setText("");
-					songNameText.setText(R.string.noSongInfo);
-					albumNameText.setText("");
-					progressBarTrack.setMax(0);
+		@Override
+		protected Boolean doInBackground(MPDStatus... params) {
+			if (params == null) {
+				MPDApplication app = (MPDApplication) getApplication();
+				try {
+					// A recursive call doesn't seem that bad here.
+					return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
+				} catch (MPDServerException e) {
+					e.printStackTrace();
 				}
+				return false;
+			}
+			if (params[0] != null) {
+				String state = params[0].getState();
+				if (state != null) {
+					int songId = params[0].getSongPos();
+					if (songId >= 0) {
+						MPDApplication app = (MPDApplication) getApplication();
+						actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
+						status = params[0];
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if (result) {
+				String artist = null;
+				String title = null;
+				String album = null;
+				int songMax = 0;
+				if (actSong == null || status.getPlaylistLength() == 0) {
+					title = getResources().getString(R.string.noSongInfo);
+				} else {
+					Log.d("MPDroid", "We did find an artist");
+					artist = actSong.getArtist();
+					title = actSong.getTitle();
+					album = actSong.getAlbum();
+					songMax = (int) actSong.getTime();
+				}
+
+				artist = artist == null ? "" : artist;
+				title = title == null ? "" : title;
+				album = album == null ? "" : album;
+
+				artistNameText.setText(artist);
+				songNameText.setText(title);
+				albumNameText.setText(album);
+				progressBarTrack.setMax(songMax);
+
+				if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
+					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
+					coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
+					oCoverAsyncHelper.downloadCover(artist, album);
+					lastArtist = artist;
+					lastAlbum = album;
+				}
+			} else {
+				artistNameText.setText("");
+				songNameText.setText(R.string.noSongInfo);
+				albumNameText.setText("");
+				progressBarTrack.setMax(0);
 			}
 		}
 	}
