@@ -23,8 +23,7 @@
 <TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/trackTime" android:textSize="12sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
 <TextView android:layout_height="wrap_content" android:gravity="center" android:layout_width="fill_parent" android:text="@string/volume" android:visibility="gone" 
 	android:textSize="12sp" android:id="@+id/volume" android:textColor="#FFFFFFFF"></TextView>
-<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_volume" android:visibility="gone"
-	android:layout_width="250dip" android:layout_gravity="center"></SeekBar>
+
 </LinearLayout>
 </LinearLayout>
  
@@ -44,6 +43,7 @@
 </LinearLayout><TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/mainInfo" android:visibility="gone"></TextView>
 <LinearLayout android:layout_width="fill_parent" android:gravity="center" android:layout_height="wrap_content" >
 <SeekBar android:layout_height="wrap_content" android:max="100" android:id="@+id/progress_track"
-	android:layout_width="fill_parent" android:layout_gravity="center" android:padding="10dp" android:paddingTop="0dp"></SeekBar>
+	android:layout_width="0dp" android:layout_gravity="center" android:padding="10dp" android:paddingTop="0dp" android:layout_weight="2"></SeekBar>
+	<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_volume" android:layout_width="0dp" android:layout_gravity="center" android:layout_weight="1"></SeekBar>
 </LinearLayout>
 </LinearLayout>
