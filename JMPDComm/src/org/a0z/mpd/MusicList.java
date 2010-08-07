@@ -84,7 +84,7 @@ public class MusicList {
 	 * @return a Music with given position or <code>null</code> if it is not present on this <code>MusicList</code>.
 	 */
 	public Music getByIndex(int index) {
-		if (list.size() == 0) {
+		if (list.size() <= index) {
 			return null;
 		}
 		return list.get(index);
