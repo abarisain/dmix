@@ -149,9 +149,14 @@ public class MPDStatus {
 				totalTime = Long.parseLong(time[1]);
 			} else if (line.startsWith("audio:")) {
 				String[] audio = line.substring("audio: ".length()).split(":");
-				sampleRate = Integer.parseInt(audio[0]);
-				bitsPerSample = Integer.parseInt(audio[1]);
-				channels = Integer.parseInt(audio[2]);
+				try {
+					sampleRate = Integer.parseInt(audio[0]);
+					bitsPerSample = Integer.parseInt(audio[1]);
+					channels = Integer.parseInt(audio[2]);
+				} catch (NumberFormatException e) {
+					// Sometimes mpd sends "?" as a sampleRate or bitsPerSample, etc ... hotfix for a bugreport I had.
+				}
+
 			} else if (line.startsWith("xfade:")) {
 				this.crossfade = Integer.parseInt(line.substring("xfade: ".length()));
 			} else if (line.startsWith("updating_db:")) {
