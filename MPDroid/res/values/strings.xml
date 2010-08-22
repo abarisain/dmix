@@ -87,6 +87,7 @@
 	<string name="portStreaming">Streaming port</string>
 	<string name="portStreamingDescription">MPD-Streaming port (Default: 8000)</string>
 	<string name="streamStopped">Streaming stopped</string>
+	<string name="streamError">Streaming error, stream not playable</string>
 	<string name="streamPaused">Streaming paused</string>
 	<string name="streamPauseBattery">For saving battery, stop streaming if not used</string>
 	<string name="aboutText1">MPDroid is open-source software brought you by namelessDev and orrche. Visit http://github.com/dreamteam69/dmix for source code !</string>

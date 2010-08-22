@@ -80,6 +80,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	private Boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
 	private Boolean needStoppedNotification;
 	private Integer lastStartID;
+	private Integer mediaPlayerError;
 
 	private static Method registerMediaButtonEventReceiver; // Thanks you google again for this code
 	private static Method unregisterMediaButtonEventReceiver;
@@ -375,7 +376,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
 			views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
 			Notification status = null;
-			views.setTextViewText(R.id.trackname, getString(R.string.streamPaused));
+			if(mediaPlayerError != 0)
+				views.setTextViewText(R.id.trackname, getString(R.string.streamError));
+			else
+				views.setTextViewText(R.id.trackname, getString(R.string.streamPaused));
+			
 			views.setTextViewText(R.id.album, getString(R.string.streamPauseBattery));
 			views.setTextViewText(R.id.artist, "");
 			status = new Notification(R.drawable.icon, getString(R.string.streamPaused), System.currentTimeMillis());
@@ -619,6 +624,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		// Toast.makeText(this, "onError", Toast.LENGTH_SHORT).show();
 		// mediaPlayer.reset();
+		mediaPlayerError = what;
+		pauseStreaming();
 		return false;
 	}
 
