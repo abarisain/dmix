@@ -1,7 +1,6 @@
 package com.namelessdev.mpdroid;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.a0z.mpd.MPDServerException;
@@ -173,7 +172,6 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	 */
 	public void updateFromItems() {
 		if (items != null) {
-			Collections.sort(items, String.CASE_INSENSITIVE_ORDER);
 			ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 			setListAdapter(listAdapter);
 		}

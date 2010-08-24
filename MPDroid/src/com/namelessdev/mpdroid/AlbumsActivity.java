@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid;
 
+import java.util.Collections;
+
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
 
@@ -56,6 +58,7 @@ public class AlbumsActivity extends BrowseActivity {
 			} else {
 				items = app.oMPDAsyncHelper.oMPD.listAlbums();
 			}
+			Collections.sort(items, String.CASE_INSENSITIVE_ORDER);
 		} catch (MPDServerException e) {
 		}
 	}
