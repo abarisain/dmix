@@ -83,7 +83,6 @@ public class SongsActivity extends BrowseActivity {
 
 	private static class MusicComparator implements Comparator<Music> {
 
-		@Override
 		public int compare(Music music1, Music music2) {
 			String title1 = music1.getTitle();
 			String title2 = music2.getTitle();

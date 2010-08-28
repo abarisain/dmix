@@ -503,37 +503,31 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		stopSelfResult(lastStartID);
 	}
 
-	@Override
 	public void trackChanged(MPDTrackChangedEvent event) {
 		oldStatus = "";
 		showNotification();
 	}
 
-	@Override
 	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void randomChanged(MPDRandomChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void repeatChanged(MPDRepeatChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void stateChanged(MPDStateChangedEvent event) {
 		// TODO Auto-generated method stub
 		// Toast.makeText(this, "stateChanged :", Toast.LENGTH_SHORT).show();
@@ -564,19 +558,16 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		}
 	}
 
-	@Override
 	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
 		// TODO Auto-generated method stub
 		// Toast.makeText(this, "updateStateChanged :", Toast.LENGTH_SHORT).show();
 	}
 
-	@Override
 	public void volumeChanged(MPDVolumeChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void onPrepared(MediaPlayer mp) {
 		// Buffering done
 		buffering = false;
@@ -586,7 +577,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		mediaPlayer.start();
 	}
 
-	@Override
 	public void onCompletion(MediaPlayer mp) {
 		// Toast.makeText(this, "Completion", Toast.LENGTH_SHORT).show();
 		Message msg = delayedStopHandler.obtainMessage();
@@ -614,13 +604,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		}
 	}
 
-	@Override
 	public void onBufferingUpdate(MediaPlayer mp, int percent) {
 		// TODO Auto-generated method stub
 		// Toast.makeText(this, "Buf update", Toast.LENGTH_SHORT).show();
 	}
 
-	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		// Toast.makeText(this, "onError", Toast.LENGTH_SHORT).show();
 		// mediaPlayer.reset();
@@ -629,19 +617,16 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		return false;
 	}
 
-	@Override
 	public boolean onInfo(MediaPlayer mp, int what, int extra) {
 		// Toast.makeText(this, "onInfo :", Toast.LENGTH_SHORT).show();
 		return false;
 	}
 
-	@Override
 	public void connectionFailed(String message) {
 		// TODO Auto-generated method stub
 		Toast.makeText(this, "Connection Failed !", Toast.LENGTH_SHORT).show();
 	}
 
-	@Override
 	public void connectionSucceeded(String message) {
 		// TODO Auto-generated method stub
 		// Toast.makeText(this, "connectionSucceeded :", Toast.LENGTH_SHORT).show();

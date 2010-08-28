@@ -143,48 +143,40 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		app.unsetActivity(this);
 	}
 
-	@Override
 	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
 		update();
 	}
 
-	@Override
 	public void randomChanged(MPDRandomChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void repeatChanged(MPDRepeatChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void stateChanged(MPDStateChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void trackChanged(MPDTrackChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void volumeChanged(MPDVolumeChangedEvent event) {
 		// TODO Auto-generated method stub
 
@@ -217,7 +209,6 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		}
 	};
 
-	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.Remove:
