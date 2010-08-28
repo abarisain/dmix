@@ -5,12 +5,13 @@
 	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="fill_parent">
 		<ImageView android:gravity="center" android:id="@+id/headerIcon"
-			android:layout_gravity="center"
-			android:layout_height="32dp" android:layout_width="32dp">
+			android:layout_gravity="center" android:layout_height="32dp"
+			android:layout_width="32dp">
 		</ImageView>
-		<TextView android:id="@+id/headerText"  android:paddingLeft="5dp"
-			android:layout_gravity="center" android:layout_weight="1"
-			android:layout_width="0dp" android:layout_height="wrap_content"
+		<Button android:id="@+id/headerText" android:paddingLeft="5dp"
+			android:background="@null" android:layout_gravity="center_vertical"
+			android:layout_weight="1" android:layout_width="0dp"
+			android:layout_height="wrap_content" android:gravity="center_vertical"
 			android:textSize="20sp" android:singleLine="true"
 			android:shadowColor="#FF000000" android:shadowRadius="3.0"
 			android:textColor="#FFFFFFFF" />

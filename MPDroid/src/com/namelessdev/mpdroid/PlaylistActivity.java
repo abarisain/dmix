@@ -67,14 +67,15 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 		button.setVisibility(View.VISIBLE);
 		button.setOnClickListener(this);
 
-		TextView title = (TextView) findViewById(R.id.headerText);
+		Button title = (Button) findViewById(R.id.headerText);
 		title.setText(this.getTitle());
+		title.setOnClickListener(this);
 
 		ImageView icon = (ImageView) findViewById(R.id.headerIcon);
 		icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
 
 	}
-
+	
 	protected void update() {
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		try {
@@ -267,6 +268,18 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 
 	}
 
+	public void scrollToNowPlaying() {
+		for (HashMap<String, Object> song : songlist) {
+			try {
+				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD.getStatus().getSongId()) {
+					getListView().requestFocusFromTouch();
+					getListView().setSelection(songlist.indexOf(song));
+				}
+			} catch (MPDServerException e) {
+			}
+		}
+	}
+	
 	@Override
 	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
 		// TODO Auto-generated method stub
@@ -327,6 +340,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 		case R.id.headerButton:
 			Intent i = new Intent(this, PlaylistRemoveActivity.class);
 			startActivityForResult(i, EDIT);
+			break;
+		case R.id.headerText:
+			scrollToNowPlaying();
 			break;
 		default:
 			break;
