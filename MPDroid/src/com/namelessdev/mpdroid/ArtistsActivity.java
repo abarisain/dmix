@@ -51,9 +51,9 @@ public class ArtistsActivity extends BrowseActivity {
 			if (albumartist == true) {
 				items = app.oMPDAsyncHelper.oMPD.listAlbumArtists();
 			} else {
-				items = app.oMPDAsyncHelper.oMPD.listArtists();
+				items = app.oMPDAsyncHelper.oMPD.listArtists(true);
 			}
-			Collections.sort(items, String.CASE_INSENSITIVE_ORDER);
+			//Collections.sort(items, String.CASE_INSENSITIVE_ORDER);
 		} catch (MPDServerException e) {
 		}
 	}

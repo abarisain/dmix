@@ -54,11 +54,11 @@ public class AlbumsActivity extends BrowseActivity {
 		try {
 			MPDApplication app = (MPDApplication) getApplication();
 			if (getIntent().getStringExtra("artist") != null) {
-				items = app.oMPDAsyncHelper.oMPD.listAlbums((String) getIntent().getStringExtra("artist"));
+				items = app.oMPDAsyncHelper.oMPD.listAlbums((String) getIntent().getStringExtra("artist"), true);
 			} else {
-				items = app.oMPDAsyncHelper.oMPD.listAlbums();
+				items = app.oMPDAsyncHelper.oMPD.listAlbums(true);
 			}
-			Collections.sort(items, String.CASE_INSENSITIVE_ORDER);
+			//Collections.sort(items, String.CASE_INSENSITIVE_ORDER);
 		} catch (MPDServerException e) {
 		}
 	}
