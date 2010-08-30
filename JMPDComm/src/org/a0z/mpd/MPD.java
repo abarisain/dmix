@@ -123,16 +123,28 @@ public class MPD {
 	 * List albums.
 	 */
 	public static final String MPD_TAG_ALBUM = "album";
+	/**
+	 * List Album response string length ("Album: ")
+	 */
+	public static final int MPD_LST_RSPN_ALBUM_LEN = 7;
 
 	/**
 	 * List artist.
 	 */
 	public static final String MPD_TAG_ARTIST = "artist";
+	/**
+	 * List Album response string length ("Artist: ")
+	 */
+	public static final int MPD_LST_RSPN_ARTIST_LEN = 8;
 
 	/**
 	 * List album artist.
 	 */
 	public static final String MPD_TAG_ALBUM_ARTIST = "albumartist";
+	/**
+	 * List Album response string length ("albumartist: ")
+	 */
+	public static final int MPD_LST_RSPN_ALBUM_ARTIST_LEN = 13;
 
 	private static MpdContentHandlerFactory contentHandlerFactory = registerContentHandlerFactory();
 
@@ -566,9 +578,11 @@ public class MPD {
 		List<String> list = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, args);
 		LinkedList<String> result = new LinkedList<String>();
 		for (String line : list) {
-			String[] arr = line.split(": ");
-			if (arr.length > 1)
-				result.add(arr[1]);
+			String arr = line.substring(7);
+			System.out.println("> " + line);
+			//String[] arr = line.split(": ", 1);
+			if (arr.length() > 1)
+				result.add(arr);
 		}
 		if (sortInsensitive)
 		{
@@ -625,9 +639,10 @@ public class MPD {
 		List<String> list = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, args);
 		LinkedList<String> result = new LinkedList<String>();
 		for (String s : list) {
-			String[] ss = s.split(": ");
-			if (ss.length > 1)
-				result.add(ss[1]);
+			String ss = s.substring(MPD_LST_RSPN_ARTIST_LEN);
+			//String[] ss = s.split(": ");
+			if (ss.length() > 1)
+				result.add(ss);
 		}
 		if (sortInsen)
 		{
@@ -664,9 +679,10 @@ public class MPD {
 		List<String> list = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, args);
 		LinkedList<String> result = new LinkedList<String>();
 		for (String s : list) {
-			String[] ss = s.split(": ");
-			if (ss.length > 1)
-				result.add(ss[1]);
+			String ss = s.substring(MPD_LST_RSPN_ALBUM_ARTIST_LEN);
+			//String[] ss = s.split(": ");
+			if (ss.length() > 1)
+				result.add(ss);
 		}
 		Collections.sort(result);
 		return result;
