@@ -50,6 +50,8 @@
 	<string name="repeatDescription">Enable/Disable repeat</string>
 	<string name="albumartist">Album Artist</string>
 	<string name="albumartistDescription">Use Album Artist tag in Artists view</string>
+	<string name="albumTrackSort">Album Sort Track</string>
+	<string name="albumTrackSortDescription">Sort Album by track number</string>
 	<string name="version">Version</string>
 	<string name="songs">Songs</string>
 	<string name="serverInformation">Server Information</string>
