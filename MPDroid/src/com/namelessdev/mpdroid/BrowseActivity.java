@@ -67,7 +67,6 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		// Loading Artists asynchronous...
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
 		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable() {
-			@Override
 			public void run() {
 				asyncUpdate();
 			}
@@ -123,14 +122,12 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		}
 	}
 
-	@Override
 	public boolean onMenuItemClick(MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		final MPDApplication app = (MPDApplication) getApplication();
 		switch (item.getItemId()) {
 		case ADDNREPLACE:
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
-				@Override
 				public void run() {
 					try {
 						String status = app.oMPDAsyncHelper.oMPD.getStatus().getState();
@@ -151,7 +148,6 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 			break;
 		case ADD:
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
-				@Override
 				public void run() {
 					Add(items.get((int) info.id).toString());
 				}
@@ -177,7 +173,6 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		}
 	}
 
-	@Override
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {
 			updateFromItems();

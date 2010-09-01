@@ -180,7 +180,6 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	class CheckPreferenceClickListener implements OnPreferenceClickListener {
 		MPDApplication app = (MPDApplication) getApplication();
 
-		@Override
 		public boolean onPreferenceClick(Preference pref) {
 			CheckBoxPreference prefCB = (CheckBoxPreference) pref;
 			MPD oMPD = app.oMPDAsyncHelper.oMPD;
@@ -200,7 +199,6 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	}
 
 	class OutputPreferenceClickListener implements OnPreferenceClickListener {
-		@Override
 		public boolean onPreferenceClick(Preference pref) {
 			CheckBoxPreference prefCB = (CheckBoxPreference) pref;
 			MPDApplication app = (MPDApplication) getApplication();
@@ -222,47 +220,39 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		}
 	}
 
-	@Override
 	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void playlistChanged(MPDPlaylistChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void randomChanged(MPDRandomChangedEvent event) {
 		pRandom.setChecked(event.isRandom());
 	}
 
-	@Override
 	public void repeatChanged(MPDRepeatChangedEvent event) {
 		pRepeat.setChecked(event.isRepeat());
 	}
 
-	@Override
 	public void stateChanged(MPDStateChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void trackChanged(MPDTrackChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void volumeChanged(MPDVolumeChangedEvent event) {
 		// TODO Auto-generated method stub
 

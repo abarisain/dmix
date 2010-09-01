@@ -131,7 +131,6 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			ad.setMessage(getResources().getString(R.string.connectingToServer));
 			ad.setCancelable(false);
 			ad.setOnKeyListener(new OnKeyListener() {
-				@Override
 				public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
 					// Handle all keys!
 					return true;
@@ -170,7 +169,6 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		}
 	}
 
-	@Override
 	public void connectionFailed(String message) {
 		System.out.println("Connection Failed: " + message);
 		if (ad != null) {
@@ -192,7 +190,6 @@ public class MPDApplication extends Application implements ConnectionListener, O
 				test.setMessage("Connection failed, check your connection settings. (" + message + ")");
 				test.setPositiveButton("OK", new OnClickListener() {
 
-					@Override
 					public void onClick(DialogInterface arg0, int arg1) {
 						// TODO Auto-generated method stub
 
@@ -218,7 +215,6 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	}
 
-	@Override
 	public void connectionSucceeded(String message) {
 		ad.dismiss();
 		// checkMonitorNeeded();
