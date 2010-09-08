@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.a0z.mpd.url.M3uContentHandler;
 import org.a0z.mpd.url.MpdContentHandlerFactory;
@@ -305,13 +306,20 @@ public class MPD {
 		return genericSearch(MPD_CMD_FIND, type, string);
 	}
 
-	private LinkedList<Music> genericSearch(String searchCommand, String type, String string) throws MPDServerException {
+	// Returns a pattern where all punctuation characters are escaped. 
+	static Pattern escaper = Pattern.compile("([^a-zA-z0-9])"); 
+	public static String escapeRE(String str) 
+	{ 
+		return escaper.matcher(str).replaceAll("\\\\$1"); 
+	}
+	
+	private LinkedList<Music> genericSearch(String searchCommand, String type, String strToFind) throws MPDServerException {
 		if (mpdConnection == null) {
 			throw new MPDServerException("MPD Connection is not established");
 		}
 		String[] args = new String[2];
 		args[0] = type;
-		args[1] = string;
+		args[1] = escapeRE(strToFind);
 
 		List<String> list = mpdConnection.sendCommand(searchCommand, args);
 		LinkedList<String> file = new LinkedList<String>();
@@ -579,7 +587,7 @@ public class MPD {
 		LinkedList<String> result = new LinkedList<String>();
 		for (String line : list) {
 			String arr = line.substring(7);
-			System.out.println("> " + line);
+			//System.out.println("> " + line);
 			//String[] arr = line.split(": ", 1);
 			if (arr.length() > 1)
 				result.add(arr);
