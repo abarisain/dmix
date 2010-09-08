@@ -327,6 +327,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				MPDApplication app = (MPDApplication) getApplication();
 				Runnable async = new Runnable() {
 					@SuppressWarnings("unchecked")
+					@Override
 					public void run() {
 						try {
 							MPDApplication app = (MPDApplication) getApplication();
@@ -747,6 +748,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		// TODO Auto-generated method stub
 	}
 
+	@Override
 	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
 		// TODO Auto-generated method stub
 		checkConnected();

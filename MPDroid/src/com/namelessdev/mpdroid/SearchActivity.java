@@ -44,6 +44,7 @@ public class SearchActivity extends ListActivity implements AsyncExecListener {
 		// Loading Albums asynchronous...
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
 		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					MPDApplication app = (MPDApplication) getApplication();
@@ -56,6 +57,7 @@ public class SearchActivity extends ListActivity implements AsyncExecListener {
 
 	}
 
+	@Override
 	public void asyncExecSucceeded(int jobID) {
 		// TODO Auto-generated method stub
 		if (iJobID == jobID) {
@@ -74,6 +76,7 @@ public class SearchActivity extends ListActivity implements AsyncExecListener {
 					android.R.layout.simple_list_item_1, itemsList);
 
 			PlusListener AddListener = new PlusListener() {
+				@Override
 				public void OnAdd(CharSequence sSelected, int iPosition) {
 					try {
 						MPDApplication app = (MPDApplication) getApplication();
