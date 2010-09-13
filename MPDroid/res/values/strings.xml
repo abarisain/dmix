@@ -116,5 +116,6 @@
 	<string name="removeFromPlaylist">Remove from Playlist</string>
 	<string name="manage">Manage</string>
 	<string name="save">Save</string>
+	<string name="sc_LibTab">L</string>
 	
 </resources>

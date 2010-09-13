@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
@@ -208,11 +209,16 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.mpd_playlistmenu, menu);
+	    
+	    /* TODO: REMOVE
 		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
 		menu.add(0, EDIT, 1, R.string.editPlaylist).setIcon(android.R.drawable.ic_menu_edit);
 		menu.add(0, SAVE, 2, R.string.save).setIcon(android.R.drawable.ic_menu_save);
 		menu.add(0, MANAGER, 3, R.string.manage).setIcon(android.R.drawable.ic_menu_manage);
 		menu.add(0, CLEAR, 4, R.string.clear).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		*/
 		return result;
 	}
 
@@ -221,12 +227,17 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 		MPDApplication app = (MPDApplication) getApplication();
 		// Menu actions...
 		switch (item.getItemId()) {
-		case MAIN:
+		case R.id.PLM_MainMenu:
 			Intent i = new Intent(this, MainMenuActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 			return true;
-		case CLEAR:
+		case R.id.PLM_LibTab:
+			i = new Intent(this, LibraryTabActivity.class);
+			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(i);
+			return true;
+		case R.id.PLM_Clear:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 				songlist.clear();
@@ -237,17 +248,17 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 				e.printStackTrace();
 			}
 			return true;
-		case EDIT:
+		case R.id.PLM_EditPL:
 			i = new Intent(this, PlaylistRemoveActivity.class);
-			startActivityForResult(i, EDIT);
+			startActivity(i);
 			return true;
-		case MANAGER:
+		case R.id.PLM_Manage:
 			i = new Intent(this, PlaylistManagerActivity.class);
-			startActivityForResult(i, MANAGER);
+			startActivity(i);
 			return true;
-		case SAVE:
+		case R.id.PLM_Save:
 			i = new Intent(this, PlaylistSaveActivity.class);
-			startActivityForResult(i, SAVE);
+			startActivity(i);
 			return true;
 		default:
 			return false;
