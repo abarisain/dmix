@@ -41,6 +41,10 @@
 			android:summary="@string/albumTrackSortDescription" 
 			android:key="albumTrackSort"
 			/>
+		<PreferenceScreen android:title="@string/updateDB" 
+						  android:summary="@string/updateDBDetails" 
+						  android:key="updateDB">	
+		</PreferenceScreen>
 		<!--  Server Information -->
 		<PreferenceScreen android:key="informationScreen" android:title="@string/serverInformation" android:summary="@string/serverInformationDescription">
 			<PreferenceCategory android:key="outputs" android:id="@+id/preferenceOutput" android:title="@string/serverInformation">

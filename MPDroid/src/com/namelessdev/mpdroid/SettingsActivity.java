@@ -57,6 +57,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		pRandom = (CheckBoxPreference) findPreference("random");
 		pRepeat = (CheckBoxPreference) findPreference("repeat");
 		pInformationScreen = (PreferenceScreen) findPreference("informationScreen");
+		PreferenceScreen pUpdate = (PreferenceScreen) findPreference("updateDB");
 
 		// Use the ConnectionPreferConnectionPreferenceCategoryenceCategory for Wi-Fi based Connection setttings
 
@@ -75,6 +76,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 			pOutputsScreen.setEnabled(false);
 			pRandom.setEnabled(false);
 			pRepeat.setEnabled(false);
+			pUpdate.setEnabled(false);
 			pInformationScreen.setEnabled(false);
 			return;
 		}
@@ -169,6 +171,13 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 				}
 			} catch (MPDServerException e) {
 				pOutput.removeAll(); // Connection error occured meanwhile...
+			}
+			return true;
+		} else if (preference.getKey().equals("updateDB")) {
+			try {
+				MPD oMPD = app.oMPDAsyncHelper.oMPD;
+				oMPD.refreshDatabase();
+			} catch (MPDServerException e) {
 			}
 			return true;
 		}

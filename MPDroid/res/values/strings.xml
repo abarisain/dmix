@@ -60,7 +60,7 @@
 	<string name="connectionSettingsDescription">Set MPD-Host/Port and password</string>
 	<string name="outputs">Outputs</string>
 	<string name="outputsDescription">Enable/Disable MPD-Outputs</string>
-	<string name="mpdroidSettingsSettings">MPDroid settings</string>
+	<string name="mpdroidSettings">MPDroid settings</string>
 	<string name="songAdded">Song %s added</string>
 	<string name="about">About</string>
 	<string name="aboutDescription">About MPDroid</string>
@@ -116,5 +116,6 @@
 	<string name="removeFromPlaylist">Remove from Playlist</string>
 	<string name="manage">Manage</string>
 	<string name="save">Save</string>
-	
+	<string name="updateDB">Update</string>
+	<string name="updateDBDetails">Refresh MPD\'s database</string>
 </resources>
