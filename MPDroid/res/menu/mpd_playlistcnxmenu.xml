@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+<item android:id="@+id/PLCX_SkipToHere" android:title="@string/skipToHere"></item>
+<item android:id="@+id/PLCX_playNext" android:title="@string/playNext"></item>
+<item android:id="@+id/PLCX_moveFirst" android:title="@string/moveFirst"></item>
+<item android:id="@+id/PLCX_moveLast" android:title="@string/moveLast"></item>
+<item android:id="@+id/PLCX_removeFromPlaylist" android:title="@string/removeFromPlaylist"></item>
+</menu>

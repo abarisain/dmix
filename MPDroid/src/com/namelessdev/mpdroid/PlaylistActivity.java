@@ -34,12 +34,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class PlaylistActivity extends ListActivity implements OnClickListener, OnMenuItemClickListener, StatusChangeListener {
+public class PlaylistActivity extends ListActivity implements OnClickListener, StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
-	private int arrayListId;
-	private int songId;
+	//private int arrayListId;
+
 	private String title;
 
 	public static final int MAIN = 0;
@@ -128,37 +129,35 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mpd_playlistcnxmenu, menu);
+
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		arrayListId = info.position;
-		songId = (Integer) songlist.get(info.position).get("songid");
+		//arrayListId = info.position;
+		
 		title = (String) songlist.get(info.position).get("title");
 		menu.setHeaderTitle(title);
-		MenuItem skipTo = menu.add(ContextMenu.NONE, 0, 0, R.string.skipToHere);
-		skipTo.setOnMenuItemClickListener(this);
-		MenuItem moveNext = menu.add(ContextMenu.NONE, 1, 1, R.string.playNext);
-		moveNext.setOnMenuItemClickListener(this);
-		MenuItem moveTop = menu.add(ContextMenu.NONE, 2, 2, R.string.moveFirst);
-		moveTop.setOnMenuItemClickListener(this);
-		MenuItem moveBot = menu.add(ContextMenu.NONE, 3, 3, R.string.moveLast);
-		moveBot.setOnMenuItemClickListener(this);
-		MenuItem removeSong = menu.add(ContextMenu.NONE, 5, 5, R.string.removeFromPlaylist);
-		removeSong.setOnMenuItemClickListener(this);
 	}
 
-	public boolean onMenuItemClick(MenuItem item) {
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
 		MPDApplication app = (MPDApplication) getApplication();
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		int songId = (Integer) songlist.get(info.position).get("songid");
 		switch (item.getItemId()) {
-		case 0:
+		case R.id.PLCX_SkipToHere:
 			// skip to selected Song
 			try {
 				app.oMPDAsyncHelper.oMPD.skipTo(songId);
 			} catch (MPDServerException e) {
 			}
 			return true;
-		case 1:
+		case R.id.PLCX_playNext:
 			try { // Move song to next in playlist
 				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-				if (arrayListId < status.getSongPos()) {
+				if (info.id < status.getSongPos()) {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos());
 				} else {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
@@ -168,8 +167,8 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return true;
-		case 2:
+			return true;	  
+		case R.id.PLCX_moveFirst:
 			try { // Move song to first in playlist
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0);
 				MainMenuActivity.notifyUser("Song moved to first in list", this);
@@ -177,8 +176,8 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return true;
-		case 3:
+			return true;	  
+		case R.id.PLCX_moveLast:
 			try { // Move song to last in playlist
 				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getPlaylistLength() - 1);
@@ -187,8 +186,8 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return true;
-		case 5:
+			return true;	  
+		case R.id.PLCX_removeFromPlaylist:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().removeSong(songId);
 				MainMenuActivity.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), this);
@@ -197,9 +196,13 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 				e.printStackTrace();
 			}
 			return true;
+		default:
+			return super.onContextItemSelected(item);
 		}
-		return false;
 	}
+	
+
+
 
 	/*
 	 * Create Menu for Playlist View
@@ -212,13 +215,6 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, O
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.mpd_playlistmenu, menu);
 	    
-	    /* TODO: REMOVE
-		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
-		menu.add(0, EDIT, 1, R.string.editPlaylist).setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(0, SAVE, 2, R.string.save).setIcon(android.R.drawable.ic_menu_save);
-		menu.add(0, MANAGER, 3, R.string.manage).setIcon(android.R.drawable.ic_menu_manage);
-		menu.add(0, CLEAR, 4, R.string.clear).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-		*/
 		return result;
 	}
 
