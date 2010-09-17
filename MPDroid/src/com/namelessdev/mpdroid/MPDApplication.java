@@ -29,10 +29,10 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	private AlertDialog ad;
 	private DialogClickListener oDialogClickListener;
 
-	private boolean bWifiConnected = false;
-	private boolean streamingMode = false;
-	private boolean settingsShown = false;
-	private boolean warningShown = false;
+	private boolean m_bWifiConnected = false;
+	private boolean m_streamingMode = false;
+	private boolean m_settingsShown = false;
+	private boolean m_warningShown = false;
 
 	private Activity currentActivity;
 
@@ -98,14 +98,14 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
 		} else {
 			// Absolutely no settings defined! Open Settings!
-			if (currentActivity != null && !settingsShown) {
+			if (currentActivity != null && !m_settingsShown) {
 				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
-				settingsShown = true;
+				m_settingsShown = true;
 			}
 		}
-		if (currentActivity != null && !settings.getBoolean("warningShown", false) && !warningShown) {
+		if (currentActivity != null && !settings.getBoolean("warningShown", false) && !m_warningShown) {
 			currentActivity.startActivity(new Intent(currentActivity, WarningActivity.class));
-			warningShown = true;
+			m_warningShown = true;
 		}
 		connectMPD();
 
@@ -261,9 +261,9 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		return info.getSSID();
 	}
 
-	public void setWifiConnected(boolean bWifiConnected) {
-		this.bWifiConnected = bWifiConnected;
-		if (bWifiConnected) {
+	public void setWifiConnected(boolean bWifiConnected2) {
+		m_bWifiConnected = bWifiConnected2;
+		if (m_bWifiConnected) {
 			connect();
 			// checkMonitorNeeded();
 		} else {
@@ -285,11 +285,11 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	}
 
 	public void setStreamingMode(boolean streamingMode) {
-		this.streamingMode = streamingMode;
+		m_streamingMode = streamingMode;
 	}
 
 	public boolean isStreamingMode() {
-		return streamingMode;
+		return m_streamingMode;
 	}
 
 }

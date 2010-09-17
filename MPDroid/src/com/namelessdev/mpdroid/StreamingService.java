@@ -3,7 +3,7 @@ package com.namelessdev.mpdroid;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Timer;
+//import java.util.Timer;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
@@ -23,7 +23,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
+//import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -72,7 +72,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	private MediaPlayer mediaPlayer;
 	private AudioManager audioManager;
 	private ComponentName remoteControlResponder;
-	private Timer timer = new Timer();
+	//private Timer timer = new Timer();
 	private String streamSource;
 	private Boolean buffering;
 	private String oldStatus;
@@ -179,18 +179,19 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			} else if (state == TelephonyManager.CALL_STATE_IDLE) {
 				// start playing again
 				if (isPaused) {
-					// resume playback only if music was playing
+					// resume play back only if music was playing
 					// when the call was answered
 					resumeStreaming();
 				}
 			}
 		}
 	};
-
+	
+/* TODO: Check if still needed
 	private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
+			//String action = intent.getAction();
 			String cmd = intent.getStringExtra(CMD_COMMAND);
 			if (cmd.equals(CMD_NEXT)) {
 				next();
@@ -209,7 +210,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			}
 		}
 	};
-
+*/
 	public void onCreate() {
 		super.onCreate();
 		isServiceRunning = true;

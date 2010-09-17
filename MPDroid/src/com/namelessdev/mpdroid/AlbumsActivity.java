@@ -1,7 +1,5 @@
 package com.namelessdev.mpdroid;
 
-import java.util.Collections;
-
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
 

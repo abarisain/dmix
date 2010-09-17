@@ -65,6 +65,7 @@ public class MPD {
 
 	private static final String MPD_CMD_SEARCH = "search";
 
+	@SuppressWarnings("unused")
 	private static final String MPD_CMD_SEEK = "seek";
 
 	private static final String MPD_CMD_SEEK_ID = "seekid";
@@ -418,9 +419,9 @@ public class MPD {
 		args[0] = dir;
 		// return mpdConnection.sendCommand(MPD_CMD_LSDIR, args);
 		Collection result = new LinkedList();
-		Iterator it = mpdConnection.sendCommand(MPD_CMD_LSDIR, args).iterator();
+		Iterator<String> it = mpdConnection.sendCommand(MPD_CMD_LSDIR, args).iterator();
 
-		List file = new LinkedList();
+		List<String> file = new LinkedList();
 		while (it.hasNext()) {
 			String line = (String) it.next();
 
@@ -485,7 +486,7 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 */
 	public MPDStatistics getStatistics() throws MPDServerException {
-		List response = mpdConnection.sendCommand(MPD_CMD_STATISTICS);
+		List<String> response = mpdConnection.sendCommand(MPD_CMD_STATISTICS);
 		return new MPDStatistics(response);
 	}
 
@@ -791,7 +792,7 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 * @see org.a0z.mpd.Music
 	 */
-	public Collection search(String type, String string) throws MPDServerException {
+	public Collection<Music> search(String type, String string) throws MPDServerException {
 		return genericSearch(MPD_CMD_SEARCH, type, string);
 	}
 

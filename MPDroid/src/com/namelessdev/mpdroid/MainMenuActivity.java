@@ -109,18 +109,19 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	private static Toast notification = null;
 
-	private StreamingService streamingServiceBound;
-	private boolean isStreamServiceBound;
+	//private StreamingService streamingServiceBound;
+	//private boolean isStreamServiceBound;
 
 	private ButtonEventHandler buttonEventHandler;
 
+	@SuppressWarnings("unused")
 	private boolean streamingMode;
 	private boolean connected;
 
 	private Timer volTimer = new Timer();
 	private TimerTask volTimerTask = null;
 
-	// Used for detecing sideways flings
+	// Used for detecting sideways flings
 	private GestureDetector gestureDetector;
 	View.OnTouchListener gestureListener;
 
@@ -327,7 +328,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 				MPDApplication app = (MPDApplication) getApplication();
 				Runnable async = new Runnable() {
-					@SuppressWarnings("unchecked")
+					//@SuppressWarnings("unchecked")
 					@Override
 					public void run() {
 						try {

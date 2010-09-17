@@ -19,7 +19,7 @@ public class AboutActivity extends Activity {
 
 	}
 
-	public static String getVersionName(Context context, Class cls) {
+	public static String getVersionName(Context context, Class<Activity> cls) {
 		try {
 			ComponentName comp = new ComponentName(context, cls);
 			PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
