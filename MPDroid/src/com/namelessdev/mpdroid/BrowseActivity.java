@@ -12,6 +12,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
@@ -77,8 +78,13 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.mpd_browsermenu, menu);
+		/*
+		boolean result = super.onCreateOptionsMenu(menu);
 		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
 		menu.add(0, PLAYLIST, 1, R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
+		*/
 
 		return result;
 	}
@@ -88,12 +94,12 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		Intent i = null;
 
 		switch (item.getItemId()) {
-		case MAIN:
+		case R.id.BRM_mainmenu:
 			i = new Intent(this, MainMenuActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 			return true;
-		case PLAYLIST:
+		case R.id.BRM_playlist:
 			i = new Intent(this, PlaylistActivity.class);
 			startActivityForResult(i, PLAYLIST);
 			return true;
