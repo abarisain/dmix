@@ -113,4 +113,6 @@
 	<string name="save">Sauvegarder</string>
 	<string name="clear">Vider</string>
 	<string name="streamError">Erreur de streaming, flux illisible</string>
+	<string name="updateDB">Mettre à jour</string>
+	<string name="updateDBDetails">Rafraichir la bibliothèque de MPD</string>
 </resources>
