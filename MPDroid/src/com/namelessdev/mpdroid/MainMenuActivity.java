@@ -33,12 +33,12 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -105,8 +105,6 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	private static final int TRACK_STEP = 10;
 
 	private static final int ANIMATION_DURATION_MSEC = 1000;
-
-	private static Toast notification = null;
 
 	private StreamingService streamingServiceBound;
 	private boolean isStreamServiceBound;
@@ -818,13 +816,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	}
 
 	public static void notifyUser(String message, Context context) {
-		if (notification != null) {
-			notification.setText(message);
-			notification.show();
-		} else {
-			notification = Toast.makeText(context, message, Toast.LENGTH_SHORT);
-			notification.show();
-		}
+		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 	}
 
 	public void onCoverDownloaded(Bitmap cover) {
