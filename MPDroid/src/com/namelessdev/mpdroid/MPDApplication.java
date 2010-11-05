@@ -9,10 +9,10 @@ import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
@@ -29,10 +29,12 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	private AlertDialog ad;
 	private DialogClickListener oDialogClickListener;
 
-	private boolean bWifiConnected = false;
 	private boolean streamingMode = false;
 	private boolean settingsShown = false;
 	private boolean warningShown = false;
+
+	private static final int DEFAULT_MPD_PORT = 6600;
+	private static final int DEFAULT_STREAMING_PORT = 8000;
 
 	private Activity currentActivity;
 
@@ -85,17 +87,9 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		String wifiSSID = getCurrentSSID();
 
 		if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
-			String sServer = settings.getString(wifiSSID + "hostname", "");
-			int iPort = Integer.parseInt(settings.getString(wifiSSID + "port", "6600"));
-			int iPortStreaming = Integer.parseInt(settings.getString(wifiSSID + "portStreaming", "8000"));
-			String sPassword = settings.getString(wifiSSID + "password", "");
-			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
+			readSettings(settings, wifiSSID);
 		} else if (!settings.getString("hostname", "").equals("")) {
-			String sServer = settings.getString("hostname", "");
-			int iPort = Integer.parseInt(settings.getString("port", "6600"));
-			int iPortStreaming = Integer.parseInt(settings.getString("portStreaming", "6600"));
-			String sPassword = settings.getString("password", "");
-			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
+			readSettings(settings, null);
 		} else {
 			// Absolutely no settings defined! Open Settings!
 			if (currentActivity != null && !settingsShown) {
@@ -153,17 +147,9 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			// ArtistsActivity.items = null;
 
 		} else if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
-			String sServer = settings.getString(wifiSSID + "hostname", "");
-			int iPort = Integer.parseInt(settings.getString(wifiSSID + "port", "6600"));
-			int iPortStreaming = Integer.parseInt(settings.getString(wifiSSID + "portStreaming", "8000"));
-			String sPassword = settings.getString(wifiSSID + "password", "");
-			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
+			readSettings(settings, wifiSSID);
 		} else if (!settings.getString("hostname", "").equals("")) {
-			String sServer = settings.getString("hostname", "");
-			int iPort = Integer.parseInt(settings.getString("port", "6600"));
-			int iPortStreaming = Integer.parseInt(settings.getString("portStreaming", "6600"));
-			String sPassword = settings.getString("password", "");
-			oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
+			readSettings(settings, null);
 		} else {
 			return;
 		}
@@ -215,6 +201,26 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	}
 
+	private void readSettings(SharedPreferences settings, String wifiSSID) {
+		String sServer = settings.getString(wifiSSID + "hostname", "");
+
+		int iPort, iPortStreaming;
+		try {
+			iPort = Integer.parseInt(settings.getString(wifiSSID + "port", Integer.toString(DEFAULT_MPD_PORT)).trim());
+		} catch (NumberFormatException e) {
+			iPort = DEFAULT_MPD_PORT;
+		}
+		try {
+			iPortStreaming = Integer.parseInt(settings.getString(wifiSSID + "portStreaming", Integer.toString(DEFAULT_STREAMING_PORT))
+					.trim());
+		} catch (NumberFormatException e) {
+			iPortStreaming = DEFAULT_STREAMING_PORT;
+		}
+
+		String sPassword = settings.getString(wifiSSID + "password", "");
+		oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
+	}
+
 	public void connectionSucceeded(String message) {
 		ad.dismiss();
 		// checkMonitorNeeded();
@@ -262,7 +268,6 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	}
 
 	public void setWifiConnected(boolean bWifiConnected) {
-		this.bWifiConnected = bWifiConnected;
 		if (bWifiConnected) {
 			connect();
 			// checkMonitorNeeded();
