@@ -38,6 +38,8 @@
 	<string name="artistAdded">Artiste ajouté</string>
 	<string name="host">Hôte</string>
 	<string name="hostDescription">IP ou nom du serveur MPD</string>
+	<string name="hostStreaming">Hôte Streaming</string>
+	<string name="hostStreamingDescription">IP ou nom du serveur streaming</string>
 	<string name="port">Port</string>
 	<string name="portDescription">Port du serveur MPD (Defaut: 6600)</string>
 	<string name="password">Mot de passe</string>

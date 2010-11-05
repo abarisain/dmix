@@ -240,12 +240,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		MPDApplication app = (MPDApplication) getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addConnectionListener(this);
-		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionInfoServer() + ":" + app.oMPDAsyncHelper.getConnectionInfoPortStreaming()
-				+ "/";
-		// showNotification();
-		/*
-		 * if (!mIsSupposedToBePlaying) { mIsSupposedToBePlaying = true; notifyChange(PLAYSTATE_CHANGED); }
-		 */
+		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionStreamingServer() + ":"
+				+ app.oMPDAsyncHelper.getConnectionInfoPortStreaming() + "/";
 	}
 
 	@Override
@@ -261,8 +257,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			status = new Notification(R.drawable.icon, getString(R.string.streamStopped), System.currentTimeMillis());
 			status.contentView = views;
 			status.icon = R.drawable.icon;
-			status.contentIntent = PendingIntent.getActivity(this, 0, new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
-					.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+			status.contentIntent = PendingIntent.getActivity(this, 0,
+					new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
 			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_STOPPED, status);
 		}
 		isServiceRunning = false;
@@ -360,14 +356,15 @@ public class StreamingService extends Service implements StatusChangeListener, O
 						views.setTextViewText(R.id.trackname, actSong.getTitle());
 						views.setTextViewText(R.id.album, actSong.getAlbum());
 						views.setTextViewText(R.id.artist, actSong.getArtist());
-						status = new Notification(R.drawable.icon, actSong.getTitle() + " - " + actSong.getArtist(), System.currentTimeMillis());
+						status = new Notification(R.drawable.icon, actSong.getTitle() + " - " + actSong.getArtist(),
+								System.currentTimeMillis());
 					}
 
 					status.contentView = views;
 					status.flags |= Notification.FLAG_ONGOING_EVENT;
 					status.icon = R.drawable.icon;
-					status.contentIntent = PendingIntent.getActivity(this, 0, new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
-							.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+					status.contentIntent = PendingIntent.getActivity(this, 0,
+							new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
 
 					startForeground(STREAMINGSERVICE_STATUS, status);
 				}
@@ -376,11 +373,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
 			views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
 			Notification status = null;
-			if(mediaPlayerError != 0)
+			if (mediaPlayerError != 0)
 				views.setTextViewText(R.id.trackname, getString(R.string.streamError));
 			else
 				views.setTextViewText(R.id.trackname, getString(R.string.streamPaused));
-			
+
 			views.setTextViewText(R.id.album, getString(R.string.streamPauseBattery));
 			views.setTextViewText(R.id.artist, "");
 			status = new Notification(R.drawable.icon, getString(R.string.streamPaused), System.currentTimeMillis());
@@ -388,8 +385,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			status.contentView = views;
 			status.flags |= Notification.FLAG_ONGOING_EVENT;
 			status.icon = R.drawable.icon;
-			status.contentIntent = PendingIntent.getActivity(this, 0, new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
-					.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+			status.contentIntent = PendingIntent.getActivity(this, 0,
+					new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
 			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_PAUSED, status);
 		}
 

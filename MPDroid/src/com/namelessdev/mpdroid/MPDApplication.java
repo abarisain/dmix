@@ -217,8 +217,12 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			iPortStreaming = DEFAULT_STREAMING_PORT;
 		}
 
+		String sServerStreaming = settings.getString(wifiSSID + "hostnameStreaming", "");
+		if (sServerStreaming.trim().equals("")) {
+			sServerStreaming = null;
+		}
 		String sPassword = settings.getString(wifiSSID + "password", "");
-		oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, iPortStreaming);
+		oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, sServerStreaming, iPortStreaming);
 	}
 
 	public void connectionSucceeded(String message) {

@@ -40,6 +40,8 @@
 	<string name="artistAdded">Artist %s added</string>
 	<string name="host">Host</string>
 	<string name="hostDescription">MPD-Server Hostname or IP-Address</string>
+	<string name="hostStreaming">Streaming host</string>
+	<string name="hostStreamingDescription">Streaming server Hostname or IP-Address</string>
 	<string name="port">Port</string>
 	<string name="portDescription">MPD-Server port (Default: 6600)</string>
 	<string name="password">Password</string>
