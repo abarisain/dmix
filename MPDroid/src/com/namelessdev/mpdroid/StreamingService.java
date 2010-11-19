@@ -370,17 +370,18 @@ public class StreamingService extends Service implements StatusChangeListener, O
 				}
 			}
 		} else if (isPaused) {
+			Context context = getApplicationContext();
 			RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
 			views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
 			Notification status = null;
 			if (mediaPlayerError != 0)
-				views.setTextViewText(R.id.trackname, getString(R.string.streamError));
+				views.setTextViewText(R.id.trackname, context.getString(R.string.streamError));
 			else
-				views.setTextViewText(R.id.trackname, getString(R.string.streamPaused));
+				views.setTextViewText(R.id.trackname, context.getString(R.string.streamPaused));
 
-			views.setTextViewText(R.id.album, getString(R.string.streamPauseBattery));
+			views.setTextViewText(R.id.album, context.getString(R.string.streamPauseBattery));
 			views.setTextViewText(R.id.artist, "");
-			status = new Notification(R.drawable.icon, getString(R.string.streamPaused), System.currentTimeMillis());
+			status = new Notification(R.drawable.icon, context.getString(R.string.streamPaused), System.currentTimeMillis());
 
 			status.contentView = views;
 			status.flags |= Notification.FLAG_ONGOING_EVENT;
