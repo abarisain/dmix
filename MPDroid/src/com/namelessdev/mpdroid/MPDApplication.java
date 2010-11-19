@@ -226,7 +226,11 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	}
 
 	public void connectionSucceeded(String message) {
-		ad.dismiss();
+		try {
+			ad.dismiss();
+		} catch (IllegalArgumentException e) {
+			// Do nothing, maybe it has already been dismissed because of a rotation
+		}
 		// checkMonitorNeeded();
 	}
 
