@@ -241,12 +241,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		MPDApplication app = (MPDApplication) getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addConnectionListener(this);
-		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionInfoServer() + ":" + app.oMPDAsyncHelper.getConnectionInfoPortStreaming()
-				+ "/";
-		// showNotification();
-		/*
-		 * if (!mIsSupposedToBePlaying) { mIsSupposedToBePlaying = true; notifyChange(PLAYSTATE_CHANGED); }
-		 */
+		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionStreamingServer() + ":"
+				+ app.oMPDAsyncHelper.getConnectionInfoPortStreaming() + "/";
 	}
 
 	@Override
@@ -262,8 +258,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			status = new Notification(R.drawable.icon, getString(R.string.streamStopped), System.currentTimeMillis());
 			status.contentView = views;
 			status.icon = R.drawable.icon;
-			status.contentIntent = PendingIntent.getActivity(this, 0, new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
-					.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+			status.contentIntent = PendingIntent.getActivity(this, 0,
+					new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
 			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_STOPPED, status);
 		}
 		isServiceRunning = false;
@@ -330,70 +326,76 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	}
 
 	public void showNotification() {
-		MPDApplication app = (MPDApplication) getApplication();
-		MPDStatus statusMpd = null;
 		try {
-			statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
-		} catch (MPDServerException e) {
-			// Do nothing cause I suck hard at android programming
-		}
-		if (statusMpd != null && !isPaused) {
-			String state = statusMpd.getState();
-			if (state != null) {
-				if (state == oldStatus)
-					return;
-				oldStatus = state;
-				int songId = statusMpd.getSongPos();
-				if (songId >= 0) {
-					((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
-					((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
-					stopForeground(true);
-					Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
-					RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
-					views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
-					Notification status = null;
-					if (buffering) {
-						views.setTextViewText(R.id.trackname, getString(R.string.buffering));
-						views.setTextViewText(R.id.album, actSong.getTitle());
-						views.setTextViewText(R.id.artist, actSong.getAlbum() + " - " + actSong.getArtist());
-						status = new Notification(R.drawable.icon, getString(R.string.buffering), System.currentTimeMillis());
-					} else {
-						views.setTextViewText(R.id.trackname, actSong.getTitle());
-						views.setTextViewText(R.id.album, actSong.getAlbum());
-						views.setTextViewText(R.id.artist, actSong.getArtist());
-						status = new Notification(R.drawable.icon, actSong.getTitle() + " - " + actSong.getArtist(), System.currentTimeMillis());
-					}
-
-					status.contentView = views;
-					status.flags |= Notification.FLAG_ONGOING_EVENT;
-					status.icon = R.drawable.icon;
-					status.contentIntent = PendingIntent.getActivity(this, 0, new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
-							.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
-
-					startForeground(STREAMINGSERVICE_STATUS, status);
-				}
+			MPDApplication app = (MPDApplication) getApplication();
+			MPDStatus statusMpd = null;
+			try {
+				statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
+			} catch (MPDServerException e) {
+				// Do nothing cause I suck hard at android programming
 			}
-		} else if (isPaused) {
-			RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
-			views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
-			Notification status = null;
-			if(mediaPlayerError != 0)
-				views.setTextViewText(R.id.trackname, getString(R.string.streamError));
-			else
-				views.setTextViewText(R.id.trackname, getString(R.string.streamPaused));
-			
-			views.setTextViewText(R.id.album, getString(R.string.streamPauseBattery));
-			views.setTextViewText(R.id.artist, "");
-			status = new Notification(R.drawable.icon, getString(R.string.streamPaused), System.currentTimeMillis());
+			if (statusMpd != null && !isPaused) {
+				String state = statusMpd.getState();
+				if (state != null) {
+					if (state == oldStatus)
+						return;
+					oldStatus = state;
+					int songId = statusMpd.getSongPos();
+					if (songId >= 0) {
+						((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
+						((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
+						stopForeground(true);
+						Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
+						RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
+						views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
+						Notification status = null;
+						if (buffering) {
+							views.setTextViewText(R.id.trackname, getString(R.string.buffering));
+							views.setTextViewText(R.id.album, actSong.getTitle());
+							views.setTextViewText(R.id.artist, actSong.getAlbum() + " - " + actSong.getArtist());
+							status = new Notification(R.drawable.icon, getString(R.string.buffering), System.currentTimeMillis());
+						} else {
+							views.setTextViewText(R.id.trackname, actSong.getTitle());
+							views.setTextViewText(R.id.album, actSong.getAlbum());
+							views.setTextViewText(R.id.artist, actSong.getArtist());
+							status = new Notification(R.drawable.icon, actSong.getTitle() + " - " + actSong.getArtist(),
+									System.currentTimeMillis());
+						}
 
-			status.contentView = views;
-			status.flags |= Notification.FLAG_ONGOING_EVENT;
-			status.icon = R.drawable.icon;
-			status.contentIntent = PendingIntent.getActivity(this, 0, new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
-					.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
-			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_PAUSED, status);
+						status.contentView = views;
+						status.flags |= Notification.FLAG_ONGOING_EVENT;
+						status.icon = R.drawable.icon;
+						status.contentIntent = PendingIntent.getActivity(this, 0,
+								new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+
+						startForeground(STREAMINGSERVICE_STATUS, status);
+					}
+				}
+			} else if (isPaused) {
+				Context context = getApplicationContext();
+				RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
+				views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
+				Notification status = null;
+				if (mediaPlayerError != 0)
+					views.setTextViewText(R.id.trackname, context.getString(R.string.streamError));
+				else
+					views.setTextViewText(R.id.trackname, context.getString(R.string.streamPaused));
+
+				views.setTextViewText(R.id.album, context.getString(R.string.streamPauseBattery));
+				views.setTextViewText(R.id.artist, "");
+				status = new Notification(R.drawable.icon, context.getString(R.string.streamPaused), System.currentTimeMillis());
+
+				status.contentView = views;
+				status.flags |= Notification.FLAG_ONGOING_EVENT;
+				status.icon = R.drawable.icon;
+				status.contentIntent = PendingIntent.getActivity(this, 0,
+						new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+				((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_PAUSED, status);
+
+			}
+		} catch (Exception e) {
+			// This should not happen anymore, and catching everything is ugly, but crashing because of a notification is pretty stupid IMHO
 		}
-
 	}
 
 	public void pauseStreaming() {

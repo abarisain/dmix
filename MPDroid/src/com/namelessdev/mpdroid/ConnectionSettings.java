@@ -87,6 +87,14 @@ public class ConnectionSettings extends PreferenceActivity {
 		prefPassword.setKey(keyPrefix + "password");
 		toCategory.addPreference(prefPassword);
 
+		EditTextPreference prefHostStreaming = new EditTextPreference(this);
+		prefHostStreaming.setDialogTitle(R.string.hostStreaming);
+		prefHostStreaming.setTitle(R.string.hostStreaming);
+		prefHostStreaming.setSummary(R.string.hostStreamingDescription);
+		prefHostStreaming.setDefaultValue("");
+		prefHostStreaming.setKey(keyPrefix + "hostnameStreaming");
+		toCategory.addPreference(prefHostStreaming);
+
 		// Meh.
 		EditTextPreference prefStreamingPort = new EditTextPreference(this);
 		prefStreamingPort.setDialogTitle(R.string.portStreaming);

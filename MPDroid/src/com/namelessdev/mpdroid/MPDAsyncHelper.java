@@ -96,8 +96,8 @@ public class MPDAsyncHelper extends Handler {
 	}
 
 	/**
-	 * This method handels Messages, which comes from the AsyncWorker. This Message handler runns in the UI-Thread, and can therfore send the
-	 * information back to the listeners of the matching events...
+	 * This method handels Messages, which comes from the AsyncWorker. This Message handler runns in the UI-Thread, and can therfore send
+	 * the information back to the listeners of the matching events...
 	 */
 	public void handleMessage(Message msg) {
 		switch (msg.what) {
@@ -167,15 +167,24 @@ public class MPDAsyncHelper extends Handler {
 	 * @param iPort
 	 * @param sPassword
 	 */
-	public void setConnectionInfo(String sServer, int iPort, String sPassword, int iPortStreaming) {
+	public void setConnectionInfo(String sServer, int iPort, String sPassword, String sServerStreaming, int iPortStreaming) {
 		conInfo.sServer = sServer;
 		conInfo.iPort = iPort;
 		conInfo.sPassword = sPassword;
+		conInfo.sServerStreaming = sServerStreaming;
 		conInfo.iPortStreaming = iPortStreaming;
 	}
 
 	public String getConnectionInfoServer() {
 		return conInfo.sServer;
+	}
+
+	public String getConnectionStreamingServer() {
+		if (conInfo.sServerStreaming == null) {
+			return getConnectionInfoServer();
+		} else {
+			return conInfo.sServerStreaming;
+		}
 	}
 
 	public int getConnectionInfoPortStreaming() {
@@ -210,7 +219,7 @@ public class MPDAsyncHelper extends Handler {
 	 * to execute is only used once in the project. If its use more than once, implement indiviual events and listener in this class.
 	 * 
 	 * @param run
-	 *           Runnable to execute async
+	 *            Runnable to execute async
 	 * @return JobID, which is brougth back with the AsyncExecListener interface...
 	 */
 	public int execAsync(Runnable run) {
@@ -348,6 +357,7 @@ public class MPDAsyncHelper extends Handler {
 		public String sServer;
 		public int iPort;
 		public String sPassword;
+		public String sServerStreaming;
 		public int iPortStreaming;
 	}
 

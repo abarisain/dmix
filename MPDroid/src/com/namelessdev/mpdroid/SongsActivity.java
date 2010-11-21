@@ -37,7 +37,7 @@ public class SongsActivity extends BrowseActivity {
 		// load preferences for album Track Sort tag display option
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		isSortedByTrack = settings.getBoolean("albumTrackSort", false);
-		
+
 		setContentView(R.layout.artists);
 
 		this.setTitle(album);
@@ -68,7 +68,8 @@ public class SongsActivity extends BrowseActivity {
 			MPDApplication app = (MPDApplication) getApplication();
 
 			app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()), this);
+			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()),
+					this);
 		} catch (MPDServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -82,16 +83,13 @@ public class SongsActivity extends BrowseActivity {
 			dispMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, album));
 		} catch (MPDServerException e) {
 		}
-		if (isSortedByTrack)
-		{
+		if (isSortedByTrack) {
 			// sort by track number
 			Collections.sort(dispMusic, new TrackComparator());
 			for (Music music : dispMusic) {
 				items.add(music.getTitle());
 			}
-		}
-		else
-		{
+		} else {
 			Collections.sort(dispMusic, new MusicComparator());
 			for (Music music : dispMusic) {
 				items.add(music.getTitle());
@@ -105,20 +103,31 @@ public class SongsActivity extends BrowseActivity {
 		public int compare(Music music1, Music music2) {
 			String title1 = music1.getTitle();
 			String title2 = music2.getTitle();
+			if (title1 == null) {
+				title1 = "";
+			}
+			if (title2 == null) {
+				title2 = "";
+			}
 			// Compare the two titles
 			return String.CASE_INSENSITIVE_ORDER.compare(title1, title2);
 		}
 	}
 
 	private static class TrackComparator implements Comparator<Music> {
-        
+
 		@Override
 		public int compare(Music music1, Music music2) {
 			String title1 = music1.getTrack();
 			String title2 = music2.getTrack();
+			if (title1 == null) {
+				title1 = "";
+			}
+			if (title2 == null) {
+				title2 = "";
+			}
 			// Compare the two titles
 			return String.CASE_INSENSITIVE_ORDER.compare(title1, title2);
 		}
 	}
 }
-
