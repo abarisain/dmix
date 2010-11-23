@@ -202,7 +202,11 @@ public class MPDApplication extends Application implements ConnectionListener, O
 	}
 
 	private void readSettings(SharedPreferences settings, String wifiSSID) {
-		String sServer = settings.getString(wifiSSID + "hostname", "");
+		String sServer = "";
+		if (wifiSSID == null)
+			sServer = settings.getString("hostname", "");
+		else
+			sServer = settings.getString(wifiSSID + "hostname", "");
 
 		int iPort, iPortStreaming;
 		try {
