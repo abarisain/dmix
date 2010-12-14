@@ -203,30 +203,39 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	private void readSettings(SharedPreferences settings, String wifiSSID) {
 		String sServer = "";
-		if (wifiSSID == null)
-			sServer = settings.getString("hostname", "");
-		else
-			sServer = settings.getString(wifiSSID + "hostname", "");
+		if (wifiSSID != null) {
+			if (wifiSSID.trim().equals("")) {
+				wifiSSID = null;
+			}
+		}
+		sServer = settings.getString(getStringWithSSID("hostname", wifiSSID), "");
 
 		int iPort, iPortStreaming;
 		try {
-			iPort = Integer.parseInt(settings.getString(wifiSSID + "port", Integer.toString(DEFAULT_MPD_PORT)).trim());
+			iPort = Integer.parseInt(settings.getString(getStringWithSSID("port", wifiSSID), Integer.toString(DEFAULT_MPD_PORT)).trim());
 		} catch (NumberFormatException e) {
 			iPort = DEFAULT_MPD_PORT;
 		}
 		try {
-			iPortStreaming = Integer.parseInt(settings.getString(wifiSSID + "portStreaming", Integer.toString(DEFAULT_STREAMING_PORT))
-					.trim());
+			iPortStreaming = Integer.parseInt(settings.getString(getStringWithSSID("portStreaming", wifiSSID),
+					Integer.toString(DEFAULT_STREAMING_PORT)).trim());
 		} catch (NumberFormatException e) {
 			iPortStreaming = DEFAULT_STREAMING_PORT;
 		}
 
-		String sServerStreaming = settings.getString(wifiSSID + "hostnameStreaming", "");
+		String sServerStreaming = settings.getString(getStringWithSSID("hostnameStreaming", wifiSSID), "");
 		if (sServerStreaming.trim().equals("")) {
 			sServerStreaming = null;
 		}
-		String sPassword = settings.getString(wifiSSID + "password", "");
+		String sPassword = settings.getString(getStringWithSSID("password", wifiSSID), "");
 		oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, sServerStreaming, iPortStreaming);
+	}
+
+	private String getStringWithSSID(String param, String wifiSSID) {
+		if (wifiSSID == null)
+			return param;
+		else
+			return wifiSSID + param;
 	}
 
 	public void connectionSucceeded(String message) {
