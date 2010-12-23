@@ -208,7 +208,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 				wifiSSID = null;
 			}
 		}
-		sServer = settings.getString(getStringWithSSID("hostname", wifiSSID), "");
+		sServer = settings.getString(getStringWithSSID("hostname", wifiSSID), "").trim();
 
 		int iPort, iPortStreaming;
 		try {
@@ -223,11 +223,11 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			iPortStreaming = DEFAULT_STREAMING_PORT;
 		}
 
-		String sServerStreaming = settings.getString(getStringWithSSID("hostnameStreaming", wifiSSID), "");
-		if (sServerStreaming.trim().equals("")) {
+		String sServerStreaming = settings.getString(getStringWithSSID("hostnameStreaming", wifiSSID), "").trim();
+		if (sServerStreaming.equals("")) {
 			sServerStreaming = null;
 		}
-		String sPassword = settings.getString(getStringWithSSID("password", wifiSSID), "");
+		String sPassword = settings.getString(getStringWithSSID("password", wifiSSID), "").trim();
 		oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, sServerStreaming, iPortStreaming);
 	}
 
