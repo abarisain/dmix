@@ -89,7 +89,7 @@
 	<string name="stream">Streaming</string>
 	<string name="buffering">Buffering ...</string>
 	<string name="portStreaming">Streaming port</string>
-	<string name="portStreamingDescription">MPD-Streaming port (Default: 8000)</string>
+	<string name="portStreamingDescription">MPD Streaming port (Default: 8000)</string>
 	<string name="streamStopped">Streaming stopped</string>
 	<string name="streamError">Streaming error, stream not playable</string>
 	<string name="streamPaused">Streaming paused</string>
@@ -121,4 +121,7 @@
 	<string name="sc_LibTab">L</string>
 	<string name="updateDB">Update</string>
 	<string name="updateDBDetails">Refresh MPD\'s database</string>
+	<string name="streamingManualURL">Use a specific URL for streaming (icecast)</string>
+	<string name="configurationName">Configuration Name</string>
+	<string name="streamingURLDescription">Stream URL (with http://)</string>
 </resources>

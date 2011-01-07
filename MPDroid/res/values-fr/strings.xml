@@ -43,7 +43,7 @@
 	<string name="port">Port</string>
 	<string name="portDescription">Port du serveur MPD (Defaut: 6600)</string>
 	<string name="password">Mot de passe</string>
-	<string name="passwordDescription">Mot de passe du Server</string>
+	<string name="passwordDescription">Mot de passe du serveur</string>
 	<string name="random">Random</string>
 	<string name="randomDescription">Activer/Désactiver random</string>
 	<string name="repeat">Répeter</string>
@@ -117,4 +117,7 @@
 	<string name="streamError">Erreur de streaming, flux illisible</string>
 	<string name="updateDB">Mettre à jour</string>
 	<string name="updateDBDetails">Rafraichir la bibliothèque de MPD</string>
+	<string name="streamingManualURL">Utiliser une URL spécifique pour le streaming (icecast)</string>
+	<string name="configurationName">Nom de la configuration</string>
+	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
 </resources>
