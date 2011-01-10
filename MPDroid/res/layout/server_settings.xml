@@ -57,9 +57,9 @@
 		android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingTop="4dip" >
 		<Button android:layout_width="wrap_content" 
 			android:layout_height="wrap_content" 
-			android:id="@+id/Remove"
+			android:id="@+id/Save"
 			android:layout_weight="1"
-			android:text="@string/removeSongs"/>
+			android:text="@string/save" />
 		<Button android:layout_width="wrap_content" 
 			android:layout_height="wrap_content" 
 			android:id="@+id/Cancel" 
