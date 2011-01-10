@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.notepad;
+package com.namelessdev.mpdroid.providers;
 
 import java.util.HashMap;
 
@@ -30,27 +30,26 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.provider.LiveFolders;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.namelessdev.mpdroid.providers.ServerList.ServerColumns;
 
 /**
  * Provides access to a database of notes. Each note has a title, the note itself, a creation date and a modified data.
  */
-public class NotePadProvider extends ContentProvider {
+public class ServerListProvider extends ContentProvider {
 
-	private static final String TAG = "NotePadProvider";
+	private static final String TAG = "ServerListProvider";
 
-	private static final String DATABASE_NAME = "notepad.db";
-	private static final int DATABASE_VERSION = 2;
-	private static final String NOTES_TABLE_NAME = "notes";
+	private static final String DATABASE_NAME = "servers.db";
+	private static final int DATABASE_VERSION = 1;
+	private static final String SERVERS_TABLE_NAME = "servers";
 
-	private static HashMap<String, String> sNotesProjectionMap;
-	private static HashMap<String, String> sLiveFolderProjectionMap;
+	private static HashMap<String, String> sServerListProjectionMap;
 
-	private static final int NOTES = 1;
-	private static final int NOTE_ID = 2;
-	private static final int LIVE_FOLDER_NOTES = 3;
+	private static final int SERVERS = 1;
+	private static final int SERVER_ID = 2;
 
 	private static final UriMatcher sUriMatcher;
 
@@ -65,14 +64,15 @@ public class NotePadProvider extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + NOTES_TABLE_NAME + " (" + NoteColumns._ID + " INTEGER PRIMARY KEY," + NoteColumns.TITLE + " TEXT,"
-					+ NoteColumns.NOTE + " TEXT," + NoteColumns.CREATED_DATE + " INTEGER," + NoteColumns.MODIFIED_DATE + " INTEGER" + ");");
+			db.execSQL("CREATE TABLE " + SERVERS_TABLE_NAME + " (" + ServerColumns._ID + " INTEGER PRIMARY KEY," + ServerColumns.NAME
+					+ " TEXT," + ServerColumns.HOST + " TEXT," + ServerColumns.PORT + " TEXT," + ServerColumns.STREAMING_PORT + " TEXT,"
+					+ ServerColumns.STREAMING_URL + " TEXT," + ServerColumns.DEFAULT + " INTEGER" + ");");
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
-			db.execSQL("DROP TABLE IF EXISTS notes");
+			db.execSQL("DROP TABLE IF EXISTS " + SERVERS_TABLE_NAME);
 			onCreate(db);
 		}
 	}
@@ -88,20 +88,15 @@ public class NotePadProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		qb.setTables(NOTES_TABLE_NAME);
+		qb.setTables(SERVERS_TABLE_NAME);
+		qb.setProjectionMap(sServerListProjectionMap);
 
 		switch (sUriMatcher.match(uri)) {
-		case NOTES:
-			qb.setProjectionMap(sNotesProjectionMap);
+		case SERVERS:
 			break;
 
-		case NOTE_ID:
-			qb.setProjectionMap(sNotesProjectionMap);
-			qb.appendWhere(NoteColumns._ID + "=" + uri.getPathSegments().get(1));
-			break;
-
-		case LIVE_FOLDER_NOTES:
-			qb.setProjectionMap(sLiveFolderProjectionMap);
+		case SERVER_ID:
+			qb.appendWhere(ServerColumns._ID + "=" + uri.getPathSegments().get(1));
 			break;
 
 		default:
@@ -111,7 +106,7 @@ public class NotePadProvider extends ContentProvider {
 		// If no sort order is specified use the default
 		String orderBy;
 		if (TextUtils.isEmpty(sortOrder)) {
-			orderBy = NoteColumns.DEFAULT_SORT_ORDER;
+			orderBy = ServerColumns.DEFAULT_SORT_ORDER;
 		} else {
 			orderBy = sortOrder;
 		}
@@ -128,12 +123,11 @@ public class NotePadProvider extends ContentProvider {
 	@Override
 	public String getType(Uri uri) {
 		switch (sUriMatcher.match(uri)) {
-		case NOTES:
-		case LIVE_FOLDER_NOTES:
-			return NoteColumns.CONTENT_TYPE;
+		case SERVERS:
+			return ServerColumns.CONTENT_TYPE;
 
-		case NOTE_ID:
-			return NoteColumns.CONTENT_ITEM_TYPE;
+		case SERVER_ID:
+			return ServerColumns.CONTENT_ITEM_TYPE;
 
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -143,7 +137,7 @@ public class NotePadProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues) {
 		// Validate the requested uri
-		if (sUriMatcher.match(uri) != NOTES) {
+		if (sUriMatcher.match(uri) != SERVERS) {
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 
@@ -157,27 +151,36 @@ public class NotePadProvider extends ContentProvider {
 		Long now = Long.valueOf(System.currentTimeMillis());
 
 		// Make sure that the fields are all set
-		if (values.containsKey(NoteColumns.CREATED_DATE) == false) {
-			values.put(NoteColumns.CREATED_DATE, now);
-		}
-
-		if (values.containsKey(NoteColumns.MODIFIED_DATE) == false) {
-			values.put(NoteColumns.MODIFIED_DATE, now);
-		}
-
-		if (values.containsKey(NoteColumns.TITLE) == false) {
+		if (values.containsKey(ServerColumns.NAME) == false) {
+			// Should never happen
 			Resources r = Resources.getSystem();
-			values.put(NoteColumns.TITLE, r.getString(android.R.string.untitled));
+			values.put(ServerColumns.NAME, r.getString(android.R.string.untitled) + now.toString());
 		}
 
-		if (values.containsKey(NoteColumns.NOTE) == false) {
-			values.put(NoteColumns.NOTE, "");
+		if (values.containsKey(ServerColumns.HOST) == false) {
+			values.put(ServerColumns.HOST, "0.0.0.0");
+		}
+
+		if (values.containsKey(ServerColumns.PORT) == false) {
+			values.put(ServerColumns.PORT, "6600");
+		}
+
+		if (values.containsKey(ServerColumns.STREAMING_PORT) == false) {
+			values.put(ServerColumns.STREAMING_PORT, "8000");
+		}
+
+		if (values.containsKey(ServerColumns.STREAMING_URL) == false) {
+			values.put(ServerColumns.STREAMING_URL, "");
+		}
+
+		if (values.containsKey(ServerColumns.DEFAULT) == false) {
+			values.put(ServerColumns.DEFAULT, "0");
 		}
 
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		long rowId = db.insert(NOTES_TABLE_NAME, NoteColumns.NOTE, values);
+		long rowId = db.insert(SERVERS_TABLE_NAME, "server", values);
 		if (rowId > 0) {
-			Uri noteUri = ContentUris.withAppendedId(NoteColumns.CONTENT_URI, rowId);
+			Uri noteUri = ContentUris.withAppendedId(ServerColumns.CONTENT_URI, rowId);
 			getContext().getContentResolver().notifyChange(noteUri, null);
 			return noteUri;
 		}
@@ -190,14 +193,14 @@ public class NotePadProvider extends ContentProvider {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		int count;
 		switch (sUriMatcher.match(uri)) {
-		case NOTES:
-			count = db.delete(NOTES_TABLE_NAME, where, whereArgs);
+		case SERVERS:
+			count = db.delete(SERVERS_TABLE_NAME, where, whereArgs);
 			break;
 
-		case NOTE_ID:
+		case SERVER_ID:
 			String noteId = uri.getPathSegments().get(1);
-			count = db.delete(NOTES_TABLE_NAME, NoteColumns._ID + "=" + noteId + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
-					whereArgs);
+			count = db.delete(SERVERS_TABLE_NAME, ServerColumns._ID + "=" + noteId
+					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
 			break;
 
 		default:
@@ -213,13 +216,13 @@ public class NotePadProvider extends ContentProvider {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		int count;
 		switch (sUriMatcher.match(uri)) {
-		case NOTES:
-			count = db.update(NOTES_TABLE_NAME, values, where, whereArgs);
+		case SERVERS:
+			count = db.update(SERVERS_TABLE_NAME, values, where, whereArgs);
 			break;
 
-		case NOTE_ID:
-			String noteId = uri.getPathSegments().get(1);
-			count = db.update(NOTES_TABLE_NAME, values, NoteColumns._ID + "=" + noteId
+		case SERVER_ID:
+			String serverId = uri.getPathSegments().get(1);
+			count = db.update(SERVERS_TABLE_NAME, values, ServerColumns._ID + "=" + serverId
 					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
 			break;
 
@@ -233,21 +236,16 @@ public class NotePadProvider extends ContentProvider {
 
 	static {
 		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		sUriMatcher.addURI(NotePad.AUTHORITY, "notes", NOTES);
-		sUriMatcher.addURI(NotePad.AUTHORITY, "notes/#", NOTE_ID);
-		sUriMatcher.addURI(NotePad.AUTHORITY, "live_folders/notes", LIVE_FOLDER_NOTES);
+		sUriMatcher.addURI(ServerList.AUTHORITY, "servers", SERVERS);
+		sUriMatcher.addURI(ServerList.AUTHORITY, "servers/#", SERVER_ID);
 
-		sNotesProjectionMap = new HashMap<String, String>();
-		sNotesProjectionMap.put(NoteColumns._ID, NoteColumns._ID);
-		sNotesProjectionMap.put(NoteColumns.TITLE, NoteColumns.TITLE);
-		sNotesProjectionMap.put(NoteColumns.NOTE, NoteColumns.NOTE);
-		sNotesProjectionMap.put(NoteColumns.CREATED_DATE, NoteColumns.CREATED_DATE);
-		sNotesProjectionMap.put(NoteColumns.MODIFIED_DATE, NoteColumns.MODIFIED_DATE);
-
-		// Support for Live Folders.
-		sLiveFolderProjectionMap = new HashMap<String, String>();
-		sLiveFolderProjectionMap.put(LiveFolders._ID, NoteColumns._ID + " AS " + LiveFolders._ID);
-		sLiveFolderProjectionMap.put(LiveFolders.NAME, NoteColumns.TITLE + " AS " + LiveFolders.NAME);
-		// Add more columns here for more robust Live Folders.
+		sServerListProjectionMap = new HashMap<String, String>();
+		sServerListProjectionMap.put(ServerColumns._ID, ServerColumns._ID);
+		sServerListProjectionMap.put(ServerColumns.NAME, ServerColumns.NAME);
+		sServerListProjectionMap.put(ServerColumns.HOST, ServerColumns.HOST);
+		sServerListProjectionMap.put(ServerColumns.PORT, ServerColumns.PORT);
+		sServerListProjectionMap.put(ServerColumns.STREAMING_PORT, ServerColumns.STREAMING_PORT);
+		sServerListProjectionMap.put(ServerColumns.STREAMING_URL, ServerColumns.STREAMING_URL);
+		sServerListProjectionMap.put(ServerColumns.DEFAULT, ServerColumns.DEFAULT);
 	}
 }
