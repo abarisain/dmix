@@ -1,28 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent" android:gravity="center"
-	android:background="@drawable/background">
-
-
-	<TextView android:id="@+id/songName" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:singleLine="true"
-		android:text="" android:gravity="center" android:textSize="20sp"
-		android:shadowColor="#FF000000" android:shadowRadius="3.0"
-		android:textColor="#FFFFFFFF"
-		android:paddingTop="10dip"
-		android:paddingLeft="10dip"
-		android:paddingRight="10dip"/>
-	<!--
-		Don't Warp it, we need a better Layout management (resize the
-		cover...) android:layout_height="wrap_content"
-	-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:gravity="center" android:background="@drawable/np_solidbg" >
+	<!--  transp bg android:background="#66000000" -->
+	<RelativeLayout android:id="@+id/headerLayout"
+		android:layout_height="wrap_content" android:layout_alignParentTop="true"
+		android:layout_width="fill_parent" android:background="@drawable/np_topgradient">
+		<ImageButton android:id="@+id/streaming"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:src="@drawable/np_btnstreaming" android:layout_margin="0dp"
+			android:background="@null" android:layout_centerVertical="true"
+			android:paddingLeft="10dp" />
+		<ImageButton android:id="@+id/playlist"
+			android:layout_width="wrap_content" android:paddingRight="10dp"
+			android:layout_height="wrap_content" android:src="@drawable/np_btnplaylist"
+			android:layout_centerVertical="true" android:layout_margin="0dp"
+			android:background="@null" android:layout_alignParentRight="true" />
+		<TextView android:id="@+id/artistName" android:layout_width="200dp"
+			android:layout_height="wrap_content" android:singleLine="true"
+			android:text="Trolol" android:gravity="center" android:textSize="16sp"
+			android:shadowColor="#FF000000" android:shadowRadius="3.0"
+			android:textColor="#FFFFFFFF" android:layout_centerHorizontal="true"
+			android:paddingTop="2dip" android:paddingLeft="2dip"
+			android:paddingRight="2dip" />
+		<TextView android:id="@+id/songName" android:layout_width="200dp"
+			android:layout_height="wrap_content" android:singleLine="true"
+			android:text="Trolol" android:gravity="center" android:textSize="20sp"
+			android:shadowColor="#FF000000" android:shadowRadius="3.0"
+			android:textColor="#FFFFFFFF" android:layout_centerHorizontal="true"
+			android:paddingLeft="2dip" android:paddingRight="2dip"
+			android:layout_below="@id/artistName" />
+		<TextView android:id="@+id/albumName" android:layout_width="200dp"
+			android:layout_height="wrap_content" android:singleLine="true"
+			android:text="Trolol" android:gravity="center" android:textSize="16sp"
+			android:shadowColor="#FF000000" android:shadowRadius="3.0"
+			android:textColor="#FFFFFFFF" android:layout_centerHorizontal="true"
+			android:paddingTop="2dip" android:paddingLeft="2dip"
+			android:paddingRight="2dip" android:layout_below="@id/songName" />
+	</RelativeLayout>
 
 
 	<AbsoluteLayout android:id="@+id/absolutLayout"
-		android:layout_width="200dip" android:layout_height="0dip"
-		android:layout_weight="1" android:layout_margin="10dp"
-		android:padding="0px">
+		android:layout_width="200dip" android:layout_height="300dip"
+		android:layout_margin="10dp" android:padding="0px" android:paddingTop="50dp"
+		android:layout_centerHorizontal="true" android:layout_below="@id/headerLayout">
 		<ImageSwitcher android:id="@+id/albumCover"
 			android:layout_width="200dip" android:layout_height="fill_parent"
 			android:layout_x="0px" android:layout_y="0px"></ImageSwitcher>
@@ -31,72 +52,50 @@
 			android:layout_x="70dp" android:layout_y="70dp" android:visible="false"
 			android:layout_alignParentTop="@+id/albumCover" />
 	</AbsoluteLayout>
-	<TextView android:id="@+id/artistName" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:text="" android:textSize="20sp"
-		android:singleLine="true" android:gravity="center"
-		android:shadowColor="#FF000000" android:shadowRadius="3.0"
-		android:textColor="#FFFFFFFF" />
 
-	<TextView android:id="@+id/albumName" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:singleLine="true"
-		android:text="" android:textSize="16sp" android:gravity="center"
-		android:shadowColor="#FF000000" android:shadowRadius="3.0"
-		android:textColor="#FFFFFFFF" />
-	<!--
-		Don't Warp it, we need a better Layout management (resize the
-		cover...) android:layout_height="wrap_content"
-	-->
-	<TextView android:id="@+id/trackTime" android:layout_height="wrap_content"
-		android:textSize="14sp" android:layout_width="fill_parent"
-		android:gravity="center" android:shadowColor="#FF000000"
-		android:textColor="#FFFFFFFF" android:shadowRadius="3.0" />
-	<LinearLayout android:orientation="horizontal"
-		android:layout_width="fill_parent" android:gravity="center"
-		android:layout_height="wrap_content">
+	<LinearLayout android:id="@+id/bottomControlLayout"
+		android:orientation="vertical" android:layout_alignParentBottom="true"
+		android:background="@drawable/np_botbg" android:layout_width="fill_parent"
+		android:gravity="center" android:layout_height="wrap_content" >
 
-		<ImageButton android:id="@+id/prev" android:layout_width="60dp"
-			android:layout_height="50dp" android:src="@android:drawable/ic_media_previous"
-			android:background="@drawable/button_bg" />
-		<ImageButton android:id="@+id/back" android:layout_width="60dp"
-			android:layout_height="0dp" android:src="@android:drawable/ic_media_rew"
-			android:visibility="gone" />
-		<ImageButton android:id="@+id/playpause"
-			android:layout_width="60dp" android:layout_height="50dp"
-			android:src="@android:drawable/ic_media_play" android:layout_margin="10dp"
-			android:background="@drawable/button_bg" />
-		<ImageButton android:id="@+id/forward"
-			android:layout_width="60dp" android:layout_height="60dp"
-			android:src="@android:drawable/ic_media_ff" android:visibility="gone" />
-		<ImageButton android:id="@+id/next" android:layout_width="60dp"
-			android:layout_height="50dp" android:src="@android:drawable/ic_media_next"
-			android:layout_margin="0dp" android:background="@drawable/button_bg" />
-
-	</LinearLayout>
-
-
-	<LinearLayout android:orientation="vertical"
-		android:layout_width="fill_parent" android:gravity="center"
-		android:layout_height="wrap_content" android:paddingBottom="10dip">
-
-
-		<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_track"
-			android:layout_width="280dip" android:max="100" android:padding="5px"
-			android:progress="0" />
-
-		<LinearLayout android:orientation="vertical"
-			android:layout_width="wrap_content" android:gravity="center"
-			android:layout_height="fill_parent">
-
-			<TextView android:id="@+id/volume" android:layout_width="fill_parent"
-				android:textColor="#FFFFFFFF" android:layout_height="wrap_content"
-				android:text="@string/volume" android:gravity="center"
-				android:textSize="12sp" />
-
-			<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_volume"
-				android:max="100" android:padding="5px" android:progress="0"
-				android:layout_width="280dip" />
-
+		<LinearLayout android:layout_width="fill_parent"
+			android:id="@+id/LinearLayout01" android:orientation="horizontal"
+			android:gravity="center" android:layout_height="55dp" android:paddingTop="10dp">
+			<ImageButton android:layout_width="50dp"
+				android:background="@null" android:src="@drawable/ic_media_previous"
+				android:id="@+id/prev" android:layout_height="35dp"></ImageButton>
+			<ImageButton android:layout_width="60dp"
+				android:src="@drawable/ic_media_rew" android:id="@+id/back"
+				android:visibility="gone" android:layout_height="0dp"></ImageButton>
+			<ImageButton android:layout_width="50dp"
+				android:background="@null" android:src="@drawable/ic_media_play"
+				android:id="@+id/playpause" android:layout_margin="10dp"
+				android:layout_height="35dp"></ImageButton>
+			<ImageButton android:layout_width="50dp"
+				android:src="@drawable/ic_media_ff" android:id="@+id/forward"
+				android:visibility="gone" android:layout_height="45dp"></ImageButton>
+			<ImageButton android:layout_width="50dp"
+				android:background="@null" android:src="@drawable/ic_media_next"
+				android:id="@+id/next" android:layout_margin="0dp"
+				android:layout_height="35dp"></ImageButton>
 		</LinearLayout>
+
+
+		<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_volume"
+			android:max="100" android:padding="3dp" android:paddingTop="0dp" android:progress="0"
+			android:layout_width="280dip" android:layout_marginBottom="5dp"/>
 	</LinearLayout>
 
-</LinearLayout>
+	<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_track"
+		android:layout_marginTop="-10dp" android:layout_width="fill_parent"
+		android:max="100" android:progress="0" android:layout_alignTop="@id/bottomControlLayout"
+		android:thumb="@drawable/np_progressknob"  android:progressDrawable="@drawable/np_songseekbar"/>
+
+	<TextView android:id="@+id/trackTime" android:layout_height="wrap_content"
+		android:textSize="14sp" android:layout_width="wrap_content"
+		android:shadowColor="#FF000000" android:layout_alignParentLeft="true"
+		android:textColor="#FFFFFFFF" android:shadowRadius="3.0"
+		android:layout_above="@id/progress_track"
+		android:layout_marginBottom="8dp" android:layout_marginLeft="4dp"/>
+
+</RelativeLayout>

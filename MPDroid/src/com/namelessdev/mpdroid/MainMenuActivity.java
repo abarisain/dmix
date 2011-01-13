@@ -326,7 +326,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 				MPDApplication app = (MPDApplication) getApplication();
 				Runnable async = new Runnable() {
-					//@SuppressWarnings("unchecked")
+					// @SuppressWarnings("unchecked")
 					@Override
 					public void run() {
 						try {
@@ -478,13 +478,15 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.mpd_mainmenu, menu);
-	    
-	/*	menu.add(0, LIBRARY, 1, R.string.libraryTabActivity).setIcon(R.drawable.ic_menu_music_library);
-		menu.add(0, PLAYLIST, 3, R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
-		menu.add(0, STREAM, 4, R.string.stream).setIcon(android.R.drawable.ic_menu_upload_you_tube);
-		menu.add(0, SETTINGS, 5, R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);*/
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mpd_mainmenu, menu);
+
+		/*
+		 * menu.add(0, LIBRARY, 1, R.string.libraryTabActivity).setIcon(R.drawable.ic_menu_music_library); menu.add(0, PLAYLIST, 3,
+		 * R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist); menu.add(0, STREAM, 4,
+		 * R.string.stream).setIcon(android.R.drawable.ic_menu_upload_you_tube); menu.add(0, SETTINGS, 5,
+		 * R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
+		 */
 		return result;
 	}
 
@@ -560,22 +562,14 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		Intent i = null;
-		
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	/*	TODO: Remove this code it seems unused
-	   	case ARTISTS:
-			i = new Intent(this, ArtistsActivity.class);
-			//startActivityForResult(i, ARTISTS);
-			return true;
-		case ALBUMS:
-			i = new Intent(this, AlbumsActivity.class);
-			//startActivityForResult(i, ALBUMS);
-			return true;
-		case FILES:
-			i = new Intent(this, FSActivity.class);
-			//startActivityForResult(i, FILES);
-			return true; */
+
+		// Handle item selection
+		switch (item.getItemId()) {
+		/*
+		 * TODO: Remove this code it seems unused case ARTISTS: i = new Intent(this, ArtistsActivity.class); //startActivityForResult(i,
+		 * ARTISTS); return true; case ALBUMS: i = new Intent(this, AlbumsActivity.class); //startActivityForResult(i, ALBUMS); return true;
+		 * case FILES: i = new Intent(this, FSActivity.class); //startActivityForResult(i, FILES); return true;
+		 */
 		case R.id.GMM_LibTab:
 			i = new Intent(this, LibraryTabActivity.class);
 			startActivity(i);
@@ -611,9 +605,9 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				// Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
 			}
 
-	    default:
-	        return super.onOptionsItemSelected(item);
-	    }
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 
 	}
 
@@ -648,10 +642,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 			if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
 				ImageButton button = (ImageButton) findViewById(R.id.playpause);
-				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+				button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
 			} else {
 				ImageButton button = (ImageButton) findViewById(R.id.playpause);
-				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+				button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
 			}
 		}
 	}
