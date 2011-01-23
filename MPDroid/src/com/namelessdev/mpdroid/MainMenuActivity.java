@@ -25,11 +25,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -203,7 +205,12 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	}
 
 	private void init() {
-		setContentView(R.layout.main);
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		if (settings.getBoolean("newUI", false)) {
+			setContentView(R.layout.main);
+		} else {
+			setContentView(R.layout.main_old);
+		}
 
 		streamingMode = ((MPDApplication) getApplication()).isStreamingMode();
 		connected = ((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD.isConnected();

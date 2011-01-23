@@ -47,7 +47,8 @@
 	<string name="connectionSettingsDescription">Setze MPD-Host/Port und Passwort</string>
 	<string name="outputs">Ausgänge</string>
 	<string name="outputsDescription">Aktiviere/Deaktiviere MPD-Ausgänge</string>
-	<string name="mpdroidSettings">MPDroid Einstellungen</string>
+	<string name="serverSettings">Server Einstellungen</string>
+	<string name="clientSettings">Client Einstellungen</string>
 	<string name="songAdded">Stück %s hinzugefügt</string>
 	<string name="about">Über</string>
 	<string name="aboutDescription">Über PMix</string>

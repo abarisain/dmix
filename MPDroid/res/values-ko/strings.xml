@@ -60,7 +60,8 @@
 	<string name="connectionSettingsDescription">MPD-호스트/포트와 암호 설정</string>
 	<string name="outputs">출력</string>
 	<string name="outputsDescription">MPD-출력 켜기/끄기</string>
-	<string name="mpdroidSettings">MPDroid 설정</string>
+	<string name="serverSettings">Server 설정</string>
+	<string name="clientSettings">Client 설정</string>
 	<string name="songAdded">곡 %s 추가됨</string>
 	<string name="about">이 프로그램에 관하여</string>
 	<string name="aboutDescription">MPDroid는</string>

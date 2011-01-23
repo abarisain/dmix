@@ -58,7 +58,8 @@
 	<string name="connectionSettingsDescription">Définir l\'addresse/port et mot de passe du serveur MPD</string>
 	<string name="outputs">Sorties</string>
 	<string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
-	<string name="mpdroidSettings">Paramètres MPDroid</string>
+	<string name="serverSettings">Paramètres serveur</string>
+	<string name="clientSettings">Paramètres client</string>
 	<string name="songAdded">Chanson %s ajoutée</string>
 	<string name="about">A Propos</string>
 	<string name="aboutDescription">A Propos de MPDroid</string>
@@ -120,4 +121,6 @@
 	<string name="streamingManualURL">Utiliser une URL spécifique pour le streaming (icecast)</string>
 	<string name="configurationName">Nom de la configuration</string>
 	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
+	<string name="newUI">Utiliser la nouvelle IU</string>
+	<string name="newUIDescription">Utiliser l\'interface en beta (redémarrage requis)</string>
 </resources>

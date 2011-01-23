@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout android:theme="@android:style/Theme.Translucent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:background="@drawable/background" android:paddingTop="10dip">
+<!-- android:background="#66000000">-->
+
+<LinearLayout android:layout_height="0dp" android:layout_weight="1" android:layout_width="fill_parent" android:layout_gravity="left">
+<AbsoluteLayout android:layout_width="200dip"
+		android:layout_height="fill_parent" android:id="@+id/AbsoluteLayout">
+<ImageSwitcher android:layout_height="fill_parent" 
+	android:layout_width="fill_parent" android:id="@+id/albumCover" android:padding="20dp">
+
+</ImageSwitcher>
+<ProgressBar android:id="@+id/albumCoverProgress" android:layout_height="120dp" android:layout_width="120dp" android:layout_x="15dp" android:layout_y="15dp"></ProgressBar>
+</AbsoluteLayout>
+<LinearLayout android:layout_height="wrap_content" android:orientation="vertical"
+	android:layout_width="250dip" android:layout_gravity="center_vertical">
+<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/songName" android:textSize="18sp" android:shadowColor="#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
+<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/artistName" android:textSize="16sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
+<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/albumName" android:textSize="16sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
+
+<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/trackTime" android:textSize="12sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
+<TextView android:layout_height="wrap_content" android:gravity="center" android:layout_width="fill_parent" android:text="@string/volume" android:visibility="gone" 
+	android:textSize="12sp" android:id="@+id/volume" android:textColor="#FFFFFFFF"></TextView>
+
+</LinearLayout>
+</LinearLayout>
+ 
+<LinearLayout android:layout_width="fill_parent" android:gravity="center" android:layout_height="wrap_content" >
+<ImageButton android:layout_width="60dp" android:layout_height="50dp" android:src="@android:drawable/ic_media_previous"
+	android:id="@+id/prev" android:background="@drawable/button_bg"></ImageButton>
+<ImageButton android:layout_width="60dp" android:layout_height="50dp" android:src="@android:drawable/ic_media_rew"
+	android:id="@+id/back" android:visibility="gone"></ImageButton>
+<ImageButton android:layout_width="60dp" android:layout_height="50dp" android:src="@android:drawable/ic_media_play"
+	android:id="@+id/playpause" android:layout_margin="10dp" android:background="@drawable/button_bg"></ImageButton>
+<ImageButton android:layout_width="60dp" android:layout_height="50dp" android:src="@android:drawable/ic_media_ff"
+	android:id="@+id/forward" android:visibility="gone"></ImageButton>
+<ImageButton android:layout_width="60dp" android:layout_height="50dp" android:src="@android:drawable/ic_media_next"
+	android:id="@+id/next" android:background="@drawable/button_bg"></ImageButton>
+
+
+</LinearLayout><TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/mainInfo" android:visibility="gone"></TextView>
+<LinearLayout android:layout_width="fill_parent" android:gravity="center" android:layout_height="wrap_content" >
+<SeekBar android:layout_height="wrap_content" android:max="100" android:id="@+id/progress_track"
+	android:layout_width="0dp" android:layout_gravity="center" android:padding="10dp" android:paddingTop="0dp" android:layout_weight="2"></SeekBar>
+	<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_volume" android:layout_width="0dp" android:layout_gravity="center" android:layout_weight="1"></SeekBar>
+</LinearLayout>
+</LinearLayout>

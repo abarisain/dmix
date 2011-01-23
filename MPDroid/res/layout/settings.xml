@@ -1,84 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"  android:key="preferencescreen"> 
-	<PreferenceCategory android:title="@string/mpdroidSettings"> 
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:key="preferencescreen">
+	<PreferenceCategory android:title="@string/serverSettings">
 		<!-- Connection Settings -->
-		<PreferenceScreen android:title="@string/connectionSettings" 
-						  android:summary="@string/connectionSettingsDescription" 
-						  android:key="connectionScreen">
-						  
+		<PreferenceScreen android:title="@string/connectionSettings"
+			android:summary="@string/connectionSettingsDescription" android:key="connectionScreen">
+
 			<intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="com.namelessdev.mpdroid"
-                    android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings" />
-		
+				android:targetPackage="com.namelessdev.mpdroid"
+				android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings" />
+
 		</PreferenceScreen>
 		<!-- Outputs -->
-		<PreferenceScreen  android:key="outputsScreen" android:title="@string/outputs" android:summary="@string/outputsDescription">
-			<PreferenceCategory android:key="outputsCategory" android:id="@+id/preferenceOutput" android:title="@string/outputs">  
-			</PreferenceCategory>  
+		<PreferenceScreen android:key="outputsScreen"
+			android:title="@string/outputs" android:summary="@string/outputsDescription">
+			<PreferenceCategory android:key="outputsCategory"
+				android:id="@+id/preferenceOutput" android:title="@string/outputs">
+			</PreferenceCategory>
 		</PreferenceScreen>
-		<!--  Other settings -->
-		<CheckBoxPreference
-			android:key="random"
-			android:title="@string/random"
-			android:summary="@string/randomDescription"
-			android:persistent="false"
-		/>
-		<CheckBoxPreference
-			android:key="repeat"
-			android:title="@string/repeat"
-			android:summary="@string/repeatDescription"
-			android:persistent="false"
-		/>
-		<CheckBoxPreference
-			android:key="albumartist"
-			android:title="@string/albumartist"
-			android:summary="@string/albumartistDescription"
-			android:persistent="true"
-		/>
-		<CheckBoxPreference
-			android:persistent="true"
-			android:title="@string/albumTrackSort" 
-			android:summary="@string/albumTrackSortDescription" 
-			android:key="albumTrackSort"
-			/>
-		<PreferenceScreen android:title="@string/updateDB" 
-						  android:summary="@string/updateDBDetails" 
-						  android:key="updateDB">	
+		<!-- Other settings -->
+		<CheckBoxPreference android:key="random"
+			android:title="@string/random" android:summary="@string/randomDescription"
+			android:persistent="false" />
+		<CheckBoxPreference android:key="repeat"
+			android:title="@string/repeat" android:summary="@string/repeatDescription"
+			android:persistent="false" />
+		<CheckBoxPreference android:key="albumartist"
+			android:title="@string/albumartist" android:summary="@string/albumartistDescription"
+			android:persistent="true" />
+		<CheckBoxPreference android:persistent="true"
+			android:title="@string/albumTrackSort" android:summary="@string/albumTrackSortDescription"
+			android:key="albumTrackSort" />
+		<PreferenceScreen android:title="@string/updateDB"
+			android:summary="@string/updateDBDetails" android:key="updateDB">
 		</PreferenceScreen>
-		<!--  Server Information -->
-		<PreferenceScreen android:key="informationScreen" android:title="@string/serverInformation" android:summary="@string/serverInformationDescription">
-			<PreferenceCategory android:key="outputs" android:id="@+id/preferenceOutput" android:title="@string/serverInformation">
-			    <EditTextPreference  
-			           android:key="version"  
-			           android:title="@string/version"
-			           android:defaultValue=""
-			           android:enabled="false" />   
-			    <EditTextPreference  
-			           android:key="artists"  
-			           android:title="@string/artists"
-			           android:defaultValue=""
-			           android:enabled="false" />
-			    <EditTextPreference  
-			           android:key="albums"  
-			           android:title="@string/albums"
-			           android:defaultValue=""
-			           android:enabled="false" />
-			    <EditTextPreference  
-			           android:key="songs"  
-			           android:title="@string/songs"
-			           android:defaultValue=""
-			           android:enabled="false" />
-			</PreferenceCategory>  
+		<!-- Server Information -->
+		<PreferenceScreen android:key="informationScreen"
+			android:title="@string/serverInformation" android:summary="@string/serverInformationDescription">
+			<PreferenceCategory android:key="outputs"
+				android:id="@+id/preferenceOutput" android:title="@string/serverInformation">
+				<EditTextPreference android:key="version"
+					android:title="@string/version" android:defaultValue=""
+					android:enabled="false" />
+				<EditTextPreference android:key="artists"
+					android:title="@string/artists" android:defaultValue=""
+					android:enabled="false" />
+				<EditTextPreference android:key="albums"
+					android:title="@string/albums" android:defaultValue=""
+					android:enabled="false" />
+				<EditTextPreference android:key="songs"
+					android:title="@string/songs" android:defaultValue=""
+					android:enabled="false" />
+			</PreferenceCategory>
 		</PreferenceScreen>
+
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/serverSettings">
+		<CheckBoxPreference android:persistent="true"
+			android:title="@string/newUI" android:summary="@string/newUIDescription"
+			android:key="newUI" android:defaultValue="false" />
 		<!-- About -->
-		<PreferenceScreen android:title="@string/about" 
-						  android:summary="@string/aboutDescription" 
-						  android:key="aboutScreen">
-						  
+		<PreferenceScreen android:title="@string/about"
+			android:summary="@string/aboutDescription" android:key="aboutScreen">
+
 			<intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="com.namelessdev.mpdroid"
-                    android:targetClass="com.namelessdev.mpdroid.AboutActivity" />
-		
+				android:targetPackage="com.namelessdev.mpdroid" android:targetClass="com.namelessdev.mpdroid.AboutActivity" />
+
 		</PreferenceScreen>
 	</PreferenceCategory>
 </PreferenceScreen>
