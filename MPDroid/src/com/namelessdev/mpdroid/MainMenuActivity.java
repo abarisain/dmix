@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
@@ -62,7 +63,8 @@ import com.namelessdev.mpdroid.CoverAsyncHelper.CoverDownloadListener;
  * @author Rémi Flament, Stefan Agner
  * @version $Id: $
  */
-public class MainMenuActivity extends Activity implements StatusChangeListener, TrackPositionListener, CoverDownloadListener {
+public class MainMenuActivity extends Activity implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
+		OnSharedPreferenceChangeListener {
 
 	private Logger myLogger = Logger.global;
 
@@ -124,6 +126,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	// Used for detecting sideways flings
 	private GestureDetector gestureDetector;
 	View.OnTouchListener gestureListener;
+
+	private boolean enableLastFM;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -206,6 +210,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	private void init() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		settings.registerOnSharedPreferenceChangeListener(this);
+
+		enableLastFM = settings.getBoolean("enableLastFM", true);
+
 		if (settings.getBoolean("newUI", false)) {
 			setContentView(R.layout.main);
 		} else {
@@ -727,8 +735,13 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 				if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
-					coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
-					oCoverAsyncHelper.downloadCover(artist, album);
+					if (enableLastFM) {
+						coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
+						oCoverAsyncHelper.downloadCover(artist, album);
+					} else {
+						// Dirty hack ? Maybe. I don't feel like writing a new function.
+						onCoverNotFound();
+					}
 					lastArtist = artist;
 					lastAlbum = album;
 				}
@@ -792,8 +805,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		settings.unregisterOnSharedPreferenceChangeListener(this);
 		myLogger.log(Level.INFO, "onDestroy");
+		super.onDestroy();
 	}
 
 	public SeekBar getVolumeSeekBar() {
@@ -843,6 +858,13 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		coverSwitcherProgress.setVisibility(ProgressBar.INVISIBLE);
 		coverSwitcher.setImageResource(R.drawable.gmpcnocover);
 		// coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals("enableLastFM")) {
+			enableLastFM = sharedPreferences.getBoolean("enableLastFM", true);
+		}
 	}
 
 }

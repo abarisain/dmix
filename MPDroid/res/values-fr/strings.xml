@@ -123,4 +123,6 @@
 	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
 	<string name="newUI">Utiliser la nouvelle IU</string>
 	<string name="newUIDescription">Utiliser l\'interface en beta (redémarrage requis)</string>
+	<string name="enableLastFM">Télécharger les pochettes</string>
+	<string name="enableLastFMDescription">Obtenir les pochettes via Last.FM (leur envoie les informations sur la chanson courante)</string>
 </resources>
