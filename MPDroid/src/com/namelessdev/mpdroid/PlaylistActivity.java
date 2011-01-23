@@ -28,18 +28,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class PlaylistActivity extends ListActivity implements OnClickListener, StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
-	//private int arrayListId;
+	// private int arrayListId;
 
 	private String title;
+	private boolean firstUpdate = true;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -56,8 +57,8 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		ListView list = getListView();
 		/*
-		 * LinearLayout test = (LinearLayout)list.getChildAt(1); ImageView img = (ImageView)test.findViewById(R.id.picture); //ImageView img =
-		 * (ImageView)((LinearLayout)list.getItemAtPosition(3)).findViewById(R.id.picture);
+		 * LinearLayout test = (LinearLayout)list.getChildAt(1); ImageView img = (ImageView)test.findViewById(R.id.picture); //ImageView img
+		 * = (ImageView)((LinearLayout)list.getItemAtPosition(3)).findViewById(R.id.picture);
 		 * img.setImageDrawable(getResources().getDrawable(R.drawable.gmpcnocover));
 		 */
 
@@ -75,7 +76,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
 
 	}
-	
+
 	protected void update() {
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		try {
@@ -83,21 +84,35 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			songlist = new ArrayList<HashMap<String, Object>>();
 			musics = playlist.getMusics();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
+			// The position in the songlist of the currently played song
+			int listPlayingID = -1;
 			for (Music m : musics) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
 				item.put("artist", m.getArtist());
 				item.put("title", m.getTitle());
-				if (m.getSongId() == playingID)
+				if (m.getSongId() == playingID) {
 					item.put("play", android.R.drawable.ic_media_play);
-				else
+					// Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
+					// it
+					listPlayingID = songlist.size() - 1;
+				} else {
 					item.put("play", 0);
+				}
 				songlist.add(item);
 			}
-			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_list_item, new String[] { "play", "title", "artist" },
-					new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
+			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_list_item,
+					new String[] { "play", "title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
 			setListAdapter(songs);
+
+			// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
+			// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at other
+			// stuff.
+			if (firstUpdate && listPlayingID > 0)
+				setSelection(listPlayingID);
+			firstUpdate = false;
+
 		} catch (MPDServerException e) {
 		}
 
@@ -109,7 +124,6 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		app.setActivity(this);
-		update();
 	}
 
 	@Override
@@ -127,14 +141,14 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		
+
 		super.onCreateContextMenu(menu, v, menuInfo);
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.mpd_playlistcnxmenu, menu);
 
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		//arrayListId = info.position;
-		
+		// arrayListId = info.position;
+
 		title = (String) songlist.get(info.position).get("title");
 		menu.setHeaderTitle(title);
 	}
@@ -165,7 +179,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return true;	  
+			return true;
 		case R.id.PLCX_moveFirst:
 			try { // Move song to first in playlist
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0);
@@ -174,7 +188,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return true;	  
+			return true;
 		case R.id.PLCX_moveLast:
 			try { // Move song to last in playlist
 				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
@@ -184,7 +198,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return true;	  
+			return true;
 		case R.id.PLCX_removeFromPlaylist:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().removeSong(songId);
@@ -198,9 +212,6 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			return super.onContextItemSelected(item);
 		}
 	}
-	
-
-
 
 	/*
 	 * Create Menu for Playlist View
@@ -210,9 +221,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.mpd_playlistmenu, menu);
-	    
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mpd_playlistmenu, menu);
+
 		return result;
 	}
 
@@ -276,7 +287,8 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	public void scrollToNowPlaying() {
 		for (HashMap<String, Object> song : songlist) {
 			try {
-				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD.getStatus().getSongId()) {
+				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD.getStatus()
+						.getSongId()) {
 					getListView().requestFocusFromTouch();
 					getListView().setSelection(songlist.indexOf(song));
 				}
@@ -284,7 +296,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			}
 		}
 	}
-	
+
 	@Override
 	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
 		// TODO Auto-generated method stub

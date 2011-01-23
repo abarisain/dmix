@@ -125,4 +125,6 @@
 	<string name="newUIDescription">Utiliser l\'interface en beta (redémarrage requis)</string>
 	<string name="enableLastFM">Télécharger les pochettes</string>
 	<string name="enableLastFMDescription">Obtenir les pochettes via Last.FM (leur envoie les informations sur la chanson courante)</string>
+	<string name="whatsNew">Quoi de neuf ?</string>
+	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
 </resources>
