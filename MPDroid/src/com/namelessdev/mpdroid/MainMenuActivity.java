@@ -128,6 +128,7 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 	View.OnTouchListener gestureListener;
 
 	private boolean enableLastFM;
+	private boolean newUI;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -213,8 +214,9 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		settings.registerOnSharedPreferenceChangeListener(this);
 
 		enableLastFM = settings.getBoolean("enableLastFM", true);
+		newUI = settings.getBoolean("newUI", false);
 
-		if (settings.getBoolean("newUI", false)) {
+		if (newUI) {
 			setContentView(R.layout.main);
 		} else {
 			setContentView(R.layout.main_old);
@@ -657,10 +659,18 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 
 			if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
 				ImageButton button = (ImageButton) findViewById(R.id.playpause);
-				button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
+				if (newUI) {
+					button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
+				} else {
+					button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+				}
 			} else {
 				ImageButton button = (ImageButton) findViewById(R.id.playpause);
-				button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
+				if (newUI) {
+					button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
+				} else {
+					button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+				}
 			}
 		}
 	}
