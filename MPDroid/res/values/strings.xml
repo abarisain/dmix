@@ -131,4 +131,5 @@
 	<string name="enableLastFMDescription">Get cover art using last.fm (sends them your song information)</string>
 	<string name="whatsNew">What\'s new ?</string>
 	<string name="whatsNewDescription">See changelog (opens external webpage)</string>
+	<string name="deleteServer">Delete this server</string>
 </resources>

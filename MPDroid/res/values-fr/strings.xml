@@ -127,4 +127,5 @@
 	<string name="enableLastFMDescription">Obtenir les pochettes via Last.FM (leur envoie les informations sur la chanson courante)</string>
 	<string name="whatsNew">Quoi de neuf ?</string>
 	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
+	<string name="deleteServer">Supprimer ce serveur</string>
 </resources>

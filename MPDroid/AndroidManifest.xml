@@ -81,6 +81,9 @@
 				android:value=".SearchSongActivity" />
 		</activity>
 		
+		<activity android:name=".ServerListActivity" />
+		<activity android:name=".ServerEditActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
+		
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
 		<activity android:name=".WarningActivity" android:label="@string/warningTitle"  android:theme="@android:style/Theme.Dialog" />
