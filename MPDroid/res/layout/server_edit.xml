@@ -53,7 +53,8 @@
 			<Button android:layout_width="fill_parent" 
 				android:layout_height="wrap_content" 
 				android:id="@+id/deleteServer"
-				android:text="@string/deleteServer" />
+				android:text="@string/deleteServer"
+				android:textColor="#FFFFFFFF"/>
 		</LinearLayout>
 	</ScrollView>
 
