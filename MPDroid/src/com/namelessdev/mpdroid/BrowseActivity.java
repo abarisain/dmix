@@ -179,6 +179,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 						Add(items.get((int) info.id).toString());
 						int id = pl.getMusic(oldsize).getSongId();
 						app.oMPDAsyncHelper.oMPD.skipTo(id);
+						app.oMPDAsyncHelper.oMPD.play();
 					} catch (MPDServerException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
