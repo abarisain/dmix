@@ -24,6 +24,7 @@
 	<string name="addAndReplace">Add and Replace</string>
 	<string name="addAlbum">Add Album</string>
 	<string name="addPlaylist">Add Playlist</string>
+	<string name="addAndPlay">Add and Play</string>
 	<string name="addArtist">Add Artist</string>
 	<string name="addDirectory">Add Directory</string>
 	<string name="addSong">Add Song</string>

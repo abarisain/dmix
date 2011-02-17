@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -30,6 +31,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 	public static final int ADD = 0;
 	public static final int ADDNREPLACE = 1;
+	public static final int ADDNPLAY = 2;
 
 	protected List<String> items = null;
 
@@ -116,6 +118,8 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		addItem.setOnMenuItemClickListener(this);
 		MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0, R.string.addAndReplace);
 		addAndReplaceItem.setOnMenuItemClickListener(this);
+		MenuItem addAndPlayItem = menu.add(ContextMenu.NONE, ADDNPLAY, 0, R.string.addAndPlay);
+		addAndPlayItem.setOnMenuItemClickListener(this);
 	}
 
 	protected void Add(String item) {
@@ -165,6 +169,23 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 			break;
 
+		case ADDNPLAY:
+			app.oMPDAsyncHelper.execAsync(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						MPDPlaylist pl = app.oMPDAsyncHelper.oMPD.getPlaylist();
+						int oldsize = pl.size();
+						Add(items.get((int) info.id).toString());
+						int id = pl.getMusic(oldsize).getSongId();
+						app.oMPDAsyncHelper.oMPD.skipTo(id);
+					} catch (MPDServerException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
+			break;
 		}
 		return false;
 	}
