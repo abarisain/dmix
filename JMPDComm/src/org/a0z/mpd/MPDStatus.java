@@ -103,6 +103,15 @@ public class MPDStatus {
 	 * @param response
 	 */
 	public void updateStatus(List<String> response) {
+		try {
+			doStatusUpdate(response);
+		} catch(RuntimeException e) {
+			//Do nothing, these should be harmless
+		}
+	}
+
+	private void doStatusUpdate(List<String> response)
+	{
 		for (String line : response) {
 			if (line.startsWith("volume:")) {
 				this.volume = Integer.parseInt(line.substring("volume: ".length()));
