@@ -85,6 +85,7 @@
 		
 		<activity android:name=".ServerListActivity" />
 		<activity android:name=".ServerEditActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
+		<activity android:name=".ServerBonjourListActivity" />
 		
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />

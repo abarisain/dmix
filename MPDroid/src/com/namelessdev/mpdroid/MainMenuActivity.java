@@ -621,7 +621,10 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				((MPDApplication) getApplication()).setStreamingMode(true);
 				// Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
 			}
-
+			return true;
+		case R.id.GMM_bonjour:
+			startActivity(new Intent(this, ServerBonjourListActivity.class));
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
