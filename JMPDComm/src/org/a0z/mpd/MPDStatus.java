@@ -188,7 +188,8 @@ public class MPDStatus {
 					this.single = false;
 				}
 			} else {
-				(new InvalidResponseException("unknown response: " + line)).printStackTrace();
+				//TODO : This floods logcat too much, will fix later
+				//(new InvalidResponseException("unknown response: " + line)).printStackTrace();
 			}
 		}
 	}
