@@ -2,6 +2,7 @@ package com.namelessdev.mpdroid;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +17,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.widget.SimpleAdapter;
 
 public class ServerBonjourListActivity extends ListActivity implements ServiceListener {
 	
@@ -27,12 +29,15 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 	private WifiManager.MulticastLock multicastLock = null;
 	private JmDNS jmdns = null;
 	private List<Map<String,String>> servers = null;
+	private SimpleAdapter listAdapter = null;
 	    	
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 
+    	servers = new ArrayList<Map<String,String>>();
+    	
     	//By default, the android wifi stack will ignore broadcasts, fix that
     	WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
     	multicastLock = wm.createMulticastLock("mpdroid_bonjour");
@@ -43,7 +48,9 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 		} catch (IOException e) {
 			//Do nothing, stuff will just not work
 		}
-		
+			
+		listAdapter = new SimpleAdapter(this, servers, android.R.layout.simple_list_item_1, new String[]{SERVER_NAME}, new int[]{android.R.id.text1});
+		getListView().setAdapter(listAdapter);
     }
     
     @Override
@@ -94,6 +101,13 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 			server.put(SERVER_NAME, info.getName());
 			server.put(SERVER_IP, addresses[0].toString());
 			server.put(SERVER_PORT, Integer.toString(info.getPort()));
+			servers.add(server);
+			runOnUiThread(new Runnable() {
+			    public void run() {
+			    	listAdapter.notifyDataSetChanged();
+			    }
+			});
+			
 		}
 	}
 
