@@ -15,8 +15,8 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
@@ -80,13 +80,14 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.mpd_browsermenu, menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mpd_browsermenu, menu);
+		inflater.inflate(R.menu.mpd_searchmenu, menu);
 		/*
-		boolean result = super.onCreateOptionsMenu(menu);
-		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
-		menu.add(0, PLAYLIST, 1, R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
-		*/
+		 * boolean result = super.onCreateOptionsMenu(menu); menu.add(0, MAIN, 0,
+		 * R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert); menu.add(0, PLAYLIST, 1,
+		 * R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
+		 */
 
 		return result;
 	}
@@ -104,6 +105,9 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		case R.id.BRM_playlist:
 			i = new Intent(this, PlaylistActivity.class);
 			startActivityForResult(i, PLAYLIST);
+			return true;
+		case R.id.menu_search:
+			onSearchRequested();
 			return true;
 		}
 		return false;
@@ -219,4 +223,5 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		}
 
 	}
+
 }
