@@ -8,10 +8,10 @@ import org.a0z.mpd.MPDServerException;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.widget.ListView;
+import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ListView;
 
 public class PlaylistManagerActivity extends BrowseActivity implements OnMenuItemClickListener {
 
@@ -93,7 +93,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 	public void asyncUpdate() {
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		try {
-			items = (List<String>) (app.oMPDAsyncHelper.oMPD.getPlaylists());
+			items = (List<String>) (app.oMPDAsyncHelper.oMPD.getPlaylists(true));
 		} catch (MPDServerException e) {
 		}
 	}

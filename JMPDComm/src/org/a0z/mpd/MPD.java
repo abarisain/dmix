@@ -2,6 +2,7 @@ package org.a0z.mpd;
 
 import java.io.IOException;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -1004,12 +1005,20 @@ public class MPD {
 	}
 
 	public Collection<String> getPlaylists() throws MPDServerException {
-		Collection<String> list = new LinkedList<String>();
-		Iterator it = mpdConnection.sendCommand("listplaylists").iterator();
+		return getPlaylists(false);
+	}
+
+	public Collection<String> getPlaylists(boolean sort) throws MPDServerException {
+		Collection<String> list = new ArrayList<String>();
+		
+		Iterator<String> it = mpdConnection.sendCommand("listplaylists").iterator();
 		while (it.hasNext()) {
 			String cmd[] = ((String) it.next()).split(": ");
 			if (cmd[0].equals("playlist"))
 				list.add(cmd[1]);
+		}
+		if (sort) {
+			Collections.sort((ArrayList<String>) list, String.CASE_INSENSITIVE_ORDER);
 		}
 		return list;
 	}
