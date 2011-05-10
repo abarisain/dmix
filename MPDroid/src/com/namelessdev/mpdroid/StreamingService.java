@@ -3,7 +3,6 @@ package com.namelessdev.mpdroid;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-//import java.util.Timer;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
@@ -23,7 +22,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-//import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -404,7 +402,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		isPlaying = false;
 		isPaused = true;
 		buffering = false;
-		mediaPlayer.stop(); // So it stops faster
+		if (mediaPlayer != null) { // If that stupid thing crashes
+			mediaPlayer.stop(); // So it stops faster
+		}
 		showNotification();
 		MPDApplication app = (MPDApplication) getApplication();
 		MPD mpd = app.oMPDAsyncHelper.oMPD;

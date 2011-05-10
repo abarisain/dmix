@@ -24,6 +24,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+
 		//MPDApplication app = (MPDApplication) getApplication();
 		setContentView(R.layout.artists);
 
