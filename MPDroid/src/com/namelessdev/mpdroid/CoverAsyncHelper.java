@@ -28,6 +28,16 @@ public class CoverAsyncHelper extends Handler {
 	private static final int EVENT_COVERDOWNLOADED = 1;
 	private static final int EVENT_COVERNOTFOUND = 2;
 
+	private String urlOverride = null;
+
+	public String getUrlOverride() {
+		return urlOverride;
+	}
+
+	public void setUrlOverride(String urlOverride) {
+		this.urlOverride = urlOverride;
+	}
+
 	public interface CoverDownloadListener {
 		public void onCoverDownloaded(Bitmap cover);
 
@@ -84,7 +94,11 @@ public class CoverAsyncHelper extends Handler {
 				String url = null;
 				try {
 					// Get URL to the Cover...
-					url = LastFMCover.getCoverUrl(info.sArtist, info.sAlbum);
+					if (urlOverride == null) {
+						url = LastFMCover.getCoverUrl(info.sArtist, info.sAlbum);
+					} else {
+						url = urlOverride;
+					}
 				} catch (Exception e1) {
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 				}

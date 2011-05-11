@@ -2,6 +2,7 @@ package org.a0z.mpd;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -249,7 +250,7 @@ public class MPDPlaylist {
 	 * @return current playlist version.
 	 */
 	private int reload() throws MPDServerException {
-		LinkedList<Music> playlist = new LinkedList<Music>();
+		ArrayList<Music> playlist = new ArrayList<Music>();
 		LinkedList<String> file = new LinkedList<String>();
 		// TODO should be atomic
 		MPDStatus status = this.mpd.getStatus();
