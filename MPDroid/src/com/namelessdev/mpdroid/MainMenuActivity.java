@@ -632,12 +632,12 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			ContentValues values = new ContentValues();
 			values.put(ServerList.ServerColumns.NAME, "bite1");
 			values.put(ServerList.ServerColumns.HOST, "bite2");
-			values.put(ServerList.ServerColumns.DEFAULT, "0");
+			values.put(ServerList.ServerColumns.PASSWORD, "");
 			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
 			values = new ContentValues();
 			values.put(ServerList.ServerColumns.NAME, "bite3");
 			values.put(ServerList.ServerColumns.HOST, "bite4");
-			values.put(ServerList.ServerColumns.DEFAULT, "1");
+			values.put(ServerList.ServerColumns.PASSWORD, "");
 			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
 			startActivity(new Intent(this, ServerListActivity.class));
 			return true;
