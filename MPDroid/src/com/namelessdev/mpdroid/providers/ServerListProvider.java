@@ -66,7 +66,7 @@ public class ServerListProvider extends ContentProvider {
 		public void onCreate(SQLiteDatabase db) {
 			db.execSQL("CREATE TABLE " + SERVERS_TABLE_NAME + " (" + ServerColumns._ID + " INTEGER PRIMARY KEY," + ServerColumns.NAME
 					+ " TEXT," + ServerColumns.HOST + " TEXT," + ServerColumns.PORT + " TEXT," + ServerColumns.STREAMING_PORT + " TEXT,"
-					+ ServerColumns.STREAMING_URL + " TEXT," + ServerColumns.DEFAULT + " INTEGER" + ");");
+					+ ServerColumns.STREAMING_URL + " TEXT," + ServerColumns.PASSWORD + " TEXT" + ");");
 		}
 
 		@Override
@@ -173,8 +173,8 @@ public class ServerListProvider extends ContentProvider {
 			values.put(ServerColumns.STREAMING_URL, "");
 		}
 
-		if (values.containsKey(ServerColumns.DEFAULT) == false) {
-			values.put(ServerColumns.DEFAULT, "0");
+		if (values.containsKey(ServerColumns.PASSWORD) == false) {
+			values.put(ServerColumns.PASSWORD, "");
 		}
 
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -246,6 +246,6 @@ public class ServerListProvider extends ContentProvider {
 		sServerListProjectionMap.put(ServerColumns.PORT, ServerColumns.PORT);
 		sServerListProjectionMap.put(ServerColumns.STREAMING_PORT, ServerColumns.STREAMING_PORT);
 		sServerListProjectionMap.put(ServerColumns.STREAMING_URL, ServerColumns.STREAMING_URL);
-		sServerListProjectionMap.put(ServerColumns.DEFAULT, ServerColumns.DEFAULT);
+		sServerListProjectionMap.put(ServerColumns.PASSWORD, ServerColumns.PASSWORD);
 	}
 }

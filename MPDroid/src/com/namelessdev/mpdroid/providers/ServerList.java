@@ -34,22 +34,21 @@ public final class ServerList {
 		/**
 		 * The content:// style URL for this table
 		 */
-		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/notes");
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/servers");
+		/**
+		 * The MIME type of {@link #CONTENT_URI} a list of servers
+		 */
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.namelessdev.server";
 
 		/**
-		 * The MIME type of {@link #CONTENT_URI} providing a directory of servers.
+		 * The MIME type of a {@link #CONTENT_URI} signle server
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.note";
-
-		/**
-		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single note.
-		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.note";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.namelessdev.server";
 
 		/**
 		 * The default sort order for this table
 		 */
-		public static final String DEFAULT_SORT_ORDER = "modified DESC";
+		public static final String DEFAULT_SORT_ORDER = "name ASC";
 
 		/**
 		 * The server name
@@ -92,11 +91,11 @@ public final class ServerList {
 		public static final String STREAMING_URL = "streamingURL";
 
 		/**
-		 * Is that server the default one ?
+		 * Server password
 		 * <P>
-		 * Type: INTEGER (0 or 1)
+		 * Type: TEXT
 		 * </P>
 		 */
-		public static final String DEFAULT = "default";
+		public static final String PASSWORD = "password";
 	}
 }

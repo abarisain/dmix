@@ -22,6 +22,8 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -56,6 +58,7 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher.ViewFactory;
 
 import com.namelessdev.mpdroid.CoverAsyncHelper.CoverDownloadListener;
+import com.namelessdev.mpdroid.providers.ServerList;
 
 /**
  * MainMenuActivity is the starting activity of pmix
@@ -67,6 +70,8 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 		OnSharedPreferenceChangeListener {
 
 	private Logger myLogger = Logger.global;
+	
+	public static final String COVER_BASE_URL = "http://%s/music/";
 
 	public static final String PREFS_NAME = "mpdroid.properties";
 
@@ -623,7 +628,18 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 			}
 			return true;
 		case R.id.GMM_bonjour:
-			startActivity(new Intent(this, ServerBonjourListActivity.class));
+			ContentResolver cr = getContentResolver();
+			ContentValues values = new ContentValues();
+			values.put(ServerList.ServerColumns.NAME, "bite1");
+			values.put(ServerList.ServerColumns.HOST, "bite2");
+			values.put(ServerList.ServerColumns.DEFAULT, "0");
+			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
+			values = new ContentValues();
+			values.put(ServerList.ServerColumns.NAME, "bite3");
+			values.put(ServerList.ServerColumns.HOST, "bite4");
+			values.put(ServerList.ServerColumns.DEFAULT, "1");
+			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
+			startActivity(new Intent(this, ServerListActivity.class));
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -745,15 +761,19 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				songNameText.setText(title);
 				albumNameText.setText(album);
 				progressBarTrack.setMax(songMax);
-
 				if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
+					coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
 					if (enableLastFM) {
-						coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
 						oCoverAsyncHelper.downloadCover(artist, album);
 					} else {
+						// Try to find the cover from apache (vortexbox)
+						// TODO : Make it configurable ...
+						oCoverAsyncHelper.setUrlOverride(String.format(COVER_BASE_URL + actSong.getPath() + "/cover.jpg",
+								((MPDApplication) getApplication()).oMPDAsyncHelper.getConnectionInfoServer()));
+						oCoverAsyncHelper.downloadCover(null, null);
 						// Dirty hack ? Maybe. I don't feel like writing a new function.
-						onCoverNotFound();
+						// onCoverNotFound();
 					}
 					lastArtist = artist;
 					lastAlbum = album;

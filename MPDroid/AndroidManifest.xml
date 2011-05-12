@@ -107,11 +107,13 @@
 				<action android:name="android.media.AUDIO_BECOMING_NOISY" />
 			</intent-filter>
 		</receiver>
+		
+		<provider android:name=".providers.ServerListProvider"
+          android:authorities="com.namelessdev.mpdroid.providers.serverlist"
+          android:exported="false">
+		</provider>
 	</application>
 	
-	<provider android:name=".providers.ServerList"
-          android:authorities="com.namelessdev.android.providers.serverlist" />
-          
 	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="8" />
 
 </manifest> 
