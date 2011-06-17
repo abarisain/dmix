@@ -60,11 +60,22 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		 * pConnectionScreen.addPreference(wifiConnection);
 		 */
 
-		
 		final EditTextPreference pVersion = (EditTextPreference) findPreference("version");
 		final EditTextPreference pArtists = (EditTextPreference) findPreference("artists");
 		final EditTextPreference pAlbums = (EditTextPreference) findPreference("albums");
 		final EditTextPreference pSongs = (EditTextPreference) findPreference("songs");
+
+		// set the albumart fields
+		CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
+		Preference mp = (Preference) findPreference("musicPath");
+		Preference cf = (Preference) findPreference("coverFileName");
+		if(c.isChecked()) {
+			mp.setEnabled(true);
+			cf.setEnabled(true);
+		}else{
+			mp.setEnabled(false);
+			cf.setEnabled(false);
+		}
 
 		if (!app.oMPDAsyncHelper.oMPD.isConnected()) {
 			pOutputsScreen.setEnabled(false);
@@ -163,11 +174,34 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		if (preference.getKey().equals("outputsScreen")) {
 			populateOutputsScreen();
 			return true;
+
 		} else if (preference.getKey().equals("updateDB")) {
 			try {
 				MPD oMPD = app.oMPDAsyncHelper.oMPD;
 				oMPD.refreshDatabase();
 			} catch (MPDServerException e) {
+			}
+			return true;
+
+		} else if (preference.getKey().equals("enableLocalCover") || preference.getKey().equals("enableLastFM")) {
+			if(preference.getKey().equals("enableLocalCover")) {
+				CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLastFM");
+				c.setChecked(false);
+			}else if(preference.getKey().equals("enableLastFM")) {
+				CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
+				c.setChecked(false);
+			}
+
+			CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
+			Preference mp = (Preference) findPreference("musicPath");
+			Preference cf = (Preference) findPreference("coverFileName");
+
+			if(c.isChecked()) {
+				mp.setEnabled(true);
+				cf.setEnabled(true);
+			}else{
+				mp.setEnabled(false);
+				cf.setEnabled(false);
 			}
 			return true;
 		}

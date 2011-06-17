@@ -8,7 +8,11 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.pmix.cover.ICoverRetriever;
 import org.pmix.cover.LastFMCover;
+import org.pmix.cover.LocalCover;
+
+import com.namelessdev.mpdroid.MPDApplication;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,6 +21,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.content.SharedPreferences;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -40,6 +45,23 @@ public class CoverAsyncHelper extends Handler {
 		Log.i("MPDroid", "Setting urlOverride : " + this.urlOverride);
 	}
 
+	private MPDApplication app = null;
+	private SharedPreferences settings = null;
+
+	private ICoverRetriever coverRetriever = null;
+
+	public void setCoverRetriever(CoverRetrievers whichCoverRetriever) {
+		// create concrete cover retriever
+		switch(whichCoverRetriever) {
+		case LASTFM:
+			this.coverRetriever = new LastFMCover();
+			break;
+		case LOCAL:
+			this.coverRetriever = new LocalCover(this.app, this.settings);
+			break;
+		}
+	}
+
 	public interface CoverDownloadListener {
 		public void onCoverDownloaded(Bitmap cover);
 
@@ -50,7 +72,10 @@ public class CoverAsyncHelper extends Handler {
 
 	private CoverAsyncWorker oCoverAsyncWorker;
 
-	public CoverAsyncHelper() {
+	public CoverAsyncHelper(MPDApplication app, SharedPreferences settings) {
+		this.app = app;
+		this.settings = settings;
+
 		HandlerThread oThread = new HandlerThread("CoverAsyncWorker");
 		oThread.start();
 		oCoverAsyncWorker = new CoverAsyncWorker(oThread.getLooper());
@@ -61,10 +86,11 @@ public class CoverAsyncHelper extends Handler {
 		coverDownloadListener.add(listener);
 	}
 
-	public void downloadCover(String artist, String album) {
+	public void downloadCover(String artist, String album, String path) {
 		CoverInfo info = new CoverInfo();
 		info.sArtist = artist;
 		info.sAlbum = album;
+		info.sPath = path;
 		oCoverAsyncWorker.obtainMessage(EVENT_DOWNLOADCOVER, info).sendToTarget();
 	}
 
@@ -96,11 +122,7 @@ public class CoverAsyncHelper extends Handler {
 				String url = null;
 				try {
 					// Get URL to the Cover...
-					if (urlOverride == null) {
-						url = LastFMCover.getCoverUrl(info.sArtist, info.sAlbum);
-					} else {
-						url = urlOverride;
-					}
+					url = coverRetriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
@@ -158,6 +180,12 @@ public class CoverAsyncHelper extends Handler {
 	private class CoverInfo {
 		public String sArtist;
 		public String sAlbum;
+		public String sPath;
+	}
+
+	public enum CoverRetrievers {
+		LASTFM,
+		LOCAL;
 	}
 
 }
