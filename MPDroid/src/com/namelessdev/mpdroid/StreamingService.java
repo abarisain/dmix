@@ -369,28 +369,22 @@ public class StreamingService extends Service implements StatusChangeListener, O
 						startForeground(STREAMINGSERVICE_STATUS, status);
 					}
 				}
-			} else if (isPaused) {
-				Context context = getApplicationContext();
-				RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
-				views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
-				Notification status = null;
-				if (mediaPlayerError != 0)
-					views.setTextViewText(R.id.trackname, context.getString(R.string.streamError));
-				else
-					views.setTextViewText(R.id.trackname, context.getString(R.string.streamPaused));
-
-				views.setTextViewText(R.id.album, context.getString(R.string.streamPauseBattery));
-				views.setTextViewText(R.id.artist, "");
-				status = new Notification(R.drawable.icon, context.getString(R.string.streamPaused), System.currentTimeMillis());
-
-				status.contentView = views;
-				status.flags |= Notification.FLAG_ONGOING_EVENT;
-				status.icon = R.drawable.icon;
-				status.contentIntent = PendingIntent.getActivity(this, 0,
-						new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
-				((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_PAUSED, status);
-
 			}
+			/*
+			 * else if (isPaused) { Context context = getApplicationContext(); RemoteViews views = new RemoteViews(getPackageName(),
+			 * R.layout.statusbar); views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer); Notification status = null;
+			 * if (mediaPlayerError != 0) views.setTextViewText(R.id.trackname, context.getString(R.string.streamError)); else
+			 * views.setTextViewText(R.id.trackname, context.getString(R.string.streamPaused));
+			 * 
+			 * views.setTextViewText(R.id.album, context.getString(R.string.streamPauseBattery)); views.setTextViewText(R.id.artist, "");
+			 * status = new Notification(R.drawable.icon, context.getString(R.string.streamPaused), System.currentTimeMillis());
+			 * 
+			 * status.contentView = views; status.icon = R.drawable.icon; status.contentIntent = PendingIntent.getActivity(this, 0, new
+			 * Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0); ((NotificationManager)
+			 * getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_PAUSED, status);
+			 * 
+			 * }
+			 */
 		} catch (Exception e) {
 			// This should not happen anymore, and catching everything is ugly, but crashing because of a notification is pretty stupid IMHO
 		}
@@ -406,15 +400,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			mediaPlayer.stop(); // So it stops faster
 		}
 		showNotification();
-		MPDApplication app = (MPDApplication) getApplication();
-		MPD mpd = app.oMPDAsyncHelper.oMPD;
-		try {
-			String state = mpd.getStatus().getState();
-			if (state.equals(MPDStatus.MPD_STATE_PLAYING))
-				mpd.pause();
-		} catch (MPDServerException e) {
-
-		}
 	}
 
 	public void resumeStreaming() {
@@ -423,20 +408,15 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			return;
 		needStoppedNotification = false;
 		buffering = true;
-		MPDApplication app = (MPDApplication) getApplication();
-		MPD mpd = app.oMPDAsyncHelper.oMPD;
+		// MPDApplication app = (MPDApplication) getApplication();
+		// MPD mpd = app.oMPDAsyncHelper.oMPD;
 		registerMediaButtonEvent();
-		if (isPaused == true) {
-			try {
-				String state = mpd.getStatus().getState();
-				if (state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-					mpd.pause();
-				}
-				isPaused = false;
-			} catch (MPDServerException e) {
-
-			}
-		}
+		/*
+		 * if (isPaused == true) { try { String state = mpd.getStatus().getState(); if (state.equals(MPDStatus.MPD_STATE_PAUSED)) {
+		 * mpd.pause(); } isPaused = false; } catch (MPDServerException e) {
+		 * 
+		 * } }
+		 */
 		if (mediaPlayer == null)
 			return;
 		try {
@@ -489,13 +469,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	}
 
 	public void stop() {
-		MPDApplication app = (MPDApplication) getApplication();
-		MPD mpd = app.oMPDAsyncHelper.oMPD;
-		try {
-			mpd.stop();
-		} catch (MPDServerException e) {
-
-		}
+		/*
+		 * MPDApplication app = (MPDApplication) getApplication(); MPD mpd = app.oMPDAsyncHelper.oMPD; try { mpd.stop(); } catch
+		 * (MPDServerException e) {
+		 * 
+		 * }
+		 */
 		stopStreaming();
 		die();
 	}
