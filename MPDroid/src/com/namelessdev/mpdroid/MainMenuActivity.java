@@ -22,8 +22,6 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -58,7 +56,6 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher.ViewFactory;
 
 import com.namelessdev.mpdroid.CoverAsyncHelper.CoverDownloadListener;
-import com.namelessdev.mpdroid.providers.ServerList;
 
 /**
  * MainMenuActivity is the starting activity of pmix
@@ -627,20 +624,14 @@ public class MainMenuActivity extends Activity implements StatusChangeListener, 
 				// Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
 			}
 			return true;
-		case R.id.GMM_bonjour:
-			ContentResolver cr = getContentResolver();
-			ContentValues values = new ContentValues();
-			values.put(ServerList.ServerColumns.NAME, "bite1");
-			values.put(ServerList.ServerColumns.HOST, "bite2");
-			values.put(ServerList.ServerColumns.PASSWORD, "");
-			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
-			values = new ContentValues();
-			values.put(ServerList.ServerColumns.NAME, "bite3");
-			values.put(ServerList.ServerColumns.HOST, "bite4");
-			values.put(ServerList.ServerColumns.PASSWORD, "");
-			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
-			startActivity(new Intent(this, ServerListActivity.class));
-			return true;
+			/*
+			 * case R.id.GMM_bonjour: ContentResolver cr = getContentResolver(); ContentValues values = new ContentValues();
+			 * values.put(ServerList.ServerColumns.NAME, "bite1"); values.put(ServerList.ServerColumns.HOST, "bite2");
+			 * values.put(ServerList.ServerColumns.PASSWORD, ""); cr.insert(ServerList.ServerColumns.CONTENT_URI, values); values = new
+			 * ContentValues(); values.put(ServerList.ServerColumns.NAME, "bite3"); values.put(ServerList.ServerColumns.HOST, "bite4");
+			 * values.put(ServerList.ServerColumns.PASSWORD, ""); cr.insert(ServerList.ServerColumns.CONTENT_URI, values); startActivity(new
+			 * Intent(this, ServerListActivity.class)); return true;
+			 */
 		default:
 			return super.onOptionsItemSelected(item);
 		}
