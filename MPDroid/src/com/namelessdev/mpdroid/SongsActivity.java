@@ -118,16 +118,20 @@ public class SongsActivity extends BrowseActivity {
 
 		@Override
 		public int compare(Music music1, Music music2) {
-			String title1 = music1.getTrack();
-			String title2 = music2.getTrack();
-			if (title1 == null) {
-				title1 = "";
+			String track1 = music1.getTrack();
+			String track2 = music2.getTrack();
+			if (track1 == null) {
+				track1 = "";
 			}
-			if (title2 == null) {
-				title2 = "";
+			if (track2 == null) {
+				track2 = "";
 			}
-			// Compare the two titles
-			return String.CASE_INSENSITIVE_ORDER.compare(title1, title2);
+			// Compare the two track numbers
+			final Integer iTrack1 = Integer.parseInt(track1.replaceAll("[\\D]", ""));
+			final Integer iTrack2 = Integer.parseInt(track2.replaceAll("[\\D]", ""));
+			
+
+			return iTrack1.compareTo(iTrack2);
 		}
 	}
 }
