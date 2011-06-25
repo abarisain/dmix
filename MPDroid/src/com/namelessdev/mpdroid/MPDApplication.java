@@ -26,7 +26,7 @@ import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
 
 public class MPDApplication extends Application implements ConnectionListener, OnSharedPreferenceChangeListener {
 
-	private Collection<Activity> connectionLocks = new LinkedList<Activity>();
+	private Collection<Object> connectionLocks = new LinkedList<Object>();
 	private AlertDialog ad;
 	private DialogClickListener oDialogClickListener;
 
@@ -41,14 +41,16 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	public static final int SETTINGS = 5;
 
-	public void setActivity(Activity activity) {
-		currentActivity = activity;
+	public void setActivity(Object activity) {
+		if (activity instanceof Activity) {
+			currentActivity = (Activity) activity;
+		}
 		connectionLocks.add(activity);
 		checkMonitorNeeded();
 		checkConnectionNeeded();
 	}
 
-	public void unsetActivity(Activity activity) {
+	public void unsetActivity(Object activity) {
 		connectionLocks.remove(activity);
 		checkMonitorNeeded();
 		checkConnectionNeeded();
@@ -67,7 +69,8 @@ public class MPDApplication extends Application implements ConnectionListener, O
 
 	private void checkConnectionNeeded() {
 		if (connectionLocks.size() > 0) {
-			if (!oMPDAsyncHelper.oMPD.isConnected() && !currentActivity.getClass().equals(WifiConnectionSettings.class)) {
+			if (!oMPDAsyncHelper.oMPD.isConnected() && currentActivity != null
+					&& !currentActivity.getClass().equals(WifiConnectionSettings.class)) {
 				connect();
 			}
 
@@ -244,6 +247,8 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			ad.dismiss();
 		} catch (IllegalArgumentException e) {
 			// Do nothing, maybe it has already been dismissed because of a rotation
+		} catch (NullPointerException e) {
+
 		}
 		// checkMonitorNeeded();
 	}

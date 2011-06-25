@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-<group android:menuCategory="container" android:id="@+id/groupMainMenu"><item android:icon="@drawable/ic_menu_music_library" android:title="@string/libraryTabActivity" android:id="@+id/GMM_LibTab"></item>
-<item android:id="@+id/GMM_Playlist" android:icon="@drawable/ic_menu_pmix_playlist" android:title="@string/playlists"></item>
+<group android:menuCategory="container" android:id="@+id/groupMainMenu"><item android:icon="@drawable/ic_menu_music_library" android:title="@string/libraryTabActivity" android:id="@+id/GMM_LibTab" android:showAsAction="always"></item>
+<item android:id="@+id/GMM_Playlist" android:icon="@drawable/ic_menu_pmix_playlist" android:title="@string/playlists" android:showAsAction="ifRoom"></item>
 <item android:id="@+id/GMM_Stream" android:title="@string/stream" android:icon="@android:drawable/ic_menu_upload_you_tube"></item>
 <item android:id="@+id/GMM_Settings" android:title="@string/settings" android:icon="@android:drawable/ic_menu_preferences"></item>
 <item android:id="@+id/GMM_bonjour" android:title="Bonjour"></item>
