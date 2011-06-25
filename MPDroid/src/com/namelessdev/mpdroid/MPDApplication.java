@@ -17,6 +17,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
@@ -280,6 +281,15 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
 
 		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+
+		// Disable strict mode (BAD BAD MYSELF)
+		// I'll work out this issue later.
+		try {
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		} catch (NoClassDefFoundError e) {
+			// Older android ?
+		}
 
 	}
 
