@@ -334,7 +334,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		return streamingMode;
 	}
 
-	public boolean isHoneycombOrBetter() {
+	public static boolean isHoneycombOrBetter() {
 		return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
 	}
 }

@@ -11,6 +11,7 @@ import org.a0z.mpd.Music;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,6 +46,15 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 		context = pContext;
 
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		if (!MPDApplication.isHoneycombOrBetter()) {
+			setTheme(android.R.style.Theme_Black_NoTitleBar);
+		}
+
+		super.onCreate(savedInstanceState);
 	}
 
 	@Override

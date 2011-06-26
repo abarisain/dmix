@@ -12,7 +12,12 @@ public class LibraryTabActivity extends TabActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		if (!MPDApplication.isHoneycombOrBetter()) {
+			setTheme(android.R.style.Theme_Black_NoTitleBar);
+		}
+
 		super.onCreate(savedInstanceState);
+
 		Resources res = getResources();
 		TabHost tabHost = getTabHost();
 

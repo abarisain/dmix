@@ -7,6 +7,10 @@ public class ArtistsActivity extends FragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle arg0) {
+		if (!MPDApplication.isHoneycombOrBetter()) {
+			setTheme(android.R.style.Theme_Black_NoTitleBar);
+		}
+
 		super.onCreate(arg0);
 		setContentView(R.layout.artists_activity);
 	}

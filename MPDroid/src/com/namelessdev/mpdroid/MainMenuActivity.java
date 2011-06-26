@@ -20,13 +20,37 @@ public class MainMenuActivity extends FragmentActivity {
 	
 	@Override
 	protected void onCreate(Bundle arg0) {
+		// If put after super.onCreate on android versions < 3.0 it will not work
+		if (!MPDApplication.isHoneycombOrBetter()) {
+			setTheme(android.R.style.Theme_Wallpaper_NoTitleBar);
+		}
+
 		super.onCreate(arg0);
 		setContentView(R.layout.main_activity);
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		MPDApplication app = (MPDApplication) getApplicationContext();
+		app.setActivity(this);
+	}
+
+	@Override
 	protected void onResume() {
 		super.onResume();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		MPDApplication app = (MPDApplication) getApplicationContext();
+		app.unsetActivity(this);
 	}
 
 	@Override

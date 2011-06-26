@@ -34,16 +34,16 @@ public class AlbumsFragment extends BrowseFragment {
 		super.onActivityCreated(savedInstanceState);
 		registerForContextMenu(getListView());
 		UpdateList();
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.albums, container, false);
 		if (getActivity().getIntent().getStringExtra("artist") != null) {
 			setActivityTitle((String) getActivity().getIntent().getStringExtra("artist"), R.drawable.ic_tab_artists_selected);
 		} else {
 			getActivity().setTitle(getResources().getString(R.string.albums));
 		}
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.albums, container, false);
 		return view;
 	}
 

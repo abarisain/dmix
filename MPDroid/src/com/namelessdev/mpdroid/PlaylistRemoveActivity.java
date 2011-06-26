@@ -34,6 +34,10 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 	@Override
 	public void onCreate(Bundle icicle) {
+		if (!MPDApplication.isHoneycombOrBetter()) {
+			setTheme(android.R.style.Theme_Black_NoTitleBar);
+		}
+
 		super.onCreate(icicle);
 		MPDApplication app = (MPDApplication) getApplication();
 		setContentView(R.layout.playlist_editlist_activity);

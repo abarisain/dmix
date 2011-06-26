@@ -89,7 +89,7 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 	}
 
 	public void setActivityTitle(String title, int drawableID) {
-		if (!((MPDApplication) getActivity().getApplication()).isHoneycombOrBetter()) {
+		if (!MPDApplication.isHoneycombOrBetter()) {
 			getActivity().findViewById(R.id.header).setVisibility(View.VISIBLE);
 			TextView t = (TextView) getActivity().findViewById(R.id.headerText);
 			t.setText(title);

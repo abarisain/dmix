@@ -50,15 +50,15 @@ public class SongsFragment extends BrowseFragment {
 		super.onActivityCreated(savedInstanceState);
 		registerForContextMenu(getListView());
 		UpdateList();
+		album = (String) this.getActivity().getIntent().getStringExtra("album");
+
+		setActivityTitle(album, R.drawable.ic_tab_albums_selected);
+
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.albums, container, false);
-		album = (String) this.getActivity().getIntent().getStringExtra("album");
-
-		setActivityTitle(album, R.drawable.ic_tab_albums_selected);
-
 		return view;
 	}
 

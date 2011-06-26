@@ -2,5 +2,5 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
 <item android:title="@string/mainMenu" android:id="@+id/BRM_mainmenu" android:icon="@android:drawable/ic_menu_revert"></item>
-<item android:title="@string/playlist" android:id="@+id/BRM_playlist" android:icon="@drawable/ic_menu_pmix_playlist"></item>
+<item android:title="@string/playlist" android:id="@+id/BRM_playlist" android:icon="@drawable/ic_menu_pmix_playlist" android:showAsAction="ifRoom"></item>
 </menu>
