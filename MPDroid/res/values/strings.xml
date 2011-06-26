@@ -133,4 +133,5 @@
 	<string name="whatsNew">What\'s new ?</string>
 	<string name="whatsNewDescription">See changelog (opens external webpage)</string>
 	<string name="deleteServer">Delete this server</string>
+	<string name="aboutIcon">Original app icon by Asher (http://kyo-tux.deviantart.com/) and brsev (http://brsev.deviantart.com/), modified for MPDroid.</string>
 </resources>
