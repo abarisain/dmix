@@ -21,6 +21,8 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.namelessdev.mpdroid.ListViewButtonAdapter;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -62,9 +64,11 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 		try {
 			Activity activity = this.getActivity();
 			ActionBar actionBar = activity.getActionBar();
-			// actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setDisplayHomeAsUpEnabled(true);
 		} catch (NoClassDefFoundError e) {
 			// Older android
+		} catch (NullPointerException e) {
+
 		}
 	}
 
@@ -80,6 +84,17 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 		super.onStop();
 		MPDApplication app = (MPDApplication) getActivity().getApplicationContext();
 		app.unsetActivity(getActivity());
+	}
+
+	public void setActivityTitle(String title, int drawableID) {
+		if (!((MPDApplication) getActivity().getApplication()).isHoneycombOrBetter()) {
+			getActivity().findViewById(R.id.header).setVisibility(View.VISIBLE);
+			TextView t = (TextView) getActivity().findViewById(R.id.headerText);
+			t.setText(title);
+			ImageView icon = (ImageView) getActivity().findViewById(R.id.headerIcon);
+			icon.setImageDrawable(getResources().getDrawable(drawableID));
+		}
+		getActivity().setTitle(title);
 	}
 
 	public void UpdateList() {
@@ -127,6 +142,9 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 			return true;
 		case R.id.menu_search:
 			getActivity().onSearchRequested();
+			return true;
+		case android.R.id.home:
+			getActivity().finish();
 			return true;
 		}
 		return false;

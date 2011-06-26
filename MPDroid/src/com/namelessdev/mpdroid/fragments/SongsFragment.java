@@ -16,9 +16,7 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
@@ -59,12 +57,7 @@ public class SongsFragment extends BrowseFragment {
 		View view = inflater.inflate(R.layout.albums, container, false);
 		album = (String) this.getActivity().getIntent().getStringExtra("album");
 
-		getActivity().setTitle(album);
-		getActivity().findViewById(R.id.header).setVisibility(View.VISIBLE);
-		TextView title = (TextView) getActivity().findViewById(R.id.headerText);
-		title.setText(getActivity().getTitle());
-		ImageView icon = (ImageView) getActivity().findViewById(R.id.headerIcon);
-		icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_albums_selected));
+		setActivityTitle(album, R.drawable.ic_tab_albums_selected);
 
 		return view;
 	}

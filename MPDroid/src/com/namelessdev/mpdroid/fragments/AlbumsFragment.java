@@ -9,9 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
@@ -42,12 +40,7 @@ public class AlbumsFragment extends BrowseFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.albums, container, false);
 		if (getActivity().getIntent().getStringExtra("artist") != null) {
-			getActivity().setTitle((String) getActivity().getIntent().getStringExtra("artist"));
-			view.findViewById(R.id.header).setVisibility(View.VISIBLE);
-			TextView title = (TextView) view.findViewById(R.id.headerText);
-			title.setText(this.getActivity().getTitle());
-			ImageView icon = (ImageView) view.findViewById(R.id.headerIcon);
-			icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_artists_selected));
+			setActivityTitle((String) getActivity().getIntent().getStringExtra("artist"), R.drawable.ic_tab_artists_selected);
 		} else {
 			getActivity().setTitle(getResources().getString(R.string.albums));
 		}

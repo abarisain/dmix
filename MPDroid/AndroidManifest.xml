@@ -55,9 +55,9 @@
 			<meta-data android:name="android.app.searchable"
 				android:resource="@xml/searchable_song" />
 		</activity>
-		<activity android:name=".PlaylistActivity" android:label="@string/playlist" android:theme="@android:style/Theme.Black.NoTitleBar">
+		<activity android:name=".PlaylistActivity" android:label="@string/playlist" >
 		</activity>
-		<activity android:name=".PlaylistRemoveActivity" android:label="@string/playlist" android:theme="@android:style/Theme.Black.NoTitleBar">
+		<activity android:name=".PlaylistRemoveActivity" android:label="@string/playlist" >
 		</activity>
 		<activity android:name=".PlaylistManagerActivity" android:label="@string/playlist">
 		</activity>
@@ -71,12 +71,12 @@
 		<activity android:name=".WifiConnectionSettings"
 			android:label="@string/settings" />
 		<activity android:name=".ConnectionSettings" android:label="@string/settings" />
-		<activity android:name=".FSActivity" android:label="@string/files" android:theme="@android:style/Theme.Black.NoTitleBar"/>
-		<activity android:name=".AlbumsActivity" android:label="@string/albums" android:theme="@android:style/Theme.Black.NoTitleBar">
+		<activity android:name=".FSActivity" android:label="@string/files" />
+		<activity android:name=".AlbumsActivity" android:label="@string/albums" >
 			<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchAlbumActivity" />
 		</activity>
-		<activity android:name=".SongsActivity" android:label="@string/artists"   android:theme="@android:style/Theme.Black.NoTitleBar">
+		<activity android:name=".SongsActivity" android:label="@string/artists" >
 		</activity>
 		<activity android:name=".SongSearchMessage" android:label="@string/albums">
 			<meta-data android:name="android.app.default_searchable"
@@ -84,14 +84,14 @@
 		</activity>
 		
 		<activity android:name=".ServerListActivity" />
-		<activity android:name=".ServerEditActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
+		<activity android:name=".ServerEditActivity" />
 		<activity android:name=".ServerBonjourListActivity" />
 		
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
 		<activity android:name=".WarningActivity" android:label="@string/warningTitle"  android:theme="@android:style/Theme.Dialog" />
 		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity"
-			android:theme="@android:style/Theme.NoTitleBar">
+			>
 			<!--
 				<intent-filter> <action
 				android:name="android.intent.action.TAB1ACTIVITY" /> <category

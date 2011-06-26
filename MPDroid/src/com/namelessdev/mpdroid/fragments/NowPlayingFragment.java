@@ -164,6 +164,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		// myLogger.log(Level.INFO, "onCreate");
 
 		setHasOptionsMenu(true);
+		getActivity().setTitle(getResources().getString(R.string.nowPlaying));
 
 		// registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
 		getActivity().registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));

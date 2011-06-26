@@ -13,9 +13,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.namelessdev.mpdroid.FSActivity;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -73,15 +71,9 @@ public class FSFragment extends BrowseFragment {
 	protected void asyncUpdate() {
 		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		if (this.getActivity().getIntent().getStringExtra("directory") != null) {
-			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory()
-.makeDirectory(
+			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(
 					(String) this.getActivity().getIntent().getStringExtra("directory"));
-			getActivity().setTitle((String) getActivity().getIntent().getStringExtra("directory"));
-			getActivity().findViewById(R.id.header).setVisibility(View.VISIBLE);
-			TextView title = (TextView) getActivity().findViewById(R.id.headerText);
-			title.setText(this.getActivity().getTitle());
-			ImageView icon = (ImageView) getActivity().findViewById(R.id.headerIcon);
-			icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
+			setActivityTitle((String) getActivity().getIntent().getStringExtra("directory"), R.drawable.ic_tab_playlists_selected);
 		} else {
 			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
 		}

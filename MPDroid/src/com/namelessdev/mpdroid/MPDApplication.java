@@ -17,6 +17,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -286,7 +287,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
 
 		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-
+		
 		// Disable strict mode (BAD BAD MYSELF)
 		// I'll work out this issue later.
 		try {
@@ -333,4 +334,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		return streamingMode;
 	}
 
+	public boolean isHoneycombOrBetter() {
+		return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
+	}
 }
