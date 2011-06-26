@@ -69,6 +69,8 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 			// Older android
 		} catch (NullPointerException e) {
 
+		} catch (NoSuchMethodError e) {
+
 		}
 	}
 

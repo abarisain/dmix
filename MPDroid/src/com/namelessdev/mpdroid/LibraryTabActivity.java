@@ -32,10 +32,14 @@ public class LibraryTabActivity extends TabActivity {
 		super.onStart();
 		try {
 			ActionBar actionBar = this.getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled(true);
+			if (actionBar != null) {
+				actionBar.setDisplayHomeAsUpEnabled(true);
+			}
 		} catch (NoClassDefFoundError e) {
 			// Older android
 		} catch (NullPointerException e) {
+
+		} catch (NoSuchMethodError e) {
 
 		}
 	}
