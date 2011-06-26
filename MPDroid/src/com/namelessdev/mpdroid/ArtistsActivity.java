@@ -1,58 +1,13 @@
 package com.namelessdev.mpdroid;
 
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
-
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.View;
-import android.widget.ListView;
+import android.support.v4.app.FragmentActivity;
 
-public class ArtistsActivity extends BrowseActivity {
-	private boolean albumartist;
-
-	public ArtistsActivity() {
-		super(R.string.addArtist, R.string.artistAdded, MPD.MPD_SEARCH_ARTIST);
-	}
+public class ArtistsActivity extends FragmentActivity {
 
 	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-
-		setContentView(R.layout.artists);
-		pd = ProgressDialog.show(ArtistsActivity.this, getResources().getString(R.string.loading), getResources().getString(
-				R.string.loadingArtists));
-
-		// load preferences for album artist tag display option
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		albumartist = settings.getBoolean("albumartist", false);
-
-		registerForContextMenu(getListView());
-
-		UpdateList();
-	}
-
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Intent intent = new Intent(this, AlbumsActivity.class);
-		intent.putExtra("artist", items.get(position));
-		startActivityForResult(intent, -1);
-	}
-
-	@Override
-	protected void asyncUpdate() {
-		try {
-			MPDApplication app = (MPDApplication) getApplication();
-			if (albumartist == true) {
-				items = app.oMPDAsyncHelper.oMPD.listAlbumArtists();
-			} else {
-				items = app.oMPDAsyncHelper.oMPD.listArtists(true);
-			}
-			//Collections.sort(items, String.CASE_INSENSITIVE_ORDER);
-		} catch (MPDServerException e) {
-		}
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		setContentView(R.layout.artists_activity);
 	}
 }
