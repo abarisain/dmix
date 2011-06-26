@@ -277,15 +277,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		button = (ImageButton) view.findViewById(R.id.prev);
 		button.setOnClickListener(buttonEventHandler);
 
-		button = (ImageButton) view.findViewById(R.id.back);
-		button.setOnClickListener(buttonEventHandler);
+		// button = (ImageButton) view.findViewById(R.id.back);
+		// button.setOnClickListener(buttonEventHandler);
 
 		button = (ImageButton) view.findViewById(R.id.playpause);
 		button.setOnClickListener(buttonEventHandler);
 		button.setOnLongClickListener(buttonEventHandler);
 
-		button = (ImageButton) view.findViewById(R.id.forward);
-		button.setOnClickListener(buttonEventHandler);
+		// button = (ImageButton) view.findViewById(R.id.forward);
+		// button.setOnClickListener(buttonEventHandler);
 		progressBarVolume.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View v) {

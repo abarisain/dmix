@@ -90,7 +90,7 @@ public class LibraryTabActionActivity extends FragmentActivity implements Action
 			}
 			leftFragment = artistsFragment;
 			findViewById(R.id.fragment_middle).setVisibility(View.VISIBLE);
-			findViewById(R.id.fragment_right).setVisibility(View.VISIBLE);
+			// findViewById(R.id.fragment_right).setVisibility(View.VISIBLE);
 		} else if (TAB_ALBUMS.equals(tab.getTag())) {
 			if (albumsFragment == null) {
 				albumsFragment = (Fragment) new AlbumsFragment();
