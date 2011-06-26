@@ -61,7 +61,6 @@ import android.widget.ViewSwitcher.ViewFactory;
 
 import com.namelessdev.mpdroid.CoverAsyncHelper;
 import com.namelessdev.mpdroid.CoverAsyncHelper.CoverDownloadListener;
-import com.namelessdev.mpdroid.LibraryTabActivity;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDConnectionHandler;
 import com.namelessdev.mpdroid.PlaylistActivity;
@@ -70,6 +69,7 @@ import com.namelessdev.mpdroid.ServerListActivity;
 import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.StreamingService;
 import com.namelessdev.mpdroid.WifiConnectionSettings;
+import com.namelessdev.mpdroid.honeycomb.LibraryTabActionActivity;
 import com.namelessdev.mpdroid.providers.ServerList;
 
 /**
@@ -597,7 +597,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		 * case FILES: i = new Intent(this, FSActivity.class); //startActivityForResult(i, FILES); return true;
 		 */
 		case R.id.GMM_LibTab:
-			i = new Intent(getActivity(), LibraryTabActivity.class);
+			i = new Intent(getActivity(), LibraryTabActionActivity.class);
 			startActivity(i);
 			return true;
 		case R.id.GMM_Settings:

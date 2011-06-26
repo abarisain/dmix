@@ -90,14 +90,9 @@
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
 		<activity android:name=".WarningActivity" android:label="@string/warningTitle"  android:theme="@android:style/Theme.Dialog" />
-		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity"
-			>
-			<!--
-				<intent-filter> <action
-				android:name="android.intent.action.TAB1ACTIVITY" /> <category
-				android:name="android.intent.category.TAB1" /> </intent-filter>
-			-->
-		</activity>
+		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity" />
+		<activity android:name=".honeycomb.LibraryTabActionActivity" android:label="@string/libraryTabActivity" />
+
 		<service android:enabled="true" android:name="StreamingService" />
 		<receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">
 			<intent-filter android:priority="500">
