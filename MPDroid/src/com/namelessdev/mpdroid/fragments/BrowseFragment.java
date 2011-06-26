@@ -264,4 +264,12 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 
 	}
 
+	public void scrollToTop() {
+		try {
+			getListView().setSelection(-1);
+		} catch (Exception e) {
+			// What if the list is empty or some other bug ? I don't want any crashes because of that
+		}
+	}
+
 }
