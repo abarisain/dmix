@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -35,6 +36,7 @@ public class CoverAsyncHelper extends Handler {
 	}
 
 	public void setUrlOverride(String urlOverride) {
+		Log.i("MPDroid", "Setting urlOverride : " + urlOverride);
 		this.urlOverride = urlOverride;
 	}
 
@@ -100,6 +102,7 @@ public class CoverAsyncHelper extends Handler {
 						url = urlOverride;
 					}
 				} catch (Exception e1) {
+					e1.printStackTrace();
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 				}
 
@@ -112,6 +115,7 @@ public class CoverAsyncHelper extends Handler {
 				try {
 					// Download Cover File...
 					myFileUrl = new URL(url);
+					Log.w("PROUT", myFileUrl.toString());
 					HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
 					conn.setDoInput(true);
 					conn.connect();

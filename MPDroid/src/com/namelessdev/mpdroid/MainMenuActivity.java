@@ -23,10 +23,13 @@ public class MainMenuActivity extends FragmentActivity {
 		// If put after super.onCreate on android versions < 3.0 it will not work
 		if (!MPDApplication.isHoneycombOrBetter()) {
 			setTheme(android.R.style.Theme_Wallpaper_NoTitleBar);
+		} else {
+			setTheme(R.style.AppTheme_Dark);
 		}
 
 		super.onCreate(arg0);
 		setContentView(R.layout.main_activity);
+
 	}
 
 	@Override

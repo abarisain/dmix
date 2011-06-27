@@ -5,4 +5,5 @@
 	<drawable name="solid_red">#f00</drawable>
 	<drawable name="solid_blue">#0000ff</drawable>
 	<drawable name="solid_green">#f0f0</drawable>
+	<color name="actionbar_background_dark">#66000000</color>
 </resources>

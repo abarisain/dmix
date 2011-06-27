@@ -774,8 +774,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 					} else {
 						// Try to find the cover from apache (vortexbox)
 						// TODO : Make it configurable ...
-						oCoverAsyncHelper.setUrlOverride(String.format(COVER_BASE_URL + actSong.getPath() + "/cover.jpg",
-								((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.getConnectionInfoServer()));
+						oCoverAsyncHelper.setUrlOverride(String.format(COVER_BASE_URL + "%s/cover.jpg", ((MPDApplication) getActivity()
+								.getApplication()).oMPDAsyncHelper.getConnectionInfoServer(), actSong.getPath().replace(" ", "%20")));
 						oCoverAsyncHelper.downloadCover(null, null);
 						// Dirty hack ? Maybe. I don't feel like writing a new function.
 						// onCoverNotFound();
