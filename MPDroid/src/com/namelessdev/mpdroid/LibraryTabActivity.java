@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TabHost;
 
 public class LibraryTabActivity extends TabActivity {
+	private com.namelessdev.mpdroid.ActionBar compatActionBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -17,6 +19,14 @@ public class LibraryTabActivity extends TabActivity {
 		}
 
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.library_tabs);
+		final View tmpView = findViewById(R.id.compatActionbar);
+		if (tmpView != null) {
+			// We are on a phone
+			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar.setTitle(R.string.libraryTabActivity);
+			compatActionBar.setBackActionEnabled(true);
+		}
 
 		Resources res = getResources();
 		TabHost tabHost = getTabHost();

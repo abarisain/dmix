@@ -61,6 +61,7 @@ import android.widget.ViewSwitcher.ViewFactory;
 
 import com.namelessdev.mpdroid.CoverAsyncHelper;
 import com.namelessdev.mpdroid.CoverAsyncHelper.CoverDownloadListener;
+import com.namelessdev.mpdroid.LibraryTabActivity;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDConnectionHandler;
 import com.namelessdev.mpdroid.PlaylistActivity;
@@ -72,12 +73,6 @@ import com.namelessdev.mpdroid.WifiConnectionSettings;
 import com.namelessdev.mpdroid.honeycomb.LibraryTabActionActivity;
 import com.namelessdev.mpdroid.providers.ServerList;
 
-/**
- * MainMenuActivity is the starting activity of pmix
- * 
- * @author Rémi Flament, Stefan Agner
- * @version $Id: $
- */
 public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
 		OnSharedPreferenceChangeListener {
 
@@ -113,6 +108,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 	private SeekBar progressBarTrack = null;
 
 	private TextView trackTime = null;
+	private com.namelessdev.mpdroid.ActionBar compatActionBar = null;
 
 	private CoverAsyncHelper oCoverAsyncHelper = null;
 	long lastSongTime = 0;
@@ -226,7 +222,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		settings.registerOnSharedPreferenceChangeListener(this);
 
 		enableLastFM = settings.getBoolean("enableLastFM", true);
-		newUI = settings.getBoolean("newUI", false);
 
 		/*
 		 * if (newUI) { setContentView(R.layout.main); } else { setContentView(R.layout.main_old); }
@@ -242,6 +237,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
 
 		trackTime = (TextView) view.findViewById(R.id.trackTime);
+		final View tmpView = view.findViewById(R.id.compatActionbar);
+		if (tmpView != null) {
+			// We are on a phone
+			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar.setTitle(R.string.nowPlaying);
+		}
 
 		Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
 		fadeIn.setDuration(ANIMATION_DURATION_MSEC);
@@ -597,7 +598,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		 * case FILES: i = new Intent(this, FSActivity.class); //startActivityForResult(i, FILES); return true;
 		 */
 		case R.id.GMM_LibTab:
-			i = new Intent(getActivity(), LibraryTabActionActivity.class);
+			if (compatActionBar == null) {
+				// We are on a tablet UI
+				i = new Intent(getActivity(), LibraryTabActionActivity.class);
+			} else {
+				i = new Intent(getActivity(), LibraryTabActivity.class);
+			}
 			startActivity(i);
 			return true;
 		case R.id.GMM_Settings:

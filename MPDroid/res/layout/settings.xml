@@ -60,10 +60,6 @@
 			android:title="@string/enableLastFM" android:summary="@string/enableLastFMDescription"
 			android:key="enableLastFM" android:defaultValue="true" />
 			
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/newUI" android:summary="@string/newUIDescription"
-			android:key="newUI" android:defaultValue="false" />
-			
 		<!-- What's new -->
 		<PreferenceScreen android:title="@string/whatsNew"
 			android:summary="@string/whatsNewDescription" android:key="whatsNew">

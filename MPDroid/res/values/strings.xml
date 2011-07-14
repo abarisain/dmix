@@ -126,8 +126,6 @@
 	<string name="streamingManualURL">Use a specific URL for streaming (icecast)</string>
 	<string name="configurationName">Configuration Name</string>
 	<string name="streamingURLDescription">Stream URL (with http://)</string>
-	<string name="newUI">Use new user interface</string>
-	<string name="newUIDescription">Use beta user interface (restart required)</string>
 	<string name="enableLastFM">Download cover art</string>
 	<string name="enableLastFMDescription">Get cover art using last.fm (sends them your song information)</string>
 	<string name="whatsNew">What\'s new ?</string>

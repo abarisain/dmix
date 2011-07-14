@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="@dimen/actionbar_height"
+  android:background="@drawable/actionbar_gradient" >
+    <ImageView
+		android:src="@drawable/icon"
+		android:id="@+id/actionbar_logo"
+		android:layout_height="match_parent"
+		android:layout_width="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:paddingLeft="10dip"
+	/>
+	<TextView
+		android:id="@+id/actionbar_title"
+		android:layout_height="match_parent"
+		android:layout_width="wrap_content"
+		android:layout_toRightOf="@+id/actionbar_logo"
+		android:paddingLeft="10dip"
+		android:gravity="center_vertical"
+		android:textColor="@android:color/white"
+		android:textSize="22dip"
+	/>
+	<LinearLayout
+  		android:layout_width="wrap_content"
+ 		android:layout_height="match_parent"
+ 		android:layout_alignParentRight="true"
+ 		android:orientation="horizontal"
+  		android:background="@color/compatactionbar_separator" >
+	    <ImageButton
+	    	android:id="@+id/actionbar_search"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="match_parent"
+	    	android:src="@drawable/ic_action_search"
+	    	android:background="@drawable/actionbar_button"
+	    	android:minWidth="@dimen/actionbar_button_size"
+	    	android:layout_marginLeft="1dip"
+		/>
+	</LinearLayout>
+</RelativeLayout>

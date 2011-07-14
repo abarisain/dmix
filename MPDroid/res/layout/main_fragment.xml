@@ -4,6 +4,10 @@
 	android:layout_height="fill_parent" android:gravity="center"
 	android:background="@drawable/background">
 
+   <com.namelessdev.mpdroid.ActionBar
+      	android:id="@+id/compatActionbar"
+       	style="@style/CompatActionBar"
+   />
 
 	<TextView android:id="@+id/songName" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:singleLine="true"
