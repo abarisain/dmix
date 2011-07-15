@@ -82,7 +82,6 @@ public class FSFragment extends BrowseFragment {
 			currentDirectory.refreshData();
 		} catch (MPDServerException e) {
 			e.printStackTrace();
-			this.getActivity().setTitle(e.getMessage());
 		}
 
 		Collection<Directory> directories = currentDirectory.getDirectories();

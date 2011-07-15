@@ -1,6 +1,7 @@
 package org.a0z.mpd;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,14 +13,14 @@ public class MusicList {
 
 	private HashMap<Integer, Music> map;
 
-	private ArrayList<Music> list;
+	private List<Music> list;
 
 	/**
 	 * Constructor.
 	 */
 	public MusicList() {
 		map = new HashMap<Integer, Music>();
-		list = new ArrayList<Music>();
+		list = Collections.synchronizedList(new ArrayList<Music>());
 	}
 
 	/**
@@ -157,6 +158,6 @@ public class MusicList {
 	 * @see List#subList(int, int)
 	 */
 	public List<Music> subList(int fromIndex, int toIndex) {
-		return this.list.subList(fromIndex, toIndex);
+		return this.list.subList(fromIndex, Math.min(list.size() - 1, toIndex));
 	}
 }
