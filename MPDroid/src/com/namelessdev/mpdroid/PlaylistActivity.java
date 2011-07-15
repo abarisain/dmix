@@ -40,6 +40,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	private String title;
 	private boolean firstUpdate = true;
 	private com.namelessdev.mpdroid.ActionBar compatActionBar;
+	private MPDApplication app;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -54,10 +55,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		}
 
 		super.onCreate(icicle);
-		MPDApplication app = (MPDApplication) getApplication();
+		app = (MPDApplication) getApplication();
 		setContentView(R.layout.playlist_activity);
 		this.setTitle(R.string.nowPlaying);
-		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		ListView list = getListView();
 		/*
 		 * LinearLayout test = (LinearLayout)list.getChildAt(1); ImageView img = (ImageView)test.findViewById(R.id.picture); //ImageView img
@@ -88,6 +88,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			// The position in the songlist of the currently played song
 			int listPlayingID = -1;
 			for (Music m : musics) {
+				if (m == null) {
+					continue;
+				}
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
 				item.put("artist", m.getArtist());
@@ -122,21 +125,25 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	@Override
 	protected void onStart() {
 		super.onStart();
-
-		MPDApplication app = (MPDApplication) getApplicationContext();
 		app.setActivity(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		update();
+	}
+
+	@Override
+	protected void onPause() {
+		app.oMPDAsyncHelper.addStatusChangeListener(this);
+		super.onPause();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		MPDApplication app = (MPDApplication) getApplicationContext();
 		app.unsetActivity(this);
 	}
 

@@ -158,6 +158,6 @@ public class MusicList {
 	 * @see List#subList(int, int)
 	 */
 	public List<Music> subList(int fromIndex, int toIndex) {
-		return this.list.subList(fromIndex, Math.min(list.size() - 1, toIndex));
+		return this.list.subList(fromIndex, toIndex);
 	}
 }
