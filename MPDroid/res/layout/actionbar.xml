@@ -5,13 +5,29 @@
   android:layout_width="fill_parent"
   android:layout_height="@dimen/actionbar_height"
   android:background="@drawable/actionbar_gradient" >
+  	<View
+  		android:id="@+id/actionbar_bottom_separator"
+  		android:background="@color/compatactionbar_separator"
+  		android:layout_width="match_parent"
+  		android:layout_height="1dip"
+  		android:layout_alignParentBottom="true"
+  	/>
+    <ImageView
+		android:src="@drawable/ic_action_back"
+		android:id="@+id/actionbar_back"
+		android:layout_height="match_parent"
+		android:layout_width="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:paddingLeft="2dip"
+	/>
     <ImageView
 		android:src="@drawable/icon"
 		android:id="@+id/actionbar_logo"
 		android:layout_height="match_parent"
-		android:layout_width="wrap_content"
+		android:layout_width="@dimen/actionbar_logo_width"
 		android:layout_alignParentLeft="true"
-		android:paddingLeft="10dip"
+		android:paddingLeft="20dip"
+		android:background="@drawable/actionbar_button"
 	/>
 	<TextView
 		android:id="@+id/actionbar_title"
@@ -21,14 +37,34 @@
 		android:paddingLeft="10dip"
 		android:gravity="center_vertical"
 		android:textColor="@android:color/white"
-		android:textSize="22dip"
+		android:textSize="19dip"
 	/>
 	<LinearLayout
   		android:layout_width="wrap_content"
  		android:layout_height="match_parent"
  		android:layout_alignParentRight="true"
  		android:orientation="horizontal"
-  		android:background="@color/compatactionbar_separator" >
+  	>
+  		<Button
+	    	android:id="@+id/actionbar_text"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="match_parent"
+	    	android:text="text"
+	    	android:background="@drawable/actionbar_button"
+	    	android:minWidth="@dimen/actionbar_button_size"
+	    	android:paddingLeft="15dip"
+	    	android:paddingRight="15dip"
+	    	android:textColor="@android:color/white"
+		/>
+		<ImageButton
+	    	android:id="@+id/actionbar_library"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="match_parent"
+	    	android:src="@drawable/ic_menu_music_library"
+	    	android:background="@drawable/actionbar_button"
+	    	android:minWidth="@dimen/actionbar_button_size"
+	    	android:layout_marginLeft="1dip"
+		/>
 	    <ImageButton
 	    	android:id="@+id/actionbar_search"
 	    	android:layout_width="wrap_content"

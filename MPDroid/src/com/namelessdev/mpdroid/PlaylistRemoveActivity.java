@@ -23,14 +23,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 public class PlaylistRemoveActivity extends ListActivity implements StatusChangeListener, OnClickListener {
 	private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
 	private List<Music> musics;
+	private com.namelessdev.mpdroid.ActionBar compatActionBar;
 
 	@Override
 	public void onCreate(Bundle icicle) {
@@ -80,11 +79,14 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		button = (Button) findViewById(R.id.Cancel);
 		button.setOnClickListener(this);
 
-		TextView title = (TextView) findViewById(R.id.headerText);
-		title.setText(this.getTitle());
-
-		ImageView icon = (ImageView) findViewById(R.id.headerIcon);
-		icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
+		final View tmpView = findViewById(R.id.compatActionbar);
+		if (tmpView != null) {
+			// We are on a phone
+			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar.setTitle(R.string.nowPlaying);
+			compatActionBar.setBackActionEnabled(true);
+			compatActionBar.showBottomSeparator(true);
+		}
 	}
 
 	protected void update() {

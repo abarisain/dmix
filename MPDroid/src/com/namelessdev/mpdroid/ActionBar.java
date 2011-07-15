@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -14,8 +16,14 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 	private View actionBarView;
 	private View logoView;
 	private View searchView;
+	private View libraryView;
 	private View titleView;
+	private View backView;
+	private Button textButtonView;
+	private View bottomSeparatorView;
 	private OnClickListener searchClickListener;
+	private OnClickListener textClickListener;
+	private OnClickListener libraryClickListener;
 	private boolean enableBackAction;
 	private Context context;
 	
@@ -30,6 +38,9 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
         enableBackAction = false;
         logoView = actionBarView.findViewById(R.id.actionbar_logo);
         logoView.setOnClickListener(this);
+		backView = actionBarView.findViewById(R.id.actionbar_back);
+		backView.setOnClickListener(this);
+		backView.setVisibility(View.GONE);
         
         titleView = actionBarView.findViewById(R.id.actionbar_title);
         titleView.setOnClickListener(this);
@@ -39,6 +50,26 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
         searchView.setOnClickListener(this);
         searchView.setVisibility(View.GONE);
         
+		libraryView = actionBarView.findViewById(R.id.actionbar_library);
+		libraryView.setOnClickListener(this);
+		libraryView.setVisibility(View.GONE);
+
+		textButtonView = (Button) actionBarView.findViewById(R.id.actionbar_text);
+		textButtonView.setOnClickListener(this);
+		textButtonView.setVisibility(View.GONE);
+
+		bottomSeparatorView = actionBarView.findViewById(R.id.actionbar_bottom_separator);
+		bottomSeparatorView.setVisibility(View.GONE);
+
+	}
+
+	public void showBottomSeparator(boolean show) {
+		bottomSeparatorView.setVisibility(show ? View.VISIBLE : View.GONE);
+	}
+
+	public void setSearchButtonParams(boolean show, OnClickListener listener, int drawable) {
+		((ImageButton) searchView).setImageResource(drawable);
+		setSearchButtonParams(show, listener);
 	}
 
 	public void setSearchButtonParams(boolean show, OnClickListener listener) {
@@ -47,9 +78,25 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 		}
 		searchView.setVisibility(show ? View.VISIBLE : View.GONE);
 	}
+
+	public void setLibraryButtonParams(boolean show, OnClickListener listener) {
+		if (listener != null) {
+			libraryClickListener = listener;
+		}
+		libraryView.setVisibility(show ? View.VISIBLE : View.GONE);
+	}
 	
+	public void setTextButtonParams(boolean show, int text, OnClickListener listener) {
+		if (listener != null) {
+			textClickListener = listener;
+		}
+		textButtonView.setText(text);
+		textButtonView.setVisibility(show ? View.VISIBLE : View.GONE);
+	}
+
 	public void setBackActionEnabled(boolean enable) {
 		this.enableBackAction = enable;
+		backView.setVisibility(enable ? View.VISIBLE : View.GONE);
 	}
 	
 	public void setTitle(String title) {
@@ -67,9 +114,17 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 			if(searchClickListener != null) {
 				searchClickListener.onClick(v);
 			}
-		} else if(v == logoView || v == titleView) {
+		} else if (v == logoView || v == titleView || v == backView) {
 			if(enableBackAction && context instanceof Activity) {
 				((Activity) context).finish();
+			}
+		} else if (v == textButtonView) {
+			if (textClickListener != null) {
+				textClickListener.onClick(v);
+			}
+		} else if (v == libraryView) {
+			if (libraryClickListener != null) {
+				libraryClickListener.onClick(v);
 			}
 		}
 	}

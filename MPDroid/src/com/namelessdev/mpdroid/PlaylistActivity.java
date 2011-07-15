@@ -29,8 +29,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -41,6 +39,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 	private String title;
 	private boolean firstUpdate = true;
+	private com.namelessdev.mpdroid.ActionBar compatActionBar;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -68,17 +67,15 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 		registerForContextMenu(list);
 
-		Button button = (Button) findViewById(R.id.headerButton);
-		button.setVisibility(View.VISIBLE);
-		button.setOnClickListener(this);
-
-		Button title = (Button) findViewById(R.id.headerText);
-		title.setText(this.getTitle());
-		title.setOnClickListener(this);
-
-		ImageView icon = (ImageView) findViewById(R.id.headerIcon);
-		icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_tab_playlists_selected));
-
+		final View tmpView = findViewById(R.id.compatActionbar);
+		if (tmpView != null) {
+			// We are on a phone
+			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar.setTitle(R.string.nowPlaying);
+			compatActionBar.setTextButtonParams(true, R.string.edit, this);
+			compatActionBar.setBackActionEnabled(true);
+			compatActionBar.showBottomSeparator(true);
+		}
 	}
 
 	protected void update() {
@@ -358,12 +355,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.headerButton:
+		case R.id.actionbar_text:
 			Intent i = new Intent(this, PlaylistRemoveActivity.class);
 			startActivityForResult(i, EDIT);
-			break;
-		case R.id.headerText:
-			scrollToNowPlaying();
 			break;
 		default:
 			break;

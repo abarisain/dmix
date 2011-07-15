@@ -4,7 +4,11 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    <include android:id="@+id/header" layout="@layout/generic_header" />
+    <com.namelessdev.mpdroid.ActionBar
+      	android:id="@+id/compatActionbar"
+       	style="@style/CompatActionBar"
+    />
+    <!-- <include android:id="@+id/header" layout="@layout/generic_header" /> -->
     <com.namelessdev.mpdroid.TouchInterceptor android:id="@android:id/list"
         android:layout_width="fill_parent"
 		android:layout_height="0dip"

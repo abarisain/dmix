@@ -1,12 +1,14 @@
 package com.namelessdev.mpdroid;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.TabHost;
 
 public class LibraryTabActivity extends TabActivity {
@@ -26,6 +28,16 @@ public class LibraryTabActivity extends TabActivity {
 			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
 			compatActionBar.setTitle(R.string.libraryTabActivity);
 			compatActionBar.setBackActionEnabled(true);
+			compatActionBar.showBottomSeparator(true);
+			compatActionBar.setSearchButtonParams(true, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					final Activity activity = getLocalActivityManager().getActivity(getTabHost().getCurrentTabTag()); 
+					if(activity != null) {
+						activity.onSearchRequested();
+					}
+				}
+			});
 		}
 
 		Resources res = getResources();

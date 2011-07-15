@@ -46,6 +46,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -242,6 +243,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			// We are on a phone
 			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
 			compatActionBar.setTitle(R.string.nowPlaying);
+			compatActionBar.setLibraryButtonParams(true, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					openLibrary();
+				}
+			});
 		}
 
 		Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
@@ -585,6 +592,17 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		}
 	}
 
+	private void openLibrary() {
+		Intent i;
+		if (compatActionBar == null) {
+			// We are on a tablet UI
+			i = new Intent(getActivity(), LibraryTabActionActivity.class);
+		} else {
+			i = new Intent(getActivity(), LibraryTabActivity.class);
+		}
+		startActivity(i);
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -598,13 +616,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		 * case FILES: i = new Intent(this, FSActivity.class); //startActivityForResult(i, FILES); return true;
 		 */
 		case R.id.GMM_LibTab:
-			if (compatActionBar == null) {
-				// We are on a tablet UI
-				i = new Intent(getActivity(), LibraryTabActionActivity.class);
-			} else {
-				i = new Intent(getActivity(), LibraryTabActivity.class);
-			}
-			startActivity(i);
+			openLibrary();
 			return true;
 		case R.id.GMM_Settings:
 			if (((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isMpdConnectionNull()) {
