@@ -2,7 +2,9 @@ package com.namelessdev.mpdroid;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.TabActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.widget.TabHost;
 
 public class LibraryTabActivity extends TabActivity {
 	private com.namelessdev.mpdroid.ActionBar compatActionBar;
+	private CharSequence[] tabLabels;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +25,9 @@ public class LibraryTabActivity extends TabActivity {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.library_tabs);
+		tabLabels = new CharSequence[] { this.getString(R.string.artists), this.getString(R.string.albums), this.getString(R.string.songs),
+				this.getString(R.string.files) };
+
 		final View tmpView = findViewById(R.id.compatActionbar);
 		if (tmpView != null) {
 			// We are on a phone
@@ -38,20 +44,39 @@ public class LibraryTabActivity extends TabActivity {
 					}
 				}
 			});
+			compatActionBar.setTitle(tabLabels[0].toString());
+			compatActionBar.setTitleSelected(false);
+			compatActionBar.setTitleBackgroundDrawable(R.drawable.actionbar_button);
+			compatActionBar.setTitleRightDrawable(R.drawable.ic_action_menu_indicator);
+			compatActionBar.setTitleClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(LibraryTabActivity.this);
+					builder.setItems(tabLabels, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int item) {
+							compatActionBar.setTitle(tabLabels[item].toString());
+							getTabHost().setCurrentTab(item);
+						}
+					});
+					builder.create().show();
+				}
+			});
 		}
 
 		Resources res = getResources();
 		TabHost tabHost = getTabHost();
 
-		tabHost.addTab(tabHost.newTabSpec("tab_artist").setIndicator(this.getString(R.string.artists),
+		tabHost.addTab(tabHost.newTabSpec("tab_artist").setIndicator(tabLabels[0],
 				res.getDrawable(R.drawable.ic_tab_artists)).setContent(new Intent(LibraryTabActivity.this, ArtistsActivity.class)));
-		tabHost.addTab(tabHost.newTabSpec("tab_album").setIndicator(this.getString(R.string.albums),
+		tabHost.addTab(tabHost.newTabSpec("tab_album").setIndicator(tabLabels[1],
 				res.getDrawable(R.drawable.ic_tab_albums)).setContent(new Intent(LibraryTabActivity.this, AlbumsActivity.class)));
-		tabHost.addTab(tabHost.newTabSpec("tab_songs").setIndicator(this.getString(R.string.songs), res.getDrawable(R.drawable.ic_tab_songs))
+		tabHost.addTab(tabHost.newTabSpec("tab_songs").setIndicator(tabLabels[2], res.getDrawable(R.drawable.ic_tab_songs))
 				.setContent(new Intent(LibraryTabActivity.this, SongSearchMessage.class)));
-		tabHost.addTab(tabHost.newTabSpec("tab_files").setIndicator(this.getString(R.string.files),
+		tabHost.addTab(tabHost.newTabSpec("tab_files").setIndicator(tabLabels[3],
 				res.getDrawable(R.drawable.ic_tab_playlists)).setContent(new Intent(LibraryTabActivity.this, FSActivity.class)));
 		((MPDApplication) getApplication()).setActivity(this);
+
+		tabHost.getTabWidget().setVisibility(View.GONE);
 	}
 
 	@Override

@@ -24,6 +24,7 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 	private OnClickListener searchClickListener;
 	private OnClickListener textClickListener;
 	private OnClickListener libraryClickListener;
+	private OnClickListener titleClickListener;
 	private boolean enableBackAction;
 	private Context context;
 	
@@ -109,8 +110,26 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 		setTitle(getResources().getString(res));
 	}
 	
+	public void setTitleSelected(boolean selected) {
+		titleView.setSelected(selected);
+	}
+
+	public void setTitleBackgroundDrawable(int drawable) {
+		titleView.setBackgroundResource(drawable);
+	}
+
 	public void setTitleLeftDrawable(int res) {
 		((TextView) titleView).setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(res), null, null, null);
+	}
+
+	public void setTitleRightDrawable(int res) {
+		((TextView) titleView).setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(res), null);
+	}
+
+	public void setTitleClickListener(OnClickListener listener) {
+		if (listener != null) {
+			titleClickListener = listener;
+		}
 	}
 
 	@Override
@@ -119,7 +138,7 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 			if(searchClickListener != null) {
 				searchClickListener.onClick(v);
 			}
-		} else if (v == logoView || v == titleView || v == backView) {
+		} else if (v == logoView || v == backView) {
 			if(enableBackAction && context instanceof Activity) {
 				((Activity) context).finish();
 			}
@@ -130,6 +149,14 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 		} else if (v == libraryView) {
 			if (libraryClickListener != null) {
 				libraryClickListener.onClick(v);
+			}
+		} else if (v == titleView) {
+			if (titleClickListener != null) {
+				titleClickListener.onClick(v);
+			} else {
+				if (enableBackAction && context instanceof Activity) {
+					((Activity) context).finish();
+				}
 			}
 		}
 	}

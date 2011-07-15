@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.Music;
 
@@ -75,22 +74,6 @@ public class SearchActivity extends ListActivity implements AsyncExecListener {
 			ListViewButtonAdapter<String> almumsAdapter = new ListViewButtonAdapter<String>(SearchActivity.this,
 					android.R.layout.simple_list_item_1, itemsList);
 
-			PlusListener AddListener = new PlusListener() {
-				@Override
-				public void OnAdd(CharSequence sSelected, int iPosition) {
-					try {
-						MPDApplication app = (MPDApplication) getApplication();
-						ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, sSelected.toString()));
-						app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
-						// MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.albumAdded),sSelected),
-						// AlbumsActivity.this);
-					} catch (MPDServerException e) {
-						e.printStackTrace();
-					}
-				}
-			};
-
-			almumsAdapter.SetPlusListener(AddListener);
 			setListAdapter(almumsAdapter);
 
 			// No need to listen further...
