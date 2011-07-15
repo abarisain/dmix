@@ -45,6 +45,7 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
         titleView = actionBarView.findViewById(R.id.actionbar_title);
         titleView.setOnClickListener(this);
         titleView.setVisibility(View.GONE);
+		titleView.setSelected(true);
         
         searchView = actionBarView.findViewById(R.id.actionbar_search);
         searchView.setOnClickListener(this);
@@ -108,6 +109,10 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 		setTitle(getResources().getString(res));
 	}
 	
+	public void setTitleLeftDrawable(int res) {
+		((TextView) titleView).setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(res), null, null, null);
+	}
+
 	@Override
 	public void onClick(View v) {
 		if(v == searchView) {

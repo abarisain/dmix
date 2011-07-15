@@ -21,8 +21,6 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.namelessdev.mpdroid.ListViewButtonAdapter;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -90,11 +88,15 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 
 	public void setActivityTitle(String title, int drawableID) {
 		if (!MPDApplication.isHoneycombOrBetter()) {
-			getActivity().findViewById(R.id.header).setVisibility(View.VISIBLE);
-			TextView t = (TextView) getActivity().findViewById(R.id.headerText);
-			t.setText(title);
-			ImageView icon = (ImageView) getActivity().findViewById(R.id.headerIcon);
-			icon.setImageDrawable(getResources().getDrawable(drawableID));
+			final View tmpView = getActivity().findViewById(R.id.compatActionbar);
+			if (tmpView != null) {
+				final com.namelessdev.mpdroid.ActionBar compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+				compatActionBar.setVisibility(View.VISIBLE);
+				compatActionBar.setTitle(title);
+				compatActionBar.setTitleLeftDrawable(drawableID);
+				compatActionBar.setBackActionEnabled(true);
+				compatActionBar.showBottomSeparator(true);
+			}
 		}
 		getActivity().setTitle(title);
 	}
