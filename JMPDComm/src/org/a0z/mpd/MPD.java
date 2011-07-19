@@ -225,9 +225,20 @@ public class MPD {
 		if (mpdConnection == null) {
 			throw new MPDServerException("MPD Connection is not established");
 		}
+		// String[] args = new String[1];
+		// args[0] = Integer.toString(modifier);
+		// mpdConnection.sendCommand(MPD_CMD_VOLUME, args);
+
+		int vol = getVolume() + modifier;
+		if (vol > MAX_VOLUME) {
+			vol = MAX_VOLUME;
+		} else if (vol < MIN_VOLUME) {
+			vol = MIN_VOLUME;
+		}
+
 		String[] args = new String[1];
-		args[0] = Integer.toString(modifier);
-		mpdConnection.sendCommand(MPD_CMD_VOLUME, args);
+		args[0] = Integer.toString(vol);
+		mpdConnection.sendCommand(MPD_CMD_SET_VOLUME, args);
 	}
 
 	/**
