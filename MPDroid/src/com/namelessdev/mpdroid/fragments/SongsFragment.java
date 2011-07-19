@@ -49,8 +49,8 @@ public class SongsFragment extends BrowseFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		registerForContextMenu(getListView());
-		UpdateList();
 		album = (String) this.getActivity().getIntent().getStringExtra("album");
+		UpdateList();
 
 		setActivityTitle(album, R.drawable.ic_tab_albums_selected);
 
