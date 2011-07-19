@@ -12,8 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
 
-public class LibraryTabActivity extends TabActivity {
+public class LibraryTabActivity extends TabActivity implements OnTabChangeListener {
 	private com.namelessdev.mpdroid.ActionBar compatActionBar;
 	private CharSequence[] tabLabels;
 
@@ -27,6 +28,19 @@ public class LibraryTabActivity extends TabActivity {
 		setContentView(R.layout.library_tabs);
 		tabLabels = new CharSequence[] { this.getString(R.string.artists), this.getString(R.string.albums), this.getString(R.string.songs),
 				this.getString(R.string.files) };
+
+		Resources res = getResources();
+		TabHost tabHost = getTabHost();
+		tabHost.setOnTabChangedListener(this);
+		tabHost.addTab(tabHost.newTabSpec("tab_artist").setIndicator(tabLabels[0], res.getDrawable(R.drawable.ic_tab_artists))
+				.setContent(new Intent(LibraryTabActivity.this, ArtistsActivity.class)));
+		tabHost.addTab(tabHost.newTabSpec("tab_album").setIndicator(tabLabels[1], res.getDrawable(R.drawable.ic_tab_albums))
+				.setContent(new Intent(LibraryTabActivity.this, AlbumsActivity.class)));
+		tabHost.addTab(tabHost.newTabSpec("tab_songs").setIndicator(tabLabels[2], res.getDrawable(R.drawable.ic_tab_songs))
+				.setContent(new Intent(LibraryTabActivity.this, SongSearchMessage.class)));
+		tabHost.addTab(tabHost.newTabSpec("tab_files").setIndicator(tabLabels[3], res.getDrawable(R.drawable.ic_tab_playlists))
+				.setContent(new Intent(LibraryTabActivity.this, FSActivity.class)));
+		((MPDApplication) getApplication()).setActivity(this);
 
 		final View tmpView = findViewById(R.id.compatActionbar);
 		if (tmpView != null) {
@@ -44,7 +58,7 @@ public class LibraryTabActivity extends TabActivity {
 					}
 				}
 			});
-			compatActionBar.setTitle(tabLabels[0].toString());
+			compatActionBar.setTitle(tabLabels[tabHost.getCurrentTab()].toString());
 			compatActionBar.setTitleSelected(false);
 			compatActionBar.setTitleBackgroundDrawable(R.drawable.actionbar_button);
 			compatActionBar.setTitleRightDrawable(R.drawable.ic_action_menu_indicator);
@@ -54,29 +68,15 @@ public class LibraryTabActivity extends TabActivity {
 					AlertDialog.Builder builder = new AlertDialog.Builder(LibraryTabActivity.this);
 					builder.setItems(tabLabels, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
-							compatActionBar.setTitle(tabLabels[item].toString());
 							getTabHost().setCurrentTab(item);
 						}
 					});
 					builder.create().show();
 				}
 			});
+			tabHost.getTabWidget().setVisibility(View.GONE);
 		}
 
-		Resources res = getResources();
-		TabHost tabHost = getTabHost();
-
-		tabHost.addTab(tabHost.newTabSpec("tab_artist").setIndicator(tabLabels[0],
-				res.getDrawable(R.drawable.ic_tab_artists)).setContent(new Intent(LibraryTabActivity.this, ArtistsActivity.class)));
-		tabHost.addTab(tabHost.newTabSpec("tab_album").setIndicator(tabLabels[1],
-				res.getDrawable(R.drawable.ic_tab_albums)).setContent(new Intent(LibraryTabActivity.this, AlbumsActivity.class)));
-		tabHost.addTab(tabHost.newTabSpec("tab_songs").setIndicator(tabLabels[2], res.getDrawable(R.drawable.ic_tab_songs))
-				.setContent(new Intent(LibraryTabActivity.this, SongSearchMessage.class)));
-		tabHost.addTab(tabHost.newTabSpec("tab_files").setIndicator(tabLabels[3],
-				res.getDrawable(R.drawable.ic_tab_playlists)).setContent(new Intent(LibraryTabActivity.this, FSActivity.class)));
-		((MPDApplication) getApplication()).setActivity(this);
-
-		tabHost.getTabWidget().setVisibility(View.GONE);
 	}
 
 	@Override
@@ -112,4 +112,13 @@ public class LibraryTabActivity extends TabActivity {
 		return false;
 	}
 
+	@Override
+	public void onTabChanged(String tabId) {
+		final View tmpView = findViewById(R.id.compatActionbar);
+		if (tmpView != null) {
+			// We are on a phone
+			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar.setTitle(tabLabels[getTabHost().getCurrentTab()].toString());
+		}
+	}
 }
