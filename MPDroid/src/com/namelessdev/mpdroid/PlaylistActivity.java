@@ -18,6 +18,8 @@ import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
 import org.a0z.mpd.event.MPDVolumeChangedEvent;
 import org.a0z.mpd.event.StatusChangeListener;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -66,6 +68,18 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		 */
 
 		registerForContextMenu(list);
+
+		try {
+			Activity activity = this;
+			ActionBar actionBar = activity.getActionBar();
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		} catch (NoClassDefFoundError e) {
+			// Older android
+		} catch (NullPointerException e) {
+
+		} catch (NoSuchMethodError e) {
+
+		}
 
 		final View tmpView = findViewById(R.id.compatActionbar);
 		if (tmpView != null) {

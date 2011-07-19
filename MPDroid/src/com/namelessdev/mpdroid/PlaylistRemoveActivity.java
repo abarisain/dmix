@@ -17,6 +17,8 @@ import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
 import org.a0z.mpd.event.MPDVolumeChangedEvent;
 import org.a0z.mpd.event.StatusChangeListener;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -78,6 +80,18 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 		button = (Button) findViewById(R.id.Cancel);
 		button.setOnClickListener(this);
+
+		try {
+			Activity activity = this;
+			ActionBar actionBar = activity.getActionBar();
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		} catch (NoClassDefFoundError e) {
+			// Older android
+		} catch (NullPointerException e) {
+
+		} catch (NoSuchMethodError e) {
+
+		}
 
 		final View tmpView = findViewById(R.id.compatActionbar);
 		if (tmpView != null) {

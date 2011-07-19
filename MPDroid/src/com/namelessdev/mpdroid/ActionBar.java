@@ -63,6 +63,10 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 		bottomSeparatorView = actionBarView.findViewById(R.id.actionbar_bottom_separator);
 		bottomSeparatorView.setVisibility(View.GONE);
 
+		if (MPDApplication.isHoneycombOrBetter()) {
+			this.setVisibility(View.GONE);
+		}
+
 	}
 
 	public void showBottomSeparator(boolean show) {

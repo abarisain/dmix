@@ -249,6 +249,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 					openLibrary();
 				}
 			});
+			compatActionBar.setSearchButtonParams(true, new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					openPlaylist();
+				}
+			}, R.drawable.ic_action_playlist);
 		}
 
 		Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
@@ -603,6 +609,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		startActivity(i);
 	}
 
+	private void openPlaylist() {
+		startActivity(new Intent(getActivity(), PlaylistActivity.class));
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -627,9 +637,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			}
 			return true;
 		case R.id.GMM_Playlist:
-			i = new Intent(getActivity(), PlaylistActivity.class);
-			startActivity(i);
-			// TODO juste pour s'y retrouver
+			openPlaylist();
 			return true;
 		case CONNECT:
 			((MPDApplication) getActivity().getApplication()).connect();

@@ -2,9 +2,9 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
 <item android:title="@string/mainMenu" android:id="@+id/PLM_MainMenu" android:icon="@android:drawable/ic_menu_revert"></item>
-<item android:title="@string/editPlaylist" android:id="@+id/PLM_EditPL" android:icon="@android:drawable/ic_menu_edit"></item>
+<item android:title="@string/editPlaylist" android:id="@+id/PLM_EditPL" android:icon="@android:drawable/ic_menu_edit" android:showAsAction="always|withText"></item>
 <item android:title="@string/manage" android:id="@+id/PLM_Manage" android:icon="@android:drawable/ic_menu_manage"></item>
 <item android:icon="@android:drawable/ic_menu_save" android:title="@string/save" android:id="@+id/PLM_Save"></item><item android:icon="@android:drawable/ic_menu_close_clear_cancel" android:title="@string/clear" android:id="@+id/PLM_Clear"></item>
 
-<item android:icon="@drawable/ic_menu_music_library" android:title="@string/libraryTabActivity" android:id="@+id/PLM_LibTab" android:alphabeticShortcut="@string/sc_LibTab"></item>
+<item android:icon="@drawable/ic_menu_library" android:title="@string/libraryTabActivity" android:id="@+id/PLM_LibTab" android:alphabeticShortcut="@string/sc_LibTab"></item>
 </menu>

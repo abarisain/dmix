@@ -63,7 +63,7 @@
 	    	android:id="@+id/actionbar_library"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="match_parent"
-	    	android:src="@drawable/ic_menu_music_library"
+	    	android:src="@drawable/ic_action_library"
 	    	android:background="@drawable/actionbar_button"
 	    	android:minWidth="@dimen/actionbar_button_size"
 	    	android:layout_marginLeft="1dip"
