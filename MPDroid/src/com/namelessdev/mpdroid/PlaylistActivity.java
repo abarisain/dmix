@@ -287,6 +287,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			i = new Intent(this, PlaylistSaveActivity.class);
 			startActivity(i);
 			return true;
+		case android.R.id.home:
+			finish();
+			return true;
 		default:
 			return false;
 		}
