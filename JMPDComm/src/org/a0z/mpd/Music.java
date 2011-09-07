@@ -30,8 +30,10 @@ public class Music implements FilesystemTreeEntry {
 
 	private String fullpath;
 
+	@SuppressWarnings("unused")
 	private String genre;
 
+	@SuppressWarnings("unused")
 	private String date;
 
 	private long time;
@@ -56,10 +58,10 @@ public class Music implements FilesystemTreeEntry {
 	 * @param response
 	 *           server response.
 	 */
-	Music(List response) {
-		Iterator it = response.iterator();
+	Music(List<String> response) {
+		Iterator<String> it = response.iterator();
 		while (it.hasNext()) {
-			String line = (String) it.next();
+			String line = it.next();
 			if (line.startsWith("file:")) {
 				this.fullpath = line.substring("file: ".length());
 			} else if (line.startsWith("Artist:")) {
@@ -93,7 +95,7 @@ public class Music implements FilesystemTreeEntry {
 			} else if (line.startsWith("Disc:")) {
 				line.substring("Disc: ".length()); // TODO: Composer
 			} else {
-				// Ignore this case, there could be some id3 tags which are not common and therefor not implemented here...
+				// Ignore this case, there could be some id3 tags which are not common and therefore not implemented here...
 				// (new InvalidResponseException("unknown response: " + line)).printStackTrace();
 			}
 		}
@@ -141,7 +143,7 @@ public class Music implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Retrives full path name.
+	 * Retrieves full path name.
 	 * 
 	 * @return full path name.
 	 */
@@ -214,7 +216,7 @@ public class Music implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Retrives total number of tracks from this music's album when available. This can contain letters!
+	 * Retrieves total number of tracks from this music's album when available. This can contain letters!
 	 * 
 	 * @return total number of tracks from this music's album when available.
 	 */

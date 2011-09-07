@@ -70,11 +70,11 @@ public class MPDPlaylist {
 	 *            if an error occur while contacting server.
 	 * @see Music
 	 */
-	public void add(Collection c) throws MPDServerException {
-		Iterator it = c.iterator();
+	public void add(Collection<Music> c) throws MPDServerException {
+		Iterator<Music> it = c.iterator();
 
 		while (it.hasNext()) {
-			Music music = (Music) it.next();
+			Music music = it.next();
 			String[] args = new String[1];
 			args[0] = music.getFullpath();
 			this.mpd.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_ADD, args);
@@ -99,7 +99,7 @@ public class MPDPlaylist {
 	}
 
 	/**
-	 * Adds a music to playlist recursivly.
+	 * Adds a music to playlist recursively.
 	 * 
 	 * @param music
 	 *           music to be added.
@@ -123,22 +123,24 @@ public class MPDPlaylist {
 	 * @throws MPDClientException
 	 *            on client error.
 	 */
+	@SuppressWarnings("unchecked")
 	public void add(URL url) throws MPDServerException, MPDClientException {
-		List urlContent;
+		List<String> urlContent;
 		try {
-			urlContent = (List) url.openConnection().getContent();
+			urlContent = (List<String>) url.openConnection().getContent();
 		} catch (UnsupportedMimeTypeException e) {
-			// if mimetype is not supported by JMPDComm try to pass it directly to MPD.
-			urlContent = new LinkedList();
+			// if mime-type is not supported by JMPDComm try to pass it directly to MPD.
+			urlContent = new LinkedList<String>();
 			urlContent.add(url.toString());
 		} catch (IOException e) {
 			throw new MPDClientException("Unable to fetch " + url.toString(), e);
 		}
+		
 		if (urlContent.size() > 0) {
 			String[] args = new String[1];
-			Iterator it = urlContent.iterator();
+			Iterator<String> it = urlContent.iterator();
 			while (it.hasNext()) {
-				args[0] = (String) it.next();
+				args[0] = it.next();
 				this.mpd.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_ADD, args);
 			}
 			this.mpd.getMpdConnection().sendCommandQueue();
@@ -228,7 +230,7 @@ public class MPDPlaylist {
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
 	 * @return current playlist version.
-	 * @deprecated Should only be used internaly now, refresh is suposed to be called whenever it's detected to be nessesary (i.e.
+	 * @deprecated Should only be used internally now, refresh is supposed to be called whenever it's detected to be necessary (i.e.
 	 *             lastPlaylistversion is updated). From MPDStatusMonitor.
 	 */
 	public int refresh() throws MPDServerException {
@@ -255,12 +257,10 @@ public class MPDPlaylist {
 		// TODO should be atomic
 		MPDStatus status = this.mpd.getStatus();
 		List<String> response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_LIST);
-		int index = 0;
 		for (String line : response) {
 			if (line.startsWith("file: ")) {
 				if (file.size() != 0) {
 					playlist.add(new Music(file));
-					index++;
 					file.clear();
 				}
 			}
@@ -287,15 +287,16 @@ public class MPDPlaylist {
 	 */
 	public int refresh(int playlistVersion) throws MPDServerException {
 		MusicList playlist = new MusicList(list);
-		List file = new LinkedList();
+		List<String> file = new LinkedList<String>();
 		String[] args = new String[1];
 		args[0] = Integer.toString(playlistVersion);
+
 		// TODO should be atomic
 		MPDStatus status = this.mpd.getStatus();
-		List response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CHANGES, args);
-		Iterator it = response.iterator();
+		List<String> response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CHANGES, args);
+		Iterator<String> it = response.iterator();
 		while (it.hasNext()) {
-			String line = (String) it.next();
+			String line = it.next();
 
 			if (line.startsWith("file: ")) {
 				if (file.size() != 0) {

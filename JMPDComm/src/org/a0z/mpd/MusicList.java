@@ -78,7 +78,7 @@ public class MusicList {
 	}
 
 	/**
-	 * Retrieves a music by its positon on playlist.
+	 * Retrieves a music by its position on playlist.
 	 * 
 	 * @param index
 	 *           position of the music to be retrieved.

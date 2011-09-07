@@ -28,14 +28,11 @@ public class MPDStatistics {
 
 	private long dbPlaytime = -1;
 
-	private MPDStatistics() {
-	}
+	MPDStatistics(List<String> response) {
 
-	MPDStatistics(List response) {
-
-		Iterator it = response.iterator();
+		Iterator<String> it = response.iterator();
 		while (it.hasNext()) {
-			String line = (String) it.next();
+			String line = it.next();
 			if (line.startsWith("artists:")) {
 				this.artists = Long.parseLong(line.substring("artists: ".length()));
 			} else if (line.startsWith("albums:")) {
@@ -73,7 +70,7 @@ public class MPDStatistics {
 	}
 
 	/**
-	 * Retrives last database update time.
+	 * Retrieves last database update time.
 	 * 
 	 * @return last database update time.
 	 */

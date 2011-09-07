@@ -9,8 +9,10 @@ import java.io.IOException;
  */
 public class UnsupportedMimeTypeException extends IOException {
 
+	private static final long serialVersionUID = 2035178718331445615L;
+
 	/**
-	 * Contructor.
+	 * Constructor.
 	 * 
 	 * @param message
 	 *           message.

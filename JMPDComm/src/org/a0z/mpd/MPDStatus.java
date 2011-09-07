@@ -45,8 +45,10 @@ public class MPDStatus {
 
 	protected boolean random;
 
+	@SuppressWarnings("unused")
 	private boolean single;
 
+	@SuppressWarnings("unused")
 	private boolean consume;
 
 	private String state;
@@ -67,12 +69,14 @@ public class MPDStatus {
 
 	private boolean updating;
 
+	@SuppressWarnings("unused")
 	private int nextSong;
 
+	@SuppressWarnings("unused")
 	private int nextSongId;
 
 	/**
-	 * Given a server response, contructs a new MPDStatus.
+	 * Given a server response, constructs a new MPDStatus.
 	 * 
 	 * @param response
 	 *           server response.
@@ -315,9 +319,9 @@ public class MPDStatus {
 	}
 
 	/**
-	 * Retrieves bits resolutiong from playing song.
+	 * Retrieves bits resolution from playing song.
 	 * 
-	 * @return bits resolutiong from playing song.
+	 * @return bits resolution from playing song.
 	 */
 	public int getBitsPerSample() {
 		return bitsPerSample;
@@ -333,9 +337,9 @@ public class MPDStatus {
 	}
 
 	/**
-	 * Retrieves current crossfade time.
+	 * Retrieves current cross-fade time.
 	 * 
-	 * @return current crossfade time in seconds.
+	 * @return current cross-fade time in seconds.
 	 */
 	public int getCrossfade() {
 		return crossfade;

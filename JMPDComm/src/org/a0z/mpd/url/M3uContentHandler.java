@@ -26,7 +26,7 @@ public class M3uContentHandler extends ContentHandler {
 	 *            on IO errors.
 	 */
 	public Object getContent(URLConnection urlc) throws IOException {
-		List list = new LinkedList();
+		List<String> list = new LinkedList<String>();
 		LineNumberReader reader = new LineNumberReader(new InputStreamReader(urlc.getInputStream()));
 
 		for (String line = reader.readLine(); line != null; line = reader.readLine()) {

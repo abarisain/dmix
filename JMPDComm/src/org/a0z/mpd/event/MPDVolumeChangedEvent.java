@@ -37,7 +37,7 @@ public class MPDVolumeChangedEvent {
 	/**
 	 * Retrieves volume before event.
 	 * 
-	 * @return volume befor event.
+	 * @return volume before event.
 	 */
 	public int getOldVolume() {
 		return oldVolume;

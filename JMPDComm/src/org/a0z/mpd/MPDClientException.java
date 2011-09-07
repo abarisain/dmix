@@ -8,6 +8,8 @@ package org.a0z.mpd;
  */
 public class MPDClientException extends MPDException {
 
+	private static final long serialVersionUID = -7525157411640713109L;
+
 	/**
 	 * Constructor.
 	 */
@@ -38,7 +40,7 @@ public class MPDClientException extends MPDException {
 	}
 
 	/**
-	 * Contructor.
+	 * Constructor.
 	 * 
 	 * @param cause
 	 *           cause of this exception.

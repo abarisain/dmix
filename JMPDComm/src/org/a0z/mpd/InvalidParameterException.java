@@ -6,6 +6,8 @@ package org.a0z.mpd;
  */
 public class InvalidParameterException extends RuntimeException {
 
+	private static final long serialVersionUID = 1335085123017300139L;
+
 	/**
 	 * Constructor.
 	 */

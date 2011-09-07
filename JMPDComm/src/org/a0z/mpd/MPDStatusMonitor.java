@@ -6,7 +6,6 @@
  */
 package org.a0z.mpd;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
@@ -138,9 +137,8 @@ public class MPDStatusMonitor extends Thread {
 
 					// repeat
 					if (oldRepeat != repeat) {
-						Iterator it = statusChangedListeners.iterator();
-						while (it.hasNext()) {
-							((StatusChangeListener) it.next()).repeatChanged(new MPDRepeatChangedEvent(repeat.booleanValue()));
+						for (StatusChangeListener listener : statusChangedListeners) {
+							listener.repeatChanged(new MPDRepeatChangedEvent(repeat.booleanValue()));
 						}
 						oldRepeat = repeat;
 					}

@@ -5,6 +5,9 @@ package org.a0z.mpd;
  * @version $Id$
  */
 public class MPDException extends Exception {
+
+	private static final long serialVersionUID = -8576503491266801543L;
+
 	/**
 	 * Constructor.
 	 */
@@ -35,7 +38,7 @@ public class MPDException extends Exception {
 	}
 
 	/**
-	 * Contructor.
+	 * Constructor.
 	 * 
 	 * @param cause
 	 *           cause of this exception.

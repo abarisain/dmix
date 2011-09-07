@@ -3,7 +3,7 @@ package org.a0z.mpd.event;
 import org.a0z.mpd.MPDStatus;
 
 /**
- * Represents a track change evente on MPD server.
+ * Represents a track change event on MPD server.
  * 
  * @author Felipe Gustavo de Almeida
  * @version $Id: MPDTrackChangedEvent.java 2595 2004-11-11 00:21:36Z galmeida $

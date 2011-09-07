@@ -146,7 +146,7 @@ public class MPDConnection {
 		commandQueue.append(commandToString(command, args));
 	}
 
-	synchronized List sendCommandQueue() throws MPDServerException {
+	synchronized List<String> sendCommandQueue() throws MPDServerException {
 		String command = MPD_CMD_START_BULK + "\n" + commandQueue.toString() + MPD_CMD_END_BULK + "\n";
 		this.commandQueue = new StringBuffer();
 		return sendRawCommand(command);

@@ -14,7 +14,7 @@ public class MPDConnectionStateChangedEvent {
 	 * Constructs a new <code>MPDConnectionStateChangedEvent</code>.
 	 * 
 	 * @param connected
-	 *           new connection state: true, conneted; false, disconnected.
+	 *           new connection state: true, connected; false, disconnected.
 	 * @param connectionLost
 	 *           true when connection was lost, false otherwise.
 	 */

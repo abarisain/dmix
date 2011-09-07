@@ -89,9 +89,9 @@ public final class Directory implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Retrieves subdirectories.
+	 * Retrieves sub-directories.
 	 * 
-	 * @return subdirectories.
+	 * @return sub-directories.
 	 */
 	public TreeSet<Directory> getDirectories() {
 		TreeSet<Directory> c = new TreeSet<Directory>(new Comparator<Directory>() {
@@ -106,7 +106,7 @@ public final class Directory implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Refresh directorie contents (not recursive).
+	 * Refresh directory contents (not recursive).
 	 * 
 	 * @throws MPDServerException
 	 *            if an error occurs while contacting server.
@@ -132,7 +132,7 @@ public final class Directory implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Given a path not starting or ending with '/', creates all dirs on this path.
+	 * Given a path not starting or ending with '/', creates all directories on this path.
 	 * 
 	 * @param name
 	 *           path, must not start or end with '/'.
@@ -168,7 +168,7 @@ public final class Directory implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Adds a file, creating path directories (mkdir -p).
+	 * Adds a file, creating path directories.
 	 * 
 	 * @param file
 	 *           file to be added
@@ -185,22 +185,22 @@ public final class Directory implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Check if a given directory existis as a subdir.
+	 * Check if a given directory exists as a sub-directory.
 	 * 
 	 * @param name
-	 *           subdir name.
-	 * @return true if subdir exists, false if not.
+	 *           sub-directory name.
+	 * @return true if sub-directory exists, false if not.
 	 */
 	public boolean containsDir(String name) {
 		return directories.containsKey(name);
 	}
 
 	/**
-	 * Retrieves a subdirectory.
+	 * Retrieves a sub-directory.
 	 * 
 	 * @param name
-	 *           name of subdirectory to retrieve.
-	 * @return a subdirectory.
+	 *           name of sub-directory to retrieve.
+	 * @return a sub-directory.
 	 */
 	public Directory getDirectory(String name) {
 		return directories.get(name);
@@ -235,9 +235,9 @@ public final class Directory implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Retrieves directory's fullpathname. (does not starts with /)
+	 * Retrieves directory's full pathname. (does not starts with /)
 	 * 
-	 * @return fullpathname of this directory.
+	 * @return full pathname of this directory.
 	 */
 	public String getFullpath() {
 		if (getParent() != null && getParent().getParent() != null) {

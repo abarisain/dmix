@@ -7,6 +7,8 @@ package org.a0z.mpd;
  * @version $Id$
  */
 public class InvalidResponseException extends RuntimeException {
+	
+	private static final long serialVersionUID = 2105442123614116620L;
 
 	/**
 	 * Constructor.

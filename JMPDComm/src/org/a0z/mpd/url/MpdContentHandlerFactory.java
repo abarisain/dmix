@@ -12,7 +12,7 @@ import java.util.Map;
  * @author galmeida
  */
 public class MpdContentHandlerFactory implements ContentHandlerFactory {
-	private Map map = new HashMap();
+	private HashMap<String, Class<? extends ContentHandler>> map = new HashMap<String, Class<? extends ContentHandler>>();
 
 	/**
 	 * Creates a new <code>ContentHandler</code> to read an object from a <code>URLStreamHandler</code>.
@@ -22,11 +22,12 @@ public class MpdContentHandlerFactory implements ContentHandlerFactory {
 	 * @return a new ContentHandler to read an object from a URLStreamHandler.
 	 */
 	public ContentHandler createContentHandler(String mimetype) {
-		Class handlerClass = (Class) map.get(mimetype);
+		Class<? extends ContentHandler> handlerClass = map.get(mimetype);
 		ContentHandler handler = null;
+		
 		if (handlerClass != null) {
 			try {
-				handler = (ContentHandler) handlerClass.newInstance();
+				handler = handlerClass.newInstance();
 			} catch (InstantiationException e) {
 				// should not happen
 				e.printStackTrace();
@@ -49,7 +50,7 @@ public class MpdContentHandlerFactory implements ContentHandlerFactory {
 	 * @param handlerClass
 	 *           <code>ContentHandler</code> class.
 	 */
-	public void registerContentHandler(String mimetype, Class handlerClass) {
+	public void registerContentHandler(String mimetype, Class<? extends ContentHandler> handlerClass) {
 		map.put(mimetype, handlerClass);
 	}
 

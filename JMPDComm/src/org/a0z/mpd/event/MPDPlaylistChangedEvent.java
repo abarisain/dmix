@@ -13,7 +13,7 @@ public class MPDPlaylistChangedEvent {
 	private int oldPlaylistVersion;
 
 	/**
-	 * Contructs a new playlist change event.
+	 * Constructs a new playlist change event.
 	 * 
 	 * @param mpdStatus
 	 *           MPDStatus after playlist change.
