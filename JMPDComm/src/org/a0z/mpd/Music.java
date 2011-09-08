@@ -1,6 +1,7 @@
 package org.a0z.mpd;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,10 +31,14 @@ public class Music implements FilesystemTreeEntry {
 
 	private String fullpath;
 
-	@SuppressWarnings("unused")
 	private String genre;
+	
+	private String soundtrack; 
+	
+	private String composer;
+	
+	private String disc;
 
-	@SuppressWarnings("unused")
 	private String date;
 
 	private long time;
@@ -56,12 +61,10 @@ public class Music implements FilesystemTreeEntry {
 	 * Constructs a new Music.
 	 * 
 	 * @param response
-	 *           server response.
+	 *           server response, which gets parsed into the instance.
 	 */
 	Music(List<String> response) {
-		Iterator<String> it = response.iterator();
-		while (it.hasNext()) {
-			String line = it.next();
+		for (String line : response) {
 			if (line.startsWith("file:")) {
 				this.fullpath = line.substring("file: ".length());
 			} else if (line.startsWith("Artist:")) {
@@ -75,9 +78,8 @@ public class Music implements FilesystemTreeEntry {
 			} else if (line.startsWith("Track:")) {
 				String[] aux = line.substring("Track: ".length()).split("/");
 				this.track = aux[0];
-				if (aux.length > 1) {
+				if (aux.length > 1)
 					this.totalTracks = aux[1];
-				}
 			} else if (line.startsWith("Time:")) {
 				this.time = Long.parseLong(line.substring("Time: ".length()));
 			} else if (line.startsWith("Id:")) {
@@ -89,11 +91,11 @@ public class Music implements FilesystemTreeEntry {
 			} else if (line.startsWith("Genre:")) {
 				this.genre = line.substring("Genre: ".length());
 			} else if (line.startsWith("Soundtrack:")) {
-				line.substring("Soundtrack: ".length()); // TODO: Soundtrack
+				this.soundtrack = line.substring("Soundtrack: ".length());
 			} else if (line.startsWith("Composer:")) {
-				line.substring("Composer: ".length()); // TODO: Composer
+				this.composer = line.substring("Composer: ".length());
 			} else if (line.startsWith("Disc:")) {
-				line.substring("Disc: ".length()); // TODO: Composer
+				this.disc = line.substring("Disc: ".length());
 			} else {
 				// Ignore this case, there could be some id3 tags which are not common and therefore not implemented here...
 				// (new InvalidResponseException("unknown response: " + line)).printStackTrace();
@@ -101,13 +103,26 @@ public class Music implements FilesystemTreeEntry {
 		}
 		this.parent = null;
 	}
-
-	Music(String fullpath) {
-		if (fullpath.startsWith("/")) {
-			throw new InvalidParameterException("invalid file path, starts with /");
+	
+	public static List<Music> getMusicFromList(List<String> response) {
+		ArrayList<Music> result = new ArrayList<Music>();
+		LinkedList<String> lineCache = new LinkedList<String>();
+		
+		for (String line : response) {
+			if (line.startsWith("file: ")) {
+				if (lineCache.size() != 0) {
+					result.add(new Music(lineCache));
+					lineCache.clear();
+				}
+			}
+			lineCache.add(line);
 		}
-		this.fullpath = fullpath;
-		this.parent = null;
+
+		if (lineCache.size() != 0) {
+			result.add(new Music(lineCache));
+		}
+
+		return result;
 	}
 
 	/**
@@ -170,7 +185,7 @@ public class Music implements FilesystemTreeEntry {
 	}
 
 	/**
-	 * Retrieves path of music file. (does not start or end with /)
+	 * Retrieves path of music file (does not start or end with /)
 	 * 
 	 * @return path of music file.
 	 */
@@ -247,15 +262,34 @@ public class Music implements FilesystemTreeEntry {
 		}
 		return result;
 	}
-
+	
+	public String getGenre() {
+		return genre;
+	}
+	
+	public String getSoundtrack() {
+		return soundtrack;
+	}
+	
+	public String getComposer() {
+		return composer;
+	}
+	
+	public String getDisc() {
+		return disc;
+	}
+	
+	public String getDate() {
+		return date;
+	}
+	
 	/**
-	 * Retrieves a string representation of the object.
+	 * Retrieves file's parent directory
 	 * 
-	 * @return a string representation of the object.
-	 * @see java.lang.Object#toString()
+	 * @return file's parent directory
 	 */
-	public String toString() {
-		return track + " - " + album + " - " + artist + " - " + title + " (" + fullpath + ")";
+	public Directory getParent() {
+		return parent;
 	}
 
 	/**
@@ -317,39 +351,56 @@ public class Music implements FilesystemTreeEntry {
 	public void setTrack(String str) {
 		track = str;
 	}
+	
+	public void setGenre(String value) {
+		genre = value;
+	}
+	
+	public void setSoundtrack(String value) {
+		soundtrack = value;
+	}
+	
+	public void setComposer(String value) {
+		composer = value;
+	}
+	
+	public void setDisc(String value) {
+		disc = value;
+	}
+	
+	public void setDate(String value) {
+		date = value;
+	}
+
+	/**
+	 * Set file's parent directory
+	 * 
+	 * @param directory
+	 *           file's parent directory
+	 */
+	public void setParent(Directory directory) {
+		parent = directory;
+	}
+
 
 	/**
 	 * Copies, artist, album, title, time, totalTracks and track from another <code>music</code>.
 	 * 
-	 * @param music
+	 * @param other
 	 *           <code>Music</code> to copy data from.
 	 */
-	void update(Music music) {
-		this.setArtist(music.getArtist());
-		this.setAlbum(music.getAlbum());
-		this.setTitle(music.getTitle());
-		this.setTime(music.getTime());
-		this.setTotalTracks(music.getTotalTracks());
-		this.setTrack(music.getTrack());
-	}
-
-	/**
-	 * Retrieves file's parent dir.
-	 * 
-	 * @return file's parent dir
-	 */
-	public Directory getParent() {
-		return parent;
-	}
-
-	/**
-	 * Defines file's parent dir.
-	 * 
-	 * @param directory
-	 *           file's parent dir
-	 */
-	public void setParent(Directory directory) {
-		parent = directory;
+	void update(Music other) {
+		this.setArtist(other.getArtist());
+		this.setAlbum(other.getAlbum());
+		this.setTitle(other.getTitle());
+		this.setTime(other.getTime());
+		this.setTotalTracks(other.getTotalTracks());
+		this.setTrack(other.getTrack());
+		this.setGenre(other.getGenre());
+		this.setSoundtrack(other.getSoundtrack());
+		this.setComposer(other.getComposer());
+		this.setDisc(other.getDisc());
+		this.setDate(other.getDate());
 	}
 
 	/**
@@ -365,5 +416,15 @@ public class Music implements FilesystemTreeEntry {
 		} else {
 			return STREAM;
 		}
+	}
+	
+	/**
+	 * Retrieves a string representation of the object.
+	 * 
+	 * @return a string representation of the object.
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return track + " - " + album + " - " + artist + " - " + title + " (" + fullpath + ")";
 	}
 }

@@ -24,14 +24,14 @@ public class MusicList {
 	}
 
 	/**
-	 * Constructs a new <code>MusicList</code> containing all musics from <code>list</code>.
+	 * Constructs a new <code>MusicList</code> containing all music from <code>list</code>.
 	 * 
 	 * @param list
 	 *           a <code>MusicList</code>
 	 */
 	public MusicList(MusicList list) {
 		this();
-		this.addAll(list.getMusics());
+		this.addAll(list.getMusic());
 	}
 
 	/**
@@ -39,10 +39,22 @@ public class MusicList {
 	 * 
 	 * @return Retrieves a List containing all musics from this <code>MusicList</code>.
 	 */
-	public List<Music> getMusics() {
+	public List<Music> getMusic() {
 		return list;
 	}
 
+	/**
+	 * Adds all Musics from <code>playlist</code> to this <code>MusicList</code>.
+	 * 
+	 * @param playlist
+	 *           <code>Collection</code> of <code>Music</code> to be added to this <code>MusicList</code>.
+	 * @throws ClassCastException
+	 *            when <code>playlist</code> contains elements not asignable to <code>Music</code>.
+	 */
+	public void addAll(List<Music> playlist) throws ClassCastException {
+		list.addAll(playlist);
+	}
+	
 	/**
 	 * Adds music to <code>MusicList</code>.
 	 * 
@@ -50,12 +62,14 @@ public class MusicList {
 	 *           music to be added.
 	 */
 	public void add(Music music) {
+		if (getById(music.getSongId()) != null)
+			throw new IllegalArgumentException("Music is already on list");
+		
+		// add it to the map and at the right position to the list
 		map.put(new Integer(music.getSongId()), music);
-		while (list.size() < (music.getPos() + 1)) {
+		while (list.size() < (music.getPos() + 1))
 			list.add(null);
-		}
 		list.set(music.getPos(), music);
-
 	}
 
 	/**
@@ -85,36 +99,10 @@ public class MusicList {
 	 * @return a Music with given position or <code>null</code> if it is not present on this <code>MusicList</code>.
 	 */
 	public Music getByIndex(int index) {
-		if (list.size() <= index) {
+		if (index < 0 || list.size() <= index)
 			return null;
-		}
+		
 		return list.get(index);
-	}
-
-	/**
-	 * Adds all Musics from <code>playlist</code> to this <code>MusicList</code>.
-	 * 
-	 * @param playlist
-	 *           <code>Collection</code> of <code>Music</code> to be added to this <code>MusicList</code>.
-	 * @throws ClassCastException
-	 *            when <code>playlist</code> contains elements not asignable to <code>Music</code>.
-	 */
-	public void addAll(List<Music> playlist) throws ClassCastException {
-		list.addAll(playlist);
-	}
-
-	/**
-	 * Removes music at <code>position</code> from this <code>MusicList</code>, if it is present.
-	 * 
-	 * @param position
-	 *           position of the <code>Music</code> to be removed from this <code>MusicList</code>.
-	 */
-	public void removeByPosition(int position) {
-		Music music = (Music) list.get(position);
-		if (music != null) {
-			list.remove(position);
-			map.remove(new Integer(music.getSongId()));
-		}
 	}
 
 	/**
@@ -123,20 +111,31 @@ public class MusicList {
 	 * @param songId
 	 *           songId of the <code>Music</code> to be removed from this <code>MusicList</code>.
 	 */
-	public void removeBySongId(int songId) {
-		Music music = (Music) map.get(new Integer(songId));
+	public void removeById(int songId) {
+		Music music = getById(songId);
+		
 		if (music != null) {
 			map.remove(new Integer(songId));
-			for (int i = 0; i < list.size(); i++) {
-				Music m = (Music) list.get(i);
-				if (m.getSongId() == songId) {
-					list.remove(i);
-					return;
-				}
-			}
-			// list.remove(music.getPos()); //This can fail if Playlist is out of sync...
+			list.remove(music);
 		}
 	}
+	
+	/**
+	 * Removes music at <code>position</code> from this <code>MusicList</code>, if it is present.
+	 * 
+	 * @param position
+	 *           position of the <code>Music</code> to be removed from this <code>MusicList</code>.
+	 */
+	public void removeByIndex(int index) {
+		Music music = getByIndex(index);
+		
+		if (music != null) {
+			list.remove(index);
+			map.remove(new Integer(music.getSongId()));
+		}
+	}
+
+
 
 	/**
 	 * Retrieves this <code>MusicList</code> size.

@@ -1,4 +1,5 @@
-package org.a0z.mpd;
+package org.a0z.mpd.exception;
+
 
 /**
  * Represents an MPD Connection error.

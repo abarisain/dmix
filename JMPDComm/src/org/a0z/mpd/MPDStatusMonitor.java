@@ -8,33 +8,22 @@ package org.a0z.mpd;
 
 import java.util.LinkedList;
 
-import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
-import org.a0z.mpd.event.MPDPlaylistChangedEvent;
-import org.a0z.mpd.event.MPDRandomChangedEvent;
-import org.a0z.mpd.event.MPDRepeatChangedEvent;
-import org.a0z.mpd.event.MPDStateChangedEvent;
-import org.a0z.mpd.event.MPDTrackChangedEvent;
-import org.a0z.mpd.event.MPDTrackPositionChangedEvent;
-import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
-import org.a0z.mpd.event.MPDVolumeChangedEvent;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.exception.MPDConnectionException;
+import org.a0z.mpd.exception.MPDServerException;
 
 /**
  * Monitors MPD Server and sends events on status changes.
  * 
- * @author Felipe Gustavo de Almeida
  * @version $Id: MPDStatusMonitor.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDStatusMonitor extends Thread {
 	private int delay;
-
 	private MPD mpd;
-
 	private boolean giveup;
 
 	private LinkedList<StatusChangeListener> statusChangedListeners;
-
 	private LinkedList<TrackPositionListener> trackPositionChangedListeners;
 
 	/**
@@ -47,26 +36,28 @@ public class MPDStatusMonitor extends Thread {
 	 */
 	public MPDStatusMonitor(MPD mpd, int delay) {
 		super("MPDStatusMonitor");
+		
 		this.mpd = mpd;
-		this.giveup = false;
-		statusChangedListeners = new LinkedList<StatusChangeListener>();
-		trackPositionChangedListeners = new LinkedList<TrackPositionListener>();
 		this.delay = delay;
+		this.giveup = false;
+		this.statusChangedListeners = new LinkedList<StatusChangeListener>();
+		this.trackPositionChangedListeners = new LinkedList<TrackPositionListener>();
 	}
 
 	/**
-	 * Main thread method.
+	 * Main thread method
 	 */
 	public void run() {
+		// initialize value cache
 		int oldSong = -1;
 		int oldPlaylistVersion = -1;
 		long oldElapsedTime = -1;
 		String oldState = "";
 		int oldVolume = -1;
-		Boolean oldUpdating = null;
-		Boolean oldRepeat = null;
-		Boolean oldRandom = null;
-		Boolean oldConnectionState = null;
+		boolean oldUpdating = false;
+		boolean oldRepeat = false;
+		boolean oldRandom = false;
+		boolean oldConnectionState = false;
 		boolean connectionLost = false;
 
 		while (!giveup) {
@@ -74,7 +65,7 @@ public class MPDStatusMonitor extends Thread {
 
 			if (connectionLost || oldConnectionState != connectionState) {
 				for (StatusChangeListener listener : statusChangedListeners) {
-					listener.connectionStateChanged(new MPDConnectionStateChangedEvent(connectionState.booleanValue(), connectionLost));
+					listener.connectionStateChanged(connectionState.booleanValue(), connectionLost);
 				}
 				connectionLost = false;
 				oldConnectionState = connectionState;
@@ -84,79 +75,62 @@ public class MPDStatusMonitor extends Thread {
 				// playlist
 				try {
 					MPDStatus status = mpd.getStatus();
-					int song = status.getSongPos();
-					int playlistVersion = status.getPlaylistVersion();
-					long elapsedTime = status.getElapsedTime();
-					String state = status.getState();
-					int volume = status.getVolume();
-					Boolean updating = Boolean.valueOf(status.getUpdating());
-					Boolean repeat = Boolean.valueOf(status.isRepeat());
-					Boolean random = Boolean.valueOf(status.isRandom());
 
 					// playlist
-					if (oldPlaylistVersion != playlistVersion && playlistVersion != -1) {
+					if (oldPlaylistVersion != status.getPlaylistVersion() && status.getPlaylistVersion() != -1) {
 						// Lets update our own copy
-						mpd.getPlaylist().refresh(oldPlaylistVersion);
-						for (StatusChangeListener listener : statusChangedListeners) {
-							listener.playlistChanged(new MPDPlaylistChangedEvent(status, oldPlaylistVersion));
-						}
-						oldPlaylistVersion = playlistVersion;
+						for (StatusChangeListener listener : statusChangedListeners)
+							listener.playlistChanged(status, oldPlaylistVersion);
+						oldPlaylistVersion = status.getPlaylistVersion();
 					}
 
 					// song
-					if (oldSong != song) {
-						for (StatusChangeListener listener : statusChangedListeners) {
-							listener.trackChanged(new MPDTrackChangedEvent(oldSong, status));
-						}
-						oldSong = song;
+					if (oldSong != status.getSongPos()) {
+						for (StatusChangeListener listener : statusChangedListeners)
+							listener.trackChanged(status, oldSong);
+						oldSong = status.getSongPos();
 					}
 
 					// time
-					if (oldElapsedTime != elapsedTime) {
-						for (TrackPositionListener listener : trackPositionChangedListeners) {
-							listener.trackPositionChanged(new MPDTrackPositionChangedEvent(status));
-						}
-						oldElapsedTime = elapsedTime;
+					if (oldElapsedTime != status.getElapsedTime()) {
+						for (TrackPositionListener listener : trackPositionChangedListeners)
+							listener.trackPositionChanged(status);
+						oldElapsedTime = status.getElapsedTime();
 					}
 
 					// state
-					if (oldState != state) {
-						for (StatusChangeListener listener : statusChangedListeners) {
-							listener.stateChanged(new MPDStateChangedEvent(oldState, status));
-						}
-						oldState = state;
+					if (oldState != status.getState()) {
+						for (StatusChangeListener listener : statusChangedListeners)
+							listener.stateChanged(status, oldState);
+						oldState = status.getState();
 					}
 
 					// volume
-					if (oldVolume != volume) {
-						for (StatusChangeListener listener : statusChangedListeners) {
-							listener.volumeChanged(new MPDVolumeChangedEvent(oldVolume, status));
-						}
-						oldVolume = volume;
+					if (oldVolume != status.getVolume()) {
+						for (StatusChangeListener listener : statusChangedListeners)
+							listener.volumeChanged(status, oldVolume);
+						oldVolume = status.getVolume();
 					}
 
 					// repeat
-					if (oldRepeat != repeat) {
-						for (StatusChangeListener listener : statusChangedListeners) {
-							listener.repeatChanged(new MPDRepeatChangedEvent(repeat.booleanValue()));
-						}
-						oldRepeat = repeat;
+					if (oldRepeat != status.isRepeat()) {
+						for (StatusChangeListener listener : statusChangedListeners)
+							listener.repeatChanged(status.isRepeat());
+						oldRepeat = status.isRepeat();
 					}
 
 					// volume
-					if (oldRandom != random) {
-						for (StatusChangeListener listener : statusChangedListeners) {
-							listener.randomChanged(new MPDRandomChangedEvent(random.booleanValue()));
-						}
-						oldRandom = random;
+					if (oldRandom != status.isRandom()) {
+						for (StatusChangeListener listener : statusChangedListeners)
+							listener.randomChanged(status.isRandom());
+						oldRandom = status.isRandom();
 					}
 
 					// update database
-					if (oldUpdating != updating) {
-						for (StatusChangeListener listener : statusChangedListeners) {
-							listener.updateStateChanged(new MPDUpdateStateChangedEvent(updating.booleanValue()));
-						}
-						oldUpdating = updating;
+					if (oldUpdating != status.isUpdating()) {
+						for (StatusChangeListener listener : statusChangedListeners)
+							listener.libraryStateChanged(status.isUpdating());
+						oldUpdating = status.isUpdating();
 					}
 				} catch (MPDConnectionException e) {
 					// connection lost
@@ -199,7 +173,7 @@ public class MPDStatusMonitor extends Thread {
 	}
 
 	/**
-	 * Gracefull terminate tread.
+	 * Gracefully terminate tread.
 	 */
 	public void giveup() {
 		this.giveup = true;

@@ -1,19 +1,19 @@
-package org.a0z.mpd;
+package org.a0z.mpd.exception;
 
 /**
- * Represents an MPD Server error.
+ * Thrown when server sends an unexpected or invalid message.
  * 
  * @author Felipe Gustavo de Almeida
- * @version $Id: MPDServerException.java 2716 2004-11-20 17:37:20Z galmeida $
+ * @version $Id$
  */
-public class MPDServerException extends MPDException {
-
-	private static final long serialVersionUID = 5986199004785561712L;
+public class InvalidResponseException extends RuntimeException {
+	
+	private static final long serialVersionUID = 2105442123614116620L;
 
 	/**
 	 * Constructor.
 	 */
-	public MPDServerException() {
+	public InvalidResponseException() {
 		super();
 	}
 
@@ -23,7 +23,7 @@ public class MPDServerException extends MPDException {
 	 * @param message
 	 *           exception message.
 	 */
-	public MPDServerException(String message) {
+	public InvalidResponseException(String message) {
 		super(message);
 	}
 
@@ -35,7 +35,7 @@ public class MPDServerException extends MPDException {
 	 * @param cause
 	 *           cause of this exception.
 	 */
-	public MPDServerException(String message, Throwable cause) {
+	public InvalidResponseException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -45,7 +45,7 @@ public class MPDServerException extends MPDException {
 	 * @param cause
 	 *           cause of this exception.
 	 */
-	public MPDServerException(Throwable cause) {
+	public InvalidResponseException(Throwable cause) {
 		super(cause);
 	}
 

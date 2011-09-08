@@ -2,9 +2,12 @@ package org.a0z.mpd;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+
+import org.a0z.mpd.exception.InvalidParameterException;
+import org.a0z.mpd.exception.MPDServerException;
 
 /**
  * Class representing a directory.
@@ -68,9 +71,9 @@ public final class Directory implements FilesystemTreeEntry {
 				return o1.getFilename().compareTo(o2.getFilename());
 			}
 		});
-		for (String line : files.keySet()) {
-			c.add(files.get(line));
-		}
+		
+		for (Music item : files.values())
+			c.add(item);
 		return c;
 	}
 
@@ -80,9 +83,9 @@ public final class Directory implements FilesystemTreeEntry {
 	 * @param Title
 	 * @return Returns null if title not found
 	 */
-	public Music getFileByTitle(String Title) {
+	public Music getFileByTitle(String title) {
 		for (Music music : files.values()) {
-			if (music.getTitle().equals(Title))
+			if (music.getTitle().equals(title))
 				return music;
 		}
 		return null;
@@ -99,12 +102,34 @@ public final class Directory implements FilesystemTreeEntry {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
-		for (String line : directories.keySet()) {
-			c.add(directories.get(line));
-		}
+		
+		for (Directory item : directories.values())
+			c.add(item);
 		return c;
 	}
-
+	
+	/**
+	 * Retrieves a sub-directory.
+	 * 
+	 * @param name
+	 *           name of sub-directory to retrieve.
+	 * @return a sub-directory.
+	 */
+	public Directory getDirectory(String name) {
+		return directories.get(name);
+	}
+	
+	/**
+	 * Check if a given directory exists as a sub-directory.
+	 * 
+	 * @param name
+	 *           sub-directory name.
+	 * @return true if sub-directory exists, false if not.
+	 */
+	public boolean containsDir(String name) {
+		return directories.containsKey(name);
+	}
+	
 	/**
 	 * Refresh directory contents (not recursive).
 	 * 
@@ -112,7 +137,7 @@ public final class Directory implements FilesystemTreeEntry {
 	 *            if an error occurs while contacting server.
 	 */
 	public void refreshData() throws MPDServerException {
-		LinkedList<FilesystemTreeEntry> c = mpd.getDir(this.getFullpath());
+		List<FilesystemTreeEntry> c = mpd.getDir(this.getFullpath());
 		for (FilesystemTreeEntry o : c) {
 			if (o instanceof Directory) {
 				Directory dir = (Directory) o;
@@ -138,32 +163,35 @@ public final class Directory implements FilesystemTreeEntry {
 	 *           path, must not start or end with '/'.
 	 * @return the last component of the path created.
 	 */
-	public Directory makeDirectory(String name) {
-		String firstName;
-		String lastName;
-		int slashIndex = name.indexOf('/');
+	public Directory makeDirectory(String subPath) {
+		String name;
+		String remainingPath;
+		int slashIndex = subPath.indexOf('/');
 
-		if (slashIndex == 0) {
+		if (slashIndex == 0)
 			throw new InvalidParameterException("name starts with '/'");
-		}
+		
+		// split path
 		if (slashIndex == -1) {
-			firstName = name;
-			lastName = null;
+			name = subPath;
+			remainingPath = null;
 		} else {
-			firstName = name.substring(0, slashIndex);
-			lastName = name.substring(slashIndex + 1);
+			name = subPath.substring(0, slashIndex);
+			remainingPath = subPath.substring(slashIndex + 1);
 		}
+		
+		// create directory
 		Directory dir;
-		if (!directories.containsKey(firstName)) {
-			dir = new Directory(mpd, this, firstName);
+		if (!directories.containsKey(name)) {
+			dir = new Directory(mpd, this, name);
 			directories.put(dir.getName(), dir);
 		} else {
-			dir = directories.get(firstName);
+			dir = directories.get(name);
 		}
-
-		if (lastName != null) {
-			return dir.makeDirectory(lastName);
-		}
+		
+		// create remainder
+		if (remainingPath != null)
+			return dir.makeDirectory(remainingPath);
 		return dir;
 	}
 
@@ -174,38 +202,37 @@ public final class Directory implements FilesystemTreeEntry {
 	 *           file to be added
 	 */
 	public void addFile(Music file) {
-		Directory dir = this;
 		if (getFullpath().compareTo(file.getPath()) == 0) {
 			file.setParent(this);
 			files.put(file.getFilename(), file);
 		} else {
-			dir = makeDirectory(file.getPath());
+			Directory dir = makeDirectory(file.getPath());
 			dir.addFile(file);
 		}
 	}
 
 	/**
-	 * Check if a given directory exists as a sub-directory.
+	 * Retrieves parent directory.
 	 * 
-	 * @param name
-	 *           sub-directory name.
-	 * @return true if sub-directory exists, false if not.
+	 * @return parent directory.
 	 */
-	public boolean containsDir(String name) {
-		return directories.containsKey(name);
+	public Directory getParent() {
+		return parent;
 	}
 
 	/**
-	 * Retrieves a sub-directory.
+	 * Retrieves directory's full path (does not start with /)
 	 * 
-	 * @param name
-	 *           name of sub-directory to retrieve.
-	 * @return a sub-directory.
+	 * @return full path
 	 */
-	public Directory getDirectory(String name) {
-		return directories.get(name);
+	public String getFullpath() {
+		if (getParent() != null && getParent().getParent() != null) {
+			return getParent().getFullpath() + "/" + getName();
+		} else {
+			return getName();
+		}
 	}
-
+	
 	/**
 	 * Retrieves a textual representation of this object.
 	 * 
@@ -223,27 +250,5 @@ public final class Directory implements FilesystemTreeEntry {
 		}
 		sb.append("-" + this.getFullpath() + "\n");
 		return sb.toString();
-	}
-
-	/**
-	 * Retrieves parent directory.
-	 * 
-	 * @return parent directory.
-	 */
-	public Directory getParent() {
-		return parent;
-	}
-
-	/**
-	 * Retrieves directory's full pathname. (does not starts with /)
-	 * 
-	 * @return full pathname of this directory.
-	 */
-	public String getFullpath() {
-		if (getParent() != null && getParent().getParent() != null) {
-			return getParent().getFullpath() + "/" + getName();
-		} else {
-			return getName();
-		}
 	}
 }

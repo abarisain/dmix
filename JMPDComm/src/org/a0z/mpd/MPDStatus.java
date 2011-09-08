@@ -29,58 +29,36 @@ public class MPDStatus {
 	 */
 	public static final String MPD_STATE_UNKNOWN = "unknown";
 
-	protected int volume;
-
-	private long bitrate;
-
+	
 	private int playlistVersion;
+	private int playlistLength;
+	
+	private int song;
+	private int songId;
+	private int nextSong;
+	private int nextSongId;
 
-	protected int playlistLength;
-
-	protected int song;
-
-	protected int songId;
-
-	protected boolean repeat;
-
-	protected boolean random;
-
-	@SuppressWarnings("unused")
+	private boolean repeat;
+	private boolean random;
+	private boolean updating;
 	private boolean single;
-
-	@SuppressWarnings("unused")
 	private boolean consume;
 
 	private String state;
-
 	private String error;
 
-	protected long elapsedTime;
-
+	private long elapsedTime;
 	private long totalTime;
 
 	private int crossfade;
 
+	private int volume;
+	private long bitrate;
 	private int sampleRate;
-
 	private int bitsPerSample;
-
 	private int channels;
 
-	private boolean updating;
 
-	@SuppressWarnings("unused")
-	private int nextSong;
-
-	@SuppressWarnings("unused")
-	private int nextSongId;
-
-	/**
-	 * Given a server response, constructs a new MPDStatus.
-	 * 
-	 * @param response
-	 *           server response.
-	 */
 	MPDStatus() {
 		volume = -1;
 		bitrate = -1;
@@ -107,107 +85,75 @@ public class MPDStatus {
 	 * @param response
 	 */
 	public void updateStatus(List<String> response) {
+		// reset values
+		this.updating = false;
+		
+		// read new values
 		try {
-			doStatusUpdate(response);
+			for (String line : response) {
+				if (line.startsWith("volume:")) {
+					this.volume = Integer.parseInt(line.substring("volume: ".length()));
+				} else if (line.startsWith("bitrate:")) {
+					this.bitrate = Long.parseLong(line.substring("bitrate: ".length()));
+				} else if (line.startsWith("playlist:")) {
+					this.playlistVersion = Integer.parseInt(line.substring("playlist: ".length()));
+				} else if (line.startsWith("playlistlength:")) {
+					this.playlistLength = Integer.parseInt(line.substring("playlistlength: ".length()));
+				} else if (line.startsWith("song:")) {
+					this.song = Integer.parseInt(line.substring("song: ".length()));
+				} else if (line.startsWith("songid:")) {
+					this.songId = Integer.parseInt(line.substring("songid: ".length()));
+				} else if (line.startsWith("repeat:")) {
+					this.repeat = "1".equals(line.substring("repeat: ".length())) ? true : false;
+				} else if (line.startsWith("random:")) {
+					this.random = "1".equals(line.substring("random: ".length())) ? true : false;
+				} else if (line.startsWith("state:")) {
+					String state = line.substring("state: ".length());
+
+					if (MPD_STATE_PAUSED.equals(state)) {
+						this.state = MPD_STATE_PAUSED;
+					} else if (MPD_STATE_PLAYING.equals(state)) {
+						this.state = MPD_STATE_PLAYING;
+					} else if (MPD_STATE_STOPPED.equals(state)) {
+						this.state = MPD_STATE_STOPPED;
+					} else {
+						this.state = MPD_STATE_UNKNOWN;
+					}
+				} else if (line.startsWith("error:")) {
+					this.error = line.substring("error: ".length());
+				} else if (line.startsWith("time:")) {
+					String[] time = line.substring("time: ".length()).split(":");
+					elapsedTime = Long.parseLong(time[0]);
+					totalTime = Long.parseLong(time[1]);
+				} else if (line.startsWith("audio:")) {
+					String[] audio = line.substring("audio: ".length()).split(":");
+					try {
+						sampleRate = Integer.parseInt(audio[0]);
+						bitsPerSample = Integer.parseInt(audio[1]);
+						channels = Integer.parseInt(audio[2]);
+					} catch (NumberFormatException e) {
+						// Sometimes mpd sends "?" as a sampleRate or bitsPerSample, etc ... hotfix for a bugreport I had.
+					}
+				} else if (line.startsWith("xfade:")) {
+					this.crossfade = Integer.parseInt(line.substring("xfade: ".length()));
+				} else if (line.startsWith("updating_db:")) {
+					this.updating = true;
+				} else if (line.startsWith("nextsong:")) {
+					this.nextSong = Integer.parseInt(line.substring("nextsong: ".length()));
+				} else if (line.startsWith("nextsongid:")) {
+					this.nextSongId = Integer.parseInt(line.substring("nextsongid: ".length()));
+				} else if (line.startsWith("consume:")) {
+					this.consume = "1".equals(line.substring("consume: ".length())) ? true : false;
+				} else if (line.startsWith("single:")) {
+					this.single = "1".equals(line.substring("single: ".length())) ? true : false;
+				} else {
+					//TODO : This floods logcat too much, will fix later
+					//(new InvalidResponseException("unknown response: " + line)).printStackTrace();
+				}
+			}
 		} catch(RuntimeException e) {
 			//Do nothing, these should be harmless
 		}
-	}
-
-	private void doStatusUpdate(List<String> response)
-	{
-		for (String line : response) {
-			if (line.startsWith("volume:")) {
-				this.volume = Integer.parseInt(line.substring("volume: ".length()));
-			} else if (line.startsWith("bitrate:")) {
-				this.bitrate = Long.parseLong(line.substring("bitrate: ".length()));
-			} else if (line.startsWith("playlist:")) {
-				this.playlistVersion = Integer.parseInt(line.substring("playlist: ".length()));
-			} else if (line.startsWith("playlistlength:")) {
-				this.playlistLength = Integer.parseInt(line.substring("playlistlength: ".length()));
-			} else if (line.startsWith("song:")) {
-				this.song = Integer.parseInt(line.substring("song: ".length()));
-			} else if (line.startsWith("songid:")) {
-				this.songId = Integer.parseInt(line.substring("songid: ".length()));
-			} else if (line.startsWith("repeat:")) {
-				if ("1".equals(line.substring("repeat: ".length()))) {
-					this.repeat = true;
-				} else {
-					this.repeat = false;
-				}
-			} else if (line.startsWith("random:")) {
-				if ("1".equals(line.substring("random: ".length()))) {
-					this.random = true;
-				} else {
-					this.random = false;
-				}
-			} else if (line.startsWith("state:")) {
-				String state = line.substring("state: ".length());
-
-				if (MPD_STATE_PAUSED.equals(state)) {
-
-					this.state = MPD_STATE_PAUSED;
-				} else if (MPD_STATE_PLAYING.equals(state)) {
-					this.state = MPD_STATE_PLAYING;
-				} else if (MPD_STATE_STOPPED.equals(state)) {
-					this.state = MPD_STATE_STOPPED;
-				} else {
-					this.state = MPD_STATE_UNKNOWN;
-				}
-			} else if (line.startsWith("error:")) {
-				this.error = line.substring("error: ".length());
-			} else if (line.startsWith("time:")) {
-				String[] time = line.substring("time: ".length()).split(":");
-				elapsedTime = Long.parseLong(time[0]);
-				totalTime = Long.parseLong(time[1]);
-			} else if (line.startsWith("audio:")) {
-				String[] audio = line.substring("audio: ".length()).split(":");
-				try {
-					sampleRate = Integer.parseInt(audio[0]);
-					bitsPerSample = Integer.parseInt(audio[1]);
-					channels = Integer.parseInt(audio[2]);
-				} catch (NumberFormatException e) {
-					// Sometimes mpd sends "?" as a sampleRate or bitsPerSample, etc ... hotfix for a bugreport I had.
-				}
-
-			} else if (line.startsWith("xfade:")) {
-				this.crossfade = Integer.parseInt(line.substring("xfade: ".length()));
-			} else if (line.startsWith("updating_db:")) {
-				System.out.println(line);
-				this.updating = true;
-			} else if (line.startsWith("nextsong:")) {
-				this.nextSong = Integer.parseInt(line.substring("nextsong: ".length()));
-			} else if (line.startsWith("nextsongid:")) {
-				this.nextSongId = Integer.parseInt(line.substring("nextsongid: ".length()));
-			} else if (line.startsWith("consume:")) {
-				if ("1".equals(line.substring("consume: ".length()))) {
-					this.consume = true;
-				} else {
-					this.consume = false;
-				}
-			} else if (line.startsWith("single:")) {
-				if ("1".equals(line.substring("single: ".length()))) {
-					this.single = true;
-				} else {
-					this.single = false;
-				}
-			} else {
-				//TODO : This floods logcat too much, will fix later
-				//(new InvalidResponseException("unknown response: " + line)).printStackTrace();
-			}
-		}
-	}
-
-	/**
-	 * Retrieves a string representation of the object.
-	 * 
-	 * @return a string representation of the object.
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		return "volume: " + volume + ", bitrate: " + bitrate + ", playlist: " + playlistVersion + ", playlistLength: " + playlistLength
-				+ ", song: " + song + ", songid: " + songId + ", repeat: " + repeat + ", random: " + random + ", state: " + state + ", error: "
-				+ error + ", elapsedTime: " + elapsedTime + ", totalTime: " + totalTime;
 	}
 
 	/**
@@ -229,7 +175,7 @@ public class MPDStatus {
 	}
 
 	/**
-	 * Retrives error message.
+	 * Retrieves error message.
 	 * 
 	 * @return error message.
 	 */
@@ -274,6 +220,23 @@ public class MPDStatus {
 	}
 
 	/**
+	 * Retrieves the process id of any database update task.
+	 * 
+	 * @return the process id of any database update task.
+	 */
+	public boolean isUpdating() {
+		return updating;
+	}
+	
+	public boolean isSingle() {
+		return single;
+	}
+	
+	public boolean isConsume() {
+		return consume;
+	}
+	
+	/**
 	 * Retrieves current song playlist number.
 	 * 
 	 * @return current song playlist number.
@@ -289,6 +252,14 @@ public class MPDStatus {
 	 */
 	public int getSongId() {
 		return songId;
+	}
+	
+	public int getNextSongPos() {
+		return nextSong;
+	}
+	
+	public int getNextSongId() {
+		return nextSongId;
 	}
 
 	/**
@@ -353,14 +324,17 @@ public class MPDStatus {
 	public int getSampleRate() {
 		return sampleRate;
 	}
-
+	
 	/**
-	 * Retrieves the process id of any database update task.
+	 * Retrieves a string representation of the object.
 	 * 
-	 * @return the process id of any database update task.
+	 * @return a string representation of the object.
+	 * @see java.lang.Object#toString()
 	 */
-	public boolean getUpdating() {
-		return updating;
+	public String toString() {
+		return "volume: " + volume + ", bitrate: " + bitrate + ", playlist: " + playlistVersion + ", playlistLength: " + playlistLength
+				+ ", song: " + song + ", songid: " + songId + ", repeat: " + repeat + ", random: " + random + ", state: " + state + ", error: "
+				+ error + ", elapsedTime: " + elapsedTime + ", totalTime: " + totalTime;
 	}
 
 }

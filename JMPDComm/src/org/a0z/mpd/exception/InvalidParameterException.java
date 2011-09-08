@@ -1,17 +1,17 @@
-package org.a0z.mpd;
+package org.a0z.mpd.exception;
 
 /**
- * @author Felipe Gustavo de Almeida - galmeida
+ * @author Felipe Gustavo de Almeida
  * @version $Id$
  */
-public class MPDException extends Exception {
+public class InvalidParameterException extends RuntimeException {
 
-	private static final long serialVersionUID = -8576503491266801543L;
+	private static final long serialVersionUID = 1335085123017300139L;
 
 	/**
 	 * Constructor.
 	 */
-	public MPDException() {
+	public InvalidParameterException() {
 		super();
 	}
 
@@ -21,7 +21,7 @@ public class MPDException extends Exception {
 	 * @param message
 	 *           exception message.
 	 */
-	public MPDException(String message) {
+	public InvalidParameterException(String message) {
 		super(message);
 	}
 
@@ -33,7 +33,7 @@ public class MPDException extends Exception {
 	 * @param cause
 	 *           cause of this exception.
 	 */
-	public MPDException(String message, Throwable cause) {
+	public InvalidParameterException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -43,7 +43,7 @@ public class MPDException extends Exception {
 	 * @param cause
 	 *           cause of this exception.
 	 */
-	public MPDException(Throwable cause) {
+	public InvalidParameterException(Throwable cause) {
 		super(cause);
 	}
 

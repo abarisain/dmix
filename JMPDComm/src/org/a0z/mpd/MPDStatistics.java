@@ -1,7 +1,6 @@
 package org.a0z.mpd;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -15,24 +14,15 @@ public class MPDStatistics {
 	private static final int MILLI_TO_SEC = 1000;
 
 	private long artists = -1;
-
 	private long albums = -1;
-
 	private long songs = -1;
-
 	private long uptime = -1;
-
 	private Date dbUpdate = null;
-
 	private long playtime = -1;
-
 	private long dbPlaytime = -1;
 
 	MPDStatistics(List<String> response) {
-
-		Iterator<String> it = response.iterator();
-		while (it.hasNext()) {
-			String line = it.next();
+		for (String line : response) {
 			if (line.startsWith("artists:")) {
 				this.artists = Long.parseLong(line.substring("artists: ".length()));
 			} else if (line.startsWith("albums:")) {

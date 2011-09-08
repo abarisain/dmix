@@ -1,19 +1,20 @@
-package org.a0z.mpd;
+package org.a0z.mpd.exception;
+
 
 /**
- * Represents an MPD Client error.
+ * Represents an MPD Server error.
  * 
  * @author Felipe Gustavo de Almeida
- * @version $Id: MPDServerException.java 2595 2004-11-11 00:21:36Z galmeida $
+ * @version $Id: MPDServerException.java 2716 2004-11-20 17:37:20Z galmeida $
  */
-public class MPDClientException extends MPDException {
+public class MPDServerException extends MPDException {
 
-	private static final long serialVersionUID = -7525157411640713109L;
+	private static final long serialVersionUID = 5986199004785561712L;
 
 	/**
 	 * Constructor.
 	 */
-	public MPDClientException() {
+	public MPDServerException() {
 		super();
 	}
 
@@ -23,7 +24,7 @@ public class MPDClientException extends MPDException {
 	 * @param message
 	 *           exception message.
 	 */
-	public MPDClientException(String message) {
+	public MPDServerException(String message) {
 		super(message);
 	}
 
@@ -35,7 +36,7 @@ public class MPDClientException extends MPDException {
 	 * @param cause
 	 *           cause of this exception.
 	 */
-	public MPDClientException(String message, Throwable cause) {
+	public MPDServerException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -45,7 +46,7 @@ public class MPDClientException extends MPDException {
 	 * @param cause
 	 *           cause of this exception.
 	 */
-	public MPDClientException(Throwable cause) {
+	public MPDServerException(Throwable cause) {
 		super(cause);
 	}
 
