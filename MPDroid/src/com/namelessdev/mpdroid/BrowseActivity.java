@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -140,7 +140,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		try {
 			MPDApplication app = (MPDApplication) getApplication();
 			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(context, item));
-			app.oMPDAsyncHelper.oMPD.getPlaylist().add(songs);
+			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(songs);
 			MainMenuActivity.notifyUser(String.format(getResources().getString(irAdded), item), this);
 		} catch (MPDServerException e) {
 			e.printStackTrace();
@@ -191,8 +191,8 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 						MPDPlaylist pl = app.oMPDAsyncHelper.oMPD.getPlaylist();
 						int oldsize = pl.size();
 						Add(items.get((int) info.id).toString());
-						int id = pl.getMusic(oldsize).getSongId();
-						app.oMPDAsyncHelper.oMPD.skipTo(id);
+						int id = pl.getByIndex(oldsize).getSongId();
+						app.oMPDAsyncHelper.oMPD.skipToId(id);
 						app.oMPDAsyncHelper.oMPD.play();
 					} catch (MPDServerException e) {
 						// TODO Auto-generated catch block

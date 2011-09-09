@@ -1,27 +1,22 @@
 package com.namelessdev.mpdroid;
 
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.LinkedList;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.MPDStatusMonitor;
-import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
-import org.a0z.mpd.event.MPDPlaylistChangedEvent;
-import org.a0z.mpd.event.MPDRandomChangedEvent;
-import org.a0z.mpd.event.MPDRepeatChangedEvent;
-import org.a0z.mpd.event.MPDStateChangedEvent;
-import org.a0z.mpd.event.MPDTrackChangedEvent;
-import org.a0z.mpd.event.MPDTrackPositionChangedEvent;
-import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
-import org.a0z.mpd.event.MPDVolumeChangedEvent;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+
+import com.namelessdev.mpdroid.tools.Tools;
 
 /**
  * This Class implements the whole MPD Communication as a thread. It also "translates" the monitor event of the JMPDComm Library back to the
@@ -62,7 +57,6 @@ public class MPDAsyncHelper extends Handler {
 	// PMix internal ConnectionListener interface
 	public interface ConnectionListener {
 		public void connectionFailed(String message);
-
 		public void connectionSucceeded(String message);
 	}
 
@@ -88,65 +82,68 @@ public class MPDAsyncHelper extends Handler {
 		oMPDAsyncWorkerThread = new HandlerThread("MPDAsyncWorker");
 		oMPDAsyncWorkerThread.start();
 		oMPDAsyncWorker = new MPDAsyncWorker(oMPDAsyncWorkerThread.getLooper());
+		
 		connectionListners = new LinkedList<ConnectionListener>();
 		statusChangedListeners = new LinkedList<StatusChangeListener>();
 		trackPositionListeners = new LinkedList<TrackPositionListener>();
 		asyncExecListeners = new LinkedList<AsyncExecListener>();
+		
 		conInfo = new MPDConnectionInfo();
 	}
 
 	/**
-	 * This method handels Messages, which comes from the AsyncWorker. This Message handler runns in the UI-Thread, and can therfore send
+	 * This method handles Messages, which comes from the AsyncWorker. This Message handler runs in the UI-Thread, and can therefore send
 	 * the information back to the listeners of the matching events...
 	 */
 	public void handleMessage(Message msg) {
+		Object[] args = (Object[]) msg.obj;
 		switch (msg.what) {
 		case EVENT_CONNECTIONSTATE:
 			for (StatusChangeListener listener : statusChangedListeners)
-				listener.connectionStateChanged((MPDConnectionStateChangedEvent) msg.obj);
+				listener.connectionStateChanged((Boolean)args[0], (Boolean)args[1]);
 			// Also notify Connection Listener...
-			if (((MPDConnectionStateChangedEvent) msg.obj).isConnected())
+			if((Boolean)args[0])
 				for (ConnectionListener listener : connectionListners)
 					listener.connectionSucceeded("");
-			if (((MPDConnectionStateChangedEvent) msg.obj).isConnectionLost())
+			if((Boolean)args[1])
 				for (ConnectionListener listener : connectionListners)
 					listener.connectionFailed("Connection Lost");
 			break;
 		case EVENT_PLAYLIST:
 			for (StatusChangeListener listener : statusChangedListeners)
-				listener.playlistChanged((MPDPlaylistChangedEvent) msg.obj);
+				listener.playlistChanged((MPDStatus)args[0], (Integer)args[1]);
 			break;
 		case EVENT_RANDOM:
 			for (StatusChangeListener listener : statusChangedListeners)
-				listener.randomChanged((MPDRandomChangedEvent) msg.obj);
+				listener.randomChanged((Boolean)args[0]);
 			break;
 		case EVENT_REPEAT:
 			for (StatusChangeListener listener : statusChangedListeners)
-				listener.repeatChanged((MPDRepeatChangedEvent) msg.obj);
+				listener.repeatChanged((Boolean)args[0]);
 			break;
 		case EVENT_STATE:
 			for (StatusChangeListener listener : statusChangedListeners)
-				listener.stateChanged((MPDStateChangedEvent) msg.obj);
+				listener.stateChanged((MPDStatus)args[0], (String)args[1]);
 			break;
 		case EVENT_TRACK:
 			for (StatusChangeListener listener : statusChangedListeners)
-				listener.trackChanged((MPDTrackChangedEvent) msg.obj);
+				listener.trackChanged((MPDStatus) args[0], (Integer)args[1]);
 			break;
 		case EVENT_UPDATESTATE:
 			for (StatusChangeListener listener : statusChangedListeners)
-				listener.updateStateChanged((MPDUpdateStateChangedEvent) msg.obj);
+				listener.libraryStateChanged((Boolean)args[0]);
 			break;
 		case EVENT_VOLUME:
 			for (StatusChangeListener listener : statusChangedListeners)
-				listener.volumeChanged((MPDVolumeChangedEvent) msg.obj);
+				listener.volumeChanged((MPDStatus) args[0], ((Integer) args[1]));
 			break;
 		case EVENT_TRACKPOSITION:
 			for (TrackPositionListener listener : trackPositionListeners)
-				listener.trackPositionChanged((MPDTrackPositionChangedEvent) msg.obj);
+				listener.trackPositionChanged((MPDStatus) args[0]);
 			break;
 		case EVENT_CONNECTFAILED:
 			for (ConnectionListener listener : connectionListners)
-				listener.connectionFailed((String) msg.obj);
+				listener.connectionFailed((String) args[0]);
 			break;
 		case EVENT_CONNECTSUCCEEDED:
 			for (ConnectionListener listener : connectionListners)
@@ -160,41 +157,18 @@ public class MPDAsyncHelper extends Handler {
 		}
 	}
 
-	/**
-	 * Sets the new connection information
-	 * 
-	 * @param sServer
-	 * @param iPort
-	 * @param sPassword
-	 */
-	public void setConnectionInfo(String sServer, int iPort, String sPassword, String sServerStreaming, int iPortStreaming) {
-		conInfo.sServer = sServer;
-		conInfo.iPort = iPort;
-		conInfo.sPassword = sPassword;
-		conInfo.sServerStreaming = sServerStreaming;
-		conInfo.iPortStreaming = iPortStreaming;
+	public MPDConnectionInfo getConnectionSettings() {
+		return conInfo;
 	}
 
-	public String getConnectionInfoServer() {
-		return conInfo.sServer;
-	}
-
-	public String getConnectionStreamingServer() {
-		if (conInfo.sServerStreaming == null) {
-			return getConnectionInfoServer();
-		} else {
-			return conInfo.sServerStreaming;
-		}
-	}
-
-	public int getConnectionInfoPortStreaming() {
-		return conInfo.iPortStreaming;
-	}
-
-	public void doConnect() {
+	public void connect() {
 		oMPDAsyncWorker.obtainMessage(EVENT_CONNECT, conInfo).sendToTarget();
 	}
-
+	
+	public void disconnect() {
+		oMPDAsyncWorker.obtainMessage(EVENT_DISCONNECT).sendToTarget();
+	}
+	
 	public void startMonitor() {
 		oMPDAsyncWorker.obtainMessage(EVENT_STARTMONITOR).sendToTarget();
 	}
@@ -210,17 +184,13 @@ public class MPDAsyncHelper extends Handler {
 			return oMonitor.isAlive() & !oMonitor.isGivingUp();
 	}
 
-	public void disconnect() {
-		oMPDAsyncWorker.obtainMessage(EVENT_DISCONNECT).sendToTarget();
-	}
-
 	/**
 	 * Executes a Runnable Asynchronous. Meant to use for individual long during operations on JMPDComm. Use this method only, when the code
-	 * to execute is only used once in the project. If its use more than once, implement indiviual events and listener in this class.
+	 * to execute is only used once in the project. If its use more than once, implement individual events and listener in this class.
 	 * 
 	 * @param run
 	 *            Runnable to execute async
-	 * @return JobID, which is brougth back with the AsyncExecListener interface...
+	 * @return JobID, which is brought back with the AsyncExecListener interface...
 	 */
 	public int execAsync(Runnable run) {
 		int actjobid = iJobID++;
@@ -263,8 +233,6 @@ public class MPDAsyncHelper extends Handler {
 	/**
 	 * Asynchronous worker thread-class for long during operations on JMPDComm
 	 * 
-	 * @author sag
-	 * 
 	 */
 	public class MPDAsyncWorker extends Handler implements StatusChangeListener, TrackPositionListener {
 		public MPDAsyncWorker(Looper looper) {
@@ -281,6 +249,8 @@ public class MPDAsyncHelper extends Handler {
 						oMPD.password(conInfo.sPassword);
 					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTSUCCEEDED).sendToTarget();
 				} catch (MPDServerException e) {
+					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED, e.getMessage()).sendToTarget();
+				} catch (UnknownHostException e) {
 					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED, e.getMessage()).sendToTarget();
 				}
 				break;
@@ -310,55 +280,62 @@ public class MPDAsyncHelper extends Handler {
 		}
 
 		// Send all events as Messages back to the GUI-Thread
-		public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTIONSTATE, event).sendToTarget();
+		@Override
+		public void trackPositionChanged(MPDStatus status) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_TRACKPOSITION, Tools.toObjectArray(status)).sendToTarget();	
 		}
 
-		public void playlistChanged(MPDPlaylistChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_PLAYLIST, event).sendToTarget();
+		@Override
+		public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_VOLUME, Tools.toObjectArray(mpdStatus, oldVolume)).sendToTarget();
 		}
 
-		public void randomChanged(MPDRandomChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_RANDOM, event).sendToTarget();
+		@Override
+		public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_PLAYLIST, Tools.toObjectArray(mpdStatus, oldPlaylistVersion)).sendToTarget();
 		}
 
-		public void repeatChanged(MPDRepeatChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_REPEAT, event).sendToTarget();
-
+		@Override
+		public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_TRACK, Tools.toObjectArray(mpdStatus, oldTrack)).sendToTarget();
 		}
 
-		public void stateChanged(MPDStateChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_STATE, event).sendToTarget();
-
+		@Override
+		public void stateChanged(MPDStatus mpdStatus, String oldState) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_STATE, Tools.toObjectArray(mpdStatus, oldState)).sendToTarget();
 		}
 
-		public void trackChanged(MPDTrackChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_TRACK, event).sendToTarget();
-
+		@Override
+		public void repeatChanged(boolean repeating) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_REPEAT, Tools.toObjectArray(repeating)).sendToTarget();
 		}
 
-		public void updateStateChanged(MPDUpdateStateChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_UPDATESTATE, event).sendToTarget();
-
+		@Override
+		public void randomChanged(boolean random) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_RANDOM, Tools.toObjectArray(random)).sendToTarget();
 		}
 
-		public void volumeChanged(MPDVolumeChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_VOLUME, event).sendToTarget();
-
+		@Override
+		public void connectionStateChanged(boolean connected, boolean connectionLost) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTIONSTATE, Tools.toObjectArray(connected, connectionLost)).sendToTarget();
 		}
 
-		public void trackPositionChanged(MPDTrackPositionChangedEvent event) {
-			MPDAsyncHelper.this.obtainMessage(EVENT_TRACKPOSITION, event).sendToTarget();
-
+		@Override
+		public void libraryStateChanged(boolean updating) {
+			MPDAsyncHelper.this.obtainMessage(EVENT_UPDATESTATE, Tools.toObjectArray(updating)).sendToTarget();
 		}
 	}
 
-	private class MPDConnectionInfo {
+	public class MPDConnectionInfo {
 		public String sServer;
 		public int iPort;
 		public String sPassword;
 		public String sServerStreaming;
 		public int iPortStreaming;
+		
+		public String getConnectionStreamingServer() {
+			return conInfo.sServerStreaming == null ? sServer : sServerStreaming;
+		}
 	}
 
 }

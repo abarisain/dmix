@@ -5,16 +5,9 @@ import java.util.HashMap;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDOutput;
-import org.a0z.mpd.MPDServerException;
-import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
-import org.a0z.mpd.event.MPDPlaylistChangedEvent;
-import org.a0z.mpd.event.MPDRandomChangedEvent;
-import org.a0z.mpd.event.MPDRepeatChangedEvent;
-import org.a0z.mpd.event.MPDStateChangedEvent;
-import org.a0z.mpd.event.MPDTrackChangedEvent;
-import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
-import org.a0z.mpd.event.MPDVolumeChangedEvent;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -230,51 +223,44 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 			return true;
 		}
 	}
-
+	
 	@Override
-	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
+	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
-	public void playlistChanged(MPDPlaylistChangedEvent event) {
+	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
-	public void randomChanged(MPDRandomChangedEvent event) {
-		pRandom.setChecked(event.isRandom());
-	}
-
-	@Override
-	public void repeatChanged(MPDRepeatChangedEvent event) {
-		pRepeat.setChecked(event.isRepeat());
-	}
-
-	@Override
-	public void stateChanged(MPDStateChangedEvent event) {
+	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
-	public void trackChanged(MPDTrackChangedEvent event) {
+	public void stateChanged(MPDStatus mpdStatus, String oldState) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
-	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
-		// TODO Auto-generated method stub
-
+	public void repeatChanged(boolean repeating) {
+		pRepeat.setChecked(repeating);
 	}
 
 	@Override
-	public void volumeChanged(MPDVolumeChangedEvent event) {
-		// TODO Auto-generated method stub
-
+	public void randomChanged(boolean random) {
+		pRandom.setChecked(random);	
 	}
 
+	@Override
+	public void connectionStateChanged(boolean connected, boolean connectionLost) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void libraryStateChanged(boolean updating) {
+		// TODO Auto-generated method stub
+	}
 }

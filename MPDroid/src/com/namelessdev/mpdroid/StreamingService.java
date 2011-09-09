@@ -5,18 +5,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
-import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
-import org.a0z.mpd.event.MPDPlaylistChangedEvent;
-import org.a0z.mpd.event.MPDRandomChangedEvent;
-import org.a0z.mpd.event.MPDRepeatChangedEvent;
-import org.a0z.mpd.event.MPDStateChangedEvent;
-import org.a0z.mpd.event.MPDTrackChangedEvent;
-import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
-import org.a0z.mpd.event.MPDVolumeChangedEvent;
 import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -78,7 +70,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	private Boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
 	private Boolean needStoppedNotification;
 	private Integer lastStartID;
-	private Integer mediaPlayerError;
+	//private Integer mediaPlayerError;
 
 	private static Method registerMediaButtonEventReceiver; // Thanks you google again for this code
 	private static Method unregisterMediaButtonEventReceiver;
@@ -239,8 +231,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		MPDApplication app = (MPDApplication) getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addConnectionListener(this);
-		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionStreamingServer() + ":"
-				+ app.oMPDAsyncHelper.getConnectionInfoPortStreaming() + "/";
+		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":" + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/";
 	}
 
 	@Override
@@ -338,12 +329,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 					if (state == oldStatus)
 						return;
 					oldStatus = state;
-					int songId = statusMpd.getSongPos();
-					if (songId >= 0) {
+					int songPos = statusMpd.getSongPos();
+					if (songPos >= 0) {
 						((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
 						((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
 						stopForeground(true);
-						Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
+						Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
 						RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
 						views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
 						Notification status = null;
@@ -486,79 +477,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	}
 
 	@Override
-	public void trackChanged(MPDTrackChangedEvent event) {
-		oldStatus = "";
-		showNotification();
-	}
-
-	@Override
-	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void playlistChanged(MPDPlaylistChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void randomChanged(MPDRandomChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void repeatChanged(MPDRepeatChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stateChanged(MPDStateChangedEvent event) {
-		// TODO Auto-generated method stub
-		// Toast.makeText(this, "stateChanged :", Toast.LENGTH_SHORT).show();
-		Message msg = delayedStopHandler.obtainMessage();
-		delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
-		MPDApplication app = (MPDApplication) getApplication();
-		MPDStatus statusMpd = null;
-		try {
-			statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
-		} catch (MPDServerException e) {
-			// Do nothing cause I suck hard at android programming
-		}
-		if (statusMpd != null) {
-			String state = statusMpd.getState();
-			if (state != null) {
-				if (state == oldStatus)
-					return;
-				if (state == MPDStatus.MPD_STATE_PLAYING) {
-					isPaused = false;
-					resumeStreaming();
-					isPlaying = true;
-				} else {
-					oldStatus = state;
-					isPlaying = false;
-					stopStreaming();
-				}
-			}
-		}
-	}
-
-	@Override
-	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
-		// TODO Auto-generated method stub
-		// Toast.makeText(this, "updateStateChanged :", Toast.LENGTH_SHORT).show();
-	}
-
-	@Override
-	public void volumeChanged(MPDVolumeChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void onPrepared(MediaPlayer mp) {
 		// Buffering done
 		buffering = false;
@@ -606,7 +524,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		// Toast.makeText(this, "onError", Toast.LENGTH_SHORT).show();
 		// mediaPlayer.reset();
-		mediaPlayerError = what;
+		//mediaPlayerError = what;
 		pauseStreaming();
 		return false;
 	}
@@ -627,5 +545,78 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	public void connectionSucceeded(String message) {
 		// TODO Auto-generated method stub
 		// Toast.makeText(this, "connectionSucceeded :", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+		oldStatus = "";
+		showNotification();
+		
+	}
+
+	@Override
+	public void stateChanged(MPDStatus mpdStatus, String oldState) {
+		Message msg = delayedStopHandler.obtainMessage();
+		delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
+		MPDApplication app = (MPDApplication) getApplication();
+		MPDStatus statusMpd = null;
+		try {
+			statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
+		} catch (MPDServerException e) {
+			// Do nothing cause I suck hard at android programming
+		}
+		if (statusMpd != null) {
+			String state = statusMpd.getState();
+			if (state != null) {
+				if (state == oldStatus)
+					return;
+				if (state == MPDStatus.MPD_STATE_PLAYING) {
+					isPaused = false;
+					resumeStreaming();
+					isPlaying = true;
+				} else {
+					oldStatus = state;
+					isPlaying = false;
+					stopStreaming();
+				}
+			}
+		}
+		
+	}
+
+	@Override
+	public void repeatChanged(boolean repeating) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void randomChanged(boolean random) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void connectionStateChanged(boolean connected, boolean connectionLost) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void libraryStateChanged(boolean updating) {
+		// TODO Auto-generated method stub
+		
 	}
 }

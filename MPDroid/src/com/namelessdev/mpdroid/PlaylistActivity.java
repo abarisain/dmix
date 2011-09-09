@@ -5,18 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
-import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
-import org.a0z.mpd.event.MPDPlaylistChangedEvent;
-import org.a0z.mpd.event.MPDRandomChangedEvent;
-import org.a0z.mpd.event.MPDRepeatChangedEvent;
-import org.a0z.mpd.event.MPDStateChangedEvent;
-import org.a0z.mpd.event.MPDTrackChangedEvent;
-import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
-import org.a0z.mpd.event.MPDVolumeChangedEvent;
 import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -97,7 +89,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			songlist = new ArrayList<HashMap<String, Object>>();
-			musics = playlist.getMusics();
+			musics = playlist.getMusicList();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			// The position in the songlist of the currently played song
 			int listPlayingID = -1;
@@ -184,7 +176,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		case R.id.PLCX_SkipToHere:
 			// skip to selected Song
 			try {
-				app.oMPDAsyncHelper.oMPD.skipTo(songId);
+				app.oMPDAsyncHelper.oMPD.skipToId(songId);
 			} catch (MPDServerException e) {
 			}
 			return true;
@@ -223,7 +215,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			return true;
 		case R.id.PLCX_removeFromPlaylist:
 			try {
-				app.oMPDAsyncHelper.oMPD.getPlaylist().removeSong(songId);
+				app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(songId);
 				MainMenuActivity.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), this);
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
@@ -303,7 +295,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 		Music m = musics.get(position);
 		try {
-			app.oMPDAsyncHelper.oMPD.skipTo(m.getSongId());
+			app.oMPDAsyncHelper.oMPD.skipToId(m.getSongId());
 		} catch (MPDServerException e) {
 		}
 
@@ -323,60 +315,6 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	}
 
 	@Override
-	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void playlistChanged(MPDPlaylistChangedEvent event) {
-		update();
-	}
-
-	@Override
-	public void randomChanged(MPDRandomChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void repeatChanged(MPDRepeatChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stateChanged(MPDStateChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void trackChanged(MPDTrackChangedEvent event) {
-		// Mark running track...
-		for (HashMap<String, Object> song : songlist) {
-			if (((Integer) song.get("songid")).intValue() == event.getMpdStatus().getSongId())
-				song.put("play", android.R.drawable.ic_media_play);
-			else
-				song.put("play", 0);
-
-		}
-		((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
-	}
-
-	@Override
-	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void volumeChanged(MPDVolumeChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.actionbar_text:
@@ -386,6 +324,62 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+		update();
+		
+	}
+
+	@Override
+	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+		// Mark running track...
+		for (HashMap<String, Object> song : songlist) {
+			if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId())
+				song.put("play", android.R.drawable.ic_media_play);
+			else
+				song.put("play", 0);
+
+		}
+		((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+		
+	}
+
+	@Override
+	public void stateChanged(MPDStatus mpdStatus, String oldState) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void repeatChanged(boolean repeating) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void randomChanged(boolean random) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void connectionStateChanged(boolean connected, boolean connectionLost) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void libraryStateChanged(boolean updating) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

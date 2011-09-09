@@ -5,17 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDServerException;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
-import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
-import org.a0z.mpd.event.MPDPlaylistChangedEvent;
-import org.a0z.mpd.event.MPDRandomChangedEvent;
-import org.a0z.mpd.event.MPDRepeatChangedEvent;
-import org.a0z.mpd.event.MPDStateChangedEvent;
-import org.a0z.mpd.event.MPDTrackChangedEvent;
-import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
-import org.a0z.mpd.event.MPDVolumeChangedEvent;
 import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -47,7 +40,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 
-			musics = playlist.getMusics();
+			musics = playlist.getMusicList();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			for (Music m : musics) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
@@ -110,7 +103,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 
 			songlist = new ArrayList<HashMap<String, Object>>();
-			musics = playlist.getMusics();
+			musics = playlist.getMusicList();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			for (Music m : musics) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
@@ -164,53 +157,6 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		app.unsetActivity(this);
 	}
 
-	@Override
-	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void playlistChanged(MPDPlaylistChangedEvent event) {
-		update();
-	}
-
-	@Override
-	public void randomChanged(MPDRandomChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void repeatChanged(MPDRepeatChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stateChanged(MPDStateChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void trackChanged(MPDTrackChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void volumeChanged(MPDVolumeChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
 	private TouchInterceptor.DropListener mDropListener = new TouchInterceptor.DropListener() {
 		public void drop(int from, int to) {
 			if (from == to) {
@@ -257,7 +203,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 				for (HashMap<String, Object> item : songlist) {
 					try {
 						if (item.get("marked").equals(true)) {
-							app.oMPDAsyncHelper.oMPD.getPlaylist().removeSong((Integer) item.get("songid"));
+							app.oMPDAsyncHelper.oMPD.getPlaylist().removeById((Integer) item.get("songid"));
 							count++;
 						}
 					} catch (MPDServerException e) {
@@ -290,6 +236,54 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 			return false;
 		}
 
+	}
+
+	@Override
+	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+		update();
+		
+	}
+
+	@Override
+	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void stateChanged(MPDStatus mpdStatus, String oldState) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void repeatChanged(boolean repeating) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void randomChanged(boolean random) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void connectionStateChanged(boolean connected, boolean connectionLost) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void libraryStateChanged(boolean updating) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

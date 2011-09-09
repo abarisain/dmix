@@ -124,6 +124,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			connectionFailed("No network.");
 			return;
 		}
+		
 		if (currentActivity != null) {
 			ad = new ProgressDialog(currentActivity);
 			ad.setTitle(getResources().getString(R.string.connecting));
@@ -141,7 +142,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 				// Can't display it. Don't care.
 			}
 		}
-		oMPDAsyncHelper.doConnect();
+		oMPDAsyncHelper.connect();
 	}
 
 	public void onSharedPreferenceChanged(SharedPreferences settings, String key) {
@@ -233,7 +234,13 @@ public class MPDApplication extends Application implements ConnectionListener, O
 			sServerStreaming = null;
 		}
 		String sPassword = settings.getString(getStringWithSSID("password", wifiSSID), "").trim();
-		oMPDAsyncHelper.setConnectionInfo(sServer, iPort, sPassword, sServerStreaming, iPortStreaming);
+		
+		// FIXME
+		oMPDAsyncHelper.getConnectionSettings().sServer = sServer;
+		oMPDAsyncHelper.getConnectionSettings().iPort = iPort;
+		oMPDAsyncHelper.getConnectionSettings().sPassword = sPassword;
+		oMPDAsyncHelper.getConnectionSettings().sServerStreaming = sServerStreaming;
+		oMPDAsyncHelper.getConnectionSettings().iPortStreaming = iPortStreaming;
 	}
 
 	private String getStringWithSSID(String param, String wifiSSID) {

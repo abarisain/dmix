@@ -3,8 +3,8 @@ package com.namelessdev.mpdroid;
 import java.util.ArrayList;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ProgressDialog;
 import android.app.SearchManager;

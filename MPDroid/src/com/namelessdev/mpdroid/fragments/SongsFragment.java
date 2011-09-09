@@ -6,8 +6,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
@@ -92,6 +92,7 @@ public class SongsFragment extends BrowseFragment {
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			dispMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(MPD.MPD_FIND_ALBUM, album));
 		} catch (MPDServerException e) {
+			e.printStackTrace();
 		}
 		if (isSortedByTrack) {
 			// sort by track number

@@ -5,8 +5,8 @@ import java.util.Collection;
 
 import org.a0z.mpd.Directory;
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -108,7 +108,7 @@ public class FSFragment extends BrowseFragment {
 				int songId = -1;
 				app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
 				if (songId > -1) {
-					app.oMPDAsyncHelper.oMPD.skipTo(songId);
+					app.oMPDAsyncHelper.oMPD.skipToId(songId);
 				}
 
 			} catch (MPDServerException e) {

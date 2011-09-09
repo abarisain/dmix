@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;

@@ -1,6 +1,6 @@
 package com.namelessdev.mpdroid;
 
-import org.a0z.mpd.MPDServerException;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -25,7 +25,7 @@ public class PlaylistSaveActivity extends Activity implements OnClickListener {
 		case R.id.save:
 			try {
 				MPDApplication app = (MPDApplication) getApplication();
-				app.oMPDAsyncHelper.oMPD.getPlaylist().save(((EditText) findViewById(R.id.editPlaylistName)).getText().toString());
+				app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(((EditText) findViewById(R.id.editPlaylistName)).getText().toString());
 			} catch (MPDServerException e) {
 			}
 

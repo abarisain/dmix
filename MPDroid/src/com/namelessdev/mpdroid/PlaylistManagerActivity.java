@@ -3,7 +3,7 @@ package com.namelessdev.mpdroid;
 import java.util.List;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -70,7 +70,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 			try {
 				MPDApplication app = (MPDApplication) getApplication();
 				String playlist = items.get((int) info.id).toString();
-				app.oMPDAsyncHelper.oMPD.deletePlaylist(playlist);
+				app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
 				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.playlistDeleted), playlist), this);
 				items.remove((int) info.id);
 				updateFromItems();

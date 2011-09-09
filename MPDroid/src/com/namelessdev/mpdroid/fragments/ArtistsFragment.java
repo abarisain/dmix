@@ -1,7 +1,7 @@
 package com.namelessdev.mpdroid.fragments;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ProgressDialog;
 import android.content.Intent;

@@ -6,20 +6,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDServerException;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
-import org.a0z.mpd.event.MPDConnectionStateChangedEvent;
-import org.a0z.mpd.event.MPDPlaylistChangedEvent;
-import org.a0z.mpd.event.MPDRandomChangedEvent;
-import org.a0z.mpd.event.MPDRepeatChangedEvent;
-import org.a0z.mpd.event.MPDStateChangedEvent;
-import org.a0z.mpd.event.MPDTrackChangedEvent;
-import org.a0z.mpd.event.MPDTrackPositionChangedEvent;
-import org.a0z.mpd.event.MPDUpdateStateChangedEvent;
-import org.a0z.mpd.event.MPDVolumeChangedEvent;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -629,7 +620,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			openLibrary();
 			return true;
 		case R.id.GMM_Settings:
-			if (((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isMpdConnectionNull()) {
+			if (((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected()) {
 				startActivityForResult(new Intent(getActivity(), WifiConnectionSettings.class), SETTINGS);
 			} else {
 				i = new Intent(getActivity(), SettingsActivity.class);
@@ -678,53 +669,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 	}
 
-	// private MPDPlaylist playlist;
-	public void playlistChanged(MPDPlaylistChangedEvent event) {
-		// Can someone explain why this is nessesary?
-		// Maybe the song gets changed before the playlist?
-		// Makes little sense tho.
-		try {
-			updateTrackInfo();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public void randomChanged(MPDRandomChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void repeatChanged(MPDRepeatChangedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void stateChanged(MPDStateChangedEvent event) {
-		MPDStatus status = event.getMpdStatus();
-
-		String state = status.getState();
-		if (state != null) {
-
-			if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
-				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-				if (newUI) {
-					button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
-				} else {
-					button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
-				}
-			} else {
-				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-				if (newUI) {
-					button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
-				} else {
-					button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
-				}
-			}
-		}
-	}
-
 	private String lastArtist = "";
 	private String lastAlbum = "";
 
@@ -755,10 +699,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			if (params[0] != null) {
 				String state = params[0].getState();
 				if (state != null) {
-					int songId = params[0].getSongPos();
-					if (songId >= 0) {
+					int songPos = params[0].getSongPos();
+					if (songPos >= 0) {
 						MPDApplication app = (MPDApplication) getActivity().getApplication();
-						actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getMusic(songId);
+						actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
 						status = params[0];
 						return true;
 					}
@@ -800,8 +744,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 					} else {
 						// Try to find the cover from apache (vortexbox)
 						// TODO : Make it configurable ...
-						oCoverAsyncHelper.setUrlOverride(String.format(COVER_BASE_URL + "%s/cover.jpg", ((MPDApplication) getActivity()
-								.getApplication()).oMPDAsyncHelper.getConnectionInfoServer(), actSong.getPath().replace(" ", "%20")));
+						oCoverAsyncHelper.setUrlOverride(String.format(COVER_BASE_URL + "%s/cover.jpg", ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.getConnectionSettings().sServer, actSong.getPath().replace(" ", "%20")));
 						oCoverAsyncHelper.downloadCover(null, null);
 						// Dirty hack ? Maybe. I don't feel like writing a new function.
 						// onCoverNotFound();
@@ -818,25 +761,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		}
 	}
 
-	public void trackChanged(MPDTrackChangedEvent event) {
-		updateTrackInfo(event.getMpdStatus());
-	}
-
-	public void updateStateChanged(MPDUpdateStateChangedEvent event) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void connectionStateChanged(MPDConnectionStateChangedEvent event) {
-		// TODO Auto-generated method stub
-		checkConnected();
-		/*
-		 * MPDStatus status = event.getMpdStatus();
-		 * 
-		 * String state = status.getState();
-		 */
-	}
-
 	public void checkConnected() {
 		connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
 		if (connected) {
@@ -845,10 +769,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			songNameText.setText(getResources().getString(R.string.notConnected));
 		}
 		return;
-	}
-
-	public void volumeChanged(MPDVolumeChangedEvent event) {
-		progressBarVolume.setProgress(event.getMpdStatus().getVolume());
 	}
 
 	@Override
@@ -881,14 +801,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 	public SeekBar getProgressBarTrack() {
 		return progressBarTrack;
-	}
-
-	public void trackPositionChanged(MPDTrackPositionChangedEvent event) {
-		MPDStatus status = event.getMpdStatus();
-		lastElapsedTime = status.getElapsedTime();
-		lastSongTime = status.getTotalTime();
-		trackTime.setText(timeToString(lastElapsedTime) + " - " + timeToString(lastSongTime));
-		progressBarTrack.setProgress((int) status.getElapsedTime());
 	}
 
 	private static String timeToString(long seconds) {
@@ -925,6 +837,82 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		if (key.equals("enableLastFM")) {
 			enableLastFM = sharedPreferences.getBoolean("enableLastFM", true);
 		}
+	}
+
+	@Override
+	public void trackPositionChanged(MPDStatus status) {
+		lastElapsedTime = status.getElapsedTime();
+		lastSongTime = status.getTotalTime();
+		trackTime.setText(timeToString(lastElapsedTime) + " - " + timeToString(lastSongTime));
+		progressBarTrack.setProgress((int) status.getElapsedTime());
+	}
+
+	@Override
+	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+		progressBarVolume.setProgress(mpdStatus.getVolume());
+	}
+
+	@Override
+	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+		// Can someone explain why this is nessesary?
+		// Maybe the song gets changed before the playlist?
+		// Makes little sense tho.
+		try {
+			updateTrackInfo();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+		updateTrackInfo(mpdStatus);
+	}
+
+	@Override
+	public void stateChanged(MPDStatus mpdStatus, String oldState) {
+		String state = mpdStatus.getState();
+		if (state != null) {
+
+			if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
+				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
+				if (newUI) {
+					button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
+				} else {
+					button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+				}
+			} else {
+				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
+				if (newUI) {
+					button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
+				} else {
+					button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+				}
+			}
+		}
+	}
+
+	@Override
+	public void repeatChanged(boolean repeating) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void randomChanged(boolean random) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void connectionStateChanged(boolean connected, boolean connectionLost) {
+		checkConnected();
+	}
+
+	@Override
+	public void libraryStateChanged(boolean updating) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
