@@ -42,6 +42,9 @@ public class MPDStatusMonitor extends Thread {
 		this.giveup = false;
 		this.statusChangedListeners = new LinkedList<StatusChangeListener>();
 		this.trackPositionChangedListeners = new LinkedList<TrackPositionListener>();
+		
+		// integrate MPD stuff into listener lists
+		addStatusChangeListener(mpd.getPlaylist());
 	}
 
 	/**

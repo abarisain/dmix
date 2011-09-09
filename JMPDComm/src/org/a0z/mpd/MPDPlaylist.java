@@ -166,8 +166,12 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 	 * @see org.a0z.mpd.event.AbstractStatusChangeListener#playlistChanged(org.a0z.mpd.MPDStatus, int)
 	 */
 	@Override
-	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) throws MPDServerException {
-		refresh(oldPlaylistVersion);
+	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+		try {
+			refresh(oldPlaylistVersion);
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -212,7 +216,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 		List<Music> playlist = Music.getMusicFromList(response);
 		
 		this.list.clear();
-		this.list.addAll(playlist.subList(0, status.getPlaylistLength()));
+		//this.list.addAll(playlist.subList(0, status.getPlaylistLength()));
+		this.list.addAll(playlist);
 		return status.getPlaylistVersion();
 	}
 

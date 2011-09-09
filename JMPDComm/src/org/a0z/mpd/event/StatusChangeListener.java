@@ -28,7 +28,7 @@ public interface StatusChangeListener {
 	 *           old playlist version.
 	 * @throws MPDServerException 
 	 */
-	void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) throws MPDServerException;
+	void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion);
 
 	/**
 	 * Called when playing track is changed on server.

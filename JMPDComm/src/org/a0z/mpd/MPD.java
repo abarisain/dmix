@@ -238,7 +238,7 @@ public class MPD {
 	// Returns a pattern where all punctuation characters are escaped. 
 	private static Pattern escaper = Pattern.compile("([^a-zA-z0-9])"); 
 	private List<Music> genericSearch(String searchCommand, String type, String strToFind) throws MPDServerException {
-		if (isConnected())
+		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
 		List<String> response = mpdConnection.sendCommand(searchCommand, type, escaper.matcher(strToFind).replaceAll("\\\\$1"));
