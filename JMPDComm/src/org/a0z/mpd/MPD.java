@@ -261,8 +261,7 @@ public class MPD {
 	/**
 	 * Retrieves a database directory listing of <code>path</code> directory.
 	 * 
-	 * @param dir
-	 *           Directory to be listed.
+	 * @param path Directory to be listed.
 	 * @return a <code>Collection</code> of <code>Music</code> and <code>Directory</code> representing directory entries.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
@@ -475,7 +474,7 @@ public class MPD {
 	/**
 	 * List all artist names from database.
 	 * 
-	 * @param dir
+	 * @param sortInsensitive
 	 *           boolean for insensitive sort when true
 	 * @return artist names from database.
 	 * @throws MPDServerException
@@ -643,8 +642,8 @@ public class MPD {
 	/**
 	 * Seeks music to the position.
 	 * 
-	 * @param songId
-	 *           music id in playlist.
+	 * @param index
+	 *           music position in playlist.
 	 * @param position
 	 *           song position in seconds.
 	 * @throws MPDServerException
@@ -735,7 +734,7 @@ public class MPD {
 	 *           track number.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
-	 * @see #skipTo(int)
+	 * @see #skipToId(int)
 	 */
 	public void skipToPositon(int position) throws MPDServerException {
 		if (!isConnected())

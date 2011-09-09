@@ -80,7 +80,7 @@ public final class Directory implements FilesystemTreeEntry {
 	/**
 	 * Gets Music object by title
 	 * 
-	 * @param Title
+	 * @param title title of the file to be returned
 	 * @return Returns null if title not found
 	 */
 	public Music getFileByTitle(String title) {
@@ -159,7 +159,7 @@ public final class Directory implements FilesystemTreeEntry {
 	/**
 	 * Given a path not starting or ending with '/', creates all directories on this path.
 	 * 
-	 * @param name
+	 * @param subPath
 	 *           path, must not start or end with '/'.
 	 * @return the last component of the path created.
 	 */

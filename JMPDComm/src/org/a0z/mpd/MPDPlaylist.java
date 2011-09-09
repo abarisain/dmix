@@ -63,8 +63,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 	/**
 	 * Adds a music to playlist.
 	 * 
-	 * @param music
-	 *           music to be added.
+	 * @param entry
+	 *           music/directory/playlist to be added.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
 	 */
@@ -228,11 +228,11 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 	 *           position of the entry to be removed.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
-	 * @see #removeSong(int)
+	 * @see #removeId(int)
 	 */
-	public void removeByIndex(int index) throws MPDServerException {
-		this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(index));
-		list.removeByIndex(index);
+	public void removeByIndex(int position) throws MPDServerException {
+		this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(position));
+		list.removeByIndex(position);
 	}
 	
 	/**
@@ -242,7 +242,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 	 *           entries positions.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
-	 * @see #removeSongs(int[])
+	 * @see #removeById(int[])
 	 */
 	public void removeByIndex(int[] songs) throws MPDServerException {
 		java.util.Arrays.sort(songs);

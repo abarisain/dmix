@@ -335,7 +335,7 @@ public class Music implements FilesystemTreeEntry {
 	/**
 	 * Defines total number of tracks from this music's album when available.
 	 * 
-	 * @param i
+	 * @param str
 	 *           total number of tracks from this music's album when available.
 	 */
 	public void setTotalTracks(String str) {
@@ -345,7 +345,7 @@ public class Music implements FilesystemTreeEntry {
 	/**
 	 * Defines track number.
 	 * 
-	 * @param i
+	 * @param str
 	 *           track number.
 	 */
 	public void setTrack(String str) {

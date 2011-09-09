@@ -123,7 +123,7 @@ public class MusicList {
 	/**
 	 * Removes music at <code>position</code> from this <code>MusicList</code>, if it is present.
 	 * 
-	 * @param position
+	 * @param index
 	 *           position of the <code>Music</code> to be removed from this <code>MusicList</code>.
 	 */
 	public void removeByIndex(int index) {
