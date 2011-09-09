@@ -45,14 +45,28 @@ public class ServerListProvider extends ContentProvider {
 	private static final String DATABASE_NAME = "servers.db";
 	private static final int DATABASE_VERSION = 1;
 	private static final String SERVERS_TABLE_NAME = "servers";
-
-	private static HashMap<String, String> sServerListProjectionMap;
-
+	
 	private static final int SERVERS = 1;
 	private static final int SERVER_ID = 2;
 
 	private static final UriMatcher sUriMatcher;
+	private static HashMap<String, String> sServerListProjectionMap;
 
+	static {
+		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+		sUriMatcher.addURI(ServerList.AUTHORITY, "servers", SERVERS);
+		sUriMatcher.addURI(ServerList.AUTHORITY, "servers/#", SERVER_ID);
+
+		sServerListProjectionMap = new HashMap<String, String>();
+		sServerListProjectionMap.put(ServerColumns._ID, ServerColumns._ID);
+		sServerListProjectionMap.put(ServerColumns.NAME, ServerColumns.NAME);
+		sServerListProjectionMap.put(ServerColumns.HOST, ServerColumns.HOST);
+		sServerListProjectionMap.put(ServerColumns.PORT, ServerColumns.PORT);
+		sServerListProjectionMap.put(ServerColumns.STREAMING_PORT, ServerColumns.STREAMING_PORT);
+		sServerListProjectionMap.put(ServerColumns.STREAMING_URL, ServerColumns.STREAMING_URL);
+		sServerListProjectionMap.put(ServerColumns.PASSWORD, ServerColumns.PASSWORD);
+	}
+	
 	/**
 	 * This class helps open, create, and upgrade the database file.
 	 */
@@ -91,31 +105,17 @@ public class ServerListProvider extends ContentProvider {
 		qb.setTables(SERVERS_TABLE_NAME);
 		qb.setProjectionMap(sServerListProjectionMap);
 
-		switch (sUriMatcher.match(uri)) {
-		case SERVERS:
-			break;
-
-		case SERVER_ID:
+		if(sUriMatcher.match(uri) == SERVER_ID)
 			qb.appendWhere(ServerColumns._ID + "=" + uri.getPathSegments().get(1));
-			break;
-
-		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
-		}
 
 		// If no sort order is specified use the default
-		String orderBy;
-		if (TextUtils.isEmpty(sortOrder)) {
-			orderBy = ServerColumns.DEFAULT_SORT_ORDER;
-		} else {
-			orderBy = sortOrder;
-		}
+		String orderBy = TextUtils.isEmpty(sortOrder) ? ServerColumns.DEFAULT_SORT_ORDER : sortOrder;
 
 		// Get the database and run the query
 		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
 
-		// Tell the cursor what uri to watch, so it knows when its source data changes
+		// Tell the cursor what URI to watch, so it knows when its source data changes
 		c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 	}
@@ -136,46 +136,32 @@ public class ServerListProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues) {
-		// Validate the requested uri
-		if (sUriMatcher.match(uri) != SERVERS) {
+		// Validate the requested URI
+		if (sUriMatcher.match(uri) != SERVERS)
 			throw new IllegalArgumentException("Unknown URI " + uri);
-		}
 
-		ContentValues values;
-		if (initialValues != null) {
-			values = new ContentValues(initialValues);
-		} else {
-			values = new ContentValues();
-		}
+		ContentValues values = initialValues != null ? new ContentValues(initialValues) : new ContentValues();
 
 		Long now = Long.valueOf(System.currentTimeMillis());
 
-		// Make sure that the fields are all set
-		if (values.containsKey(ServerColumns.NAME) == false) {
-			// Should never happen
-			Resources r = Resources.getSystem();
-			values.put(ServerColumns.NAME, r.getString(android.R.string.untitled) + now.toString());
-		}
+		// Extend initialValues with default values
+		if (!values.containsKey(ServerColumns.NAME))
+			values.put(ServerColumns.NAME, Resources.getSystem().getString(android.R.string.untitled) + now.toString());
 
-		if (values.containsKey(ServerColumns.HOST) == false) {
+		if (!values.containsKey(ServerColumns.HOST))
 			values.put(ServerColumns.HOST, "0.0.0.0");
-		}
 
-		if (values.containsKey(ServerColumns.PORT) == false) {
+		if (!values.containsKey(ServerColumns.PORT))
 			values.put(ServerColumns.PORT, "6600");
-		}
 
-		if (values.containsKey(ServerColumns.STREAMING_PORT) == false) {
+		if (!values.containsKey(ServerColumns.STREAMING_PORT))
 			values.put(ServerColumns.STREAMING_PORT, "8000");
-		}
 
-		if (values.containsKey(ServerColumns.STREAMING_URL) == false) {
+		if (!values.containsKey(ServerColumns.STREAMING_URL))
 			values.put(ServerColumns.STREAMING_URL, "");
-		}
 
-		if (values.containsKey(ServerColumns.PASSWORD) == false) {
+		if (!values.containsKey(ServerColumns.PASSWORD))
 			values.put(ServerColumns.PASSWORD, "");
-		}
 
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		long rowId = db.insert(SERVERS_TABLE_NAME, "server", values);
@@ -191,20 +177,18 @@ public class ServerListProvider extends ContentProvider {
 	@Override
 	public int delete(Uri uri, String where, String[] whereArgs) {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		
 		int count;
 		switch (sUriMatcher.match(uri)) {
-		case SERVERS:
-			count = db.delete(SERVERS_TABLE_NAME, where, whereArgs);
-			break;
-
-		case SERVER_ID:
-			String noteId = uri.getPathSegments().get(1);
-			count = db.delete(SERVERS_TABLE_NAME, ServerColumns._ID + "=" + noteId
-					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
-			break;
-
-		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
+			case SERVERS:
+				count = db.delete(SERVERS_TABLE_NAME, where, whereArgs);
+				break;
+			case SERVER_ID:
+				String noteId = uri.getPathSegments().get(1);
+				count = db.delete(SERVERS_TABLE_NAME, ServerColumns._ID + "=" + noteId + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 
 		getContext().getContentResolver().notifyChange(uri, null);
@@ -214,38 +198,21 @@ public class ServerListProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		
 		int count;
 		switch (sUriMatcher.match(uri)) {
-		case SERVERS:
-			count = db.update(SERVERS_TABLE_NAME, values, where, whereArgs);
-			break;
-
-		case SERVER_ID:
-			String serverId = uri.getPathSegments().get(1);
-			count = db.update(SERVERS_TABLE_NAME, values, ServerColumns._ID + "=" + serverId
-					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
-			break;
-
-		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
+			case SERVERS:
+				count = db.update(SERVERS_TABLE_NAME, values, where, whereArgs);
+				break;
+			case SERVER_ID:
+				String serverId = uri.getPathSegments().get(1);
+				count = db.update(SERVERS_TABLE_NAME, values, ServerColumns._ID + "=" + serverId + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
-	}
-
-	static {
-		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		sUriMatcher.addURI(ServerList.AUTHORITY, "servers", SERVERS);
-		sUriMatcher.addURI(ServerList.AUTHORITY, "servers/#", SERVER_ID);
-
-		sServerListProjectionMap = new HashMap<String, String>();
-		sServerListProjectionMap.put(ServerColumns._ID, ServerColumns._ID);
-		sServerListProjectionMap.put(ServerColumns.NAME, ServerColumns.NAME);
-		sServerListProjectionMap.put(ServerColumns.HOST, ServerColumns.HOST);
-		sServerListProjectionMap.put(ServerColumns.PORT, ServerColumns.PORT);
-		sServerListProjectionMap.put(ServerColumns.STREAMING_PORT, ServerColumns.STREAMING_PORT);
-		sServerListProjectionMap.put(ServerColumns.STREAMING_URL, ServerColumns.STREAMING_URL);
-		sServerListProjectionMap.put(ServerColumns.PASSWORD, ServerColumns.PASSWORD);
 	}
 }

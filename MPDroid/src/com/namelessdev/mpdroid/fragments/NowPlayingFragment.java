@@ -219,7 +219,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		 * if (newUI) { setContentView(R.layout.main); } else { setContentView(R.layout.main_old); }
 		 */
 
-		streamingMode = ((MPDApplication) getActivity().getApplication()).isStreamingMode();
+		streamingMode = ((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode;
 		connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
 		artistNameText = (TextView) view.findViewById(R.id.artistName);
 		albumNameText = (TextView) view.findViewById(R.id.albumName);
@@ -403,7 +403,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 				switch (v.getId()) {
 				case R.id.next:
 					mpd.next();
-					if (((MPDApplication) getActivity().getApplication()).isStreamingMode()) {
+					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 						i = new Intent(app, StreamingService.class);
 						i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
 						getActivity().startService(i);
@@ -411,7 +411,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 					break;
 				case R.id.prev:
 					mpd.previous();
-					if (((MPDApplication) getActivity().getApplication()).isStreamingMode()) {
+					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 						i = new Intent(app, StreamingService.class);
 						i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
 						getActivity().startService(i);
@@ -453,7 +453,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 					// Implements the ability to stop playing (may be useful for streams)
 					mpd.stop();
 					Intent i;
-					if (((MPDApplication) getActivity().getApplication()).isStreamingMode()) {
+					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 						i = new Intent(app, StreamingService.class);
 						i.setAction("com.namelessdev.mpdroid.STOP_STREAMING");
 						getActivity().startService(i);
@@ -476,7 +476,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		try {
 			switch (keyCode) {
 			case KeyEvent.KEYCODE_VOLUME_UP:
-				if (((MPDApplication) getActivity().getApplication()).isStreamingMode()) {
+				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 					return false;
 				} else {
 					progressBarVolume.incrementProgressBy(VOLUME_STEP);
@@ -484,7 +484,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 					return true;
 				}
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
-				if (((MPDApplication) getActivity().getApplication()).isStreamingMode()) {
+				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 					return false;
 				} else {
 					progressBarVolume.incrementProgressBy(-VOLUME_STEP);
@@ -634,18 +634,18 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			((MPDApplication) getActivity().getApplication()).connect();
 			return true;
 		case R.id.GMM_Stream:
-			if (((MPDApplication) getActivity().getApplication()).isStreamingMode()) { // yeah, yeah getApplication for that may be ugly but
+			if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) { // yeah, yeah getApplication for that may be ugly but
 																						// ...
 				i = new Intent(getActivity(), StreamingService.class);
 				i.setAction("com.namelessdev.mpdroid.DIE");
 				getActivity().startService(i);
-				((MPDApplication) getActivity().getApplication()).setStreamingMode(false);
+				((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode = false;
 				// Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
 			} else {
 				i = new Intent(getActivity(), StreamingService.class);
 				i.setAction("com.namelessdev.mpdroid.START_STREAMING");
 				getActivity().startService(i);
-				((MPDApplication) getActivity().getApplication()).setStreamingMode(true);
+				((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode = true;
 				// Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
 			}
 			return true;

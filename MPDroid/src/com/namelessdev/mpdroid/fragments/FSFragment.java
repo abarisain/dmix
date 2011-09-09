@@ -17,8 +17,8 @@ import android.widget.ListView;
 
 import com.namelessdev.mpdroid.FSActivity;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class FSFragment extends BrowseFragment {
 	private Directory currentDirectory = null;
@@ -53,13 +53,13 @@ public class FSFragment extends BrowseFragment {
 			if (ToAdd != null) {
 				// Valid directory
 				app.oMPDAsyncHelper.oMPD.getPlaylist().add(ToAdd);
-				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
+				Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
 						FSFragment.this.getActivity());
 			} else {
 				Music music = currentDirectory.getFileByTitle(item);
 				if (music != null) {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
-					MainMenuActivity.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
+					Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
 				}
 			}
 		} catch (MPDServerException e) {

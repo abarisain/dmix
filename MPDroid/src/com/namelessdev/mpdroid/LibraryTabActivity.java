@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.tools.Tools;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,7 +22,7 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		if (!MPDApplication.isHoneycombOrBetter()) {
+		if (!Tools.isHoneycombOrBetter()) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 

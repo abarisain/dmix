@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class BrowseActivity extends ListActivity implements OnMenuItemClickListener, AsyncExecListener {
 
@@ -50,7 +51,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		if (!MPDApplication.isHoneycombOrBetter()) {
+		if (!Tools.isHoneycombOrBetter()) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 
@@ -141,7 +142,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 			MPDApplication app = (MPDApplication) getApplication();
 			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(context, item));
 			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(songs);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(irAdded), item), this);
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), this);
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}

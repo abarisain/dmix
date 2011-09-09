@@ -10,6 +10,8 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import com.namelessdev.mpdroid.tools.Tools;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ListActivity;
@@ -29,7 +31,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 	@Override
 	public void onCreate(Bundle icicle) {
-		if (!MPDApplication.isHoneycombOrBetter()) {
+		if (!Tools.isHoneycombOrBetter()) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 
@@ -174,7 +176,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 				// }
 			} catch (MPDServerException e) {
 			}
-			MainMenuActivity.notifyUser("Updating ...", getApplication());
+			Tools.notifyUser("Updating ...", getApplication());
 		}
 	};
 
@@ -210,7 +212,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 						Log.e("MPDroid", e.toString());
 					}
 				}
-				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
+				Tools.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
 			} catch (Exception e) {
 				Log.e("MPDroid", "General: " + e.toString());
 			}

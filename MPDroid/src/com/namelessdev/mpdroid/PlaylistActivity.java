@@ -10,6 +10,8 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import com.namelessdev.mpdroid.tools.Tools;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ListActivity;
@@ -44,7 +46,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 	@Override
 	public void onCreate(Bundle icicle) {
-		if (!MPDApplication.isHoneycombOrBetter()) {
+		if (!Tools.isHoneycombOrBetter()) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 
@@ -188,7 +190,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 				} else {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
 				}
-				MainMenuActivity.notifyUser("Song moved to next in list", this);
+				Tools.notifyUser("Song moved to next in list", this);
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -197,7 +199,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		case R.id.PLCX_moveFirst:
 			try { // Move song to first in playlist
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0);
-				MainMenuActivity.notifyUser("Song moved to first in list", this);
+				Tools.notifyUser("Song moved to first in list", this);
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -207,7 +209,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			try { // Move song to last in playlist
 				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getPlaylistLength() - 1);
-				MainMenuActivity.notifyUser("Song moved to last in list", this);
+				Tools.notifyUser("Song moved to last in list", this);
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -216,7 +218,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		case R.id.PLCX_removeFromPlaylist:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(songId);
-				MainMenuActivity.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), this);
+				Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), this);
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -260,7 +262,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 				songlist.clear();
-				MainMenuActivity.notifyUser(getResources().getString(R.string.playlistCleared), this);
+				Tools.notifyUser(getResources().getString(R.string.playlistCleared), this);
 				((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block

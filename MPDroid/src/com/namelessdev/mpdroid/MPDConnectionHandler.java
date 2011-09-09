@@ -18,7 +18,7 @@ public class MPDConnectionHandler extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		MPDApplication app = (MPDApplication) context.getApplicationContext();
+		//MPDApplication app = (MPDApplication) context.getApplicationContext();
 		String action = intent.getAction();
 		if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
 			System.out.println("WIFI-STATE:" + intent.getAction().toString());
@@ -28,13 +28,6 @@ public class MPDConnectionHandler extends BroadcastReceiver {
 			NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
 			System.out.println("NETW-STATE: Connected: " + networkInfo.isConnected());
 			System.out.println("NETW-STATE: Connected: " + networkInfo.getState().toString());
-
-			if (networkInfo.isConnected())
-				app.setWifiConnected(true);
-			else
-				app.setWifiConnected(false);
-
 		}
-
 	}
 }

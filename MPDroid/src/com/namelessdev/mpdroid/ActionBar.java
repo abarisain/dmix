@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.tools.Tools;
+
 import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -63,7 +65,7 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 		bottomSeparatorView = actionBarView.findViewById(R.id.actionbar_bottom_separator);
 		bottomSeparatorView.setVisibility(View.GONE);
 
-		if (MPDApplication.isHoneycombOrBetter()) {
+		if (Tools.isHoneycombOrBetter()) {
 			this.setVisibility(View.GONE);
 		}
 

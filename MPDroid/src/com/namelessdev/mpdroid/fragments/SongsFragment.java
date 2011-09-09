@@ -19,8 +19,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class SongsFragment extends BrowseFragment {
 
@@ -78,7 +78,7 @@ public class SongsFragment extends BrowseFragment {
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
 
 			app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()),
+			Tools.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()),
 					getActivity());
 		} catch (MPDServerException e) {
 			// TODO Auto-generated catch block

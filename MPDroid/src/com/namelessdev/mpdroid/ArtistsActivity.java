@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.tools.Tools;
+
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
@@ -7,7 +9,7 @@ public class ArtistsActivity extends FragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle arg0) {
-		if (!MPDApplication.isHoneycombOrBetter()) {
+		if (!Tools.isHoneycombOrBetter()) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 

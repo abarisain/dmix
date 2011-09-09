@@ -6,6 +6,8 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
+import com.namelessdev.mpdroid.tools.Tools;
+
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
@@ -65,7 +67,7 @@ public class SearchSongActivity extends BrowseActivity {
 			MPDApplication app = (MPDApplication) getApplication();
 
 			app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()), this);
+			Tools.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()), this);
 		} catch (MPDServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

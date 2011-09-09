@@ -28,6 +28,7 @@ import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.PlaylistActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class BrowseFragment extends ListFragment implements OnMenuItemClickListener, AsyncExecListener {
 
@@ -87,7 +88,7 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 	}
 
 	public void setActivityTitle(String title, int drawableID) {
-		if (!MPDApplication.isHoneycombOrBetter()) {
+		if (!Tools.isHoneycombOrBetter()) {
 			final View tmpView = getActivity().findViewById(R.id.compatActionbar);
 			if (tmpView != null) {
 				final com.namelessdev.mpdroid.ActionBar compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
@@ -172,7 +173,7 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(context, item));
 			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(songs);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}

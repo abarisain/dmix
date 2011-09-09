@@ -35,13 +35,14 @@ public final class ServerList {
 		 * The content:// style URL for this table
 		 */
 		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/servers");
+		
 		/**
 		 * The MIME type of {@link #CONTENT_URI} a list of servers
 		 */
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.namelessdev.server";
 
 		/**
-		 * The MIME type of a {@link #CONTENT_URI} signle server
+		 * The MIME type of a {@link #CONTENT_URI} single server
 		 */
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.namelessdev.server";
 

@@ -35,7 +35,7 @@ import android.widget.Toast;
 import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
 
 /**
- * StreamingService is my code which notifies and streams mpd (theorically) I hope I'm doing things right. Really. And say farewell to your
+ * StreamingService is my code which notifies and streams MPD (theoretically) I hope I'm doing things right. Really. And say farewell to your
  * battery because I think I am raping it.
  * 
  * @author Arnaud Barisain Monrose (Dream_Team)
@@ -103,37 +103,31 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	}
 
 	private void registerMediaButtonEvent() {
-		if (registerMediaButtonEventReceiver == null) {
+		if (registerMediaButtonEventReceiver == null)
 			return;
-		}
+		
 		try {
 			registerMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	private void unregisterMediaButtonEvent() {
-		if (unregisterMediaButtonEventReceiver == null) {
+		if (unregisterMediaButtonEventReceiver == null)
 			return;
-		}
+		
 		try {
 			unregisterMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -149,10 +143,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			MPDApplication app = (MPDApplication) getApplication();
 			if (app == null)
 				return;
-			if (((MPDApplication) app).isStreamingMode() == false) {
+			
+			if (!((MPDApplication) app).getApplicationState().streamingMode) {
 				stopSelf();
 				return;
 			}
+			
 			if (state == TelephonyManager.CALL_STATE_RINGING) {
 				AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 				int ringvolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
@@ -164,7 +160,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 				// pause the music while a conversation is in progress
 				if (isPlaying == false)
 					return;
-				isPaused = (isPaused || isPlaying) && (app.isStreamingMode());
+				isPaused = (isPaused || isPlaying) && (app.getApplicationState().streamingMode);
 				pauseStreaming();
 			} else if (state == TelephonyManager.CALL_STATE_IDLE) {
 				// start playing again
@@ -269,7 +265,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		lastStartID = startId;
-		if (((MPDApplication) getApplication()).isStreamingMode() == false) {
+		if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
 			stopSelfResult(lastStartID);
 			return 0;
 		}
@@ -395,8 +391,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
 	public void resumeStreaming() {
 		// just to be sure, we do not want to start when we're not supposed to
-		if (((MPDApplication) getApplication()).isStreamingMode() == false)
+		if (!((MPDApplication) getApplication()).getApplicationState().streamingMode)
 			return;
+		
 		needStoppedNotification = false;
 		buffering = true;
 		// MPDApplication app = (MPDApplication) getApplication();
@@ -471,7 +468,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	}
 
 	public void die() {
-		((MPDApplication) getApplication()).setStreamingMode(false);
+		((MPDApplication) getApplication()).getApplicationState().streamingMode = false;
 		// Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
 		stopSelfResult(lastStartID);
 	}

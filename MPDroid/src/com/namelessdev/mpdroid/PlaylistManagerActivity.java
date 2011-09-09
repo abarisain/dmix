@@ -5,6 +5,8 @@ import java.util.List;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
 
+import com.namelessdev.mpdroid.tools.Tools;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
@@ -71,7 +73,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 				MPDApplication app = (MPDApplication) getApplication();
 				String playlist = items.get((int) info.id).toString();
 				app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
-				MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.playlistDeleted), playlist), this);
+				Tools.notifyUser(String.format(getResources().getString(R.string.playlistDeleted), playlist), this);
 				items.remove((int) info.id);
 				updateFromItems();
 			} catch (MPDServerException e) {
@@ -95,7 +97,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 			MPDApplication app = (MPDApplication) getApplication();
 
 			app.oMPDAsyncHelper.oMPD.getPlaylist().load(playlist);
-			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.playlistAdded), playlist), this);
+			Tools.notifyUser(String.format(getResources().getString(R.string.playlistAdded), playlist), this);
 		} catch (MPDServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

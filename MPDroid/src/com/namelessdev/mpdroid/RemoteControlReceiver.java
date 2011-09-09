@@ -9,7 +9,7 @@ import android.os.Build.VERSION_CODES;
 import android.view.KeyEvent;
 
 /**
- * RemoteControlReceiver recieves media player button stuff. Most of the code is taken from google's music app.
+ * RemoteControlReceiver receives media player button stuff. Most of the code is taken from google's music app.
  * 
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
@@ -53,6 +53,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 					i.setAction(StreamingService.CMD_REMOTE);
 					i.putExtra(StreamingService.CMD_COMMAND, command);
 					context.startService(i);
+					
 					// If are running froyo, don't use the hackish way.
 					if (VERSION.SDK_INT <= VERSION_CODES.ECLAIR_MR1) {
 						if (StreamingService.getStreamingServiceStatus()) { // Uses static variable ... vomit :<

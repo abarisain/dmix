@@ -12,40 +12,65 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.Build;
-import android.os.StrictMode;
-import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 
 import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.tools.SettingsHelper;
 
-public class MPDApplication extends Application implements ConnectionListener, OnSharedPreferenceChangeListener {
+public class MPDApplication extends Application implements ConnectionListener {
+
+	// Change this... (sag)
+	public MPDAsyncHelper oMPDAsyncHelper = null;
+	private SettingsHelper settingsHelper = null;
+	private ApplicationState state = new ApplicationState();
 
 	private Collection<Object> connectionLocks = new LinkedList<Object>();
 	private AlertDialog ad;
-	private DialogClickListener oDialogClickListener;
-
-	private boolean streamingMode = false;
-	private boolean settingsShown = false;
-	private boolean warningShown = false;
-
-	private static final int DEFAULT_MPD_PORT = 6600;
-	private static final int DEFAULT_STREAMING_PORT = 8000;
-
 	private Activity currentActivity;
+
+	public class ApplicationState {
+		public boolean streamingMode = false;
+		public boolean settingsShown = false;
+		public boolean warningShown = false;
+	}
+	
+	class DialogClickListener implements OnClickListener {
+		public void onClick(DialogInterface dialog, int which) {
+			switch (which) {
+			case AlertDialog.BUTTON_NEUTRAL:
+				// Show Settings
+				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
+				break;
+			case AlertDialog.BUTTON_NEGATIVE:
+				currentActivity.finish();
+				break;
+			case AlertDialog.BUTTON_POSITIVE:
+				connectMPD();
+				break;
+
+			}
+		}
+	}
 
 	public static final int SETTINGS = 5;
 
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		System.err.println("onCreate Application");
+
+		oMPDAsyncHelper = new MPDAsyncHelper();
+		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
+		
+		settingsHelper = new SettingsHelper(this, oMPDAsyncHelper);
+	}
+
 	public void setActivity(Object activity) {
-		if (activity instanceof Activity) {
+		if (activity instanceof Activity)
 			currentActivity = (Activity) activity;
-		}
+		
 		connectionLocks.add(activity);
 		checkMonitorNeeded();
 		checkConnectionNeeded();
@@ -55,6 +80,7 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		connectionLocks.remove(activity);
 		checkMonitorNeeded();
 		checkConnectionNeeded();
+		
 		if (currentActivity == activity)
 			currentActivity = null;
 	}
@@ -63,68 +89,51 @@ public class MPDApplication extends Application implements ConnectionListener, O
 		if (connectionLocks.size() > 0) {
 			if (!oMPDAsyncHelper.isMonitorAlive())
 				oMPDAsyncHelper.startMonitor();
-		} else
+		} else {
 			oMPDAsyncHelper.stopMonitor();
-
+		}
 	}
 
 	private void checkConnectionNeeded() {
 		if (connectionLocks.size() > 0) {
-			if (!oMPDAsyncHelper.oMPD.isConnected() && currentActivity != null
-					&& !currentActivity.getClass().equals(WifiConnectionSettings.class)) {
+			if (!oMPDAsyncHelper.oMPD.isConnected() && currentActivity != null && !currentActivity.getClass().equals(WifiConnectionSettings.class))
 				connect();
-			}
-
 		} else {
 			disconnect();
 		}
 	}
 
+	public void connect() {
+		if(!settingsHelper.updateSettings()) {
+			// Absolutely no settings defined! Open Settings!
+			if (currentActivity != null && !state.settingsShown) {
+				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
+				state.settingsShown = true;
+			}
+		}
+		
+		if (currentActivity != null && !settingsHelper.warningShown() && !state.warningShown) {
+			currentActivity.startActivity(new Intent(currentActivity, WarningActivity.class));
+			state.warningShown = true;
+		}
+		connectMPD();
+	}
+	
 	public void disconnect() {
 		oMPDAsyncHelper.disconnect();
 	}
 
-	public void connect() {
-		// Get Settings...
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);// getSharedPreferences("org.pmix", MODE_PRIVATE);
-		settings.registerOnSharedPreferenceChangeListener(this);
-
-		String wifiSSID = getCurrentSSID();
-
-		if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
-			readSettings(settings, wifiSSID);
-		} else if (!settings.getString("hostname", "").equals("")) {
-			readSettings(settings, null);
-		} else {
-			// Absolutely no settings defined! Open Settings!
-			if (currentActivity != null && !settingsShown) {
-				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
-				settingsShown = true;
-			}
-		}
-		if (currentActivity != null && !settings.getBoolean("warningShown", false) && !warningShown) {
-			currentActivity.startActivity(new Intent(currentActivity, WarningActivity.class));
-			warningShown = true;
-		}
-		connectMPD();
-
-	}
-
 	private void connectMPD() {
-		if (ad != null) {
-			if (ad.isShowing()) {
-				try {
-					ad.dismiss();
-				} catch (IllegalArgumentException e) {
-					// We don't care, it has already been destroyed
-				}
-			}
-		}
+		// dismiss possible dialog
+		dismissAlertDialog();
+		
+		// check for network
 		if (!isNetworkConnected()) {
 			connectionFailed("No network.");
 			return;
 		}
 		
+		// show connecting to server dialog
 		if (currentActivity != null) {
 			ad = new ProgressDialog(currentActivity);
 			ad.setTitle(getResources().getString(R.string.connecting));
@@ -142,27 +151,64 @@ public class MPDApplication extends Application implements ConnectionListener, O
 				// Can't display it. Don't care.
 			}
 		}
+		
+		// really connect
 		oMPDAsyncHelper.connect();
 	}
 
-	public void onSharedPreferenceChanged(SharedPreferences settings, String key) {
-		String wifiSSID = getCurrentSSID();
-
-		if (key.equals("albumartist")) {
-			// clear current cached artist list on change of tag settings
-			// ArtistsActivity.items = null;
-
-		} else if (!settings.getString(wifiSSID + "hostname", "").equals("")) {
-			readSettings(settings, wifiSSID);
-		} else if (!settings.getString("hostname", "").equals("")) {
-			readSettings(settings, null);
-		} else {
+	public void connectionFailed(String message) {
+		// dismiss possible dialog
+		dismissAlertDialog();
+		
+		if (currentActivity == null)
 			return;
+		
+		if (currentActivity != null && connectionLocks.size() > 0) {
+			// are we in the settings activity?
+			if (currentActivity.getClass() == SettingsActivity.class) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+				builder.setMessage(String.format(getResources().getString(R.string.connectionFailedMessageSetting), message));
+				builder.setPositiveButton("OK", new OnClickListener() {
+					public void onClick(DialogInterface arg0, int arg1) {
+					}
+				});
+				ad = builder.show();
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+				builder.setTitle(getResources().getString(R.string.connectionFailed));
+				builder.setMessage(String.format(getResources().getString(R.string.connectionFailedMessage), message));
+				
+				DialogClickListener oDialogClickListener = new DialogClickListener();
+				builder.setNegativeButton(getResources().getString(R.string.quit), oDialogClickListener);
+				builder.setNeutralButton(getResources().getString(R.string.settings), oDialogClickListener);
+				builder.setPositiveButton(getResources().getString(R.string.retry), oDialogClickListener);
+				try {
+					ad = builder.show();
+				} catch (BadTokenException e) {
+					// Can't display it. Don't care.
+				}
+			}
 		}
+
 	}
 
-	public void connectionFailed(String message) {
-		System.out.println("Connection Failed: " + message);
+	public void connectionSucceeded(String message) {
+		dismissAlertDialog();
+		// checkMonitorNeeded();
+	}
+
+	public ApplicationState getApplicationState() {
+		return state;
+	}
+
+	private boolean isNetworkConnected() {
+		ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (conMgr.getActiveNetworkInfo() == null)
+			return false;
+		return (conMgr.getActiveNetworkInfo().isAvailable() && conMgr.getActiveNetworkInfo().isConnected());
+	}
+	
+	private void dismissAlertDialog() {
 		if (ad != null) {
 			if (ad.isShowing()) {
 				try {
@@ -172,176 +218,5 @@ public class MPDApplication extends Application implements ConnectionListener, O
 				}
 			}
 		}
-		if (currentActivity == null) {
-			return;
-		}
-		if (currentActivity != null && connectionLocks.size() > 0 && currentActivity.getClass() != null) {
-			if (currentActivity.getClass().equals(SettingsActivity.class)) {
-
-				AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
-				test.setMessage("Connection failed, check your connection settings. (" + message + ")");
-				test.setPositiveButton("OK", new OnClickListener() {
-
-					public void onClick(DialogInterface arg0, int arg1) {
-						// TODO Auto-generated method stub
-
-					}
-				});
-				ad = test.show();
-			} else {
-				System.out.println(this.getClass());
-				oDialogClickListener = new DialogClickListener();
-				AlertDialog.Builder test = new AlertDialog.Builder(currentActivity);
-				test.setTitle(getResources().getString(R.string.connectionFailed));
-				test.setMessage(String.format(getResources().getString(R.string.connectionFailedMessage), message));
-				test.setNegativeButton(getResources().getString(R.string.quit), oDialogClickListener);
-				test.setNeutralButton(getResources().getString(R.string.settings), oDialogClickListener);
-				test.setPositiveButton(getResources().getString(R.string.retry), oDialogClickListener);
-				try {
-					ad = test.show();
-				} catch (BadTokenException e) {
-					// Can't display it. Don't care.
-				}
-			}
-		}
-
-	}
-
-	private void readSettings(SharedPreferences settings, String wifiSSID) {
-		String sServer = "";
-		if (wifiSSID != null) {
-			if (wifiSSID.trim().equals("")) {
-				wifiSSID = null;
-			}
-		}
-		sServer = settings.getString(getStringWithSSID("hostname", wifiSSID), "").trim();
-
-		int iPort, iPortStreaming;
-		try {
-			iPort = Integer.parseInt(settings.getString(getStringWithSSID("port", wifiSSID), Integer.toString(DEFAULT_MPD_PORT)).trim());
-		} catch (NumberFormatException e) {
-			iPort = DEFAULT_MPD_PORT;
-		}
-		try {
-			iPortStreaming = Integer.parseInt(settings.getString(getStringWithSSID("portStreaming", wifiSSID),
-					Integer.toString(DEFAULT_STREAMING_PORT)).trim());
-		} catch (NumberFormatException e) {
-			iPortStreaming = DEFAULT_STREAMING_PORT;
-		}
-
-		String sServerStreaming = settings.getString(getStringWithSSID("hostnameStreaming", wifiSSID), "").trim();
-		if (sServerStreaming.equals("")) {
-			sServerStreaming = null;
-		}
-		String sPassword = settings.getString(getStringWithSSID("password", wifiSSID), "").trim();
-		
-		// FIXME
-		oMPDAsyncHelper.getConnectionSettings().sServer = sServer;
-		oMPDAsyncHelper.getConnectionSettings().iPort = iPort;
-		oMPDAsyncHelper.getConnectionSettings().sPassword = sPassword;
-		oMPDAsyncHelper.getConnectionSettings().sServerStreaming = sServerStreaming;
-		oMPDAsyncHelper.getConnectionSettings().iPortStreaming = iPortStreaming;
-	}
-
-	private String getStringWithSSID(String param, String wifiSSID) {
-		if (wifiSSID == null)
-			return param;
-		else
-			return wifiSSID + param;
-	}
-
-	public void connectionSucceeded(String message) {
-		try {
-			ad.dismiss();
-		} catch (IllegalArgumentException e) {
-			// Do nothing, maybe it has already been dismissed because of a rotation
-		} catch (NullPointerException e) {
-
-		}
-		// checkMonitorNeeded();
-	}
-
-	public class DialogClickListener implements OnClickListener {
-
-		public void onClick(DialogInterface dialog, int which) {
-			switch (which) {
-			case AlertDialog.BUTTON3:
-				// Show Settings
-				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
-				break;
-			case AlertDialog.BUTTON2:
-				currentActivity.finish();
-				break;
-			case AlertDialog.BUTTON1:
-				connectMPD();
-				break;
-
-			}
-		}
-	}
-
-	private WifiManager mWifiManager;
-
-	// Change this... (sag)
-	public MPDAsyncHelper oMPDAsyncHelper = null;
-
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		System.err.println("onCreate Application");
-
-		oMPDAsyncHelper = new MPDAsyncHelper();
-		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
-
-		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-		
-		// Disable strict mode (BAD BAD MYSELF)
-		// I'll work out this issue later.
-		try {
-			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-			StrictMode.setThreadPolicy(policy);
-		} catch (NoClassDefFoundError e) {
-			// Older android ?
-		}
-
-	}
-
-	public String getCurrentSSID() {
-		WifiInfo info = mWifiManager.getConnectionInfo();
-		return info.getSSID();
-	}
-
-	public void setWifiConnected(boolean bWifiConnected) {
-		if (bWifiConnected) {
-			connect();
-			// checkMonitorNeeded();
-		} else {
-			// disconnect();
-		}
-	}
-
-	public boolean isWifiConnected() {
-		return true;
-		// return bWifiConnected;
-		// TODO : DIRTY WIFI HACK :(
-	}
-
-	public boolean isNetworkConnected() {
-		ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		if (conMgr.getActiveNetworkInfo() == null)
-			return false;
-		return (conMgr.getActiveNetworkInfo().isAvailable() && conMgr.getActiveNetworkInfo().isConnected());
-	}
-
-	public void setStreamingMode(boolean streamingMode) {
-		this.streamingMode = streamingMode;
-	}
-
-	public boolean isStreamingMode() {
-		return streamingMode;
-	}
-
-	public static boolean isHoneycombOrBetter() {
-		return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
 	}
 }
