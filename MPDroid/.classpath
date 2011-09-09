@@ -5,6 +5,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/JMPDComm"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/LastFM-Java"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JmDNS"/>
 	<classpathentry kind="lib" path="lib/android-support-v4.jar" sourcepath="/Users/arnaud/dev/android-sdk/extras/android/compatibility/v4/src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

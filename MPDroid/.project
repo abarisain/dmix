@@ -3,6 +3,7 @@
 	<name>MPDroid</name>
 	<comment></comment>
 	<projects>
+		<project>JmDNS</project>
 		<project>JMPDComm</project>
 	</projects>
 	<buildSpec>
