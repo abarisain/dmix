@@ -29,6 +29,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -45,6 +46,8 @@ import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
 public class StreamingService extends Service implements StatusChangeListener, OnPreparedListener, OnCompletionListener,
 		OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener {
 
+	static final String TAG = "MPDroidStreamingService";
+	
 	public static final int STREAMINGSERVICE_STATUS = 1;
 	public static final int STREAMINGSERVICE_PAUSED = 2;
 	public static final int STREAMINGSERVICE_STOPPED = 3;
@@ -57,6 +60,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	public static final String CMD_PREV = "PREV";
 	public static final String CMD_NEXT = "NEXT";
 	public static final String CMD_DIE = "DIE"; // Just in case
+	public static final String CMD_UPDATE_WIDGET = "UPDATEWIDGET";
 	public static Boolean isServiceRunning = false;
 
 	private MediaPlayer mediaPlayer;
@@ -265,10 +269,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		lastStartID = startId;
-		if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
-			stopSelfResult(lastStartID);
-			return 0;
-		}
+		//if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
+		//	stopSelfResult(lastStartID);
+		//	return 0;
+		//}
+		
+		Log.v(TAG, intent.getAction());
 		if (intent.getAction().equals("com.namelessdev.mpdroid.START_STREAMING")) {
 			// streaming_enabled = true;
 			resumeStreaming();
@@ -281,6 +287,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			die();
 		} else if (intent.getAction().equals(CMD_REMOTE)) {
 			String cmd = intent.getStringExtra(CMD_COMMAND);
+			
+			Log.v(TAG, cmd);
+			
 			if (cmd.equals(CMD_NEXT)) {
 				next();
 			} else if (cmd.equals(CMD_PREV)) {

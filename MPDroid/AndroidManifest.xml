@@ -107,6 +107,12 @@
           android:authorities="com.namelessdev.mpdroid.providers.serverlist"
           android:exported="false">
 		</provider>
+		<receiver android:name=".widgets.SimpleWidgetProvider">
+			<intent-filter>
+				<action android:name="android.appwidget.action.APPWIDGET_UPDATE"></action>
+			</intent-filter>
+			<meta-data android:name="android.appwidget.provider" android:resource="@xml/simple_widget_provider"></meta-data>
+		</receiver>
 	</application>
 	
 	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="11" />
