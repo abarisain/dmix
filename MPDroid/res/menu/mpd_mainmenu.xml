@@ -5,6 +5,6 @@
 <item android:id="@+id/GMM_Playlist" android:icon="@drawable/ic_menu_playlist" android:title="@string/playlists" android:showAsAction="ifRoom"></item>
 <item android:id="@+id/GMM_Stream" android:title="@string/stream" android:icon="@android:drawable/ic_menu_upload_you_tube"></item>
 <item android:id="@+id/GMM_Settings" android:title="@string/settings" android:icon="@android:drawable/ic_menu_preferences"></item>
-<item android:id="@+id/GMM_bonjour" android:title="Bonjour"></item>
+<item android:id="@+id/GMM_bonjour" android:title="Bonjour" android:visible="false"></item>
 </group>
 </menu>
