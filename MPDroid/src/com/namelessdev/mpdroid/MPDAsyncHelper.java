@@ -96,6 +96,7 @@ public class MPDAsyncHelper extends Handler {
 	 * the information back to the listeners of the matching events...
 	 */
 	public void handleMessage(Message msg) {
+		try {
 		Object[] args = (Object[]) msg.obj;
 		switch (msg.what) {
 		case EVENT_CONNECTIONSTATE:
@@ -154,6 +155,9 @@ public class MPDAsyncHelper extends Handler {
 			for (AsyncExecListener listener : asyncExecListeners)
 				listener.asyncExecSucceeded(msg.arg1);
 			break;
+		}
+		} catch(ClassCastException e) {
+			// happens when unknown message type is received
 		}
 	}
 
