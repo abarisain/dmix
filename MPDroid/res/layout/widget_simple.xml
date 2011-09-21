@@ -17,46 +17,32 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
+	android:layout_height="60dp"
 	android:orientation="horizontal"
 	android:background="@drawable/appwidget_bg">
 
-	<LinearLayout
-		android:id="@+id/album_appwidget"
+	<ImageButton
+		android:id="@+id/control_prev"
 		android:layout_width="0dip"
-		android:layout_weight="3"
+		android:layout_weight="1"
 		android:layout_height="match_parent"
-		android:orientation="vertical"
-		android:gravity="center_vertical"
-		android:clickable="true"
-		android:focusable="true"
-		android:background="@drawable/appwidget_button_left"
-		android:paddingLeft="18dip"
-		android:paddingRight="8dip">
+		android:src="@drawable/ic_appwidget_music_prev"
+		android:background="@drawable/appwidget_button_right"
+		android:scaleType="center" />
+		
+	<ImageView
+		android:layout_width="1dip"
+		android:layout_height="match_parent"
+		android:background="@drawable/appwidget_divider" />
 
-		<TextView
-			android:id="@+id/title"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textColor="@color/appwidget_text"
-			android:textStyle="bold"
-			android:textSize="18sp"
-			android:singleLine="true"
-			android:fadingEdge="horizontal"
-			android:fadingEdgeLength="10dip"
-			android:ellipsize="none" />
-
-		<TextView
-			android:id="@+id/artist"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textColor="@color/appwidget_text"
-			android:textSize="14sp"
-			android:singleLine="true"
-			android:fadingEdge="horizontal"
-			android:fadingEdgeLength="10dip"
-			android:ellipsize="none" />
-	</LinearLayout>
+	<ImageButton
+		android:id="@+id/control_app"
+		android:layout_width="0dip"
+		android:layout_weight="1"
+		android:layout_height="match_parent"
+		android:src="@drawable/icon"
+		android:background="@drawable/appwidget_button_right"
+		android:scaleType="center" />	
 
 	<ImageView
 		android:layout_width="1dip"

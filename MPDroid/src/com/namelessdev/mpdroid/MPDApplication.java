@@ -96,7 +96,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 
 	private void checkConnectionNeeded() {
 		if (connectionLocks.size() > 0) {
-			if (!oMPDAsyncHelper.oMPD.isConnected() && currentActivity != null && !currentActivity.getClass().equals(WifiConnectionSettings.class))
+			if (!oMPDAsyncHelper.oMPD.isConnected() && (currentActivity == null || !currentActivity.getClass().equals(WifiConnectionSettings.class)))
 				connect();
 		} else {
 			disconnect();

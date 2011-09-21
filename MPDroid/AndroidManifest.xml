@@ -111,8 +111,9 @@
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE"></action>
 			</intent-filter>
-			<meta-data android:name="android.appwidget.provider" android:resource="@xml/simple_widget_provider"></meta-data>
+			<meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_simple"></meta-data>
 		</receiver>
+		<service android:name=".widgets.WidgetHelperService" android:enabled="true"></service>
 	</application>
 	
 	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="11" />
