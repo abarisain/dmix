@@ -804,9 +804,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 	}
 
 	private static String timeToString(long seconds) {
-		long min = seconds / 60;
-		long sec = seconds - min * 60;
-		return (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec);
+		long hours = seconds / 3600;
+		seconds -= 3600 * hours;
+		long minutes = seconds / 60;
+		seconds -= minutes * 60;
+		if (hours == 0) {
+			return String.format("%02d:%02d", minutes, seconds);
+		} else {
+			return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+		}
 	}
 
 	public void onCoverDownloaded(Bitmap cover) {
