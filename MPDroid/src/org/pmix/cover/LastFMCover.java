@@ -1,8 +1,7 @@
 package org.pmix.cover;
 
-import java.util.Collection;
-
-import net.roarsoftware.lastfm.*;
+import de.umass.lastfm.Album;
+import de.umass.lastfm.ImageSize;
 
 public class LastFMCover {
 
