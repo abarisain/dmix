@@ -253,9 +253,9 @@ public class MPDAsyncHelper extends Handler {
 						oMPD.password(conInfo.sPassword);
 					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTSUCCEEDED).sendToTarget();
 				} catch (MPDServerException e) {
-					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED, e.getMessage()).sendToTarget();
+					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED, Tools.toObjectArray(e.getMessage())).sendToTarget();
 				} catch (UnknownHostException e) {
-					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED, e.getMessage()).sendToTarget();
+					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED, Tools.toObjectArray(e.getMessage())).sendToTarget();
 				}
 				break;
 			case EVENT_STARTMONITOR:

@@ -1,8 +1,10 @@
 package org.a0z.mpd;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Arrays;
 
 import org.a0z.mpd.event.AbstractStatusChangeListener;
 import org.a0z.mpd.exception.MPDClientException;
@@ -212,12 +214,22 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 	private int refresh(int playlistVersion) throws MPDServerException {
 		// TODO should be atomic
 		MPDStatus status = this.mpd.getStatus();
+		int newLength = status.getPlaylistLength();
+		int oldLength = this.list.size();
 		List<String> response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CHANGES, Integer.toString(playlistVersion));
-		List<Music> playlist = Music.getMusicFromList(response);
-		
+		List<Music> changes = Music.getMusicFromList(response);
+
+		Music[] newPlaylistArray = new Music[newLength];
+
+		for( int i = 0; i < newLength && i < oldLength; i++)
+			newPlaylistArray[i] = this.list.getByIndex(i);
+
+		for( Music song : changes)
+			newPlaylistArray[song.getPos()] = song;
+
 		this.list.clear();
-		//this.list.addAll(playlist.subList(0, status.getPlaylistLength()));
-		this.list.addAll(playlist);
+		this.list.addAll((List<Music>)Arrays.asList(newPlaylistArray));
+
 		return status.getPlaylistVersion();
 	}
 
