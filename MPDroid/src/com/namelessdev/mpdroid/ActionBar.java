@@ -1,7 +1,5 @@
 package com.namelessdev.mpdroid;
 
-import com.namelessdev.mpdroid.tools.Tools;
-
 import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -12,6 +10,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class ActionBar extends RelativeLayout implements OnClickListener {
 	private LayoutInflater inflater;
@@ -65,7 +65,7 @@ public class ActionBar extends RelativeLayout implements OnClickListener {
 		bottomSeparatorView = actionBarView.findViewById(R.id.actionbar_bottom_separator);
 		bottomSeparatorView.setVisibility(View.GONE);
 
-		if (Tools.isHoneycombOrBetter()) {
+		if (Tools.isTabletMode(context)) {
 			this.setVisibility(View.GONE);
 		}
 

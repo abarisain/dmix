@@ -46,7 +46,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 	@Override
 	public void onCreate(Bundle icicle) {
-		if (!Tools.isHoneycombOrBetter()) {
+		if (!Tools.isTabletMode(this)) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 

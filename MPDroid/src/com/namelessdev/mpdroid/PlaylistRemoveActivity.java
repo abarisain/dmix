@@ -31,7 +31,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 
 	@Override
 	public void onCreate(Bundle icicle) {
-		if (!Tools.isHoneycombOrBetter()) {
+		if (!Tools.isTabletMode(this)) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 

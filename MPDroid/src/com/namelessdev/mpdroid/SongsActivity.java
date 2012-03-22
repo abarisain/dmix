@@ -9,7 +9,7 @@ public class SongsActivity extends FragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle arg0) {
-		if (!Tools.isHoneycombOrBetter()) {
+		if (!Tools.isTabletMode(this)) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 			

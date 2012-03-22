@@ -13,6 +13,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.os.StrictMode;
 import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 
@@ -60,6 +61,9 @@ public class MPDApplication extends Application implements ConnectionListener {
 	public void onCreate() {
 		super.onCreate();
 		System.err.println("onCreate Application");
+
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy);
 
 		oMPDAsyncHelper = new MPDAsyncHelper();
 		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
