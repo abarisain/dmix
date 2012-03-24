@@ -20,7 +20,7 @@ public class MainMenuActivity extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle arg0) {
 		// If put after super.onCreate on android versions < 3.0 it will not work
-		setTheme(Tools.isHoneycombOrBetter() ? R.style.AppTheme_Dark : android.R.style.Theme_Wallpaper_NoTitleBar);
+		setTheme(Tools.isTabletMode(this) ? R.style.AppTheme_Dark : android.R.style.Theme_Wallpaper_NoTitleBar);
 
 		super.onCreate(arg0);
 		setContentView(R.layout.main_activity);

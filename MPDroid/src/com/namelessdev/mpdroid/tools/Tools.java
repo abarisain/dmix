@@ -1,8 +1,9 @@
 package com.namelessdev.mpdroid.tools;
 
 import android.content.Context;
-import android.os.Build;
 import android.widget.Toast;
+
+import com.namelessdev.mpdroid.R;
 
 public final class Tools {
 	public static Object[] toObjectArray(Object... args) {
@@ -13,7 +14,7 @@ public final class Tools {
 		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 	}
 
-	public static boolean isHoneycombOrBetter() {
-		return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
+	public static boolean isTabletMode(Context c) {
+		return c.getResources().getBoolean(R.bool.isTablet);
 	}
 }

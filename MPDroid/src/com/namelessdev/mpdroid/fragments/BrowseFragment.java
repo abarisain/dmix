@@ -88,7 +88,7 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 	}
 
 	public void setActivityTitle(String title, int drawableID) {
-		if (!Tools.isHoneycombOrBetter()) {
+		if (!Tools.isTabletMode(getActivity())) {
 			final View tmpView = getActivity().findViewById(R.id.compatActionbar);
 			if (tmpView != null) {
 				final com.namelessdev.mpdroid.ActionBar compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;

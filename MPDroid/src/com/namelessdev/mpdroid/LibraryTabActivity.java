@@ -22,7 +22,7 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		if (!Tools.isHoneycombOrBetter()) {
+		if (!Tools.isTabletMode(this)) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 

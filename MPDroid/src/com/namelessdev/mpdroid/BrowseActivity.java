@@ -51,7 +51,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		if (!Tools.isHoneycombOrBetter()) {
+		if (!Tools.isTabletMode(this)) {
 			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 
