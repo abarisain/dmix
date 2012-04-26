@@ -62,8 +62,10 @@ public class MPDApplication extends Application implements ConnectionListener {
 		super.onCreate();
 		System.err.println("onCreate Application");
 
-		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-		StrictMode.setThreadPolicy(policy);
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}
 
 		oMPDAsyncHelper = new MPDAsyncHelper();
 		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
