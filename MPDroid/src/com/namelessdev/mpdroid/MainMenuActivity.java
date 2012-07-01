@@ -1,6 +1,8 @@
 package com.namelessdev.mpdroid;
 
+import android.annotation.TargetApi;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -17,6 +19,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 public class MainMenuActivity extends FragmentActivity {
 	NowPlayingFragment nowPlaying;
 	
+	@TargetApi(9)
 	@Override
 	protected void onCreate(Bundle arg0) {
 		// If put after super.onCreate on android versions < 3.0 it will not work
@@ -24,6 +27,10 @@ public class MainMenuActivity extends FragmentActivity {
 
 		super.onCreate(arg0);
 		setContentView(R.layout.main_activity);
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}
 	}
 
 	@Override

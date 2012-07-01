@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -57,14 +58,17 @@ public class MPDApplication extends Application implements ConnectionListener {
 
 	public static final int SETTINGS = 5;
 
+	@TargetApi(9)
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		System.err.println("onCreate Application");
 
 		if (android.os.Build.VERSION.SDK_INT > 9) {
+			StrictMode.VmPolicy vmpolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 			StrictMode.setThreadPolicy(policy);
+			StrictMode.setVmPolicy(vmpolicy);
 		}
 
 		oMPDAsyncHelper = new MPDAsyncHelper();

@@ -69,6 +69,10 @@ public class WifiConnectionSettings extends PreferenceActivity {
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 		if (preference.getKey().equals(KEY_WIFI_BASED_SCREEN)) {
 			mWifiList = mWifiManager.getConfiguredNetworks();
+			if(mWifiList == null) {
+				return false;
+			}
+			
 			for (WifiConfiguration wifi : mWifiList) {
 				// Friendly SSID-Name
 				String ssid = wifi.SSID.replaceAll("\"", "");
