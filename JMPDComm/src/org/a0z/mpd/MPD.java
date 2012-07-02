@@ -389,7 +389,7 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 */
 	public List<String> listAlbums() throws MPDServerException {
-		return listAlbums(null, false);
+		return listAlbums(null, true);
 	}
 
 	/**
@@ -421,7 +421,7 @@ public class MPD {
 			throw new MPDServerException("MPD Connection is not established");
 		
 		List<String> response = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, MPD_TAG_ALBUM, artist);
-		LinkedList<String> result = new LinkedList<String>();
+		ArrayList<String> result = new ArrayList<String>();
 		for (String line : response) {
 			String name = line.substring("Album: ".length());
 			if (name.length() > 0)
@@ -486,7 +486,7 @@ public class MPD {
 		
 		List<String> response = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, MPD_TAG_ARTIST);
 		
-		LinkedList<String> result = new LinkedList<String>();
+		ArrayList<String> result = new ArrayList<String>();
 		for (String s : response) {
 			String name = s.substring("Artist: ".length());
 			if (name.length() > 0)
@@ -513,7 +513,7 @@ public class MPD {
 
 		List<String> response = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, MPD_TAG_ALBUM_ARTIST);
 		
-		LinkedList<String> result = new LinkedList<String>();
+		ArrayList<String> result = new ArrayList<String>();
 		for (String s : response) {
 			String name = s.substring("albumartist: ".length());
 			if (name.length() > 0)
