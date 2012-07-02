@@ -18,32 +18,34 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="60dp"
+	android:layout_marginLeft="5dip"
+	android:layout_marginRight="5dip"
 	android:orientation="horizontal"
-	android:background="@drawable/appwidget_bg">
+	android:background="@drawable/appwidget_dark_bg_clickable">
 
+    <ImageButton
+		android:id="@+id/control_app"
+		android:layout_width="0dip"
+		android:layout_weight="1"
+		android:layout_height="match_parent"
+		android:src="@drawable/icon"
+		android:background="@drawable/appwidget_button_left"
+		android:scaleType="center" />	
+    
+    <ImageView
+		android:layout_width="1dip"
+		android:layout_height="match_parent"
+		android:background="@drawable/appwidget_divider" />
+    
 	<ImageButton
 		android:id="@+id/control_prev"
 		android:layout_width="0dip"
 		android:layout_weight="1"
 		android:layout_height="match_parent"
 		android:src="@drawable/ic_appwidget_music_prev"
-		android:background="@drawable/appwidget_button_right"
+		android:background="@drawable/appwidget_button_center"
 		android:scaleType="center" />
-		
-	<ImageView
-		android:layout_width="1dip"
-		android:layout_height="match_parent"
-		android:background="@drawable/appwidget_divider" />
-
-	<ImageButton
-		android:id="@+id/control_app"
-		android:layout_width="0dip"
-		android:layout_weight="1"
-		android:layout_height="match_parent"
-		android:src="@drawable/icon"
-		android:background="@drawable/appwidget_button_right"
-		android:scaleType="center" />	
-
+	
 	<ImageView
 		android:layout_width="1dip"
 		android:layout_height="match_parent"
