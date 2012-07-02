@@ -21,6 +21,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class BrowseActivity extends ListActivity implements OnMenuItemClickListener, AsyncExecListener {
@@ -239,7 +240,8 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	 */
 	public void updateFromItems() {
 		if (items != null) {
-			ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+			//ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+			ArrayIndexerAdapter<String> listAdapter = new ArrayIndexerAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 			setListAdapter(listAdapter);
 			try {
 				getListView().setEmptyView(noResultView);

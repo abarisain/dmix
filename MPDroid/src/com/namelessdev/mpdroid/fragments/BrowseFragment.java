@@ -25,12 +25,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TextView;
 
-import com.namelessdev.mpdroid.ListViewButtonAdapter;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.PlaylistActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class BrowseFragment extends ListFragment implements OnMenuItemClickListener, AsyncExecListener {
@@ -270,8 +270,8 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 	 */
 	public void updateFromItems() {
 		if (items != null) {
-			ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(getActivity(),
-					android.R.layout.simple_list_item_1, items);
+			//ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
+			ArrayIndexerAdapter<String> listAdapter = new ArrayIndexerAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
 			setListAdapter(listAdapter);
 			try {
 				getListView().setEmptyView(noResultView);
