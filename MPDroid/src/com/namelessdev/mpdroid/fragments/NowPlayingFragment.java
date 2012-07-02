@@ -62,7 +62,6 @@ import com.namelessdev.mpdroid.ServerListActivity;
 import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.StreamingService;
 import com.namelessdev.mpdroid.WifiConnectionSettings;
-import com.namelessdev.mpdroid.honeycomb.LibraryTabActionActivity;
 import com.namelessdev.mpdroid.providers.ServerList;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
@@ -591,12 +590,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 	private void openLibrary() {
 		Intent i;
-		if (compatActionBar == null) {
+		//TODO : Reenable tablet UI one day.
+		/*if (compatActionBar == null) {
 			// We are on a tablet UI
 			i = new Intent(getActivity(), LibraryTabActionActivity.class);
-		} else {
+		} else {*/
 			i = new Intent(getActivity(), LibraryTabActivity.class);
-		}
+		/*}*/
 		startActivity(i);
 	}
 
