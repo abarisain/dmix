@@ -9,11 +9,11 @@
        	style="@style/CompatActionBar"
        	android:visibility="gone"
    	/>
-    <ListView android:id="@android:id/list"
-        android:layout_width="fill_parent"
+    <ListView android:id="@id/android:list"
+		android:layout_width="fill_parent"
 		android:layout_height="0dip"
 		android:layout_weight="1"
-		android:fastScrollEnabled="true"/>
-    
+		android:fastScrollEnabled="true"
+	/>
 
 </LinearLayout>

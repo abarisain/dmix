@@ -3,12 +3,9 @@ package com.namelessdev.mpdroid.fragments;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDApplication;
@@ -23,12 +20,13 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-
-		pd = ProgressDialog.show(AlbumsFragment.this.getActivity(), getResources().getString(R.string.loading),
-				getResources().getString(
-				R.string.loadingAlbums));
 	}
 
+	@Override
+	public int getLoadingText() {
+		return R.string.loadingAlbums;
+	}
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -39,12 +37,6 @@ public class AlbumsFragment extends BrowseFragment {
 		} else {
 			getActivity().setTitle(getResources().getString(R.string.albums));
 		}
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.albums, container, false);
-		return view;
 	}
 
 	@Override

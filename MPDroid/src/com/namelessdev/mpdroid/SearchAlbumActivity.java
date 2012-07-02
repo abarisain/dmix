@@ -6,7 +6,6 @@ import java.util.List;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,16 +34,17 @@ public class SearchAlbumActivity extends BrowseActivity {
 		} else {
 			return; // Bye !
 		}
-		setContentView(R.layout.artists);
-		setTitle(getTitle() + " : " + searchKeywords);
-		pd = ProgressDialog.show(SearchAlbumActivity.this, getResources().getString(R.string.loading), getResources().getString(
-				R.string.loadingArtists));
+		setActivityTitle(getTitle() + " : " + searchKeywords);
 
 		registerForContextMenu(getListView());
 
 		UpdateList();
 	}
 
+	public int getLoadingText() {
+		return R.string.loadingAlbums;
+	}
+	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Intent intent = new Intent(this, SongsActivity.class);

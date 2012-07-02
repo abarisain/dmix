@@ -3,14 +3,11 @@ package com.namelessdev.mpdroid.fragments;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.AlbumsActivity;
@@ -28,25 +25,21 @@ public class ArtistsFragment extends BrowseFragment {
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 
-		pd = ProgressDialog.show(ArtistsFragment.this.getActivity(), getResources().getString(R.string.loading),
-				getResources().getString(
-				R.string.loadingArtists));
-
 		// load preferences for album artist tag display option
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		albumartist = settings.getBoolean("albumartist", false);
 	}
 
 	@Override
+	public int getLoadingText() {
+		return R.string.loadingArtists;
+	}
+	
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		registerForContextMenu(getListView());
 		UpdateList();
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.artists, container, false);
 	}
 
 	@Override

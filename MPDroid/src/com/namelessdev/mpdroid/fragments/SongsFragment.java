@@ -9,13 +9,10 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDApplication;
@@ -40,11 +37,13 @@ public class SongsFragment extends BrowseFragment {
 		// load preferences for album Track Sort tag display option
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		isSortedByTrack = settings.getBoolean("albumTrackSort", false);
-
-		pd = ProgressDialog
-				.show(getActivity(), getResources().getString(R.string.loading), getResources().getString(R.string.loadingSongs));
 	}
 
+	@Override
+	public int getLoadingText() {
+		return R.string.loadingSongs;
+	}
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -54,12 +53,6 @@ public class SongsFragment extends BrowseFragment {
 
 		setActivityTitle(album, R.drawable.ic_tab_albums_selected);
 
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.albums, container, false);
-		return view;
 	}
 
 	@Override

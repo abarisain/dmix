@@ -9,7 +9,6 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -19,6 +18,7 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -26,7 +26,6 @@ import com.namelessdev.mpdroid.tools.Tools;
 public class BrowseActivity extends ListActivity implements OnMenuItemClickListener, AsyncExecListener {
 
 	protected int iJobID = -1;
-	protected ProgressDialog pd;
 
 	public static final int MAIN = 0;
 	public static final int PLAYLIST = 3;
@@ -37,6 +36,10 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 
 	protected List<String> items = null;
 
+	protected View loadingView;
+	protected TextView loadingTextView;
+	protected View noResultView;
+	
 	String context;
 	int irAdd, irAdded;
 
@@ -52,8 +55,29 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.browse);
+		loadingView = findViewById(R.id.loadingLayout);
+		loadingTextView = (TextView) findViewById(R.id.loadingText);
+		noResultView = findViewById(R.id.noResultLayout);
+		loadingView.setVisibility(View.VISIBLE);
+		loadingTextView.setText(getLoadingText());
 	}
 
+	public void setActivityTitle(String title) {
+		if (!Tools.isTabletMode(this)) {
+			final View tmpView = findViewById(R.id.compatActionbar);
+			if (tmpView != null) {
+				final com.namelessdev.mpdroid.ActionBar compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+				compatActionBar.setVisibility(View.VISIBLE);
+				compatActionBar.setTitle(title);
+				//compatActionBar.setTitleLeftDrawable(R.drawable.);
+				compatActionBar.setBackActionEnabled(true);
+				compatActionBar.showBottomSeparator(true);
+			}
+		}
+		setTitle(title);
+	}
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -68,10 +92,14 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		app.unsetActivity(this);
 	}
 
+	/*
+	 * Override this to display a custom loading text
+	 */
+	public int getLoadingText() {
+		return R.string.loading;
+	}
+	
 	public void UpdateList() {
-		if (pd == null) {
-			pd = ProgressDialog.show(this, getResources().getString(R.string.loading), getResources().getString(R.string.loading));
-		}
 		MPDApplication app = (MPDApplication) getApplication();
 
 		// Loading Artists asynchronous...
@@ -213,6 +241,10 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		if (items != null) {
 			ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 			setListAdapter(listAdapter);
+			try {
+				getListView().setEmptyView(noResultView);
+				loadingView.setVisibility(View.GONE);
+			} catch (Exception e) {}
 		}
 	}
 
@@ -220,13 +252,6 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {
 			updateFromItems();
-			try {
-				pd.dismiss();
-			} catch (Exception e) {
-				// I know that catching everything is bad, but do you want your program to crash because it couldn't stop an already stopped
-				// popup window ? No.
-				// So, do nothing.
-			}
 		}
 
 	}

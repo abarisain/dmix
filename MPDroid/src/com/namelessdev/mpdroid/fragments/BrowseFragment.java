@@ -8,19 +8,22 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.TextView;
 
 import com.namelessdev.mpdroid.ListViewButtonAdapter;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -33,7 +36,6 @@ import com.namelessdev.mpdroid.tools.Tools;
 public class BrowseFragment extends ListFragment implements OnMenuItemClickListener, AsyncExecListener {
 
 	protected int iJobID = -1;
-	protected ProgressDialog pd;
 
 	public static final int MAIN = 0;
 	public static final int PLAYLIST = 3;
@@ -43,6 +45,10 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 	public static final int ADDNPLAY = 2;
 
 	protected List<String> items = null;
+	
+	protected View loadingView;
+	protected TextView loadingTextView;
+	protected View noResultView;
 
 	String context;
 	int irAdd, irAdded;
@@ -57,6 +63,7 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 		setHasOptionsMenu(true);
 	}
 
+	@TargetApi(11)
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -87,6 +94,24 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 		app.unsetActivity(getActivity());
 	}
 
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.browse, container, false);
+		loadingView = view.findViewById(R.id.loadingLayout);
+		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
+		noResultView = view.findViewById(R.id.noResultLayout);
+		loadingView.setVisibility(View.VISIBLE);
+		loadingTextView.setText(getLoadingText());
+		return view;
+	}
+	
+	/*
+	 * Override this to display a custom loading text
+	 */
+	public int getLoadingText() {
+		return R.string.loading;
+	}
+	
 	public void setActivityTitle(String title, int drawableID) {
 		if (!Tools.isTabletMode(getActivity())) {
 			final View tmpView = getActivity().findViewById(R.id.compatActionbar);
@@ -103,9 +128,8 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 	}
 
 	public void UpdateList() {
-		if (pd == null) {
-			pd = ProgressDialog.show(getActivity(), getResources().getString(R.string.loading), getResources().getString(R.string.loading));
-		}
+		noResultView.setVisibility(View.GONE);
+		loadingView.setVisibility(View.VISIBLE);
 		MPDApplication app = (MPDApplication) getActivity().getApplication();
 
 		// Loading Artists asynchronous...
@@ -249,6 +273,10 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 			ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(getActivity(),
 					android.R.layout.simple_list_item_1, items);
 			setListAdapter(listAdapter);
+			try {
+				getListView().setEmptyView(noResultView);
+				loadingView.setVisibility(View.GONE);
+			} catch (Exception e) {}
 		}
 	}
 
@@ -256,13 +284,6 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {
 			updateFromItems();
-			try {
-				pd.dismiss();
-			} catch (Exception e) {
-				// I know that catching everything is bad, but do you want your program to crash because it couldn't stop an already stopped
-				// popup window ? No.
-				// So, do nothing.
-			}
 		}
 
 	}

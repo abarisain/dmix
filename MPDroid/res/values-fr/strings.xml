@@ -16,9 +16,9 @@
 	<string name="quit">Quitter</string>
 	<string name="retry">Réessayer</string>
 	<string name="loading">Chargement ...</string>
-	<string name="loadingAlbums">Chargement des Albums ...</string>
-	<string name="loadingArtists">Chargement des Artistes ...</string>
-	<string name="loadingSongs">Chargement des Chansons ...</string>
+	<string name="loadingAlbums">Chargement des albums ...</string>
+	<string name="loadingArtists">Chargement des artistes ...</string>
+	<string name="loadingSongs">Chargement des chansons ...</string>
 	<string name="serverAddress">Addresse du serveur :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Ajouter et remplacer</string>
@@ -127,4 +127,5 @@
 	<string name="whatsNew">Quoi de neuf ?</string>
 	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
 	<string name="deleteServer">Supprimer ce serveur</string>
+	<string name="no_result">Aucun résultat</string>
 </resources>

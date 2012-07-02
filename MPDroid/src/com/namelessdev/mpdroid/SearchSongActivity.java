@@ -6,14 +6,13 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
-import com.namelessdev.mpdroid.tools.Tools;
-
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
+
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class SearchSongActivity extends BrowseActivity {
 	private ArrayList<Music> arrayMusic = null;
@@ -41,14 +40,15 @@ public class SearchSongActivity extends BrowseActivity {
 			return; // Bye !
 		}
 
-		setContentView(R.layout.artists);
-		setTitle(getTitle() + " : " + searchKeywords);
-		pd = ProgressDialog.show(SearchSongActivity.this, getResources().getString(R.string.loading), getResources().getString(
-				R.string.loadingSongs));
+		setActivityTitle(getTitle() + " : " + searchKeywords);
 
 		registerForContextMenu(getListView());
 
 		UpdateList();
+	}
+	
+	public int getLoadingText() {
+		return R.string.loadingSongs;
 	}
 
 	@Override

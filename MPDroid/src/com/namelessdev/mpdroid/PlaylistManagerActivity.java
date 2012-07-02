@@ -5,8 +5,6 @@ import java.util.List;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
 
-import com.namelessdev.mpdroid.tools.Tools;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
@@ -16,6 +14,8 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
+
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class PlaylistManagerActivity extends BrowseActivity implements OnMenuItemClickListener {
 
@@ -30,7 +30,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 		super.onCreate(icicle);
 
 		//MPDApplication app = (MPDApplication) getApplication();
-		setContentView(R.layout.artists);
+		setContentView(R.layout.simple_list);
 
 		ListView list = getListView();
 		registerForContextMenu(list);
