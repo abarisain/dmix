@@ -87,9 +87,7 @@
 		    android:layout_width="280dip"
 		    android:layout_height="wrap_content"
 		    android:max="100"
-		    android:padding="5px"
-		    android:progress="0"
-		    android:thumbOffset="5dip" />
+		    android:progress="0" />
 
 		<LinearLayout android:orientation="vertical"
 			android:layout_width="wrap_content" android:gravity="center"
@@ -105,9 +103,7 @@
 			    android:layout_width="280dip"
 			    android:layout_height="wrap_content"
 			    android:max="100"
-			    android:padding="5px"
-			    android:progress="0"
-			    android:thumbOffset="5dip" />
+			    android:progress="0" />
 
 		</LinearLayout>
 	</LinearLayout>
