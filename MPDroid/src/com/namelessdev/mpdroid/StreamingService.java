@@ -27,9 +27,9 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -237,17 +237,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	public void onDestroy() {
 		if (needStoppedNotification) {
 			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
-			RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
-			views.setImageViewResource(R.id.icon, R.drawable.icon);
-			Notification status = null;
-			views.setTextViewText(R.id.trackname, getString(R.string.streamStopped));
-			views.setTextViewText(R.id.album, getString(R.string.app_name));
-			views.setTextViewText(R.id.artist, "");
-			status = new Notification(R.drawable.icon, getString(R.string.streamStopped), System.currentTimeMillis());
-			status.contentView = views;
-			status.icon = R.drawable.icon;
-			status.contentIntent = PendingIntent.getActivity(this, 0,
-					new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+			Notification status = new NotificationCompat.Builder(this)
+				.setContentTitle(getString(R.string.streamStopped))
+				.setSmallIcon(R.drawable.icon)
+				.setContentIntent(PendingIntent.getActivity(this, 0,
+						new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0))
+				.getNotification();
 			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_STOPPED, status);
 		}
 		isServiceRunning = false;
@@ -338,44 +333,26 @@ public class StreamingService extends Service implements StatusChangeListener, O
 						RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
 						views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
 						Notification status = null;
-						if (buffering) {
-							views.setTextViewText(R.id.trackname, getString(R.string.buffering));
-							views.setTextViewText(R.id.album, actSong.getTitle());
-							views.setTextViewText(R.id.artist, actSong.getAlbum() + " - " + actSong.getArtist());
-							status = new Notification(R.drawable.icon, getString(R.string.buffering), System.currentTimeMillis());
+						NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+						 .setSmallIcon(R.drawable.icon)
+						 .setOngoing(true)
+						 .setContentTitle(getString(R.string.streamStopped))
+						 .setContentIntent(PendingIntent.getActivity(this, 0,
+								new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
+						if(buffering) {
+							notificationBuilder.setContentTitle(getString(R.string.buffering));
+							notificationBuilder.setContentText(actSong.getTitle() + " - " + actSong.getArtist());
 						} else {
-							views.setTextViewText(R.id.trackname, actSong.getTitle());
-							views.setTextViewText(R.id.album, actSong.getAlbum());
-							views.setTextViewText(R.id.artist, actSong.getArtist());
-							status = new Notification(R.drawable.icon, actSong.getTitle() + " - " + actSong.getArtist(),
-									System.currentTimeMillis());
+							notificationBuilder.setContentTitle(actSong.getTitle());
+							notificationBuilder.setContentText(actSong.getAlbum() + " - " + actSong.getArtist());
 						}
-
-						status.contentView = views;
-						status.flags |= Notification.FLAG_ONGOING_EVENT;
-						status.icon = R.drawable.icon;
-						status.contentIntent = PendingIntent.getActivity(this, 0,
-								new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+						status = notificationBuilder.getNotification();
 
 						startForeground(STREAMINGSERVICE_STATUS, status);
 					}
 				}
 			}
-			/*
-			 * else if (isPaused) { Context context = getApplicationContext(); RemoteViews views = new RemoteViews(getPackageName(),
-			 * R.layout.statusbar); views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer); Notification status = null;
-			 * if (mediaPlayerError != 0) views.setTextViewText(R.id.trackname, context.getString(R.string.streamError)); else
-			 * views.setTextViewText(R.id.trackname, context.getString(R.string.streamPaused));
-			 * 
-			 * views.setTextViewText(R.id.album, context.getString(R.string.streamPauseBattery)); views.setTextViewText(R.id.artist, "");
-			 * status = new Notification(R.drawable.icon, context.getString(R.string.streamPaused), System.currentTimeMillis());
-			 * 
-			 * status.contentView = views; status.icon = R.drawable.icon; status.contentIntent = PendingIntent.getActivity(this, 0, new
-			 * Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0); ((NotificationManager)
-			 * getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_PAUSED, status);
-			 * 
-			 * }
-			 */
+
 		} catch (Exception e) {
 			// This should not happen anymore, and catching everything is ugly, but crashing because of a notification is pretty stupid IMHO
 		}
