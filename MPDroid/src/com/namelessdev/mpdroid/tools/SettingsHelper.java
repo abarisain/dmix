@@ -34,7 +34,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 	}
 	
 	public boolean warningShown() {
-		return getBooleanSetting("warningShown");
+		return getBooleanSetting("newWarningShown");
 	}
 	
 	public boolean updateSettings() {

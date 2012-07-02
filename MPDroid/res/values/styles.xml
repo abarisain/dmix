@@ -30,6 +30,8 @@
     <style name="AppTheme.Wallpaper" parent="@android:style/Theme.Wallpaper.NoTitleBar">
     </style>
     
+    <style name="AppTheme.Dialog" parent="@android:style/Theme.Dialog" />
+    
     <style name="CompatActionBar">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">@dimen/actionbar_height</item>

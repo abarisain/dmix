@@ -19,7 +19,7 @@ public class WarningActivity extends Activity {
 		btnOK.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View view) {
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(myWarning);
-				settings.edit().putBoolean("warningShown", true).commit();
+				settings.edit().putBoolean("newWarningShown", true).commit();
 				finish();
 			}
 		});
