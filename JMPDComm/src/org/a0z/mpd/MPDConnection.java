@@ -157,8 +157,11 @@ public class MPDConnection {
 	private static String commandToString(String command, String[] args) {
 		StringBuffer outBuf = new StringBuffer();
 		outBuf.append(command);
-		for (String arg : args)
+		for (String arg : args) {
+			if(arg == null)
+				continue;
 			outBuf.append(" \"" + arg + "\"");
+		}
 		outBuf.append("\n");
 
 		return outBuf.toString();
