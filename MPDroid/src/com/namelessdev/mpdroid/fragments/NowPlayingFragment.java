@@ -197,12 +197,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		/*
-		 * WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE); int wifistate = wifi.getWifiState();
-		 * if(wifistate!=wifi.WIFI_STATE_ENABLED && wifistate!=wifi.WIFI_STATE_ENABLING) { setTitle("No WIFI"); return; }
-		 * while(wifistate!=wifi.WIFI_STATE_ENABLED) setTitle("Waiting for WIFI");
-		 */
-
 	}
 
 	@Override
@@ -228,19 +222,26 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		if (tmpView != null) {
 			// We are on a phone
 			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
-			compatActionBar.setTitle(R.string.nowPlaying);
-			compatActionBar.setLibraryButtonParams(true, new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					openLibrary();
-				}
-			});
-			compatActionBar.setSearchButtonParams(true, new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					openPlaylist();
-				}
-			}, R.drawable.ic_action_playlist);
+			// Yeah but is it an ICS phone ?
+			if (android.os.Build.VERSION.SDK_INT >= 14) {
+				//Fuck yeah ics, let's use the native actionbar for these menu button less phones
+				//Let's make it invisible, not gone, so our actionbar gets it's space
+				compatActionBar.setVisibility(View.INVISIBLE);
+			} else {
+				compatActionBar.setTitle(R.string.nowPlaying);
+				compatActionBar.setLibraryButtonParams(true, new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						openLibrary();
+					}
+				});
+				compatActionBar.setSearchButtonParams(true, new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						openPlaylist();
+					}
+				}, R.drawable.ic_action_playlist);
+			}
 		}
 
 		Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);

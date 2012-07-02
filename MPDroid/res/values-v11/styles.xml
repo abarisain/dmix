@@ -16,8 +16,8 @@
  -->
 <resources>
     <style name="AppTheme.Wallpaper" parent="@android:style/Theme.Holo.Wallpaper">
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Dark</item>
+        <item name="android:windowActionBarOverlay">true</item>
     </style>
     <style name="AppTheme" parent="@android:style/Theme.Holo.NoActionBar">
 
