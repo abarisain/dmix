@@ -214,10 +214,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 		enableLastFM = settings.getBoolean("enableLastFM", true);
 
-		/*
-		 * if (newUI) { setContentView(R.layout.main); } else { setContentView(R.layout.main_old); }
-		 */
-
 		streamingMode = ((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode;
 		connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
 		artistNameText = (TextView) view.findViewById(R.id.artistName);
@@ -568,21 +564,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
+		//Reminder : never disable buttons that are shown as actionbar actions here
 		super.onPrepareOptionsMenu(menu);
 		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		MPD mpd = app.oMPDAsyncHelper.oMPD;
 		if (!mpd.isConnected()) {
 			if (menu.findItem(CONNECT) == null) {
-				menu.findItem(R.id.GMM_LibTab).setEnabled(false);
-				menu.findItem(R.id.GMM_Playlist).setEnabled(false);
-				menu.findItem(R.id.GMM_Stream).setEnabled(false);
 				menu.add(0, CONNECT, 0, R.string.connect);
 			}
 		} else {
 			if (menu.findItem(CONNECT) != null) {
-				menu.findItem(R.id.GMM_LibTab).setEnabled(true);
-				menu.findItem(R.id.GMM_Playlist).setEnabled(true);
-				menu.findItem(R.id.GMM_Stream).setEnabled(true);
 				menu.removeItem(CONNECT);
 			}
 		}
@@ -611,11 +602,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 		// Handle item selection
 		switch (item.getItemId()) {
-		/*
-		 * TODO: Remove this code it seems unused case ARTISTS: i = new Intent(this, ArtistsActivity.class); //startActivityForResult(i,
-		 * ARTISTS); return true; case ALBUMS: i = new Intent(this, AlbumsActivity.class); //startActivityForResult(i, ALBUMS); return true;
-		 * case FILES: i = new Intent(this, FSActivity.class); //startActivityForResult(i, FILES); return true;
-		 */
 		case R.id.GMM_LibTab:
 			openLibrary();
 			return true;

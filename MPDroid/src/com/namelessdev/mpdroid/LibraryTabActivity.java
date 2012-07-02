@@ -1,5 +1,6 @@
 package com.namelessdev.mpdroid;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,8 +41,9 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 
 		final View tmpView = findViewById(R.id.compatActionbar);
 		if (tmpView != null) {
-			// We are on a phone
 			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			//Force it even on tablets
+			compatActionBar.setVisibility(View.VISIBLE);
 			compatActionBar.setTitle(R.string.libraryTabActivity);
 			compatActionBar.setBackActionEnabled(true);
 			compatActionBar.showBottomSeparator(true);
@@ -75,6 +77,7 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 
 	}
 
+	@TargetApi(11)
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -82,6 +85,7 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 			ActionBar actionBar = this.getActionBar();
 			if (actionBar != null) {
 				actionBar.setDisplayHomeAsUpEnabled(true);
+				actionBar.hide();
 			}
 		} catch (NoClassDefFoundError e) {
 			// Older android
