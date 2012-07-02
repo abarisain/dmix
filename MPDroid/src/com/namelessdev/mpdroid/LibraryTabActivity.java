@@ -1,7 +1,5 @@
 package com.namelessdev.mpdroid;
 
-import com.namelessdev.mpdroid.tools.Tools;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,10 +20,6 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		if (!Tools.isTabletMode(this)) {
-			setTheme(android.R.style.Theme_Black_NoTitleBar);
-		}
-
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.library_tabs);
 		tabLabels = new CharSequence[] { this.getString(R.string.artists), this.getString(R.string.albums), this.getString(R.string.songs),

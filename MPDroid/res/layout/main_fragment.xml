@@ -81,11 +81,15 @@
 	<LinearLayout android:orientation="vertical"
 		android:layout_width="fill_parent" android:gravity="center"
 		android:layout_height="wrap_content" android:paddingBottom="10dip">
-
-
-		<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_track"
-			android:layout_width="280dip" android:max="100" android:padding="5px"
-			android:progress="0" />
+
+		<SeekBar
+		    android:id="@+id/progress_track"
+		    android:layout_width="280dip"
+		    android:layout_height="wrap_content"
+		    android:max="100"
+		    android:padding="5px"
+		    android:progress="0"
+		    android:thumbOffset="5dip" />
 
 		<LinearLayout android:orientation="vertical"
 			android:layout_width="wrap_content" android:gravity="center"
@@ -95,10 +99,15 @@
 				android:textColor="#FFFFFFFF" android:layout_height="wrap_content"
 				android:text="@string/volume" android:gravity="center"
 				android:textSize="12sp" />
-
-			<SeekBar android:layout_height="wrap_content" android:id="@+id/progress_volume"
-				android:max="100" android:padding="5px" android:progress="0"
-				android:layout_width="280dip" />
+
+			<SeekBar
+			    android:id="@+id/progress_volume"
+			    android:layout_width="280dip"
+			    android:layout_height="wrap_content"
+			    android:max="100"
+			    android:padding="5px"
+			    android:progress="0"
+			    android:thumbOffset="5dip" />
 
 		</LinearLayout>
 	</LinearLayout>

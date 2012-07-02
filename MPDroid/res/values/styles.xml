@@ -21,9 +21,12 @@
         <item name="android:background">@color/actionbar_background_dark</item>
     </style>
     
-    <style name="AppTheme.Dark" parent="@android:style/Theme.Holo.Wallpaper">
-        <item name="android:actionBarStyle">@style/ActionBar.Dark</item>
-        <item name="android:windowActionBarOverlay">true</item>
+    <style name="AppTheme.Dark" parent="@android:style/Theme.Black.NoTitleBar">
+
+    </style>
+    
+    <style name="AppTheme.Dark.Wallpaper" parent="@android:style/Theme.Wallpaper.NoTitleBar">
+
     </style>
     
     <style name="CompatActionBar">
@@ -32,4 +35,6 @@
         <item name="android:orientation">horizontal</item>
         <item name="android:background">@drawable/actionbar_gradient</item>
     </style>
+    
+    
 </resources>

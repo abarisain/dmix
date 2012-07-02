@@ -10,8 +10,7 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import com.namelessdev.mpdroid.tools.Tools;
-
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ListActivity;
@@ -27,6 +26,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class PlaylistActivity extends ListActivity implements OnClickListener, StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
@@ -44,12 +45,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	public static final int SAVE = 4;
 	public static final int EDIT = 2;
 
+	@TargetApi(11)
 	@Override
 	public void onCreate(Bundle icicle) {
-		if (!Tools.isTabletMode(this)) {
-			setTheme(android.R.style.Theme_Black_NoTitleBar);
-		}
-
 		super.onCreate(icicle);
 		app = (MPDApplication) getApplication();
 		setContentView(R.layout.playlist_activity);

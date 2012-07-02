@@ -10,9 +10,12 @@
 	<uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
 	
 	<application android:icon="@drawable/icon"
-		android:label="@string/app_name" android:name=".MPDApplication" android:hardwareAccelerated="true">
+		android:label="@string/app_name"
+		android:theme="@style/AppTheme.Dark"
+		android:name=".MPDApplication"
+		android:hardwareAccelerated="true" >
 		<!-- android:debuggable="true" -->
-		<activity android:name=".MainMenuActivity" android:label="@string/app_name"
+		<activity android:name=".MainMenuActivity" android:theme="@style/AppTheme.Dark.Wallpaper" android:label="@string/app_name"
 			android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -22,7 +25,6 @@
 				<action android:name="com.namelessdev.mpdroid.PLAYBACK_VIEWER" />
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
-			<receiver android:name=".MainMenuActivity$MyIntentReceiver" />
 			<!--
 				<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchActivity" />

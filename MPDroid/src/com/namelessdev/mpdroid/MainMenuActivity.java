@@ -8,7 +8,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
-import com.namelessdev.mpdroid.tools.Tools;
 
 /**
  * MainMenuActivity launches the NowPlayingFragment and the current playlist
@@ -22,9 +21,6 @@ public class MainMenuActivity extends FragmentActivity {
 	@TargetApi(9)
 	@Override
 	protected void onCreate(Bundle arg0) {
-		// If put after super.onCreate on android versions < 3.0 it will not work
-		setTheme(Tools.isTabletMode(this) ? R.style.AppTheme_Dark : android.R.style.Theme_Wallpaper_NoTitleBar);
-
 		super.onCreate(arg0);
 		setContentView(R.layout.main_activity);
 		if (android.os.Build.VERSION.SDK_INT > 9) {
