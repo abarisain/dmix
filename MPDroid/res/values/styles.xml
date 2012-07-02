@@ -21,12 +21,13 @@
         <item name="android:background">@color/actionbar_background_dark</item>
     </style>
     
-    <style name="AppTheme.Dark" parent="@android:style/Theme.Black.NoTitleBar">
-
+    <style name="AppTheme" parent="@android:style/Theme.Black.NoTitleBar">
     </style>
     
-    <style name="AppTheme.Dark.Wallpaper" parent="@android:style/Theme.Wallpaper.NoTitleBar">
-
+    <style name="AppTheme.ActionBar" parent="@android:style/Theme.Black">
+    </style>
+    
+    <style name="AppTheme.Wallpaper" parent="@android:style/Theme.Wallpaper.NoTitleBar">
     </style>
     
     <style name="CompatActionBar">

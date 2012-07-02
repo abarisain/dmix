@@ -15,11 +15,15 @@
   limitations under the License.
  -->
 <resources>
-    <style name="AppTheme.Dark.Wallpaper" parent="@android:style/Theme.Holo.Wallpaper">
+    <style name="AppTheme.Wallpaper" parent="@android:style/Theme.Holo.Wallpaper">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>
-    <style name="AppTheme.Dark" parent="@android:style/Theme.Holo.NoActionBar">
+    <style name="AppTheme" parent="@android:style/Theme.Holo.NoActionBar">
+
+    </style>
+    
+    <style name="AppTheme.ActionBar" parent="@android:style/Theme.Holo">
 
     </style>
 </resources>

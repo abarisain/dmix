@@ -11,11 +11,11 @@
 	
 	<application android:icon="@drawable/icon"
 		android:label="@string/app_name"
-		android:theme="@style/AppTheme.Dark"
+		android:theme="@style/AppTheme"
 		android:name=".MPDApplication"
 		android:hardwareAccelerated="true" >
 		<!-- android:debuggable="true" -->
-		<activity android:name=".MainMenuActivity" android:theme="@style/AppTheme.Dark.Wallpaper" android:label="@string/app_name"
+		<activity android:name=".MainMenuActivity" android:theme="@style/AppTheme.Wallpaper" android:label="@string/app_name"
 			android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -69,10 +69,10 @@
 			<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchArtistActivity" />
 		</activity>
-		<activity android:name=".SettingsActivity" android:label="@string/settings" />
+		<activity android:name=".SettingsActivity" android:label="@string/settings" android:theme="@style/AppTheme.ActionBar"/>
 		<activity android:name=".WifiConnectionSettings"
-			android:label="@string/settings" />
-		<activity android:name=".ConnectionSettings" android:label="@string/settings" />
+			android:label="@string/settings" android:theme="@style/AppTheme.ActionBar" />
+		<activity android:name=".ConnectionSettings" android:label="@string/settings" android:theme="@style/AppTheme.ActionBar"/>
 		<activity android:name=".FSActivity" android:label="@string/files" />
 		<activity android:name=".AlbumsActivity" android:label="@string/albums" >
 			<meta-data android:name="android.app.default_searchable"
@@ -85,9 +85,9 @@
 				android:value=".SearchSongActivity" />
 		</activity>
 		
-		<activity android:name=".ServerListActivity" />
-		<activity android:name=".ServerEditActivity" />
-		<activity android:name=".ServerBonjourListActivity" />
+		<activity android:name=".ServerListActivity" android:theme="@style/AppTheme.ActionBar" />
+		<activity android:name=".ServerEditActivity" android:theme="@style/AppTheme.ActionBar" />
+		<activity android:name=".ServerBonjourListActivity" android:theme="@style/AppTheme.ActionBar" />
 		
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
