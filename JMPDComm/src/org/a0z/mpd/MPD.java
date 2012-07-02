@@ -424,7 +424,7 @@ public class MPD {
 		LinkedList<String> result = new LinkedList<String>();
 		for (String line : response) {
 			String name = line.substring("Album: ".length());
-			if (name.length() > 1)
+			if (name.length() > 0)
 				result.add(name);
 		}
 		
@@ -489,7 +489,7 @@ public class MPD {
 		LinkedList<String> result = new LinkedList<String>();
 		for (String s : response) {
 			String name = s.substring("Artist: ".length());
-			if (name.length() > 1)
+			if (name.length() > 0)
 				result.add(name);
 		}
 		if (sortInsensitive)
@@ -516,7 +516,7 @@ public class MPD {
 		LinkedList<String> result = new LinkedList<String>();
 		for (String s : response) {
 			String name = s.substring("albumartist: ".length());
-			if (name.length() > 1)
+			if (name.length() > 0)
 				result.add(name);
 		}
 		
