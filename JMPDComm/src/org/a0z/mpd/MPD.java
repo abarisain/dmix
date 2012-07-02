@@ -469,7 +469,7 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 */
 	public List<String> listArtists() throws MPDServerException {
-		return listArtists(false);
+		return listArtists(true);
 	}
 	/**
 	 * List all artist names from database.

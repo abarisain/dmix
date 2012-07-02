@@ -80,7 +80,7 @@ public class SearchSongActivity extends BrowseActivity {
 
 		try {
 			MPDApplication app = (MPDApplication) getApplication();
-			arrayMusic = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.search("any", finalsearch));
+			arrayMusic = (ArrayList<Music>) app.oMPDAsyncHelper.oMPD.search("any", finalsearch);
 		} catch (MPDServerException e) {
 		}
 

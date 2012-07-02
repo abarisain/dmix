@@ -1,6 +1,8 @@
 package org.a0z.mpd;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -122,6 +124,8 @@ public class Music implements FilesystemTreeEntry {
 			result.add(new Music(lineCache));
 		}
 
+		Collections.sort(result, new MusicTitleComparator());
+		
 		return result;
 	}
 
@@ -426,5 +430,15 @@ public class Music implements FilesystemTreeEntry {
 	 */
 	public String toString() {
 		return track + " - " + album + " - " + artist + " - " + title + " (" + fullpath + ")";
+	}
+	
+	public static class MusicTitleComparator implements Comparator<Music> {
+		public int compare(Music o1, Music o2) {
+			if(o1.getTitle() == null)
+				return -1;
+			if(o2.getTitle() == null)
+				return 1;
+			return o1.getTitle().toLowerCase().compareTo(o2.getTitle().toLowerCase());
+		}
 	}
 }
