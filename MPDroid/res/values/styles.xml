@@ -21,6 +21,10 @@
         <item name="android:background">@color/actionbar_background_dark</item>
     </style>
     
+    <style name="SherlockActionBar.Dark" parent="Widget.Sherlock.ActionBar">
+        <item name="background">@color/actionbar_background_dark</item>
+    </style>
+    
     <style name="AppTheme" parent="Theme.Sherlock">
     </style>
     
@@ -35,6 +39,7 @@
         <item name="android:windowActionBarOverlay">true</item>
         <item name="windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">true</item>
+		<item name="actionBarStyle">@style/SherlockActionBar.Dark</item>
     </style>
     
     <style name="AppTheme.Dialog" parent="Theme.Sherlock.Dialog" />
