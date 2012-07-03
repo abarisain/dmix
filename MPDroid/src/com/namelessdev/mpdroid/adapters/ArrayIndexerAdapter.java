@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import android.content.Context;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.SectionIndexer;
 
@@ -74,17 +73,26 @@ public class ArrayIndexerAdapter<T> extends ArrayAdapter<T> implements SectionIn
 	@Override
 	public int getPositionForSection(int section) {
 		// Log.v("getPositionForSection", ""+section);
-		String letter = sections[section];
+		String letter = sections[section >= sections.length ? sections.length - 1 : section];
 
 		return alphaIndexer.get(letter);
 	}
 
 	@Override
 	public int getSectionForPosition(int position) {
-
-		// you will notice it will be never called (right?)
-		Log.v("getSectionForPosition", "called");
-		return 0;
+		if(sections.length == 0)
+			return -1;
+		
+		if(sections.length == 1)
+			return 1;
+		
+		for(int i = 0; i < (sections.length - 1); i ++) {
+			int begin = alphaIndexer.get(sections[i]);
+			int end = alphaIndexer.get(sections[i]) - 1;
+			if(position >= begin && position < end)
+				return i;
+		}
+		return sections.length - 1;
 	}
 
 	@Override
