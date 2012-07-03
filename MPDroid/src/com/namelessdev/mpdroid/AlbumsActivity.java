@@ -1,9 +1,10 @@
 package com.namelessdev.mpdroid;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
-public class AlbumsActivity extends FragmentActivity {
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
+public class AlbumsActivity extends SherlockFragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle arg0) {

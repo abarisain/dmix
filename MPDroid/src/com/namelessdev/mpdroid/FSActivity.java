@@ -1,9 +1,10 @@
 package com.namelessdev.mpdroid;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
-public class FSActivity extends FragmentActivity {
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
+public class FSActivity extends SherlockFragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle arg0) {
