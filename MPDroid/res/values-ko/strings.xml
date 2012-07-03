@@ -105,7 +105,7 @@
 	<string name="libraryTabActivity">라이브러리</string>
 	<string name="songSearch">모든 곡을 한번에 보는 것보다 검색을 사용 하는 것을 권장합니다.</string>
 	<string name="warningTitle">읽어주세요</string>
-	<string name="warningText1">이 주의사항은 한번만 보입니다.\n\n이 앱에 대해 수 많은 메일을 받았습니다.\n우선, 당신이 MPD 서버가 무엇인지 모른다면, 이 어플리케이션을 지금 삭제하십시오. 이 프로그램은 당신을 위한 것이 아닙니다.\n\n두번째로, 당신의 데이터플랜에 주의하십시오. 당신이 데이터플랜에 신경쓰지 않는다면, 3G 요금이 많이 나올 수 있습니다. \n마지막으로, 모든 플랫폼에서 다 돌아가는 스트리밍은 MP3 뿐입니다. OGG 스트리밍은 FROYO (2.2)에서만 지원됩니다. 스트리밍이 동작하지 않는다면 이 부분을 확인해 주십시오. \n\제작자에게 하실 말씀이 있거나, 제안사항, 버그레포팅 등이 있으면 redvulpecula@gmail.com 혹은 github를 통해 알려주시길 바랍니다. 우리는 기꺼히 그리고 가능한 빨리 당신의 요구사항을 들어드리겠습니다.\n한가지 더. 마켓에 있는 스크린샷이 현재 프로그램의 모습을 반영하지 못할 수도 있습니다. ;)</string>
+	<string name="warningText1">Welcome to MPDroid 1.0 !\nThis will only display once.\n\nFirst of all, if you don\'t know what a MPD server is, you should uninstall the application now, it is not made for you.\n\nImportant known bug : Widget sometimes crashes or drains battery.\n\nFor previous users, thanks a lot for your support and contributions. I really hope that you will like the new MPDroid version. Feel free to tell me what you dislike or want back in an email :)\nThe old version is stil available on my github page.</string>
 	<string name="editPlaylist">수정</string>
 	<string name="edit">수정</string>
 	<string name="nowPlaying">지금 재생중</string>

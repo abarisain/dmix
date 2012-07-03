@@ -103,7 +103,7 @@
 	<string name="libraryTabActivity">Bibliothèque</string>
 	<string name="songSearch">Afficher toutes les chansons n\'est pas une bonne idée. Utilisez la recherche !</string>
 	<string name="warningTitle">Merci de lire ce qui suit.</string>
-	<string name="warningText1">Bienvenue dans MPDroid 1.0 !\nCette popup ne s\'affichera qu\'une seule fois.\n\nPremièrement, si vous ne savez pas ce qu\'est un serveur MPD, passez vôtre chemin, cette application n\'est pas faite pour vous.\n\nBug connu important : Le widget plante parfois et cause un drain de batterie.\n\nPour les "anciens" utilisateurs de MPDroid : Merci beaucoup pour votre support et contributions. J\'espère que cette nouvelle version vous plaira. N\'hésitez pas à me signaler par email ce qui vous déplait ou que vous voulez voir réapparaitre :) L\'ancienne version est toujours disponible sur le market ou ma page github.</string>
+	<string name="warningText1">Bienvenue dans MPDroid 1.0 !\nCette popup ne s\'affichera qu\'une seule fois.\n\nPremièrement, si vous ne savez pas ce qu\'est un serveur MPD, passez vôtre chemin, cette application n\'est pas faite pour vous.\n\nBug connu important : Le widget plante parfois et cause un drain de batterie.\n\nPour les "anciens" utilisateurs de MPDroid : Merci beaucoup pour votre support et contributions. J\'espère que cette nouvelle version vous plaira. N\'hésitez pas à me signaler par email ce qui vous déplait ou que vous voulez voir réapparaitre :) L\'ancienne version est toujours disponible sur ma page github.</string>
 	<string name="editPlaylist">Modifier</string>
 	<string name="edit">Modifier</string>
 	<string name="nowPlaying">En cours</string>
