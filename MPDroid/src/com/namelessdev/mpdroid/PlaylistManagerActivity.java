@@ -5,6 +5,7 @@ import java.util.List;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 		super(R.string.addPlaylist, R.string.playlistAdded, MPD.MPD_SEARCH_ALBUM);
 	}
 
+	@TargetApi(11)
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);

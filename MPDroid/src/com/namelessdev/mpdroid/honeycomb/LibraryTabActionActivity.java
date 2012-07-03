@@ -1,5 +1,6 @@
 package com.namelessdev.mpdroid.honeycomb;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
@@ -28,6 +29,7 @@ public class LibraryTabActionActivity extends FragmentActivity implements Action
 	private Fragment songsFragment = null;
 	private Fragment filesFragment = null;
 
+	@TargetApi(11)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

@@ -10,6 +10,7 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ListActivity;
@@ -29,6 +30,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 	private List<Music> musics;
 	private com.namelessdev.mpdroid.ActionBar compatActionBar;
 
+	@TargetApi(11)
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
