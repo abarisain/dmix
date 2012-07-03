@@ -99,7 +99,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 	private SeekBar progressBarTrack = null;
 
 	private TextView trackTime = null;
-	private com.namelessdev.mpdroid.ActionBar compatActionBar = null;
+	private com.namelessdev.mpdroid.ActionBarLite compatActionBar = null;
 
 	private CoverAsyncHelper oCoverAsyncHelper = null;
 	long lastSongTime = 0;
@@ -233,7 +233,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		final View tmpView = view.findViewById(R.id.compatActionbar);
 		if (tmpView != null) {
 			// We are on a phone
-			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar = (com.namelessdev.mpdroid.ActionBarLite) tmpView;
 			// Yeah but is it an ICS phone ?
 			if (android.os.Build.VERSION.SDK_INT >= 14) {
 				//Fuck yeah ics, let's use the native actionbar for these menu button less phones

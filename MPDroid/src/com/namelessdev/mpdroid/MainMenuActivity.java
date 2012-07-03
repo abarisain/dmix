@@ -1,13 +1,9 @@
 package com.namelessdev.mpdroid;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -18,9 +14,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 
-public class MainMenuActivity extends FragmentActivity implements ActionBar.TabListener {
+public class MainMenuActivity extends SherlockFragmentActivity implements com.actionbarsherlock.app.ActionBar.TabListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
@@ -51,7 +50,7 @@ public class MainMenuActivity extends FragmentActivity implements ActionBar.TabL
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowHomeEnabled(true);
@@ -104,23 +103,19 @@ public class MainMenuActivity extends FragmentActivity implements ActionBar.TabL
 		app.unsetActivity(this);
 	}
 
-	@SuppressLint("NewApi")
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    @SuppressLint("NewApi")
-	@TargetApi(11)
 	@Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, switch to the corresponding page in the ViewPager.
+	public void onTabReselected(Tab tab, android.support.v4.app.FragmentTransaction ft) {
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, android.support.v4.app.FragmentTransaction ft) {
+		// When the given tab is selected, switch to the corresponding page in the ViewPager.
         mViewPager.setCurrentItem(tab.getPosition());
-    }
+	}
 
-    @TargetApi(11)
 	@Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
+	public void onTabUnselected(Tab tab, android.support.v4.app.FragmentTransaction ft) {
+	}
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one of the primary

@@ -68,7 +68,7 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 		if (!Tools.isTabletMode(this)) {
 			final View tmpView = findViewById(R.id.compatActionbar);
 			if (tmpView != null) {
-				final com.namelessdev.mpdroid.ActionBar compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+				final com.namelessdev.mpdroid.ActionBarLite compatActionBar = (com.namelessdev.mpdroid.ActionBarLite) tmpView;
 				compatActionBar.setVisibility(View.VISIBLE);
 				compatActionBar.setTitle(title);
 				//compatActionBar.setTitleLeftDrawable(R.drawable.);

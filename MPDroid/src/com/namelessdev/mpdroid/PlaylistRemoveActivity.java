@@ -28,7 +28,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 public class PlaylistRemoveActivity extends ListActivity implements StatusChangeListener, OnClickListener {
 	private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
 	private List<Music> musics;
-	private com.namelessdev.mpdroid.ActionBar compatActionBar;
+	private com.namelessdev.mpdroid.ActionBarLite compatActionBar;
 
 	@TargetApi(11)
 	@Override
@@ -90,7 +90,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		final View tmpView = findViewById(R.id.compatActionbar);
 		if (tmpView != null) {
 			// We are on a phone
-			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar = (com.namelessdev.mpdroid.ActionBarLite) tmpView;
 			compatActionBar.setTitle(R.string.nowPlaying);
 			compatActionBar.setBackActionEnabled(true);
 			compatActionBar.showBottomSeparator(true);

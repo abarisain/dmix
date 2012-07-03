@@ -16,7 +16,7 @@ import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 
 public class LibraryTabActivity extends TabActivity implements OnTabChangeListener {
-	private com.namelessdev.mpdroid.ActionBar compatActionBar;
+	private com.namelessdev.mpdroid.ActionBarLite compatActionBar;
 	private CharSequence[] tabLabels;
 
 	@Override
@@ -41,7 +41,7 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 
 		final View tmpView = findViewById(R.id.compatActionbar);
 		if (tmpView != null) {
-			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar = (com.namelessdev.mpdroid.ActionBarLite) tmpView;
 			//Force it even on tablets
 			compatActionBar.setVisibility(View.VISIBLE);
 			compatActionBar.setTitle(R.string.libraryTabActivity);
@@ -117,7 +117,7 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 		final View tmpView = findViewById(R.id.compatActionbar);
 		if (tmpView != null) {
 			// We are on a phone
-			compatActionBar = (com.namelessdev.mpdroid.ActionBar) tmpView;
+			compatActionBar = (com.namelessdev.mpdroid.ActionBarLite) tmpView;
 			compatActionBar.setTitle(tabLabels[getTabHost().getCurrentTab()].toString());
 		}
 	}
