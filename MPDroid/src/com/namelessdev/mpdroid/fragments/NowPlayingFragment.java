@@ -33,12 +33,8 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -52,6 +48,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher.ViewFactory;
 
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.CoverAsyncHelper;
 import com.namelessdev.mpdroid.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.LibraryTabActivity;
@@ -64,7 +64,7 @@ import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.StreamingService;
 import com.namelessdev.mpdroid.providers.ServerList;
 
-public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
+public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
 		OnSharedPreferenceChangeListener {
 
 	private Logger myLogger = Logger.global;
@@ -230,31 +230,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
 
 		trackTime = (TextView) view.findViewById(R.id.trackTime);
-		final View tmpView = view.findViewById(R.id.compatActionbar);
-		if (tmpView != null) {
-			// We are on a phone
-			compatActionBar = (com.namelessdev.mpdroid.ActionBarLite) tmpView;
-			// Yeah but is it an ICS phone ?
-			if (android.os.Build.VERSION.SDK_INT >= 14) {
-				//Fuck yeah ics, let's use the native actionbar for these menu button less phones
-				//Let's make it invisible, not gone, so our actionbar gets it's space
-				compatActionBar.setVisibility(View.INVISIBLE);
-			} else {
-				compatActionBar.setTitle(R.string.nowPlaying);
-				compatActionBar.setLibraryButtonParams(true, new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						openLibrary();
-					}
-				});
-				compatActionBar.setSearchButtonParams(true, new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						openPlaylist();
-					}
-				}, R.drawable.ic_action_playlist);
-			}
-		}
 
 		Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
 		fadeIn.setDuration(ANIMATION_DURATION_MSEC);

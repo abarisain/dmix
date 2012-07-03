@@ -21,16 +21,16 @@
         <item name="android:background">@color/actionbar_background_dark</item>
     </style>
     
-    <style name="AppTheme" parent="@android:style/Theme.Black.NoTitleBar">
+    <style name="AppTheme" parent="Theme.Sherlock">
     </style>
     
-    <style name="AppTheme.ActionBar" parent="@android:style/Theme.Black">
+    <style name="AppTheme.ActionBar" parent="Theme.Sherlock">
     </style>
     
-    <style name="AppTheme.Wallpaper" parent="@android:style/Theme.Wallpaper.NoTitleBar">
+    <style name="AppTheme.Wallpaper" parent="Theme.Sherlock">
     </style>
     
-    <style name="AppTheme.Dialog" parent="@android:style/Theme.Dialog" />
+    <style name="AppTheme.Dialog" parent="Theme.Sherlock.Dialog" />
     
     <style name="CompatActionBar">
         <item name="android:layout_width">fill_parent</item>

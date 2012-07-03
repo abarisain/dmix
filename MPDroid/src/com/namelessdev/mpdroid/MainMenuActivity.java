@@ -1,6 +1,7 @@
 package com.namelessdev.mpdroid;
 
 import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
@@ -56,10 +57,15 @@ public class MainMenuActivity extends SherlockFragmentActivity implements com.ac
         actionBar.setDisplayShowHomeEnabled(true);
         
         
-        ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_dropdown_item_1line);
+        ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
         actionBarAdapter.add(getString(R.string.nowPlaying));
         actionBarAdapter.add(getString(R.string.playlist));
-        actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        if(Build.VERSION.SDK_INT >= 14) {
+        	//Bug on ICS with sherlock's layout
+        	actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        } else {
+        	actionBarAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+        }
         actionBar.setListNavigationCallbacks(actionBarAdapter, null);
 
         // Set up the ViewPager with the sections adapter.
