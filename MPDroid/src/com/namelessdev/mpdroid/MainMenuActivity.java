@@ -16,11 +16,11 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 
-public class MainMenuActivity extends SherlockFragmentActivity implements com.actionbarsherlock.app.ActionBar.TabListener {
+public class MainMenuActivity extends SherlockFragmentActivity implements OnNavigationListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
@@ -66,7 +66,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements com.ac
         } else {
         	actionBarAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
         }
-        actionBar.setListNavigationCallbacks(actionBarAdapter, null);
+        actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -81,17 +81,6 @@ public class MainMenuActivity extends SherlockFragmentActivity implements com.ac
                 actionBar.setSelectedNavigationItem(position);
             }
         });
-
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by the adapter.
-            // Also specify this Activity object, which implements the TabListener interface, as the
-            // listener for when this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mSectionsPagerAdapter.getPageTitle(i))
-                            .setTabListener(this));
-        }
     }
 
 	@Override
@@ -110,19 +99,11 @@ public class MainMenuActivity extends SherlockFragmentActivity implements com.ac
 	}
 
 	@Override
-	public void onTabReselected(Tab tab, android.support.v4.app.FragmentTransaction ft) {
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		mViewPager.setCurrentItem(itemPosition);
+		return true;
 	}
-
-	@Override
-	public void onTabSelected(Tab tab, android.support.v4.app.FragmentTransaction ft) {
-		// When the given tab is selected, switch to the corresponding page in the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
-	}
-
-	@Override
-	public void onTabUnselected(Tab tab, android.support.v4.app.FragmentTransaction ft) {
-	}
-
+	
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one of the primary
      * sections of the app.

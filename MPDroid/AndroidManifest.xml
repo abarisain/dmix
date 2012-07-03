@@ -9,6 +9,8 @@
 	<!-- Required for JmDNS to see services available on the network -->
 	<uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
 	
+	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="15" />
+	
 	<application android:icon="@drawable/icon"
 		android:label="@string/app_name"
 		android:theme="@style/AppTheme"
@@ -117,7 +119,5 @@
 		</receiver>
 		<service android:name=".widgets.WidgetHelperService" android:enabled="true"></service>
 	</application>
-	
-	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="11" />
 
 </manifest> 

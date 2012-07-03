@@ -5,7 +5,7 @@
 	<drawable name="solid_red">#f00</drawable>
 	<drawable name="solid_blue">#0000ff</drawable>
 	<drawable name="solid_green">#f0f0</drawable>
-	<color name="actionbar_background_dark">#FF000000</color>
+	<color name="actionbar_background_dark">#66000000</color>
 	<color name="transparent">#00000000</color>
     <color name="compatactionbar_separator">#22ffffff</color>
     <color name="appwidget_text">#ffffffff</color>
