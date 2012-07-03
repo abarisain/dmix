@@ -128,4 +128,5 @@
 	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
 	<string name="deleteServer">Supprimer ce serveur</string>
 	<string name="no_result">Aucun résultat</string>
+	<string name="backpressToQuit">Apuuyez encore une fois sur retour pour quitter</string>
 </resources>

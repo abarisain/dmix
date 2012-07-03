@@ -1,8 +1,10 @@
 package com.namelessdev.mpdroid;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
@@ -33,13 +36,17 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    ViewPager mViewPager;	
+    private int backPressExitCount;
+    private Handler exitCounterReset;
 
     @TargetApi(11)
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+        
+        exitCounterReset = new Handler();
         
 		if (android.os.Build.VERSION.SDK_INT > 9) {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -98,6 +105,39 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 		app.unsetActivity(this);
 	}
 
+	/**
+	 * Called when Back button is pressed, displays message to user indicating the if back button is pressed again the application will exit. We keep a count of how many time back
+	 * button is pressed within 5 seconds. If the count is greater than 1 then call system.exit(0)
+	 * 
+	 * Starts a post delay handler to reset the back press count to zero after 5 seconds
+	 * 
+	 * @param None
+	 * @return None
+	 */
+	@Override
+	public void onBackPressed() {
+		if (backPressExitCount < 1) {
+			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.backpressToQuit)), this);
+			backPressExitCount += 1;
+			exitCounterReset.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					backPressExitCount = 0;
+				}
+			}, 5000);
+		} else {
+			/*
+			 * Nasty force quit, should shutdown everything nicely but there just too many async tasks maybe I'll correctly implement app.terminateApplication();
+			 */
+			System.exit(0);
+		}
+		return;
+	}
+	
+	public static void notifyUser(String message, Context context) {
+		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+	}
+	
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
 		mViewPager.setCurrentItem(itemPosition);

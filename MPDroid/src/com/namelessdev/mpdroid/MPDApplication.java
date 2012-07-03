@@ -135,6 +135,10 @@ public class MPDApplication extends Application implements ConnectionListener {
 		connectMPD();
 	}
 	
+	public void terminateApplication() {
+		this.currentActivity.finish();
+	}
+	
 	public void disconnect() {
 		oMPDAsyncHelper.disconnect();
 	}
