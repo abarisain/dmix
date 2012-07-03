@@ -434,11 +434,7 @@ public class Music implements FilesystemTreeEntry {
 	
 	public static class MusicTitleComparator implements Comparator<Music> {
 		public int compare(Music o1, Music o2) {
-			if(o1.getTitle() == null)
-				return -1;
-			if(o2.getTitle() == null)
-				return 1;
-			return o1.getTitle().toLowerCase().compareTo(o2.getTitle().toLowerCase());
+			return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());
 		}
 	}
 }
