@@ -36,8 +36,8 @@ public class CoverAsyncHelper extends Handler {
 	}
 
 	public void setUrlOverride(String urlOverride) {
-		Log.i("MPDroid", "Setting urlOverride : " + urlOverride);
-		this.urlOverride = urlOverride;
+		this.urlOverride = urlOverride.replace(" ", "%20");
+		Log.i("MPDroid", "Setting urlOverride : " + this.urlOverride);
 	}
 
 	public interface CoverDownloadListener {
@@ -111,26 +111,48 @@ public class CoverAsyncHelper extends Handler {
 					return;
 				}
 
-				URL myFileUrl = null;
-				try {
-					// Download Cover File...
-					myFileUrl = new URL(url);
-					Log.w("PROUT", myFileUrl.toString());
-					HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
-					conn.setDoInput(true);
-					conn.connect();
-					InputStream is = conn.getInputStream();
-					Bitmap bmImg = BitmapFactory.decodeStream(is);
+				Bitmap bmImg=download(url);
+				
+				if (null==bmImg && url.endsWith("/cover.jpg")) {
+					bmImg=download(url.replace("/cover.jpg", "/cover.png"));
+				}
+				
+				if (null==bmImg) {
+					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
+				} else {
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, bmImg).sendToTarget();
-				} catch (MalformedURLException e) {
-					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-				} catch (IOException e) {
-					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 				}
 				break;
 			default:
 			}
 		}
+	}
+
+	private Bitmap download(String url) {
+		URL myFileUrl = null;
+		HttpURLConnection conn = null;
+		try {
+			// Download Cover File...
+			myFileUrl = new URL(url);
+			conn = (HttpURLConnection) myFileUrl.openConnection();
+			conn.setDoInput(true);
+			conn.setDoOutput(false);
+			conn.connect();
+			InputStream is = conn.getInputStream();
+			Bitmap bmp=BitmapFactory.decodeStream(is);
+			is.close();
+			conn.disconnect();
+			return bmp;
+		} catch (MalformedURLException e) {
+			return null;
+		} catch (IOException e) {
+			return null;
+		} finally {
+			if (null!=conn) {
+				conn.disconnect();
+			}
+		}
+		
 	}
 
 	private class CoverInfo {
