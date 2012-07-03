@@ -24,6 +24,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
@@ -122,6 +123,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 	private Timer volTimer = new Timer();
 	private TimerTask volTimerTask = null;
+	private Handler handler;
 
 	// Used for detecting sideways flings
 	private GestureDetector gestureDetector;
@@ -147,7 +149,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 		super.onCreate(icicle);
 		// WifiManager wifi = (WifiManager)getSystemService(WIFI_SERVICE);
 		// myLogger.log(Level.INFO, "onCreate");
-
+		handler = new Handler();
 		setHasOptionsMenu(true);
 		getActivity().setTitle(getResources().getString(R.string.nowPlaying));
 
@@ -188,13 +190,25 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			e.printStackTrace();
 		}
 
-		try {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			progressBarVolume.setProgress(app.oMPDAsyncHelper.oMPD.getStatus().getVolume());
-		} catch (MPDServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		final MPDApplication app = (MPDApplication) getActivity().getApplication();
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					final int volume = app.oMPDAsyncHelper.oMPD.getStatus().getVolume();
+					handler.post(new Runnable() {
+						@Override
+						public void run() {
+							progressBarVolume.setProgress(volume);
+						}
+					});
+				} catch (MPDServerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 
 	@Override
@@ -302,14 +316,19 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				volTimerTask = new TimerTask() {
 					public void run() {
-						MPDApplication app = (MPDApplication) getActivity().getApplication();
-						try {
-							if (lastSentVol != progress.getProgress()) {
-								lastSentVol = progress.getProgress();
-								app.oMPDAsyncHelper.oMPD.setVolume(lastSentVol);
-							}
-						} catch (MPDServerException e) {
-							e.printStackTrace();
+						final MPDApplication app = (MPDApplication) getActivity().getApplication();
+						if (lastSentVol != progress.getProgress()) {
+							lastSentVol = progress.getProgress();
+							new Thread(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										app.oMPDAsyncHelper.oMPD.setVolume(lastSentVol);
+									} catch (MPDServerException e) {
+										e.printStackTrace();
+									}
+								}
+							}).start();
 						}
 					}
 
@@ -348,36 +367,19 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 			}
 
-			public void onStopTrackingTouch(SeekBar seekBar) {
+			public void onStopTrackingTouch(final SeekBar seekBar) {
 
-				MPDApplication app = (MPDApplication) getActivity().getApplication();
-				Runnable async = new Runnable() {
-					// @SuppressWarnings("unchecked")
+				final MPDApplication app = (MPDApplication) getActivity().getApplication();
+				new Thread(new Runnable() {
 					@Override
 					public void run() {
 						try {
-							MPDApplication app = (MPDApplication) getActivity().getApplication();
-							app.oMPDAsyncHelper.oMPD.seek((int) progress);
+							app.oMPDAsyncHelper.oMPD.seek(seekBar.getProgress());
 						} catch (MPDServerException e) {
 							e.printStackTrace();
 						}
 					}
-
-					public int progress;
-
-					public Runnable setProgress(int prg) {
-						progress = prg;
-						return this;
-					}
-				}.setProgress(seekBar.getProgress());
-
-				app.oMPDAsyncHelper.execAsync(async);
-
-				/*
-				 * try { MPDApplication app = (MPDApplication)getActivity().getApplication(); app.oMPDAsyncHelper.oMPD.seek((int)progress);
-				 * } catch (MPDServerException e) { e.printStackTrace(); }
-				 */
-
+				}).start();
 			}
 		});
 
@@ -390,13 +392,22 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 	private class ButtonEventHandler implements Button.OnClickListener, Button.OnLongClickListener {
 
 		public void onClick(View v) {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			MPD mpd = app.oMPDAsyncHelper.oMPD;
+			final MPDApplication app = (MPDApplication) getActivity().getApplication();
+			final MPD mpd = app.oMPDAsyncHelper.oMPD;
 			Intent i = null;
 			try {
 				switch (v.getId()) {
 				case R.id.next:
-					mpd.next();
+					new Thread(new Runnable() {					
+						@Override
+						public void run() {
+							try {
+								mpd.next();
+							} catch (MPDServerException e) {
+								myLogger.log(Level.WARNING, e.getMessage());
+							}
+						}
+					}).start();
 					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 						i = new Intent(app, StreamingService.class);
 						i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
@@ -404,18 +415,22 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 					}
 					break;
 				case R.id.prev:
-					mpd.previous();
+					new Thread(new Runnable() {					
+						@Override
+						public void run() {
+							try {
+								mpd.previous();
+							} catch (MPDServerException e) {
+								myLogger.log(Level.WARNING, e.getMessage());
+							}
+						}
+					}).start();
+							
 					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 						i = new Intent(app, StreamingService.class);
 						i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
 						getActivity().startService(i);
 					}
-					break;
-				case R.id.back:
-					mpd.seek(lastElapsedTime - TRACK_STEP);
-					break;
-				case R.id.forward:
-					mpd.seek(lastElapsedTime + TRACK_STEP);
 					break;
 				case R.id.playpause:
 					/**
@@ -423,12 +438,22 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 					 * 
 					 * @author slubman
 					 */
-					String state = mpd.getStatus().getState();
-					if (state.equals(MPDStatus.MPD_STATE_PLAYING) || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-						mpd.pause();
-					} else {
-						mpd.play();
-					}
+					new Thread(new Runnable() {					
+						@Override
+						public void run() {
+							String state;
+							try {
+								state = mpd.getStatus().getState();
+								if (state.equals(MPDStatus.MPD_STATE_PLAYING) || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
+									mpd.pause();
+								} else {
+									mpd.play();
+								}
+							} catch (MPDServerException e) {
+								myLogger.log(Level.WARNING, e.getMessage());
+							}
+						}
+					}).start();
 					break;
 
 				}
