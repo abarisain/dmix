@@ -58,7 +58,6 @@ import com.namelessdev.mpdroid.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.LibraryTabActivity;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDConnectionHandler;
-import com.namelessdev.mpdroid.PlaylistActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.ServerListActivity;
 import com.namelessdev.mpdroid.SettingsActivity;
@@ -588,11 +587,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		/*}*/
 		startActivity(i);
 	}
-
-	private void openPlaylist() {
-		startActivity(new Intent(getActivity(), PlaylistActivity.class));
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -606,9 +600,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		case R.id.GMM_Settings:
 			i = new Intent(getActivity(), SettingsActivity.class);
 			startActivityForResult(i, SETTINGS);
-			return true;
-		case R.id.GMM_Playlist:
-			openPlaylist();
 			return true;
 		case CONNECT:
 			((MPDApplication) getActivity().getApplication()).connect();

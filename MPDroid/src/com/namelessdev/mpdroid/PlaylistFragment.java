@@ -10,26 +10,25 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class PlaylistActivity extends ListActivity implements OnClickListener, StatusChangeListener {
+public class PlaylistFragment extends SherlockListFragment implements OnClickListener, StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
 	// private int arrayListId;
@@ -44,37 +43,25 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	public static final int SAVE = 4;
 	public static final int EDIT = 2;
 
-	@TargetApi(11)
+	public PlaylistFragment() {
+		super();
+		setHasOptionsMenu(true);
+	}
+	
 	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-		app = (MPDApplication) getApplication();
-		setContentView(R.layout.playlist_activity);
-		this.setTitle(R.string.nowPlaying);
-		ListView list = getListView();
-		/*
-		 * LinearLayout test = (LinearLayout)list.getChildAt(1); ImageView img = (ImageView)test.findViewById(R.id.picture); //ImageView img
-		 * = (ImageView)((LinearLayout)list.getItemAtPosition(3)).findViewById(R.id.picture);
-		 * img.setImageDrawable(getResources().getDrawable(R.drawable.gmpcnocover));
-		 */
-
-		registerForContextMenu(list);
-
-		try {
-			Activity activity = this;
-			ActionBar actionBar = activity.getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		} catch (NoClassDefFoundError e) {
-			// Older android
-		} catch (NullPointerException e) {
-
-		} catch (NoSuchMethodError e) {
-
-		}
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		app = (MPDApplication) getActivity().getApplication();
 	}
 
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.playlist_activity, container, false);
+		registerForContextMenu((ListView) view.findViewById(android.R.id.list));
+		return view;
+	}
+	
 	protected void update() {
-		MPDApplication app = (MPDApplication) getApplicationContext();
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			songlist = new ArrayList<HashMap<String, Object>>();
@@ -100,7 +87,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 				}
 				songlist.add(item);
 			}
-			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_list_item,
+			SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item,
 					new String[] { "play", "title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
 			setListAdapter(songs);
@@ -116,37 +103,29 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		}
 
 	}
-
 	@Override
-	protected void onStart() {
+	public void onStart() {
 		super.onStart();
-		app.setActivity(this);
 	}
 
 	@Override
-	protected void onResume() {
+	public void onResume() {
 		super.onResume();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		update();
 	}
 
 	@Override
-	protected void onPause() {
-		app.oMPDAsyncHelper.addStatusChangeListener(this);
+	public void onPause() {
+		app.oMPDAsyncHelper.removeStatusChangeListener(this);
 		super.onPause();
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		app.unsetActivity(this);
 	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 
 		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
+		android.view.MenuInflater inflater = getActivity().getMenuInflater();
 		inflater.inflate(R.menu.mpd_playlistcnxmenu, menu);
 
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
@@ -157,8 +136,8 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	}
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		MPDApplication app = (MPDApplication) getApplication();
+	public boolean onContextItemSelected(android.view.MenuItem item) {
+		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		int songId = (Integer) songlist.get(info.position).get("songid");
 		switch (item.getItemId()) {
@@ -177,7 +156,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 				} else {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
 				}
-				Tools.notifyUser("Song moved to next in list", this);
+				Tools.notifyUser("Song moved to next in list", getActivity());
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -186,7 +165,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		case R.id.PLCX_moveFirst:
 			try { // Move song to first in playlist
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0);
-				Tools.notifyUser("Song moved to first in list", this);
+				Tools.notifyUser("Song moved to first in list", getActivity());
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -196,7 +175,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			try { // Move song to last in playlist
 				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getPlaylistLength() - 1);
-				Tools.notifyUser("Song moved to last in list", this);
+				Tools.notifyUser("Song moved to last in list", getActivity());
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -205,7 +184,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 		case R.id.PLCX_removeFromPlaylist:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(songId);
-				Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), this);
+				Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), getActivity());
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -222,26 +201,23 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		boolean result = super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = getMenuInflater();
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.mpd_playlistmenu, menu);
-
-		return result;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		MPDApplication app = (MPDApplication) getApplication();
+		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		// Menu actions...
 		switch (item.getItemId()) {
 		case R.id.PLM_MainMenu:
-			Intent i = new Intent(this, MainMenuActivity.class);
+			Intent i = new Intent(getActivity(), MainMenuActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 			return true;
 		case R.id.PLM_LibTab:
-			i = new Intent(this, LibraryTabActivity.class);
+			i = new Intent(getActivity(), LibraryTabActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 			return true;
@@ -249,7 +225,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 				songlist.clear();
-				Tools.notifyUser(getResources().getString(R.string.playlistCleared), this);
+				Tools.notifyUser(getResources().getString(R.string.playlistCleared), getActivity());
 				((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
@@ -257,19 +233,19 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 			}
 			return true;
 		case R.id.PLM_EditPL:
-			i = new Intent(this, PlaylistRemoveActivity.class);
+			i = new Intent(getActivity(), PlaylistRemoveActivity.class);
 			startActivity(i);
 			return true;
 		case R.id.PLM_Manage:
-			i = new Intent(this, PlaylistManagerActivity.class);
+			i = new Intent(getActivity(), PlaylistManagerActivity.class);
 			startActivity(i);
 			return true;
 		case R.id.PLM_Save:
-			i = new Intent(this, PlaylistSaveActivity.class);
+			i = new Intent(getActivity(), PlaylistSaveActivity.class);
 			startActivity(i);
 			return true;
 		case android.R.id.home:
-			finish();
+			getActivity().finish();
 			return true;
 		default:
 			return false;
@@ -278,9 +254,9 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	}
 
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
+	public void onListItemClick(ListView l, View v, int position, long id) {
 
-		MPDApplication app = (MPDApplication) getApplication(); // Play selected Song
+		MPDApplication app = (MPDApplication) getActivity().getApplication(); // Play selected Song
 
 		Music m = musics.get(position);
 		try {
@@ -293,7 +269,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	public void scrollToNowPlaying() {
 		for (HashMap<String, Object> song : songlist) {
 			try {
-				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD.getStatus()
+				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.getStatus()
 						.getSongId()) {
 					getListView().requestFocusFromTouch();
 					getListView().setSelection(songlist.indexOf(song));
@@ -307,7 +283,7 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.actionbar_text:
-			Intent i = new Intent(this, PlaylistRemoveActivity.class);
+			Intent i = new Intent(getActivity(), PlaylistRemoveActivity.class);
 			startActivityForResult(i, EDIT);
 			break;
 		default:

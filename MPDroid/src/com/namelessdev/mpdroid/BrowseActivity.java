@@ -127,10 +127,6 @@ public class BrowseActivity extends ListActivity implements OnMenuItemClickListe
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 			return true;
-		case R.id.BRM_playlist:
-			i = new Intent(this, PlaylistActivity.class);
-			startActivityForResult(i, PLAYLIST);
-			return true;
 		case R.id.menu_search:
 			onSearchRequested();
 			return true;

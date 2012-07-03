@@ -151,7 +151,11 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 
         @Override
         public Fragment getItem(int i) {
-            Fragment fragment = new NowPlayingFragment();
+            Fragment fragment = null;
+            switch (i) {
+            	case 0: fragment = new NowPlayingFragment(); break;
+            	case 1: fragment = new PlaylistFragment(); break;
+            }
             return fragment;
         }
 

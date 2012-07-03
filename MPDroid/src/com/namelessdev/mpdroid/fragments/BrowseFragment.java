@@ -28,7 +28,6 @@ import android.widget.TextView;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.MainMenuActivity;
-import com.namelessdev.mpdroid.PlaylistActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -153,10 +152,6 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 			i = new Intent(getActivity(), MainMenuActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
-			return true;
-		case R.id.BRM_playlist:
-			i = new Intent(getActivity(), PlaylistActivity.class);
-			startActivityForResult(i, PLAYLIST);
 			return true;
 		case R.id.menu_search:
 			getActivity().onSearchRequested();
