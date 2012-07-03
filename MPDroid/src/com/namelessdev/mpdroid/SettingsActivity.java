@@ -11,6 +11,7 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
@@ -35,11 +36,13 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 
 	private PreferenceScreen pOutputsScreen;
 	private PreferenceScreen pInformationScreen;
+	private Handler handler;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		MPDApplication app = (MPDApplication) getApplicationContext();
+		final MPDApplication app = (MPDApplication) getApplicationContext();
+		handler = new Handler();
 		addPreferencesFromResource(R.layout.settings);
 		// Log.i("MPDroid", "onCreate");
 
@@ -60,10 +63,10 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		 * pConnectionScreen.addPreference(wifiConnection);
 		 */
 
-		EditTextPreference pVersion = (EditTextPreference) findPreference("version");
-		EditTextPreference pArtists = (EditTextPreference) findPreference("artists");
-		EditTextPreference pAlbums = (EditTextPreference) findPreference("albums");
-		EditTextPreference pSongs = (EditTextPreference) findPreference("songs");
+		final EditTextPreference pVersion = (EditTextPreference) findPreference("version");
+		final EditTextPreference pArtists = (EditTextPreference) findPreference("artists");
+		final EditTextPreference pAlbums = (EditTextPreference) findPreference("albums");
+		final EditTextPreference pSongs = (EditTextPreference) findPreference("songs");
 
 		if (!app.oMPDAsyncHelper.oMPD.isConnected()) {
 			pOutputsScreen.setEnabled(false);
@@ -75,22 +78,39 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		}
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 
-		try {
-
-			// Server is Connected...
-			pRandom.setChecked(app.oMPDAsyncHelper.oMPD.getStatus().isRandom());
-			pRandom.setOnPreferenceClickListener(onCheckPreferenceClickListener);
-			pRepeat.setChecked(app.oMPDAsyncHelper.oMPD.getStatus().isRepeat());
-			pRepeat.setOnPreferenceClickListener(onCheckPreferenceClickListener);
-			pVersion.setSummary(app.oMPDAsyncHelper.oMPD.getMpdVersion());
-			pArtists.setSummary("" + app.oMPDAsyncHelper.oMPD.getStatistics().getArtists());
-			pAlbums.setSummary("" + app.oMPDAsyncHelper.oMPD.getStatistics().getAlbums());
-			pSongs.setSummary("" + app.oMPDAsyncHelper.oMPD.getStatistics().getSongs());
-
-		} catch (MPDServerException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					final boolean isRandom = app.oMPDAsyncHelper.oMPD.getStatus().isRandom();
+					final boolean isRepeat = app.oMPDAsyncHelper.oMPD.getStatus().isRepeat();
+					final String version = app.oMPDAsyncHelper.oMPD.getMpdVersion();
+					final String artists = "" + app.oMPDAsyncHelper.oMPD.getStatistics().getArtists();
+					final String albums = "" + app.oMPDAsyncHelper.oMPD.getStatistics().getAlbums();
+					final String songs = "" + app.oMPDAsyncHelper.oMPD.getStatistics().getSongs();
+					handler.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							pRandom.setChecked(isRandom);
+							pRepeat.setChecked(isRepeat);
+							pVersion.setSummary(version);
+							pArtists.setSummary(artists);
+							pAlbums.setSummary(albums);
+							pSongs.setSummary(songs);
+						}
+					});
+				} catch (MPDServerException e) {
+					// TODO Auto-generated catch block
+					// e.printStackTrace();
+				}
+			}
+		}).start();
+		// Server is Connected...
+		pRandom.setOnPreferenceClickListener(onCheckPreferenceClickListener);
+		pRepeat.setOnPreferenceClickListener(onCheckPreferenceClickListener);
+	
 	}
 
 	@Override

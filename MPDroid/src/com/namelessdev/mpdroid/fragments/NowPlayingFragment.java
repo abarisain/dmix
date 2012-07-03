@@ -395,71 +395,67 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			final MPDApplication app = (MPDApplication) getActivity().getApplication();
 			final MPD mpd = app.oMPDAsyncHelper.oMPD;
 			Intent i = null;
-			try {
-				switch (v.getId()) {
-				case R.id.next:
-					new Thread(new Runnable() {					
-						@Override
-						public void run() {
-							try {
-								mpd.next();
-							} catch (MPDServerException e) {
-								myLogger.log(Level.WARNING, e.getMessage());
-							}
-						}
-					}).start();
-					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
-						i = new Intent(app, StreamingService.class);
-						i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-						getActivity().startService(i);
-					}
-					break;
-				case R.id.prev:
-					new Thread(new Runnable() {					
-						@Override
-						public void run() {
-							try {
-								mpd.previous();
-							} catch (MPDServerException e) {
-								myLogger.log(Level.WARNING, e.getMessage());
-							}
-						}
-					}).start();
-							
-					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
-						i = new Intent(app, StreamingService.class);
-						i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-						getActivity().startService(i);
-					}
-					break;
-				case R.id.playpause:
-					/**
-					 * If playing or paused, just toggle state, otherwise start playing.
-					 * 
-					 * @author slubman
-					 */
-					new Thread(new Runnable() {					
-						@Override
-						public void run() {
-							String state;
-							try {
-								state = mpd.getStatus().getState();
-								if (state.equals(MPDStatus.MPD_STATE_PLAYING) || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-									mpd.pause();
-								} else {
-									mpd.play();
-								}
-							} catch (MPDServerException e) {
-								myLogger.log(Level.WARNING, e.getMessage());
-							}
-						}
-					}).start();
-					break;
 
+			switch (v.getId()) {
+			case R.id.next:
+				new Thread(new Runnable() {					
+					@Override
+					public void run() {
+						try {
+							mpd.next();
+						} catch (MPDServerException e) {
+							myLogger.log(Level.WARNING, e.getMessage());
+						}
+					}
+				}).start();
+				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+					i = new Intent(app, StreamingService.class);
+					i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
+					getActivity().startService(i);
 				}
+				break;
+			case R.id.prev:
+				new Thread(new Runnable() {					
+					@Override
+					public void run() {
+						try {
+							mpd.previous();
+						} catch (MPDServerException e) {
+							myLogger.log(Level.WARNING, e.getMessage());
+						}
+					}
+				}).start();
+						
+				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+					i = new Intent(app, StreamingService.class);
+					i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
+					getActivity().startService(i);
+				}
+				break;
+			case R.id.playpause:
+				/**
+				 * If playing or paused, just toggle state, otherwise start playing.
+				 * 
+				 * @author slubman
+				 */
+				new Thread(new Runnable() {					
+					@Override
+					public void run() {
+						String state;
+						try {
+							state = mpd.getStatus().getState();
+							if (state.equals(MPDStatus.MPD_STATE_PLAYING) || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
+								mpd.pause();
+							} else {
+								mpd.play();
+							}
+						} catch (MPDServerException e) {
+							myLogger.log(Level.WARNING, e.getMessage());
+						}
+					}
+				}).start();
+				break;
 
-			} catch (MPDServerException e) {
-				myLogger.log(Level.WARNING, e.getMessage());
 			}
 		}
 
