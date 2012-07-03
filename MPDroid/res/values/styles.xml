@@ -33,6 +33,8 @@
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:actionBarStyle">@style/ActionBar.Dark</item>
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
     
     <style name="AppTheme.Dialog" parent="Theme.Sherlock.Dialog" />

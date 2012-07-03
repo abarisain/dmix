@@ -244,9 +244,9 @@ public class PlaylistFragment extends SherlockListFragment implements OnClickLis
 			i = new Intent(getActivity(), PlaylistSaveActivity.class);
 			startActivity(i);
 			return true;
-		case android.R.id.home:
-			getActivity().finish();
-			return true;
+		case R.id.GMM_LibTab:
+			i = new Intent(getActivity(), LibraryTabActivity.class);
+			startActivity(i);
 		default:
 			return false;
 		}

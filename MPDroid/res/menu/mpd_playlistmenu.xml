@@ -1,10 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:title="@string/mainMenu" android:id="@+id/PLM_MainMenu" android:icon="@android:drawable/ic_menu_revert"></item>
-<item android:title="@string/editPlaylist" android:id="@+id/PLM_EditPL" android:icon="@android:drawable/ic_menu_edit" android:showAsAction="always|withText"></item>
-<item android:title="@string/manage" android:id="@+id/PLM_Manage" android:icon="@android:drawable/ic_menu_manage"></item>
-<item android:icon="@android:drawable/ic_menu_save" android:title="@string/save" android:id="@+id/PLM_Save"></item><item android:icon="@android:drawable/ic_menu_close_clear_cancel" android:title="@string/clear" android:id="@+id/PLM_Clear"></item>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-<item android:icon="@drawable/ic_menu_library" android:title="@string/libraryTabActivity" android:id="@+id/PLM_LibTab" android:alphabeticShortcut="@string/sc_LibTab"></item>
+    <item
+        android:id="@+id/PLM_MainMenu"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:title="@string/mainMenu">
+    </item>
+    <item
+        android:id="@+id/GMM_LibTab"
+        android:icon="@drawable/ic_menu_library"
+        android:showAsAction="always"
+        android:title="@string/libraryTabActivity">
+    </item>
+    <item
+        android:id="@+id/PLM_EditPL"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="always|withText"
+        android:title="@string/editPlaylist">
+    </item>
+    <item
+        android:id="@+id/PLM_Manage"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/manage">
+    </item>
+    <item
+        android:id="@+id/PLM_Save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/save">
+    </item>
+    <item
+        android:id="@+id/PLM_Clear"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="@string/clear">
+    </item>
+    <item
+        android:id="@+id/PLM_LibTab"
+        android:alphabeticShortcut="@string/sc_LibTab"
+        android:icon="@drawable/ic_menu_library"
+        android:title="@string/libraryTabActivity">
+    </item>
+
 </menu>

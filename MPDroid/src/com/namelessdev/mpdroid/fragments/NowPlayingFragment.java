@@ -577,16 +577,10 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	private void openLibrary() {
-		Intent i;
-		//TODO : Reenable tablet UI one day.
-		/*if (compatActionBar == null) {
-			// We are on a tablet UI
-			i = new Intent(getActivity(), LibraryTabActionActivity.class);
-		} else {*/
-			i = new Intent(getActivity(), LibraryTabActivity.class);
-		/*}*/
+		final Intent i = new Intent(getActivity(), LibraryTabActivity.class);
 		startActivity(i);
 	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 

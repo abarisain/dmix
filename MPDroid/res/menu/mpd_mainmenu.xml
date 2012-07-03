@@ -1,7 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android"><item android:icon="@drawable/ic_menu_library" android:title="@string/libraryTabActivity" android:id="@+id/GMM_LibTab" android:showAsAction="always"></item>
-<item android:id="@+id/GMM_Stream" android:title="@string/stream" android:icon="@android:drawable/ic_menu_upload_you_tube"></item>
-<item android:id="@+id/GMM_Settings" android:title="@string/settings" android:icon="@android:drawable/ic_menu_preferences"></item>
-<item android:id="@+id/GMM_bonjour" android:title="Bonjour" android:visible="false"></item>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/GMM_LibTab"
+        android:icon="@drawable/ic_menu_library"
+        android:showAsAction="always"
+        android:title="@string/libraryTabActivity">
+    </item>
+    <item
+        android:id="@+id/GMM_Stream"
+        android:icon="@android:drawable/ic_menu_upload_you_tube"
+        android:title="@string/stream">
+    </item>
+    <item
+        android:id="@+id/GMM_Settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/settings">
+    </item>
+    <item
+        android:id="@+id/GMM_bonjour"
+        android:title="Bonjour"
+        android:visible="false">
+    </item>
+
 </menu>
