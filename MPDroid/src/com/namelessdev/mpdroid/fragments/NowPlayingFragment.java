@@ -128,7 +128,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 	View.OnTouchListener gestureListener;
 
 	private boolean enableLastFM;
-	private boolean newUI;
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -864,18 +863,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
 			if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
 				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-				if (newUI) {
-					button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
-				} else {
-					button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
-				}
+				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
 			} else {
 				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-				if (newUI) {
-					button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
-				} else {
-					button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
-				}
+				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
 			}
 		}
 	}
