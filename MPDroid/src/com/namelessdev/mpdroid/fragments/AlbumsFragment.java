@@ -43,6 +43,7 @@ public class AlbumsFragment extends BrowseFragment {
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Intent intent = new Intent(getActivity(), SongsActivity.class);
 		intent.putExtra("album", items.get(position));
+		intent.putExtra("artist", getActivity().getIntent().getStringExtra("artist"));
 		startActivityForResult(intent, -1);
 	}
 

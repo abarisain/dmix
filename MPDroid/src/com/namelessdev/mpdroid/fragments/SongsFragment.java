@@ -23,6 +23,7 @@ public class SongsFragment extends BrowseFragment {
 
 	private List<Music> dispMusic = null;
 	String album = "";
+	String artist = "";
 	private boolean isSortedByTrack;
 
 	public SongsFragment() {
@@ -49,6 +50,7 @@ public class SongsFragment extends BrowseFragment {
 		super.onActivityCreated(savedInstanceState);
 		registerForContextMenu(getListView());
 		album = (String) this.getActivity().getIntent().getStringExtra("album");
+		artist = (String) this.getActivity().getIntent().getStringExtra("artist");
 		UpdateList();
 
 		setActivityTitle(album, R.drawable.ic_tab_albums_selected);
@@ -87,6 +89,18 @@ public class SongsFragment extends BrowseFragment {
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
+		
+		//remove tracks for a different artist than the one we are looking for
+		if (artist != null) {
+			List<Music> tmpDispMusic = new ArrayList<Music>();
+			for (Music music : dispMusic) {
+				if (String.CASE_INSENSITIVE_ORDER.compare(music.getArtist(), artist) != 0) {
+					tmpDispMusic.add(music);
+				}
+			}
+			dispMusic.removeAll(tmpDispMusic);
+		}
+	 	 
 		if (isSortedByTrack) {
 			// sort by track number
 			Collections.sort(dispMusic, new TrackComparator());
