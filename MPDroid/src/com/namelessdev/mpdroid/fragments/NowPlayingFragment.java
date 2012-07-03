@@ -61,7 +61,6 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.ServerListActivity;
 import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.StreamingService;
-import com.namelessdev.mpdroid.WifiConnectionSettings;
 import com.namelessdev.mpdroid.providers.ServerList;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
@@ -607,12 +606,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 			openLibrary();
 			return true;
 		case R.id.GMM_Settings:
-			if (((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected()) {
-				startActivityForResult(new Intent(getActivity(), WifiConnectionSettings.class), SETTINGS);
-			} else {
-				i = new Intent(getActivity(), SettingsActivity.class);
-				startActivityForResult(i, SETTINGS);
-			}
+			i = new Intent(getActivity(), SettingsActivity.class);
+			startActivityForResult(i, SETTINGS);
 			return true;
 		case R.id.GMM_Playlist:
 			openPlaylist();
