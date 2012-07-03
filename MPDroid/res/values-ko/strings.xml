@@ -93,7 +93,7 @@
 	<string name="streamError">스트리밍 에러, 재생할 수 없음</string>
 	<string name="streamPaused">스트리밍 일시정지됨</string>
 	<string name="streamPauseBattery">배터리 소모를 줄이기 위해, 사용하지 않을시 스트리밍 중지</string>
-	<string name="aboutText1">MPDroid는 namelessDev와 orrche가 시작한 오픈소스 소프트웨어입니다. 소스코드를 원하시면 http://github.com/dreamteam69/dmix 를 방문하세요!</string>
+	<string name="aboutText1">MPDroid는 namelessDev와 orrche가 시작한 오픈소스 소프트웨어입니다. 소스코드를 원하시면 http://github.com/abarisain/dmix 를 방문하세요!</string>
 	<string name="aboutText2">MPDroid is a fork of PMix (http://code.google.com/p/pmix/). Thanks to them !</string>
 	<string name="aboutLastFM">Thanks to last.fm for providing album arts</string>
 	<string name="search">검색</string>
