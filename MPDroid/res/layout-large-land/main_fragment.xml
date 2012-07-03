@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout android:theme="@android:style/Theme.Translucent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:background="@drawable/background" android:paddingTop="10dip">
+	android:orientation="vertical" android:layout_width="fill_parent" android:paddingTop="?attr/actionBarSize"
+	android:background="@drawable/background" >
 <!-- android:background="#66000000">-->
 
 <LinearLayout android:layout_height="0dp" android:layout_weight="1" android:layout_width="fill_parent" android:layout_gravity="left">

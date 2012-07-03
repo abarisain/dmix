@@ -56,10 +56,10 @@ public class MainMenuActivity extends SherlockFragmentActivity implements com.ac
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowHomeEnabled(true);
         
-        
         ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
         actionBarAdapter.add(getString(R.string.nowPlaying));
         actionBarAdapter.add(getString(R.string.playlist));
+        
         if(Build.VERSION.SDK_INT >= 14) {
         	//Bug on ICS with sherlock's layout
         	actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
