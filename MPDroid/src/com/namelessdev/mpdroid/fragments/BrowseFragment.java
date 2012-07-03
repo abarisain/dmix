@@ -113,17 +113,6 @@ public class BrowseFragment extends ListFragment implements OnMenuItemClickListe
 	}
 	
 	public void setActivityTitle(String title, int drawableID) {
-		if (!Tools.isTabletMode(getActivity())) {
-			final View tmpView = getActivity().findViewById(R.id.compatActionbar);
-			if (tmpView != null) {
-				final com.namelessdev.mpdroid.ActionBarLite compatActionBar = (com.namelessdev.mpdroid.ActionBarLite) tmpView;
-				compatActionBar.setVisibility(View.VISIBLE);
-				compatActionBar.setTitle(title);
-				compatActionBar.setTitleLeftDrawable(drawableID);
-				compatActionBar.setBackActionEnabled(true);
-				compatActionBar.showBottomSeparator(true);
-			}
-		}
 		getActivity().setTitle(title);
 	}
 

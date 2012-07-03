@@ -36,7 +36,6 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 	private String title;
 	private boolean firstUpdate = true;
-	private com.namelessdev.mpdroid.ActionBarLite compatActionBar;
 	private MPDApplication app;
 
 	public static final int MAIN = 0;
@@ -71,16 +70,6 @@ public class PlaylistActivity extends ListActivity implements OnClickListener, S
 
 		} catch (NoSuchMethodError e) {
 
-		}
-
-		final View tmpView = findViewById(R.id.compatActionbar);
-		if (tmpView != null) {
-			// We are on a phone
-			compatActionBar = (com.namelessdev.mpdroid.ActionBarLite) tmpView;
-			compatActionBar.setTitle(R.string.nowPlaying);
-			compatActionBar.setTextButtonParams(true, R.string.edit, this);
-			compatActionBar.setBackActionEnabled(true);
-			compatActionBar.showBottomSeparator(true);
 		}
 	}
 

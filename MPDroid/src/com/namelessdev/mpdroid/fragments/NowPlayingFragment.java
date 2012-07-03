@@ -100,7 +100,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private SeekBar progressBarTrack = null;
 
 	private TextView trackTime = null;
-	private com.namelessdev.mpdroid.ActionBarLite compatActionBar = null;
 
 	private CoverAsyncHelper oCoverAsyncHelper = null;
 	long lastSongTime = 0;

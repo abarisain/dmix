@@ -4,11 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    <com.namelessdev.mpdroid.ActionBarLite
-      	android:id="@+id/compatActionbar"
-       	style="@style/CompatActionBar"
-       	android:visibility="gone"
-   	/>
+
     <FrameLayout
         android:layout_width="fill_parent"
 		android:layout_height="0dip"

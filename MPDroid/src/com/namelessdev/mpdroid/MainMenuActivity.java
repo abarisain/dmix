@@ -1,7 +1,6 @@
 package com.namelessdev.mpdroid;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,12 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class MainMenuActivity extends SherlockFragmentActivity implements OnNavigationListener {
 
@@ -117,7 +116,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 	@Override
 	public void onBackPressed() {
 		if (backPressExitCount < 1) {
-			MainMenuActivity.notifyUser(String.format(getResources().getString(R.string.backpressToQuit)), this);
+			Tools.notifyUser(String.format(getResources().getString(R.string.backpressToQuit)), this);
 			backPressExitCount += 1;
 			exitCounterReset.postDelayed(new Runnable() {
 				@Override
@@ -132,10 +131,6 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 			System.exit(0);
 		}
 		return;
-	}
-	
-	public static void notifyUser(String message, Context context) {
-		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
