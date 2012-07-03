@@ -218,15 +218,16 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 		
 		int newLength = status.getPlaylistLength();
 		int oldLength = this.list.size();
-		List<Music> newPlaylist = new ArrayList<Music>(newLength);
+		List<Music> newPlaylist = new ArrayList<Music>(newLength+1);
 		
 		newPlaylist.addAll(this.list.subList(0 , newLength < oldLength ? newLength : oldLength));
 		
 		for(int i = newLength - oldLength; i > 0; i--)
 			newPlaylist.add(null);
 		
-		for( Music song : changes )
+		for( Music song : changes ) {
 			newPlaylist.set(song.getPos(), song);
+		}
 
 		this.list.clear();
 		this.list.addAll(newPlaylist);
