@@ -7,6 +7,7 @@
 package org.a0z.mpd;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
@@ -65,6 +66,7 @@ public class MPDStatusMonitor extends Thread {
 
 		while (!giveup) {
 			Boolean connectionState = Boolean.valueOf(mpd.isConnected());
+			boolean connectionStateChanged = false;
 
 			if (connectionLost || oldConnectionState != connectionState) {
 				for (StatusChangeListener listener : statusChangedListeners) {
@@ -72,68 +74,103 @@ public class MPDStatusMonitor extends Thread {
 				}
 				connectionLost = false;
 				oldConnectionState = connectionState;
+				connectionStateChanged = true;
 			}
 
 			if (connectionState == Boolean.TRUE) {
 				// playlist
 				try {
-					MPDStatus status = mpd.getStatus();
+					boolean dbChanged=false;
+					boolean statusChanged=false;
 
-					// playlist
-					if (oldPlaylistVersion != status.getPlaylistVersion() && status.getPlaylistVersion() != -1) {
-						// Lets update our own copy
-						for (StatusChangeListener listener : statusChangedListeners)
-							listener.playlistChanged(status, oldPlaylistVersion);
-						oldPlaylistVersion = status.getPlaylistVersion();
+					if (connectionStateChanged) {
+						dbChanged=statusChanged=true;
+					} else {
+						List<String> changes = mpd.waitForChanges();
+
+						if (null==changes || changes.isEmpty()) {
+							continue;
+						}
+
+						for (String change : changes) {
+							if (change.startsWith("changed: database")) {
+								dbChanged=true;
+								statusChanged=true;
+								break;
+							} else if (change.startsWith("changed: update")) {
+								dbChanged=true;
+							} else if (change.startsWith("changed: playlist") || change.startsWith("changed: player") ||
+									change.startsWith("changed: mixer") || change.startsWith("changed: output")  || change.startsWith("changed: options")) {
+								statusChanged=true;
+							}
+							if (dbChanged && statusChanged) {
+								break;
+							}
+						}
 					}
 
-					// song
-					if (oldSong != status.getSongPos()) {
-						for (StatusChangeListener listener : statusChangedListeners)
-							listener.trackChanged(status, oldSong);
-						oldSong = status.getSongPos();
+					if (dbChanged) {
+						mpd.getStatistics();
 					}
+					if (statusChanged) {
+						MPDStatus status = mpd.getStatus();
 
-					// time
-					if (oldElapsedTime != status.getElapsedTime()) {
-						for (TrackPositionListener listener : trackPositionChangedListeners)
-							listener.trackPositionChanged(status);
-						oldElapsedTime = status.getElapsedTime();
-					}
+						// playlist
+						if (connectionStateChanged || (oldPlaylistVersion != status.getPlaylistVersion() && status.getPlaylistVersion() != -1)) {
+							// Lets update our own copy
+							for (StatusChangeListener listener : statusChangedListeners)
+								listener.playlistChanged(status, oldPlaylistVersion);
+							oldPlaylistVersion = status.getPlaylistVersion();
+						}
 
-					// state
-					if (oldState != status.getState()) {
-						for (StatusChangeListener listener : statusChangedListeners)
-							listener.stateChanged(status, oldState);
-						oldState = status.getState();
-					}
+						// song
+						if (connectionStateChanged || oldSong != status.getSongPos()) {
+							for (StatusChangeListener listener : statusChangedListeners)
+								listener.trackChanged(status, oldSong);
+							oldSong = status.getSongPos();
+						}
 
-					// volume
-					if (oldVolume != status.getVolume()) {
-						for (StatusChangeListener listener : statusChangedListeners)
-							listener.volumeChanged(status, oldVolume);
-						oldVolume = status.getVolume();
-					}
+						// time
+						if (connectionStateChanged || oldElapsedTime != status.getElapsedTime()) {
+							for (TrackPositionListener listener : trackPositionChangedListeners)
+								listener.trackPositionChanged(status);
+							oldElapsedTime = status.getElapsedTime();
+						}
 
-					// repeat
-					if (oldRepeat != status.isRepeat()) {
-						for (StatusChangeListener listener : statusChangedListeners)
-							listener.repeatChanged(status.isRepeat());
-						oldRepeat = status.isRepeat();
-					}
+						// state
+						if (connectionStateChanged || oldState != status.getState()) {
+							for (StatusChangeListener listener : statusChangedListeners)
+								listener.stateChanged(status, oldState);
+							oldState = status.getState();
+						}
 
-					// volume
-					if (oldRandom != status.isRandom()) {
-						for (StatusChangeListener listener : statusChangedListeners)
-							listener.randomChanged(status.isRandom());
-						oldRandom = status.isRandom();
-					}
+						// volume
+						if (connectionStateChanged || oldVolume != status.getVolume()) {
+							for (StatusChangeListener listener : statusChangedListeners)
+								listener.volumeChanged(status, oldVolume);
+							oldVolume = status.getVolume();
+						}
 
-					// update database
-					if (oldUpdating != status.isUpdating()) {
-						for (StatusChangeListener listener : statusChangedListeners)
-							listener.libraryStateChanged(status.isUpdating());
-						oldUpdating = status.isUpdating();
+						// repeat
+						if (connectionStateChanged || oldRepeat != status.isRepeat()) {
+							for (StatusChangeListener listener : statusChangedListeners)
+								listener.repeatChanged(status.isRepeat());
+							oldRepeat = status.isRepeat();
+						}
+
+						// volume
+						if (connectionStateChanged || oldRandom != status.isRandom()) {
+							for (StatusChangeListener listener : statusChangedListeners)
+								listener.randomChanged(status.isRandom());
+							oldRandom = status.isRandom();
+						}
+
+						// update database
+						if (connectionStateChanged || oldUpdating != status.isUpdating()) {
+							for (StatusChangeListener listener : statusChangedListeners)
+								listener.libraryStateChanged(status.isUpdating());
+							oldUpdating = status.isUpdating();
+						}
 					}
 				} catch (MPDConnectionException e) {
 					// connection lost

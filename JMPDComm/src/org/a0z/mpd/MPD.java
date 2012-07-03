@@ -73,6 +73,7 @@ public class MPD {
 	
 	
 	private MPDConnection mpdConnection;
+	private MPDConnection mpdIdleConnection;
 	private MPDStatus mpdStatus;
 	private MPDPlaylist playlist;
 	private Directory rootDirectory;
@@ -126,6 +127,26 @@ public class MPD {
 		return this.mpdConnection;
 	}
 	
+	MPDConnection getMpdIdleConnection() {
+		return this.mpdIdleConnection;
+	}
+
+	public List<String> waitForChanges() throws MPDServerException {
+		if (null == mpdIdleConnection) {
+			throw new MPDServerException();
+		}
+		while (true) {
+			List<String> data = mpdIdleConnection.sendCommand("idle");
+			if (data.isEmpty()) {
+				continue;
+			}
+			return data;
+		}
+	}
+
+	public boolean isMpdConnectionNull() {
+		return (this.mpdConnection == null);
+	}
 
 	/**
 	 * Increases or decreases volume by <code>modifier</code> amount.
@@ -185,6 +206,7 @@ public class MPD {
 	 */
 	public final void connect(InetAddress server, int port) throws MPDServerException {
 		this.mpdConnection = new MPDConnection(server, port);
+		this.mpdIdleConnection = new MPDConnection(server, port);
 	}
 
 	/**
@@ -216,7 +238,9 @@ public class MPD {
 	 */
 	public void disconnect() throws MPDServerException {
 		mpdConnection.sendCommand(MPD_CMD_CLOSE);
+		mpdIdleConnection.sendCommand(MPD_CMD_CLOSE);
 		mpdConnection.disconnect();
+		mpdIdleConnection.disconnect();
 	}
 
 	/**
@@ -551,6 +575,7 @@ public class MPD {
 			throw new MPDServerException("MPD Connection is not established");
 		
 		mpdConnection.sendCommand(MPD_CMD_PASSWORD, password);
+		mpdIdleConnection.sendCommand(MPD_CMD_PASSWORD, password);
 	}
 
 	/**

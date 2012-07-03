@@ -1,5 +1,6 @@
 package com.namelessdev.mpdroid.fragments;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -124,6 +125,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private Timer volTimer = new Timer();
 	private TimerTask volTimerTask = null;
 	private Handler handler;
+
+	private Timer posTimer = null;
+	private TimerTask posTimerTask = null;
 
 	// Used for detecting sideways flings
 	private GestureDetector gestureDetector;
@@ -646,6 +650,42 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	}
 
+	private class PosTimerTask extends TimerTask {
+		Date date = new Date();
+		long start=0;
+		long ellapsed=0;
+		public PosTimerTask(long start) {
+			this.start=start;
+		}
+		@Override
+		public void run() {
+			Date now=new Date();
+			ellapsed=start+((now.getTime()-date.getTime())/1000);
+			progressBarTrack.setProgress((int)ellapsed);
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+			    	 trackTime.setText(timeToString(ellapsed) + " - " + timeToString(lastSongTime));
+			    }
+			});
+			lastElapsedTime = ellapsed;
+		}
+	}
+
+	private void startPosTimer(long start) {
+		stopPosTimer();
+		posTimer = new Timer();
+		posTimerTask = new PosTimerTask(start);
+		posTimer.scheduleAtFixedRate(posTimerTask, 0, 1000);
+	}
+
+	private void stopPosTimer() {
+		if (null!=posTimer) {
+			posTimer.cancel();
+			posTimer=null;
+		}
+	}
+
 	private String lastArtist = "";
 	private String lastAlbum = "";
 
@@ -713,6 +753,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				songNameText.setText(title);
 				albumNameText.setText(album);
 				progressBarTrack.setMax(songMax);
+				updateStatus(status);
 				if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
 					coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
@@ -760,6 +801,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		MPDApplication app = (MPDApplication) getActivity().getApplicationContext();
 		app.oMPDAsyncHelper.removeStatusChangeListener(this);
 		app.oMPDAsyncHelper.removeTrackPositionListener(this);
+		stopPosTimer();
 		app.unsetActivity(this);
 		myLogger.log(Level.INFO, "onStop");
 	}
@@ -847,6 +889,25 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		}
 	}
 
+	private void updateStatus(MPDStatus status) {
+		lastElapsedTime = status.getElapsedTime();
+		lastSongTime = status.getTotalTime();
+		trackTime.setText(timeToString(lastElapsedTime) + " - " + timeToString(lastSongTime));
+		progressBarTrack.setProgress((int) status.getElapsedTime());
+		if (status.getState() != null) {
+
+			if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
+				startPosTimer(status.getElapsedTime());
+				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
+				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+			} else {
+				stopPosTimer();
+				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
+				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+			}
+		}
+	}
+
 	@Override
 	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
 		updateTrackInfo(mpdStatus);
@@ -854,17 +915,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public void stateChanged(MPDStatus mpdStatus, String oldState) {
-		String state = mpdStatus.getState();
-		if (state != null) {
-
-			if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
-				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
-			} else {
-				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
-			}
-		}
+		updateStatus(mpdStatus);
 	}
 
 	@Override
