@@ -36,7 +36,7 @@ public class SongsFragment extends BrowseFragment {
 
 		// load preferences for album Track Sort tag display option
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		isSortedByTrack = settings.getBoolean("albumTrackSort", false);
+		isSortedByTrack = settings.getBoolean("albumTrackSort", true);
 	}
 
 	@Override

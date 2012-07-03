@@ -13,8 +13,10 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 
@@ -75,6 +77,10 @@ public class MPDApplication extends Application implements ConnectionListener {
 		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
 		
 		settingsHelper = new SettingsHelper(this, oMPDAsyncHelper);
+		
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		if(!settings.contains("albumTrackSort"))
+			settings.edit().putBoolean("albumTrackSort", true).commit();
 	}
 
 	public void setActivity(Object activity) {
