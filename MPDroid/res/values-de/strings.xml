@@ -11,9 +11,9 @@
 	<string name="ok">OK</string>
 	<string name="quit">Beenden</string>
 	<string name="retry">Wiederholen</string>
-	<string name="loading">LadeerrorStrings</string>
-	<string name="loadingAlbums">Lade AlbenerrorStrings</string>
-	<string name="loadingArtists">Lade KünstlererrorStrings</string>
+	<string name="loading">Lade…</string>
+	<string name="loadingAlbums">Lade Alben…</string>
+	<string name="loadingArtists">Lade Künstler…</string>
 	<string name="serverAddress">Server Adresse:</string>
 	<string name="playlist">Wiedergabeliste</string>
 	<string name="addAlbum">Album hinzufügen</string>
@@ -42,7 +42,7 @@
 	<string name="version">Version</string>
 	<string name="songs">Stücke</string>
 	<string name="serverInformation">Server Informationen</string>
-	<string name="serverInformationDescription">Diverse MPD-Server informationen wie Version, Anzahl StückeerrorStrings</string>
+	<string name="serverInformationDescription">Diverse MPD-Server informationen wie Version, Anzahl Stücke…</string>
 	<string name="connectionSettings">Verbindungseinstellungen</string>
 	<string name="connectionSettingsDescription">Setze MPD-Host/Port und Passwort</string>
 	<string name="outputs">Ausgänge</string>
@@ -52,10 +52,10 @@
 	<string name="songAdded">Stück %s hinzugefügt</string>
 	<string name="about">Über</string>
 	<string name="aboutDescription">Über PMix</string>
-	<string name="waitForWLAN">Warte auf Verbindung mit WLANerrorStrings</string>
+	<string name="waitForWLAN">Warte auf Verbindung mit WLAN…</string>
 	<string name="connectionFailed">Verbindung fehlgeschlagen</string>
 	<string name="connectionFailedMessage">Die Verbindung zum MPD-Server ist fehlgeschlagen! Bitte überprüfen Sie ob der Server läuft und erreichbar ist. (%s)</string>
-	<string name="connecting">VerbindeerrorStrings</string>
+	<string name="connecting">Verbinde…</string>
 	<string name="connectingToServer">Verbinde zum MPD-Server.</string>
 	<string name="connected">Verbunden</string>
 	<string name="notInRange">Nicht in Reichweite, gespeichert</string>
@@ -66,7 +66,7 @@
 	<string name="wlanBasedSettingsDescription">WLAN basiert den MPD-Host/Port und das Passwort definieren</string>
 	<string name="defaultSettingsDescription">Standard MPD-Host/Port und das Passwort definieren</string>
 	<string name="stream">Streaming</string>
-	<string name="buffering">ZwischenspeichernerrorStrings</string>
+	<string name="buffering">Zwischenspeichern…</string>
 	<string name="portStreaming">Streaming port</string>
 	<string name="portStreamingDescription">MPD-Streaming port (Standard: 8000)</string>
 	<string name="streamStopped">Streaming gestoppt</string>
@@ -75,10 +75,10 @@
 	<string name="streamPauseBattery">Um den Akku zu schonen sollte Streaming gestoppt werden wenn es nicht verwendet wird</string>
 	<string name="search">Suchen</string>
 	<string name="search_label">MPDroid</string>
-	<string name="search_hint">In der MPD\'s library suchen errorStrings</string>
+	<string name="search_hint">In der MPD\'s library suchen …</string>
 	<string name="search_hint_album">Album suchen</string>
 	<string name="search_hint_artist">Künstler suchen</string>
-	<string name="search_hint_song">Stück suchen suchen (Nach Künstler, Album, Stückname uswerrorStrings)</string>
+	<string name="search_hint_song">Stück suchen suchen (Nach Künstler, Album, Stückname usw…)</string>
 	<string name="libraryTabActivity">Library</string>
 	<string name="songSearch">Alle Stücke anzuzeigen ist keine gute Idee. Bitte suche nach etwas.</string>
 	<string name="warningTitle">Bitte lesen</string>

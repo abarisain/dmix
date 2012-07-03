@@ -15,10 +15,10 @@
 	<string name="ok">OK</string>
 	<string name="quit">종료</string>
 	<string name="retry">재시도</string>
-	<string name="loading">불러오는 중errorStrings</string>
-	<string name="loadingAlbums">앨범 불러오는 중errorStrings</string>
-	<string name="loadingArtists">아티스트 불러오는 중errorStrings</string>
-	<string name="loadingSongs">곡 불러오는 중errorStrings</string>
+	<string name="loading">불러오는 중…</string>
+	<string name="loadingAlbums">앨범 불러오는 중…</string>
+	<string name="loadingArtists">아티스트 불러오는 중…</string>
+	<string name="loadingSongs">곡 불러오는 중…</string>
 	<string name="serverAddress">서버 주소 :</string>
 	<string name="playlist">재생목록</string>
 	<string name="addAndReplace">추가와 교체</string>
@@ -65,11 +65,11 @@
 	<string name="songAdded">곡 %s 추가됨</string>
 	<string name="about">이 프로그램에 관하여</string>
 	<string name="aboutDescription">MPDroid는</string>
-	<string name="waitForWLAN">WLAN 접속 대기중errorStrings</string>
+	<string name="waitForWLAN">WLAN 접속 대기중…</string>
 	<string name="connectionFailed">접속 실패</string>
 	<string name="connectionFailedMessage">MPD-서버로의 접속 실패! 서버가 동작하거나 접속 가능한지 확인하시오. (%s)</string>
 	<string name="connect">접속</string>
-	<string name="connecting">접속중errorStrings</string>
+	<string name="connecting">접속중…</string>
 	<string name="connectingToServer">MPD-서버로 접속중.</string>
 	<string name="connected">접속됨</string>
 	<string name="notConnected">접속되지 않음</string>
@@ -86,7 +86,7 @@
 	<string name="wlanBasedSettingsDescription">WLAN 기반 MPD-호스트/포트와 암호설정</string>
 	<string name="defaultSettingsDescription">기본 MPD-호스트/포트와 암호설정</string>
 	<string name="stream">스트리밍</string>
-	<string name="buffering">버퍼링 errorStrings</string>
+	<string name="buffering">버퍼링 …</string>
 	<string name="portStreaming">스트리밍 포트</string>
 	<string name="portStreamingDescription">MPD-스트리밍 포트 (초기값: 8000)</string>
 	<string name="streamStopped">스트리밍 정지됨</string>
@@ -98,7 +98,7 @@
 	<string name="aboutLastFM">Thanks to last.fm for providing album arts</string>
 	<string name="search">검색</string>
 	<string name="search_label">MPDroid</string>
-	<string name="search_hint">MPD 라이브러리에서 검색 errorStrings</string>
+	<string name="search_hint">MPD 라이브러리에서 검색 …</string>
 	<string name="search_hint_album">앨범 검색</string>
 	<string name="search_hint_artist">아티스트 검색</string>
 	<string name="search_hint_song">곡검색 (음악가, 앨범, 이름, 그외 …)</string>
