@@ -4,7 +4,7 @@
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:background="@drawable/background">
 <!-- android:background="#66000000">-->
-   <com.namelessdev.mpdroid.ActionBar
+   <com.namelessdev.mpdroid.ActionBarLite
       	android:id="@+id/compatActionbar"
        	style="@style/CompatActionBar"
    />

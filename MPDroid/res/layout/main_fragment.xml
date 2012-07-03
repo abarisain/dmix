@@ -4,7 +4,7 @@
 	android:layout_height="fill_parent" android:gravity="center"
 	android:background="@drawable/background">
 
-   <com.namelessdev.mpdroid.ActionBar
+   <com.namelessdev.mpdroid.ActionBarLite
       	android:id="@+id/compatActionbar"
        	style="@style/CompatActionBar"
    />

@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         >
-        <com.namelessdev.mpdroid.ActionBar
+        <com.namelessdev.mpdroid.ActionBarLite
         	android:id="@+id/compatActionbar"
         	style="@style/CompatActionBar"
         />
