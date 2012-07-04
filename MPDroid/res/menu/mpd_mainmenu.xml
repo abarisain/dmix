@@ -8,6 +8,12 @@
         android:title="@string/libraryTabActivity">
     </item>
     <item
+        android:id="@+id/menu_search"
+        android:icon="@android:drawable/ic_menu_search"
+        android:showAsAction="ifRoom"
+        android:title="@string/search">
+	</item>
+    <item
         android:id="@+id/GMM_Stream"
         android:icon="@android:drawable/ic_menu_upload_you_tube"
         android:title="@string/stream">

@@ -588,6 +588,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 		// Handle item selection
 		switch (item.getItemId()) {
+		case R.id.menu_search:
+			getActivity().onSearchRequested();
+			return true;
 		case R.id.GMM_LibTab:
 			openLibrary();
 			return true;
