@@ -21,6 +21,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
@@ -77,6 +79,27 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 
 		registerForContextMenu(getListView());
 		updateList();
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		getSupportMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_search:
+			this.onSearchRequested();
+			return true;
+		case android.R.id.home:
+			finish();
+			return true;
+		}
+		return false;
 	}
 	
 	private String getItemName(Object o) {
@@ -238,29 +261,30 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		final ArrayList<ArtistItem> artistItems = new ArrayList<ArtistItem>();
 		final ArrayList<AlbumItem> albumItems = new ArrayList<AlbumItem>();
 		String tmpValue;
-		musicLoop:
+		boolean valueFound;
 		for (Music music : arrayMusic) {
 			if(music.getTitle() != null &&  music.getTitle().toLowerCase().contains(finalsearch)) {
 				musicItems.add(music);
-				continue;
 			}
+			valueFound = false;
 			tmpValue = music.getArtist();
 			if(tmpValue != null && tmpValue.toLowerCase().contains(finalsearch)) {
 				for(ArtistItem artistItem : artistItems) {
 					if(artistItem.getName().equalsIgnoreCase(tmpValue))
-						continue musicLoop;
+						valueFound = true;
 				}
-				artistItems.add(new ArtistItem(tmpValue));
-				continue;
+				if(!valueFound)
+					artistItems.add(new ArtistItem(tmpValue));
 			}
+			valueFound = false;
 			tmpValue = music.getAlbum();
 			if(tmpValue != null &&  tmpValue.toLowerCase().contains(finalsearch)) {
 				for(AlbumItem albumItem : albumItems) {
 					if(albumItem.getName().equalsIgnoreCase(tmpValue))
-						continue musicLoop;
+						valueFound = true;
 				}
-				albumItems.add(new AlbumItem(tmpValue));
-				continue;
+				if(!valueFound)
+					albumItems.add(new AlbumItem(tmpValue));
 			}			
 		}
 		
