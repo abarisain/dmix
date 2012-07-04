@@ -737,6 +737,10 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	private static String timeToString(long seconds) {
+		if (seconds<0) {
+			seconds=0;
+		}
+
 		long hours = seconds / 3600;
 		seconds -= 3600 * hours;
 		long minutes = seconds / 60;
