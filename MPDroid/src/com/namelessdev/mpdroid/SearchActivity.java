@@ -113,6 +113,19 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		return "";
 	}
 
+	private void setContextForObject(Object object) {
+		if(object instanceof Music) {
+			addString = R.string.addSong;
+			addedString = R.string.songAdded;
+		} else if(object instanceof ArtistItem){
+			addString = R.string.addArtist;
+			addedString = R.string.artistAdded;
+		} else if(object instanceof AlbumItem){
+			addString = R.string.addAlbum;
+			addedString = R.string.albumAdded;
+		}
+	}
+	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Object selectedItem = l.getAdapter().getItem(position);
@@ -130,17 +143,12 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 	}
 
 	protected void add(Object object) {
+		setContextForObject(object);
 		if(object instanceof Music) {
-			addString = R.string.addSong;
-			addedString = R.string.songAdded;
 			add((Music) object);
 		} else if(object instanceof ArtistItem){
-			addString = R.string.addArtist;
-			addedString = R.string.artistAdded;
 			add(((ArtistItem) object).getName(), MPD.MPD_SEARCH_ARTIST);
 		} else if(object instanceof AlbumItem){
-			addString = R.string.addAlbum;
-			addedString = R.string.albumAdded;
 			add(((AlbumItem) object).getName(), MPD.MPD_SEARCH_ALBUM);
 		}
 	}
@@ -179,7 +187,9 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-		menu.setHeaderTitle(getItemName(arrayResults.get((int) info.id)));
+		final Object item = arrayResults.get((int) info.id);
+		menu.setHeaderTitle(getItemName(item));
+		setContextForObject(item);
 		android.view.MenuItem addItem = menu.add(ContextMenu.NONE, ADD, 0, getResources().getString(addString));
 		addItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0, R.string.addAndReplace);
