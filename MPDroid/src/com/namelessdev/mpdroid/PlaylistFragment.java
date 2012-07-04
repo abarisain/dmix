@@ -217,7 +217,7 @@ public class PlaylistFragment extends SherlockListFragment implements OnClickLis
 			startActivity(i);
 			return true;
 		case R.id.PLM_LibTab:
-			i = new Intent(getActivity(), LibraryTabActivity.class);
+			i = new Intent(getActivity(), oldLibraryTabActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 			return true;
@@ -245,7 +245,7 @@ public class PlaylistFragment extends SherlockListFragment implements OnClickLis
 			startActivity(i);
 			return true;
 		case R.id.GMM_LibTab:
-			i = new Intent(getActivity(), LibraryTabActivity.class);
+			i = new Intent(getActivity(), oldLibraryTabActivity.class);
 			startActivity(i);
 		default:
 			return false;
