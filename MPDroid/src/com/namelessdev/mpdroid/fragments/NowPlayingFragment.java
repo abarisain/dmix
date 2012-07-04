@@ -3,8 +3,6 @@ package com.namelessdev.mpdroid.fragments;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
@@ -13,7 +11,6 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -27,14 +24,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -46,7 +39,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher.ViewFactory;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -66,8 +58,6 @@ import com.namelessdev.mpdroid.providers.ServerList;
 
 public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
 		OnSharedPreferenceChangeListener {
-
-	private Logger myLogger = Logger.global;
 	
 	public static final String COVER_BASE_URL = "http://%s/music/";
 
@@ -127,10 +117,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private Timer posTimer = null;
 	private TimerTask posTimerTask = null;
 
-	// Used for detecting sideways flings
-	private GestureDetector gestureDetector;
-	View.OnTouchListener gestureListener;
-
 	private boolean enableLastFM;
 
 	@Override
@@ -157,17 +143,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 		// registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
 		getActivity().registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
-
-		gestureDetector = new GestureDetector(new MyGestureDetector(this));
-		gestureListener = new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				if (gestureDetector.onTouchEvent(event)) {
-					return true;
-				}
-				return false;
-			}
-		};
-		// oMPDAsyncHelper.addConnectionListener(MPDConnectionHandler.getInstance(this));
 	}
 
 	@Override
@@ -361,7 +336,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		});
 
 		songNameText.setText(getResources().getString(R.string.notConnected));
-		myLogger.log(Level.INFO, "Initialization succeeded");
+		Log.i(MPDApplication.TAG, "Initialization succeeded");
 
 		return view;
 	}
@@ -381,7 +356,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 						try {
 							mpd.next();
 						} catch (MPDServerException e) {
-							myLogger.log(Level.WARNING, e.getMessage());
+							Log.w(MPDApplication.TAG, e.getMessage());
 						}
 					}
 				}).start();
@@ -398,7 +373,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 						try {
 							mpd.previous();
 						} catch (MPDServerException e) {
-							myLogger.log(Level.WARNING, e.getMessage());
+							Log.w(MPDApplication.TAG, e.getMessage());
 						}
 					}
 				}).start();
@@ -427,7 +402,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 								mpd.play();
 							}
 						} catch (MPDServerException e) {
-							myLogger.log(Level.WARNING, e.getMessage());
+							Log.w(MPDApplication.TAG, e.getMessage());
 						}
 					}
 				}).start();
@@ -512,51 +487,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		 * R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
 		 */
 		// return result;
-	}
-
-	public boolean onTouchEvent(MotionEvent event) {
-		if (gestureDetector.onTouchEvent(event))
-			return true;
-		return false;
-	}
-
-	// Most of this comes from
-	// http://www.codeshogun.com/blog/2009/04/16/how-to-implement-swipe-action-in-android/
-	//
-	class MyGestureDetector extends SimpleOnGestureListener {
-		private static final int SWIPE_MIN_DISTANCE = 120;
-		private static final int SWIPE_MAX_OFF_PATH = 250;
-		private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-		private Activity context = null;
-
-		public MyGestureDetector(Fragment fragment) {
-			context = fragment.getActivity();
-		}
-
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			try {
-				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-					return false;
-				// right to left swipe
-				if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-					// Next
-					Toast.makeText(context, getResources().getString(R.string.next), Toast.LENGTH_SHORT).show();
-					MPDApplication app = (MPDApplication) getActivity().getApplication();
-					MPD mpd = app.oMPDAsyncHelper.oMPD;
-					mpd.next();
-				} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-					// Previous
-					Toast.makeText(context, getResources().getString(R.string.previous), Toast.LENGTH_SHORT).show();
-					MPDApplication app = (MPDApplication) getActivity().getApplication();
-					MPD mpd = app.oMPDAsyncHelper.oMPD;
-					mpd.previous();
-				}
-			} catch (Exception e) {
-				// nothing
-			}
-			return false;
-		}
 	}
 
 	@Override
@@ -779,7 +709,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void onPause() {
 		super.onPause();
-		myLogger.log(Level.INFO, "onPause");
 	}
 
 	@Override
@@ -790,14 +719,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		app.oMPDAsyncHelper.removeTrackPositionListener(this);
 		stopPosTimer();
 		app.unsetActivity(this);
-		myLogger.log(Level.INFO, "onStop");
 	}
 
 	@Override
 	public void onDestroy() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		settings.unregisterOnSharedPreferenceChangeListener(this);
-		myLogger.log(Level.INFO, "onDestroy");
 		super.onDestroy();
 	}
 
@@ -827,7 +754,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		if (cover != null) {
 			cover.setDensity((int) metrics.density);
-			BitmapDrawable myCover = new BitmapDrawable(cover);
+			BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
 			coverSwitcher.setImageDrawable(myCover);
 			// coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
 			coverSwitcher.showNext(); // Little trick so the animation gets displayed

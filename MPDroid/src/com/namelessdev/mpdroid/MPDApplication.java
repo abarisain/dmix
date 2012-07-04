@@ -25,7 +25,8 @@ import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 public class MPDApplication extends Application implements ConnectionListener {
 
-	// Change this... (sag)
+	public static final String TAG = "MPDroid";
+	
 	public MPDAsyncHelper oMPDAsyncHelper = null;
 	private SettingsHelper settingsHelper = null;
 	private ApplicationState state = new ApplicationState();
