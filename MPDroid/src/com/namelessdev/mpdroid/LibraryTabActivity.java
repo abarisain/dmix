@@ -36,7 +36,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.library_tabs);
         
         // Create the adapter that will return a fragment for each of the three primary sections
         // of the app.
