@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -28,7 +27,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class PlaylistFragment extends SherlockListFragment implements OnClickListener, StatusChangeListener {
+public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
 	// private int arrayListId;
@@ -276,18 +275,6 @@ public class PlaylistFragment extends SherlockListFragment implements OnClickLis
 				}
 			} catch (MPDServerException e) {
 			}
-		}
-	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.actionbar_text:
-			Intent i = new Intent(getActivity(), PlaylistRemoveActivity.class);
-			startActivityForResult(i, EDIT);
-			break;
-		default:
-			break;
 		}
 	}
 
