@@ -59,7 +59,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
         
         ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
         actionBarAdapter.add(getString(R.string.nowPlaying));
-        actionBarAdapter.add(getString(R.string.playlist));
+        actionBarAdapter.add(getString(R.string.playQueue));
         
         if(Build.VERSION.SDK_INT >= 14) {
         	//Bug on ICS with sherlock's layout
@@ -163,7 +163,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0: return getString(R.string.nowPlaying);
-                case 1: return getString(R.string.playlist);
+                case 1: return getString(R.string.playQueue);
             }
             return null;
         }

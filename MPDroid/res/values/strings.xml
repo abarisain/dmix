@@ -133,4 +133,5 @@
 	<string name="widget_initial_text">Touch to select music.</string>
 	<string name="no_result">No results</string>
 	<string name="backpressToQuit">Press back again to quit</string>
+	<string name="playQueue">Play Queue</string>
 </resources>
