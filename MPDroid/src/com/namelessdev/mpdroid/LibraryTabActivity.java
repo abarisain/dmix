@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.fragments.SongSearchMessageFragment;
+
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -34,7 +36,7 @@ public class LibraryTabActivity extends TabActivity implements OnTabChangeListen
 		tabHost.addTab(tabHost.newTabSpec("tab_album").setIndicator(tabLabels[1], res.getDrawable(R.drawable.ic_tab_albums))
 				.setContent(new Intent(LibraryTabActivity.this, AlbumsActivity.class)));
 		tabHost.addTab(tabHost.newTabSpec("tab_songs").setIndicator(tabLabels[2], res.getDrawable(R.drawable.ic_tab_songs))
-				.setContent(new Intent(LibraryTabActivity.this, SongSearchMessage.class)));
+				.setContent(new Intent(LibraryTabActivity.this, SongSearchMessageFragment.class)));
 		tabHost.addTab(tabHost.newTabSpec("tab_files").setIndicator(tabLabels[3], res.getDrawable(R.drawable.ic_tab_playlists))
 				.setContent(new Intent(LibraryTabActivity.this, FSActivity.class)));
 		((MPDApplication) getApplication()).setActivity(this);
