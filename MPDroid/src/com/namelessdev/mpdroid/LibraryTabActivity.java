@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.ArtistsFragment;
 import com.namelessdev.mpdroid.fragments.FSFragment;
@@ -47,6 +49,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
         
         ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
         actionBarAdapter.add(getString(R.string.artists));
@@ -92,6 +95,26 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 		app.unsetActivity(this);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		getSupportMenuInflater().inflate(R.menu.mpd_browsermenu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_search:
+			this.onSearchRequested();
+			return true;
+		case android.R.id.home:
+			finish();
+			return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
 		mViewPager.setCurrentItem(itemPosition);

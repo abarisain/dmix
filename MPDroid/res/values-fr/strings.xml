@@ -96,7 +96,7 @@
 	<string name="aboutLastFM">Merci à last.fm pour les pochettes d\'album</string>
 	<string name="search">Recherche</string>
 	<string name="search_label">MPDroid</string>
-	<string name="search_hint">Rechercher dans la bibliothèque MPD …</string>
+	<string name="search_hint">Rechercher …</string>
 	<string name="libraryTabActivity">Bibliothèque</string>
 	<string name="songSearch">Afficher toutes les chansons n\'est pas une bonne idée. Utilisez la recherche !</string>
 	<string name="warningTitle">Merci de lire ce qui suit.</string>

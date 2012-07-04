@@ -75,7 +75,7 @@
 	<string name="streamPauseBattery">Um den Akku zu schonen sollte Streaming gestoppt werden wenn es nicht verwendet wird</string>
 	<string name="search">Suchen</string>
 	<string name="search_label">MPDroid</string>
-	<string name="search_hint">In der MPD\'s library suchen …</string>
+	<string name="search_hint">Suchen …</string>
 	<string name="libraryTabActivity">Library</string>
 	<string name="songSearch">Alle Stücke anzuzeigen ist keine gute Idee. Bitte suche nach etwas.</string>
 	<string name="warningTitle">Bitte lesen</string>

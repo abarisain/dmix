@@ -45,10 +45,6 @@
 		</activity>
 		<activity android:name=".PlaylistSaveActivity" android:label="@string/playlist">
 		</activity>
-		<activity android:name=".ArtistsActivity" android:label="@string/artists">
-			<meta-data android:name="android.app.default_searchable"
-				android:value=".SearchActivity" />
-		</activity>
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		<activity android:name=".WifiConnectionSettings"
 			android:label="@string/settings" android:theme="@style/AppTheme.ActionBar" />
