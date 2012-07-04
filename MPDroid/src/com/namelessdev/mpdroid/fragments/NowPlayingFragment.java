@@ -45,15 +45,15 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.namelessdev.mpdroid.CoverAsyncHelper;
-import com.namelessdev.mpdroid.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.LibraryTabActivity;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MPDConnectionHandler;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.ServerListActivity;
 import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.StreamingService;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.providers.ServerList;
 
 public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,

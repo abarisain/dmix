@@ -24,6 +24,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 public class PlaylistRemoveActivity extends ListActivity implements StatusChangeListener, OnClickListener {
 	private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();

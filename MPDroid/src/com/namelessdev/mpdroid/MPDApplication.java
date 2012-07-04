@@ -20,7 +20,8 @@ import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 
-import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 public class MPDApplication extends Application implements ConnectionListener {

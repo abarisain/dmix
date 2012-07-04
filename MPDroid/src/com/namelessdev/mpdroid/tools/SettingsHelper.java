@@ -8,7 +8,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 
-import com.namelessdev.mpdroid.MPDAsyncHelper;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 
 public class SettingsHelper implements OnSharedPreferenceChangeListener {
 	private static final int DEFAULT_MPD_PORT = 6600;

@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.helpers;
 
 import java.net.UnknownHostException;
 import java.util.Collection;

@@ -21,7 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListActivity;
-import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 import com.namelessdev.mpdroid.views.SeparatedListAdapter;

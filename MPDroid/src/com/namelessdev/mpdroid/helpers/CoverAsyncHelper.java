@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.helpers;
 
 import java.io.IOException;
 import java.io.InputStream;

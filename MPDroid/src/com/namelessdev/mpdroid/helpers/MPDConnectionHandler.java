@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.helpers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

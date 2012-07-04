@@ -33,7 +33,7 @@ import android.telephony.TelephonyManager;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import com.namelessdev.mpdroid.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 
 /**
  * StreamingService is my code which notifies and streams MPD (theoretically) I hope I'm doing things right. Really. And say farewell to your

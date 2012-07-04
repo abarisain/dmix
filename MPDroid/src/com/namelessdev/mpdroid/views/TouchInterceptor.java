@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.views;
 
 /*
  * Copyright (C) 2008 The Android Open Source Project
@@ -15,6 +15,10 @@ package com.namelessdev.mpdroid;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.R.dimen;
+import com.namelessdev.mpdroid.R.id;
 
 import android.content.Context;
 import android.content.res.Resources;

@@ -20,9 +20,9 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class BrowseFragment extends SherlockListFragment implements OnMenuItemClickListener, AsyncExecListener {

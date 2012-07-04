@@ -20,8 +20,8 @@ import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.namelessdev.mpdroid.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.tools.Tools;
 public class BrowseActivity extends SherlockListActivity implements OnMenuItemClickListener, AsyncExecListener {
 
