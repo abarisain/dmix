@@ -239,7 +239,6 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 		if (iJobID == jobID) {
 			updateFromItems();
 		}
-
 	}
 
 }

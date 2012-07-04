@@ -76,9 +76,6 @@
 	<string name="search">Suchen</string>
 	<string name="search_label">MPDroid</string>
 	<string name="search_hint">In der MPD\'s library suchen …</string>
-	<string name="search_hint_album">Album suchen</string>
-	<string name="search_hint_artist">Künstler suchen</string>
-	<string name="search_hint_song">Stück suchen suchen (Nach Künstler, Album, Stückname usw…)</string>
 	<string name="libraryTabActivity">Library</string>
 	<string name="songSearch">Alle Stücke anzuzeigen ist keine gute Idee. Bitte suche nach etwas.</string>
 	<string name="warningTitle">Bitte lesen</string>

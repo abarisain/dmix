@@ -97,9 +97,6 @@
 	<string name="search">Recherche</string>
 	<string name="search_label">MPDroid</string>
 	<string name="search_hint">Rechercher dans la bibliothèque MPD …</string>
-	<string name="search_hint_album">Recherche d\'album</string>
-	<string name="search_hint_artist">Recherche d\'artiste</string>
-	<string name="search_hint_song">Recherche de chanson (par artiste,album,nom etc …)</string>
 	<string name="libraryTabActivity">Bibliothèque</string>
 	<string name="songSearch">Afficher toutes les chansons n\'est pas une bonne idée. Utilisez la recherche !</string>
 	<string name="warningTitle">Merci de lire ce qui suit.</string>

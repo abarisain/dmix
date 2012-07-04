@@ -27,37 +27,17 @@
 				<action android:name="com.namelessdev.mpdroid.PLAYBACK_VIEWER" />
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
-			<!--
-				<meta-data android:name="android.app.default_searchable"
+			<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchActivity" />
-			-->
 		</activity>
 
-		<activity android:name=".SearchArtistActivity" android:label="@string/search">
+		<activity android:name=".SearchActivity" android:label="@string/search">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<meta-data android:name="android.app.searchable"
-				android:resource="@xml/searchable_artist" />
-
-		</activity>
-		<activity android:name=".SearchAlbumActivity" android:label="@string/search">
-			<intent-filter>
-				<action android:name="android.intent.action.SEARCH" />
-				<category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
-			<meta-data android:name="android.app.searchable"
-				android:resource="@xml/searchable_album" />
-
-		</activity>
-		<activity android:name=".SearchSongActivity" android:label="@string/search">
-			<intent-filter>
-				<action android:name="android.intent.action.SEARCH" />
-				<category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
-			<meta-data android:name="android.app.searchable"
-				android:resource="@xml/searchable_song" />
+				android:resource="@xml/searchable" />
 		</activity>
 		<activity android:name=".PlaylistRemoveActivity" android:label="@string/playlist" >
 		</activity>
@@ -67,7 +47,7 @@
 		</activity>
 		<activity android:name=".ArtistsActivity" android:label="@string/artists">
 			<meta-data android:name="android.app.default_searchable"
-				android:value=".SearchArtistActivity" />
+				android:value=".SearchActivity" />
 		</activity>
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		<activity android:name=".WifiConnectionSettings"
@@ -76,13 +56,9 @@
 		<activity android:name=".FSActivity" android:label="@string/files" />
 		<activity android:name=".AlbumsActivity" android:label="@string/albums" >
 			<meta-data android:name="android.app.default_searchable"
-				android:value=".SearchAlbumActivity" />
+				android:value=".SearchActivity" />
 		</activity>
 		<activity android:name=".SongsActivity" android:label="@string/artists" >
-		</activity>
-		<activity android:name=".SongSearchMessage" android:label="@string/albums">
-			<meta-data android:name="android.app.default_searchable"
-				android:value=".SearchSongActivity" />
 		</activity>
 		
 		<activity android:name=".ServerListActivity" android:theme="@style/AppTheme.ActionBar" />
@@ -92,7 +68,10 @@
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
 		<activity android:name=".WarningActivity" android:label="@string/warningTitle"  android:theme="@style/AppTheme.Dialog" />
-		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity" />
+		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity" >
+			<meta-data android:name="android.app.default_searchable"
+				android:value=".SearchActivity" />
+		</activity>
 		<activity android:name=".honeycomb.LibraryTabActionActivity" android:label="@string/libraryTabActivity" />
 
 		<service android:enabled="true" android:name="StreamingService" />

@@ -99,9 +99,6 @@
 	<string name="search">검색</string>
 	<string name="search_label">MPDroid</string>
 	<string name="search_hint">MPD 라이브러리에서 검색 …</string>
-	<string name="search_hint_album">앨범 검색</string>
-	<string name="search_hint_artist">아티스트 검색</string>
-	<string name="search_hint_song">곡검색 (음악가, 앨범, 이름, 그외 …)</string>
 	<string name="libraryTabActivity">라이브러리</string>
 	<string name="songSearch">모든 곡을 한번에 보는 것보다 검색을 사용 하는 것을 권장합니다.</string>
 	<string name="warningTitle">읽어주세요</string>
