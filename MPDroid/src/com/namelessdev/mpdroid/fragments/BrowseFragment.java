@@ -10,7 +10,6 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -21,11 +20,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
@@ -57,7 +52,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 
 		context = pContext;
 
-		setHasOptionsMenu(true);
+		setHasOptionsMenu(false);
 	}
 
 	@TargetApi(11)
@@ -126,39 +121,6 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 				asyncUpdate();
 			}
 		});
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		// MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.mpd_browsermenu, menu);
-		inflater.inflate(R.menu.mpd_searchmenu, menu);
-		/*
-		 * boolean result = super.onCreateOptionsMenu(menu); menu.add(0, MAIN, 0,
-		 * R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert); menu.add(0, PLAYLIST, 1,
-		 * R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
-		 */
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		Intent i = null;
-
-		switch (item.getItemId()) {
-		case R.id.BRM_mainmenu:
-			i = new Intent(getActivity(), MainMenuActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			return true;
-		case R.id.menu_search:
-			getActivity().onSearchRequested();
-			return true;
-		case android.R.id.home:
-			getActivity().finish();
-			return true;
-		}
-		return false;
 	}
 
 	@Override
