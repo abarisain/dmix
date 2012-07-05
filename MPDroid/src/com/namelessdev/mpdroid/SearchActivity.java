@@ -83,6 +83,20 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 	}
 	
 	@Override
+	public void onStart() {
+		super.onStart();
+		MPDApplication app = (MPDApplication) getApplicationContext();
+		app.setActivity(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		MPDApplication app = (MPDApplication) getApplicationContext();
+		app.unsetActivity(this);
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		getSupportMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
