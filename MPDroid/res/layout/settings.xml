@@ -25,12 +25,6 @@
 		<CheckBoxPreference android:key="repeat"
 			android:title="@string/repeat" android:summary="@string/repeatDescription"
 			android:persistent="false" />
-		<CheckBoxPreference android:key="albumartist"
-			android:title="@string/albumartist" android:summary="@string/albumartistDescription"
-			android:persistent="true" />
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/albumTrackSort" android:summary="@string/albumTrackSortDescription"
-			android:key="albumTrackSort" />
 		<PreferenceScreen android:title="@string/updateDB"
 			android:summary="@string/updateDBDetails" android:key="updateDB">
 		</PreferenceScreen>
