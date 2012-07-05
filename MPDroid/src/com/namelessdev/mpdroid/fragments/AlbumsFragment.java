@@ -15,6 +15,7 @@ import com.namelessdev.mpdroid.SongsActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class AlbumsFragment extends BrowseFragment {
+	private MPDApplication app;
 	private String artist = "";
 
 	public AlbumsFragment() {
@@ -34,6 +35,7 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		app = (MPDApplication) getActivity().getApplication();
 		registerForContextMenu(getListView());
 		UpdateList();
 		if (getActivity().getIntent().getStringExtra("artist") != null) {
@@ -55,8 +57,7 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	protected void asyncUpdate() {
 		try {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			items=app.oMPDAsyncHelper.oMPD.getAlbums(getActivity().getIntent().getStringExtra("artist"));
+			items = app.oMPDAsyncHelper.oMPD.getAlbums(getActivity().getIntent().getStringExtra("artist"));
 		} catch (MPDServerException e) {
 		}
 	}
@@ -64,7 +65,6 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void Add(Item item) {
     	try {
-    		MPDApplication app = (MPDApplication) getActivity().getApplication();
     		app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getSongs(artist, item.getName()));
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
