@@ -232,23 +232,4 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 			return getName();
 		}
 	}
-	
-	/**
-	 * Retrieves a textual representation of this object.
-	 * 
-	 * @return textual representation of this object.
-	 */
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("+" + getFullpath() + "\n");
-		for (String file : files.keySet()) {
-			sb.append(files.get(file).toString() + "\n");
-		}
-
-		for (String dir : directories.keySet()) {
-			sb.append(directories.get(dir).toString() + "\n");
-		}
-		sb.append("-" + this.getFullpath() + "\n");
-		return sb.toString();
-	}
 }

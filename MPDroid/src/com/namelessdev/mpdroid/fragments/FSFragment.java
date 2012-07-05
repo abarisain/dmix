@@ -1,8 +1,6 @@
 package com.namelessdev.mpdroid.fragments;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.a0z.mpd.Directory;
@@ -79,7 +77,7 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 
-        List<Item> dirItems=new LinkedList<Item>();
+        List<Item> dirItems=new ArrayList<Item>();
         dirItems.addAll(currentDirectory.getDirectories());
         dirItems.addAll(currentDirectory.getFiles());
         items=dirItems;
