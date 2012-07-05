@@ -1,14 +1,16 @@
 package com.namelessdev.mpdroid.fragments;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -19,13 +21,16 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
-import com.namelessdev.mpdroid.tools.Tools;
 
-public class BrowseFragment extends SherlockListFragment implements OnMenuItemClickListener, AsyncExecListener {
+public abstract class BrowseFragment extends SherlockListFragment implements OnMenuItemClickListener, AsyncExecListener {
 
 	protected int iJobID = -1;
 
@@ -36,7 +41,7 @@ public class BrowseFragment extends SherlockListFragment implements OnMenuItemCl
 	public static final int ADDNREPLACE = 1;
 	public static final int ADDNPLAY = 2;
 
-	protected List<String> items = null;
+	protected List<? extends Item> items = null;
 	
 	protected View loadingView;
 	protected TextView loadingTextView;
@@ -52,13 +57,24 @@ public class BrowseFragment extends SherlockListFragment implements OnMenuItemCl
 
 		context = pContext;
 
-		setHasOptionsMenu(false);
+		setHasOptionsMenu(true);
 	}
 
 	@TargetApi(11)
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		try {
+			Activity activity = this.getActivity();
+			ActionBar actionBar = activity.getActionBar();
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		} catch (NoClassDefFoundError e) {
+			// Older android
+		} catch (NullPointerException e) {
+
+		} catch (NoSuchMethodError e) {
+
+		}
 	}
 
 	@Override
@@ -113,6 +129,39 @@ public class BrowseFragment extends SherlockListFragment implements OnMenuItemCl
 	}
 
 	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		// MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mpd_browsermenu, menu);
+		inflater.inflate(R.menu.mpd_searchmenu, menu);
+		/*
+		 * boolean result = super.onCreateOptionsMenu(menu); menu.add(0, MAIN, 0,
+		 * R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert); menu.add(0, PLAYLIST, 1,
+		 * R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist);
+		 */
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent i = null;
+
+		switch (item.getItemId()) {
+		case R.id.BRM_mainmenu:
+			i = new Intent(getActivity(), MainMenuActivity.class);
+			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(i);
+			return true;
+		case R.id.menu_search:
+			getActivity().onSearchRequested();
+			return true;
+		case android.R.id.home:
+			getActivity().finish();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
@@ -125,16 +174,7 @@ public class BrowseFragment extends SherlockListFragment implements OnMenuItemCl
 		addAndPlayItem.setOnMenuItemClickListener(this);
 	}
 
-	protected void Add(String item) {
-		try {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(context, item));
-			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(songs);
-			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
-		}
-	}
+	protected abstract void Add(Item item);
 
 	@Override
 	public boolean onMenuItemClick(android.view.MenuItem item) {
@@ -150,7 +190,7 @@ public class BrowseFragment extends SherlockListFragment implements OnMenuItemCl
 						app.oMPDAsyncHelper.oMPD.stop();
 						app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 
-						Add(items.get((int) info.id).toString());
+						Add(items.get((int) info.id));
 						if (status.equals(MPDStatus.MPD_STATE_PLAYING)) {
 							app.oMPDAsyncHelper.oMPD.play();
 						}
@@ -166,7 +206,7 @@ public class BrowseFragment extends SherlockListFragment implements OnMenuItemCl
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
 				@Override
 				public void run() {
-					Add(items.get((int) info.id).toString());
+					Add(items.get((int) info.id));
 				}
 			});
 
@@ -179,7 +219,7 @@ public class BrowseFragment extends SherlockListFragment implements OnMenuItemCl
 					try {
 						MPDPlaylist pl = app.oMPDAsyncHelper.oMPD.getPlaylist();
 						int oldsize = pl.size();
-						Add(items.get((int) info.id).toString());
+						Add(items.get((int) info.id));
 						int id = pl.getByIndex(oldsize).getSongId();
 						app.oMPDAsyncHelper.oMPD.skipToId(id);
 						app.oMPDAsyncHelper.oMPD.play();
@@ -204,7 +244,7 @@ public class BrowseFragment extends SherlockListFragment implements OnMenuItemCl
 	public void updateFromItems() {
 		if (items != null) {
 			//ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
-			ArrayIndexerAdapter<String> listAdapter = new ArrayIndexerAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
+			ArrayIndexerAdapter listAdapter = new ArrayIndexerAdapter(getActivity(), android.R.layout.simple_list_item_1, items);
 			setListAdapter(listAdapter);
 			try {
 				getListView().setEmptyView(noResultView);

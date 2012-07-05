@@ -12,7 +12,7 @@ import java.util.List;
  * @author Felipe Gustavo de Almeida
  * @version $Id: Music.java 2940 2005-02-09 02:31:48Z galmeida $
  */
-public class Music implements FilesystemTreeEntry {
+public class Music extends Item implements FilesystemTreeEntry {
 	/**
 	 * Used to indicate this <code>Music</code> is a stream.
 	 */
@@ -23,33 +23,25 @@ public class Music implements FilesystemTreeEntry {
 	 */
 	public static final int FILE = 0;
 
-	private static final int SECONDS_PER_MINUTE = 60;
-
-	private static final int TWO_DIGIT = 10;
-
 	private String album;
 
-	private String artist;
+	private String artist = null;
+
+	private String albumartist = null;
 
 	private String fullpath;
-
-	private String genre;
 	
-	private String soundtrack; 
-	
-	private String composer;
-	
-	private String disc;
+	private int disc = -1;
 
-	private String date;
+	private int date = -1;
 
-	private long time;
+	private long time = -1;
 
 	private String title;
 
-	private String totalTracks;
+	private int totalTracks = -1;
 
-	private String track;
+	private int track = -1;
 
 	private Directory parent;
 
@@ -71,33 +63,44 @@ public class Music implements FilesystemTreeEntry {
 				this.fullpath = line.substring("file: ".length());
 			} else if (line.startsWith("Artist:")) {
 				this.artist = line.substring("Artist: ".length());
+			} else if (line.startsWith("AlbumArtist:")) {
+				this.albumartist = line.substring("AlbumArtist: ".length());
 			} else if (line.startsWith("Album:")) {
 				this.album = line.substring("Album: ".length());
 			} else if (line.startsWith("Title:")) {
 				this.title = line.substring("Title: ".length());
 			} else if (line.startsWith("Name:")) {
 				this.name = line.substring("Name: ".length());
-			} else if (line.startsWith("Track:")) {
-				String[] aux = line.substring("Track: ".length()).split("/");
-				this.track = aux[0];
-				if (aux.length > 1)
-					this.totalTracks = aux[1];
+            } else if (line.startsWith("Track:")) {
+                String[] aux = line.substring("Track: ".length()).split("/");
+                if(aux.length > 0) {
+                        this.track = Integer.parseInt(aux[0]);
+                        if (aux.length > 1) {
+                                this.totalTracks = Integer.parseInt(aux[1]);
+                        }
+                }
+            } else if (line.startsWith("Disc:")) {
+            	String[] aux = line.substring("Disc: ".length()).split("/");
+            	if(aux.length > 0) {
+            		this.disc = Integer.parseInt(aux[0]);
+            	}
 			} else if (line.startsWith("Time:")) {
+				this.time = Long.parseLong(line.substring("Time: ".length()));
 				this.time = Long.parseLong(line.substring("Time: ".length()));
 			} else if (line.startsWith("Id:")) {
 				this.songId = Integer.parseInt(line.substring("Id: ".length()));
 			} else if (line.startsWith("Pos:")) {
 				this.pos = Integer.parseInt(line.substring("Pos: ".length()));
 			} else if (line.startsWith("Date:")) {
-				this.date = line.substring("Date: ".length());
-			} else if (line.startsWith("Genre:")) {
+				this.date = Integer.parseInt(line.substring("Date: ".length()));
+			} /* else if (line.startsWith("Genre:")) {
 				this.genre = line.substring("Genre: ".length());
 			} else if (line.startsWith("Soundtrack:")) {
 				this.soundtrack = line.substring("Soundtrack: ".length());
 			} else if (line.startsWith("Composer:")) {
 				this.composer = line.substring("Composer: ".length());
-			} else if (line.startsWith("Disc:")) {
-				this.disc = line.substring("Disc: ".length());
+			} */ else if (line.startsWith("Disc:")) {
+				this.disc = Integer.parseInt(line.substring("Disc: ".length()));
 			} else {
 				// Ignore this case, there could be some id3 tags which are not common and therefore not implemented here...
 				// (new InvalidResponseException("unknown response: " + line)).printStackTrace();
@@ -129,6 +132,14 @@ public class Music implements FilesystemTreeEntry {
 		return result;
 	}
 
+    private static boolean isEmpty(String s) {
+        return null==s || 0==s.length();
+    }
+
+    private boolean isEmpty() {
+        return (isEmpty(getArtist()) && isEmpty(album) && isEmpty(title)) || isEmpty(fullpath);
+    }
+
 	/**
 	 * Retrieves album name.
 	 * 
@@ -144,7 +155,7 @@ public class Music implements FilesystemTreeEntry {
 	 * @return artist name.
 	 */
 	public String getArtist() {
-		return artist;
+		return MPD.useAlbumArtist() && null!=albumartist ? albumartist : artist;
 	}
 
 	/**
@@ -239,7 +250,7 @@ public class Music implements FilesystemTreeEntry {
 	 * 
 	 * @return total number of tracks from this music's album when available.
 	 */
-	public String getTotalTracks() {
+	public int getTotalTracks() {
 		return totalTracks;
 	}
 
@@ -248,7 +259,7 @@ public class Music implements FilesystemTreeEntry {
 	 * 
 	 * @return track number.
 	 */
-	public String getTrack() {
+	public int getTrack() {
 		return track;
 	}
 
@@ -258,32 +269,14 @@ public class Music implements FilesystemTreeEntry {
 	 * @return date as string.
 	 */
 	public String getFormatedTime() {
-		String result = "00:00";
-		if (time > 0) {
-			int secs = (int) (time % SECONDS_PER_MINUTE);
-			int mins = (int) (time / SECONDS_PER_MINUTE);
-			result = (mins < TWO_DIGIT ? "0" + mins : Integer.toString(mins)) + ":" + (secs < TWO_DIGIT ? "0" + secs : Integer.toString(secs));
-		}
-		return result;
+		return timeToString(time);
 	}
 	
-	public String getGenre() {
-		return genre;
-	}
-	
-	public String getSoundtrack() {
-		return soundtrack;
-	}
-	
-	public String getComposer() {
-		return composer;
-	}
-	
-	public String getDisc() {
+	public int getDisc() {
 		return disc;
 	}
 	
-	public String getDate() {
+	public int getDate() {
 		return date;
 	}
 	
@@ -342,8 +335,8 @@ public class Music implements FilesystemTreeEntry {
 	 * @param str
 	 *           total number of tracks from this music's album when available.
 	 */
-	public void setTotalTracks(String str) {
-		totalTracks = str;
+	public void setTotalTracks(int total) {
+		totalTracks = total;
 	}
 
 	/**
@@ -352,27 +345,15 @@ public class Music implements FilesystemTreeEntry {
 	 * @param str
 	 *           track number.
 	 */
-	public void setTrack(String str) {
-		track = str;
+	public void setTrack(int num) {
+		track = num;
 	}
 	
-	public void setGenre(String value) {
-		genre = value;
-	}
-	
-	public void setSoundtrack(String value) {
-		soundtrack = value;
-	}
-	
-	public void setComposer(String value) {
-		composer = value;
-	}
-	
-	public void setDisc(String value) {
+	public void setDisc(int value) {
 		disc = value;
 	}
 	
-	public void setDate(String value) {
+	public void setDate(int value) {
 		date = value;
 	}
 
@@ -400,9 +381,11 @@ public class Music implements FilesystemTreeEntry {
 		this.setTime(other.getTime());
 		this.setTotalTracks(other.getTotalTracks());
 		this.setTrack(other.getTrack());
+		/*
 		this.setGenre(other.getGenre());
 		this.setSoundtrack(other.getSoundtrack());
 		this.setComposer(other.getComposer());
+		*/
 		this.setDisc(other.getDisc());
 		this.setDate(other.getDate());
 	}
@@ -428,10 +411,101 @@ public class Music implements FilesystemTreeEntry {
 	 * @return a string representation of the object.
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString() {
-		return track + " - " + album + " - " + artist + " - " + title + " (" + fullpath + ")";
-	}
+	/*
+	 * public String toString() { return track + " - " + album + " - " + artist + " - " + title + " (" + fullpath + ")"; }
+	 */
 	
+	@Override
+	public String mainText() {
+		return track < 0 || !MPD.sortByTrackNumber() ? getTitle() : ((track < 10 ? "0" + track : track) + " " + getTitle());
+	}
+
+	@Override
+	public String subText() {
+		return timeToString(time);
+	}
+
+	public static int compare(String a, String b) {
+		if (null == a) {
+			return null == b ? 0 : -1;
+		}
+		if (null == b) {
+			return 1;
+		}
+		return a.compareTo(b);
+	}
+
+	@Override
+	public int compareTo(Item o) {
+		if (o instanceof Music) {
+			Music om = (Music) o;
+			int compare = compare(getArtist(), om.getArtist());
+
+			if (0 != compare) {
+				return compare;
+			}
+			// if (MPD.sortAlbumsByYear() && date!=om.date) {
+			// return date<om.date ? -1 : 1;
+			// }
+			compare = compare(album, om.album);
+			if (0 != compare) {
+				return compare;
+			}
+			if (/* !MPD.sortAlbumsByYear() && */date != om.date) {
+				return date < om.date ? -1 : 1;
+			}
+
+			if (MPD.sortByTrackNumber()) {
+				if (disc != om.disc) {
+					return disc < om.disc ? -1 : 1;
+				}
+				if (track != om.track) {
+					return track < om.track ? -1 : 1;
+				}
+				if (time != om.time) {
+					return time < om.time ? -1 : 1;
+				}
+			}
+			compare = compare(getTitle(), om.getTitle());
+			if (0 != compare) {
+				return compare;
+			}
+			if (!MPD.sortByTrackNumber()) {
+				if (disc != om.disc) {
+					return disc < om.disc ? -1 : 1;
+				}
+				if (track != om.track) {
+					return track < om.track ? -1 : 1;
+				}
+				if (time != om.time) {
+					return time < om.time ? -1 : 1;
+				}
+			}
+			compare = compare(name, om.name);
+			if (0 != compare) {
+				return compare;
+			}
+			return compare(fullpath, om.fullpath);
+		}
+		return super.compareTo(o);
+	}
+
+	public static String timeToString(long seconds) {
+		if (seconds < 0) {
+			seconds = 0;
+		}
+
+		long hours = seconds / 3600;
+		seconds -= 3600 * hours;
+		long minutes = seconds / 60;
+		seconds -= minutes * 60;
+		if (hours == 0) {
+			return String.format("%02d:%02d", minutes, seconds);
+		} else {
+			return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+		}
+	}
+
 	public static class MusicTitleComparator implements Comparator<Music> {
 		public int compare(Music o1, Music o2) {
 			return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());

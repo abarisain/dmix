@@ -15,7 +15,7 @@ import org.a0z.mpd.exception.MPDServerException;
  * @author Felipe Gustavo de Almeida
  * @version $Id: Directory.java 2614 2004-11-11 18:46:31Z galmeida $
  */
-public final class Directory implements FilesystemTreeEntry {
+public final class Directory extends Item implements FilesystemTreeEntry {
 	private Map<String, Music> files;
 	private Map<String, Directory> directories;
 	private Directory parent;

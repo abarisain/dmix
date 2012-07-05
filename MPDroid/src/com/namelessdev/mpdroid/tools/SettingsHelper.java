@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid.tools;
 
+import org.a0z.mpd.MPD;
+
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
@@ -40,6 +42,12 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 	public boolean updateSettings() {
 		String wifiSSID = getCurrentSSID();
 		
+		MPD.setSortByTrackNumber(settings.getBoolean("albumTrackSort", MPD.sortByTrackNumber()));
+		MPD.setSortAlbumsByYear(settings.getBoolean("sortAlbumsByYear", MPD.sortAlbumsByYear()));
+		MPD.setUseAlbumArtist(settings.getBoolean("albumartist", MPD.useAlbumArtist()));
+		MPD.setShowAlbumTrackCount(settings.getBoolean("showAlbumTrackCount", MPD.showAlbumTrackCount()));
+		MPD.setShowArtistAlbumCount(settings.getBoolean("showArtistAlbumCount", MPD.showArtistAlbumCount()));
+
 		if (getStringSetting(getStringWithSSID("hostname",  wifiSSID)) != null) {
 			updateSettings(wifiSSID);
 			return true;

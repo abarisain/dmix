@@ -2,9 +2,9 @@ package com.namelessdev.mpdroid;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
-import org.a0z.mpd.MPD;
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -105,10 +105,11 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 	private String getItemName(Object o) {
 		if(o instanceof Music) {
 			return ((Music) o).getTitle();
-		} else if(o instanceof ArtistItem) {
-			return ((ArtistItem) o).getName();
-		} else if(o instanceof AlbumItem) {
-			return ((AlbumItem) o).getName();
+		} else if(o instanceof Artist) {
+			return ((Artist) o).getName();
+		} else if(o instanceof Album) {
+			String artist=((Album) o).getArtist();
+			return null==artist ? ((Album) o).getName() : artist+" - "+((Album) o).getName();
 		}
 		return "";
 	}
@@ -117,10 +118,10 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		if(object instanceof Music) {
 			addString = R.string.addSong;
 			addedString = R.string.songAdded;
-		} else if(object instanceof ArtistItem){
+		} else if (object instanceof Artist) {
 			addString = R.string.addArtist;
 			addedString = R.string.artistAdded;
-		} else if(object instanceof AlbumItem){
+		} else if (object instanceof Album) {
 			addString = R.string.addAlbum;
 			addedString = R.string.albumAdded;
 		}
@@ -131,13 +132,14 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		Object selectedItem = l.getAdapter().getItem(position);
 		if(selectedItem instanceof Music) {
 			add((Music) selectedItem);
-		} else if(selectedItem instanceof ArtistItem) {
+		} else if(selectedItem instanceof Artist) {
 			Intent intent = new Intent(this, AlbumsActivity.class);
-			intent.putExtra("artist", ((ArtistItem) selectedItem).getName());
+			intent.putExtra("artist", ((Artist) selectedItem).getName());
 			startActivityForResult(intent, -1);
-		} else if(selectedItem instanceof AlbumItem) {
-			Intent intent = new Intent(this, SongsActivity.class);
-			intent.putExtra("album", ((AlbumItem) selectedItem).getName());
+		} else if(selectedItem instanceof Album) {
+			Intent intent = new Intent(this, AlbumsActivity.class);
+			intent.putExtra("artist", ((Album) selectedItem).getArtist());
+			intent.putExtra("album", ((Album) selectedItem).getName());
 			startActivityForResult(intent, -1);
 		}
 	}
@@ -146,19 +148,21 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		setContextForObject(object);
 		if(object instanceof Music) {
 			add((Music) object);
-		} else if(object instanceof ArtistItem){
-			add(((ArtistItem) object).getName(), MPD.MPD_SEARCH_ARTIST);
-		} else if(object instanceof AlbumItem){
-			add(((AlbumItem) object).getName(), MPD.MPD_SEARCH_ALBUM);
+		} else if (object instanceof Artist) {
+			add(((Artist) object).getName(), null);
+		} else if (object instanceof Album) {
+			add(((Album) object).getArtist(), ((Album) object).getName());
 		}
 	}
 	
-	protected void add(String item, String mpdContext) {
+	protected void add(String artist, String album) {
 		try {
 			MPDApplication app = (MPDApplication) getApplication();
-			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(mpdContext, item));
+			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.getSongs(artist, album));
 			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(songs);
-			Tools.notifyUser(String.format(getResources().getString(addedString), item), this);
+			Tools.notifyUser(
+					String.format(getResources().getString(addedString), null == album ? artist : (null == artist ? album : artist + " - "
+							+ album)), this);
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
@@ -268,8 +272,8 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		}
 
 		final ArrayList<Music> musicItems = new ArrayList<Music>();
-		final ArrayList<ArtistItem> artistItems = new ArrayList<ArtistItem>();
-		final ArrayList<AlbumItem> albumItems = new ArrayList<AlbumItem>();
+		final ArrayList<Artist> artistItems = new ArrayList<Artist>();
+		final ArrayList<Album> albumItems = new ArrayList<Album>();
 		String tmpValue;
 		boolean valueFound;
 		for (Music music : arrayMusic) {
@@ -279,28 +283,28 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 			valueFound = false;
 			tmpValue = music.getArtist();
 			if(tmpValue != null && tmpValue.toLowerCase().contains(finalsearch)) {
-				for(ArtistItem artistItem : artistItems) {
+				for (Artist artistItem : artistItems) {
 					if(artistItem.getName().equalsIgnoreCase(tmpValue))
 						valueFound = true;
 				}
 				if(!valueFound)
-					artistItems.add(new ArtistItem(tmpValue));
+					artistItems.add(new Artist(tmpValue, 0));
 			}
 			valueFound = false;
 			tmpValue = music.getAlbum();
 			if(tmpValue != null &&  tmpValue.toLowerCase().contains(finalsearch)) {
-				for(AlbumItem albumItem : albumItems) {
+				for (Album albumItem : albumItems) {
 					if(albumItem.getName().equalsIgnoreCase(tmpValue))
 						valueFound = true;
 				}
 				if(!valueFound)
-					albumItems.add(new AlbumItem(tmpValue));
+					albumItems.add(new Album(tmpValue, music.getArtist()));
 			}			
 		}
 		
-		Collections.sort(musicItems, new Music.MusicTitleComparator());
-		Collections.sort(artistItems, new ArtistItemComparator());
-		Collections.sort(albumItems, new AlbumItemComparator());
+		Collections.sort(musicItems);
+		Collections.sort(artistItems);
+		Collections.sort(albumItems);
 		
 		arrayResults.clear();
 		if(!artistItems.isEmpty()) {
@@ -337,52 +341,6 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {
 			updateFromItems();
-		}
-	}
-	
-	/* Item classes/comparators */
-	
-	public static class ArtistItem {
-		private String name;
-		
-		public ArtistItem(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-	}
-	
-	public static class AlbumItem {
-		private String name;
-		
-		public AlbumItem(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-	}
-	
-	public static class ArtistItemComparator implements Comparator<ArtistItem> {
-		public int compare(ArtistItem o1, ArtistItem o2) {
-			return String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName());
-		}
-	}
-	
-	public static class AlbumItemComparator implements Comparator<AlbumItem> {
-		public int compare(AlbumItem o1, AlbumItem o2) {
-			return String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName());
 		}
 	}
 }

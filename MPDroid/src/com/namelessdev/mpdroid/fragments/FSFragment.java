@@ -2,8 +2,11 @@ package com.namelessdev.mpdroid.fragments;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.a0z.mpd.Directory;
+import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
@@ -23,7 +26,6 @@ public class FSFragment extends BrowseFragment {
 
 	public FSFragment() {
 		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPD.MPD_SEARCH_FILENAME);
-		items = new ArrayList<String>();
 	}
 
 	@Override
@@ -39,17 +41,17 @@ public class FSFragment extends BrowseFragment {
 	}
 
 	@Override
-	protected void Add(String item) {
+	protected void Add(Item item) {
 		try {
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			Directory ToAdd = currentDirectory.getDirectory(item);
+			Directory ToAdd = currentDirectory.getDirectory(item.getName());
 			if (ToAdd != null) {
 				// Valid directory
 				app.oMPDAsyncHelper.oMPD.getPlaylist().add(ToAdd);
 				Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
 						FSFragment.this.getActivity());
 			} else {
-				Music music = currentDirectory.getFileByTitle(item);
+				Music music = currentDirectory.getFileByTitle(item.getName());
 				if (music != null) {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
 					Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
@@ -77,15 +79,10 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 
-		Collection<Directory> directories = currentDirectory.getDirectories();
-		for (Directory child : directories) {
-			items.add(child.getName());
-		}
-
-		Collection<Music> musics = currentDirectory.getFiles();
-		for (Music music : musics) {
-			items.add(music.getTitle());
-		}
+        List<Item> dirItems=new LinkedList<Item>();
+        dirItems.addAll(currentDirectory.getDirectories());
+        dirItems.addAll(currentDirectory.getFiles());
+        items=dirItems;
 	}
 
 	@Override

@@ -65,6 +65,7 @@
 	<string name="outputsDescription">Enable/Disable MPD-Outputs</string>
 	<string name="serverSettings">Server settings</string>
 	<string name="clientSettings">Client settings</string>
+	<string name="interfaceSettings">Interface settings</string>
 	<string name="songAdded">Song %s added</string>
 	<string name="about">About</string>
 	<string name="aboutDescription">About MPDroid</string>
@@ -123,6 +124,12 @@
 	<string name="streamingManualURL">Use a specific URL for streaming (icecast)</string>
 	<string name="configurationName">Configuration Name</string>
 	<string name="streamingURLDescription">Stream URL (with http://)</string>
+	<string name="sortAlbumsByYear">Album year</string>
+	<string name="sortAlbumsByYearDescription">Sort albums by year</string>
+	<string name="showArtistAlbumCount">Artist album count</string>
+	<string name="showArtistAlbumCountDescription">Show number of albums by artist</string>
+	<string name="showAlbumTrackCount">Album track count</string>
+	<string name="showAlbumTrackCountDescription">Show number of tracks on album</string>
 	<string name="enableLastFM">Download cover art</string>
 	<string name="enableLastFMDescription">Get cover art using last.fm (sends them your song information)</string>
 	<string name="whatsNew">What\'s new ?</string>

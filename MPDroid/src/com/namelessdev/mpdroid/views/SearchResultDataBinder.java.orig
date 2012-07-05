@@ -2,8 +2,6 @@ package com.namelessdev.mpdroid.views;
 
 import java.util.List;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
 import org.a0z.mpd.Music;
 
 import android.content.Context;
@@ -11,6 +9,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.SearchActivity.AlbumItem;
+import com.namelessdev.mpdroid.SearchActivity.ArtistItem;
 
 public class SearchResultDataBinder implements SeparatedListDataBinder {
 
@@ -19,10 +19,10 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
 		//final View separator = targetView.findViewById(R.id.separator_line);
 		if(item instanceof Music) {
 			text1.setText(((Music) item).getTitle());
-		} else if(item instanceof Artist){
-			text1.setText(((Artist) item).getName());
-		} else if(item instanceof Album){
-			text1.setText(((Album) item).getName());
+		} else if(item instanceof ArtistItem){
+			text1.setText(((ArtistItem) item).getName());
+		} else if(item instanceof AlbumItem){
+			text1.setText(((AlbumItem) item).getName());
 		}
 		
 		/*if(position < (items.size() - 1) && (items.get(position + 1) instanceof String)) {

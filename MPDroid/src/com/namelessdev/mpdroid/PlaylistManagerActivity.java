@@ -2,7 +2,9 @@ package com.namelessdev.mpdroid;
 
 import java.util.List;
 
+import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.Playlist;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
@@ -88,17 +90,16 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 		return super.onMenuItemClick(item);
 	}
 
-	@Override
-	protected void Add(String item) {
-		Add(items.indexOf(item));
+	protected void Add(int index) {
+		Add(items.get(index));
 	}
 
-	protected void Add(int index) {
-		String playlist = items.get(index);
-		try {
+	@Override
+    protected void Add(Item item) {
+        Playlist playlist = (Playlist)item;
+        try {
 			MPDApplication app = (MPDApplication) getApplication();
-
-			app.oMPDAsyncHelper.oMPD.getPlaylist().load(playlist);
+			app.oMPDAsyncHelper.oMPD.getPlaylist().load(playlist.getName());
 			Tools.notifyUser(String.format(getResources().getString(R.string.playlistAdded), playlist), this);
 		} catch (MPDServerException e) {
 			// TODO Auto-generated catch block
@@ -112,7 +113,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 	public void asyncUpdate() {
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		try {
-			items = (List<String>) (app.oMPDAsyncHelper.oMPD.getPlaylists(true));
+			items = app.oMPDAsyncHelper.oMPD.getPlaylists();
 		} catch (MPDServerException e) {
 		}
 	}

@@ -78,6 +78,52 @@ public class MPD {
 	private MPDPlaylist playlist;
 	private Directory rootDirectory;
 
+    static private boolean useAlbumArtist=false;
+    static private boolean sortByTrackNumber=true;
+    static private boolean sortAlbumsByYear=false;
+    static private boolean showArtistAlbumCount=false;
+    static private boolean showAlbumTrackCount=false;
+
+    static public boolean useAlbumArtist() {
+            return useAlbumArtist;
+    }
+
+    static public boolean sortAlbumsByYear() {
+            return sortAlbumsByYear;
+    }
+
+    static public boolean sortByTrackNumber() {
+            return sortByTrackNumber;
+    }
+
+    static public boolean showArtistAlbumCount() {
+            return showArtistAlbumCount;
+    }
+
+    static public boolean showAlbumTrackCount() {
+            return showAlbumTrackCount;
+    }
+
+    static public void setUseAlbumArtist(boolean v) {
+            useAlbumArtist=v;
+    }
+
+    static public void setSortByTrackNumber(boolean v) {
+            sortByTrackNumber=v;
+    }
+
+    static public void setSortAlbumsByYear(boolean v) {
+            sortAlbumsByYear=v;
+    }
+
+    static public void setShowArtistAlbumCount(boolean v) {
+            showArtistAlbumCount=v;
+    }
+
+    static public void setShowAlbumTrackCount(boolean v) {
+            showAlbumTrackCount=v;
+    }
+
 	/**
 	 * Constructs a new MPD server controller without connection.
 	 */
@@ -258,6 +304,9 @@ public class MPD {
 	public List<Music> find(String type, String string) throws MPDServerException {
 		return genericSearch(MPD_CMD_FIND, type, string);
 	}
+    public List<Music> find(String[] args) throws MPDServerException {
+        return genericSearch(MPD_CMD_FIND, args);
+    }
 
 	// Returns a pattern where all punctuation characters are escaped. 
 	private static Pattern escaper = Pattern.compile("([^a-zA-z0-9])"); 
@@ -268,6 +317,21 @@ public class MPD {
 		List<String> response = mpdConnection.sendCommand(searchCommand, type, escaper.matcher(strToFind).replaceAll("\\\\$1"));
 		return Music.getMusicFromList(response);
 	}
+
+    private List<Music> genericSearch(String searchCommand, String args[]) throws MPDServerException {
+        if (!isConnected())
+        	throw new MPDServerException("MPD Connection is not established");
+
+        String[] fixed=null;
+
+        if (null!=args) {
+        	fixed=new String[args.length];
+        	for (int i=0; i<args.length; ++i) {
+        		fixed[i]=escaper.matcher(args[i]).replaceAll("\\\\$1");
+        	}
+    	}
+        return Music.getMusicFromList(mpdConnection.sendCommand(searchCommand, fixed));
+    }
 
 	/**
 	 * Retrieves a database directory listing of the base of the database directory path.
@@ -413,7 +477,7 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 */
 	public List<String> listAlbums() throws MPDServerException {
-		return listAlbums(null, true);
+		return listAlbums(null, false);
 	}
 
 	/**
@@ -458,6 +522,60 @@ public class MPD {
 			Collections.sort(result);
 		
 		return result;
+	}
+
+	private Integer[] getAlbumDetails(String artist, String album, boolean useAlbumArtistTag) throws MPDServerException {
+		if (!isConnected()) {
+			throw new MPDServerException("MPD Connection is not established");
+		}
+		Integer[] result = new Integer[3];
+		result[0]=0;
+		result[1]=0;
+		result[2]=0;
+		if (MPD.showAlbumTrackCount()) {
+			String[] args = new String[4];
+			args[0] = useAlbumArtistTag ? MPD_TAG_ALBUM_ARTIST : MPD_TAG_ARTIST;
+			args[1] = artist;
+			args[2] = MPD_TAG_ALBUM;
+			args[3] = album;
+			List<String> list = mpdConnection.sendCommand("count", args);
+			for (String line : list) {
+				if (line.startsWith("songs: ")) {
+					result[0]=Integer.parseInt(line.substring("songs: ".length()));
+				} else if (line.startsWith("playtime: ")) {
+					result[1]=Integer.parseInt(line.substring("playtime: ".length()));
+				}
+			}
+		}
+		if (MPD.sortAlbumsByYear()) {
+			String[] args = new String[6];
+			args[0] = useAlbumArtistTag ? MPD_TAG_ALBUM_ARTIST : MPD_TAG_ARTIST;
+			args[1] = artist;
+			args[2] = MPD_TAG_ALBUM;
+			args[3] = album;
+			args[4] = "track";
+			args[5] = "1";
+			List<Music> songs = find(args);
+			if (null==songs || songs.isEmpty()) {
+				args[5] = "01";
+				songs = find(args);
+			}
+			if (null==songs || songs.isEmpty()) {
+				args[5] = "1";
+				songs = search(args);
+			}
+			if (null!=songs && !songs.isEmpty()) {
+				result[2]=songs.get(0).getDate();
+			}
+		}
+		return result;
+	}
+
+	public int getAlbumCount(String artist, boolean useAlbumArtistTag) throws MPDServerException {
+		if (mpdConnection == null) {
+			throw new MPDServerException("MPD Connection is not established");
+		}
+		return listAlbums(artist, useAlbumArtistTag).size();
 	}
 
 	/**
@@ -646,6 +764,10 @@ public class MPD {
 	public Collection<Music> search(String type, String string) throws MPDServerException {
 		return genericSearch(MPD_CMD_SEARCH, type, string);
 	}
+
+    public List<Music> search(String[] args) throws MPDServerException {
+        return genericSearch(MPD_CMD_SEARCH, args);
+    }
 
 	/**
 	 * Seeks music to the position.
@@ -853,7 +975,7 @@ public class MPD {
 	/**
 	 * Returns a list of all available playlists
 	 */
-	public List<String> getPlaylists() throws MPDServerException {
+	public List<Item> getPlaylists() throws MPDServerException {
 		return getPlaylists(false);
 	}
 
@@ -862,18 +984,18 @@ public class MPD {
 	 * 
 	 * @param sort whether the return list should be sorted
 	 */
-	public List<String> getPlaylists(boolean sort) throws MPDServerException {
+	public List<Item> getPlaylists(boolean sort) throws MPDServerException {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		List<String> result = new ArrayList<String>();
+		List<Item> result = new ArrayList<Item>();
 		List<String> response = mpdConnection.sendCommand(MPD_CMD_LISTPLAYLISTS);
 		for(String line : response) {
 			if(line.startsWith("playlist"))
-				result.add(line.substring("playlist: ".length()));
+				result.add(new Playlist(line.substring("playlist: ".length())));
 		}
 		if (sort)
-			Collections.sort((ArrayList<String>) result, String.CASE_INSENSITIVE_ORDER);
+			Collections.sort(result);
 		
 		return result;
 	}
@@ -890,5 +1012,75 @@ public class MPD {
 			throw new MPDServerException("MPD Connection is not established");
 		
 		mpdConnection.sendCommand(MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
+	}
+
+	public List<Music> getSongs(String artist, String album) throws MPDServerException {
+		boolean haveArtist=null!=artist && artist.length()>0;
+		boolean haveAlbum=null!=album && album.length()>0;
+        String[] search = null;
+
+        if (haveAlbum || haveArtist) {
+        	search=new String[haveAlbum && haveArtist ? 4 : 2];
+        	int pos=0;
+        	if (haveArtist) {
+        		search[pos++]=MPD.useAlbumArtist() ? MPD.MPD_TAG_ALBUM_ARTIST : MPD.MPD_FIND_ARTIST;
+        		search[pos++]=artist;
+        	}
+        	if (haveAlbum) {
+        		search[pos++]=MPD.MPD_FIND_ALBUM;
+        		search[pos++]=album;
+        	}
+        }
+        List<Music> songs=find(search);
+        if (null!=songs) {
+        	 Collections.sort(songs);
+        }
+        return songs;
+	}
+
+	public List<Album> getAlbums(String artist) throws MPDServerException {
+		List<String> albumNames=listAlbums(artist, useAlbumArtist);
+		List<Album> albums = null;
+
+		if (null!=albumNames && !albumNames.isEmpty()) {
+			albums=new ArrayList<Album>();
+			for (String album : albumNames) {
+				int songCount=0;
+				int duration=0;
+				int year=0;
+				if (null!=artist && (MPD.showAlbumTrackCount() || MPD.sortAlbumsByYear())) {
+					try {
+						Integer[] albumDetails=getAlbumDetails(artist, album, MPD.useAlbumArtist());
+						if (null!=albumDetails && 3==albumDetails.length) {
+							songCount=albumDetails[0];
+							duration=albumDetails[1];
+							year=albumDetails[2];
+						}
+					} catch (MPDServerException e) {
+					}
+				}
+				albums.add(new Album(album, songCount, duration, year));
+			}
+		}
+		if (null!=albums) {
+       	 	Collections.sort(albums);
+		}
+		return albums;
+	}
+
+	public List<Artist> getArtists() throws MPDServerException {
+		List<String> artistNames=MPD.useAlbumArtist() ? listAlbumArtists() : listArtists(true);
+		List<Artist> artists = null;
+
+		if (null!=artistNames && !artistNames.isEmpty()) {
+			artists=new ArrayList<Artist>();
+			for (String artist : artistNames) {
+				artists.add(new Artist(artist, MPD.showArtistAlbumCount() ? getAlbumCount(artist, useAlbumArtist) : 0));
+			}
+		}
+		if (null!=artists) {
+       	 	Collections.sort(artists);
+		}
+		return artists;
 	}
 }

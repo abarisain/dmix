@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -23,7 +24,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.tools.Tools;
-public class BrowseActivity extends SherlockListActivity implements OnMenuItemClickListener, AsyncExecListener {
+public abstract class BrowseActivity extends SherlockListActivity implements OnMenuItemClickListener, AsyncExecListener {
 
 	protected int iJobID = -1;
 
@@ -34,7 +35,7 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 	public static final int ADDNREPLACE = 1;
 	public static final int ADDNPLAY = 2;
 
-	protected List<String> items = null;
+	protected List<Item> items = null;
 
 	protected View loadingView;
 	protected TextView loadingTextView;
@@ -137,7 +138,7 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
-		menu.setHeaderTitle(items.get((int) info.id).toString());
+		menu.setHeaderTitle(items.get((int) info.id).mainText());
 		android.view.MenuItem addItem = menu.add(ContextMenu.NONE, ADD, 0, getResources().getString(irAdd));
 		addItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0, R.string.addAndReplace);
@@ -146,16 +147,7 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 		addAndPlayItem.setOnMenuItemClickListener(this);
 	}
 
-	protected void Add(String item) {
-		try {
-			MPDApplication app = (MPDApplication) getApplication();
-			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.find(context, item));
-			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(songs);
-			Tools.notifyUser(String.format(getResources().getString(irAdded), item), this);
-		} catch (MPDServerException e) {
-			e.printStackTrace();
-		}
-	}
+	protected abstract void Add(Item item);
 
 	@Override
 	public boolean onMenuItemClick(android.view.MenuItem item) {
@@ -171,7 +163,7 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 						app.oMPDAsyncHelper.oMPD.stop();
 						app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 
-						Add(items.get((int) info.id).toString());
+						Add(items.get((int) info.id));
 						if (status.equals(MPDStatus.MPD_STATE_PLAYING)) {
 							app.oMPDAsyncHelper.oMPD.play();
 						}
@@ -187,7 +179,7 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
 				@Override
 				public void run() {
-					Add(items.get((int) info.id).toString());
+					Add(items.get((int) info.id));
 				}
 			});
 
@@ -200,7 +192,7 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 					try {
 						MPDPlaylist pl = app.oMPDAsyncHelper.oMPD.getPlaylist();
 						int oldsize = pl.size();
-						Add(items.get((int) info.id).toString());
+						Add(items.get((int) info.id));
 						int id = pl.getByIndex(oldsize).getSongId();
 						app.oMPDAsyncHelper.oMPD.skipToId(id);
 						app.oMPDAsyncHelper.oMPD.play();
@@ -225,7 +217,7 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 	public void updateFromItems() {
 		if (items != null) {
 			//ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-			ArrayIndexerAdapter<String> listAdapter = new ArrayIndexerAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+			ArrayIndexerAdapter listAdapter = new ArrayIndexerAdapter(this, android.R.layout.simple_list_item_1, items);
 			setListAdapter(listAdapter);
 			try {
 				getListView().setEmptyView(noResultView);
@@ -239,6 +231,7 @@ public class BrowseActivity extends SherlockListActivity implements OnMenuItemCl
 		if (iJobID == jobID) {
 			updateFromItems();
 		}
+
 	}
 
 }

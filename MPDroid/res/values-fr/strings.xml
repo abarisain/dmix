@@ -61,6 +61,7 @@
 	<string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
 	<string name="serverSettings">Paramètres serveur</string>
 	<string name="clientSettings">Paramètres client</string>
+	<string name="interfaceSettings">Paramètres d\'interface</string>
 	<string name="songAdded">Chanson %s ajoutée</string>
 	<string name="about">A Propos</string>
 	<string name="aboutDescription">A Propos de MPDroid</string>
@@ -119,6 +120,12 @@
 	<string name="streamingManualURL">Utiliser une URL spécifique pour le streaming (icecast)</string>
 	<string name="configurationName">Nom de la configuration</string>
 	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
+	<string name="sortAlbumsByYear">Année de l\'album</string>
+	<string name="sortAlbumsByYearDescription">Trier les albums par année</string>
+	<string name="showArtistAlbumCount">Nombre d\'albums par l\'artiste</string>
+	<string name="showArtistAlbumCountDescription">Afficher le nombre d\'albums d\'un artiste</string>
+	<string name="showAlbumTrackCount">Numéros de chansons</string>
+	<string name="showAlbumTrackCountDescription">Afficher le numéros des chansons d\'un album</string>
 	<string name="enableLastFM">Télécharger les pochettes</string>
 	<string name="enableLastFMDescription">Obtenir les pochettes via Last.FM (leur envoie les informations sur la chanson courante)</string>
 	<string name="whatsNew">Quoi de neuf ?</string>

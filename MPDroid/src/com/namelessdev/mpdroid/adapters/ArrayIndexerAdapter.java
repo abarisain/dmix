@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.a0z.mpd.Item;
+
 import android.content.Context;
 import android.widget.ArrayAdapter;
 import android.widget.SectionIndexer;
@@ -14,29 +16,26 @@ import android.widget.SectionIndexer;
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
 //Thanks qlimax !
 
-public class ArrayIndexerAdapter<T> extends ArrayAdapter<T> implements SectionIndexer {
+public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIndexer {
 
-	ArrayList<String> elements;
 	HashMap<String, Integer> alphaIndexer;
-
 	String[] sections;
 
 	@SuppressWarnings("unchecked")
-	public ArrayIndexerAdapter(Context context, int textViewResourceId,
-			List<T> objects) {
-		super(context, textViewResourceId, objects);
-		if(!(objects instanceof ArrayList<?>))
-			throw new RuntimeException("Items must be contained in an ArrayList<String>");
-		elements = (ArrayList<String>) objects;
+	public ArrayIndexerAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
+		super(context, textViewResourceId, (List<Item>) items);
+		if (!(items instanceof ArrayList<?>))
+			throw new RuntimeException("Items must be contained in an ArrayList<Item>");
+
 		// here is the tricky stuff
 		alphaIndexer = new HashMap<String, Integer>(); 
 		// in this hashmap we will store here the positions for
 		// the sections
 
-		int size = elements.size();
+		int size = items.size();
 		for (int i = size - 1; i >= 0; i--) {
-			String element = elements.get(i);
-			alphaIndexer.put(element.substring(0, 1).toUpperCase(), i); 
+			Item element = items.get(i);
+			alphaIndexer.put(element.sort().substring(0, 1).toUpperCase(), i);
 		//We store the first letter of the word, and its index.
 		//The Hashmap will replace the value for identical keys are putted in
 		} 
