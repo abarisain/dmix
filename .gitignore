@@ -1,7 +1,11 @@
+/MPDroid/project.properties
 /MPDroid/bin
 /MPDroid/gen
+/MPDroid/.classpath
+/ActionBarSherlock/project.properties
 /ActionBarSherlock/bin
 /ActionBarSherlock/gen
+/ActionBarSherlock/.classpath
 /JMPDComm/JMPDComm.jar
 /JMPDComm/classes
 /lastfm-java/bin
