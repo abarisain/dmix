@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.fragments;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +25,17 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.namelessdev.mpdroid.LibraryTabActivity;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MainMenuActivity;
+import com.namelessdev.mpdroid.PlaylistManagerActivity;
+import com.namelessdev.mpdroid.PlaylistEditActivity;
+import com.namelessdev.mpdroid.PlaylistSaveActivity;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.R.id;
+import com.namelessdev.mpdroid.R.layout;
+import com.namelessdev.mpdroid.R.menu;
+import com.namelessdev.mpdroid.R.string;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener {
@@ -232,7 +243,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			}
 			return true;
 		case R.id.PLM_EditPL:
-			i = new Intent(getActivity(), PlaylistRemoveActivity.class);
+			i = new Intent(getActivity(), PlaylistEditActivity.class);
 			startActivity(i);
 			return true;
 		case R.id.PLM_Manage:

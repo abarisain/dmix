@@ -1,15 +1,11 @@
 package com.namelessdev.mpdroid;
 
-import java.util.List;
-
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.Playlist;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -39,17 +35,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 		ListView list = getListView();
 		registerForContextMenu(list);
 
-		try {
-			Activity activity = this;
-			ActionBar actionBar = activity.getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		} catch (NoClassDefFoundError e) {
-			// Older android
-		} catch (NullPointerException e) {
-
-		} catch (NoSuchMethodError e) {
-
-		}
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		UpdateList();
 	}

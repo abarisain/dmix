@@ -39,7 +39,7 @@
 			<meta-data android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
 		</activity>
-		<activity android:name=".PlaylistRemoveActivity" android:label="@string/playlist" >
+		<activity android:name=".PlaylistEditActivity" android:label="@string/playlist" >
 		</activity>
 		<activity android:name=".PlaylistManagerActivity" android:label="@string/playlist">
 		</activity>

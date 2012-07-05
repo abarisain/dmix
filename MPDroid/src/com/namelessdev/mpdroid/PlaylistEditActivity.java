@@ -11,22 +11,20 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.ListActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 
-public class PlaylistRemoveActivity extends ListActivity implements StatusChangeListener, OnClickListener {
+public class PlaylistEditActivity extends SherlockListActivity implements StatusChangeListener, OnClickListener {
 	private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
 	private List<Music> musics;
 
@@ -75,17 +73,7 @@ public class PlaylistRemoveActivity extends ListActivity implements StatusChange
 		button = (Button) findViewById(R.id.Cancel);
 		button.setOnClickListener(this);
 
-		try {
-			Activity activity = this;
-			ActionBar actionBar = activity.getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		} catch (NoClassDefFoundError e) {
-			// Older android
-		} catch (NullPointerException e) {
-
-		} catch (NoSuchMethodError e) {
-
-		}
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	protected void update() {
