@@ -6,7 +6,7 @@
     >
 
     <!-- <include android:id="@+id/header" layout="@layout/generic_header" /> -->
-    <com.namelessdev.mpdroid.Views.TouchInterceptor android:id="@android:id/list"
+    <com.namelessdev.mpdroid.views.TouchInterceptor android:id="@android:id/list"
         android:layout_width="fill_parent"
 		android:layout_height="0dip"
 		android:layout_weight="1"
