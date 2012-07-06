@@ -13,7 +13,6 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -55,7 +54,7 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.stored_playlist_activity, container, false);
+		View view = inflater.inflate(R.layout.simple_list, container, false);
 		registerForContextMenu((ListView) view.findViewById(android.R.id.list));
 		return view;
 	}
