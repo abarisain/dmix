@@ -50,6 +50,7 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 		super.onActivityCreated(savedInstanceState);
 		app = (MPDApplication) getActivity().getApplication();
 		playlistName=getActivity().getIntent().getStringExtra("playlist");
+		getActivity().setTitle(playlistName);
 	}
 
 	@Override
@@ -62,6 +63,7 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 	protected void update() {
 		try {
 			musics = app.oMPDAsyncHelper.oMPD.getPlaylistSongs(playlistName);
+			songlist = new ArrayList<HashMap<String, Object>>();
 			for (Music m : musics) {
 				if (m == null) {
 					continue;

@@ -1,0 +1,71 @@
+***************
+*** 170,200 ****
+  			MPDApplication app = (MPDApplication) getApplicationContext();
+  			int count = 0;
+  			try {
+  
+- 				/*
+- 				 * If in some future the view will not be closed when this action occures its needed to make a copy of the songlist and remove
+- 				 * the items from the original songlist in this for loop
+- 				 *
+- 				 * And after update the view with ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+- 				 *
+- 				 * But for now neither is nessesary
+- 				 */
+- 				for (HashMap<String, Object> item : songlist) {
+- 					try {
+- 						if (item.get("marked").equals(true)) {
+- 							app.oMPDAsyncHelper.oMPD.getPlaylist().removeById((Integer) item.get("songid"));
+- 							count++;
+- 						}
+- 					} catch (MPDServerException e) {
+- 						Log.e("MPDroid", e.toString());
+  					}
+  				}
+  				Tools.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
+  			} catch (Exception e) {
+  				Log.e("MPDroid", "General: " + e.toString());
+  			}
+  
+- 			this.finish();
+  			break;
+  		case R.id.Cancel:
+  			this.finish();
+--- 177,213 ----
+  			MPDApplication app = (MPDApplication) getApplicationContext();
+  			int count = 0;
+  			try {
++ 				ArrayList<HashMap<String, Object>> copy=new ArrayList<HashMap<String, Object>>();
++ 				copy.addAll(songlist);
++ 
++ 				List<Integer> positions=new LinkedList<Integer>();
++ 				for (HashMap<String, Object> item : copy) {
++ 					if (item.get("marked").equals(true)) {
++ 						positions.add((Integer)item.get("songid"));
++ 						songlist.remove(copy.indexOf(item)-count);
++ 						count++;
++ 					}
++ 				}
++ 				Collections.sort(positions);
+  
++ 				if (isPlayQueue) {
++ 					for (count=0; count<positions.size(); ++count) {
++ 						app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions.get(count));
++ 					}
++ 				} else {
++ 					for (count=0; count<positions.size(); ++count) {
++ 						app.oMPDAsyncHelper.oMPD.removeFromPlaylist(playlistName, positions.get(count)-count);
+  					}
+  				}
++ 				if (copy.size()!=songlist.size()) {
++ 					((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
++ 				}
+  				Tools.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
+  			} catch (Exception e) {
+  				Log.e("MPDroid", "General: " + e.toString());
++ 				update();
+  			}
+  
+  			break;
+  		case R.id.Cancel:
+  			this.finish();
