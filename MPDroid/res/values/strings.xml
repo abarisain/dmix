@@ -19,6 +19,7 @@
 	<string name="loadingAlbums">Loading albums…</string>
 	<string name="loadingArtists">Loading artists…</string>
 	<string name="loadingSongs">Loading songs…</string>
+	<string name="loadingPlaylists">Loading playlists…</string>
 	<string name="serverAddress">Server Address :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Add and Replace</string>
@@ -141,4 +142,6 @@
 	<string name="no_result">No results</string>
 	<string name="backpressToQuit">Press back again to quit</string>
 	<string name="playQueue">Play Queue</string>
+	<string name="deletePlaylistPrompt">Are you sure you wish to delete %s?</string>
+	<string name="failedToDelete">Failed to delete %s</string>
 </resources>

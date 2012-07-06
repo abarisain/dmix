@@ -188,7 +188,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 			// TODO should be atomic
 			MPDStatus status = this.mpd.getStatus();
 			List<String> response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_LIST);
-			List<Music> playlist = Music.getMusicFromList(response);
+			List<Music> playlist = Music.getMusicFromList(response, false);
 
 			list.clear();
 			list.addAll(playlist);
@@ -214,7 +214,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 		// TODO should be atomic
 		MPDStatus status = this.mpd.getStatus();
 		List<String> response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CHANGES, Integer.toString(playlistVersion));
-		List<Music> changes = Music.getMusicFromList(response);
+		List<Music> changes = Music.getMusicFromList(response, false);
 		
 		int newLength = status.getPlaylistLength();
 		int oldLength = this.list.size();

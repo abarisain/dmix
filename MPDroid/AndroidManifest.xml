@@ -45,6 +45,7 @@
 		</activity>
 		<activity android:name=".PlaylistSaveActivity" android:label="@string/playlist">
 		</activity>
+		<activity android:name=".StoredPlaylistActivity" android:label="@string/playlist"/>
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		<activity android:name=".WifiConnectionSettings"
 			android:label="@string/settings" android:theme="@style/AppTheme.ActionBar" />

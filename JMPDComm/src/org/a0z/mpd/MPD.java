@@ -305,7 +305,7 @@ public class MPD {
 		return genericSearch(MPD_CMD_FIND, type, string);
 	}
     public List<Music> find(String[] args) throws MPDServerException {
-        return genericSearch(MPD_CMD_FIND, args);
+        return genericSearch(MPD_CMD_FIND, args, true);
     }
 
 	// Returns a pattern where all punctuation characters are escaped. 
@@ -315,10 +315,10 @@ public class MPD {
 			throw new MPDServerException("MPD Connection is not established");
 		
 		List<String> response = mpdConnection.sendCommand(searchCommand, type, escaper.matcher(strToFind).replaceAll("\\\\$1"));
-		return Music.getMusicFromList(response);
+		return Music.getMusicFromList(response, true);
 	}
 
-    private List<Music> genericSearch(String searchCommand, String args[]) throws MPDServerException {
+    private List<Music> genericSearch(String searchCommand, String args[], boolean sort) throws MPDServerException {
         if (!isConnected())
         	throw new MPDServerException("MPD Connection is not established");
 
@@ -330,7 +330,7 @@ public class MPD {
         		fixed[i]=escaper.matcher(args[i]).replaceAll("\\\\$1");
         	}
     	}
-        return Music.getMusicFromList(mpdConnection.sendCommand(searchCommand, fixed));
+        return Music.getMusicFromList(mpdConnection.sendCommand(searchCommand, fixed), sort);
     }
 
 	/**
@@ -766,7 +766,7 @@ public class MPD {
 	}
 
     public List<Music> search(String[] args) throws MPDServerException {
-        return genericSearch(MPD_CMD_SEARCH, args);
+        return genericSearch(MPD_CMD_SEARCH, args, true);
     }
 
 	/**
@@ -1082,5 +1082,25 @@ public class MPD {
        	 	Collections.sort(artists);
 		}
 		return artists;
+	}
+
+	public List<Music> getPlaylistSongs(String playlistName) throws MPDServerException {
+		String args[]=new String[1];
+		args[0]=playlistName;
+		List<Music> music=genericSearch("listplaylistinfo", args, false);
+		
+		for (int i=0; i<music.size(); ++i) {
+			music.get(i).setSongId(i);
+		}
+
+		return music;
+	}
+
+	public void movePlaylistSong(String playlistName, int from, int to) throws MPDServerException {
+		getMpdConnection().sendCommand("playlistmove", escaper.matcher(playlistName).replaceAll("\\\\$1"), Integer.toString(from), Integer.toString(to));
+	}
+
+	public void removeFromPlaylist(String playlistName, Integer pos) throws MPDServerException {
+		getMpdConnection().sendCommand("playlistdelete", escaper.matcher(playlistName).replaceAll("\\\\$1"), Integer.toString(pos));
 	}
 }

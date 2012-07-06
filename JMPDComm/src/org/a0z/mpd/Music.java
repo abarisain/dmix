@@ -109,7 +109,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 		this.parent = null;
 	}
 	
-	public static List<Music> getMusicFromList(List<String> response) {
+	public static List<Music> getMusicFromList(List<String> response, boolean sort) {
 		ArrayList<Music> result = new ArrayList<Music>();
 		LinkedList<String> lineCache = new LinkedList<String>();
 		
@@ -127,7 +127,9 @@ public class Music extends Item implements FilesystemTreeEntry {
 			result.add(new Music(lineCache));
 		}
 
-		Collections.sort(result, new MusicTitleComparator());
+		if (sort) {
+			Collections.sort(result);
+		}
 		
 		return result;
 	}
@@ -367,6 +369,9 @@ public class Music extends Item implements FilesystemTreeEntry {
 		parent = directory;
 	}
 
+	public void setSongId(int value) {
+		songId = value;
+	}
 
 	/**
 	 * Copies, artist, album, title, time, totalTracks and track from another <code>music</code>.
@@ -439,6 +444,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 	public int compareTo(Item o) {
 		if (o instanceof Music) {
 			Music om = (Music) o;
+			
+			if (songId!=om.songId) {
+				return songId < om.songId ? -1 : 1;
+			}
 			int compare = compare(getArtist(), om.getArtist());
 
 			if (0 != compare) {
