@@ -7,11 +7,14 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.SongDataBinder;
 
 public class SongsFragment extends BrowseFragment {
 
@@ -71,5 +74,27 @@ public class SongsFragment extends BrowseFragment {
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	protected ListAdapter getCustomListAdapter() {
+		if(items != null) {
+			Music song;
+			boolean differentArtists = false;
+			String lastArtist = null;
+			for(Item item : items) {
+				song = (Music) item;
+				if(lastArtist == null) {
+					lastArtist = song.getArtist();
+					continue;
+				}
+				if(!lastArtist.equalsIgnoreCase(song.getArtist())) {
+					differentArtists = true;
+					break;
+				}
+			}
+			return new ArrayIndexerAdapter(getActivity(), new SongDataBinder(differentArtists), items);
+		}
+		return super.getCustomListAdapter();
 	}
 }

@@ -40,6 +40,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
 	@SuppressWarnings("unchecked")
 	public ArrayIndexerAdapter(Context context, ArrayIndexerDataBinder dataBinder, List<? extends Item> items) {
 		super(context, 0, (List<Item>) items);
+		this.dataBinder = dataBinder;
 		init(context, items);
 	}
 	
@@ -144,6 +145,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
 
 		if(convertView == null) {
 			convertView = inflater.inflate(dataBinder.getLayoutId(), parent, false);
+			convertView = dataBinder.onLayoutInflation(context, convertView, items);
 		}
 		
 		dataBinder.onDataBind(context, convertView, items, items.get(position), position);
@@ -153,6 +155,9 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
 	
 	@Override
 	public boolean isEnabled(int position) {
+		if(dataBinder == null) {
+			return super.isEnabled(position);
+		}
 		return dataBinder.isEnabled(position, items, getItem(position));
 	}
 	

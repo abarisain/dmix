@@ -46,8 +46,9 @@ public class SongDataBinder implements ArrayIndexerDataBinder {
 	}
 
 	@Override
-	public void onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
+	public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
 		targetView.findViewById(R.id.track_artist).setVisibility(showArtist ? View.VISIBLE : View.GONE);
+		return targetView;
 	}
 
 }
