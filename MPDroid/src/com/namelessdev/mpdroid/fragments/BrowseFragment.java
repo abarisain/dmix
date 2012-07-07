@@ -17,6 +17,7 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -205,9 +206,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	 */
 	public void updateFromItems() {
 		if (items != null) {
-			//ListViewButtonAdapter<String> listAdapter = new ListViewButtonAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
-			ArrayIndexerAdapter listAdapter = new ArrayIndexerAdapter(getActivity(), android.R.layout.simple_list_item_1, items);
-			setListAdapter(listAdapter);
+			setListAdapter(getCustomListAdapter());
 			try {
 				getListView().setEmptyView(noResultView);
 				loadingView.setVisibility(View.GONE);
@@ -215,6 +214,10 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		}
 	}
 
+	private ListAdapter getCustomListAdapter() {
+		return new ArrayIndexerAdapter(getActivity(), android.R.layout.simple_list_item_1, items);
+	}
+	
 	@Override
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {
