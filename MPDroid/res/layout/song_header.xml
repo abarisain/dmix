@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:clickable="false"
+  android:focusable="false" >
+    <TextView 
+	    android:id="@+id/tracks_artist"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:ellipsize="end"
+		android:singleLine="true"
+		android:layout_marginTop="8dip"
+		android:layout_marginBottom="5dip"
+		android:layout_marginLeft="8dip"
+	    android:textAppearance="?android:attr/textAppearanceMedium"
+	/>
+    <TextView 
+	    android:id="@+id/tracks_info"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:ellipsize="end"
+		android:singleLine="true"
+		android:layout_marginLeft="8dip"
+		android:layout_marginBottom="10dip"
+	    android:textAppearance="?android:attr/textAppearanceSmall"
+	/>
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/list_separator" />
+    
+</LinearLayout>

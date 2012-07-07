@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -42,6 +43,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	protected View loadingView;
 	protected TextView loadingTextView;
 	protected View noResultView;
+	protected ListView list;
 
 	String context;
 	int irAdd, irAdded;
@@ -90,6 +92,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.browse, container, false);
+		list = (ListView) view.findViewById(android.R.id.list);
 		loadingView = view.findViewById(R.id.loadingLayout);
 		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
 		noResultView = view.findViewById(R.id.noResultLayout);

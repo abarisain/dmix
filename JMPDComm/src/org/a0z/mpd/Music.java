@@ -157,7 +157,16 @@ public class Music extends Item implements FilesystemTreeEntry {
 	 * @return artist name.
 	 */
 	public String getArtist() {
-		return MPD.useAlbumArtist() && null!=albumartist ? albumartist : artist;
+		return artist;
+	}
+	
+	/**
+	 * Retrieves album artist name.
+	 * 
+	 * @return album artist name.
+	 */
+	public String getAlbumArtist() {
+		return albumartist;
 	}
 
 	/**
