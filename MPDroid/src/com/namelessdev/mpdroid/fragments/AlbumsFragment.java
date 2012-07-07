@@ -7,12 +7,15 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.SongsActivity;
+import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.AlbumDataBinder;
 
 public class AlbumsFragment extends BrowseFragment {
 	private MPDApplication app;
@@ -52,6 +55,14 @@ public class AlbumsFragment extends BrowseFragment {
 		intent.putExtra("album", items.get(position).getName());
 		intent.putExtra("artist", getActivity().getIntent().getStringExtra("artist"));
 		startActivityForResult(intent, -1);
+	}
+	
+	@Override
+	protected ListAdapter getCustomListAdapter() {
+		if(items != null) {
+			return new ArrayIndexerAdapter(getActivity(), new AlbumDataBinder(), items);
+		}
+		return super.getCustomListAdapter();
 	}
 
 	@Override
