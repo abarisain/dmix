@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid.views;
+package com.namelessdev.mpdroid.adapters;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.views.SeparatedListDataBinder;
 
 /**
  * 

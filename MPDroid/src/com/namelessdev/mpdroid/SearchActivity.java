@@ -23,10 +23,10 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
-import com.namelessdev.mpdroid.views.SeparatedListAdapter;
 
 public class SearchActivity extends SherlockListActivity implements OnMenuItemClickListener, AsyncExecListener {
 	public static final int MAIN = 0;
