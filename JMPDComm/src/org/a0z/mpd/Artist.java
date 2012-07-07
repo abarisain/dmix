@@ -49,7 +49,7 @@ public class Artist extends Item {
 				return 1;
 			}
 			*/
-			return sort().compareTo(oa.sort());
+			return sort().compareToIgnoreCase(oa.sort());
 		}
 
 		return super.compareTo(o);
