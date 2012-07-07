@@ -9,4 +9,5 @@
 	<color name="transparent">#00000000</color>
     <color name="compatactionbar_separator">#22ffffff</color>
     <color name="appwidget_text">#ffffffff</color>
+    <color name="list_item_horizontal_separator">#FF292929</color>
 </resources>
