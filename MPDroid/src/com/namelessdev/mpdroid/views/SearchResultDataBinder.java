@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 
 public class SearchResultDataBinder implements SeparatedListDataBinder {
 

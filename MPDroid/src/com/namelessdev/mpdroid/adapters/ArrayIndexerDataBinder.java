@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid.views;
+package com.namelessdev.mpdroid.adapters;
 
 import java.util.List;
 
