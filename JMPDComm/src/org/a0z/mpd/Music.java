@@ -422,7 +422,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 	
 	@Override
 	public String mainText() {
-		return track < 0 || !MPD.sortByTrackNumber() ? getTitle() : ((track < 10 ? "0" + track : track) + " " + getTitle());
+		return getTitle();
 	}
 
 	@Override
@@ -448,6 +448,19 @@ public class Music extends Item implements FilesystemTreeEntry {
 			if (songId!=om.songId) {
 				return songId < om.songId ? -1 : 1;
 			}
+			
+			if (MPD.sortByTrackNumber()) {
+				if (disc != om.disc) {
+					return disc < om.disc ? -1 : 1;
+				}
+				if (track != om.track) {
+					return track < om.track ? -1 : 1;
+				}
+				if (time != om.time) {
+					return time < om.time ? -1 : 1;
+				}
+			}
+			
 			int compare = compare(getArtist(), om.getArtist());
 
 			if (0 != compare) {
@@ -464,17 +477,6 @@ public class Music extends Item implements FilesystemTreeEntry {
 				return date < om.date ? -1 : 1;
 			}
 
-			if (MPD.sortByTrackNumber()) {
-				if (disc != om.disc) {
-					return disc < om.disc ? -1 : 1;
-				}
-				if (track != om.track) {
-					return track < om.track ? -1 : 1;
-				}
-				if (time != om.time) {
-					return time < om.time ? -1 : 1;
-				}
-			}
 			compare = compare(getTitle(), om.getTitle());
 			if (0 != compare) {
 				return compare;
