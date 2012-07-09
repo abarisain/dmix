@@ -22,7 +22,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.LibraryTabActivity;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.PlaylistEditActivity;
 import com.namelessdev.mpdroid.PlaylistSaveActivity;
 import com.namelessdev.mpdroid.R;
@@ -187,17 +186,8 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Menu actions...
+		Intent i;
 		switch (item.getItemId()) {
-		case R.id.PLM_MainMenu:
-			Intent i = new Intent(getActivity(), MainMenuActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			return true;
-		case R.id.PLM_LibTab:
-			i = new Intent(getActivity(), LibraryTabActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			return true;
 		case R.id.PLM_Clear:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();

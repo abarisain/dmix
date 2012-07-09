@@ -1,6 +1,11 @@
 package com.namelessdev.mpdroid;
 
+import org.a0z.mpd.MPD;
+
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,12 +19,27 @@ import android.widget.ArrayAdapter;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
+import com.namelessdev.mpdroid.providers.ServerList;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class MainMenuActivity extends SherlockFragmentActivity implements OnNavigationListener {
 
+	public static final int PLAYLIST = 1;
+
+	public static final int ARTISTS = 2;
+
+	public static final int SETTINGS = 5;
+
+	public static final int STREAM = 6;
+
+	public static final int LIBRARY = 7;
+
+	public static final int CONNECT = 8;
+	
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
      * sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which will
@@ -170,4 +190,90 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
         }
     }
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		getSupportMenuInflater().inflate(R.menu.mpd_mainmenu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		//Reminder : never disable buttons that are shown as actionbar actions here
+		super.onPrepareOptionsMenu(menu);
+		MPDApplication app = (MPDApplication) this.getApplication();
+		MPD mpd = app.oMPDAsyncHelper.oMPD;
+		if (!mpd.isConnected()) {
+			if (menu.findItem(CONNECT) == null) {
+				menu.add(0, CONNECT, 0, R.string.connect);
+			}
+		} else {
+			if (menu.findItem(CONNECT) != null) {
+				menu.removeItem(CONNECT);
+			}
+		}
+		return true;
+	}
+
+	private void openLibrary() {
+		final Intent i = new Intent(this, LibraryTabActivity.class);
+		startActivity(i);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		Intent i = null;
+
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.menu_search:
+			this.onSearchRequested();
+			return true;
+		case R.id.GMM_LibTab:
+			openLibrary();
+			return true;
+		case R.id.GMM_Settings:
+			i = new Intent(this, SettingsActivity.class);
+			startActivityForResult(i, SETTINGS);
+			return true;
+		case CONNECT:
+			((MPDApplication) this.getApplication()).connect();
+			return true;
+		case R.id.GMM_Stream:
+			if (((MPDApplication) this.getApplication()).getApplicationState().streamingMode) { // yeah, yeah getApplication for that may be ugly but
+																						// ...
+				i = new Intent(this, StreamingService.class);
+				i.setAction("com.namelessdev.mpdroid.DIE");
+				this.startService(i);
+				((MPDApplication) this.getApplication()).getApplicationState().streamingMode = false;
+				// Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
+			} else {
+				i = new Intent(this, StreamingService.class);
+				i.setAction("com.namelessdev.mpdroid.START_STREAMING");
+				this.startService(i);
+				((MPDApplication) this.getApplication()).getApplicationState().streamingMode = true;
+				// Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
+			}
+			return true;
+		case R.id.GMM_bonjour:
+			ContentResolver cr = this.getContentResolver();
+			ContentValues values = new ContentValues();
+			values.put(ServerList.ServerColumns.NAME, "bite1");
+			values.put(ServerList.ServerColumns.HOST, "bite2");
+			values.put(ServerList.ServerColumns.PASSWORD, "");
+			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
+			values = new ContentValues();
+			values.put(ServerList.ServerColumns.NAME, "bite3");
+			values.put(ServerList.ServerColumns.HOST, "bite4");
+			values.put(ServerList.ServerColumns.PASSWORD, "");
+			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
+			startActivity(new Intent(this, ServerListActivity.class));
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+
+	}
+    
 }

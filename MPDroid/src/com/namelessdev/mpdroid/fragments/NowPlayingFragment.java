@@ -11,8 +11,6 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -42,19 +40,12 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher.ViewFactory;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.namelessdev.mpdroid.LibraryTabActivity;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.ServerListActivity;
-import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.StreamingService;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
-import com.namelessdev.mpdroid.providers.ServerList;
+import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 
 public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
 		OnSharedPreferenceChangeListener {
@@ -62,18 +53,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public static final String COVER_BASE_URL = "http://%s/music/";
 
 	public static final String PREFS_NAME = "mpdroid.properties";
-
-	public static final int PLAYLIST = 1;
-
-	public static final int ARTISTS = 2;
-
-	public static final int SETTINGS = 5;
-
-	public static final int STREAM = 6;
-
-	public static final int LIBRARY = 7;
-
-	public static final int CONNECT = 8;
 
 	private TextView artistNameText;
 
@@ -123,9 +102,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
-		case SETTINGS:
-			break;
-
 		default:
 			break;
 		}
@@ -138,7 +114,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		// WifiManager wifi = (WifiManager)getSystemService(WIFI_SERVICE);
 		// myLogger.log(Level.INFO, "onCreate");
 		handler = new Handler();
-		setHasOptionsMenu(true);
+		setHasOptionsMenu(false);
 		getActivity().setTitle(getResources().getString(R.string.nowPlaying));
 
 		// registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
@@ -471,98 +447,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-		}
-
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.mpd_mainmenu, menu);
-
-		/*
-		 * menu.add(0, LIBRARY, 1, R.string.libraryTabActivity).setIcon(R.drawable.ic_menu_music_library); menu.add(0, PLAYLIST, 3,
-		 * R.string.playlist).setIcon(R.drawable.ic_menu_pmix_playlist); menu.add(0, STREAM, 4,
-		 * R.string.stream).setIcon(android.R.drawable.ic_menu_upload_you_tube); menu.add(0, SETTINGS, 5,
-		 * R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
-		 */
-		// return result;
-	}
-
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		//Reminder : never disable buttons that are shown as actionbar actions here
-		super.onPrepareOptionsMenu(menu);
-		MPDApplication app = (MPDApplication) getActivity().getApplication();
-		MPD mpd = app.oMPDAsyncHelper.oMPD;
-		if (!mpd.isConnected()) {
-			if (menu.findItem(CONNECT) == null) {
-				menu.add(0, CONNECT, 0, R.string.connect);
-			}
-		} else {
-			if (menu.findItem(CONNECT) != null) {
-				menu.removeItem(CONNECT);
-			}
-		}
-	}
-
-	private void openLibrary() {
-		final Intent i = new Intent(getActivity(), LibraryTabActivity.class);
-		startActivity(i);
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		Intent i = null;
-
-		// Handle item selection
-		switch (item.getItemId()) {
-		case R.id.menu_search:
-			getActivity().onSearchRequested();
-			return true;
-		case R.id.GMM_LibTab:
-			openLibrary();
-			return true;
-		case R.id.GMM_Settings:
-			i = new Intent(getActivity(), SettingsActivity.class);
-			startActivityForResult(i, SETTINGS);
-			return true;
-		case CONNECT:
-			((MPDApplication) getActivity().getApplication()).connect();
-			return true;
-		case R.id.GMM_Stream:
-			if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) { // yeah, yeah getApplication for that may be ugly but
-																						// ...
-				i = new Intent(getActivity(), StreamingService.class);
-				i.setAction("com.namelessdev.mpdroid.DIE");
-				getActivity().startService(i);
-				((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode = false;
-				// Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
-			} else {
-				i = new Intent(getActivity(), StreamingService.class);
-				i.setAction("com.namelessdev.mpdroid.START_STREAMING");
-				getActivity().startService(i);
-				((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode = true;
-				// Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
-			}
-			return true;
-		case R.id.GMM_bonjour:
-			ContentResolver cr = getActivity().getContentResolver();
-			ContentValues values = new ContentValues();
-			values.put(ServerList.ServerColumns.NAME, "bite1");
-			values.put(ServerList.ServerColumns.HOST, "bite2");
-			values.put(ServerList.ServerColumns.PASSWORD, "");
-			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
-			values = new ContentValues();
-			values.put(ServerList.ServerColumns.NAME, "bite3");
-			values.put(ServerList.ServerColumns.HOST, "bite4");
-			values.put(ServerList.ServerColumns.PASSWORD, "");
-			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
-			startActivity(new Intent(getActivity(), ServerListActivity.class));
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
 		}
 
 	}

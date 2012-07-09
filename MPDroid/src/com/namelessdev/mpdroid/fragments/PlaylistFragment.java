@@ -25,11 +25,8 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.namelessdev.mpdroid.LibraryTabActivity;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.PlaylistEditActivity;
-import com.namelessdev.mpdroid.PlaylistManagerActivity;
 import com.namelessdev.mpdroid.PlaylistSaveActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -215,17 +212,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Menu actions...
+		Intent i;
 		switch (item.getItemId()) {
-		case R.id.PLM_MainMenu:
-			Intent i = new Intent(getActivity(), MainMenuActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			return true;
-		case R.id.PLM_LibTab:
-			i = new Intent(getActivity(), LibraryTabActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			return true;
 		case R.id.PLM_Clear:
 			try {
 				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
@@ -241,17 +229,10 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			i = new Intent(getActivity(), PlaylistEditActivity.class);
 			startActivity(i);
 			return true;
-		case R.id.PLM_Manage:
-			i = new Intent(getActivity(), PlaylistManagerActivity.class);
-			startActivity(i);
-			return true;
 		case R.id.PLM_Save:
 			i = new Intent(getActivity(), PlaylistSaveActivity.class);
 			startActivity(i);
 			return true;
-		case R.id.GMM_LibTab:
-			i = new Intent(getActivity(), LibraryTabActivity.class);
-			startActivity(i);
 		default:
 			return false;
 		}
