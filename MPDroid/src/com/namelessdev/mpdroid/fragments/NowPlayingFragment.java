@@ -536,7 +536,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				String title = null;
 				String album = null;
 				int songMax = 0;
-				if (actSong == null || status.getPlaylistLength() == 0) {
+				boolean noSong=actSong == null || status.getPlaylistLength() == 0;
+				if (noSong) {
 					title = getResources().getString(R.string.noSongInfo);
 				} else {
 					Log.d("MPDroid", "We did find an artist");
@@ -555,7 +556,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				albumNameText.setText(album);
 				progressBarTrack.setMax(songMax);
 				updateStatus(status);
-				if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
+				if (noSong) {
+					lastArtist = artist;
+					lastAlbum = album;
+					trackTime.setText(timeToString(0) + " - " + timeToString(0));
+					onCoverNotFound();
+				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
 					coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
 					if (enableLastFM) {
