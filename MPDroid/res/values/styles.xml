@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="ActionBar" parent="@android:style/Widget.Holo.ActionBar" />
 
     <style name="ActionBar.Dark" parent="@style/ActionBar">
@@ -26,12 +26,13 @@
     </style>
     
     <style name="AppTheme" parent="Theme.Sherlock">
+        <item name="listItemHeight">?android:attr/listPreferredItemHeight</item>
     </style>
     
-    <style name="AppTheme.ActionBar" parent="Theme.Sherlock">
+    <style name="AppTheme.ActionBar" parent="AppTheme">
     </style>
     
-    <style name="AppTheme.Wallpaper" parent="Theme.Sherlock">
+    <style name="AppTheme.Wallpaper" parent="AppTheme">
 		<item name="android:windowBackground">@color/transparent</item> 
         <item name="android:windowShowWallpaper">true</item> 
         <item name="android:colorBackgroundCacheHint">@null</item>
