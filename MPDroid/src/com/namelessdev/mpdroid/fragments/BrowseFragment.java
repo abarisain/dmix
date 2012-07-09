@@ -218,7 +218,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	}
 
 	protected ListAdapter getCustomListAdapter() {
-		return new ArrayIndexerAdapter(getActivity(), android.R.layout.simple_list_item_1, items);
+		return new ArrayIndexerAdapter(getActivity(), R.layout.simple_list_item_1, items);
 	}
 	
 	@Override

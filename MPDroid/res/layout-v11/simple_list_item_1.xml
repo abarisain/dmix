@@ -23,4 +23,5 @@
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
     android:paddingRight="?android:attr/listPreferredItemPaddingRight"
     android:minHeight="?attr/listItemHeight"
+    android:singleLine="true"
 />
