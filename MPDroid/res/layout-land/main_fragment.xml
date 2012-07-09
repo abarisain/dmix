@@ -16,9 +16,9 @@
 </AbsoluteLayout>
 <LinearLayout android:layout_height="wrap_content" android:orientation="vertical"
 	android:layout_width="250dip" android:layout_gravity="center_vertical">
-<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/songName" android:textSize="18sp" android:shadowColor="#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
-<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/artistName" android:textSize="16sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
-<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/albumName" android:textSize="16sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
+<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/songName" android:textSize="18sp" android:shadowColor="#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true"></TextView>
+<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/artistName" android:textSize="16sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true"></TextView>
+<TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/albumName" android:textSize="16sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true"></TextView>
 
 <TextView android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="left" android:id="@+id/trackTime" android:textSize="12sp" android:shadowColor = "#FF000000" android:textColor="#FFFFFFFF" android:shadowRadius="3.0"></TextView>
 <TextView android:layout_height="wrap_content" android:gravity="center" android:layout_width="fill_parent" android:text="@string/volume" android:visibility="gone" 

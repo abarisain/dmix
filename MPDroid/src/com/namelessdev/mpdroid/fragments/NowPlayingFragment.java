@@ -178,6 +178,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		artistNameText = (TextView) view.findViewById(R.id.artistName);
 		albumNameText = (TextView) view.findViewById(R.id.albumName);
 		songNameText = (TextView) view.findViewById(R.id.songName);
+		artistNameText.setSelected(true);
+		albumNameText.setSelected(true);
+		songNameText.setSelected(true);
 
 		progressBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
 		progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);

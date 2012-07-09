@@ -11,7 +11,8 @@
 		android:textColor="#FFFFFFFF"
 		android:paddingTop="10dip"
 		android:paddingLeft="10dip"
-		android:paddingRight="10dip"/>
+		android:paddingRight="10dip"
+		android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true" />
 	<!--
 		Don't Warp it, we need a better Layout management (resize the
 		covererrorStrings) android:layout_height="wrap_content"
@@ -34,13 +35,13 @@
 		android:layout_height="wrap_content" android:text="" android:textSize="20sp"
 		android:singleLine="true" android:gravity="center"
 		android:shadowColor="#FF000000" android:shadowRadius="3.0"
-		android:textColor="#FFFFFFFF" />
+		android:textColor="#FFFFFFFF" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true" />
 
 	<TextView android:id="@+id/albumName" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:singleLine="true"
 		android:text="" android:textSize="16sp" android:gravity="center"
 		android:shadowColor="#FF000000" android:shadowRadius="3.0"
-		android:textColor="#FFFFFFFF" />
+		android:textColor="#FFFFFFFF" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true"/>
 	<!--
 		Don't Warp it, we need a better Layout management (resize the
 		covererrorStrings) android:layout_height="wrap_content"
