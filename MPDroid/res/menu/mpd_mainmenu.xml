@@ -4,19 +4,19 @@
     <item
         android:id="@+id/GMM_LibTab"
         android:icon="@drawable/ic_menu_library"
-        android:showAsAction="always"
-        android:title="@string/libraryTabActivity">
+        android:showAsAction="ifRoom"
+        android:title="@string/libraryTabActivity" android:orderInCategory="2">
     </item>
     <item
         android:id="@+id/menu_search"
         android:icon="@android:drawable/ic_menu_search"
         android:showAsAction="ifRoom"
-        android:title="@string/search">
+        android:title="@string/search" android:orderInCategory="3">
 	</item>
     <item
         android:id="@+id/GMM_Stream"
         android:icon="@android:drawable/ic_menu_upload_you_tube"
-        android:title="@string/stream">
+        android:title="@string/stream" android:orderInCategory="3">
     </item>
     <item
         android:id="@+id/GMM_Settings"

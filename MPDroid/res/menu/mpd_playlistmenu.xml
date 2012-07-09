@@ -5,7 +5,7 @@
         android:id="@+id/PLM_EditPL"
         android:icon="@android:drawable/ic_menu_edit"
         android:showAsAction="always|withText"
-        android:title="@string/editPlaylist">
+        android:title="@string/editPlaylist" android:orderInCategory="1">
     </item>
     <item
         android:id="@+id/PLM_Save"
