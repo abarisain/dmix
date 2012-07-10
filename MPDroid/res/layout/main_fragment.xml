@@ -87,7 +87,7 @@
 
 		<LinearLayout android:orientation="vertical"
 			android:layout_width="wrap_content" android:gravity="center"
-			android:layout_height="fill_parent">
+			android:layout_height="fill_parent" android:visibility="invisible" >
 
 			<TextView android:id="@+id/volume" android:layout_width="fill_parent"
 				android:textColor="#FFFFFFFF" android:layout_height="wrap_content"

@@ -3,20 +3,32 @@
 
     <item
         android:id="@+id/GMM_LibTab"
-        android:icon="@drawable/ic_menu_library"
+        android:icon="@drawable/ic_action_library"
         android:showAsAction="ifRoom"
         android:title="@string/libraryTabActivity" android:orderInCategory="2">
     </item>
     <item
         android:id="@+id/menu_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_action_search"
         android:showAsAction="ifRoom"
-        android:title="@string/search" android:orderInCategory="3">
+        android:title="@string/search" android:orderInCategory="5">
 	</item>
     <item
         android:id="@+id/GMM_Stream"
         android:icon="@android:drawable/ic_menu_upload_you_tube"
-        android:title="@string/stream" android:orderInCategory="3">
+        android:title="@string/stream" android:orderInCategory="6">
+    </item>
+    <item
+        android:id="@+id/GMM_Outputs"
+        android:icon="@drawable/ic_action_output"
+        android:showAsAction="ifRoom"
+        android:title="@string/outputs" android:orderInCategory="4" >
+    </item>
+    <item
+        android:id="@+id/GMM_Volume"
+        android:icon="@drawable/ic_action_volume"
+		android:showAsAction="ifRoom"
+        android:title="@string/volume" android:orderInCategory="3" >
     </item>
     <item
         android:id="@+id/GMM_Settings"

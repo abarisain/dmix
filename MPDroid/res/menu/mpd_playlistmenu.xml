@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/PLM_EditPL"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@drawable/ic_action_edit"
         android:showAsAction="always|withText"
         android:title="@string/editPlaylist" android:orderInCategory="1">
     </item>
