@@ -144,7 +144,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			e.printStackTrace();
 		}
 
-		final MPDApplication app = (MPDApplication) getActivity().getApplication();
+		/*final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		new Thread(new Runnable() {
 			
 			@Override
@@ -162,7 +162,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					e.printStackTrace();
 				}
 			}
-		}).start();
+		}).start();*/
 	}
 
 	@Override
@@ -424,21 +424,11 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		try {
 			switch (keyCode) {
 			case KeyEvent.KEYCODE_VOLUME_UP:
-				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
-					return false;
-				} else {
-					//progressBarVolume.incrementProgressBy(VOLUME_STEP);
-					app.oMPDAsyncHelper.oMPD.adjustVolume(VOLUME_STEP);
-					return true;
-				}
+				app.oMPDAsyncHelper.oMPD.adjustVolume(VOLUME_STEP);
+				return true;
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
-				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
-					return false;
-				} else {
-					//progressBarVolume.incrementProgressBy(-VOLUME_STEP);
-					app.oMPDAsyncHelper.oMPD.adjustVolume(-VOLUME_STEP);
-					return true;
-				}
+				app.oMPDAsyncHelper.oMPD.adjustVolume(-VOLUME_STEP);
+				return true;
 			case KeyEvent.KEYCODE_DPAD_LEFT:
 				app.oMPDAsyncHelper.oMPD.previous();
 				return true;
