@@ -11,23 +11,23 @@
         android:id="@+id/menu_search"
         android:icon="@drawable/ic_action_search"
         android:showAsAction="ifRoom"
-        android:title="@string/search" android:orderInCategory="5">
+        android:title="@string/search" android:orderInCategory="4">
 	</item>
     <item
         android:id="@+id/GMM_Stream"
         android:icon="@android:drawable/ic_menu_upload_you_tube"
-        android:title="@string/stream" android:orderInCategory="6">
+        android:title="@string/stream" android:orderInCategory="5">
     </item>
     <item
         android:id="@+id/GMM_Outputs"
         android:icon="@drawable/ic_action_output"
         android:showAsAction="ifRoom"
-        android:title="@string/outputs" android:orderInCategory="4" >
+        android:title="@string/outputs" android:orderInCategory="3" >
     </item>
     <item
         android:id="@+id/GMM_Volume"
         android:icon="@drawable/ic_action_volume"
-		android:showAsAction="ifRoom"
+		android:showAsAction="ifRoom" android:visible="false"
         android:title="@string/volume" android:orderInCategory="3" >
     </item>
     <item

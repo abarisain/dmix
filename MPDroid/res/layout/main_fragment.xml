@@ -1,107 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent" android:gravity="center"
-	>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    tools:ignore="ContentDescription" >
 
-	<TextView android:id="@+id/songName" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:singleLine="true"
-		android:text="" android:gravity="center" android:textSize="20sp"
-		android:shadowColor="#FF000000" android:shadowRadius="3.0"
-		android:textColor="#FFFFFFFF"
-		android:paddingTop="10dip"
-		android:paddingLeft="10dip"
-		android:paddingRight="10dip"
-		android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true" />
-	<!--
-		Don't Warp it, we need a better Layout management (resize the
-		covererrorStrings) android:layout_height="wrap_content"
-	-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="4dip"
+        android:layout_weight="1" >
 
+        <ImageSwitcher
+            android:id="@+id/albumCover"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_centerInParent="true" >
+        </ImageSwitcher>
 
-	<AbsoluteLayout android:id="@+id/absolutLayout"
-		android:layout_width="200dip" android:layout_height="0dip"
-		android:layout_weight="1" android:layout_margin="10dp"
-		android:padding="0px">
-		<ImageSwitcher android:id="@+id/albumCover"
-			android:layout_width="200dip" android:layout_height="fill_parent"
-			android:layout_x="0px" android:layout_y="0px"></ImageSwitcher>
-		<ProgressBar android:id="@+id/albumCoverProgress"
-			android:layout_width="60dp" android:layout_height="60dp"
-			android:layout_x="70dp" android:layout_y="70dp" android:visible="false"
-			android:layout_alignParentTop="@+id/albumCover" />
-	</AbsoluteLayout>
-	<TextView android:id="@+id/artistName" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:text="" android:textSize="20sp"
-		android:singleLine="true" android:gravity="center"
-		android:shadowColor="#FF000000" android:shadowRadius="3.0"
-		android:textColor="#FFFFFFFF" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true" />
+        <ProgressBar
+            android:id="@+id/albumCoverProgress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visible="false" />
+    </RelativeLayout>
 
-	<TextView android:id="@+id/albumName" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:singleLine="true"
-		android:text="" android:textSize="16sp" android:gravity="center"
-		android:shadowColor="#FF000000" android:shadowRadius="3.0"
-		android:textColor="#FFFFFFFF" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true"/>
-	<!--
-		Don't Warp it, we need a better Layout management (resize the
-		covererrorStrings) android:layout_height="wrap_content"
-	-->
-	<TextView android:id="@+id/trackTime" android:layout_height="wrap_content"
-		android:textSize="14sp" android:layout_width="fill_parent"
-		android:gravity="center" android:shadowColor="#FF000000"
-		android:textColor="#FFFFFFFF" android:shadowRadius="3.0" />
-	<LinearLayout android:orientation="horizontal"
-		android:layout_width="fill_parent" android:gravity="center"
-		android:layout_height="wrap_content">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dip"
+        android:paddingBottom="2dip"
+        android:paddingLeft="10dip"
+        android:paddingRight="10dip" >
 
-		<ImageButton android:id="@+id/prev" android:layout_width="60dp"
-			android:layout_height="50dp" android:src="@android:drawable/ic_media_previous"
-			android:background="@drawable/button_bg" />
-		<ImageButton android:id="@+id/back" android:layout_width="60dp"
-			android:layout_height="0dp" android:src="@android:drawable/ic_media_rew"
-			android:visibility="gone" />
-		<ImageButton android:id="@+id/playpause"
-			android:layout_width="60dp" android:layout_height="50dp"
-			android:src="@android:drawable/ic_media_play" android:layout_margin="10dp"
-			android:background="@drawable/button_bg" />
-		<ImageButton android:id="@+id/forward"
-			android:layout_width="60dp" android:layout_height="60dp"
-			android:src="@android:drawable/ic_media_ff" android:visibility="gone" />
-		<ImageButton android:id="@+id/next" android:layout_width="60dp"
-			android:layout_height="50dp" android:src="@android:drawable/ic_media_next"
-			android:layout_margin="0dp" android:background="@drawable/button_bg" />
+        <TextView
+            android:id="@+id/songName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:clickable="false"
+            android:ellipsize="marquee"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:text="And I Was A Boy From School"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/nowplaying_primary_text"
+            android:textSize="15sp" />
 
-	</LinearLayout>
+        <TextView
+            android:id="@+id/artistName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/songName"
+            android:layout_marginTop="1dip"
+            android:clickable="false"
+            android:gravity="center_horizontal"
+            android:text="Hot Chip"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/nowplaying_secondary_text" />
 
+        <TextView
+            android:id="@+id/albumName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artistName"
+            android:layout_marginTop="1dip"
+            android:clickable="false"
+            android:gravity="center_horizontal"
+            android:text="The warning"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/nowplaying_secondary_text" />
 
-	<LinearLayout android:orientation="vertical"
-		android:layout_width="fill_parent" android:gravity="center"
-		android:layout_height="wrap_content" android:paddingBottom="10dip">
-
-		<SeekBar
-		    android:id="@+id/progress_track"
-		    android:layout_width="280dip"
-		    android:layout_height="wrap_content"
-		    android:max="100"
-		    android:progress="0" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/albumName"
+            android:layout_alignParentRight="true"
+            android:clickable="false"
+            android:src="@drawable/spinner_holo_dark" />
+    </RelativeLayout>
 
-		<LinearLayout android:orientation="vertical"
-			android:layout_width="wrap_content" android:gravity="center"
-			android:layout_height="fill_parent" android:visibility="invisible" >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dip" >
 
-			<TextView android:id="@+id/volume" android:layout_width="fill_parent"
-				android:textColor="#FFFFFFFF" android:layout_height="wrap_content"
-				android:text="@string/volume" android:gravity="center"
-				android:textSize="12sp" />
-
-			<SeekBar
-			    android:id="@+id/progress_volume"
-			    android:layout_width="280dip"
-			    android:layout_height="wrap_content"
-			    android:max="100"
-			    android:progress="0" />
+        <TextView
+            android:id="@+id/trackTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:paddingLeft="10dip"
+            android:text="0:20"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
 
-		</LinearLayout>
-	</LinearLayout>
+        <TextView
+            android:id="@+id/trackTotalTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:paddingRight="10dip"
+            android:text="3:45"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+        <SeekBar
+            android:id="@+id/progress_track"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/trackTime"
+            android:layout_marginTop="5dip"
+            android:max="100"
+            android:paddingLeft="10dip"
+            android:paddingRight="10dip"
+            android:progress="0" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageButton
+            android:id="@+id/shuffle"
+            style="@style/PlayerButton"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_media_previous"
+            android:visibility="invisible" />
+
+        <ImageButton
+            android:id="@+id/prev"
+            style="@style/PlayerButton"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_media_previous" />
+
+        <ImageButton
+            android:id="@+id/playpause"
+            style="@style/PlayerButton"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_media_play" />
+
+        <ImageButton
+            android:id="@+id/next"
+            style="@style/PlayerButton"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_media_next" />
+
+        <ImageButton
+            android:id="@+id/repeat"
+            style="@style/PlayerButton"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_media_previous"
+            android:visibility="invisible" />
+    </LinearLayout>
 
 </LinearLayout>

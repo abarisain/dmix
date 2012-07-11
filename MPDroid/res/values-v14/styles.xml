@@ -17,5 +17,6 @@
 <resources>
     <style name="AppTheme" parent="Theme.Sherlock">
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
 </resources>

@@ -18,31 +18,47 @@
     <style name="ActionBar" parent="@android:style/Widget.Holo.ActionBar" />
 
     <style name="ActionBar.Dark" parent="@style/ActionBar">
-        <item name="android:background">@color/actionbar_background_dark</item>
+        <item name="android:background">@color/transparent</item>
     </style>
     
     <style name="SherlockActionBar.Dark" parent="Widget.Sherlock.ActionBar">
-        <item name="background">@color/actionbar_background_dark</item>
+        <item name="background">@color/transparent</item>
     </style>
     
     <style name="AppTheme" parent="Theme.Sherlock">
+        <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="listItemHeight">?android:attr/listPreferredItemHeight</item>
     </style>
     
     <style name="AppTheme.ActionBar" parent="AppTheme">
     </style>
     
-    <style name="AppTheme.Wallpaper" parent="AppTheme">
-		<item name="android:windowBackground">@color/transparent</item> 
-        <item name="android:windowShowWallpaper">true</item> 
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:actionBarStyle">@style/ActionBar.Dark</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
+    <style name="AppTheme.NowPlaying" parent="AppTheme">
+		<item name="android:windowBackground">@color/nowplaying_background</item> 
+		<item name="android:colorBackgroundCacheHint">@color/nowplaying_background</item>
+		<item name="android:actionBarStyle">@style/ActionBar.Dark</item>
 		<item name="actionBarStyle">@style/SherlockActionBar.Dark</item>
     </style>
     
     <style name="AppTheme.Dialog" parent="Theme.Sherlock.Dialog" />
     
+    <style name="SeekBar" parent="android:Widget.SeekBar">
+		<item name="android:indeterminateOnly">false</item>
+		<item name="android:progressDrawable">@drawable/scrubber_progress_horizontal_holo_dark
+		</item>
+		<item name="android:indeterminateDrawable">@drawable/scrubber_progress_horizontal_holo_dark
+		</item>
+		<item name="android:minHeight">13dip</item>
+		<item name="android:maxHeight">13dip</item>
+		<item name="android:thumb">@drawable/scrubber_control_selector_holo</item>
+		<item name="android:thumbOffset">8dip</item>
+		<item name="android:focusable">true</item>
+		<item name="android:paddingLeft">16dip</item>
+		<item name="android:paddingRight">16dip</item>
+	</style>
+    
+    <style name="PlayerButton" parent="android:Widget.Holo.ImageButton">
+        <item name="android:background">?attr/actionBarItemBackground</item>
+        <item name="android:minHeight">@dimen/playerbutton_height</item>
+    </style>
 </resources>

@@ -68,6 +68,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private SeekBar progressBarTrack = null;
 
 	private TextView trackTime = null;
+	private TextView trackTotalTime = null;
 
 	private CoverAsyncHelper oCoverAsyncHelper = null;
 	long lastSongTime = 0;
@@ -153,7 +154,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					handler.post(new Runnable() {
 						@Override
 						public void run() {
-							progressBarVolume.setProgress(volume);
+							//progressBarVolume.setProgress(volume);
 						}
 					});
 				} catch (MPDServerException e) {
@@ -186,6 +187,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
 
 		trackTime = (TextView) view.findViewById(R.id.trackTime);
+		trackTotalTime = (TextView) view.findViewById(R.id.trackTotalTime);
 
 		Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
 		fadeIn.setDuration(ANIMATION_DURATION_MSEC);
@@ -230,7 +232,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 		// button = (ImageButton) view.findViewById(R.id.forward);
 		// button.setOnClickListener(buttonEventHandler);
-		progressBarVolume.setOnClickListener(new View.OnClickListener() {
+		/*progressBarVolume.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -284,9 +286,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				 * try { MPDApplication app = (MPDApplication)getActivity().getApplication(); app.oMPDAsyncHelper.oMPD.setVolume(progress);
 				 * } catch (MPDServerException e) { e.printStackTrace(); }
 				 */
-
+/*
 			}
-		});
+		});*/
 		progressBarTrack.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
@@ -425,7 +427,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 					return false;
 				} else {
-					progressBarVolume.incrementProgressBy(VOLUME_STEP);
+					//progressBarVolume.incrementProgressBy(VOLUME_STEP);
 					app.oMPDAsyncHelper.oMPD.adjustVolume(VOLUME_STEP);
 					return true;
 				}
@@ -433,7 +435,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
 					return false;
 				} else {
-					progressBarVolume.incrementProgressBy(-VOLUME_STEP);
+					//progressBarVolume.incrementProgressBy(-VOLUME_STEP);
 					app.oMPDAsyncHelper.oMPD.adjustVolume(-VOLUME_STEP);
 					return true;
 				}
@@ -469,7 +471,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-			    	 trackTime.setText(timeToString(ellapsed) + " - " + timeToString(lastSongTime));
+			    	 trackTime.setText(timeToString(ellapsed));
+			    	 trackTotalTime.setText(timeToString(lastSongTime));
 			    }
 			});
 			lastElapsedTime = ellapsed;
@@ -562,7 +565,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				if (noSong) {
 					lastArtist = artist;
 					lastAlbum = album;
-					trackTime.setText(timeToString(0) + " - " + timeToString(0));
+					trackTime.setText(timeToString(0));
+					trackTotalTime.setText(timeToString(0));
 					onCoverNotFound();
 				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
@@ -679,13 +683,14 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public void trackPositionChanged(MPDStatus status) {
 		lastElapsedTime = status.getElapsedTime();
 		lastSongTime = status.getTotalTime();
-		trackTime.setText(timeToString(lastElapsedTime) + " - " + timeToString(lastSongTime));
+		trackTime.setText(timeToString(lastElapsedTime));
+   	 	trackTotalTime.setText(timeToString(lastSongTime));
 		progressBarTrack.setProgress((int) status.getElapsedTime());
 	}
 
 	@Override
 	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-		progressBarVolume.setProgress(mpdStatus.getVolume());
+		//progressBarVolume.setProgress(mpdStatus.getVolume());
 	}
 
 	@Override
@@ -703,18 +708,19 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private void updateStatus(MPDStatus status) {
 		lastElapsedTime = status.getElapsedTime();
 		lastSongTime = status.getTotalTime();
-		trackTime.setText(timeToString(lastElapsedTime) + " - " + timeToString(lastSongTime));
+		trackTime.setText(timeToString(lastElapsedTime));
+   	 	trackTotalTime.setText(timeToString(lastSongTime));
 		progressBarTrack.setProgress((int) status.getElapsedTime());
 		if (status.getState() != null) {
 
 			if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
 				startPosTimer(status.getElapsedTime());
 				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+				button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
 			} else {
 				stopPosTimer();
 				ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-				button.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+				button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
 			}
 		}
 	}
