@@ -108,7 +108,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		return R.string.loading;
 	}
 	
-	public void setActivityTitle(String title, int drawableID) {
+	public void setActivityTitle(String title) {
 		getActivity().setTitle(title);
 	}
 

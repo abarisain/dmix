@@ -59,7 +59,7 @@ public class SongsFragment extends BrowseFragment {
 		artist = (String) this.getActivity().getIntent().getStringExtra("artist");
 		UpdateList();
 
-		setActivityTitle(album, R.drawable.ic_tab_albums_selected);
+		setActivityTitle(album);
 
 	}
 

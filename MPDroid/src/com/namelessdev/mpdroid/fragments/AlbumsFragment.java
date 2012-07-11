@@ -43,7 +43,7 @@ public class AlbumsFragment extends BrowseFragment {
 		UpdateList();
 		if (getActivity().getIntent().getStringExtra("artist") != null) {
 			artist=getActivity().getIntent().getStringExtra("artist");
-			setActivityTitle(artist, R.drawable.ic_tab_artists_selected);
+			setActivityTitle(artist);
 		} else {
 			getActivity().setTitle(getResources().getString(R.string.albums));
 		}

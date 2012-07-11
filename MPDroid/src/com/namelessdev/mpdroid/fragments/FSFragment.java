@@ -66,7 +66,7 @@ public class FSFragment extends BrowseFragment {
 		if (this.getActivity().getIntent().getStringExtra("directory") != null) {
 			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(
 					(String) this.getActivity().getIntent().getStringExtra("directory"));
-			setActivityTitle((String) getActivity().getIntent().getStringExtra("directory"), R.drawable.ic_tab_playlists_selected);
+			setActivityTitle((String) getActivity().getIntent().getStringExtra("directory"));
 		} else {
 			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
 		}
