@@ -2,6 +2,8 @@ package com.namelessdev.mpdroid;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -28,6 +30,8 @@ public class MPDApplication extends Application implements ConnectionListener {
 
 	public static final String TAG = "MPDroid";
 	
+	private static final long DISCONNECT_TIMER = 15000; 
+	
 	public MPDAsyncHelper oMPDAsyncHelper = null;
 	private SettingsHelper settingsHelper = null;
 	private ApplicationState state = new ApplicationState();
@@ -35,6 +39,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 	private Collection<Object> connectionLocks = new LinkedList<Object>();
 	private AlertDialog ad;
 	private Activity currentActivity;
+	private Timer disconnectSheduler;
 
 	public class ApplicationState {
 		public boolean streamingMode = false;
@@ -79,6 +84,8 @@ public class MPDApplication extends Application implements ConnectionListener {
 		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
 		
 		settingsHelper = new SettingsHelper(this, oMPDAsyncHelper);
+		
+		disconnectSheduler = new Timer();
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		if(!settings.contains("albumTrackSort"))
@@ -142,7 +149,14 @@ public class MPDApplication extends Application implements ConnectionListener {
 	}
 	
 	public void disconnect() {
-		oMPDAsyncHelper.disconnect();
+		disconnectSheduler.cancel();
+		disconnectSheduler.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				oMPDAsyncHelper.disconnect();
+			}
+		}, DISCONNECT_TIMER);
+		
 	}
 
 	private void connectMPD() {
@@ -173,6 +187,8 @@ public class MPDApplication extends Application implements ConnectionListener {
 				// Can't display it. Don't care.
 			}
 		}
+		
+		disconnectSheduler.cancel();
 		
 		// really connect
 		oMPDAsyncHelper.connect();
