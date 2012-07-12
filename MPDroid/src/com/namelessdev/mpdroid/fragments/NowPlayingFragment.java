@@ -642,11 +642,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public void trackPositionChanged(MPDStatus status) {
-		lastElapsedTime = status.getElapsedTime();
+		startPosTimer(status.getElapsedTime());
+		/*lastElapsedTime = status.getElapsedTime();
 		lastSongTime = status.getTotalTime();
 		trackTime.setText(timeToString(lastElapsedTime));
    	 	trackTotalTime.setText(timeToString(lastSongTime));
-		progressBarTrack.setProgress((int) status.getElapsedTime());
+		progressBarTrack.setProgress((int) status.getElapsedTime());*/
 	}
 
 	@Override
