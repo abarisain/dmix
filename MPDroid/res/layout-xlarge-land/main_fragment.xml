@@ -23,15 +23,17 @@
         android:max="100"
         android:paddingTop="0dp" >
     </SeekBar>
-
+
     <ImageButton
         android:id="@+id/playpause"
+        style="@style/PlayerButton"
         android:layout_width="80dp"
         android:layout_height="60dp"
         android:layout_below="@+id/progress_track"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dip"
         android:src="@android:drawable/ic_media_play" >
+
     </ImageButton>
 
     <ImageSwitcher
@@ -44,38 +46,30 @@
         android:layout_marginTop="10dip"
         android:padding="20dp" >
     </ImageSwitcher>
-
+
     <ImageButton
         android:id="@+id/prev"
+        style="@style/PlayerButton"
         android:layout_width="80dp"
         android:layout_height="60dp"
         android:layout_alignTop="@+id/playpause"
         android:layout_marginRight="60dip"
         android:layout_toLeftOf="@+id/albumCoverProgress"
         android:src="@android:drawable/ic_media_previous" >
-    </ImageButton>
 
+    </ImageButton>
+
     <ImageButton
         android:id="@+id/next"
+        style="@style/PlayerButton"
         android:layout_width="80dp"
         android:layout_height="60dp"
         android:layout_alignTop="@+id/playpause"
         android:layout_marginLeft="60dip"
         android:layout_toRightOf="@+id/albumCoverProgress"
         android:src="@android:drawable/ic_media_next" >
-    </ImageButton>
 
-    <SeekBar
-        android:id="@+id/progress_volume"
-        android:layout_width="340dip"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/playpause"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="16dip"
-        android:layout_marginTop="24dp"
-        android:paddingTop="0dp" >
-    </SeekBar>
+    </ImageButton>
 
     <TextView
         android:id="@+id/trackTime"
