@@ -10,6 +10,8 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -27,7 +30,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.PlaylistEditActivity;
-import com.namelessdev.mpdroid.PlaylistSaveActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -230,8 +232,32 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			startActivity(i);
 			return true;
 		case R.id.PLM_Save:
-			i = new Intent(getActivity(), PlaylistSaveActivity.class);
-			startActivity(i);
+			final EditText input = new EditText(getActivity());
+			new AlertDialog.Builder(getActivity())
+		    .setTitle(R.string.playlistName)
+		    .setMessage(R.string.newPlaylistPrompt)
+		    .setView(input)
+		    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int whichButton) {
+		            final String name = input.getText().toString().trim();
+		            if (null!=name && name.length()>0) {
+		            	app.oMPDAsyncHelper.execAsync(new Runnable() {
+		    				@Override
+		    				public void run() {
+		    					try {
+									app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
+								} catch (MPDServerException e) {
+									e.printStackTrace();
+								}
+		    				}
+		    			});
+		            }
+		        }
+		    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int whichButton) {
+		            // Do nothing.
+		        }
+		    }).show();
 			return true;
 		default:
 			return false;
