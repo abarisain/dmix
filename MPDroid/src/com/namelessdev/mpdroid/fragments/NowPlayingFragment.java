@@ -63,7 +63,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	public static final int FILES = 3;
 
-	private SeekBar progressBarVolume = null;
 	private SeekBar progressBarTrack = null;
 
 	private TextView trackTime = null;
@@ -181,7 +180,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		songNameText.setSelected(true);
 
 		progressBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
-		progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
 
 		trackTime = (TextView) view.findViewById(R.id.trackTime);
 		trackTotalTime = (TextView) view.findViewById(R.id.trackTotalTime);
@@ -584,10 +582,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		settings.unregisterOnSharedPreferenceChangeListener(this);
 		getActivity().unregisterReceiver(MPDConnectionHandler.getInstance());
 		super.onDestroy();
-	}
-
-	public SeekBar getVolumeSeekBar() {
-		return progressBarVolume;
 	}
 
 	public SeekBar getProgressBarTrack() {
