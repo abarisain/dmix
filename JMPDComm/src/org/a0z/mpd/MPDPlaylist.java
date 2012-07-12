@@ -320,6 +320,12 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 	 *            if an error occur while contacting server.
 	 */
 	public void savePlaylist(String file) throws MPDServerException {
+		// If the playlist already exists, save will fail. So, just remove it first!
+		try {
+			this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_DELETE, file);
+		} catch (MPDServerException e) {
+			// Guess the file did not exist???
+		}
 		this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_SAVE, file);
 	}
 
