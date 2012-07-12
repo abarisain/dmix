@@ -1,20 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#99000000" >
 
-<RelativeLayout android:layout_height="fill_parent"  xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:background="#99000000">
-<ProgressBar android:id="@+id/albumCoverProgress" android:layout_x="20dp" android:layout_y="20dp" android:layout_height="75dip" android:layout_width="75dip" android:layout_centerInParent="true"></ProgressBar>
-	<SeekBar android:max="100" android:paddingTop="0dp" android:id="@+id/progress_track" android:layout_height="wrap_content" android:layout_below="@+id/albumCover" android:layout_centerHorizontal="true" android:layout_width="800dip" android:layout_marginLeft="16dip" android:layout_marginRight="16dip"></SeekBar>
-	<ImageButton android:layout_width="80dp" android:id="@+id/playpause" android:layout_height="60dp" android:src="@android:drawable/ic_media_play" android:layout_below="@+id/progress_track" android:layout_centerHorizontal="true" android:layout_marginTop="10dip"></ImageButton>
-	<ImageSwitcher android:layout_width="400dip" android:padding="20dp" android:id="@+id/albumCover" android:layout_height="400dip" android:layout_alignParentTop="true" android:layout_centerHorizontal="true" android:layout_marginBottom="75dip" android:layout_marginTop="10dip"></ImageSwitcher>
-	<ImageButton android:layout_width="80dp" android:id="@+id/prev" android:layout_height="60dp" android:src="@android:drawable/ic_media_previous" android:layout_alignTop="@+id/playpause" android:layout_toLeftOf="@+id/albumCoverProgress" android:layout_marginRight="60dip"></ImageButton>
-	<ImageButton android:layout_width="80dp"  android:id="@+id/next" android:layout_height="60dp" android:src="@android:drawable/ic_media_next" android:layout_alignTop="@+id/playpause" android:layout_toRightOf="@+id/albumCoverProgress" android:layout_marginLeft="60dip"></ImageButton>
-	<SeekBar android:paddingTop="0dp" android:id="@+id/progress_volume" android:layout_height="wrap_content" android:layout_below="@+id/playpause" android:layout_centerHorizontal="true" android:layout_marginTop="24dp" android:layout_marginLeft="16dip" android:layout_marginRight="16dip" android:layout_width="340dip"></SeekBar>
-	<TextView android:id="@+id/trackTime" android:textColor="#FFFFFFFF" android:shadowColor="#FF000000" android:textSize="18sp" android:gravity="center_horizontal" android:textScaleX="1" android:layout_height="wrap_content" android:shadowRadius="3.0" android:layout_alignTop="@+id/progress_track" android:layout_toLeftOf="@+id/progress_track" android:layout_marginRight="36dp" android:layout_width="150dip"></TextView>
-	<TextView android:text="Song" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_alignTop="@+id/albumCover" android:layout_toLeftOf="@+id/albumCover" android:layout_marginTop="92dp" android:id="@+id/staticSong" android:layout_width="300dip"></TextView>
-	<TextView android:id="@+id/songName" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true" android:textColor="#FFFFFFFF" android:layout_width="300dip" android:shadowColor="#FF000000" android:textSize="26sp" android:gravity="left" android:layout_height="wrap_content" android:shadowRadius="3.0" android:layout_below="@+id/staticSong" android:layout_alignLeft="@+id/staticSong"></TextView>
-	<TextView android:text="Artist" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_below="@+id/songName" android:layout_alignLeft="@+id/songName" android:id="@+id/staticArtist" android:layout_marginTop="50dp"></TextView>
-	<TextView android:text="Album" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_below="@+id/artistName" android:layout_alignLeft="@+id/artistName" android:layout_marginTop="50dip" android:id="@+id/staticAlbum"></TextView>
-	<TextView android:id="@+id/artistName" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true" android:textColor="#FFFFFFFF" android:layout_width="300dip" android:shadowColor="#FF000000" android:textSize="20sp" android:gravity="left" android:layout_height="wrap_content" android:shadowRadius="3.0" android:layout_below="@+id/staticArtist" android:layout_alignLeft="@+id/staticArtist"></TextView>
-	<TextView android:id="@+id/albumName" android:ellipsize="marquee" android:marqueeRepeatLimit="marquee_forever" android:scrollHorizontally="true" android:textColor="#FFFFFFFF" android:layout_width="300dip" android:shadowColor="#FF000000" android:textSize="20sp" android:gravity="left" android:layout_height="wrap_content" android:shadowRadius="3.0" android:layout_below="@+id/staticAlbum" android:layout_alignLeft="@+id/staticAlbum"></TextView>
+    <ProgressBar
+        android:id="@+id/albumCoverProgress"
+        android:layout_width="75dip"
+        android:layout_height="75dip"
+        android:layout_centerInParent="true"
+        android:layout_x="20dp"
+        android:layout_y="20dp" >
+    </ProgressBar>
+
+    <SeekBar
+        android:id="@+id/progress_track"
+        android:layout_width="800dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/albumCover"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
+        android:max="100"
+        android:paddingTop="0dp" >
+    </SeekBar>
+
+    <ImageButton
+        android:id="@+id/playpause"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_below="@+id/progress_track"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dip"
+        android:src="@android:drawable/ic_media_play" >
+    </ImageButton>
+
+    <ImageSwitcher
+        android:id="@+id/albumCover"
+        android:layout_width="400dip"
+        android:layout_height="400dip"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="75dip"
+        android:layout_marginTop="10dip"
+        android:padding="20dp" >
+    </ImageSwitcher>
+
+    <ImageButton
+        android:id="@+id/prev"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_alignTop="@+id/playpause"
+        android:layout_marginRight="60dip"
+        android:layout_toLeftOf="@+id/albumCoverProgress"
+        android:src="@android:drawable/ic_media_previous" >
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/next"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_alignTop="@+id/playpause"
+        android:layout_marginLeft="60dip"
+        android:layout_toRightOf="@+id/albumCoverProgress"
+        android:src="@android:drawable/ic_media_next" >
+    </ImageButton>
+
+    <SeekBar
+        android:id="@+id/progress_volume"
+        android:layout_width="340dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/playpause"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
+        android:layout_marginTop="24dp"
+        android:paddingTop="0dp" >
+    </SeekBar>
+
+    <TextView
+        android:id="@+id/trackTime"
+        android:layout_width="150dip"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/progress_track"
+        android:layout_marginRight="36dp"
+        android:layout_toLeftOf="@+id/progress_track"
+        android:gravity="center_horizontal"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="3.0"
+        android:textColor="#FFFFFFFF"
+        android:textScaleX="1"
+        android:textSize="18sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/staticSong"
+        android:layout_width="300dip"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/albumCover"
+        android:layout_marginTop="92dp"
+        android:layout_toLeftOf="@+id/albumCover"
+        android:text="Song"
+        android:textAppearance="?android:attr/textAppearanceSmall" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/songName"
+        android:layout_width="300dip"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/staticSong"
+        android:layout_below="@+id/staticSong"
+        android:ellipsize="marquee"
+        android:gravity="left"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="3.0"
+        android:textColor="#FFFFFFFF"
+        android:textSize="26sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/staticArtist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/songName"
+        android:layout_below="@+id/songName"
+        android:layout_marginTop="50dp"
+        android:text="Artist"
+        android:textAppearance="?android:attr/textAppearanceSmall" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/staticAlbum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/artistName"
+        android:layout_below="@+id/artistName"
+        android:layout_marginTop="50dip"
+        android:text="Album"
+        android:textAppearance="?android:attr/textAppearanceSmall" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/artistName"
+        android:layout_width="300dip"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/staticArtist"
+        android:layout_below="@+id/staticArtist"
+        android:ellipsize="marquee"
+        android:gravity="left"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="3.0"
+        android:textColor="#FFFFFFFF"
+        android:textSize="20sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/albumName"
+        android:layout_width="300dip"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/staticAlbum"
+        android:layout_below="@+id/staticAlbum"
+        android:ellipsize="marquee"
+        android:gravity="left"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="3.0"
+        android:textColor="#FFFFFFFF"
+        android:textSize="20sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/trackTotalTime"
+        android:layout_width="150dip"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/progress_track"
+        android:layout_marginLeft="36dp"
+        android:layout_toRightOf="@+id/progress_track"
+        android:gravity="center_horizontal"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="3.0"
+        android:textColor="#FFFFFFFF"
+        android:textScaleX="1"
+        android:textSize="18sp" />
+
 </RelativeLayout>
