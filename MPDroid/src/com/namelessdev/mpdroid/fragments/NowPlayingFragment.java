@@ -582,6 +582,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public void onDestroy() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		settings.unregisterOnSharedPreferenceChangeListener(this);
+		getActivity().unregisterReceiver(MPDConnectionHandler.getInstance());
 		super.onDestroy();
 	}
 
