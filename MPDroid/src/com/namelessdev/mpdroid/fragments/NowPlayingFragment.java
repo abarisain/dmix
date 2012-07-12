@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,9 +77,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	private ProgressBar coverSwitcherProgress;
 
-	private static final int VOLUME_STEP = 5;
-
-	private static final int TRACK_STEP = 10;
+	public static final int VOLUME_STEP = 5;
 
 	private static final int ANIMATION_DURATION_MSEC = 1000;
 
@@ -415,33 +412,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 			}
 			return true;
-		}
-
-	}
-
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		MPDApplication app = (MPDApplication) getActivity().getApplication();
-		try {
-			switch (keyCode) {
-			case KeyEvent.KEYCODE_VOLUME_UP:
-				app.oMPDAsyncHelper.oMPD.adjustVolume(VOLUME_STEP);
-				return true;
-			case KeyEvent.KEYCODE_VOLUME_DOWN:
-				app.oMPDAsyncHelper.oMPD.adjustVolume(-VOLUME_STEP);
-				return true;
-			case KeyEvent.KEYCODE_DPAD_LEFT:
-				app.oMPDAsyncHelper.oMPD.previous();
-				return true;
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				app.oMPDAsyncHelper.oMPD.next();
-				return true;
-			default:
-				return false;
-			}
-		} catch (MPDServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
 		}
 
 	}

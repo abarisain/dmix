@@ -1,6 +1,7 @@
 package com.namelessdev.mpdroid;
 
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
@@ -14,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.KeyEvent;
 import android.widget.ArrayAdapter;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -274,6 +276,26 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 			return super.onOptionsItemSelected(item);
 		}
 
+	}
+	
+	public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD.adjustVolume(keyCode == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP : -NowPlayingFragment.VOLUME_STEP);
+					} catch (MPDServerException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+			return true;
+		default:
+			return false;
+		}
 	}
     
 }
