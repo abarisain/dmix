@@ -59,7 +59,31 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 	}
-
+	
+	@Override
+	protected void Add(Item item, String playlist) {
+		try {
+			MPDApplication app = (MPDApplication) getActivity().getApplication();
+			Directory ToAdd = currentDirectory.getDirectory(item.getName());
+			if (ToAdd != null) {
+				// Valid directory
+				app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
+				Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
+						FSFragment.this.getActivity());
+			} else {
+				Music music = currentDirectory.getFileByTitle(item.getName());
+				if (music != null) {
+					ArrayList<Music> songs = new ArrayList<Music> ();
+					songs.add(music);
+					app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
+					Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
+				}
+			}
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	protected void asyncUpdate() {
 		MPDApplication app = (MPDApplication) getActivity().getApplication();

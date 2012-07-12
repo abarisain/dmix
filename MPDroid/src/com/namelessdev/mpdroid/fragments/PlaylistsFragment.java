@@ -74,6 +74,10 @@ public class PlaylistsFragment  extends BrowseFragment {
     	}
     }
     
+    @Override
+	protected void Add(Item item, String playlist) {
+    }
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);

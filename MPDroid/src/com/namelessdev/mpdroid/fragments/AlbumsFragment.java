@@ -83,4 +83,13 @@ public class AlbumsFragment extends BrowseFragment {
     	}
     }
 
+    @Override
+    protected void Add(Item item, String playlist) {
+    	try {
+    		app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getSongs(artist, item.getName()));
+    		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+    	} catch (MPDServerException e) {
+    		e.printStackTrace();
+    	}
+	}
 }

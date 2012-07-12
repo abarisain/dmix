@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid.fragments;
 
+import java.util.ArrayList;
+
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.Music;
@@ -82,6 +84,19 @@ public class SongsFragment extends BrowseFragment {
 		}
 	}
 
+    @Override
+    protected void Add(Item item, String playlist) {
+    	try {
+    		MPDApplication app = (MPDApplication) getActivity().getApplication();
+    		ArrayList<Music> songs = new ArrayList<Music> ();
+    		songs.add((Music)item);
+    		app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
+    		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+    	} catch (MPDServerException e) {
+    		e.printStackTrace();
+    	}
+	}
+   
 	@Override
 	public void asyncUpdate() {
 		try {

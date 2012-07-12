@@ -138,4 +138,8 @@
 	<string name="tracksInfoHeader">%1$s Chanson, %2$s</string>
 	<string name="tracksInfoHeaderPlural">%1$s Chansons, %2$s</string>
 	<string name="audioFocusFailed">Impossible de démarrer le streaming : Une autre application diffuse déjà de la musique.</string>
+	<string name="addToPlaylist">Ajouter à la playlist</string>
+	<string name="newPlaylist">(Nouvelle playlist)</string>
+	<string name="playlistName">Nom de la playlist</string>
+	<string name="newPlaylistPrompt">Entrez un nom pour la nouvelle playlist :</string
 </resources>

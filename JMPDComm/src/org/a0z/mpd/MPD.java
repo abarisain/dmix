@@ -49,7 +49,11 @@ public class MPD {
 	private static final String MPD_CMD_OUTPUTS = "outputs";
 	private static final String MPD_CMD_OUTPUTENABLE = "enableoutput";
 	private static final String MPD_CMD_OUTPUTDISABLE = "disableoutput";
-
+	private static final String MPD_CMD_PLAYLIST_INFO = "listplaylistinfo";
+	private static final String MPD_CMD_PLAYLIST_ADD = "playlistadd";
+	private static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
+	private static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
+	
 	// deprecated commands
 	@SuppressWarnings("unused")
 	private static final String MPD_CMD_VOLUME = "volume";
@@ -1087,7 +1091,7 @@ public class MPD {
 	public List<Music> getPlaylistSongs(String playlistName) throws MPDServerException {
 		String args[]=new String[1];
 		args[0]=playlistName;
-		List<Music> music=genericSearch("listplaylistinfo", args, false);
+		List<Music> music=genericSearch(MPD_CMD_PLAYLIST_INFO, args, false);
 		
 		for (int i=0; i<music.size(); ++i) {
 			music.get(i).setSongId(i);
@@ -1097,10 +1101,24 @@ public class MPD {
 	}
 
 	public void movePlaylistSong(String playlistName, int from, int to) throws MPDServerException {
-		getMpdConnection().sendCommand("playlistmove", escaper.matcher(playlistName).replaceAll("\\\\$1"), Integer.toString(from), Integer.toString(to));
+		getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_MOVE, playlistName, Integer.toString(from), Integer.toString(to));
 	}
 
 	public void removeFromPlaylist(String playlistName, Integer pos) throws MPDServerException {
-		getMpdConnection().sendCommand("playlistdelete", escaper.matcher(playlistName).replaceAll("\\\\$1"), Integer.toString(pos));
+		getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_DEL, playlistName, Integer.toString(pos));
+	}
+	
+	public void addToPlaylist(String playlistName, Collection<Music> c) throws MPDServerException {
+		if (null==c || c.size()<1) {
+			return;
+		}
+		for (Music m : c) {
+			getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullpath());
+		}
+		getMpdConnection().sendCommandQueue();
+	}
+
+	public void addToPlaylist(String playlistName, FilesystemTreeEntry entry) throws MPDServerException {
+		getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, playlistName, entry.getFullpath());
 	}
 }

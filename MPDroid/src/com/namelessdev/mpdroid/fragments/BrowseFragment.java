@@ -10,13 +10,17 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -37,6 +41,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	public static final int ADD = 0;
 	public static final int ADDNREPLACE = 1;
 	public static final int ADDNPLAY = 2;
+	public static final int ADD_TO_PLAYLIST = 3;
 
 	protected List<? extends Item> items = null;
 	
@@ -138,10 +143,31 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		addAndReplaceItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndPlayItem = menu.add(ContextMenu.NONE, ADDNPLAY, 0, R.string.addAndPlay);
 		addAndPlayItem.setOnMenuItemClickListener(this);
+		
+		if (R.string.addPlaylist!=irAdd) {
+			int id=ADD_TO_PLAYLIST;
+			SubMenu playlistMenu=menu.addSubMenu(R.string.addToPlaylist);
+			android.view.MenuItem item=playlistMenu.add(ContextMenu.NONE, id++, (int)info.id, R.string.newPlaylist);
+			item.setOnMenuItemClickListener(this);
+			
+			try {
+				List<Item> playlists=((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.getPlaylists();
+				
+				if (null!=playlists) {
+					for (Item pl : playlists) {
+						item=playlistMenu.add(ContextMenu.NONE, id++, (int)info.id, pl.getName());
+						item.setOnMenuItemClickListener(this);
+					}
+				}
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	protected abstract void Add(Item item);
-
+	protected abstract void Add(Item item, String playlist);
 	@Override
 	public boolean onMenuItemClick(android.view.MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
@@ -193,6 +219,42 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				}
+			});
+			break;
+		case ADD_TO_PLAYLIST: {
+			final EditText input = new EditText(getActivity());
+			final int id=(int) item.getOrder();
+			new AlertDialog.Builder(getActivity())
+		    .setTitle(R.string.playlistName)
+		    .setMessage(R.string.newPlaylistPrompt)
+		    .setView(input)
+		    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int whichButton) {
+		            final String name = input.getText().toString().trim();
+		            if (null!=name && name.length()>0) {
+		            	app.oMPDAsyncHelper.execAsync(new Runnable() {
+		    				@Override
+		    				public void run() {
+		    					Add(items.get(id), name);
+		    				}
+		    			});
+		            }
+		        }
+		    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int whichButton) {
+		            // Do nothing.
+		        }
+		    }).show();
+			break;
+		}
+		default:
+			final String name=item.getTitle().toString();
+			final int id=(int) item.getOrder();
+			app.oMPDAsyncHelper.execAsync(new Runnable() {
+				@Override
+				public void run() {
+					Add(items.get(id), name);
 				}
 			});
 			break;
