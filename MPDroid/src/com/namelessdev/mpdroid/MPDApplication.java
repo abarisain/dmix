@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 
@@ -99,6 +100,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 		connectionLocks.add(activity);
 		checkMonitorNeeded();
 		checkConnectionNeeded();
+		cancelDisconnectSheduler();
 	}
 
 	public void unsetActivity(Object activity) {
@@ -157,6 +159,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 		disconnectSheduler.schedule(new TimerTask() {
 			@Override
 			public void run() {
+				Log.w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
 				oMPDAsyncHelper.disconnect();
 			}
 		}, DISCONNECT_TIMER);
@@ -165,6 +168,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 	
 	private void cancelDisconnectSheduler() {
 		disconnectSheduler.cancel();
+		disconnectSheduler.purge();
 		disconnectSheduler = new Timer();
 	}
 
