@@ -59,7 +59,6 @@
 		</activity>
 		
 		<activity android:name=".ServerListActivity" android:theme="@style/AppTheme.ActionBar" />
-		<activity android:name=".ServerEditActivity" android:theme="@style/AppTheme.ActionBar" />
 		<activity android:name=".ServerBonjourListActivity" android:theme="@style/AppTheme.ActionBar" />
 		
 		<activity android:name=".AboutActivity" android:label="@string/about" />

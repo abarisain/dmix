@@ -59,9 +59,6 @@ public class PlaylistEditActivity extends SherlockListActivity implements Status
 		Button button = (Button) findViewById(R.id.Remove);
 		button.setOnClickListener(this);
 
-		button = (Button) findViewById(R.id.Cancel);
-		button.setOnClickListener(this);
-
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
