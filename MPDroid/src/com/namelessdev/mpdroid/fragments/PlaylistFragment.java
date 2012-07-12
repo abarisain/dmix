@@ -287,7 +287,9 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 				song.put("play", 0);
 
 		}
-		((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+		final SimpleAdapter adapter = (SimpleAdapter) getListAdapter();
+		if(adapter != null)
+			adapter.notifyDataSetChanged();
 		
 	}
 

@@ -61,4 +61,9 @@
         <item name="android:background">?attr/actionBarItemBackground</item>
         <item name="android:minHeight">@dimen/playerbutton_height</item>
     </style>
+    <style name="InfoSubText" parent="android:Widget.Holo.TextView">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@color/info_sub_text_color</item>
+        <item name="android:textColorHighlight">@android:color/white</item>
+    </style>
 </resources>

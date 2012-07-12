@@ -41,12 +41,15 @@
         </com.namelessdev.mpdroid.views.FixedRatioRelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/songInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/seekLayout"
             android:layout_alignParentTop="true"
             android:layout_marginTop="8dip"
             android:layout_toRightOf="@id/coverLayout"
+            android:background="@drawable/holo_transparent_button"
+            android:clickable="true"
             android:gravity="center"
             android:paddingBottom="2dip"
             android:paddingLeft="10dip"
@@ -57,7 +60,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:clickable="false"
                 android:ellipsize="marquee"
                 android:gravity="center_horizontal"
                 android:singleLine="true"
@@ -68,27 +70,23 @@
 
             <TextView
                 android:id="@+id/artistName"
+                style="@style/InfoSubText"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/songName"
                 android:layout_marginTop="1dip"
-                android:clickable="false"
                 android:gravity="center_horizontal"
-                android:text="Hot Chip"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/nowplaying_secondary_text" />
+                android:text="Hot Chip" />
 
             <TextView
                 android:id="@+id/albumName"
+                style="@style/InfoSubText"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/artistName"
                 android:layout_marginTop="1dip"
-                android:clickable="false"
                 android:gravity="center_horizontal"
-                android:text="The warning"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/nowplaying_secondary_text" />
+                android:text="The warning" />
 
             <ImageView
                 android:layout_width="wrap_content"

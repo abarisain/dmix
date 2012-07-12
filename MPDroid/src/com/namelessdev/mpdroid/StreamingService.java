@@ -321,7 +321,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		
 		if(audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
 			Toast.makeText(this, R.string.audioFocusFailed, Toast.LENGTH_LONG).show();
-			stopStreaming();
+			stop();
 		}
 
 		TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -716,7 +716,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		} else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
 			mediaPlayer.setVolume(1f, 1f);
 		} else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-			stopStreaming();
+			stop();
 		}
 	}
 }

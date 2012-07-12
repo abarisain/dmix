@@ -214,6 +214,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 				menu.removeItem(CONNECT);
 			}
 		}
+		menu.findItem(R.id.GMM_Stream).setChecked(app.getApplicationState().streamingMode);
 		return true;
 	}
 

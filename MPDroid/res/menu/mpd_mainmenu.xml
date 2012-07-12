@@ -16,7 +16,8 @@
     <item
         android:id="@+id/GMM_Stream"
         android:icon="@android:drawable/ic_menu_upload_you_tube"
-        android:title="@string/stream" android:orderInCategory="5">
+        android:title="@string/stream" android:orderInCategory="5"
+        android:checkable="true" >
     </item>
     <item
         android:id="@+id/GMM_Outputs"

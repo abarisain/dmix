@@ -26,6 +26,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -202,72 +203,21 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		button = (ImageButton) view.findViewById(R.id.prev);
 		button.setOnClickListener(buttonEventHandler);
 
-		// button = (ImageButton) view.findViewById(R.id.back);
-		// button.setOnClickListener(buttonEventHandler);
-
 		button = (ImageButton) view.findViewById(R.id.playpause);
 		button.setOnClickListener(buttonEventHandler);
 		button.setOnLongClickListener(buttonEventHandler);
+		
+		final View songInfo = view.findViewById(R.id.songInfo);
+		if(songInfo != null) {
+			songInfo.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+		}
 
-		// button = (ImageButton) view.findViewById(R.id.forward);
-		// button.setOnClickListener(buttonEventHandler);
-		/*progressBarVolume.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-
-				System.out.println("Vol2:" + progressBarVolume.getProgress());
-			}
-		});
-		progressBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
-
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				volTimerTask = new TimerTask() {
-					public void run() {
-						final MPDApplication app = (MPDApplication) getActivity().getApplication();
-						if (lastSentVol != progress.getProgress()) {
-							lastSentVol = progress.getProgress();
-							new Thread(new Runnable() {
-								@Override
-								public void run() {
-									try {
-										app.oMPDAsyncHelper.oMPD.setVolume(lastSentVol);
-									} catch (MPDServerException e) {
-										e.printStackTrace();
-									}
-								}
-							}).start();
-						}
-					}
-
-					int lastSentVol = -1;
-					SeekBar progress;
-
-					public TimerTask setProgress(SeekBar prg) {
-						progress = prg;
-						return this;
-					}
-				}.setProgress(seekBar);
-
-				volTimer.scheduleAtFixedRate(volTimerTask, 0, 100);
-			}
-
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				volTimerTask.cancel();
-				// Afraid this will run syncronious
-				volTimerTask.run();
-
-				/*
-				 * try { MPDApplication app = (MPDApplication)getActivity().getApplication(); app.oMPDAsyncHelper.oMPD.setVolume(progress);
-				 * } catch (MPDServerException e) { e.printStackTrace(); }
-				 */
-/*
-			}
-		});*/
 		progressBarTrack.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
