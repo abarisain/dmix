@@ -230,6 +230,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		MPDApplication app = (MPDApplication) getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addConnectionListener(this);
+		app.setActivity(this);
 		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":" + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/";
 	}
 
@@ -252,6 +253,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			mediaPlayer.release();
 			mediaPlayer = null;
 		}
+		MPDApplication app = (MPDApplication) getApplication();
+		app.unsetActivity(this);
 		super.onDestroy();
 	}
 

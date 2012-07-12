@@ -149,7 +149,11 @@ public class MPDApplication extends Application implements ConnectionListener {
 	}
 	
 	public void disconnect() {
-		disconnectSheduler.cancel();
+		cancelDisconnectSheduler();
+		startDisconnectSheduler();
+	}
+	
+	private void startDisconnectSheduler() {
 		disconnectSheduler.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -157,6 +161,11 @@ public class MPDApplication extends Application implements ConnectionListener {
 			}
 		}, DISCONNECT_TIMER);
 		
+	}
+	
+	private void cancelDisconnectSheduler() {
+		disconnectSheduler.cancel();
+		disconnectSheduler = new Timer();
 	}
 
 	private void connectMPD() {
@@ -188,7 +197,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 			}
 		}
 		
-		disconnectSheduler.cancel();
+		cancelDisconnectSheduler();
 		
 		// really connect
 		oMPDAsyncHelper.connect();
