@@ -279,23 +279,28 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 	}
 	
 	public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+		final MPDApplication app = (MPDApplication) getApplicationContext();
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_VOLUME_UP:
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD.adjustVolume(keyCode == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP : -NowPlayingFragment.VOLUME_STEP);
-					} catch (MPDServerException e) {
-						e.printStackTrace();
+			if(!app.getApplicationState().streamingMode) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							app.oMPDAsyncHelper.oMPD.adjustVolume(keyCode == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP : -NowPlayingFragment.VOLUME_STEP);
+						} catch (MPDServerException e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			}).start();
-			return true;
+				}).start();
+				return true;
+			}
+			break;
 		default:
-			return false;
+			return super.onKeyDown(keyCode, event);
 		}
+		return super.onKeyDown(keyCode, event);
 	}
     
 }
