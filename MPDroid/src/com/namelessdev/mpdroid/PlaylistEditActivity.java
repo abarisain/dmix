@@ -206,11 +206,6 @@ public class PlaylistEditActivity extends SherlockListActivity implements Status
 				Log.e("MPDroid", "General: " + e.toString());
 				update();
 			}
-
-			this.finish();
-			break;
-		case R.id.Cancel:
-			this.finish();
 			break;
 		default:
 			break;
