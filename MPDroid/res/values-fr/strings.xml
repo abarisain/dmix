@@ -137,4 +137,5 @@
 	<string name="variousArtists">Artistes variés</string>
 	<string name="tracksInfoHeader">%1$s Chanson, %2$s</string>
 	<string name="tracksInfoHeaderPlural">%1$s Chansons, %2$s</string>
+	<string name="audioFocusFailed">Impossible de démarrer le streaming : Une autre application diffuse déjà de la musique.</string>
 </resources>

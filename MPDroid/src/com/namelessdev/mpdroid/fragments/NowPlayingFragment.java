@@ -591,14 +591,19 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public void onCoverDownloaded(Bitmap cover) {
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 		DisplayMetrics metrics = new DisplayMetrics();
-		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		if (cover != null) {
-			cover.setDensity((int) metrics.density);
-			BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
-			coverArt.setImageDrawable(myCover);
-		} else {
-			// Should not be happening, but happened.
-			onCoverNotFound();
+		try {
+			getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+			if (cover != null) {
+				cover.setDensity((int) metrics.density);
+				BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
+				coverArt.setImageDrawable(myCover);
+			} else {
+				// Should not be happening, but happened.
+				onCoverNotFound();
+			}
+		} catch (Exception e) {
+			//Probably rotated, ignore
+			e.printStackTrace();
 		}
 	}
 

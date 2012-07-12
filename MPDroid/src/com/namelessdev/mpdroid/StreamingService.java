@@ -10,6 +10,7 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -18,12 +19,17 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.media.RemoteControlClient;
+import android.media.RemoteControlClient.MetadataEditor;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -44,7 +50,7 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
  */
 
 public class StreamingService extends Service implements StatusChangeListener, OnPreparedListener, OnCompletionListener,
-		OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener {
+		OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener, OnAudioFocusChangeListener {
 
 	static final String TAG = "MPDroidStreamingService";
 	
@@ -62,6 +68,70 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	public static final String CMD_DIE = "DIE"; // Just in case
 	public static Boolean isServiceRunning = false;
 
+	
+    /**
+     * Playback state of a RemoteControlClient which is stopped.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_STOPPED            = 1;
+    /**
+     * Playback state of a RemoteControlClient which is paused.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_PAUSED             = 2;
+    /**
+     * Playback state of a RemoteControlClient which is playing media.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_PLAYING            = 3;
+    /**
+     * Playback state of a RemoteControlClient which is fast forwarding in the media
+     *    it is currently playing.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_FAST_FORWARDING    = 4;
+    /**
+     * Playback state of a RemoteControlClient which is fast rewinding in the media
+     *    it is currently playing.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_REWINDING          = 5;
+    /**
+     * Playback state of a RemoteControlClient which is skipping to the next
+     *    logical chapter (such as a song in a playlist) in the media it is currently playing.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_SKIPPING_FORWARDS  = 6;
+    /**
+     * Playback state of a RemoteControlClient which is skipping back to the previous
+     *    logical chapter (such as a song in a playlist) in the media it is currently playing.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_SKIPPING_BACKWARDS = 7;
+    /**
+     * Playback state of a RemoteControlClient which is buffering data to play before it can
+     *    start or resume playback.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_BUFFERING          = 8;
+    /**
+     * Playback state of a RemoteControlClient which cannot perform any playback related
+     *    operation because of an internal error. Examples of such situations are no network
+     *    connectivity when attempting to stream data from a server, or expired user credentials
+     *    when trying to play subscription-based content.
+     *
+     * @see #setPlaybackState(int)
+     */
+    public final static int PLAYSTATE_ERROR              = 9;
+	
 	private MediaPlayer mediaPlayer;
 	private AudioManager audioManager;
 	private ComponentName remoteControlResponder;
@@ -77,6 +147,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
 	private static Method registerMediaButtonEventReceiver; // Thanks you google again for this code
 	private static Method unregisterMediaButtonEventReceiver;
+	
+	private Object remoteControlClient = null; // No type ... retrocompatibility
 
 	private static final int IDLE_DELAY = 60000;
 
@@ -135,6 +207,52 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		}
 	}
 
+	@TargetApi(14)
+	private void registerRemoteControlClient() {
+		if(Build.VERSION.SDK_INT > 14) {
+			// build the PendingIntent for the remote control client
+			Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+			mediaButtonIntent.setComponent(remoteControlResponder);
+			PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
+			// create and register the remote control client
+			remoteControlClient = new RemoteControlClient(mediaPendingIntent);
+			((RemoteControlClient) remoteControlClient).setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE |
+					RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
+					RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
+			audioManager.registerRemoteControlClient((RemoteControlClient) remoteControlClient);
+		}
+	}
+	
+	@TargetApi(14)
+	private void unregisterRemoteControlClient() {
+		if(Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+			audioManager.unregisterRemoteControlClient((RemoteControlClient) remoteControlClient);
+		}
+	}
+	
+	@TargetApi(14)
+	private void setMusicState(int state) {
+		if(Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+			((RemoteControlClient) remoteControlClient).setPlaybackState(state);
+		}
+	}
+	
+	@TargetApi(14)
+	private void setMusicInfo(Music song) {
+		if(Build.VERSION.SDK_INT > 14 && remoteControlClient != null && song != null) {
+			MetadataEditor editor = ((RemoteControlClient) remoteControlClient).editMetadata(true);
+			//TODO : maybe add cover art here someday
+			editor.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, song.getTime()*1000);
+			editor.putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER, song.getTrack());
+			editor.putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER, song.getDisc());
+			editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, song.getAlbum());
+			editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, song.getAlbumArtist());
+			editor.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, song.getArtist());
+			editor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, song.getTitle());
+			editor.apply();
+		}
+	}
+	
 	public static Boolean getStreamingServiceStatus() {
 		return isServiceRunning;
 	}
@@ -176,30 +294,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		}
 	};
 	
-/* TODO: Check if still needed
-	private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			//String action = intent.getAction();
-			String cmd = intent.getStringExtra(CMD_COMMAND);
-			if (cmd.equals(CMD_NEXT)) {
-				next();
-			} else if (cmd.equals(CMD_PREV)) {
-				prev();
-			} else if (cmd.equals(CMD_PLAYPAUSE)) {
-				if (isPaused == false) {
-					pauseStreaming();
-				} else {
-					resumeStreaming();
-				}
-			} else if (cmd.equals(CMD_PAUSE)) {
-				pauseStreaming();
-			} else if (cmd.equals(CMD_STOP)) {
-				stop();
-			}
-		}
-	};
-*/
 	public void onCreate() {
 		super.onCreate();
 		isServiceRunning = true;
@@ -223,6 +317,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		initializeRemoteControlRegistrationMethods();
 
 		registerMediaButtonEvent();
+		registerRemoteControlClient();
+		
+		if(audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+			Toast.makeText(this, R.string.audioFocusFailed, Toast.LENGTH_LONG).show();
+			stopStreaming();
+		}
 
 		TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		tmgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -247,7 +347,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_STOPPED, status);
 		}
 		isServiceRunning = false;
+		setMusicState(PLAYSTATE_STOPPED);
 		unregisterMediaButtonEvent();
+		unregisterRemoteControlClient();
+		audioManager.abandonAudioFocus(this);
 		if (mediaPlayer != null) {
 			mediaPlayer.stop();
 			mediaPlayer.release();
@@ -255,6 +358,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		}
 		MPDApplication app = (MPDApplication) getApplication();
 		app.unsetActivity(this);
+		app.getApplicationState().streamingMode = false;
 		super.onDestroy();
 	}
 
@@ -333,6 +437,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 						((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
 						stopForeground(true);
 						Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+						setMusicInfo(actSong);
 						RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
 						views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
 						Notification status = null;
@@ -343,9 +448,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 						 .setContentIntent(PendingIntent.getActivity(this, 0,
 								new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
 						if(buffering) {
+							setMusicState(PLAYSTATE_BUFFERING);
 							notificationBuilder.setContentTitle(getString(R.string.buffering));
 							notificationBuilder.setContentText(actSong.getTitle() + " - " + actSong.getArtist());
 						} else {
+							setMusicState(PLAYSTATE_PLAYING);
 							notificationBuilder.setContentTitle(actSong.getTitle());
 							notificationBuilder.setContentText(actSong.getAlbum() + " - " + actSong.getArtist());
 						}
@@ -383,6 +490,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		// MPDApplication app = (MPDApplication) getApplication();
 		// MPD mpd = app.oMPDAsyncHelper.oMPD;
 		registerMediaButtonEvent();
+		registerRemoteControlClient();
 		/*
 		 * if (isPaused == true) { try { String state = mpd.getStatus().getState(); if (state.equals(MPDStatus.MPD_STATE_PAUSED)) {
 		 * mpd.pause(); } isPaused = false; } catch (MPDServerException e) {
@@ -599,5 +707,16 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	public void libraryStateChanged(boolean updating) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onAudioFocusChange(int focusChange) {
+		if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+			mediaPlayer.setVolume(0.2f, 0.2f);
+		} else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+			mediaPlayer.setVolume(1f, 1f);
+		} else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+			stopStreaming();
+		}
 	}
 }
