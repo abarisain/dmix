@@ -14,12 +14,13 @@
         android:layout_marginTop="4dip"
         android:layout_weight="1" >
 
-        <ImageSwitcher
+        <ImageView
             android:id="@+id/albumCover"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_centerInParent="true" >
-        </ImageSwitcher>
+            android:layout_centerInParent="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/no_cover_art" />
 
         <ProgressBar
             android:id="@+id/albumCoverProgress"

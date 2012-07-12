@@ -32,11 +32,12 @@
         android:layout_below="@+id/progress_track"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dip"
-        android:src="@android:drawable/ic_media_play" >
+        android:src="@android:drawable/ic_media_play"
+        android:scaleType="fitCenter" >
 
     </ImageButton>
 
-    <ImageSwitcher
+    <ImageView
         android:id="@+id/albumCover"
         android:layout_width="400dip"
         android:layout_height="400dip"
@@ -45,7 +46,7 @@
         android:layout_marginBottom="75dip"
         android:layout_marginTop="10dip"
         android:padding="20dp" >
-    </ImageSwitcher>
+    </ImageView>
 
     <ImageButton
         android:id="@+id/prev"

@@ -31,12 +31,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.ViewSwitcher.ViewFactory;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -72,9 +70,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	long lastSongTime = 0;
 	long lastElapsedTime = 0;
 
-	private ImageSwitcher coverSwitcher;
+	private ImageView coverArt;
 
-	private ProgressBar coverSwitcherProgress;
+	private ProgressBar coverArtProgress;
 
 	public static final int VOLUME_STEP = 5;
 
@@ -189,25 +187,11 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		Animation fadeOut = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out);
 		fadeOut.setDuration(ANIMATION_DURATION_MSEC);
 
-		coverSwitcher = (ImageSwitcher) view.findViewById(R.id.albumCover);
-		coverSwitcher.setFactory(new ViewFactory() {
+		coverArt = (ImageView) view.findViewById(R.id.albumCover);
 
-			public View makeView() {
-				ImageView i = new ImageView(NowPlayingFragment.this.getActivity());
-
-				i.setBackgroundColor(0x00FF0000);
-				i.setScaleType(ImageView.ScaleType.FIT_CENTER);
-				// i.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-
-				return i;
-			}
-		});
-		coverSwitcher.setInAnimation(fadeIn);
-		coverSwitcher.setOutAnimation(fadeOut);
-
-		coverSwitcherProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-		coverSwitcherProgress.setIndeterminate(true);
-		coverSwitcherProgress.setVisibility(ProgressBar.INVISIBLE);
+		coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+		coverArtProgress.setIndeterminate(true);
+		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 
 		oCoverAsyncHelper = new CoverAsyncHelper();
 		oCoverAsyncHelper.addCoverDownloadListener(this);
@@ -528,7 +512,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					onCoverNotFound();
 				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
-					coverSwitcherProgress.setVisibility(ProgressBar.VISIBLE);
+					coverArtProgress.setVisibility(ProgressBar.VISIBLE);
 					if (enableLastFM) {
 						oCoverAsyncHelper.downloadCover(artist, album);
 					} else {
@@ -605,16 +589,13 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	public void onCoverDownloaded(Bitmap cover) {
-		coverSwitcherProgress.setVisibility(ProgressBar.INVISIBLE);
+		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		if (cover != null) {
 			cover.setDensity((int) metrics.density);
 			BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
-			coverSwitcher.setImageDrawable(myCover);
-			// coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
-			coverSwitcher.showNext(); // Little trick so the animation gets displayed
-			coverSwitcher.showPrevious();
+			coverArt.setImageDrawable(myCover);
 		} else {
 			// Should not be happening, but happened.
 			onCoverNotFound();
@@ -622,8 +603,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	public void onCoverNotFound() {
-		coverSwitcherProgress.setVisibility(ProgressBar.INVISIBLE);
-		coverSwitcher.setImageResource(R.drawable.gmpcnocover);
+		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+		coverArt.setImageResource(R.drawable.no_cover_art);
 		// coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
 	}
 
