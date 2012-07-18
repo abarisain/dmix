@@ -92,7 +92,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 			} else if (line.startsWith("Pos:")) {
 				this.pos = Integer.parseInt(line.substring("Pos: ".length()));
 			} else if (line.startsWith("Date:")) {
-				this.date = Integer.parseInt(line.substring("Date: ".length()));
+				this.date = Integer.parseInt(line.substring("Date: ".length()).replaceAll("\\D+",""));
 			} /* else if (line.startsWith("Genre:")) {
 				this.genre = line.substring("Genre: ".length());
 			} else if (line.startsWith("Soundtrack:")) {
