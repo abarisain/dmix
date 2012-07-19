@@ -37,6 +37,10 @@ public class Album extends Item {
 	public int getSongCount() {
 		return songCount;
 	}
+	
+	public int getYear() {
+		return year;
+	}
 
 	public int getDuration() {
 		return duration;
@@ -44,18 +48,21 @@ public class Album extends Item {
 
 	@Override
 	public String mainText() {
-		if (MPD.sortAlbumsByYear() && 0!=year) {
-			return year+" - "+name;
-		}
 		return name;
 	}
 
 	@Override
 	public String subText() {
-		if (0==songCount) {
-			return null;
+		String construct = null;
+		if (MPD.sortAlbumsByYear() && 0!=year) {
+			construct = Integer.toString(year);
 		}
-		return String.format(1==songCount ? singleTrackFormat : multipleTracksFormat, songCount, Music.timeToString(duration));
+		if (0!=songCount) {
+			if(construct != null)
+				construct += " - ";
+			construct += String.format(1==songCount ? singleTrackFormat : multipleTracksFormat, songCount, Music.timeToString(duration));
+		}
+		return construct;
 	}
 
     @Override
