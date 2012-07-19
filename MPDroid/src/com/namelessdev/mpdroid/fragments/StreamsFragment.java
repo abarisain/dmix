@@ -78,9 +78,7 @@ public class StreamsFragment extends BrowseFragment {
 			}
 		} catch (Exception e) {
 		}
-		if (streams.isEmpty()) {
-			streams.add(new Stream("Test", "http://network.absoluteradio.co.uk/core/audio/ogg/live.pls?service=vrbb"));
-		}
+
 		Collections.sort(streams);
 		items=streams;
 	}
