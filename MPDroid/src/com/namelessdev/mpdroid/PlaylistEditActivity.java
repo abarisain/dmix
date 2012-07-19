@@ -236,8 +236,18 @@ public class PlaylistEditActivity extends SherlockListActivity implements Status
 
 	@Override
 	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-		// TODO Auto-generated method stub
-		
+		if (isPlayQueue) {
+			// Mark running track...
+			for (HashMap<String, Object> song : songlist) {
+				if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId())
+					song.put("play", android.R.drawable.ic_media_play);
+				else
+					song.put("play", 0);
+			}
+			final SimpleAdapter adapter = (SimpleAdapter) getListAdapter();
+			if(adapter != null)
+				adapter.notifyDataSetChanged();
+		}
 	}
 
 	@Override
