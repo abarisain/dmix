@@ -148,7 +148,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 
         @Override
         public int getCount() {
-            return 6;
+            return 5;
         }
 
         @Override
