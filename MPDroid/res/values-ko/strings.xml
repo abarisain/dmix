@@ -100,7 +100,6 @@
 	<string name="search_label">MPDroid</string>
 	<string name="search_hint">검색 …</string>
 	<string name="libraryTabActivity">라이브러리</string>
-	<string name="songSearch">모든 곡을 한번에 보는 것보다 검색을 사용 하는 것을 권장합니다.</string>
 	<string name="warningTitle">읽어주세요</string>
 	<string name="warningText1">Welcome to MPDroid 1.0 !\nThis will only display once.\n\nFirst of all, if you don\'t know what a MPD server is, you should uninstall the application now, it is not made for you.\n\nImportant known bug : Widget sometimes crashes or drains battery.\n\nFor previous users, thanks a lot for your support and contributions. I really hope that you will like the new MPDroid version. Feel free to tell me what you dislike or want back in an email :)\nThe old version is stil available on my github page.</string>
 	<string name="editPlaylist">수정</string>

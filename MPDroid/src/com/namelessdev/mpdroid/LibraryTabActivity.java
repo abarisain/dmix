@@ -18,7 +18,6 @@ import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.ArtistsFragment;
 import com.namelessdev.mpdroid.fragments.FSFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistsFragment;
-import com.namelessdev.mpdroid.fragments.SongSearchMessageFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
 
 public class LibraryTabActivity extends SherlockFragmentActivity implements OnNavigationListener {
@@ -56,7 +55,6 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
         actionBarAdapter.add(getString(R.string.artists));
         actionBarAdapter.add(getString(R.string.albums));
-        actionBarAdapter.add(getString(R.string.songs));
         actionBarAdapter.add(getString(R.string.playlists));
         actionBarAdapter.add(getString(R.string.streams));
         actionBarAdapter.add(getString(R.string.files));
@@ -141,10 +139,9 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
             switch (i) {
             	case 0: fragment = new ArtistsFragment(); break;
             	case 1: fragment = new AlbumsFragment(); break;
-            	case 2: fragment = new SongSearchMessageFragment(); break;
-            	case 3: fragment = new PlaylistsFragment(); break;
-            	case 4: fragment = new StreamsFragment(); break;
-            	case 5: fragment = new FSFragment(); break;
+            	case 2: fragment = new PlaylistsFragment(); break;
+            	case 3: fragment = new StreamsFragment(); break;
+            	case 4: fragment = new FSFragment(); break;
             }
             return fragment;
         }
@@ -159,10 +156,9 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
             switch (position) {
                 case 0: return getString(R.string.artists);
                 case 1: return getString(R.string.albums);
-                case 2: return getString(R.string.songs);
-                case 3: return getString(R.string.playlists);
-                case 4: return getString(R.string.streams);
-                case 5: return getString(R.string.files);
+                case 2: return getString(R.string.playlists);
+                case 3: return getString(R.string.streams);
+                case 4: return getString(R.string.files);
             }
             return null;
         }
