@@ -144,7 +144,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		android.view.MenuItem addAndPlayItem = menu.add(ContextMenu.NONE, ADDNPLAY, 0, R.string.addAndPlay);
 		addAndPlayItem.setOnMenuItemClickListener(this);
 		
-		if (R.string.addPlaylist!=irAdd) {
+		if (R.string.addPlaylist!=irAdd && R.string.addStream!=irAdd) {
 			int id=ADD_TO_PLAYLIST;
 			SubMenu playlistMenu=menu.addSubMenu(R.string.addToPlaylist);
 			android.view.MenuItem item=playlistMenu.add(ContextMenu.NONE, id++, (int)info.id, R.string.newPlaylist);

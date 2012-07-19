@@ -152,4 +152,15 @@
 	<string name="newPlaylist">(New playlist)</string>
 	<string name="playlistName">Playlist Name</string>
 	<string name="newPlaylistPrompt">Enter name for new playlist:</string>
+	<string name="streams">Streams</string>
+	<string name="addStream">Add Stream</string>
+	<string name="editStream">Edit Stream</string>
+	<string name="streamAdded">Stream %s added</string>
+	<string name="loadingStreams">Loading streams…</string>
+	<string name="streamDeleted">Stream %s deleted</string>
+	<string name="deleteStream">Delete stream</string>
+	<string name="deleteStreamPrompt">Are you sure you wish to delete %s?</string>
+	<string name="streamName">Name:</string>
+	<string name="streamUrl">URL:</string>
+	<string name="streamDetails">Stream details:</string>
 </resources>

@@ -19,6 +19,7 @@ import com.namelessdev.mpdroid.fragments.ArtistsFragment;
 import com.namelessdev.mpdroid.fragments.FSFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistsFragment;
 import com.namelessdev.mpdroid.fragments.SongSearchMessageFragment;
+import com.namelessdev.mpdroid.fragments.StreamsFragment;
 
 public class LibraryTabActivity extends SherlockFragmentActivity implements OnNavigationListener {
 
@@ -57,6 +58,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         actionBarAdapter.add(getString(R.string.albums));
         actionBarAdapter.add(getString(R.string.songs));
         actionBarAdapter.add(getString(R.string.playlists));
+        actionBarAdapter.add(getString(R.string.streams));
         actionBarAdapter.add(getString(R.string.files));
         
         if(Build.VERSION.SDK_INT >= 14) {
@@ -141,14 +143,15 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
             	case 1: fragment = new AlbumsFragment(); break;
             	case 2: fragment = new SongSearchMessageFragment(); break;
             	case 3: fragment = new PlaylistsFragment(); break;
-            	case 4: fragment = new FSFragment(); break;
+            	case 4: fragment = new StreamsFragment(); break;
+            	case 5: fragment = new FSFragment(); break;
             }
             return fragment;
         }
 
         @Override
         public int getCount() {
-            return 5;
+            return 6;
         }
 
         @Override
@@ -158,7 +161,8 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
                 case 1: return getString(R.string.albums);
                 case 2: return getString(R.string.songs);
                 case 3: return getString(R.string.playlists);
-                case 4: return getString(R.string.files);
+                case 4: return getString(R.string.streams);
+                case 5: return getString(R.string.files);
             }
             return null;
         }

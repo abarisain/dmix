@@ -192,6 +192,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 		return fullpath;
 	}
 
+	public boolean isStream() {
+		return null!=fullpath && fullpath.contains("://");
+	}
+
 	/**
 	 * Retrieves current song playlist id.
 	 * 

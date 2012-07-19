@@ -454,7 +454,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				albumNameText.setText(album);
 				progressBarTrack.setMax(songMax);
 				updateStatus(status);
-				if (noSong) {
+				if (noSong || actSong.isStream()) {
 					lastArtist = artist;
 					lastAlbum = album;
 					trackTime.setText(timeToString(0));
