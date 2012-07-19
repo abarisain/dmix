@@ -21,10 +21,13 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
@@ -114,6 +117,7 @@ public class StreamsFragment extends BrowseFragment {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -213,6 +217,10 @@ public class StreamsFragment extends BrowseFragment {
 		}
 	}
 	
+	private void addEdit() {
+		addEdit(-1);
+	}
+	
 	private void addEdit(int idx) {
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View view = factory.inflate(R.layout.stream_dialog, null);
@@ -253,5 +261,23 @@ public class StreamsFragment extends BrowseFragment {
         		// Do nothing.
         	}
         }).show();
+	}
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.mpd_streamsmenu, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.add:
+			addEdit();
+			return true;
+		default:
+			return false;
+		}
+
 	}
 }
