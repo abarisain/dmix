@@ -19,12 +19,6 @@
 			</PreferenceCategory>
 		</PreferenceScreen>
 		<!-- Other settings -->
-		<CheckBoxPreference android:key="random"
-			android:title="@string/random" android:summary="@string/randomDescription"
-			android:persistent="false" />
-		<CheckBoxPreference android:key="repeat"
-			android:title="@string/repeat" android:summary="@string/repeatDescription"
-			android:persistent="false" />
 		<PreferenceScreen android:title="@string/updateDB"
 			android:summary="@string/updateDBDetails" android:key="updateDB">
 		</PreferenceScreen>

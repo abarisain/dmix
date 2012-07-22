@@ -53,10 +53,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public static final String PREFS_NAME = "mpdroid.properties";
 
 	private TextView artistNameText;
-
 	private TextView songNameText;
-
 	private TextView albumNameText;
+	private ImageButton shuffleButton=null;
+	private ImageButton repeatButton=null;
+	private boolean shuffleCurrent=false;
+	private boolean repeatCurrent=false;
 
 	public static final int ALBUMS = 4;
 
@@ -178,6 +180,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		albumNameText.setSelected(true);
 		songNameText.setSelected(true);
 
+		shuffleButton = (ImageButton) view.findViewById(R.id.shuffle);
+		repeatButton = (ImageButton) view.findViewById(R.id.repeat);
+
 		progressBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
 
 		trackTime = (TextView) view.findViewById(R.id.trackTime);
@@ -207,6 +212,13 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		button.setOnClickListener(buttonEventHandler);
 		button.setOnLongClickListener(buttonEventHandler);
 		
+		if (null!=shuffleButton) {
+			shuffleButton.setOnClickListener(buttonEventHandler);
+		}
+		if (null!=repeatButton) {
+			repeatButton.setOnClickListener(buttonEventHandler);
+		}
+
 		final View songInfo = view.findViewById(R.id.songInfo);
 		if(songInfo != null) {
 			songInfo.setOnClickListener(new OnClickListener() {
@@ -317,6 +329,18 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					}
 				}).start();
 				break;
+            case R.id.shuffle:
+                try {
+					mpd.setRandom(!mpd.getStatus().isRandom());
+				} catch (MPDServerException e) {
+				}
+                break;
+            case R.id.repeat:
+                try {
+					mpd.setRepeat(!mpd.getStatus().isRepeat());
+				} catch (MPDServerException e) {
+				}
+                break;
 
 			}
 		}
@@ -615,6 +639,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
 			}
 		}
+        setShuffleButton(status.isRandom());
+        setRepeatButton(status.isRepeat());
 	}
 
 	@Override
@@ -629,14 +655,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public void repeatChanged(boolean repeating) {
-		// TODO Auto-generated method stub
-		
+		setRepeatButton(repeating);
 	}
 
 	@Override
 	public void randomChanged(boolean random) {
-		// TODO Auto-generated method stub
-		
+		setShuffleButton(random);
 	}
 
 	@Override
@@ -648,6 +672,22 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public void libraryStateChanged(boolean updating) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	private void setShuffleButton(boolean on) {
+		if (null!=shuffleButton && shuffleCurrent!=on) {
+			shuffleButton.setImageResource(on ? R.drawable.ic_media_shuffle_on : R.drawable.ic_media_shuffle);
+			shuffleButton.invalidate();
+			shuffleCurrent=on;
+		}
+	}
+
+	private void setRepeatButton(boolean on) {
+		if (null!=repeatButton && repeatCurrent!=on) {
+			repeatButton.setImageResource(on ? R.drawable.ic_media_repeat_on : R.drawable.ic_media_repeat);
+			repeatButton.invalidate();
+			repeatCurrent=on;
+		}
 	}
 
 }

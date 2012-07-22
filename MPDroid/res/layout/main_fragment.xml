@@ -135,8 +135,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_media_previous"
-            android:visibility="invisible" />
+            android:src="@drawable/ic_media_shuffle"/>
 
         <ImageButton
             android:id="@+id/prev"
@@ -168,8 +167,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_media_previous"
-            android:visibility="invisible" />
+            android:src="@drawable/ic_media_repeat"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -47,7 +47,16 @@
         android:layout_marginTop="10dip"
         android:padding="20dp" >
     </ImageView>
-
+     <ImageButton
+        android:id="@+id/shuffle"
+        style="@style/PlayerButton"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_alignTop="@+id/playpause"
+        android:layout_marginRight="60dip"
+        android:layout_toLeftOf="@+id/prev"
+        android:src="@drawable/ic_media_shuffle" />
+    
     <ImageButton
         android:id="@+id/prev"
         style="@style/PlayerButton"
@@ -72,6 +81,16 @@
 
     </ImageButton>
 
+	<ImageButton
+        android:id="@+id/repeat"
+        style="@style/PlayerButton"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_alignTop="@+id/playpause"
+        android:layout_marginLeft="60dip"
+        android:layout_toRightOf="@+id/next"
+        android:src="@drawable/ic_media_repeat" />
+    
     <TextView
         android:id="@+id/trackTime"
         android:layout_width="150dip"

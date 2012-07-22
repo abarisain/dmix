@@ -152,8 +152,7 @@
             style="@style/PlayerButton"
             android:layout_width="@dimen/playerbutton_width"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_media_previous"
-            android:visibility="invisible" />
+            android:src="@drawable/ic_media_shuffle" />
 
         <ImageButton
             android:id="@+id/prev"
@@ -181,8 +180,7 @@
             style="@style/PlayerButton"
             android:layout_width="@dimen/playerbutton_width"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_media_previous"
-            android:visibility="invisible" />
+            android:src="@drawable/ic_media_repeat" />
     </LinearLayout>
 
 </LinearLayout>

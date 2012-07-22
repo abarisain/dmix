@@ -31,8 +31,6 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	private OnPreferenceClickListener onPreferenceClickListener;
 	private OnPreferenceClickListener onCheckPreferenceClickListener;
 	private HashMap<Integer, CheckBoxPreference> cbPrefs;
-	private CheckBoxPreference pRandom;
-	private CheckBoxPreference pRepeat;
 
 	private PreferenceScreen pOutputsScreen;
 	private PreferenceScreen pInformationScreen;
@@ -50,8 +48,6 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		onCheckPreferenceClickListener = new CheckPreferenceClickListener();
 		cbPrefs = new HashMap<Integer, CheckBoxPreference>();
 		pOutputsScreen = (PreferenceScreen) findPreference("outputsScreen");
-		pRandom = (CheckBoxPreference) findPreference("random");
-		pRepeat = (CheckBoxPreference) findPreference("repeat");
 		pInformationScreen = (PreferenceScreen) findPreference("informationScreen");
 		PreferenceScreen pUpdate = (PreferenceScreen) findPreference("updateDB");
 
@@ -70,8 +66,6 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 
 		if (!app.oMPDAsyncHelper.oMPD.isConnected()) {
 			pOutputsScreen.setEnabled(false);
-			pRandom.setEnabled(false);
-			pRepeat.setEnabled(false);
 			pUpdate.setEnabled(false);
 			pInformationScreen.setEnabled(false);
 			return;
@@ -93,8 +87,6 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 						
 						@Override
 						public void run() {
-							pRandom.setChecked(isRandom);
-							pRepeat.setChecked(isRepeat);
 							pVersion.setSummary(version);
 							pArtists.setSummary(artists);
 							pAlbums.setSummary(albums);
@@ -107,10 +99,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 				}
 			}
 		}).start();
-		// Server is Connected...
-		pRandom.setOnPreferenceClickListener(onCheckPreferenceClickListener);
-		pRepeat.setOnPreferenceClickListener(onCheckPreferenceClickListener);
-	
+		// Server is Connected...	
 	}
 
 	@Override
@@ -266,12 +255,10 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 
 	@Override
 	public void repeatChanged(boolean repeating) {
-		pRepeat.setChecked(repeating);
 	}
 
 	@Override
 	public void randomChanged(boolean random) {
-		pRandom.setChecked(random);	
 	}
 
 	@Override
