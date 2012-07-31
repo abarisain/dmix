@@ -27,6 +27,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 
 	private static final int MAIN = 0;
 	private static final int ADD = 1;
+	public static final String OPEN_OUTPUT = "open_output";
 
 	private OnPreferenceClickListener onPreferenceClickListener;
 	private OnPreferenceClickListener onCheckPreferenceClickListener;
@@ -59,6 +60,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		 * pConnectionScreen.addPreference(wifiConnection);
 		 */
 
+		
 		final EditTextPreference pVersion = (EditTextPreference) findPreference("version");
 		final EditTextPreference pArtists = (EditTextPreference) findPreference("artists");
 		final EditTextPreference pAlbums = (EditTextPreference) findPreference("albums");
@@ -100,6 +102,11 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 			}
 		}).start();
 		// Server is Connected...	
+		
+		if(getIntent().getBooleanExtra(OPEN_OUTPUT, false)) {
+			populateOutputsScreen();
+			setPreferenceScreen(pOutputsScreen);
+		}
 	}
 
 	@Override
@@ -154,26 +161,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 			return false;
 
 		if (preference.getKey().equals("outputsScreen")) {
-			// Populating outputs...
-			PreferenceCategory pOutput = (PreferenceCategory) findPreference("outputsCategory");
-			try {
-				Collection<MPDOutput> list = app.oMPDAsyncHelper.oMPD.getOutputs();
-
-				pOutput.removeAll();
-				for (MPDOutput out : list) {
-					CheckBoxPreference pref = new CheckBoxPreference(this);
-					pref.setPersistent(false);
-					pref.setTitle(out.getName());
-					pref.setChecked(out.isEnabled());
-					pref.setKey("" + out.getId());
-					pref.setOnPreferenceClickListener(onPreferenceClickListener);
-					cbPrefs.put(out.getId(), pref);
-					pOutput.addPreference(pref);
-
-				}
-			} catch (MPDServerException e) {
-				pOutput.removeAll(); // Connection error occured meanwhile...
-			}
+			populateOutputsScreen();
 			return true;
 		} else if (preference.getKey().equals("updateDB")) {
 			try {
@@ -186,6 +174,30 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 
 		return false;
 
+	}
+
+	private void populateOutputsScreen() {
+		// Populating outputs...
+		PreferenceCategory pOutput = (PreferenceCategory) findPreference("outputsCategory");
+		final MPDApplication app = (MPDApplication) getApplication();
+		try {
+			Collection<MPDOutput> list = app.oMPDAsyncHelper.oMPD.getOutputs();
+
+			pOutput.removeAll();
+			for (MPDOutput out : list) {
+				CheckBoxPreference pref = new CheckBoxPreference(this);
+				pref.setPersistent(false);
+				pref.setTitle(out.getName());
+				pref.setChecked(out.isEnabled());
+				pref.setKey("" + out.getId());
+				pref.setOnPreferenceClickListener(onPreferenceClickListener);
+				cbPrefs.put(out.getId(), pref);
+				pOutput.addPreference(pref);
+
+			}
+		} catch (MPDServerException e) {
+			pOutput.removeAll(); // Connection error occured meanwhile...
+		}
 	}
 
 	class CheckPreferenceClickListener implements OnPreferenceClickListener {
@@ -269,5 +281,10 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	@Override
 	public void libraryStateChanged(boolean updating) {
 		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
 	}
 }

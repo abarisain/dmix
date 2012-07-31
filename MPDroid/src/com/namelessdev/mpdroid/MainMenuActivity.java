@@ -240,6 +240,11 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 			i = new Intent(this, SettingsActivity.class);
 			startActivityForResult(i, SETTINGS);
 			return true;
+		case R.id.GMM_Outputs:
+			i = new Intent(this, SettingsActivity.class);
+			i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
+			startActivityForResult(i, SETTINGS);
+			return true;
 		case CONNECT:
 			((MPDApplication) this.getApplication()).connect();
 			return true;
