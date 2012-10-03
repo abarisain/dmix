@@ -6,7 +6,7 @@ You can browse your library, control the current song and playlist, manage your 
 
 What's not to like ? 
 
-![Now Playing Screenshot](https://raw.github.com/abarisain/dmix/master/Screenshots/main.png) ![Library Screenshot](https://raw.github.com/abarisain/dmix/master/Screenshots/songs.png)
+![Now Playing/library Screenshot](https://raw.github.com/abarisain/dmix/master/Screenshots/readme.png)
 
 #### Compatibility
 
