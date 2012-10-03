@@ -34,10 +34,14 @@ Also, MPDroid's speed isn't that great, but considering that MPD's api was never
 
 So, the current roadmap is :
 
+####1.0
  - Fix the annoying bugs
  - Make the connection to MPD robust, getting rid of the horrible connection errors
  - Release a new market version
  - Release a legacy market versions, because some people will want it back
+
+####1.1
+ - Add lyrics & artist/album info
  - Make MPDroid configurable for multiple servers (Better implementation than the hackish wlan based one)
  - Add bonjour support
  - Keep it the most up to date and best MPDroid client for android
@@ -60,6 +64,8 @@ There are a lot of people here. Developpers who crossed my path now and then, wo
 [Phil Chandler](https://github.com/philchand) - Various fixes and improvements to internal stuff. Added more options to the way it handles the library.
 
 [Guillaume Revaillot](https://github.com/grevaillot) - Tablet layout work
+
+Andrew Blackburn - Various stuff, suggestions and layout work
 
 [Stefan Richter](https://github.com/02strich) - Refactoring and … Widget ! I was really too lazy about this one, and it was a much requested feature. Also added a way to build MPDroid from the command line, which I didn't even try.
 
