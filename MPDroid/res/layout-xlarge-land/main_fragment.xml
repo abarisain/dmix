@@ -23,7 +23,29 @@
         android:max="100"
         android:paddingTop="0dp" >
     </SeekBar>
-
+    
+    <SeekBar
+        android:id="@+id/progress_volume"
+        android:layout_width="600dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/playpause"
+        android:layout_marginTop="15dip"
+        android:layout_centerHorizontal="true"
+        android:max="100"
+        android:paddingTop="0dp" >
+    </SeekBar>
+
+    <ImageView
+        android:id="@+id/volume_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/progress_volume"
+        android:layout_alignBottom="@+id/progress_volume"
+        android:gravity="center_vertical"
+        android:layout_marginRight="15dip"
+        android:layout_toLeftOf="@+id/progress_volume"
+        android:src="@drawable/volume" />
+    
     <ImageButton
         android:id="@+id/playpause"
         style="@style/PlayerButton"
@@ -32,8 +54,7 @@
         android:layout_below="@+id/progress_track"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dip"
-        android:src="@android:drawable/ic_media_play"
-        android:scaleType="fitCenter" >
+        android:src="@android:drawable/ic_media_play" >
 
     </ImageButton>
 
@@ -96,6 +117,7 @@
         android:layout_width="150dip"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/progress_track"
+        android:layout_marginTop="-7dip"
         android:layout_marginRight="36dp"
         android:layout_toLeftOf="@+id/progress_track"
         android:gravity="center_horizontal"
@@ -192,6 +214,7 @@
         android:layout_width="150dip"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/progress_track"
+        android:layout_marginTop="-7dip"
         android:layout_marginLeft="36dp"
         android:layout_toRightOf="@+id/progress_track"
         android:gravity="center_horizontal"
@@ -200,5 +223,7 @@
         android:textColor="#FFFFFFFF"
         android:textScaleX="1"
         android:textSize="18sp" />
+    
+    
 
 </RelativeLayout>

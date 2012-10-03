@@ -170,4 +170,29 @@
             android:src="@drawable/ic_media_repeat"/>
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dip"
+        android:layout_marginBottom="10dip" >
+
+        <SeekBar
+            android:id="@+id/progress_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dip"
+            android:layout_marginRight="40dip"
+            android:max="100"
+            android:progress="0" />
+        
+        <ImageView
+            android:id="@+id/volume_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dip"
+            android:src="@drawable/volume" />
+    </RelativeLayout>
+    
 </LinearLayout>

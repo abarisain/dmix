@@ -96,14 +96,42 @@
                 android:clickable="false"
                 android:src="@drawable/spinner_holo_dark" />
         </RelativeLayout>
-
+        
+	    <RelativeLayout
+	        android:id="@+id/volumeLayout"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="20dip"
+            android:layout_marginBottom="5dip"
+            android:layout_toRightOf="@id/coverLayout" >
+	
+	        <SeekBar
+	            android:id="@+id/progress_volume"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="40dip"
+	            android:layout_marginRight="40dip"
+	            android:max="100"
+	            android:progress="0" />
+	        
+	        <ImageView
+	            android:id="@+id/volume_icon"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentLeft="true"
+	            android:layout_centerVertical="true"
+	            android:layout_marginLeft="15dip"
+	            android:src="@drawable/volume" />
+	    </RelativeLayout>
+	        
         <RelativeLayout
             android:id="@+id/seekLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_marginTop="5dip"
-            android:layout_toRightOf="@id/coverLayout" >
+            android:layout_toRightOf="@id/coverLayout"
+            android:layout_above="@id/volumeLayout" >
 
             <TextView
                 android:id="@+id/trackTime"
