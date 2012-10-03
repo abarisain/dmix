@@ -1,4 +1,4 @@
-package org.pmix.cover;
+package com.namelessdev.mpdroid.cover;
 
 public interface ICoverRetriever {
 

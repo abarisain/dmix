@@ -1,4 +1,4 @@
-package org.pmix.cover;
+package com.namelessdev.mpdroid.cover;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;

@@ -8,11 +8,11 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.pmix.cover.ICoverRetriever;
-import org.pmix.cover.LastFMCover;
-import org.pmix.cover.LocalCover;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import com.namelessdev.mpdroid.cover.LastFMCover;
+import com.namelessdev.mpdroid.cover.LocalCover;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
