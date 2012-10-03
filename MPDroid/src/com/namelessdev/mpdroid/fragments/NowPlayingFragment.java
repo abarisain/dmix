@@ -48,8 +48,6 @@ import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
 		OnSharedPreferenceChangeListener {
 	
-	public static final String COVER_BASE_URL = "http://%s/music/";
-
 	public static final String PREFS_NAME = "mpdroid.properties";
 
 	private TextView artistNameText;
@@ -199,8 +197,15 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		coverArtProgress.setIndeterminate(true);
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 
-		oCoverAsyncHelper = new CoverAsyncHelper();
+		MPDApplication app = (MPDApplication) getActivity().getApplication();
+		oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
+		if(enableLastFM) {
+			oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LASTFM);
+		}else{
+			oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LOCAL);
+		}
 		oCoverAsyncHelper.addCoverDownloadListener(this);
+
 		buttonEventHandler = new ButtonEventHandler();
 		ImageButton button = (ImageButton) view.findViewById(R.id.next);
 		button.setOnClickListener(buttonEventHandler);
@@ -457,6 +462,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				String artist = null;
 				String title = null;
 				String album = null;
+				String path = null;
 				int songMax = 0;
 				boolean noSong=actSong == null || status.getPlaylistLength() == 0;
 				if (noSong) {
@@ -466,6 +472,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					artist = actSong.getArtist();
 					title = actSong.getTitle();
 					album = actSong.getAlbum();
+					path = actSong.getPath();
 					songMax = (int) actSong.getTime();
 				}
 
@@ -487,16 +494,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
 					coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-					if (enableLastFM) {
-						oCoverAsyncHelper.downloadCover(artist, album);
-					} else {
-						// Try to find the cover from apache (vortexbox)
-						// TODO : Make it configurable ...
-						oCoverAsyncHelper.setUrlOverride(String.format(COVER_BASE_URL + "%s/cover.jpg", ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.getConnectionSettings().sServer, actSong.getPath().replace(" ", "%20")));
-						oCoverAsyncHelper.downloadCover(null, null);
-						// Dirty hack ? Maybe. I don't feel like writing a new function.
-						// onCoverNotFound();
-					}
+					oCoverAsyncHelper.downloadCover(artist, album, path);
 					lastArtist = artist;
 					lastAlbum = album;
 				}
@@ -591,6 +589,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals("enableLastFM")) {
 			enableLastFM = sharedPreferences.getBoolean("enableLastFM", true);
+
+			if(enableLastFM) {
+				oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LASTFM);
+			}else{
+				oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LOCAL);
+			}
 		}
 	}
 
