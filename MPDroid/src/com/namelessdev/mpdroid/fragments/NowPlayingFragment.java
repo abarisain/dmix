@@ -62,6 +62,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	public static final int FILES = 3;
 
+	private SeekBar progressBarVolume = null;
 	private SeekBar progressBarTrack = null;
 
 	private TextView trackTime = null;
@@ -139,7 +140,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			e.printStackTrace();
 		}
 
-		/*final MPDApplication app = (MPDApplication) getActivity().getApplication();
+		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		new Thread(new Runnable() {
 			
 			@Override
@@ -149,7 +150,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					handler.post(new Runnable() {
 						@Override
 						public void run() {
-							//progressBarVolume.setProgress(volume);
+							progressBarVolume.setProgress(volume);
 						}
 					});
 				} catch (MPDServerException e) {
@@ -157,7 +158,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					e.printStackTrace();
 				}
 			}
-		}).start();*/
+		}).start();
 	}
 
 	@Override
@@ -181,6 +182,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		shuffleButton = (ImageButton) view.findViewById(R.id.shuffle);
 		repeatButton = (ImageButton) view.findViewById(R.id.repeat);
 
+		progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
 		progressBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
 
 		trackTime = (TextView) view.findViewById(R.id.trackTime);
@@ -234,6 +236,49 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				}
 			});
 		}
+
+		progressBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
+
+			}
+
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				volTimerTask = new TimerTask() {
+					public void run() {
+						final MPDApplication app = (MPDApplication) getActivity().getApplication();
+						if (lastSentVol != progress.getProgress()) {
+							lastSentVol = progress.getProgress();
+							new Thread(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										app.oMPDAsyncHelper.oMPD.setVolume(lastSentVol);
+									} catch (MPDServerException e) {
+										e.printStackTrace();
+									}
+								}
+							}).start();
+						}
+					}
+
+					int lastSentVol = -1;
+					SeekBar progress;
+
+					public TimerTask setProgress(SeekBar prg) {
+						progress = prg;
+						return this;
+					}
+				}.setProgress(seekBar);
+
+				volTimer.scheduleAtFixedRate(volTimerTask, 0, 100);
+			}
+
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				volTimerTask.cancel();
+				volTimerTask.run();
+			}
+		});
 
 		progressBarTrack.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -610,7 +655,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-		//progressBarVolume.setProgress(mpdStatus.getVolume());
+		progressBarVolume.setProgress(mpdStatus.getVolume());
 	}
 
 	@Override
