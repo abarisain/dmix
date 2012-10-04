@@ -23,6 +23,7 @@
 	<string name="serverAddress">Server Address :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Add and Replace</string>
+	<string name="addAndReplacePlay">Add, Replace and Play</string>
 	<string name="addAlbum">Add Album</string>
 	<string name="addPlaylist">Add Playlist</string>
 	<string name="addAndPlay">Add and Play</string>

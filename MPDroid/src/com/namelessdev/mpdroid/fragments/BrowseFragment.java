@@ -40,6 +40,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 
 	public static final int ADD = 0;
 	public static final int ADDNREPLACE = 1;
+	public static final int ADDNREPLACEPLAY = 4;
 	public static final int ADDNPLAY = 2;
 	public static final int ADD_TO_PLAYLIST = 3;
 
@@ -141,6 +142,8 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		addItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0, R.string.addAndReplace);
 		addAndReplaceItem.setOnMenuItemClickListener(this);
+		android.view.MenuItem addAndReplacePlayItem = menu.add(ContextMenu.NONE, ADDNREPLACEPLAY, 0, R.string.addAndReplacePlay);
+		addAndReplacePlayItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndPlayItem = menu.add(ContextMenu.NONE, ADDNPLAY, 0, R.string.addAndPlay);
 		addAndPlayItem.setOnMenuItemClickListener(this);
 		
@@ -169,10 +172,11 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	protected abstract void Add(Item item);
 	protected abstract void Add(Item item, String playlist);
 	@Override
-	public boolean onMenuItemClick(android.view.MenuItem item) {
+	public boolean onMenuItemClick(final android.view.MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		switch (item.getItemId()) {
+		case ADDNREPLACEPLAY:
 		case ADDNREPLACE:
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
 				@Override
@@ -183,7 +187,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 						app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 
 						Add(items.get((int) info.id));
-						if (status.equals(MPDStatus.MPD_STATE_PLAYING)) {
+						if (status.equals(MPDStatus.MPD_STATE_PLAYING) || item.getItemId() == ADDNREPLACEPLAY) {
 							app.oMPDAsyncHelper.oMPD.play();
 						}
 					} catch (MPDServerException e) {

@@ -22,6 +22,7 @@
 	<string name="serverAddress">Addresse du serveur :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Ajouter et remplacer</string>
+	<string name="addAndReplacePlay">Ajouter, remplacer et jouer</string>
 	<string name="addAndPlay">Ajouter et Jouer</string>
 	<string name="addPlaylist">Ajouter la Playlist</string>
 	<string name="addDirectory">Ajouter le dossier</string>
