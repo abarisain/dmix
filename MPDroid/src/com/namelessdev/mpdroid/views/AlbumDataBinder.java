@@ -18,9 +18,9 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	public void onDataBind(Context context, View targetView, List<? extends Item> items, Object item, int position) {
 		final Album album = (Album) item;
 		String info = "";
-		final int songCount = album.getSongCount();
+		final long songCount = album.getSongCount();
 		if(album.getYear() > 0)
-			info = Integer.toString(album.getYear());
+			info = Long.toString(album.getYear());
 		if(songCount > 0) {
 			if(info != null && info.length() > 0)
 				info += " - ";

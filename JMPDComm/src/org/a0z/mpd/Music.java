@@ -33,7 +33,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 	
 	private int disc = -1;
 
-	private int date = -1;
+	private long date = -1;
 
 	private long time = -1;
 
@@ -92,7 +92,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 			} else if (line.startsWith("Pos:")) {
 				this.pos = Integer.parseInt(line.substring("Pos: ".length()));
 			} else if (line.startsWith("Date:")) {
-				this.date = Integer.parseInt(line.substring("Date: ".length()).replaceAll("\\D+",""));
+				try {
+					this.date = Long.parseLong(line.substring("Date: ".length()).replaceAll("\\D+", ""));
+				} catch (NumberFormatException e) {
+				}
 			} /* else if (line.startsWith("Genre:")) {
 				this.genre = line.substring("Genre: ".length());
 			} else if (line.startsWith("Soundtrack:")) {
@@ -291,7 +294,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 		return disc;
 	}
 	
-	public int getDate() {
+	public long getDate() {
 		return date;
 	}
 	
@@ -368,7 +371,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 		disc = value;
 	}
 	
-	public void setDate(int value) {
+	public void setDate(long value) {
 		date = value;
 	}
 

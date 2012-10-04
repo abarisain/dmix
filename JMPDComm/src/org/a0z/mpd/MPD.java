@@ -528,14 +528,14 @@ public class MPD {
 		return result;
 	}
 
-	private Integer[] getAlbumDetails(String artist, String album, boolean useAlbumArtistTag) throws MPDServerException {
+	private Long[] getAlbumDetails(String artist, String album, boolean useAlbumArtistTag) throws MPDServerException {
 		if (!isConnected()) {
 			throw new MPDServerException("MPD Connection is not established");
 		}
-		Integer[] result = new Integer[3];
-		result[0]=0;
-		result[1]=0;
-		result[2]=0;
+		Long[] result = new Long[3];
+		result[0] = 0l;
+		result[1] = 0l;
+		result[2] = 0l;
 		if (MPD.showAlbumTrackCount()) {
 			String[] args = new String[4];
 			args[0] = useAlbumArtistTag ? MPD_TAG_ALBUM_ARTIST : MPD_TAG_ARTIST;
@@ -545,9 +545,9 @@ public class MPD {
 			List<String> list = mpdConnection.sendCommand("count", args);
 			for (String line : list) {
 				if (line.startsWith("songs: ")) {
-					result[0]=Integer.parseInt(line.substring("songs: ".length()));
+					result[0] = Long.parseLong(line.substring("songs: ".length()));
 				} else if (line.startsWith("playtime: ")) {
-					result[1]=Integer.parseInt(line.substring("playtime: ".length()));
+					result[1] = Long.parseLong(line.substring("playtime: ".length()));
 				}
 			}
 		}
@@ -1049,12 +1049,12 @@ public class MPD {
 		if (null!=albumNames && !albumNames.isEmpty()) {
 			albums=new ArrayList<Album>();
 			for (String album : albumNames) {
-				int songCount=0;
-				int duration=0;
-				int year=0;
+				long songCount = 0;
+				long duration = 0;
+				long year = 0;
 				if (null!=artist && (MPD.showAlbumTrackCount() || MPD.sortAlbumsByYear())) {
 					try {
-						Integer[] albumDetails=getAlbumDetails(artist, album, MPD.useAlbumArtist());
+						Long[] albumDetails = getAlbumDetails(artist, album, MPD.useAlbumArtist());
 						if (null!=albumDetails && 3==albumDetails.length) {
 							songCount=albumDetails[0];
 							duration=albumDetails[1];

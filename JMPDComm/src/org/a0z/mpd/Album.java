@@ -5,12 +5,12 @@ public class Album extends Item {
 	public static String multipleTracksFormat="%1 Tracks (%2)";
 
 	private final String name;
-	private final int songCount;
-	private final int duration;
-	private final int year;
+	private final long songCount;
+	private final long duration;
+	private final long year;
 	private final String artist;
 
-	public Album(String name, int songCount, int duration, int year) {
+	public Album(String name, long songCount, long duration, long year) {
 		this.name=name;
 		this.songCount=songCount;
 		this.duration=duration;
@@ -34,15 +34,15 @@ public class Album extends Item {
 		return artist;
 	}
 
-	public int getSongCount() {
+	public long getSongCount() {
 		return songCount;
 	}
 	
-	public int getYear() {
+	public long getYear() {
 		return year;
 	}
 
-	public int getDuration() {
+	public long getDuration() {
 		return duration;
 	}
 
@@ -55,7 +55,7 @@ public class Album extends Item {
 	public String subText() {
 		String construct = null;
 		if (MPD.sortAlbumsByYear() && 0!=year) {
-			construct = Integer.toString(year);
+			construct = Long.toString(year);
 		}
 		if (0!=songCount) {
 			if(construct != null)
