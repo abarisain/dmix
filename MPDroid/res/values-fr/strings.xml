@@ -63,6 +63,7 @@
 	<string name="serverSettings">Paramètres serveur</string>
 	<string name="clientSettings">Paramètres client</string>
 	<string name="interfaceSettings">Paramètres d\'interface</string>
+	<string name="librarySettings">Paramètres de la bibliothèque</string>
 	<string name="songAdded">Chanson %s ajoutée</string>
 	<string name="about">A Propos</string>
 	<string name="aboutDescription">A Propos de MPDroid</string>

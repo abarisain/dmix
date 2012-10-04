@@ -69,6 +69,7 @@
 	<string name="coverSettings">Cover artwork settings</string>
 	<string name="clientSettings">Client settings</string>
 	<string name="interfaceSettings">Interface settings</string>
+	<string name="librarySettings">Library settings</string>
 	<string name="songAdded">Song %s added</string>
 	<string name="about">About</string>
 	<string name="aboutDescription">About MPDroid</string>

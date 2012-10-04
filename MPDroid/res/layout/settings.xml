@@ -43,7 +43,7 @@
 		</PreferenceScreen>
 
 	</PreferenceCategory>
- 	<PreferenceCategory android:title="@string/interfaceSettings">
+ 	<PreferenceCategory android:title="@string/librarySettings">
  		<CheckBoxPreference android:key="albumartist"
  			android:title="@string/albumartist" android:summary="@string/albumartistDescription"
  			android:persistent="true" />
@@ -56,6 +56,8 @@
  		<CheckBoxPreference android:persistent="true"
  			android:title="@string/showAlbumTrackCount" android:summary="@string/showAlbumTrackCountDescription"
  			android:key="showAlbumTrackCount" android:defaultValue="true"/>
+ 	</PreferenceCategory>
+ 	<PreferenceCategory android:title="@string/interfaceSettings">
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableStopButton"
 			android:key="enableStopButton" android:defaultValue="false" />
@@ -71,23 +73,22 @@
 		<EditTextPreference android:persistent="true"
 			android:title="@string/coverFileName" android:summary="@string/coverFileNameDescription"
 			android:key="coverFileName" android:defaultValue="folder.jpg" />
-
-		<!-- What's new -->
-		<PreferenceScreen android:title="@string/whatsNew"
-			android:summary="@string/whatsNewDescription" android:key="whatsNew">
-
-			<intent android:action="android.intent.action.MAIN"
-				android:targetPackage="com.namelessdev.mpdroid" android:targetClass="com.namelessdev.mpdroid.WebViewActivity" />
-
-		</PreferenceScreen>
-		
-		<!-- About -->
-		<PreferenceScreen android:title="@string/about"
-			android:summary="@string/aboutDescription" android:key="aboutScreen">
-
-			<intent android:action="android.intent.action.MAIN"
-				android:targetPackage="com.namelessdev.mpdroid" android:targetClass="com.namelessdev.mpdroid.AboutActivity" />
-
-		</PreferenceScreen>
 	</PreferenceCategory>
+	<!-- What's new -->
+	<PreferenceScreen android:title="@string/whatsNew"
+		android:summary="@string/whatsNewDescription" android:key="whatsNew">
+
+		<intent android:action="android.intent.action.MAIN"
+			android:targetPackage="com.namelessdev.mpdroid" android:targetClass="com.namelessdev.mpdroid.WebViewActivity" />
+
+	</PreferenceScreen>
+	
+	<!-- About -->
+	<PreferenceScreen android:title="@string/about"
+		android:summary="@string/aboutDescription" android:key="aboutScreen">
+
+		<intent android:action="android.intent.action.MAIN"
+			android:targetPackage="com.namelessdev.mpdroid" android:targetClass="com.namelessdev.mpdroid.AboutActivity" />
+
+	</PreferenceScreen>
 </PreferenceScreen>
