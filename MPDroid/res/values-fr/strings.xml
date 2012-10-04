@@ -125,6 +125,12 @@
 	<string name="showAlbumTrackCountDescription">Afficher le numéros des chansons d\'un album</string>
 	<string name="enableLastFM">Télécharger les pochettes</string>
 	<string name="enableLastFMDescription">Obtenir les pochettes via Last.FM (leur envoie les informations sur la chanson courante)</string>
+	<string name="enableLocalCover">Télécharger les pochettes locales</string>
+	<string name="enableLocalCoverDescription">Obtenir les pochettes depuis le serveur hébergant MPD (requiert un serveur web, lisez le wiki)</string>
+	<string name="musicPath">Chemin vers la musique</string>
+	<string name="musicPathDescription">Chemin vers votre répertoire de musique sur vôtre serveur MPD, par ex. files/mp3 (music/ pour les utilisateurs de vortexbox)</string>
+	<string name="coverFileName">Nom du fichier pochette</string>
+	<string name="coverFileNameDescription">Nom de fichier des pochettes, par ex. folder.jpg (cover.jpg pour les utilisateurs de vortexbox)</string>
 	<string name="whatsNew">Quoi de neuf ?</string>
 	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
 	<string name="deleteServer">Supprimer ce serveur</string>
