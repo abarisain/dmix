@@ -168,4 +168,5 @@
 	<string name="streamName">Name:</string>
 	<string name="streamUrl">URL:</string>
 	<string name="streamDetails">Stream details:</string>
+	<string name="enableStopButton">Show stop button</string>
 </resources>

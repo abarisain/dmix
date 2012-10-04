@@ -55,6 +55,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private TextView albumNameText;
 	private ImageButton shuffleButton=null;
 	private ImageButton repeatButton=null;
+	private ImageButton stopButton = null;
 	private boolean shuffleCurrent=false;
 	private boolean repeatCurrent=false;
 
@@ -219,6 +220,11 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		button.setOnClickListener(buttonEventHandler);
 		button.setOnLongClickListener(buttonEventHandler);
 		
+		stopButton = (ImageButton) view.findViewById(R.id.stop);
+		stopButton.setOnClickListener(buttonEventHandler);
+		stopButton.setOnLongClickListener(buttonEventHandler);
+		applyStopButtonVisibility(settings);
+
 		if (null!=shuffleButton) {
 			shuffleButton.setOnClickListener(buttonEventHandler);
 		}
@@ -321,6 +327,24 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			Intent i = null;
 
 			switch (v.getId()) {
+			case R.id.stop:
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							mpd.stop();
+						} catch (MPDServerException e) {
+							Log.w(MPDApplication.TAG, e.getMessage());
+						}
+					}
+				}).start();
+				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+					i = new Intent(app, StreamingService.class);
+					i.setAction("com.namelessdev.mpdroid.DIE");
+					getActivity().startService(i);
+					((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode = false;
+				}
+				break;
 			case R.id.next:
 				new Thread(new Runnable() {					
 					@Override
@@ -640,7 +664,16 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			}else{
 				oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LOCAL);
 			}
+		} else if(key.equals("enableStopButton")) {
+			applyStopButtonVisibility(sharedPreferences);
 		}
+	}
+
+	private void applyStopButtonVisibility(SharedPreferences sharedPreferences) {
+		if (stopButton == null) {
+			return;
+		}
+		stopButton.setVisibility(sharedPreferences.getBoolean("enableStopButton", false) ? View.VISIBLE : View.GONE);
 	}
 
 	@Override

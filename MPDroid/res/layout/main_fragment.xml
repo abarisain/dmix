@@ -152,6 +152,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/ic_media_play" />
+        
+        <ImageButton
+            android:id="@+id/stop"
+            style="@style/PlayerButton"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_media_stop" />
 
         <ImageButton
             android:id="@+id/next"

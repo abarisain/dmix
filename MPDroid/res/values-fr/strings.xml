@@ -146,4 +146,5 @@
 	<string name="newPlaylist">(Nouvelle playlist)</string>
 	<string name="playlistName">Nom de la playlist</string>
 	<string name="newPlaylistPrompt">Entrez un nom pour la nouvelle playlist :</string>
+	<string name="enableStopButton">Afficher le bouton stop</string>
 </resources>

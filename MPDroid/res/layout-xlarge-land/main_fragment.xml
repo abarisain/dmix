@@ -54,7 +54,7 @@
         android:layout_below="@+id/progress_track"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dip"
-        android:src="@android:drawable/ic_media_play" >
+        android:src="@drawable/ic_media_play" >
 
     </ImageButton>
 
@@ -86,10 +86,21 @@
         android:layout_alignTop="@+id/playpause"
         android:layout_marginRight="60dip"
         android:layout_toLeftOf="@+id/albumCoverProgress"
-        android:src="@android:drawable/ic_media_previous" >
+        android:src="@drawable/ic_media_previous" >
 
     </ImageButton>
-
+
+    <ImageButton
+        android:id="@+id/stop"
+        style="@style/PlayerButton"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_alignTop="@+id/playpause"
+        android:layout_marginLeft="60dip"
+        android:layout_toRightOf="@+id/albumCoverProgress"
+        android:src="@drawable/ic_media_stop" >
+
+    </ImageButton>
     <ImageButton
         android:id="@+id/next"
         style="@style/PlayerButton"
@@ -97,8 +108,8 @@
         android:layout_height="60dp"
         android:layout_alignTop="@+id/playpause"
         android:layout_marginLeft="60dip"
-        android:layout_toRightOf="@+id/albumCoverProgress"
-        android:src="@android:drawable/ic_media_next" >
+        android:layout_toRightOf="@+id/stop"
+        android:src="@drawable/ic_media_next" >
 
     </ImageButton>
 

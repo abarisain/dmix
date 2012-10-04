@@ -56,7 +56,9 @@
  		<CheckBoxPreference android:persistent="true"
  			android:title="@string/showAlbumTrackCount" android:summary="@string/showAlbumTrackCountDescription"
  			android:key="showAlbumTrackCount" android:defaultValue="true"/>
-
+		<CheckBoxPreference android:persistent="true"
+			android:title="@string/enableStopButton"
+			android:key="enableStopButton" android:defaultValue="false" />
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableLastFM" android:summary="@string/enableLastFMDescription"
 			android:key="enableLastFM" android:defaultValue="true" />
