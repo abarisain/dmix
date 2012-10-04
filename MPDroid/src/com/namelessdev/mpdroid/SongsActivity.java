@@ -1,5 +1,6 @@
 package com.namelessdev.mpdroid;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -29,7 +30,9 @@ public class SongsActivity extends SherlockFragmentActivity {
 			this.onSearchRequested();
 			return true;
 		case android.R.id.home:
-			finish();
+			final Intent i = new Intent(this, MainMenuActivity.class);
+			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(i);
 			return true;
 		}
 		return false;

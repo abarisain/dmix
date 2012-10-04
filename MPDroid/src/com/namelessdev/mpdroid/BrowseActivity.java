@@ -1,12 +1,10 @@
 package com.namelessdev.mpdroid;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
@@ -23,7 +21,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
-import com.namelessdev.mpdroid.tools.Tools;
 public abstract class BrowseActivity extends SherlockListActivity implements OnMenuItemClickListener, AsyncExecListener {
 
 	protected int iJobID = -1;
@@ -122,7 +119,7 @@ public abstract class BrowseActivity extends SherlockListActivity implements OnM
 		Intent i = null;
 
 		switch (item.getItemId()) {
-		case R.id.BRM_mainmenu:
+		case android.R.id.home:
 			i = new Intent(this, MainMenuActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
