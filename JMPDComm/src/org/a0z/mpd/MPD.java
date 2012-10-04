@@ -82,11 +82,11 @@ public class MPD {
 	private MPDPlaylist playlist;
 	private Directory rootDirectory;
 
-    static private boolean useAlbumArtist=false;
-    static private boolean sortByTrackNumber=true;
-    static private boolean sortAlbumsByYear=false;
-    static private boolean showArtistAlbumCount=false;
-    static private boolean showAlbumTrackCount=false;
+	static private boolean useAlbumArtist = false;
+	static private boolean sortByTrackNumber = true;
+	static private boolean sortAlbumsByYear = false;
+	static private boolean showArtistAlbumCount = false;
+	static private boolean showAlbumTrackCount = true;
 
     static public boolean useAlbumArtist() {
             return useAlbumArtist;

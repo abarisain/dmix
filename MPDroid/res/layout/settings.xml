@@ -55,7 +55,7 @@
  			android:key="sortAlbumsByYear" />
  		<CheckBoxPreference android:persistent="true"
  			android:title="@string/showAlbumTrackCount" android:summary="@string/showAlbumTrackCountDescription"
- 			android:key="showAlbumTrackCount" />
+ 			android:key="showAlbumTrackCount" android:defaultValue="true"/>
 
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableLastFM" android:summary="@string/enableLastFMDescription"
