@@ -23,12 +23,12 @@
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Ajouter et remplacer</string>
 	<string name="addAndReplacePlay">Ajouter, remplacer et jouer</string>
-	<string name="addAndPlay">Ajouter et Jouer</string>
-	<string name="addPlaylist">Ajouter la Playlist</string>
+	<string name="addAndPlay">Ajouter et jouer</string>
+	<string name="addPlaylist">Ajouter la playlist</string>
 	<string name="addDirectory">Ajouter le dossier</string>
 	<string name="addSong">Ajouter la chanson</string>
-	<string name="addAlbum">Ajouter l\'Album</string>
-	<string name="addArtist">Ajouter l\'Artiste</string>
+	<string name="addAlbum">Ajouter l\'album</string>
+	<string name="addArtist">Ajouter l\'artiste</string>
 	<string name="removeSong">Enlever la chanson</string>
 	<string name="removeSongs">Enlever les chansons</string>
 	<string name="removeCountSongs">%s chansons enlevées</string>
