@@ -121,8 +121,6 @@
 	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
 	<string name="sortAlbumsByYear">Année de l\'album</string>
 	<string name="sortAlbumsByYearDescription">Trier les albums par année</string>
-	<string name="showArtistAlbumCount">Nombre d\'albums par l\'artiste</string>
-	<string name="showArtistAlbumCountDescription">Afficher le nombre d\'albums d\'un artiste</string>
 	<string name="showAlbumTrackCount">Numéros de chansons</string>
 	<string name="showAlbumTrackCountDescription">Afficher le numéros des chansons d\'un album</string>
 	<string name="enableLastFM">Télécharger les pochettes</string>

@@ -46,7 +46,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 		MPD.setSortAlbumsByYear(settings.getBoolean("sortAlbumsByYear", MPD.sortAlbumsByYear()));
 		MPD.setUseAlbumArtist(settings.getBoolean("albumartist", MPD.useAlbumArtist()));
 		MPD.setShowAlbumTrackCount(settings.getBoolean("showAlbumTrackCount", MPD.showAlbumTrackCount()));
-		MPD.setShowArtistAlbumCount(settings.getBoolean("showArtistAlbumCount", MPD.showArtistAlbumCount()));
+		// MPD.setShowArtistAlbumCount(settings.getBoolean("showArtistAlbumCount", MPD.showArtistAlbumCount()));
 
 		if (getStringSetting(getStringWithSSID("hostname",  wifiSSID)) != null) {
 			updateSettings(wifiSSID);

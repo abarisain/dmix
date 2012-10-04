@@ -54,9 +54,6 @@
  			android:title="@string/sortAlbumsByYear" android:summary="@string/sortAlbumsByYearDescription"
  			android:key="sortAlbumsByYear" />
  		<CheckBoxPreference android:persistent="true"
- 			android:title="@string/showArtistAlbumCount" android:summary="@string/showArtistAlbumCountDescription"
- 			android:key="showArtistAlbumCount" />
- 		<CheckBoxPreference android:persistent="true"
  			android:title="@string/showAlbumTrackCount" android:summary="@string/showAlbumTrackCountDescription"
  			android:key="showAlbumTrackCount" />
 

@@ -127,8 +127,6 @@
 	<string name="streamingURLDescription">Stream URL (with http://)</string>
 	<string name="sortAlbumsByYear">Album year</string>
 	<string name="sortAlbumsByYearDescription">Sort albums by year</string>
-	<string name="showArtistAlbumCount">Artist album count</string>
-	<string name="showArtistAlbumCountDescription">Show number of albums by artist</string>
 	<string name="showAlbumTrackCount">Album track count</string>
 	<string name="showAlbumTrackCountDescription">Show number of tracks on album</string>
 	<string name="enableLastFM">Download cover art</string>
