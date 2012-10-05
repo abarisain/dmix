@@ -137,7 +137,6 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
-		menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
 		if (getPreferenceScreen().getKey().equals("connectionscreen"))
 			menu.add(0, ADD, 1, R.string.clear).setIcon(android.R.drawable.ic_menu_add);
 		return result;
