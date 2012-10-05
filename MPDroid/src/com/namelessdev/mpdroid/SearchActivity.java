@@ -34,6 +34,7 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 
 	public static final int ADD = 0;
 	public static final int ADDNREPLACE = 1;
+	public static final int ADDNREPLACEPLAY = 3;
 	public static final int ADDNPLAY = 2;
 	
 	private MPDApplication app;
@@ -214,16 +215,19 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		addItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0, R.string.addAndReplace);
 		addAndReplaceItem.setOnMenuItemClickListener(this);
+		android.view.MenuItem addAndReplacePlayItem = menu.add(ContextMenu.NONE, ADDNREPLACEPLAY, 0, R.string.addAndReplacePlay);
+		addAndReplacePlayItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndPlayItem = menu.add(ContextMenu.NONE, ADDNPLAY, 0, R.string.addAndPlay);
 		addAndPlayItem.setOnMenuItemClickListener(this);
 	}
 	
 	@Override
-	public boolean onMenuItemClick(android.view.MenuItem item) {
+	public boolean onMenuItemClick(final android.view.MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		final MPDApplication app = (MPDApplication) getApplication();
 		final Object selectedItem = arrayResults.get((int) info.id);
 		switch (item.getItemId()) {
+		case ADDNREPLACEPLAY:
 		case ADDNREPLACE:
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
 				@Override
@@ -234,7 +238,7 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 						app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
 
 						add(selectedItem);
-						if (status.equals(MPDStatus.MPD_STATE_PLAYING)) {
+						if (status.equals(MPDStatus.MPD_STATE_PLAYING) || item.getItemId() == ADDNREPLACEPLAY) {
 							app.oMPDAsyncHelper.oMPD.play();
 						}
 					} catch (MPDServerException e) {
