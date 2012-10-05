@@ -2,6 +2,7 @@
 /MPDroid/gen
 /MPDroid/.classpath
 /MPDroid/local.properties
+/MPDroid/proguard
 /ActionBarSherlock/bin
 /ActionBarSherlock/gen
 /ActionBarSherlock/.classpath
