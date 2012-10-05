@@ -41,6 +41,7 @@ So, the current roadmap is :
  - Release a legacy market versions, because some people will want it back
 
 ####1.1
+ - Add better streams support
  - Add lyrics & artist/album info
  - Make MPDroid configurable for multiple servers (Better implementation than the hackish wlan based one)
  - Add bonjour support
