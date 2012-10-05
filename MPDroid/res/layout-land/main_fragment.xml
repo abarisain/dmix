@@ -94,6 +94,7 @@
                 android:layout_alignBottom="@+id/albumName"
                 android:layout_alignParentRight="true"
                 android:clickable="false"
+                android:visibility="gone"
                 android:src="@drawable/spinner_holo_dark" />
         </RelativeLayout>
         
