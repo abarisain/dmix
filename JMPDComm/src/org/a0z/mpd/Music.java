@@ -74,36 +74,42 @@ public class Music extends Item implements FilesystemTreeEntry {
             } else if (line.startsWith("Track:")) {
                 String[] aux = line.substring("Track: ".length()).split("/");
                 if(aux.length > 0) {
+					try {
                         this.track = Integer.parseInt(aux[0]);
                         if (aux.length > 1) {
                                 this.totalTracks = Integer.parseInt(aux[1]);
                         }
+					} catch (NumberFormatException e) {
+					}
                 }
             } else if (line.startsWith("Disc:")) {
             	String[] aux = line.substring("Disc: ".length()).split("/");
             	if(aux.length > 0) {
-            		this.disc = Integer.parseInt(aux[0]);
+					try {
+						this.disc = Integer.parseInt(aux[0]);
+					} catch (NumberFormatException e) {
+					}
             	}
 			} else if (line.startsWith("Time:")) {
-				this.time = Long.parseLong(line.substring("Time: ".length()));
-				this.time = Long.parseLong(line.substring("Time: ".length()));
+				try {
+					this.time = Long.parseLong(line.substring("Time: ".length()));
+				} catch (NumberFormatException e) {
+				}
 			} else if (line.startsWith("Id:")) {
-				this.songId = Integer.parseInt(line.substring("Id: ".length()));
+				try {
+					this.songId = Integer.parseInt(line.substring("Id: ".length()));
+				} catch (NumberFormatException e) {
+				}
 			} else if (line.startsWith("Pos:")) {
-				this.pos = Integer.parseInt(line.substring("Pos: ".length()));
+				try {
+					this.pos = Integer.parseInt(line.substring("Pos: ".length()));
+				} catch (NumberFormatException e) {
+				}
 			} else if (line.startsWith("Date:")) {
 				try {
 					this.date = Long.parseLong(line.substring("Date: ".length()).replaceAll("\\D+", ""));
 				} catch (NumberFormatException e) {
 				}
-			} /* else if (line.startsWith("Genre:")) {
-				this.genre = line.substring("Genre: ".length());
-			} else if (line.startsWith("Soundtrack:")) {
-				this.soundtrack = line.substring("Soundtrack: ".length());
-			} else if (line.startsWith("Composer:")) {
-				this.composer = line.substring("Composer: ".length());
-			} */ else if (line.startsWith("Disc:")) {
-				this.disc = Integer.parseInt(line.substring("Disc: ".length()));
 			} else {
 				// Ignore this case, there could be some id3 tags which are not common and therefore not implemented here...
 				// (new InvalidResponseException("unknown response: " + line)).printStackTrace();
