@@ -67,7 +67,7 @@ public class SongsFragment extends BrowseFragment {
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Add(items.get(position));
+		Add((Item) l.getAdapter().getItem(position));
 	}
 
 	@Override
