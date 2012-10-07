@@ -66,8 +66,14 @@ public class SongsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Add((Item) l.getAdapter().getItem(position));
+	public void onListItemClick(final ListView l, View v, final int position, long id) {
+		final MPDApplication app = (MPDApplication) getActivity().getApplication();
+		app.oMPDAsyncHelper.execAsync(new Runnable() {
+			@Override
+			public void run() {
+				Add((Item) l.getAdapter().getItem(position));
+			}
+		});
 	}
 
 	@Override
