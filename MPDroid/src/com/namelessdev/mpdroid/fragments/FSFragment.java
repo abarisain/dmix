@@ -118,7 +118,6 @@ public class FSFragment extends BrowseFragment {
 							app.oMPDAsyncHelper.oMPD.skipToId(songId);
 						}
 					} catch (MPDServerException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
