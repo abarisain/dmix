@@ -11,8 +11,8 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
-import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.PlaylistEditActivity;
@@ -112,6 +112,9 @@ public class PlaylistsFragment  extends BrowseFragment {
             } catch (BadTokenException e) {
             	// Can't display it. Don't care.
             }
+			break;
+		default:
+			super.onMenuItemClick(item);
 			break;
 		}
 		return false;
