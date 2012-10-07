@@ -25,7 +25,7 @@
 	<string name="addAndReplacePlay">Ajouter, remplacer et jouer</string>
 	<string name="addAndPlay">Ajouter et jouer</string>
 	<string name="addPlaylist">Ajouter la playlist</string>
-	<string name="addDirectory">Ajouter le dossier</string>
+	<string name="addDirectory">Ajouter</string>
 	<string name="addSong">Ajouter la chanson</string>
 	<string name="addAlbum">Ajouter l\'album</string>
 	<string name="addArtist">Ajouter l\'artiste</string>
@@ -36,7 +36,7 @@
 	<string name="playlistCleared">Playlist vidée</string>
 	<string name="deletedSongFromPlaylist">Chanson enlevée de la playlist</string>
 	<string name="albumAdded">Album %s ajouté</string>
-	<string name="addedDirectoryToPlaylist">Dossier %s ajouté à la playlist</string>
+	<string name="addedDirectoryToPlaylist">%s ajouté à la playlist</string>
 	<string name="artistAdded">Artiste ajouté</string>
 	<string name="host">Hôte</string>
 	<string name="hostDescription">IP ou nom du serveur MPD</string>

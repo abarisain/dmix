@@ -28,7 +28,7 @@
 	<string name="addPlaylist">Add playlist</string>
 	<string name="addAndPlay">Add and play</string>
 	<string name="addArtist">Add artist</string>
-	<string name="addDirectory">Add directory</string>
+	<string name="addDirectory">Add</string>
 	<string name="addSong">Add song</string>
 	<string name="removeSong">Remove song</string>
 	<string name="removeSongs">Remove songs</string>
@@ -39,7 +39,7 @@
 	<string name="deletedSongFromPlaylist">Deleted song from playlist</string>
 	<string name="albumAdded">Album %s added</string>
 	<string name="playlistAdded">Playlist %s added</string>
-	<string name="addedDirectoryToPlaylist">Added directory %s to playlist</string>
+	<string name="addedDirectoryToPlaylist">Added %s to playlist</string>
 	<string name="artistAdded">Artist %s added</string>
 	<string name="host">Host</string>
 	<string name="hostDescription">MPD-Server Hostname or IP-Address</string>
