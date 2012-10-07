@@ -34,13 +34,9 @@ Also, MPDroid's speed isn't that great, but considering that MPD's api was never
 
 So, the current roadmap is :
 
-####1.0
- - Fix the annoying bugs
- - Make the connection to MPD robust, getting rid of the horrible connection errors
- - Release a new market version
- - Release a legacy market versions, because some people will want it back
-
 ####1.1
+ - Song mute on incoming call (optional)
+ - Select default library tab to show (for people who mainly use filesystem view)
  - Add better streams support
  - Add lyrics & artist/album info
  - Make MPDroid configurable for multiple servers (Better implementation than the hackish wlan based one)
