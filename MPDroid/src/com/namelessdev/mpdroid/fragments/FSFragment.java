@@ -112,21 +112,23 @@ public class FSFragment extends BrowseFragment {
 		// click on a file
 		if (position > currentDirectory.getDirectories().size() - 1 || currentDirectory.getDirectories().size() == 0) {
 
-			Music music = (Music) currentDirectory.getFiles().toArray()[position - currentDirectory.getDirectories().size()];
-
-			try {
-				MPDApplication app = (MPDApplication) getActivity().getApplication();
-
-				int songId = -1;
-				app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
-				if (songId > -1) {
-					app.oMPDAsyncHelper.oMPD.skipToId(songId);
+			final Music music = (Music) currentDirectory.getFiles().toArray()[position - currentDirectory.getDirectories().size()];
+			final MPDApplication app = (MPDApplication) getActivity().getApplication();
+			app.oMPDAsyncHelper.execAsync(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						int songId = -1;
+						app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
+						if (songId > -1) {
+							app.oMPDAsyncHelper.oMPD.skipToId(songId);
+						}
+					} catch (MPDServerException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-
-			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			});
 		} else {
 			// click on a directory
 			// open the same sub activity, it would be better to reuse the
