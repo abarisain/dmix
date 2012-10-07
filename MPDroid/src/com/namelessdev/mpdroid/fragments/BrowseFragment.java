@@ -216,9 +216,13 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 						MPDPlaylist pl = app.oMPDAsyncHelper.oMPD.getPlaylist();
 						int oldsize = pl.size();
 						Add(items.get((int) info.id));
-						int id = pl.getByIndex(oldsize).getSongId();
-						app.oMPDAsyncHelper.oMPD.skipToId(id);
-						app.oMPDAsyncHelper.oMPD.play();
+						try {
+							int id = pl.getByIndex(oldsize).getSongId();
+							app.oMPDAsyncHelper.oMPD.skipToId(id);
+							app.oMPDAsyncHelper.oMPD.play();
+						} catch (NullPointerException e) {
+							// If song adding fails, don't crash !
+						}
 					} catch (MPDServerException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
