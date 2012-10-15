@@ -129,7 +129,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 	
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		mViewPager.setCurrentItem(itemPosition);
+		mViewPager.setCurrentItem(itemPosition, true);
 		return true;
 	}
 	
