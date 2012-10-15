@@ -84,7 +84,11 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         });
 
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		int defaultTab = settings.getInt("defaultLibraryScreen", 0);
+		int defaultTab = 0;
+		try {
+			defaultTab = Integer.parseInt(settings.getString("defaultLibraryScreen", "0"));
+		} catch (NumberFormatException e) {
+		}
 		if (defaultTab > actionBarAdapter.getCount() - 1) {
 			defaultTab = 0;
 			settings.edit().putString("defaultLibraryScreen", "0");
