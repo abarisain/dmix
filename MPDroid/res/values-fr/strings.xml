@@ -152,4 +152,6 @@
 	<string name="enableStopButton">Afficher le bouton stop</string>
 	<string name="singleMode">Mode seul</string>
 	<string name="consumeMode">Mode consume</string>
+	<string name="defaultLibraryScreen">Onglet bibliothèque par defaut</string>
+	<string name="defaultLibraryScreenDescription">Onglet qui s\'affichera lors de l\'ouverture de la bibliothèque</string>
 </resources>

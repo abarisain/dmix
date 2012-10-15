@@ -1,8 +1,10 @@
 package com.namelessdev.mpdroid;
 
 import android.annotation.TargetApi;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -80,6 +82,14 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
                 actionBar.setSelectedNavigationItem(position);
             }
         });
+
+		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		int defaultTab = settings.getInt("defaultLibraryScreen", 0);
+		if (defaultTab > actionBarAdapter.getCount() - 1) {
+			defaultTab = 0;
+			settings.edit().putString("defaultLibraryScreen", "0");
+		}
+		mViewPager.setCurrentItem(defaultTab, true);
     }
 
 	@Override

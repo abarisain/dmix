@@ -58,6 +58,12 @@
  			android:key="showAlbumTrackCount" android:defaultValue="true"/>
  	</PreferenceCategory>
  	<PreferenceCategory android:title="@string/interfaceSettings">
+ 	    <ListPreference android:key="defaultLibraryScreen"
+    		android:title="@string/defaultLibraryScreen" android:summary="@string/defaultLibraryScreenDescription"
+    		android:entries="@array/defaultLibraryScreenLabels" android:entryValues="@array/defaultLibraryScreenValues"
+    		android:dialogTitle="@string/defaultLibraryScreen"
+    		android:persistent="true" android:defaultValue="0"
+    		android:shouldDisableView="false" />
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableStopButton"
 			android:key="enableStopButton" android:defaultValue="false" />

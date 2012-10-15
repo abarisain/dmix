@@ -174,4 +174,6 @@
 	<string name="enableStopButton">Show stop button</string>
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
+	<string name="defaultLibraryScreen">Default library tab</string>
+	<string name="defaultLibraryScreenDescription">Select the tab shown when opening the library</string>
 </resources>
