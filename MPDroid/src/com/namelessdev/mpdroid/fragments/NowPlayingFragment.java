@@ -704,6 +704,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	private void updateStatus(MPDStatus status) {
+		final MPDApplication app = (MPDApplication) getActivity().getApplication();
+		app.getApplicationState().currentMpdStatus = status;
 		lastElapsedTime = status.getElapsedTime();
 		lastSongTime = status.getTotalTime();
 		trackTime.setText(timeToString(lastElapsedTime));

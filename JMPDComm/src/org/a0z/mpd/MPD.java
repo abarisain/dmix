@@ -38,6 +38,8 @@ public class MPD {
 	private static final String MPD_CMD_PREV = "previous";
 	private static final String MPD_CMD_REFRESH = "update";
 	private static final String MPD_CMD_REPEAT = "repeat";
+	private static final String MPD_CMD_CONSUME = "consume";
+	private static final String MPD_CMD_SINGLE = "single";
 	private static final String MPD_CMD_RANDOM = "random";
 	private static final String MPD_CMD_SEARCH = "search";
 	private static final String MPD_CMD_SEEK = "seek";
@@ -847,6 +849,36 @@ public class MPD {
 			throw new MPDServerException("MPD Connection is not established");
 		
 		mpdConnection.sendCommand(MPD_CMD_REPEAT, repeat ? "1" : "0");
+	}
+
+	/**
+	 * Enabled or disable single mode.
+	 * 
+	 * @param single
+	 *            if true single mode will be enabled, if false single mode will be disabled.
+	 * @throws MPDServerException
+	 *             if an error occur while contacting server.
+	 */
+	public void setSingle(boolean single) throws MPDServerException {
+		if (!isConnected())
+			throw new MPDServerException("MPD Connection is not established");
+
+		mpdConnection.sendCommand(MPD_CMD_SINGLE, single ? "1" : "0");
+	}
+
+	/**
+	 * Enabled or disable consuming.
+	 * 
+	 * @param consume
+	 *            if true song consuming will be enabled, if false song consuming will be disabled.
+	 * @throws MPDServerException
+	 *             if an error occur while contacting server.
+	 */
+	public void setConsume(boolean consume) throws MPDServerException {
+		if (!isConnected())
+			throw new MPDServerException("MPD Connection is not established");
+
+		mpdConnection.sendCommand(MPD_CMD_CONSUME, consume ? "1" : "0");
 	}
 
 	/**

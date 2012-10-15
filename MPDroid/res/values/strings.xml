@@ -170,4 +170,6 @@
 	<string name="streamUrl">URL:</string>
 	<string name="streamDetails">Stream details:</string>
 	<string name="enableStopButton">Show stop button</string>
+	<string name="singleMode">Single mode</string>
+	<string name="consumeMode">Consume mode</string>
 </resources>

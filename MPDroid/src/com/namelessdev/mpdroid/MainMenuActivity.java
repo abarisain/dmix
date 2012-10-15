@@ -1,6 +1,7 @@
 package com.namelessdev.mpdroid;
 
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
@@ -215,7 +216,18 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 			}
 		}
 		menu.findItem(R.id.GMM_Stream).setChecked(app.getApplicationState().streamingMode);
+		final MPDStatus mpdStatus = app.getApplicationState().currentMpdStatus;
+		if (mpdStatus != null) {
+			setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
+			setMenuChecked(menu.findItem(R.id.GMM_Consume), mpdStatus.isConsume());
+		}
 		return true;
+	}
+
+	private void setMenuChecked(MenuItem item, boolean checked) {
+		// Set the icon to a checkbox so 2.x users also get one
+		item.setChecked(checked);
+		item.setIcon(checked ? R.drawable.btn_check_buttonless_on : R.drawable.btn_check_buttonless_off);
 	}
 
 	private void openLibrary() {
@@ -227,7 +239,9 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		Intent i = null;
-
+		final MPDApplication app = (MPDApplication) this.getApplication();
+		final MPD mpd = app.oMPDAsyncHelper.oMPD;
+		
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.menu_search:
@@ -277,6 +291,18 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 			values.put(ServerList.ServerColumns.PASSWORD, "");
 			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
 			startActivity(new Intent(this, ServerListActivity.class));
+			return true;
+		case R.id.GMM_Consume:
+			try {
+				mpd.setConsume(!mpd.getStatus().isConsume());
+			} catch (MPDServerException e) {
+			}
+			return true;
+		case R.id.GMM_Single:
+			try {
+				mpd.setSingle(!mpd.getStatus().isSingle());
+			} catch (MPDServerException e) {
+			}
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

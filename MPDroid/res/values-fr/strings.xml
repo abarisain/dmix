@@ -148,4 +148,6 @@
 	<string name="playlistName">Nom de la playlist</string>
 	<string name="newPlaylistPrompt">Entrez un nom pour la nouvelle playlist :</string>
 	<string name="enableStopButton">Afficher le bouton stop</string>
+	<string name="singleMode">Mode seul</string>
+	<string name="consumeMode">Mode consume</string>
 </resources>

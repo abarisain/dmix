@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.a0z.mpd.MPDStatus;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,6 +48,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 		public boolean streamingMode = false;
 		public boolean settingsShown = false;
 		public boolean warningShown = false;
+		public MPDStatus currentMpdStatus = null;
 	}
 	
 	class DialogClickListener implements OnClickListener {

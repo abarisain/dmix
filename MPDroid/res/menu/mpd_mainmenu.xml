@@ -20,6 +20,18 @@
         android:checkable="true" >
     </item>
     <item
+        android:id="@+id/GMM_Single"
+        android:icon="@drawable/btn_check_buttonless_off"
+        android:title="@string/singleMode" android:orderInCategory="6"
+        android:checkable="true" >
+    </item>
+    <item
+        android:id="@+id/GMM_Consume"
+        android:icon="@drawable/btn_check_buttonless_off"
+        android:title="@string/consumeMode" android:orderInCategory="7"
+        android:checkable="true" >
+    </item>
+    <item
         android:id="@+id/GMM_Outputs"
         android:icon="@drawable/ic_action_output"
         android:showAsAction="ifRoom"
