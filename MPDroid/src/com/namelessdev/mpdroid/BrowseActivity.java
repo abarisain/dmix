@@ -9,6 +9,7 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.ContextMenu;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
@@ -43,6 +44,11 @@ public abstract class BrowseActivity extends SherlockListActivity implements OnM
 
 	public BrowseActivity(int rAdd, int rAdded, String pContext) {
 		super();
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}
+
 		irAdd = rAdd;
 		irAdded = rAdded;
 

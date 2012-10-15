@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.StrictMode;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -296,6 +297,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	
 	public void onCreate() {
 		super.onCreate();
+
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}
+
 		isServiceRunning = true;
 		mediaPlayer = new MediaPlayer();
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
