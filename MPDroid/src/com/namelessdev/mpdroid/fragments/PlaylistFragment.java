@@ -92,17 +92,25 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 				}
 				songlist.add(item);
 			}
-			SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item,
-					new String[] { "play", "title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
-			setListAdapter(songs);
+			final int finalListPlayingID = listPlayingID;
 
-			// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
-			// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at other
-			// stuff.
-			if (firstUpdate && listPlayingID > 0)
-				setSelection(listPlayingID);
-			firstUpdate = false;
+			getActivity().runOnUiThread(new Runnable() {
+				public void run() {
+					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item, new String[] { "play",
+							"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
+
+					setListAdapter(songs);
+
+					// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
+					// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
+					// other
+					// stuff.
+					if (firstUpdate && finalListPlayingID > 0)
+						setSelection(finalListPlayingID);
+					firstUpdate = false;
+				}
+			});
 
 		} catch (MPDServerException e) {
 		}
@@ -117,7 +125,11 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public void onResume() {
 		super.onResume();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
-		update();
+		new Thread(new Runnable() {
+			public void run() {
+				update();
+			}
+		}).start();
 	}
 
 	@Override
