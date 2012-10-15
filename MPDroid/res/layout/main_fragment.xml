@@ -50,7 +50,6 @@
             android:ellipsize="marquee"
             android:gravity="center_horizontal"
             android:singleLine="true"
-            android:text="And I Was A Boy From School"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/nowplaying_primary_text"
             android:textSize="15sp" />
@@ -62,8 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/songName"
             android:layout_marginTop="1dip"
-            android:gravity="center_horizontal"
-            android:text="Hot Chip" />
+            android:gravity="center_horizontal" />
 
         <TextView
             android:id="@+id/albumName"
@@ -72,8 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/artistName"
             android:layout_marginTop="1dip"
-            android:gravity="center_horizontal"
-            android:text="The warning" />
+            android:gravity="center_horizontal" />
 
         <ImageView
             android:layout_width="wrap_content"
