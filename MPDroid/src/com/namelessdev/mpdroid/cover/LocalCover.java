@@ -1,19 +1,14 @@
 package com.namelessdev.mpdroid.cover;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import android.content.SharedPreferences;
 
 import com.namelessdev.mpdroid.MPDApplication;
-
-import android.content.SharedPreferences;
-import android.util.Log;
 
 
 public class LocalCover implements ICoverRetriever {
 
-	private final static String URL = "http://%s/%s/%s/%s";
+	private final static String URL = "%s/%s/%s";
+	private final static String URL_PREFIX = "http://";
 
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
@@ -33,13 +28,12 @@ public class LocalCover implements ICoverRetriever {
 			String serverName = app.oMPDAsyncHelper.getConnectionSettings().sServer;
 
 			String url = String.format(URL, new Object[] {
-				serverName,
 				musicPath,
 				path.replaceAll(" ", "%20"),
 				coverFileName
 			});
 
-			return url;
+			return (musicPath.toLowerCase().startsWith(URL_PREFIX) ? url : (URL_PREFIX + serverName + "/"));
 		}else{
 			return null;
 		}
