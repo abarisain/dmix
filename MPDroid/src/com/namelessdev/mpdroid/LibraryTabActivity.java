@@ -59,7 +59,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         actionBarAdapter.add(getString(R.string.albums));
         actionBarAdapter.add(getString(R.string.playlists));
         actionBarAdapter.add(getString(R.string.streams));
-        actionBarAdapter.add(getString(R.string.files));
+		actionBarAdapter.add(getString(R.string.files));
         
         if(Build.VERSION.SDK_INT >= 14) {
         	//Bug on ICS with sherlock's layout
@@ -91,7 +91,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 		}
 		if (defaultTab > actionBarAdapter.getCount() - 1) {
 			defaultTab = 0;
-			settings.edit().putString("defaultLibraryScreen", "0");
+			settings.edit().putString("defaultLibraryScreen", "0").commit();
 		}
 		mViewPager.setCurrentItem(defaultTab, true);
     }
@@ -162,7 +162,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 
         @Override
         public int getCount() {
-            return 5;
+			return 5;
         }
 
         @Override
