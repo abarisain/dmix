@@ -215,7 +215,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 				menu.removeItem(CONNECT);
 			}
 		}
-		menu.findItem(R.id.GMM_Stream).setChecked(app.getApplicationState().streamingMode);
+		setMenuChecked(menu.findItem(R.id.GMM_Stream), app.getApplicationState().streamingMode);
 		final MPDStatus mpdStatus = app.getApplicationState().currentMpdStatus;
 		if (mpdStatus != null) {
 			setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
