@@ -36,7 +36,7 @@ So, the current roadmap is :
 
 ####1.1
  - Song mute on incoming call (optional)
- - Select default library tab to show (for people who mainly use filesystem view)
+ - ~~Select default library tab to show (for people who mainly use filesystem view)~~ (done in 1.03)
  - Add better streams support
  - Add lyrics & artist/album info
  - Make MPDroid configurable for multiple servers (Better implementation than the hackish wlan based one)
