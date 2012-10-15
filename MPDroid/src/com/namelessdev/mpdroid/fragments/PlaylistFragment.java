@@ -106,9 +106,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 					// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
 					// other
 					// stuff.
-					if (firstUpdate && finalListPlayingID > 0)
+					if (finalListPlayingID > 0)
 						setSelection(finalListPlayingID);
-					firstUpdate = false;
 				}
 			});
 

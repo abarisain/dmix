@@ -31,6 +31,7 @@ public class PlaylistEditActivity extends SherlockListActivity implements Status
 	private List<Music> musics;
 	private String playlistName=null;
 	private boolean isPlayQueue=true;
+	private boolean isFirstRefresh = true;
 
 	@TargetApi(11)
 	@Override
@@ -78,26 +79,35 @@ public class PlaylistEditActivity extends SherlockListActivity implements Status
 			int pos=null==getListView() ? -1 : getListView().getFirstVisiblePosition();
 			View view = null==getListView() ? null : getListView().getChildAt(0);
 			int top = null==view ? -1 : view.getTop();
-
+			int listPlayingId = 0;
 			for (Music m : musics) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
 				item.put("artist", m.getArtist());
 				item.put("title", m.getTitle());
 				item.put("marked", false);
-				if (isPlayQueue && m.getSongId() == playingID)
+				if (isPlayQueue && m.getSongId() == playingID) {
 					item.put("play", android.R.drawable.ic_media_play);
-				else
+					listPlayingId = songlist.size() - 1;
+				} else {
 					item.put("play", 0);
+				}
 				songlist.add(item);
 			}
 			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_editlist_item, new String[] { "play", "title", "artist",
 					"marked" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox });
 
 			setListAdapter(songs);
-			if (-1!=pos && -1!=top) {
-				getListView().setSelectionFromTop(pos, top);
+			if (isFirstRefresh) {
+				isFirstRefresh = false;
+				if (listPlayingId > 0)
+					setSelection(listPlayingId);
+			} else {
+				if (-1 != pos && -1 != top) {
+					getListView().setSelectionFromTop(pos, top);
+				}
 			}
+
 		} catch (MPDServerException e) {
 		}
 
