@@ -4,6 +4,7 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -58,7 +59,8 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
     private int backPressExitCount;
     private Handler exitCounterReset;
 
-    @TargetApi(11)
+	@SuppressLint("NewApi")
+	@TargetApi(11)
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +72,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 			StrictMode.setThreadPolicy(policy);
 		}
-        
+
         // Create the adapter that will return a fragment for each of the three primary sections
         // of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
