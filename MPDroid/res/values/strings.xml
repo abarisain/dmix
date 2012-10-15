@@ -97,6 +97,8 @@
 	<string name="buffering">Buffering …</string>
 	<string name="portStreaming">Streaming port</string>
 	<string name="portStreamingDescription">MPD Streaming port (Default: 8000)</string>
+	<string name="suffixStreaming">Streaming url suffix</string>
+	<string name="suffixStreamingDescription">Suffix to append to stream url (ex. mpd.mp3)</string>
 	<string name="streamStopped">Streaming stopped</string>
 	<string name="streamError">Streaming error, stream not playable</string>
 	<string name="streamPaused">Streaming paused</string>

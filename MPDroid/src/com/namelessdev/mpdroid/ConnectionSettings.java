@@ -104,6 +104,14 @@ public class ConnectionSettings extends PreferenceActivity {
 		prefStreamingPort.setKey(keyPrefix + "portStreaming");
 		toCategory.addPreference(prefStreamingPort);
 
+		EditTextPreference suffixStreamingPort = new EditTextPreference(this);
+		suffixStreamingPort.setDialogTitle(R.string.suffixStreaming);
+		suffixStreamingPort.setTitle(R.string.suffixStreaming);
+		suffixStreamingPort.setSummary(R.string.suffixStreamingDescription);
+		suffixStreamingPort.setDefaultValue("");
+		suffixStreamingPort.setKey(keyPrefix + "suffixStreaming");
+		toCategory.addPreference(suffixStreamingPort);
+
 		onContentChanged();
 
 	}

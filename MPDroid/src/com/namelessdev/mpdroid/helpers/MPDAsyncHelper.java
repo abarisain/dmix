@@ -336,6 +336,7 @@ public class MPDAsyncHelper extends Handler {
 		public String sPassword;
 		public String sServerStreaming;
 		public int iPortStreaming;
+		public String sSuffixStreaming = "";
 		
 		public String getConnectionStreamingServer() {
 			return conInfo.sServerStreaming == null ? sServer : sServerStreaming;

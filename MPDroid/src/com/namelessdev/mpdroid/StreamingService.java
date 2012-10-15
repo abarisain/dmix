@@ -37,6 +37,7 @@ import android.os.StrictMode;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -295,6 +296,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		}
 	};
 	
+	@TargetApi(9)
 	public void onCreate() {
 		super.onCreate();
 
@@ -338,7 +340,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addConnectionListener(this);
 		app.setActivity(this);
-		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":" + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/";
+		streamSource = "http://" + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":"
+				+ app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/"
+				+ app.oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming;
+		Log.w(MPDApplication.TAG, streamSource);
 	}
 
 	@Override

@@ -91,6 +91,8 @@
 	<string name="buffering">Mise en cache …</string>
 	<string name="portStreaming">Port streaming</string>
 	<string name="portStreamingDescription">Port du streaming MPD (Defaut: 8000)</string>
+	<string name="suffixStreaming">Suffixe url streaming</string>
+	<string name="suffixStreamingDescription">Suffixe à ajouter à l\'url du stream (ex. mpd.mp3)</string>
 	<string name="streamStopped">Streaming arreté</string>
 	<string name="streamPaused">Streaming en pause</string>
 	<string name="streamPauseBattery">Pour économiser la batterie, coupez le streaming.</string>
