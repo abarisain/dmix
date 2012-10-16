@@ -45,6 +45,14 @@ So, the current roadmap is :
  - ???
  - Profit
 
+## Donations
+
+Since MPDroid is a fork of dmix and that a lot of people helped me with some huge patches (see special thanks), I don't really belive it would be ethical to accept donations.
+
+If you still want to donate, I have a paypal address at dreamteam69@gmail.com
+
+Please consider donating to some of the developpers down there :)
+
 ## Special thanks
 
 Obviously, PMix for their work on the original application. There is not much of PMix left, but their core code is still here.
