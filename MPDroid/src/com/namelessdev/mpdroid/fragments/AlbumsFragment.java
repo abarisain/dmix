@@ -3,6 +3,9 @@ package com.namelessdev.mpdroid.fragments;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.Album;
+import org.a0z.mpd.UnknownAlbum;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,7 +22,7 @@ import com.namelessdev.mpdroid.views.AlbumDataBinder;
 
 public class AlbumsFragment extends BrowseFragment {
 	private MPDApplication app;
-	private String artist = "";
+	private Artist artist = null;
 
 	public AlbumsFragment() {
 		super(R.string.addAlbum, R.string.albumAdded, MPD.MPD_SEARCH_ALBUM);
@@ -40,20 +43,20 @@ public class AlbumsFragment extends BrowseFragment {
 		super.onActivityCreated(savedInstanceState);
 		app = (MPDApplication) getActivity().getApplication();
 		registerForContextMenu(getListView());
-		UpdateList();
-		if (getActivity().getIntent().getStringExtra("artist") != null) {
-			artist=getActivity().getIntent().getStringExtra("artist");
-			setActivityTitle(artist);
+		artist = getActivity().getIntent().getParcelableExtra("artist");
+		if (artist != null) {
+			setActivityTitle(artist.getName());
 		} else {
 			getActivity().setTitle(getResources().getString(R.string.albums));
 		}
+		UpdateList();
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Intent intent = new Intent(getActivity(), SongsActivity.class);
-		intent.putExtra("album", items.get(position).getName());
-		intent.putExtra("artist", getActivity().getIntent().getStringExtra("artist"));
+		intent.putExtra("album", ((Album) items.get(position)));
+		intent.putExtra("artist", artist);
 		startActivityForResult(intent, -1);
 	}
 	
@@ -68,7 +71,7 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	protected void asyncUpdate() {
 		try {
-			items = app.oMPDAsyncHelper.oMPD.getAlbums(getActivity().getIntent().getStringExtra("artist"));
+			items = app.oMPDAsyncHelper.oMPD.getAlbums(artist);
 		} catch (MPDServerException e) {
 		}
 	}
@@ -76,7 +79,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void Add(Item item) {
     	try {
-    		app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getSongs(artist, item.getName()));
+			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getSongs(artist, ((Album) item)));
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();
@@ -86,7 +89,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void Add(Item item, String playlist) {
     	try {
-    		app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getSongs(artist, item.getName()));
+			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getSongs(artist, ((Album) item)));
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();

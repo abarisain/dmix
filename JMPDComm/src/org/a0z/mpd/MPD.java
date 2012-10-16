@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.Iterator;
 
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -514,19 +515,29 @@ public class MPD {
 		if(!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
+		boolean foundSongWithoutAlbum = false;
+
 		List<String> response = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, MPD_TAG_ALBUM, artist);
 		ArrayList<String> result = new ArrayList<String>();
 		for (String line : response) {
 			String name = line.substring("Album: ".length());
-			if (name.length() > 0)
+			if (name.length() > 0) {
 				result.add(name);
+			}else{
+				foundSongWithoutAlbum = true;
+			}
 		}
-		
+
 		if (sortInsensitive)
 			Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
 		else
 			Collections.sort(result);
 		
+		// add a single blank entry to host all songs without an album set
+		if(foundSongWithoutAlbum == true) {
+			result.add("");
+		}
+
 		return result;
 	}
 
@@ -575,6 +586,10 @@ public class MPD {
 			}
 		}
 		return result;
+	}
+
+	public int getAlbumCount(Artist artist, boolean useAlbumArtistTag) throws MPDServerException {
+		return listAlbums(artist.getName(), useAlbumArtistTag).size();
 	}
 
 	public int getAlbumCount(String artist, boolean useAlbumArtistTag) throws MPDServerException {
@@ -1050,52 +1065,64 @@ public class MPD {
 		mpdConnection.sendCommand(MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
 	}
 
-	public List<Music> getSongs(String artist, String album) throws MPDServerException {
-		boolean haveArtist=null!=artist && artist.length()>0;
-		boolean haveAlbum=null!=album && album.length()>0;
+	public List<Music> getSongs(Artist artist, Album album) throws MPDServerException {
+		boolean haveArtist = (null != artist);
+		boolean haveAlbum = (null != album) && !(album instanceof UnknownAlbum);
         String[] search = null;
 
+		int pos=0;
         if (haveAlbum || haveArtist) {
         	search=new String[haveAlbum && haveArtist ? 4 : 2];
-        	int pos=0;
         	if (haveArtist) {
         		search[pos++]=MPD.useAlbumArtist() ? MPD.MPD_TAG_ALBUM_ARTIST : MPD.MPD_FIND_ARTIST;
-        		search[pos++]=artist;
+        		search[pos++]=artist.getName();
         	}
         	if (haveAlbum) {
         		search[pos++]=MPD.MPD_FIND_ALBUM;
-        		search[pos++]=album;
+        		search[pos++]=album.getName();
         	}
         }
         List<Music> songs=find(search);
+		if(album instanceof UnknownAlbum) {
+			// filter out any songs with which have the album tag set
+			Iterator<Music> iter = songs.iterator();
+			while (iter.hasNext()) {
+				if (iter.next().getAlbum() != null) iter.remove();
+			}
+		}
         if (null!=songs) {
         	 Collections.sort(songs);
         }
         return songs;
 	}
 
-	public List<Album> getAlbums(String artist) throws MPDServerException {
-		List<String> albumNames=listAlbums(artist, useAlbumArtist);
+	public List<Album> getAlbums(Artist artist) throws MPDServerException {
+		List<String> albumNames=listAlbums((artist==null) ? null : artist.getName(), useAlbumArtist);
 		List<Album> albums = null;
 
 		if (null!=albumNames && !albumNames.isEmpty()) {
 			albums=new ArrayList<Album>();
 			for (String album : albumNames) {
-				long songCount = 0;
-				long duration = 0;
-				long year = 0;
-				if (null!=artist && (MPD.showAlbumTrackCount() || MPD.sortAlbumsByYear())) {
-					try {
-						Long[] albumDetails = getAlbumDetails(artist, album, MPD.useAlbumArtist());
-						if (null!=albumDetails && 3==albumDetails.length) {
-							songCount=albumDetails[0];
-							duration=albumDetails[1];
-							year=albumDetails[2];
+				if(album == "") {
+					// add a blank entry to host all songs without an album set
+					albums.add(new UnknownAlbum());
+				}else{
+					long songCount = 0;
+					long duration = 0;
+					long year = 0;
+					if (null!=artist && (MPD.showAlbumTrackCount() || MPD.sortAlbumsByYear())) {
+						try {
+							Long[] albumDetails = getAlbumDetails(artist.getName(), album, MPD.useAlbumArtist());
+							if (null!=albumDetails && 3==albumDetails.length) {
+								songCount=albumDetails[0];
+								duration=albumDetails[1];
+								year=albumDetails[2];
+							}
+						} catch (MPDServerException e) {
 						}
-					} catch (MPDServerException e) {
 					}
+					albums.add(new Album(album, songCount, duration, year));
 				}
-				albums.add(new Album(album, songCount, duration, year));
 			}
 		}
 		if (null!=albums) {
