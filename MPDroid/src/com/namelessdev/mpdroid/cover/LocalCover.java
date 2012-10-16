@@ -33,7 +33,7 @@ public class LocalCover implements ICoverRetriever {
 				coverFileName
 			});
 
-			return (musicPath.toLowerCase().startsWith(URL_PREFIX) ? url : (URL_PREFIX + serverName + "/"));
+			return (musicPath.toLowerCase().startsWith(URL_PREFIX) ? url : (URL_PREFIX + serverName + "/" + url));
 		}else{
 			return null;
 		}
