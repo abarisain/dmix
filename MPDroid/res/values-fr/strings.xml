@@ -154,4 +154,5 @@
 	<string name="consumeMode">Mode consume</string>
 	<string name="defaultLibraryScreen">Onglet bibliothèque par defaut</string>
 	<string name="defaultLibraryScreenDescription">Onglet qui s\'affichera lors de l\'ouverture de la bibliothèque</string>
+	<string name="donate">Faire une donation</string>
 </resources>

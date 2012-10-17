@@ -62,7 +62,7 @@
 		<activity android:name=".ServerBonjourListActivity" android:theme="@style/AppTheme.ActionBar" />
 		
 		<activity android:name=".AboutActivity" android:label="@string/about" />
-		<activity android:name=".WebViewActivity" android:theme="@android:style/Theme.Black.NoTitleBar" />
+		<activity android:name=".WebViewActivity" />
 		<activity android:name=".WarningActivity" android:label="@string/warningTitle"  android:theme="@style/AppTheme.Dialog" />
 		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity" >
 			<meta-data android:name="android.app.default_searchable"

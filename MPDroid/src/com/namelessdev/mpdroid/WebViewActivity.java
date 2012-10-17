@@ -1,14 +1,16 @@
 package com.namelessdev.mpdroid;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 
-public class WebViewActivity extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+
+public class WebViewActivity extends SherlockActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setTitle(R.string.donate);
 		WebView webview = new WebView(this);
 		this.setContentView(webview);
 		final String url = getIntent().getStringExtra("url");
@@ -16,7 +18,7 @@ public class WebViewActivity extends Activity {
 			webview.loadUrl(url);
 		} else {
 			// Defaut on the what's new page
-			webview.loadUrl("http://nlss.fr/mpdroid/new.html");
+			webview.loadUrl("http://nlss.fr/mpdroid/donate.html");
 		}
 	}
 }
