@@ -5,12 +5,14 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.Iterator;
 
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.content.Context;
 
 /**
  * MPD Server controller.
@@ -90,6 +92,16 @@ public class MPD {
 	static private boolean sortAlbumsByYear = false;
 	static private boolean showArtistAlbumCount = false;
 	static private boolean showAlbumTrackCount = true;
+
+	static private Context applicationContext = null;
+
+	static public Context getApplicationContext() {
+		return applicationContext;
+	}
+
+	static public void setApplicationContext(Context context) {
+		applicationContext = context;
+	}
 
     static public boolean useAlbumArtist() {
             return useAlbumArtist;

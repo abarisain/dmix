@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 
 import android.annotation.TargetApi;
@@ -76,6 +77,8 @@ public class MPDApplication extends Application implements ConnectionListener {
 	public void onCreate() {
 		super.onCreate();
 		System.err.println("onCreate Application");
+		
+		MPD.setApplicationContext(getApplicationContext());
 
 		if (android.os.Build.VERSION.SDK_INT > 9) {
 			StrictMode.VmPolicy vmpolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
