@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.fragments;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.Artist;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,7 +48,7 @@ public class ArtistsFragment extends BrowseFragment {
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Intent intent = new Intent(getActivity(), AlbumsActivity.class);
-		intent.putExtra("artist", items.get(position).getName());
+		intent.putExtra("artist", ((Artist) items.get(position)));
 		startActivityForResult(intent, -1);
 	}
 
@@ -64,7 +65,7 @@ public class ArtistsFragment extends BrowseFragment {
     protected void Add(Item item) {
     	try {
     		MPDApplication app = (MPDApplication) getActivity().getApplication();
-    		app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getSongs(item.getName(), null));
+    		app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getSongs(((Artist) item), null));
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();
@@ -75,7 +76,7 @@ public class ArtistsFragment extends BrowseFragment {
     protected void Add(Item item, String playlist) {
     	try {
     		MPDApplication app = (MPDApplication) getActivity().getApplication();
-    		app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getSongs(item.getName(), null));
+    		app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getSongs(((Artist) item), null));
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();
