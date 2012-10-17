@@ -6,6 +6,8 @@ import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.Album;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,8 +25,8 @@ import com.namelessdev.mpdroid.views.SongDataBinder;
 
 public class SongsFragment extends BrowseFragment {
 
-	String album = "";
-	String artist = "";
+	Album album = null;
+	Artist artist = null;
 	TextView headerArtist;
 	TextView headerInfo;
 
@@ -57,11 +59,11 @@ public class SongsFragment extends BrowseFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		registerForContextMenu(getListView());
-		album = (String) this.getActivity().getIntent().getStringExtra("album");
-		artist = (String) this.getActivity().getIntent().getStringExtra("artist");
+		artist = getActivity().getIntent().getParcelableExtra("artist");
+		album = getActivity().getIntent().getParcelableExtra("album");
 		UpdateList();
 
-		setActivityTitle(album);
+		setActivityTitle(album.getName());
 
 	}
 

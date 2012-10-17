@@ -125,8 +125,7 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		} else if(o instanceof Artist) {
 			return ((Artist) o).getName();
 		} else if(o instanceof Album) {
-			String artist=((Album) o).getArtist();
-			return null==artist ? ((Album) o).getName() : artist+" - "+((Album) o).getName();
+			return ((Album) o).getName();
 		}
 		return "";
 	}
@@ -151,12 +150,11 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 			add((Music) selectedItem);
 		} else if(selectedItem instanceof Artist) {
 			Intent intent = new Intent(this, AlbumsActivity.class);
-			intent.putExtra("artist", ((Artist) selectedItem).getName());
+			intent.putExtra("artist", ((Artist) selectedItem));
 			startActivityForResult(intent, -1);
 		} else if(selectedItem instanceof Album) {
 			Intent intent = new Intent(this, SongsActivity.class);
-			//intent.putExtra("artist", ((Album) selectedItem).getArtist());
-			intent.putExtra("album", ((Album) selectedItem).getName());
+			intent.putExtra("album", ((Album) selectedItem));
 			startActivityForResult(intent, -1);
 		}
 	}
@@ -166,20 +164,18 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		if(object instanceof Music) {
 			add((Music) object);
 		} else if (object instanceof Artist) {
-			add(((Artist) object).getName(), null);
+			add(((Artist) object), null);
 		} else if (object instanceof Album) {
-			add(((Album) object).getArtist(), ((Album) object).getName());
+			add(null, ((Album) object));
 		}
 	}
 	
-	protected void add(String artist, String album) {
+	protected void add(Artist artist, Album album) {
 		try {
 			MPDApplication app = (MPDApplication) getApplication();
 			ArrayList<Music> songs = new ArrayList<Music>(app.oMPDAsyncHelper.oMPD.getSongs(artist, album));
 			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(songs);
-			Tools.notifyUser(
-					String.format(getResources().getString(addedString), null == album ? artist : (null == artist ? album : artist + " - "
-							+ album)), this);
+			Tools.notifyUser(String.format(getResources().getString(addedString), null == album ? artist.getName() : (null == artist ? album.getName() : artist.getName() + " - " + album.getName())), this);
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
@@ -318,7 +314,7 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 						valueFound = true;
 				}
 				if(!valueFound)
-					albumItems.add(new Album(tmpValue, music.getArtist()));
+					albumItems.add(new Album(tmpValue));
 			}			
 		}
 		
