@@ -12,6 +12,7 @@ public class WebViewActivity extends SherlockActivity {
 		super.onCreate(savedInstanceState);
 		setTitle(R.string.donate);
 		WebView webview = new WebView(this);
+		webview.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		this.setContentView(webview);
 		final String url = getIntent().getStringExtra("url");
 		if (url != null) {
