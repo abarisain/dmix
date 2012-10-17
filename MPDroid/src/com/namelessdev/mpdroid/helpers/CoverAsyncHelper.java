@@ -8,12 +8,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 
-
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.ICoverRetriever;
-import com.namelessdev.mpdroid.cover.LastFMCover;
-import com.namelessdev.mpdroid.cover.LocalCover;
-
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -21,7 +16,11 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.content.SharedPreferences;
+
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import com.namelessdev.mpdroid.cover.LastFMCover;
+import com.namelessdev.mpdroid.cover.LocalCover;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -133,6 +132,7 @@ public class CoverAsyncHelper extends Handler {
 					return;
 				}
 
+				Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
 				Bitmap bmImg=download(url);
 				
 				if (null==bmImg && url.endsWith("/cover.jpg")) {
