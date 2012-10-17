@@ -8,7 +8,12 @@
 /ActionBarSherlock/.classpath
 /ActionBarSherlock/local.properties
 /JMPDComm/JMPDComm.jar
+/JMPDComm/bin
+/JMPDComm/gen
+/JMPDComm/proguard
 /JMPDComm/classes
+/JMPDComm/.classpath
+/JMPDComm/local.properties
 /lastfm-java/bin
 /JmDNS/bin
 .DS_Store
