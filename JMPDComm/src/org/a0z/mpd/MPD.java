@@ -496,7 +496,7 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 */
 	public List<String> listAlbums() throws MPDServerException {
-		return listAlbums(null, false);
+		return listAlbums(null, false, false);
 	}
 
 	/**
@@ -509,9 +509,24 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 */
 	public List<String> listAlbums(boolean sortInsensitive) throws MPDServerException {
-		return listAlbums(null, sortInsensitive);
+		return listAlbums(null, sortInsensitive, false);
 	}
-	
+
+	/**
+	 * List all albums from a given artist, including an entry for songs with no album tag.
+	 * 
+	 * @param artist
+	 *           artist to list albums
+	 * @param sortInsensitive
+	 * 			 do an insensitive sort on the returned list
+	 * @return <code>Collection</code> with all album names from database.
+	 * @throws MPDServerException
+	 *            if an error occur while contacting server.
+	 */
+	public List<String> listAlbums(String artist, boolean sortInsensitive) throws MPDServerException {
+		return listAlbums(artist, sortInsensitive, true);
+	}
+
 	/**
 	 * List all albums from a given artist.
 	 * 
@@ -519,11 +534,13 @@ public class MPD {
 	 *           artist to list albums
 	 * @param sortInsensitive
 	 * 			 do an insensitive sort on the returned list
+	 * @param includeUnknownAlbum
+	 * 			 include an entry for songs with no album tag
 	 * @return <code>Collection</code> with all album names from the given artist present in database.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
 	 */
-	public List<String> listAlbums(String artist, boolean sortInsensitive) throws MPDServerException {
+	public List<String> listAlbums(String artist, boolean sortInsensitive, boolean includeUnknownAlbum) throws MPDServerException {
 		if(!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
@@ -546,7 +563,7 @@ public class MPD {
 			Collections.sort(result);
 		
 		// add a single blank entry to host all songs without an album set
-		if(foundSongWithoutAlbum == true) {
+		if((includeUnknownAlbum == true) && (foundSongWithoutAlbum == true)) {
 			result.add("");
 		}
 
@@ -1109,8 +1126,14 @@ public class MPD {
 	}
 
 	public List<Album> getAlbums(Artist artist) throws MPDServerException {
-		List<String> albumNames=listAlbums((artist==null) ? null : artist.getName(), useAlbumArtist);
+		List<String> albumNames = null;
 		List<Album> albums = null;
+
+		if(artist != null) {
+			albumNames = listAlbums(artist.getName(), useAlbumArtist);
+		}else{
+			albumNames = listAlbums(useAlbumArtist);
+		}
 
 		if (null!=albumNames && !albumNames.isEmpty()) {
 			albums=new ArrayList<Album>();
