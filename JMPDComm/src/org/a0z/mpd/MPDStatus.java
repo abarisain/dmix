@@ -87,10 +87,11 @@ public class MPDStatus {
 	public void updateStatus(List<String> response) {
 		// reset values
 		this.updating = false;
+		if (response == null)
+			return;
 		
-		// read new values
-		try {
-			for (String line : response) {
+		for (String line : response) {
+			try {
 				if (line.startsWith("volume:")) {
 					this.volume = Integer.parseInt(line.substring("volume: ".length()));
 				} else if (line.startsWith("bitrate:")) {
@@ -147,13 +148,13 @@ public class MPDStatus {
 				} else if (line.startsWith("single:")) {
 					this.single = "1".equals(line.substring("single: ".length())) ? true : false;
 				} else {
-					//TODO : This floods logcat too much, will fix later
-					//(new InvalidResponseException("unknown response: " + line)).printStackTrace();
+					// TODO : This floods logcat too much, will fix later
+					// (new InvalidResponseException("unknown response: " + line)).printStackTrace();
 				}
+			} catch (RuntimeException e) {
+				// Do nothing, these should be harmless
+				e.printStackTrace();
 			}
-		} catch(RuntimeException e) {
-			//Do nothing, these should be harmless
-			e.printStackTrace();
 		}
 	}
 
