@@ -60,18 +60,18 @@ public class MPDStatus {
 
 
 	MPDStatus() {
-		volume = -1;
-		bitrate = -1;
-		playlistVersion = -1;
-		playlistLength = -1;
-		song = -1;
-		songId = -1;
+		volume = 0;
+		bitrate = 0;
+		playlistVersion = 0;
+		playlistLength = 0;
+		song = 0;
+		songId = 0;
 		repeat = false;
 		random = false;
 		state = null;
 		error = null;
-		elapsedTime = -1;
-		totalTime = -1;
+		elapsedTime = 0;
+		totalTime = 0;
 		crossfade = 0;
 		sampleRate = 0;
 		channels = 0;
