@@ -153,6 +153,7 @@ public class MPDStatus {
 			}
 		} catch(RuntimeException e) {
 			//Do nothing, these should be harmless
+			e.printStackTrace();
 		}
 	}
 
