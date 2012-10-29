@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -328,12 +327,12 @@ public class MPD {
     }
 
 	// Returns a pattern where all punctuation characters are escaped. 
-	private static Pattern escaper = Pattern.compile("([^a-zA-z0-9])"); 
+
 	private List<Music> genericSearch(String searchCommand, String type, String strToFind) throws MPDServerException {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		List<String> response = mpdConnection.sendCommand(searchCommand, type, escaper.matcher(strToFind).replaceAll("\\\\$1"));
+		List<String> response = mpdConnection.sendCommand(searchCommand, type, strToFind);
 		return Music.getMusicFromList(response, true);
 	}
 
@@ -341,12 +340,6 @@ public class MPD {
         if (!isConnected())
         	throw new MPDServerException("MPD Connection is not established");
 
-        String[] fixed=null;
-
-		/*
-		 * if (null!=args) { fixed=new String[args.length]; for (int i=0; i<args.length; ++i) {
-		 * fixed[i]=escaper.matcher(args[i]).replaceAll("\\\\$1"); } }
-		 */
 		return Music.getMusicFromList(mpdConnection.sendCommand(searchCommand, args), sort);
     }
 
