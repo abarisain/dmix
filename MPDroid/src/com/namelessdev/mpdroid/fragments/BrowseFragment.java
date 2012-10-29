@@ -138,19 +138,19 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
 		menu.setHeaderTitle(items.get((int) info.id).toString());
-		android.view.MenuItem addItem = menu.add(ContextMenu.NONE, ADD, 0, getResources().getString(irAdd));
+		android.view.MenuItem addItem = menu.add(ADD, ADD, 0, getResources().getString(irAdd));
 		addItem.setOnMenuItemClickListener(this);
-		android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0, R.string.addAndReplace);
+		android.view.MenuItem addAndReplaceItem = menu.add(ADDNREPLACE, ADDNREPLACE, 0, R.string.addAndReplace);
 		addAndReplaceItem.setOnMenuItemClickListener(this);
-		android.view.MenuItem addAndReplacePlayItem = menu.add(ContextMenu.NONE, ADDNREPLACEPLAY, 0, R.string.addAndReplacePlay);
+		android.view.MenuItem addAndReplacePlayItem = menu.add(ADDNREPLACEPLAY, ADDNREPLACEPLAY, 0, R.string.addAndReplacePlay);
 		addAndReplacePlayItem.setOnMenuItemClickListener(this);
-		android.view.MenuItem addAndPlayItem = menu.add(ContextMenu.NONE, ADDNPLAY, 0, R.string.addAndPlay);
+		android.view.MenuItem addAndPlayItem = menu.add(ADDNPLAY, ADDNPLAY, 0, R.string.addAndPlay);
 		addAndPlayItem.setOnMenuItemClickListener(this);
 		
 		if (R.string.addPlaylist!=irAdd && R.string.addStream!=irAdd) {
-			int id=ADD_TO_PLAYLIST;
+			int id=0;
 			SubMenu playlistMenu=menu.addSubMenu(R.string.addToPlaylist);
-			android.view.MenuItem item=playlistMenu.add(ContextMenu.NONE, id++, (int)info.id, R.string.newPlaylist);
+			android.view.MenuItem item=playlistMenu.add(ADD_TO_PLAYLIST, id++, (int)info.id, R.string.newPlaylist);
 			item.setOnMenuItemClickListener(this);
 			
 			try {
@@ -158,7 +158,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 				
 				if (null!=playlists) {
 					for (Item pl : playlists) {
-						item=playlistMenu.add(ContextMenu.NONE, id++, (int)info.id, pl.getName());
+						item=playlistMenu.add(ADD_TO_PLAYLIST;, id++, (int)info.id, pl.getName());
 						item.setOnMenuItemClickListener(this);
 					}
 				}
@@ -175,7 +175,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	public boolean onMenuItemClick(final android.view.MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		final MPDApplication app = (MPDApplication) getActivity().getApplication();
-		switch (item.getItemId()) {
+		switch (item.getGroupId()) {
 		case ADDNREPLACEPLAY:
 		case ADDNREPLACE:
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
@@ -233,27 +233,31 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		case ADD_TO_PLAYLIST: {
 			final EditText input = new EditText(getActivity());
 			final int id=(int) item.getOrder();
-			new AlertDialog.Builder(getActivity())
-		    .setTitle(R.string.playlistName)
-		    .setMessage(R.string.newPlaylistPrompt)
-		    .setView(input)
-		    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int whichButton) {
-		            final String name = input.getText().toString().trim();
-		            if (null!=name && name.length()>0) {
-		            	app.oMPDAsyncHelper.execAsync(new Runnable() {
-		    				@Override
-		    				public void run() {
-		    					Add(items.get(id), name);
-		    				}
-		    			});
-		            }
-		        }
-		    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int whichButton) {
-		            // Do nothing.
-		        }
-		    }).show();
+            if (item.getItemId() == 0) {
+                new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.playlistName)
+                .setMessage(R.string.newPlaylistPrompt)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        final String name = input.getText().toString().trim();
+                        if (null!=name && name.length()>0) {
+                            app.oMPDAsyncHelper.execAsync(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Add(items.get(id), name);
+                                }
+                            });
+                        }
+                    }
+                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Do nothing.
+                    }
+                }).show();
+             } else {
+                Add(items.get(id),item.getTitle().toString());
+            }
 			break;
 		}
 		default:
