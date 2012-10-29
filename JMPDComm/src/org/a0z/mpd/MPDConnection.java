@@ -166,7 +166,7 @@ public class MPDConnection {
 		}
 		outBuf.append("\n");
 		final String outString = outBuf.toString();
-		Log.d("JMPDComm", "Mpd command : " + outString);
+		Log.d("JMPDComm", "Mpd command : " + (outString.startsWith("password ") ? "password **censored**" : outString));
 		return outString;
 	}
 
