@@ -14,6 +14,8 @@ import java.util.List;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.util.Log;
+
 /**
  * Class representing a connection to MPD Server.
  * 
@@ -163,8 +165,9 @@ public class MPDConnection {
 			outBuf.append(" \"" + arg + "\"");
 		}
 		outBuf.append("\n");
-
-		return outBuf.toString();
+		final String outString = outBuf.toString();
+		Log.d("JMPDComm", "Mpd command : " + outString);
+		return outString;
 	}
 
 }
