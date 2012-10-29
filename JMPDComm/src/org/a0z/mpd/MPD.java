@@ -343,13 +343,11 @@ public class MPD {
 
         String[] fixed=null;
 
-        if (null!=args) {
-        	fixed=new String[args.length];
-        	for (int i=0; i<args.length; ++i) {
-        		fixed[i]=escaper.matcher(args[i]).replaceAll("\\\\$1");
-        	}
-    	}
-        return Music.getMusicFromList(mpdConnection.sendCommand(searchCommand, fixed), sort);
+		/*
+		 * if (null!=args) { fixed=new String[args.length]; for (int i=0; i<args.length; ++i) {
+		 * fixed[i]=escaper.matcher(args[i]).replaceAll("\\\\$1"); } }
+		 */
+		return Music.getMusicFromList(mpdConnection.sendCommand(searchCommand, args), sort);
     }
 
 	/**
