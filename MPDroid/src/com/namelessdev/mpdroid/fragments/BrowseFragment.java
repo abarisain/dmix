@@ -158,7 +158,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 				
 				if (null!=playlists) {
 					for (Item pl : playlists) {
-						item=playlistMenu.add(ADD_TO_PLAYLIST;, id++, (int)info.id, pl.getName());
+						item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id, pl.getName());
 						item.setOnMenuItemClickListener(this);
 					}
 				}
