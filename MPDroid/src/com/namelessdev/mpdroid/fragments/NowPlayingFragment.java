@@ -94,7 +94,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private Timer posTimer = null;
 	private TimerTask posTimerTask = null;
 
-	private boolean enableLastFM;
+    private boolean enableLastFM;
+    private boolean enableLocalCover;
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -170,6 +171,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		settings.registerOnSharedPreferenceChangeListener(this);
 
 		enableLastFM = settings.getBoolean("enableLastFM", true);
+        enableLocalCover = settings.getBoolean("enableLocalCover", true);
 
 		streamingMode = ((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode;
 		connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
@@ -204,9 +206,11 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
 		if(enableLastFM) {
 			oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LASTFM);
-		}else{
+		} if (enableLocalCover) {
 			oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LOCAL);
-		}
+		} else {
+            oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.NONE);
+        }
 		oCoverAsyncHelper.addCoverDownloadListener(this);
 
 		buttonEventHandler = new ButtonEventHandler();
@@ -656,15 +660,18 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals("enableLastFM")) {
+		if (key.equals("enableLastFM") || key.equals("enableLocalCover")) {
 			enableLastFM = sharedPreferences.getBoolean("enableLastFM", true);
+            enableLocalCover = sharedPreferences.getBoolean("enableLocalCover", true);
 
 			if(enableLastFM) {
 				oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LASTFM);
-			}else{
-				oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LOCAL);
-			}
-		} else if(key.equals("enableStopButton")) {
+			}else if (enableLocalCover){
+                oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LOCAL);
+			} else {
+                oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.NONE);
+            }
+        } else if(key.equals("enableStopButton")) {
 			applyStopButtonVisibility(sharedPreferences);
 		}
 	}

@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid;
 import java.util.Collection;
 import java.util.HashMap;
 
+import android.preference.*;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDOutput;
 import org.a0z.mpd.MPDStatus;
@@ -12,13 +13,7 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,12 +64,15 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
 		Preference mp = (Preference) findPreference("musicPath");
 		Preference cf = (Preference) findPreference("coverFileName");
+        Preference csp = (Preference) findPreference("musicServerPort");
 		if(c.isChecked()) {
 			mp.setEnabled(true);
 			cf.setEnabled(true);
+            csp.setEnabled(true);
 		}else{
 			mp.setEnabled(false);
 			cf.setEnabled(false);
+            csp.setEnabled(false);
 		}
 
 		if (!app.oMPDAsyncHelper.oMPD.isConnected()) {
@@ -194,13 +192,16 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 			CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
 			Preference mp = (Preference) findPreference("musicPath");
 			Preference cf = (Preference) findPreference("coverFileName");
+            Preference csp = (Preference) findPreference("musicServerPort");
 
 			if(c.isChecked()) {
 				mp.setEnabled(true);
 				cf.setEnabled(true);
+                csp.setEnabled(true);
 			}else{
 				mp.setEnabled(false);
 				cf.setEnabled(false);
+                csp.setEnabled(false);
 			}
 			return true;
 		}

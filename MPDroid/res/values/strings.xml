@@ -137,8 +137,10 @@
 	<string name="enableLastFMDescription">Get cover art using last.fm (sends them your song information)</string>
 	<string name="enableLocalCover">Download local cover art</string>
 	<string name="enableLocalCoverDescription">Get cover art from the server running MPD (requires a webserver, read the wiki!)</string>
-	<string name="musicPath">Path to music</string>
-	<string name="musicPathDescription">Path to your music directory on the MPD server ie, files/mp3 (music/ for vortexbox users)</string>
+    <string name="musicPath">Path to music</string>
+    <string name="musicServerPort">Local Server Port</string>
+    <string name="musicPathDescription">Path to your music directory on the MPD server ie, files/mp3 (music/ for vortexbox users)</string>
+    <string name="musicServerPortDescription">Port to your http server on the MPD server</string>
 	<string name="coverFileName">Cover filename</string>
 	<string name="coverFileNameDescription">Standard filename for your album artwork ie, folder.jpg (cover.jpg for vortexbox users)</string>
 	<string name="whatsNew">What\'s new ?</string>

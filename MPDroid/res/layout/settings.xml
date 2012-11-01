@@ -76,6 +76,9 @@
 		<EditTextPreference android:persistent="true"
 			android:title="@string/musicPath" android:summary="@string/musicPathDescription"
 			android:key="musicPath" android:defaultValue="" />
+         <EditTextPreference android:persistent="true"
+         			android:title="@string/musicServerPort" android:summary="@string/musicServerPortDescription"
+         			android:key="musicServerPort" android:defaultValue="80" />
 		<EditTextPreference android:persistent="true"
 			android:title="@string/coverFileName" android:summary="@string/coverFileNameDescription"
 			android:key="coverFileName" android:defaultValue="folder.jpg" />

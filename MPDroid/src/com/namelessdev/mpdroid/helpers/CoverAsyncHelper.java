@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.cover.LastFMCover;
 import com.namelessdev.mpdroid.cover.LocalCover;
+import com.namelessdev.mpdroid.cover.NoneCover;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -58,6 +59,9 @@ public class CoverAsyncHelper extends Handler {
 		case LOCAL:
 			this.coverRetriever = new LocalCover(this.app, this.settings);
 			break;
+        case NONE:
+            this.coverRetriever = new NoneCover();
+            break;
 		}
 	}
 
@@ -185,7 +189,8 @@ public class CoverAsyncHelper extends Handler {
 
 	public enum CoverRetrievers {
 		LASTFM,
-		LOCAL;
+		LOCAL,
+        NONE;
 	}
 
 }
