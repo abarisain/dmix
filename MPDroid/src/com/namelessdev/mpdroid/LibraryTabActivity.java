@@ -19,6 +19,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.ArtistsFragment;
 import com.namelessdev.mpdroid.fragments.FSFragment;
+import com.namelessdev.mpdroid.fragments.GenresFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
 
@@ -55,6 +56,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         actionBar.setDisplayHomeAsUpEnabled(true);
         
         ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
+        actionBarAdapter.add(getString(R.string.genres));
         actionBarAdapter.add(getString(R.string.artists));
         actionBarAdapter.add(getString(R.string.albums));
         actionBarAdapter.add(getString(R.string.playlists));
@@ -147,34 +149,36 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
             super(fm);
         }
 
-        @Override
-        public Fragment getItem(int i) {
-            Fragment fragment = null;
-            switch (i) {
-            	case 0: fragment = new ArtistsFragment(); break;
-            	case 1: fragment = new AlbumsFragment(); break;
-            	case 2: fragment = new PlaylistsFragment(); break;
-            	case 3: fragment = new StreamsFragment(); break;
-            	case 4: fragment = new FSFragment(); break;
-            }
-            return fragment;
-        }
+		@Override
+		public Fragment getItem(int i) {
+			Fragment fragment = null;
+			switch (i) {
+			case 0:	fragment = new GenresFragment(); break;
+			case 1:	fragment = new ArtistsFragment(); break;
+			case 2:	fragment = new AlbumsFragment(); break;
+			case 3:	fragment = new PlaylistsFragment();	break;
+			case 4:	fragment = new StreamsFragment(); break;
+			case 5:	fragment = new FSFragment(); break;
+			}
+			return fragment;
+		}
 
-        @Override
-        public int getCount() {
-			return 5;
-        }
+		@Override
+		public int getCount() {
+			return 6;
+		}
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0: return getString(R.string.artists);
-                case 1: return getString(R.string.albums);
-                case 2: return getString(R.string.playlists);
-                case 3: return getString(R.string.streams);
-                case 4: return getString(R.string.files);
-            }
-            return null;
-        }
-    }
+		@Override
+		public CharSequence getPageTitle(int position) {
+			switch (position) {
+			case 0:	return getString(R.string.genres);
+			case 1:	return getString(R.string.artists);
+			case 2:	return getString(R.string.albums);
+			case 3:	return getString(R.string.playlists);
+			case 4:	return getString(R.string.streams);
+			case 5:	return getString(R.string.files);
+			}
+			return null;
+		}
+	}
 }
