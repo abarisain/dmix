@@ -2,6 +2,7 @@
 <resources>
 	<string name="app_name">MPDroid</string>
 	<string name="artists">Artists</string>
+	<string name="genres">Genres</string>
 	<string name="playlists">Playlists</string>
 	<string name="files">Files</string>
 	<string name="albums">Albums</string>
@@ -16,6 +17,7 @@
 	<string name="quit">Quit</string>
 	<string name="retry">Retry</string>
 	<string name="loading">Loading…</string>
+	<string name="loadingGenres">Loading genres…</string>
 	<string name="loadingAlbums">Loading albums…</string>
 	<string name="loadingArtists">Loading artists…</string>
 	<string name="loadingSongs">Loading songs…</string>
@@ -28,6 +30,7 @@
 	<string name="addPlaylist">Add playlist</string>
 	<string name="addAndPlay">Add and play</string>
 	<string name="addArtist">Add artist</string>
+	<string name="addGenre">Add genre</string>
 	<string name="addDirectory">Add</string>
 	<string name="addSong">Add song</string>
 	<string name="removeSong">Remove song</string>
@@ -171,6 +174,7 @@
 	<string name="streamName">Name:</string>
 	<string name="streamUrl">URL:</string>
 	<string name="streamDetails">Stream details:</string>
+	<string name="genreAdded">Genre %s added</string>
 	<string name="enableStopButton">Show stop button</string>
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
