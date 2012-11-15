@@ -471,6 +471,20 @@ public class Music extends Item implements FilesystemTreeEntry {
 				return songId < om.songId ? -1 : 1;
 			}
 			
+			int compare = compare(getArtist(), om.getArtist());
+			if (0 != compare) {
+				return compare;
+			}
+
+			if (MPD.sortAlbumsByYear() && date!=om.date) {
+				return date<om.date ? -1 : 1;
+			}
+
+			compare = compare(album, om.album);
+			if (0 != compare) {
+				return compare;
+			}
+
 			if (MPD.sortByTrackNumber()) {
 				if (disc != om.disc) {
 					return disc < om.disc ? -1 : 1;
@@ -482,38 +496,12 @@ public class Music extends Item implements FilesystemTreeEntry {
 					return time < om.time ? -1 : 1;
 				}
 			}
-			
-			int compare = compare(getArtist(), om.getArtist());
-
-			if (0 != compare) {
-				return compare;
-			}
-			// if (MPD.sortAlbumsByYear() && date!=om.date) {
-			// return date<om.date ? -1 : 1;
-			// }
-			compare = compare(album, om.album);
-			if (0 != compare) {
-				return compare;
-			}
-			if (/* !MPD.sortAlbumsByYear() && */date != om.date) {
-				return date < om.date ? -1 : 1;
-			}
 
 			compare = compare(getTitle(), om.getTitle());
 			if (0 != compare) {
 				return compare;
 			}
-			if (!MPD.sortByTrackNumber()) {
-				if (disc != om.disc) {
-					return disc < om.disc ? -1 : 1;
-				}
-				if (track != om.track) {
-					return track < om.track ? -1 : 1;
-				}
-				if (time != om.time) {
-					return time < om.time ? -1 : 1;
-				}
-			}
+
 			compare = compare(name, om.name);
 			if (0 != compare) {
 				return compare;
