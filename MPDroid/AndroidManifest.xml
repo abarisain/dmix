@@ -80,6 +80,12 @@
 			</intent-filter>
 		</receiver>
 		
+		<receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver">
+    		<intent-filter>
+      			<action android:name="android.intent.action.PHONE_STATE" />
+    			</intent-filter>
+		</receiver>
+		
 		<provider android:name=".providers.ServerListProvider"
           android:authorities="com.namelessdev.mpdroid.providers.serverlist"
           android:exported="false">

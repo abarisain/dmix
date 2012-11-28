@@ -155,4 +155,10 @@
 	<string name="defaultLibraryScreen">Onglet bibliothèque par defaut</string>
 	<string name="defaultLibraryScreenDescription">Onglet qui s\'affichera lors de l\'ouverture de la bibliothèque</string>
 	<string name="donate">Faire une donation</string>
+	
+	<string name="behavior">Comportement du téléphone</string>
+	<string name="pauseOnPhoneStateChange">Mettre la musique en pause</string>
+	<string name="pauseOnPhoneStateChangeDescription">Mettre la lecture en pause lors d\'un appel</string>
+	<string name="playOnPhoneStateChange">Reprendre la lecture</string>
+	<string name="playOnPhoneStateChangeDescription">Reprendre la lecture lorsqu\'un appel se termine</string>
 </resources>
