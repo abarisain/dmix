@@ -301,9 +301,10 @@ public class MPD {
 	 *            if an error occur while closing connection
 	 */
 	public void disconnect() throws MPDServerException {
-		mpdConnection.sendCommand(MPD_CMD_CLOSE);
-		mpdIdleConnection.sendCommand(MPD_CMD_CLOSE);
+		mpdConnection.sendCommand(false,MPD_CMD_CLOSE);
 		mpdConnection.disconnect();
+		
+		mpdIdleConnection.sendCommand(false,MPD_CMD_CLOSE);
 		mpdIdleConnection.disconnect();
 	}
 
