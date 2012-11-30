@@ -113,7 +113,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 								Log.d(MPDApplication.TAG, "Playback resumed");
 							}
 							// Always throws MpdConnectionLost !
-							// mpd.disconnect();
+							 mpd.disconnect();
 						} catch (MPDServerException e) {
 							e.printStackTrace();
 							Log.d(MPDApplication.TAG, "MPD Error", e);
