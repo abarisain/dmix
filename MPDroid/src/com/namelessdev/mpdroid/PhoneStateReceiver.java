@@ -62,7 +62,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 				SettingsHelper settingsHelper = new SettingsHelper(
 						(ContextWrapper) context.getApplicationContext(),
 						oMPDAsyncHelper);
-				settingsHelper.updateSettings();
+				settingsHelper.updateConnectionSettings();
 
 				// schedule real work
 				oMPDAsyncHelper.execAsync(new Runnable() {
