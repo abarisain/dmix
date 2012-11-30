@@ -64,55 +64,65 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 						oMPDAsyncHelper);
 				settingsHelper.updateSettings();
 
-				try {
-					// prepare values for runnable
-					MPD mpd = oMPDAsyncHelper.oMPD;
-					if (!mpd.isConnected()) {
-						Log.d(MPDApplication.TAG, "Trying to connect");
-						// When using oMPDAsyncHelper.connect();
-						// while the app has been killed
-						// mpd.play() and mpd.pause () always throws
-						// "MPD Connection is not established"
-						// oMPDAsyncHelper.connect();
-						// Had to use a synchronous call to establish
-						// the connection :/
-						MPDConnectionInfo conInfo = (MPDConnectionInfo) oMPDAsyncHelper
-								.getConnectionSettings();
-						mpd.connect(conInfo.sServer, conInfo.iPort);
-						if (conInfo.sPassword != null)
-							mpd.password(conInfo.sPassword);
+				// schedule real work
+				oMPDAsyncHelper.execAsync(new Runnable() {
+					@Override
+					public void run() {
+						Log.d(MPDApplication.TAG, "Runnable started");
 
-						if (mpd.isConnected()) {
-							Log.e(MPDApplication.TAG, "Not connected");
-						} else {
-							Log.d(MPDApplication.TAG, "Connected");
+						try {
+							// prepare values for runnable
+							MPD mpd = oMPDAsyncHelper.oMPD;
+							if (!mpd.isConnected()) {
+								Log.d(MPDApplication.TAG, "Trying to connect");
+								// When using oMPDAsyncHelper.connect();
+								// while the app has been killed
+								// mpd.play() and mpd.pause () always throws
+								// "MPD Connection is not established"
+								// oMPDAsyncHelper.connect();
+								// Had to use a synchronous call to establish
+								// the connection :/
+								MPDConnectionInfo conInfo = (MPDConnectionInfo) oMPDAsyncHelper
+										.getConnectionSettings();
+								mpd.connect(conInfo.sServer, conInfo.iPort);
+								if (conInfo.sPassword != null)
+									mpd.password(conInfo.sPassword);
+
+								if (mpd.isConnected()) {
+									Log.e(MPDApplication.TAG, "Not connected");
+								} else {
+									Log.d(MPDApplication.TAG, "Connected");
+								}
+							}
+							if (shouldPause) {
+								Log.d(MPDApplication.TAG, "Trying to pause");
+								if (mpd.getStatus().getState()
+										.equals(MPDStatus.MPD_STATE_PLAYING)) {
+									mpd.pause();
+									settings.edit()
+											.putBoolean(PAUSED_MARKER, true)
+											.commit();
+									Log.d(MPDApplication.TAG, "Playback paused");
+								}
+							} else if (shouldPlay) {
+								Log.d(MPDApplication.TAG, "Trying to play");
+								mpd.play();
+								settings.edit()
+										.putBoolean(PAUSED_MARKER, false)
+										.commit();
+								Log.d(MPDApplication.TAG, "Playback resumed");
+							}
+							// Always throws MpdConnectionLost !
+							// mpd.disconnect();
+						} catch (MPDServerException e) {
+							e.printStackTrace();
+							Log.d(MPDApplication.TAG, "MPD Error", e);
+						} catch (UnknownHostException e) {
+							e.printStackTrace();
+							Log.d(MPDApplication.TAG, "MPD Error", e);
 						}
 					}
-					if (shouldPause) {
-						Log.d(MPDApplication.TAG, "Trying to pause");
-						if (mpd.getStatus().getState()
-								.equals(MPDStatus.MPD_STATE_PLAYING)) {
-							mpd.pause();
-							settings.edit().putBoolean(PAUSED_MARKER, true)
-									.commit();
-							Log.d(MPDApplication.TAG, "Playback paused");
-						}
-					} else if (shouldPlay) {
-						Log.d(MPDApplication.TAG, "Trying to play");
-						mpd.play();
-						settings.edit().putBoolean(PAUSED_MARKER, false)
-								.commit();
-						Log.d(MPDApplication.TAG, "Playback resumed");
-					}
-					// Always throws MpdConnectionLost !
-					// mpd.disconnect();
-				} catch (MPDServerException e) {
-					e.printStackTrace();
-					Log.d(MPDApplication.TAG, "MPD Error", e);
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-					Log.d(MPDApplication.TAG, "MPD Error", e);
-				}
+				});
 			}
 		}
 	}
