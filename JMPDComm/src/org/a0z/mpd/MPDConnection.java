@@ -102,10 +102,13 @@ public class MPDConnection {
 		return mpdVersion;
 	}
 	
+	
 	synchronized List<String> sendCommand(String command, String... args) throws MPDServerException {
 		return sendRawCommand(commandToString(command, args));
 	}
-	
+	synchronized List<String> sendCommand(boolean expectAnswer,String command, String... args) throws MPDServerException {
+		return sendRawCommand(expectAnswer,commandToString(command, args));
+	}
 	synchronized void queueCommand(String command, String ... args) {
 		commandQueue.append(commandToString(command, args));
 	}
@@ -117,6 +120,10 @@ public class MPDConnection {
 	}
 
 	private synchronized List<String> sendRawCommand(String command) throws MPDServerException {
+		return this.sendRawCommand(true,command);
+	}
+	
+	private synchronized List<String> sendRawCommand(boolean expectAnswer,String command) throws MPDServerException {
 		if (!isConnected())
 			throw new MPDServerException("No connection to server");
 
@@ -142,7 +149,7 @@ public class MPDConnection {
 			}
 			
 			// Close socket if there is no response... Something is wrong (e.g. MPD shutdown..)
-			if (!anyResponse) {
+			if (!anyResponse && expectAnswer) {
 				sock.close();
 				throw new MPDConnectionException("Connection lost");
 			}
