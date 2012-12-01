@@ -4,6 +4,7 @@ import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.Artist;
+import org.a0z.mpd.Genre;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +19,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class ArtistsFragment extends BrowseFragment {
+	private Genre genre = null;
 	private boolean albumartist;
 
 	public ArtistsFragment() {
@@ -42,6 +44,12 @@ public class ArtistsFragment extends BrowseFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		registerForContextMenu(getListView());
+		genre = getActivity().getIntent().getParcelableExtra("genre");
+		if (genre != null) {
+			setActivityTitle(genre.getName());
+		} else {
+			getActivity().setTitle(getResources().getString(R.string.artists));
+		}
 		UpdateList();
 	}
 
@@ -56,7 +64,11 @@ public class ArtistsFragment extends BrowseFragment {
 	protected void asyncUpdate() {
 		try {
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			items=app.oMPDAsyncHelper.oMPD.getArtists();
+			if (genre != null) {
+				items = app.oMPDAsyncHelper.oMPD.getArtists(genre);
+			} else {
+				items = app.oMPDAsyncHelper.oMPD.getArtists();
+			}
 		} catch (MPDServerException e) {
 		}
 	}
