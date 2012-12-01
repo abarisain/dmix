@@ -90,4 +90,7 @@
 	<string name="removeFromPlaylist">Von der Wiedergabeliste entfernen</string>
 	<string name="manage">Verwalten</string>
 	<string name="save">Speichern</string>
+	<string name="genreAdded">Genre %s hinzugefügt</string>
+	<string name="genres">Genres</string>
+	<string name="addGenre">Genre hinzufügen</string>
 </resources>
