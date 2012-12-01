@@ -39,7 +39,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 		if (pauseOnCall) {
 			Bundle bundle = intent.getExtras();
 			if (null == bundle) {
-				Log.d(MPDApplication.TAG, "Bundle was null");
+				Log.e(MPDApplication.TAG, "Bundle was null");
 				return;
 			}
 			String state = bundle.getString(TelephonyManager.EXTRA_STATE);
@@ -56,7 +56,6 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 			Log.d(MPDApplication.TAG, "Should play " + shouldPlay);
 
 			if (shouldPause || shouldPlay) {
-
 				// get congigured MPD connection
 				final MPDAsyncHelper oMPDAsyncHelper = new MPDAsyncHelper();
 				SettingsHelper settingsHelper = new SettingsHelper(
@@ -71,27 +70,21 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 						Log.d(MPDApplication.TAG, "Runnable started");
 
 						try {
-							// prepare values for runnable
 							MPD mpd = oMPDAsyncHelper.oMPD;
 							if (!mpd.isConnected()) {
 								Log.d(MPDApplication.TAG, "Trying to connect");
-								// When using oMPDAsyncHelper.connect();
-								// while the app has been killed
-								// mpd.play() and mpd.pause () always throws
-								// "MPD Connection is not established"
-								// oMPDAsyncHelper.connect();
-								// Had to use a synchronous call to establish
-								// the connection :/
+								// MPD connection has to be done synchronously
 								MPDConnectionInfo conInfo = (MPDConnectionInfo) oMPDAsyncHelper
 										.getConnectionSettings();
 								mpd.connect(conInfo.sServer, conInfo.iPort);
+
 								if (conInfo.sPassword != null)
 									mpd.password(conInfo.sPassword);
 
 								if (mpd.isConnected()) {
-									Log.e(MPDApplication.TAG, "Not connected");
-								} else {
 									Log.d(MPDApplication.TAG, "Connected");
+								} else {
+									Log.e(MPDApplication.TAG, "Not connected");
 								}
 							}
 							if (shouldPause) {
@@ -112,8 +105,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 										.commit();
 								Log.d(MPDApplication.TAG, "Playback resumed");
 							}
-							// Always throws MpdConnectionLost !
-							 mpd.disconnect();
+							mpd.disconnect();
 						} catch (MPDServerException e) {
 							e.printStackTrace();
 							Log.d(MPDApplication.TAG, "MPD Error", e);
