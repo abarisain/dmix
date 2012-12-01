@@ -80,6 +80,20 @@
 			android:title="@string/coverFileName" android:summary="@string/coverFileNameDescription"
 			android:key="coverFileName" android:defaultValue="folder.jpg" />
 	</PreferenceCategory>
+	
+ 	<PreferenceCategory android:title="@string/behavior">
+		<CheckBoxPreference android:persistent="true"
+			android:title="@string/pauseOnPhoneStateChange"
+			android:key="pauseOnPhoneStateChange" android:defaultValue="false" 
+			android:summary="@string/pauseOnPhoneStateChangeDescription"/>
+		<CheckBoxPreference android:persistent="true"
+			android:title="@string/playOnPhoneStateChange"
+			android:key="playOnPhoneStateChange" android:defaultValue="false"
+			android:summary="@string/playOnPhoneStateChangeDescription" 
+			/>
+		
+		
+	</PreferenceCategory>
 	<!-- What's new -->
 	<PreferenceCategory android:title="@string/app_name">
 		<PreferenceScreen android:title="@string/donate" android:key="whatsNew">

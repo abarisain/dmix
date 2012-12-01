@@ -23,7 +23,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class SettingsActivity extends PreferenceActivity implements StatusChangeListener {
+public class SettingsActivity extends PreferenceActivity implements
+		StatusChangeListener {
 
 	private static final int MAIN = 0;
 	private static final int ADD = 1;
@@ -52,11 +53,16 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		pInformationScreen = (PreferenceScreen) findPreference("informationScreen");
 		PreferenceScreen pUpdate = (PreferenceScreen) findPreference("updateDB");
 
-		// Use the ConnectionPreferConnectionPreferenceCategoryenceCategory for Wi-Fi based Connection setttings
+		// Use the ConnectionPreferConnectionPreferenceCategoryenceCategory for
+		// Wi-Fi based Connection setttings
 
 		/*
-		 * PreferenceScreen pConnectionScreen = (PreferenceScreen)findPreference("connectionScreen"); PreferenceCategory wifiConnection = new
-		 * ConnectionPreferenceCategory(this); wifiConnection.setTitle("Preferred connection"); wifiConnection.setOrder(0);
+		 * PreferenceScreen pConnectionScreen =
+		 * (PreferenceScreen)findPreference("connectionScreen");
+		 * PreferenceCategory wifiConnection = new
+		 * ConnectionPreferenceCategory(this);
+		 * wifiConnection.setTitle("Preferred connection");
+		 * wifiConnection.setOrder(0);
 		 * pConnectionScreen.addPreference(wifiConnection);
 		 */
 
@@ -69,13 +75,18 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
 		Preference mp = (Preference) findPreference("musicPath");
 		Preference cf = (Preference) findPreference("coverFileName");
-		if(c.isChecked()) {
+		if (c.isChecked()) {
 			mp.setEnabled(true);
 			cf.setEnabled(true);
-		}else{
+		} else {
 			mp.setEnabled(false);
 			cf.setEnabled(false);
 		}
+		// Enable/Disable playback resume when call ends only if playback pause
+		// is enabled when call starts
+		CheckBoxPreference cPause = (CheckBoxPreference) findPreference("pauseOnPhoneStateChange");
+		CheckBoxPreference cPlay = (CheckBoxPreference) findPreference("playOnPhoneStateChange");
+		cPlay.setEnabled(cPause.isChecked());
 
 		if (!app.oMPDAsyncHelper.oMPD.isConnected()) {
 			pOutputsScreen.setEnabled(false);
@@ -86,18 +97,27 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 
 		new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {
-					final boolean isRandom = app.oMPDAsyncHelper.oMPD.getStatus().isRandom();
-					final boolean isRepeat = app.oMPDAsyncHelper.oMPD.getStatus().isRepeat();
-					final String version = app.oMPDAsyncHelper.oMPD.getMpdVersion();
-					final String artists = "" + app.oMPDAsyncHelper.oMPD.getStatistics().getArtists();
-					final String albums = "" + app.oMPDAsyncHelper.oMPD.getStatistics().getAlbums();
-					final String songs = "" + app.oMPDAsyncHelper.oMPD.getStatistics().getSongs();
+					final boolean isRandom = app.oMPDAsyncHelper.oMPD
+							.getStatus().isRandom();
+					final boolean isRepeat = app.oMPDAsyncHelper.oMPD
+							.getStatus().isRepeat();
+					final String version = app.oMPDAsyncHelper.oMPD
+							.getMpdVersion();
+					final String artists = ""
+							+ app.oMPDAsyncHelper.oMPD.getStatistics()
+									.getArtists();
+					final String albums = ""
+							+ app.oMPDAsyncHelper.oMPD.getStatistics()
+									.getAlbums();
+					final String songs = ""
+							+ app.oMPDAsyncHelper.oMPD.getStatistics()
+									.getSongs();
 					handler.post(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							pVersion.setSummary(version);
@@ -112,9 +132,9 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 				}
 			}
 		}).start();
-		// Server is Connected...	
-		
-		if(getIntent().getBooleanExtra(OPEN_OUTPUT, false)) {
+		// Server is Connected...
+
+		if (getIntent().getBooleanExtra(OPEN_OUTPUT, false)) {
 			populateOutputsScreen();
 			setPreferenceScreen(pOutputsScreen);
 		}
@@ -138,7 +158,8 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
 		if (getPreferenceScreen().getKey().equals("connectionscreen"))
-			menu.add(0, ADD, 1, R.string.clear).setIcon(android.R.drawable.ic_menu_add);
+			menu.add(0, ADD, 1, R.string.clear).setIcon(
+					android.R.drawable.ic_menu_add);
 		return result;
 	}
 
@@ -162,7 +183,8 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	 * Method is beeing called on any click of an preference...
 	 */
 
-	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
+			Preference preference) {
 		Log.d("MPDroid", preferenceScreen.getKey());
 		MPDApplication app = (MPDApplication) getApplication();
 
@@ -182,11 +204,12 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 			}
 			return true;
 
-		} else if (preference.getKey().equals("enableLocalCover") || preference.getKey().equals("enableLastFM")) {
-			if(preference.getKey().equals("enableLocalCover")) {
+		} else if (preference.getKey().equals("enableLocalCover")
+				|| preference.getKey().equals("enableLastFM")) {
+			if (preference.getKey().equals("enableLocalCover")) {
 				CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLastFM");
 				c.setChecked(false);
-			}else if(preference.getKey().equals("enableLastFM")) {
+			} else if (preference.getKey().equals("enableLastFM")) {
 				CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
 				c.setChecked(false);
 			}
@@ -195,16 +218,21 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 			Preference mp = (Preference) findPreference("musicPath");
 			Preference cf = (Preference) findPreference("coverFileName");
 
-			if(c.isChecked()) {
+			if (c.isChecked()) {
 				mp.setEnabled(true);
 				cf.setEnabled(true);
-			}else{
+			} else {
 				mp.setEnabled(false);
 				cf.setEnabled(false);
 			}
 			return true;
+		} else if (preference.getKey().equals("pauseOnPhoneStateChange")) {
+			// Enable/Disable playback resume when call ends only if playback
+			// pause is enabled when call starts
+			CheckBoxPreference cPause = (CheckBoxPreference) findPreference("pauseOnPhoneStateChange");
+			CheckBoxPreference c = (CheckBoxPreference) findPreference("playOnPhoneStateChange");
+			c.setEnabled(cPause.isChecked());
 		}
-
 		return false;
 
 	}
@@ -277,7 +305,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 			return true;
 		}
 	}
-	
+
 	@Override
 	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
 		// TODO Auto-generated method stub
@@ -315,7 +343,7 @@ public class SettingsActivity extends PreferenceActivity implements StatusChange
 	public void libraryStateChanged(boolean updating) {
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();

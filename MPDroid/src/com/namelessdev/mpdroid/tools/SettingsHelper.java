@@ -40,7 +40,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 	}
 	
 	public boolean updateSettings() {
-		String wifiSSID = getCurrentSSID();
+		
 		
 		MPD.setSortByTrackNumber(settings.getBoolean("albumTrackSort", MPD.sortByTrackNumber()));
 		MPD.setSortAlbumsByYear(settings.getBoolean("sortAlbumsByYear", MPD.sortAlbumsByYear()));
@@ -48,18 +48,23 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 		MPD.setShowAlbumTrackCount(settings.getBoolean("showAlbumTrackCount", MPD.showAlbumTrackCount()));
 		// MPD.setShowArtistAlbumCount(settings.getBoolean("showArtistAlbumCount", MPD.showArtistAlbumCount()));
 
+		return updateConnectionSettings();
+	}
+	
+	public boolean updateConnectionSettings(){
+		String wifiSSID = getCurrentSSID();
 		if (getStringSetting(getStringWithSSID("hostname",  wifiSSID)) != null) {
-			updateSettings(wifiSSID);
+			updateConnectionSettings(wifiSSID);
 			return true;
 		} else if (getStringSetting("hostname") != null) {
-			updateSettings(null);
+			updateConnectionSettings(null);
 			return true;
 		} else {
 			return false;
 		}
 	}
 	
-	private void updateSettings(String wifiSSID) {
+	private void updateConnectionSettings(String wifiSSID) {
 		// an empty SSID should be null
 		if (wifiSSID != null) 
 			if (wifiSSID.trim().equals(""))
