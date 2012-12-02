@@ -18,6 +18,7 @@ import android.util.Log;
 
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.MPDConnectionInfo;
+import com.namelessdev.mpdroid.tools.NetworkHelper;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 public class PhoneStateReceiver extends BroadcastReceiver {
@@ -26,6 +27,12 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+
+		if (!NetworkHelper.isLocalNetworkConnected(context)) {
+			Log.d(MPDApplication.TAG, "No local network available.");
+			return;
+		}
+
 		Log.d(MPDApplication.TAG, "Phonestate received");
 		final SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(context);
