@@ -80,6 +80,11 @@ public class SeparatedListAdapter extends BaseAdapter {
 		return position;
 	}
 
+	@Override
+	public boolean areAllItemsEnabled(){
+		return false;
+	}
+
 	public View getView(int position, View convertView, ViewGroup parent) {
 		int itemType = getItemViewType(position);
 		

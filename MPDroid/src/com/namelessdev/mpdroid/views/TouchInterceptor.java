@@ -75,6 +75,10 @@ public class TouchInterceptor extends ListView {
 		mItemHeightHalf = mItemHeightNormal / 2;
 		mItemHeightExpanded = res.getDimensionPixelSize(R.dimen.expanded_height);
 	}
+	
+	private boolean isDragItem(View item){
+	    return (item.findViewById(R.id.icon)!=null);				
+	}
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -115,6 +119,9 @@ public class TouchInterceptor extends ListView {
 				mDragPoint = y - item.getTop();
 				mCoordOffset = ((int) ev.getRawY()) - y;
 				View dragger = item.findViewById(R.id.icon);
+				if (!isDragItem(item))
+					return super.onInterceptTouchEvent(ev);
+
 				Rect r = mTempRect;
 				dragger.getDrawingRect(r);
 				// The dragger icon itself is quite small, so pretend the touch area is bigger
@@ -210,10 +217,12 @@ public class TouchInterceptor extends ListView {
 					break;
 				}
 			}
-			ViewGroup.LayoutParams params = v.getLayoutParams();
-			params.height = mItemHeightNormal;
-			v.setLayoutParams(params);
-			v.setVisibility(View.VISIBLE);
+			if (isDragItem(v)){
+				ViewGroup.LayoutParams params = v.getLayoutParams();
+				params.height = mItemHeightNormal;
+				v.setLayoutParams(params);
+				v.setVisibility(View.VISIBLE);
+			}	
 		}
 	}
 
@@ -252,10 +261,12 @@ public class TouchInterceptor extends ListView {
 					height = mItemHeightExpanded;
 				}
 			}
-			ViewGroup.LayoutParams params = vv.getLayoutParams();
-			params.height = height;
-			vv.setLayoutParams(params);
-			vv.setVisibility(visibility);
+			if (isDragItem(vv)){
+				ViewGroup.LayoutParams params = vv.getLayoutParams();
+				params.height = height;
+				vv.setLayoutParams(params);
+				vv.setVisibility(visibility);
+			}	
 		}
 	}
 

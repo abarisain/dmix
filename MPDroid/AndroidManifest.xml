@@ -50,6 +50,7 @@
 		<activity android:name=".WifiConnectionSettings"
 			android:label="@string/settings" android:theme="@style/AppTheme.ActionBar" />
 		<activity android:name=".ConnectionSettings" android:label="@string/settings" />
+		<activity android:name=".LibraryTabsSettings" android:label="@string/libraryTabsSettings" />
 		<activity android:name=".FSActivity" android:label="@string/files" />
 		<activity android:name=".ArtistsActivity" android:label="@string/artists" />
 		<activity android:name=".AlbumsActivity" android:label="@string/albums" >
