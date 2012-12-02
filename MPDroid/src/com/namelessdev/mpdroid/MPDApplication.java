@@ -28,6 +28,7 @@ import android.view.WindowManager.BadTokenException;
 
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.tools.NetworkHelper;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 public class MPDApplication extends Application implements ConnectionListener {
@@ -183,7 +184,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 		dismissAlertDialog();
 		
 		// check for network
-		if (!isNetworkConnected()) {
+		if (!NetworkHelper.isNetworkConnected(this.getApplicationContext())) {
 			connectionFailed("No network.");
 			return;
 		}
@@ -258,12 +259,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 		return state;
 	}
 
-	private boolean isNetworkConnected() {
-		ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		if (conMgr.getActiveNetworkInfo() == null)
-			return false;
-		return (conMgr.getActiveNetworkInfo().isAvailable() && conMgr.getActiveNetworkInfo().isConnected());
-	}
+	
 	
 	private void dismissAlertDialog() {
 		if (ad != null) {
