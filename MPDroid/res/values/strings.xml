@@ -181,4 +181,11 @@
 	<string name="defaultLibraryScreen">Default library tab</string>
 	<string name="defaultLibraryScreenDescription">Select the tab shown when opening the library</string>
 	<string name="donate">Donate</string>
+	
+	<string name="behavior">Phone Behavior</string>
+	<string name="pauseOnPhoneStateChange">Pause playback</string>
+	<string name="pauseOnPhoneStateChangeDescription">Pause playback when in a call</string>
+	<string name="playOnPhoneStateChange">Resume playback</string>
+	<string name="playOnPhoneStateChangeDescription">Resume playback when a call ends</string>
+	
 </resources>
