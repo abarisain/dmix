@@ -178,8 +178,6 @@
 	<string name="enableStopButton">Show stop button</string>
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
-	<string name="defaultLibraryScreen">Default library tab</string>
-	<string name="defaultLibraryScreenDescription">Select the tab shown when opening the library</string>
 	<string name="donate">Donate</string>
 	
 	<string name="behavior">Phone Behavior</string>
@@ -187,5 +185,11 @@
 	<string name="pauseOnPhoneStateChangeDescription">Pause playback when in a call</string>
 	<string name="playOnPhoneStateChange">Resume playback</string>
 	<string name="playOnPhoneStateChangeDescription">Resume playback when a call ends</string>
+
+	<string name="libraryTabsSettings">Library tabs settings</string>
+	<string name="libraryTabsSettingsDescription">Select which tabs are visible and how they are ordered</string>
+	<string name="visibleTabs">Visible Tabs</string>
+	<string name="hiddenTabs">Hidden Tabs</string>
+	
 	
 </resources>
