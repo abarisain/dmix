@@ -93,4 +93,9 @@
 	<string name="genreAdded">Genre %s hinzugefügt</string>
 	<string name="genres">Genres</string>
 	<string name="addGenre">Genre hinzufügen</string>
+	<string name="libraryTabsSettings">Bibliotheksansichten</string>
+	<string name="libraryTabsSettingsDescription">Auswahl der Bibliotheksansichten und deren Sortierung</string>
+	<string name="visibleTabs">Benutzte Ansichten</string>
+	<string name="hiddenTabs">Unbenutzte Ansichten</string>
+	
 </resources>

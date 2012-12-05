@@ -1,10 +1,10 @@
 package com.namelessdev.mpdroid;
 
+import java.util.ArrayList;
+
 import android.annotation.TargetApi;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -22,6 +22,8 @@ import com.namelessdev.mpdroid.fragments.FSFragment;
 import com.namelessdev.mpdroid.fragments.GenresFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
+import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
+
 
 public class LibraryTabActivity extends SherlockFragmentActivity implements OnNavigationListener {
 
@@ -37,6 +39,8 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;	
+    
+    ArrayList<String> mTabList;
 
     @TargetApi(11)
 	@Override
@@ -48,6 +52,9 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         // of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
+        // Get the list of the currently visible tabs
+        mTabList=LibraryTabsUtil.getCurrentLibraryTabs(this.getApplicationContext());
+
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
@@ -56,13 +63,10 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         actionBar.setDisplayHomeAsUpEnabled(true);
         
         ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
-        actionBarAdapter.add(getString(R.string.artists));
-        actionBarAdapter.add(getString(R.string.albums));
-        actionBarAdapter.add(getString(R.string.playlists));
-        actionBarAdapter.add(getString(R.string.streams));
-		actionBarAdapter.add(getString(R.string.files));
-        actionBarAdapter.add(getString(R.string.genres));
-        
+        for (int i=0;i<mTabList.size();i++){
+            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(i))));
+        }
+
         if(Build.VERSION.SDK_INT >= 14) {
         	//Bug on ICS with sherlock's layout
         	actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -85,17 +89,6 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
             }
         });
 
-		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		int defaultTab = 0;
-		try {
-			defaultTab = Integer.parseInt(settings.getString("defaultLibraryScreen", "0"));
-		} catch (NumberFormatException e) {
-		}
-		if (defaultTab > actionBarAdapter.getCount() - 1) {
-			defaultTab = 0;
-			settings.edit().putString("defaultLibraryScreen", "0").commit();
-		}
-		mViewPager.setCurrentItem(defaultTab, true);
     }
 
 	@Override
@@ -108,7 +101,6 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 	@Override
 	public void onStop() {
 		super.onStop();
-		
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		app.unsetActivity(this);
 	}
@@ -152,33 +144,33 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 		@Override
 		public Fragment getItem(int i) {
 			Fragment fragment = null;
-			switch (i) {
-			case 0:	fragment = new ArtistsFragment(); break;
-			case 1:	fragment = new AlbumsFragment(); break;
-			case 2:	fragment = new PlaylistsFragment();	break;
-			case 3:	fragment = new StreamsFragment(); break;
-			case 4:	fragment = new FSFragment(); break;
-			case 5:	fragment = new GenresFragment(); break;
-			}
+			String tab = mTabList.get(i); 
+			if (tab.equals(LibraryTabsUtil.TAB_ARTISTS))
+				fragment = new ArtistsFragment();
+			else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS))
+				fragment = new AlbumsFragment();
+			else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS))
+				fragment = new PlaylistsFragment();
+			else if (tab.equals(LibraryTabsUtil.TAB_STREAMS))
+				fragment = new StreamsFragment();
+			else if (tab.equals(LibraryTabsUtil.TAB_FILES))
+				fragment = new FSFragment();
+			else if (tab.equals(LibraryTabsUtil.TAB_GENRES))
+				fragment = new GenresFragment();
 			return fragment;
 		}
 
 		@Override
 		public int getCount() {
-			return 6;
+			return mTabList.size();
 		}
 
+/*		think we don't need	this	
 		@Override
 		public CharSequence getPageTitle(int position) {
-			switch (position) {
-			case 0:	return getString(R.string.artists);
-			case 1:	return getString(R.string.albums);
-			case 2:	return getString(R.string.playlists);
-			case 3:	return getString(R.string.streams);
-			case 4:	return getString(R.string.files);
-			case 5:	return getString(R.string.genres);
-			}
-			return null;
+			return getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(position)));
 		}
+*/		
+
 	}
 }
