@@ -133,7 +133,9 @@ public class MPDConnection {
 			// send command
 			outputStream.write(command);
 			outputStream.flush();
-			
+			if (!expectAnswer) {
+				return result;
+			}
 			// wait for answer
 			BufferedReader in = new BufferedReader(inputStream, 1024);
 			boolean anyResponse = false;
@@ -149,14 +151,19 @@ public class MPDConnection {
 			}
 			
 			// Close socket if there is no response... Something is wrong (e.g. MPD shutdown..)
-			if (!anyResponse && expectAnswer) {
+			if (!anyResponse) {
 				sock.close();
 				throw new MPDConnectionException("Connection lost");
 			}
 
 			return result;
 		} catch (SocketException e) {
-			this.sock = null;
+			//this.sock = null; // isn't it too dangerous ?
+			try{
+				this.sock.close();//trying to close nicely
+			}catch (IOException er) {
+				throw new MPDServerException(e.getMessage(), er);
+			}
 			throw new MPDConnectionException("Connection lost", e);
 		} catch (IOException e) {
 			throw new MPDServerException(e.getMessage(), e);

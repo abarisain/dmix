@@ -15,7 +15,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 
 /**
@@ -271,8 +273,11 @@ public class MPDAsyncHelper extends Handler {
 				try {
 					oMPD.disconnect();
 				} catch (MPDServerException e) {
-				} catch (NullPointerException ex) {
-				}
+					Log.e(MPDApplication.TAG, "Error on disconnect", e);//Silent exception are dangerous
+				} 
+				//Should not happen anymore
+				//catch (NullPointerException ex) {
+				//}
 				break;
 			case EVENT_EXECASYNC:
 				Runnable run = (Runnable) msg.obj;
