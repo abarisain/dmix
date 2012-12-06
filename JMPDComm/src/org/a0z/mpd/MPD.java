@@ -301,11 +301,39 @@ public class MPD {
 	 *            if an error occur while closing connection
 	 */
 	public void disconnect() throws MPDServerException {
-		mpdConnection.sendCommand(false,MPD_CMD_CLOSE);
-		mpdConnection.disconnect();
-		
-		mpdIdleConnection.sendCommand(false,MPD_CMD_CLOSE);
-		mpdIdleConnection.disconnect();
+		MPDServerException ex = null;
+		if (mpdConnection.isConnected()) {
+			try {
+				mpdConnection.sendCommand(false, MPD_CMD_CLOSE);
+			} catch (MPDServerException e) {
+				ex = e;
+			}
+		}
+		if (mpdConnection.isConnected()) {
+			try {
+				mpdConnection.disconnect();
+			} catch (MPDServerException e) {
+				ex = (ex != null) ? ex : e;// Always keep first non null exception
+			}
+		}
+		if (mpdIdleConnection.isConnected()) {
+			try {
+				mpdIdleConnection.sendCommand(false, MPD_CMD_CLOSE);
+			} catch (MPDServerException e) {
+				ex = (ex != null) ? ex : e;// Always keep first non null exception
+			}
+		}
+		if (mpdIdleConnection.isConnected()) {
+			try {
+				mpdIdleConnection.disconnect();
+			} catch (MPDServerException e) {
+				ex = (ex != null) ? ex : e;// Always keep non null first exception
+			}
+		}
+
+		if (ex != null) {
+			throw ex;
+		}
 	}
 
 	/**
