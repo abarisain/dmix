@@ -5,6 +5,8 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Album;
+import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.MPDConnection;
 import org.a0z.mpd.UnknownAlbum;
 
 import android.content.Intent;
@@ -25,7 +27,7 @@ public class AlbumsFragment extends BrowseFragment {
 	private Artist artist = null;
 
 	public AlbumsFragment() {
-		super(R.string.addAlbum, R.string.albumAdded, MPD.MPD_SEARCH_ALBUM);
+		super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
 	}
 
 	@Override
