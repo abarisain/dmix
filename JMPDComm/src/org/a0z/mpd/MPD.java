@@ -141,7 +141,7 @@ public class MPD {
 			throw new MPDServerException();
 		}
 		while (true) {
-			List<String> data = mpdIdleConnection.sendAsyncCommand("idle");
+			List<String> data = mpdIdleConnection.sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
 			if (data.isEmpty()) {
 				continue;
 			}
