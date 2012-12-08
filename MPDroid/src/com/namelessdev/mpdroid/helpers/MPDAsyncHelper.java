@@ -272,6 +272,7 @@ public class MPDAsyncHelper extends Handler {
 			case EVENT_DISCONNECT:
 				try {
 					oMPD.disconnect();
+					Log.d(MPDApplication.TAG, "Disconnected");
 				} catch (MPDServerException e) {
 					Log.e(MPDApplication.TAG, "Error on disconnect", e);//Silent exception are dangerous
 				} 
