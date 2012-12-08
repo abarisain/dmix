@@ -70,6 +70,13 @@ public class MPDConnection {
 	}
 
 	final synchronized private int[] connect() throws MPDServerException, IOException {
+        	if (sock != null) { //Always release existing socket if any before creating a new one
+        	    try {
+        		disconnect();
+        	    } catch (MPDServerException e) {
+        		//ok, don't care about any exception here
+        	    }
+        	}
 		sock = new Socket();
 		sock.setSoTimeout(readWriteTimeout);
 		sock.connect(new InetSocketAddress(hostAddress, hostPort), CONNECTION_TIMEOUT);
@@ -97,6 +104,7 @@ public class MPDConnection {
 		if(isConnected())
 			try {
 				sock.close();
+				sock = null;
 			} catch(IOException e) {
 				throw new MPDConnectionException(e.getMessage(), e);
 			}
