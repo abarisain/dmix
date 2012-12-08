@@ -38,9 +38,14 @@ public class MPDConnection {
 
 	private int[] mpdVersion;
 	private StringBuffer commandQueue;
+	private int readWriteTimeout;
 	
 	
-	MPDConnection(InetAddress server, int port) throws MPDServerException {
+	MPDConnection(InetAddress server, int port) throws MPDServerException{
+	    	this(server, port, 0);
+	}
+	MPDConnection(InetAddress server, int port, int readWriteTimeout) throws MPDServerException {
+	    	readWriteTimeout = readWriteTimeout;
 		hostPort = port;
 		hostAddress = server;
 		commandQueue = new StringBuffer();
@@ -64,6 +69,7 @@ public class MPDConnection {
 
 	final synchronized private int[] connect() throws MPDServerException, IOException {
 		sock = new Socket();
+		sock.setSoTimeout(readWriteTimeout);
 		sock.connect(new InetSocketAddress(hostAddress, hostPort), CONNECTION_TIMEOUT);
 		BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()), 1024);
 		String line = in.readLine();
