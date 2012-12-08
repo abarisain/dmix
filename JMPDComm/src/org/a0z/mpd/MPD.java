@@ -19,65 +19,6 @@ import android.content.Context;
  * @version $Id: MPD.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPD {
-	public static final int MIN_VOLUME = 0;
-	public static final int MAX_VOLUME = 100;
-
-	private static final String MPD_CMD_CLEARERROR = "clearerror";
-	private static final String MPD_CMD_CLOSE = "close";
-	private static final String MPD_CMD_CROSSFADE = "crossfade";
-	private static final String MPD_CMD_FIND = "find";
-	private static final String MPD_CMD_KILL = "kill";
-	private static final String MPD_CMD_LIST_TAG = "list";
-	@SuppressWarnings("unused")
-	private static final String MPD_CMD_LISTALL = "listall";
-	private static final String MPD_CMD_LISTPLAYLISTS = "listplaylists";
-	private static final String MPD_CMD_LSDIR = "lsinfo";
-	private static final String MPD_CMD_NEXT = "next";
-	private static final String MPD_CMD_PAUSE = "pause";
-	private static final String MPD_CMD_PASSWORD = "password";
-	private static final String MPD_CMD_PLAY = "play";
-	private static final String MPD_CMD_PLAY_ID = "playid";
-	private static final String MPD_CMD_PREV = "previous";
-	private static final String MPD_CMD_REFRESH = "update";
-	private static final String MPD_CMD_REPEAT = "repeat";
-	private static final String MPD_CMD_CONSUME = "consume";
-	private static final String MPD_CMD_SINGLE = "single";
-	private static final String MPD_CMD_RANDOM = "random";
-	private static final String MPD_CMD_SEARCH = "search";
-	private static final String MPD_CMD_SEEK = "seek";
-	private static final String MPD_CMD_SEEK_ID = "seekid";
-	private static final String MPD_CMD_STATISTICS = "stats";
-	private static final String MPD_CMD_STATUS = "status";
-	private static final String MPD_CMD_STOP = "stop";
-	private static final String MPD_CMD_SET_VOLUME = "setvol";
-	private static final String MPD_CMD_OUTPUTS = "outputs";
-	private static final String MPD_CMD_OUTPUTENABLE = "enableoutput";
-	private static final String MPD_CMD_OUTPUTDISABLE = "disableoutput";
-	private static final String MPD_CMD_PLAYLIST_INFO = "listplaylistinfo";
-	private static final String MPD_CMD_PLAYLIST_ADD = "playlistadd";
-	private static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
-	private static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
-	
-	// deprecated commands
-	@SuppressWarnings("unused")
-	private static final String MPD_CMD_VOLUME = "volume";
-
-	/**
-	 * MPD default TCP port.
-	 */
-	public static final int DEFAULT_MPD_PORT = 6600;
-
-	public static final String MPD_FIND_ALBUM = "album";
-	public static final String MPD_FIND_ARTIST = "artist";
-	
-	public static final String MPD_SEARCH_ALBUM = "album";
-	public static final String MPD_SEARCH_ARTIST = "artist";
-	public static final String MPD_SEARCH_FILENAME = "filename";
-	public static final String MPD_SEARCH_TITLE = "title";
-
-	public static final String MPD_TAG_ALBUM = "album";
-	public static final String MPD_TAG_ARTIST = "artist";
-	public static final String MPD_TAG_ALBUM_ARTIST = "albumartist";
 	
 	
 	private MPDConnection mpdConnection;
@@ -200,7 +141,7 @@ public class MPD {
 			throw new MPDServerException();
 		}
 		while (true) {
-			List<String> data = mpdIdleConnection.sendCommand("idle");
+			List<String> data = mpdIdleConnection.sendAsyncCommand("idle");
 			if (data.isEmpty()) {
 				continue;
 			}
@@ -226,9 +167,9 @@ public class MPD {
 
 		// calculate final volume (clip value with [0, 100])
 		int vol = getVolume() + modifier;
-		vol = Math.max(MIN_VOLUME, Math.min(MAX_VOLUME, vol));
+		vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, vol));
 
-		mpdConnection.sendCommand(MPD_CMD_SET_VOLUME, Integer.toString(vol));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
 	}
 
 	/**
@@ -241,7 +182,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_CLEARERROR);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLEARERROR);
 	}
 
 	/**
@@ -283,7 +224,7 @@ public class MPD {
 	 * @throws UnknownHostException 
 	 */
 	public final void connect(String server) throws MPDServerException, UnknownHostException {
-		int port = DEFAULT_MPD_PORT;
+		int port = MPDCommand.DEFAULT_MPD_PORT;
 		String host = null;
 		if (server.indexOf(':') != -1) {
 			host = server.substring(0, server.lastIndexOf(':'));
@@ -304,7 +245,7 @@ public class MPD {
 		MPDServerException ex = null;
 		if (mpdConnection.isConnected()) {
 			try {
-				mpdConnection.sendCommand(false, MPD_CMD_CLOSE);
+				mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLOSE);
 			} catch (MPDServerException e) {
 				ex = e;
 			}
@@ -312,13 +253,6 @@ public class MPD {
 		if (mpdConnection.isConnected()) {
 			try {
 				mpdConnection.disconnect();
-			} catch (MPDServerException e) {
-				ex = (ex != null) ? ex : e;// Always keep first non null exception
-			}
-		}
-		if (mpdIdleConnection.isConnected()) {
-			try {
-				mpdIdleConnection.sendCommand(false, MPD_CMD_CLOSE);
 			} catch (MPDServerException e) {
 				ex = (ex != null) ? ex : e;// Always keep first non null exception
 			}
@@ -349,10 +283,10 @@ public class MPD {
 	 * @see org.a0z.mpd.Music
 	 */
 	public List<Music> find(String type, String string) throws MPDServerException {
-		return genericSearch(MPD_CMD_FIND, type, string);
+		return genericSearch(MPDCommand.MPD_CMD_FIND, type, string);
 	}
     public List<Music> find(String[] args) throws MPDServerException {
-        return genericSearch(MPD_CMD_FIND, args, true);
+        return genericSearch(MPDCommand.MPD_CMD_FIND, args, true);
     }
 
 	// Returns a pattern where all punctuation characters are escaped. 
@@ -399,7 +333,7 @@ public class MPD {
 		if(!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		List<String> resonse = mpdConnection.sendCommand(MPD_CMD_LSDIR, path);
+		List<String> resonse = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
 		
 		LinkedList<String> lineCache = new LinkedList<String>();
 		LinkedList<FilesystemTreeEntry> result = new LinkedList<FilesystemTreeEntry>();
@@ -465,7 +399,7 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 */
 	public MPDStatistics getStatistics() throws MPDServerException {
-		List<String> response = mpdConnection.sendCommand(MPD_CMD_STATISTICS);
+		List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
 		return new MPDStatistics(response);
 	}
 
@@ -480,7 +414,7 @@ public class MPD {
 		if(!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		List<String> response = mpdConnection.sendCommand(MPD_CMD_STATUS);
+		List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
 		mpdStatus.updateStatus(response);
 		return mpdStatus;
 	}
@@ -566,7 +500,7 @@ public class MPD {
 		
 		boolean foundSongWithoutAlbum = false;
 
-		List<String> response = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, MPD_TAG_ALBUM, artist);
+		List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
 		ArrayList<String> result = new ArrayList<String>();
 		for (String line : response) {
 			String name = line.substring("Album: ".length());
@@ -600,9 +534,9 @@ public class MPD {
 		result[2] = 0l;
 		if (MPD.showAlbumTrackCount()) {
 			String[] args = new String[4];
-			args[0] = useAlbumArtistTag ? MPD_TAG_ALBUM_ARTIST : MPD_TAG_ARTIST;
+			args[0] = useAlbumArtistTag ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_TAG_ARTIST;
 			args[1] = artist;
-			args[2] = MPD_TAG_ALBUM;
+			args[2] = MPDCommand.MPD_TAG_ALBUM;
 			args[3] = album;
 			List<String> list = mpdConnection.sendCommand("count", args);
 			for (String line : list) {
@@ -615,9 +549,9 @@ public class MPD {
 		}
 		if (MPD.sortAlbumsByYear()) {
 			String[] args = new String[6];
-			args[0] = useAlbumArtistTag ? MPD_TAG_ALBUM_ARTIST : MPD_TAG_ARTIST;
+			args[0] = useAlbumArtistTag ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_TAG_ARTIST;
 			args[1] = artist;
-			args[2] = MPD_TAG_ALBUM;
+			args[2] = MPDCommand.MPD_TAG_ALBUM;
 			args[3] = album;
 			args[4] = "track";
 			args[5] = "1";
@@ -696,7 +630,7 @@ public class MPD {
 		if(!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		List<String> response = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, MPD_TAG_ARTIST);
+		List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ARTIST);
 		
 		ArrayList<String> result = new ArrayList<String>();
 		for (String s : response) {
@@ -723,7 +657,7 @@ public class MPD {
 		if(!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 
-		List<String> response = mpdConnection.sendCommand(MPD_CMD_LIST_TAG, MPD_TAG_ALBUM_ARTIST);
+		List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM_ARTIST);
 		
 		ArrayList<String> result = new ArrayList<String>();
 		for (String s : response) {
@@ -747,7 +681,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_NEXT);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_NEXT);
 	}
 
 	/**
@@ -762,8 +696,8 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_PASSWORD, password);
-		mpdIdleConnection.sendCommand(MPD_CMD_PASSWORD, password);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_PASSWORD, password);
+		mpdIdleConnection.sendCommand(MPDCommand.MPD_CMD_PASSWORD, password);
 	}
 
 	/**
@@ -776,7 +710,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_PAUSE);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_PAUSE);
 	}
 
 	/**
@@ -789,7 +723,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_PLAY);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAY);
 	}
 
 	/**
@@ -802,7 +736,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_PREV);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_PREV);
 	}
 
 	/**
@@ -815,7 +749,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_REFRESH);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH);
 	}
 
 	/**
@@ -832,11 +766,11 @@ public class MPD {
 	 * @see org.a0z.mpd.Music
 	 */
 	public Collection<Music> search(String type, String string) throws MPDServerException {
-		return genericSearch(MPD_CMD_SEARCH, type, string);
+		return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, string);
 	}
 
     public List<Music> search(String[] args) throws MPDServerException {
-        return genericSearch(MPD_CMD_SEARCH, args, true);
+        return genericSearch(MPDCommand.MPD_CMD_SEARCH, args, true);
     }
 
 	/**
@@ -853,7 +787,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_SEEK_ID, Integer.toString(songId), Long.toString(position));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_SEEK_ID, Integer.toString(songId), Long.toString(position));
 	}
 	
 	/**
@@ -870,7 +804,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_SEEK, Integer.toString(index), Long.toString(position));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_SEEK, Integer.toString(index), Long.toString(position));
 	}
 
 	/**
@@ -897,7 +831,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_RANDOM, random ? "1" : "0");
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_RANDOM, random ? "1" : "0");
 	}
 
 	/**
@@ -912,7 +846,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_REPEAT, repeat ? "1" : "0");
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_REPEAT, repeat ? "1" : "0");
 	}
 
 	/**
@@ -927,7 +861,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 
-		mpdConnection.sendCommand(MPD_CMD_SINGLE, single ? "1" : "0");
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_SINGLE, single ? "1" : "0");
 	}
 
 	/**
@@ -942,7 +876,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 
-		mpdConnection.sendCommand(MPD_CMD_CONSUME, consume ? "1" : "0");
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_CONSUME, consume ? "1" : "0");
 	}
 
 	/**
@@ -957,8 +891,8 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		int vol = Math.max(MIN_VOLUME, Math.min(MAX_VOLUME, volume));
-		mpdConnection.sendCommand(MPD_CMD_SET_VOLUME, Integer.toString(vol));
+		int vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, volume));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
 	}
 
 	/**
@@ -971,7 +905,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_KILL);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_KILL);
 	}
 
 	/**
@@ -987,7 +921,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_PLAY, Integer.toString(position));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
 	}
 
 	/**
@@ -1002,7 +936,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_PLAY_ID, Integer.toString(id));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAY_ID, Integer.toString(id));
 	}
 
 	/**
@@ -1015,7 +949,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_STOP);
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_STOP);
 	}
 
 	/**
@@ -1039,7 +973,7 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_CROSSFADE, Integer.toString(Math.max(0, time)));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_CROSSFADE, Integer.toString(Math.max(0, time)));
 	}
 
 	/**
@@ -1052,7 +986,7 @@ public class MPD {
 			throw new MPDServerException("MPD Connection is not established");
 		
 		List<MPDOutput> result = new LinkedList<MPDOutput>();
-		List<String> response = mpdConnection.sendCommand(MPD_CMD_OUTPUTS);
+		List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTS);
 		
 		LinkedList<String> lineCache = new LinkedList<String>();
 		for (String line : response) {
@@ -1089,7 +1023,7 @@ public class MPD {
 			throw new MPDServerException("MPD Connection is not established");
 		
 		List<Item> result = new ArrayList<Item>();
-		List<String> response = mpdConnection.sendCommand(MPD_CMD_LISTPLAYLISTS);
+		List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
 		for(String line : response) {
 			if(line.startsWith("playlist"))
 				result.add(new Playlist(line.substring("playlist: ".length())));
@@ -1104,14 +1038,14 @@ public class MPD {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_OUTPUTENABLE, Integer.toString(id));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
 	}
 
 	public void disableOutput(int id) throws MPDServerException {
 		if (!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		mpdConnection.sendCommand(MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
+		mpdConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
 	}
 
 	public List<Music> getSongs(Artist artist, Album album) throws MPDServerException {
@@ -1123,11 +1057,11 @@ public class MPD {
         if (haveAlbum || haveArtist) {
         	search=new String[haveAlbum && haveArtist ? 4 : 2];
         	if (haveArtist) {
-        		search[pos++]=MPD.useAlbumArtist() ? MPD.MPD_TAG_ALBUM_ARTIST : MPD.MPD_FIND_ARTIST;
+        		search[pos++]=MPD.useAlbumArtist() ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_FIND_ARTIST;
         		search[pos++]=artist.getName();
         	}
         	if (haveAlbum) {
-        		search[pos++]=MPD.MPD_FIND_ALBUM;
+        		search[pos++]=MPDCommand.MPD_FIND_ALBUM;
         		search[pos++]=album.getName();
         	}
         }
@@ -1205,7 +1139,7 @@ public class MPD {
 	public List<Music> getPlaylistSongs(String playlistName) throws MPDServerException {
 		String args[]=new String[1];
 		args[0]=playlistName;
-		List<Music> music=genericSearch(MPD_CMD_PLAYLIST_INFO, args, false);
+		List<Music> music=genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
 		
 		for (int i=0; i<music.size(); ++i) {
 			music.get(i).setSongId(i);
@@ -1215,11 +1149,11 @@ public class MPD {
 	}
 
 	public void movePlaylistSong(String playlistName, int from, int to) throws MPDServerException {
-		getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_MOVE, playlistName, Integer.toString(from), Integer.toString(to));
+		getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_MOVE, playlistName, Integer.toString(from), Integer.toString(to));
 	}
 
 	public void removeFromPlaylist(String playlistName, Integer pos) throws MPDServerException {
-		getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_DEL, playlistName, Integer.toString(pos));
+		getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName, Integer.toString(pos));
 	}
 	
 	public void addToPlaylist(String playlistName, Collection<Music> c) throws MPDServerException {
@@ -1227,12 +1161,12 @@ public class MPD {
 			return;
 		}
 		for (Music m : c) {
-			getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullpath());
+			getMpdConnection().queueCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullpath());
 		}
 		getMpdConnection().sendCommandQueue();
 	}
 
 	public void addToPlaylist(String playlistName, FilesystemTreeEntry entry) throws MPDServerException {
-		getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, playlistName, entry.getFullpath());
+		getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, entry.getFullpath());
 	}
 }

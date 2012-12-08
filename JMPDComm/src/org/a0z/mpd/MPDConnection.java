@@ -8,10 +8,12 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.a0z.mpd.exception.MPDConnectionException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.util.Log;
@@ -45,7 +47,7 @@ public class MPDConnection {
 	    	this(server, port, 0);
 	}
 	MPDConnection(InetAddress server, int port, int readWriteTimeout) throws MPDServerException {
-	    	readWriteTimeout = readWriteTimeout;
+	    	this.readWriteTimeout = readWriteTimeout;
 		hostPort = port;
 		hostAddress = server;
 		commandQueue = new StringBuffer();
@@ -112,9 +114,7 @@ public class MPDConnection {
 	synchronized List<String> sendCommand(String command, String... args) throws MPDServerException {
 		return sendRawCommand(commandToString(command, args));
 	}
-	synchronized List<String> sendCommand(boolean expectAnswer,String command, String... args) throws MPDServerException {
-		return sendRawCommand(expectAnswer,commandToString(command, args));
-	}
+	
 	synchronized void queueCommand(String command, String ... args) {
 		commandQueue.append(commandToString(command, args));
 	}
@@ -126,55 +126,12 @@ public class MPDConnection {
 	}
 
 	private synchronized List<String> sendRawCommand(String command) throws MPDServerException {
-		return this.sendRawCommand(true,command);
+	    if (!isConnected())
+		throw new MPDServerException("No connection to server");
+	    return syncedWriteRead(command);
 	}
 	
-	private synchronized List<String> sendRawCommand(boolean expectAnswer,String command) throws MPDServerException {
-		if (!isConnected())
-			throw new MPDServerException("No connection to server");
-
-		try {
-			ArrayList<String> result = new ArrayList<String>();
-			
-			// send command
-			outputStream.write(command);
-			outputStream.flush();
-			if (!expectAnswer) {
-				return result;
-			}
-			// wait for answer
-			BufferedReader in = new BufferedReader(inputStream, 1024);
-			boolean anyResponse = false;
-			for (String line = in.readLine(); line != null; line = in.readLine()) {
-				anyResponse = true;
-				if (line.startsWith(MPD_RESPONSE_OK))
-					break;
-				
-				if (line.startsWith(MPD_RESPONSE_ERR))
-					throw new MPDServerException("Server error: " + line.substring(MPD_RESPONSE_ERR.length()));
-				
-				result.add(line);
-			}
-			
-			// Close socket if there is no response... Something is wrong (e.g. MPD shutdown..)
-			if (!anyResponse) {
-				sock.close();
-				throw new MPDConnectionException("Connection lost");
-			}
-
-			return result;
-		} catch (SocketException e) {
-			//this.sock = null; // isn't it too dangerous ?
-			try{
-				this.sock.close();//trying to close nicely
-			}catch (IOException er) {
-				throw new MPDServerException(e.getMessage(), er);
-			}
-			throw new MPDConnectionException("Connection lost", e);
-		} catch (IOException e) {
-			throw new MPDServerException(e.getMessage(), e);
-		}
-	}
+	
 
 	private static String commandToString(String command, String[] args) {
 		StringBuffer outBuf = new StringBuffer();
@@ -189,5 +146,93 @@ public class MPDConnection {
 		Log.d("JMPDComm", "Mpd command : " + (outString.startsWith("password ") ? "password **censored**" : outString));
 		return outString;
 	}
+
+
+    List<String> sendAsyncCommand(String command, String... args)
+	    throws MPDServerException {
+	return syncedWriteAsyncRead(commandToString(command, args));
+    }
+    
+    private synchronized void writeToServer(String command) throws IOException {
+	outputStream.write(command);
+	outputStream.flush();
+    }
+
+    private synchronized ArrayList<String> readFromServer() throws MPDServerException,
+	    SocketTimeoutException, IOException {
+	ArrayList<String> result = new ArrayList<String>();
+	BufferedReader in = new BufferedReader(inputStream, 1024);
+
+	
+	boolean dataReaded = false;
+	for (String line = in.readLine(); line != null; line = in.readLine()) {
+	    dataReaded = true;
+	    if (line.startsWith(MPD_RESPONSE_OK))
+		break;
+	    if (line.startsWith(MPD_RESPONSE_ERR))
+		throw new MPDServerException("Server error: "
+			+ line.substring(MPD_RESPONSE_ERR.length()));
+	    result.add(line);
+	}
+	if(!dataReaded){
+	    // Close socket if there is no response... Something is wrong
+	    // (e.g.
+	    // MPD shutdown..)
+	    disconnect();
+	    throw new MPDConnectionException("Connection lost");
+	}
+	return result;
+    }
+
+    private synchronized List<String> syncedWriteRead(String command)
+	    throws MPDServerException {
+	ArrayList<String> result = new ArrayList<String>();
+	if (!isConnected())
+	    throw new MPDServerException("No connection to server");
+
+	try {
+	    // send command
+	    writeToServer(command);
+	    result = readFromServer();
+	    return result;
+	}catch(MPDConnectionException e ){
+	    if (command.startsWith(MPDCommand.MPD_CMD_CLOSE))
+		return result;//we sent close command, don't expect result here
+	    else
+		throw e;
+	}catch (IOException e) {
+	    throw new MPDServerException(e);
+	}
+    }
+
+    private List<String> syncedWriteAsyncRead(String command)
+	    throws MPDServerException {
+	ArrayList<String> result = new ArrayList<String>();
+	try {
+	    writeToServer(command);// synchronized method, Lock
+	} catch (IOException e) {
+	    throw new MPDServerException(e);
+	}
+
+	boolean dataReaded = false;
+	while (!dataReaded) {
+	    try {
+		result = readFromServer();// synchronized method, Lock
+		dataReaded = true;
+	    } catch (SocketTimeoutException e) {
+		// Lock is released when timeout occurs
+		try {
+		    Thread.sleep(500);
+		} catch (InterruptedException e1) {
+		    // TODO Auto-generated catch block
+		    throw new MPDServerException(e1);
+		}
+	    } catch (IOException e) {
+		throw new MPDServerException(e);
+	    }
+	}
+	return result;
+    }
+
 
 }
