@@ -205,30 +205,32 @@ public class MPDConnection {
 	}
     }
 
+    private Object lock = new Object();
     private List<String> syncedWriteAsyncRead(String command)
 	    throws MPDServerException {
 	ArrayList<String> result = new ArrayList<String>();
-	try {
-	    writeToServer(command);// synchronized method, Lock
-	} catch (IOException e) {
-	    throw new MPDServerException(e);
-	}
-
-	boolean dataReaded = false;
-	while (!dataReaded) {
+	synchronized (lock) {//Hack for not sending 2 idle consecutive commands
 	    try {
-		result = readFromServer();// synchronized method, Lock
-		dataReaded = true;
-	    } catch (SocketTimeoutException e) {
-		// Lock is released when timeout occurs
-		try {
-		    Thread.sleep(500);
-		} catch (InterruptedException e1) {
-		    // TODO Auto-generated catch block
-		    throw new MPDServerException(e1);
-		}
+		writeToServer(command);// synchronized method, Lock
 	    } catch (IOException e) {
 		throw new MPDServerException(e);
+	    }
+	    boolean dataReaded = false;
+	    while (!dataReaded) {
+		try {
+		    result = readFromServer();// synchronized method, Lock
+		    dataReaded = true;
+		} catch (SocketTimeoutException e) {
+		    // Lock is released when timeout occurs
+		    try {
+			Thread.sleep(500);
+		    } catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			throw new MPDServerException(e1);
+		    }
+		} catch (IOException e) {
+		    throw new MPDServerException(e);
+		}
 	    }
 	}
 	return result;
