@@ -98,7 +98,7 @@ public class MPDConnection {
 			try {
 				sock.close();
 			} catch(IOException e) {
-				throw new MPDServerException(e.getMessage(), e);
+				throw new MPDConnectionException(e.getMessage(), e);
 			}
 	}
 
@@ -188,48 +188,55 @@ public class MPDConnection {
 	    throws MPDServerException {
 	ArrayList<String> result = new ArrayList<String>();
 	if (!isConnected())
-	    throw new MPDServerException("No connection to server");
+	    throw new MPDConnectionException("No connection to server");
 
+	// send command
 	try {
-	    // send command
 	    writeToServer(command);
+	} catch (IOException e1) {
+	    throw new MPDConnectionException(e1);
+	}
+	try {
 	    result = readFromServer();
 	    return result;
-	}catch(MPDConnectionException e ){
+	} catch (MPDConnectionException e) {
 	    if (command.startsWith(MPDCommand.MPD_CMD_CLOSE))
-		return result;//we sent close command, don't expect result here
+		return result;// we sent close command, so don't care about Exception while ryong to read response
 	    else
 		throw e;
-	}catch (IOException e) {
-	    throw new MPDServerException(e);
+	} catch (IOException e) {
+	    throw new MPDConnectionException(e);
 	}
     }
 
-    private Object lock = new Object();
+    private final Object lock = new Object();
     private List<String> syncedWriteAsyncRead(String command)
 	    throws MPDServerException {
 	ArrayList<String> result = new ArrayList<String>();
-	synchronized (lock) {//Hack for not sending 2 idle consecutive commands
+	//As we aren't in a synchronized method, concurencies issues may arrive, 
+	//as sending 2 idle commands without haven't readed any data in which case MPD will close
+	//the connection.
+	//We use an object lock to avoid this
+	synchronized (lock) {
 	    try {
-		writeToServer(command);// synchronized method, Lock
+		writeToServer(command);// synchronized method, Lock this instance
 	    } catch (IOException e) {
-		throw new MPDServerException(e);
+		throw new MPDConnectionException(e);
 	    }
 	    boolean dataReaded = false;
 	    while (!dataReaded) {
 		try {
-		    result = readFromServer();// synchronized method, Lock
+		    result = readFromServer();// synchronized method, Lock this instance
 		    dataReaded = true;
 		} catch (SocketTimeoutException e) {
-		    // Lock is released when timeout occurs
+		    // The lock on this instance is released on this instance when timeout occurs
 		    try {
 			Thread.sleep(500);
 		    } catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			throw new MPDServerException(e1);
+			throw new MPDConnectionException(e1);
 		    }
 		} catch (IOException e) {
-		    throw new MPDServerException(e);
+		    throw new MPDConnectionException(e);
 		}
 	    }
 	}
