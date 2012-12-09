@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Context;
@@ -136,18 +137,24 @@ public class MPD {
 		return this.mpdIdleConnection;
 	}
 
-	public List<String> waitForChanges() throws MPDServerException {
-		if (null == mpdIdleConnection) {
-			throw new MPDServerException();
-		}
-		while (true) {
-			List<String> data = mpdIdleConnection.sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
-			if (data.isEmpty()) {
-				continue;
-			}
-			return data;
-		}
+    public List<String> waitForChanges() throws MPDServerException {
+	if (null == mpdIdleConnection) {
+	    throw new MPDServerException();
 	}
+	try {
+	    while (true) {
+		List<String> data = mpdIdleConnection
+			.sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
+		if (data.isEmpty()) {
+		    continue;
+		}
+		return data;
+	    }
+	} catch (MPDConnectionException e) {
+	    disconnect();//Ensure sockets are released
+	    throw e;
+	}
+    }
 
 	public boolean isMpdConnectionNull() {
 		return (this.mpdConnection == null);
@@ -438,7 +445,7 @@ public class MPD {
 	public boolean isConnected() {
 		if (mpdConnection == null)
 			return false;
-		return mpdConnection.isConnected();
+		return mpdConnection.isConnected() && mpdIdleConnection.isConnected();
 	}
 
 
