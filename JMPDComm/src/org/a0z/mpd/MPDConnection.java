@@ -65,11 +65,12 @@ public class MPDConnection {
 				inputStream = new InputStreamReader(sock.getInputStream());
 			}
 		} catch(IOException e) {
+		    	disconnect();
 			throw new MPDServerException(e.getMessage(), e);
 		}
 	}
 
-	final synchronized private int[] connect() throws MPDServerException, IOException {
+	final synchronized private int[] connect() throws MPDServerException {
         	if (sock != null) { //Always release existing socket if any before creating a new one
         	    try {
         		disconnect();
@@ -77,6 +78,7 @@ public class MPDConnection {
         		//ok, don't care about any exception here
         	    }
         	}
+        	try{
 		sock = new Socket();
 		sock.setSoTimeout(readWriteTimeout);
 		sock.connect(new InetSocketAddress(hostAddress, hostPort), CONNECTION_TIMEOUT);
@@ -97,6 +99,10 @@ public class MPDConnection {
 			throw new MPDServerException("Server error: " + line.substring(MPD_RESPONSE_ERR.length()));
 		} else {
 			throw new MPDServerException("Bogus response from server");
+		}
+		}catch(IOException e){
+		    disconnect();
+		    throw new MPDConnectionException(e);
 		}
 	}
 	
@@ -202,6 +208,7 @@ public class MPDConnection {
 	try {
 	    writeToServer(command);
 	} catch (IOException e1) {
+	    disconnect();
 	    throw new MPDConnectionException(e1);
 	}
 	try {
@@ -213,6 +220,7 @@ public class MPDConnection {
 	    else
 		throw e;
 	} catch (IOException e) {
+	    disconnect();
 	    throw new MPDConnectionException(e);
 	}
     }
@@ -229,6 +237,7 @@ public class MPDConnection {
 	    try {
 		writeToServer(command);// synchronized method, Lock this instance
 	    } catch (IOException e) {
+		disconnect();
 		throw new MPDConnectionException(e);
 	    }
 	    boolean dataReaded = false;
@@ -244,6 +253,7 @@ public class MPDConnection {
 			throw new MPDConnectionException(e1);
 		    }
 		} catch (IOException e) {
+		    disconnect();
 		    throw new MPDConnectionException(e);
 		}
 	    }

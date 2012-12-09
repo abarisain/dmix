@@ -141,18 +141,13 @@ public class MPD {
 	if (null == mpdIdleConnection) {
 	    throw new MPDServerException();
 	}
-	try {
-	    while (true) {
-		List<String> data = mpdIdleConnection
-			.sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
-		if (data.isEmpty()) {
-		    continue;
-		}
-		return data;
+	while (true) {
+	    List<String> data = mpdIdleConnection
+		    .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
+	    if (data.isEmpty()) {
+		continue;
 	    }
-	} catch (MPDConnectionException e) {
-	    disconnect();//Ensure sockets are released
-	    throw e;
+	    return data;
 	}
     }
 
