@@ -2,6 +2,7 @@ package com.namelessdev.mpdroid;
 
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Playlist;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -21,7 +22,7 @@ public class PlaylistManagerActivity extends BrowseActivity implements OnMenuIte
 	static final int DELETE = 2;
 
 	public PlaylistManagerActivity() {
-		super(R.string.addPlaylist, R.string.playlistAdded, MPD.MPD_SEARCH_ALBUM);
+		super(R.string.addPlaylist, R.string.playlistAdded, MPDCommand.MPD_SEARCH_ALBUM);
 	}
 
 	@TargetApi(11)

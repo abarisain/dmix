@@ -6,6 +6,7 @@ import java.util.List;
 import org.a0z.mpd.Directory;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -23,7 +24,7 @@ public class FSFragment extends BrowseFragment {
 	private Directory currentDirectory = null;
 
 	public FSFragment() {
-		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPD.MPD_SEARCH_FILENAME);
+		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPDCommand.MPD_SEARCH_FILENAME);
 	}
 
 	@Override

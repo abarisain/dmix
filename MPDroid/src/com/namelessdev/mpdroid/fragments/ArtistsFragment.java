@@ -2,6 +2,7 @@ package com.namelessdev.mpdroid.fragments;
 
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Genre;
@@ -23,7 +24,7 @@ public class ArtistsFragment extends BrowseFragment {
 	private boolean albumartist;
 
 	public ArtistsFragment() {
-		super(R.string.addArtist, R.string.artistAdded, MPD.MPD_SEARCH_ARTIST);
+		super(R.string.addArtist, R.string.artistAdded, MPDCommand.MPD_SEARCH_ARTIST);
 	}
 
 	@Override

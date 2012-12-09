@@ -2,12 +2,12 @@ package com.namelessdev.mpdroid.fragments;
 
 import java.util.ArrayList;
 
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
-import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Album;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,7 +31,7 @@ public class SongsFragment extends BrowseFragment {
 	TextView headerInfo;
 
 	public SongsFragment() {
-		super(R.string.addSong, R.string.songAdded, MPD.MPD_SEARCH_TITLE);
+		super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
 	}
 
 	@Override
