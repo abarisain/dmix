@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.fragments;
 import org.a0z.mpd.Genre;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
@@ -19,7 +20,7 @@ public class GenresFragment extends BrowseFragment {
 	private MPDApplication app;
 
 	public GenresFragment() {
-		super(R.string.addGenre, R.string.genreAdded, MPD.MPD_SEARCH_GENRE);
+		super(R.string.addGenre, R.string.genreAdded, MPDCommand.MPD_SEARCH_GENRE);
 	}
 
 	@Override
