@@ -244,32 +244,34 @@ public class MPD {
 	 *            if an error occur while closing connection
 	 */
 	public void disconnect() throws MPDServerException {
-		MPDServerException ex = null;
-		if (mpdConnection.isConnected()) {
-			try {
-				mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLOSE);
-			} catch (MPDServerException e) {
-				ex = e;
-			}
-		}
-		if (mpdConnection.isConnected()) {
-			try {
-				mpdConnection.disconnect();
-			} catch (MPDServerException e) {
-				ex = (ex != null) ? ex : e;// Always keep first non null exception
-			}
-		}
-		if (mpdIdleConnection.isConnected()) {
-			try {
-				mpdIdleConnection.disconnect();
-			} catch (MPDServerException e) {
-				ex = (ex != null) ? ex : e;// Always keep non null first exception
-			}
-		}
+        MPDServerException ex = null;
+        if (mpdConnection != null && mpdConnection.isConnected()) {
+            try {
+                mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLOSE);
+            } catch (MPDServerException e) {
+                ex = e;
+            }
+        }
+        if (mpdConnection != null && mpdConnection.isConnected()) {
+            try {
+                mpdConnection.disconnect();
+            } catch (MPDServerException e) {
+                ex = (ex != null) ? ex : e;// Always keep first non null
+                                           // exception
+            }
+        }
+        if (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
+            try {
+                mpdIdleConnection.disconnect();
+            } catch (MPDServerException e) {
+                ex = (ex != null) ? ex : e;// Always keep non null first
+                                           // exception
+            }
+        }
 
-		if (ex != null) {
-			throw ex;
-		}
+        if (ex != null) {
+            throw ex;
+        }
 	}
 
 	/**
