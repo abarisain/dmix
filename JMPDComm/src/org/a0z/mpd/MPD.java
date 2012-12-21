@@ -440,7 +440,7 @@ public class MPD {
 	public boolean isConnected() {
 		if (mpdConnection == null)
 			return false;
-		return mpdConnection.isConnected() && mpdIdleConnection.isConnected();
+		return mpdConnection.isConnected() ;
 	}
 
 
