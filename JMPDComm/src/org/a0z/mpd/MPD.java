@@ -138,17 +138,17 @@ public class MPD {
 	}
 
     public List<String> waitForChanges() throws MPDServerException {
-	if (null == mpdIdleConnection) {
-	    throw new MPDServerException();
-	}
-	while (true) {
-	    List<String> data = mpdIdleConnection
-		    .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
-	    if (data.isEmpty()) {
-		continue;
-	    }
-	    return data;
-	}
+        if (null == mpdIdleConnection) {
+            throw new MPDServerException();
+        }
+        while (true) {
+            List<String> data = mpdIdleConnection
+                    .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
+            if (data.isEmpty()) {
+                continue;
+            }
+            return data;
+        }
     }
 
 	public boolean isMpdConnectionNull() {
