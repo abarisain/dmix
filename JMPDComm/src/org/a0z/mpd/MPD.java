@@ -136,7 +136,13 @@ public class MPD {
 	MPDConnection getMpdIdleConnection() {
 		return this.mpdIdleConnection;
 	}
-
+	
+    /**
+     * Wait for server changes using "idle" command on the dedicated connection.
+     * 
+     * @return Data readed from the server.
+     * @throws MPDServerException if an error occur while contacting server
+     */
     public List<String> waitForChanges() throws MPDServerException {
         if (null == mpdIdleConnection) {
             throw new MPDServerException();
