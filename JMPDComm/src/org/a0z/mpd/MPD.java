@@ -144,10 +144,8 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server
      */
     public List<String> waitForChanges() throws MPDServerException {
-        if (null == mpdIdleConnection) {
-            throw new MPDServerException();
-        }
-        while (true) {
+
+        while (mpdIdleConnection != null) {
             List<String> data = mpdIdleConnection
                     .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
             if (data.isEmpty()) {
@@ -155,6 +153,7 @@ public class MPD {
             }
             return data;
         }
+        throw new MPDConnectionException("IDLE connection lost");
     }
 
 	public boolean isMpdConnectionNull() {
