@@ -131,7 +131,6 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 	 * 
 	 * Starts a post delay handler to reset the back press count to zero after 5 seconds
 	 * 
-	 * @param None
 	 * @return None
 	 */
 	@Override
