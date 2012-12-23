@@ -244,6 +244,8 @@ public class MPD {
 	 */
 	public void disconnect() throws MPDServerException {
 		MPDServerException ex = null;
+		if (mpdConnection == null)
+			return;
 		if (mpdConnection.isConnected()) {
 			try {
 				mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLOSE);
