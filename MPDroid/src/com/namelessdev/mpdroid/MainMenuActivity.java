@@ -6,8 +6,6 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,7 +25,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
-import com.namelessdev.mpdroid.providers.ServerList;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class MainMenuActivity extends SherlockFragmentActivity implements OnNavigationListener {
@@ -280,17 +277,6 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 			}
 			return true;
 		case R.id.GMM_bonjour:
-			ContentResolver cr = this.getContentResolver();
-			ContentValues values = new ContentValues();
-			values.put(ServerList.ServerColumns.NAME, "bite1");
-			values.put(ServerList.ServerColumns.HOST, "bite2");
-			values.put(ServerList.ServerColumns.PASSWORD, "");
-			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
-			values = new ContentValues();
-			values.put(ServerList.ServerColumns.NAME, "bite3");
-			values.put(ServerList.ServerColumns.HOST, "bite4");
-			values.put(ServerList.ServerColumns.PASSWORD, "");
-			cr.insert(ServerList.ServerColumns.CONTENT_URI, values);
 			startActivity(new Intent(this, ServerListActivity.class));
 			return true;
 		case R.id.GMM_Consume:
