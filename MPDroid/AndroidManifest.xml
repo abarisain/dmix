@@ -70,7 +70,6 @@
 			<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchActivity" />
 		</activity>
-		<activity android:name=".honeycomb.LibraryTabActionActivity" android:label="@string/libraryTabActivity" />
 
 		<service android:enabled="true" android:name="StreamingService" />
 		<receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">
@@ -87,11 +86,7 @@
       			<action android:name="android.intent.action.PHONE_STATE" />
     			</intent-filter>
 		</receiver>
-		
-		<provider android:name=".providers.ServerListProvider"
-          android:authorities="com.namelessdev.mpdroid.providers.serverlist"
-          android:exported="false">
-		</provider>
+
 		<receiver android:name=".widgets.SimpleWidgetProvider">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE"></action>
