@@ -459,14 +459,14 @@ public class MPD {
 	/**
 	 * List all albums from database.
 	 * 
-	 * @param sortInsensitive
-	 * 			 do an insensitive sort on the returned list
+	 * @param useAlbumArtist
+	 * 			 use AlbumArtist instead of Artist
 	 * @return <code>Collection</code> with all album names from database.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
 	 */
-	public List<String> listAlbums(boolean sortInsensitive) throws MPDServerException {
-		return listAlbums(null, sortInsensitive, false);
+	public List<String> listAlbums(boolean useAlbumArtist) throws MPDServerException {
+		return listAlbums(null, useAlbumArtist, false);
 	}
 
 	/**
@@ -474,14 +474,14 @@ public class MPD {
 	 * 
 	 * @param artist
 	 *           artist to list albums
-	 * @param sortInsensitive
-	 * 			 do an insensitive sort on the returned list
+	 * @param useAlbumArtist
+	 * 			 use AlbumArtist instead of Artist
 	 * @return <code>Collection</code> with all album names from database.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
 	 */
-	public List<String> listAlbums(String artist, boolean sortInsensitive) throws MPDServerException {
-		return listAlbums(artist, sortInsensitive, true);
+	public List<String> listAlbums(String artist, boolean useAlbumArtist) throws MPDServerException {
+		return listAlbums(artist, useAlbumArtist, true);
 	}
 
 	/**
@@ -489,21 +489,25 @@ public class MPD {
 	 * 
 	 * @param artist
 	 *           artist to list albums
-	 * @param sortInsensitive
-	 * 			 do an insensitive sort on the returned list
+	 * @param useAlbumArtist
+	 * 			 use AlbumArtist instead of Artist
 	 * @param includeUnknownAlbum
 	 * 			 include an entry for songs with no album tag
 	 * @return <code>Collection</code> with all album names from the given artist present in database.
 	 * @throws MPDServerException
 	 *            if an error occur while contacting server.
 	 */
-	public List<String> listAlbums(String artist, boolean sortInsensitive, boolean includeUnknownAlbum) throws MPDServerException {
+	public List<String> listAlbums(String artist, boolean useAlbumArtist, boolean includeUnknownAlbum) throws MPDServerException {
 		if(!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
 		boolean foundSongWithoutAlbum = false;
 
-		List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
+		List<String> response;
+		if (useAlbumArtist)
+		    response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, MPDCommand.MPD_TAG_ALBUM_ARTIST, artist);
+		else
+		    response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
 		ArrayList<String> result = new ArrayList<String>();
 		for (String line : response) {
 			String name = line.substring("Album: ".length());
@@ -514,10 +518,7 @@ public class MPD {
 			}
 		}
 
-		if (sortInsensitive)
-			Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-		else
-			Collections.sort(result);
+		Collections.sort(result);
 		
 		// add a single blank entry to host all songs without an album set
 		if((includeUnknownAlbum == true) && (foundSongWithoutAlbum == true)) {
