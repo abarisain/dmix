@@ -145,7 +145,7 @@ public class MPD {
      */
     public List<String> waitForChanges() throws MPDServerException {
 
-        while (mpdIdleConnection != null) {
+        while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
             List<String> data = mpdIdleConnection
                     .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
             if (data.isEmpty()) {
