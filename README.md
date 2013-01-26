@@ -35,16 +35,16 @@ Also, MPDroid's speed isn't that great, but considering that MPD's api was never
 So, the current roadmap is :
 
 ####1.1
- [ ] Song mute on incoming call (optional)
- [X] ~~Select default library tab to show (for people who mainly use filesystem view)~~ (done in 1.03)
- [ ] Add better streams support
- [ ] Add lyrics & artist/album info
- - Make MPDroid configurable for multiple servers (Better implementation than the hackish wlan based one)
- [ ] Add bonjour support
- [ ] Streams XML Import/Export
- [ ] Rework AlbumArtist (also, see LouBas's request on the blog)
- [ ] Split album details by CD and allow only one CD to be added to the playlist
- [ ] Fix the stupdly small hitbox for the progress thumb, make the view sliding impossible around it so accidents don't happen as often as they do now
+ - [ ] Song mute on incoming call (optional)
+ - [x] ~~Select default library tab to show (for people who mainly use filesystem view)~~ (done in 1.03)
+ - [ ] Add better streams support
+ - [ ] Add lyrics & artist/album info
+ - [ ] Make MPDroid configurable for multiple servers (Better implementation than the hackish wlan based one)
+ - [ ] Add bonjour support
+ - [ ] Streams XML Import/Export
+ - [ ] Rework AlbumArtist (also, see LouBas's request on the blog)
+ - [ ] Split album details by CD and allow only one CD to be added to the playlist
+ - [ ] Fix the stupdly small hitbox for the progress thumb, make the view sliding impossible around it so accidents don't happen as often as they do now
  - Keep it the most up to date and best MPDroid client for android
  - ???
  - Profit
