@@ -135,19 +135,24 @@ public class MPD {
 	MPDConnection getMpdIdleConnection() {
 		return this.mpdIdleConnection;
 	}
-
+	
+    /**
+     * Wait for server changes using "idle" command on the dedicated connection.
+     * 
+     * @return Data readed from the server.
+     * @throws MPDServerException if an error occur while contacting server
+     */
     public List<String> waitForChanges() throws MPDServerException {
-	if (null == mpdIdleConnection) {
-	    throw new MPDServerException();
-	}
-	while (true) {
-	    List<String> data = mpdIdleConnection
-		    .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
-	    if (data.isEmpty()) {
-		continue;
-	    }
-	    return data;
-	}
+
+        while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
+            List<String> data = mpdIdleConnection
+                    .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
+            if (data.isEmpty()) {
+                continue;
+            }
+            return data;
+        }
+        throw new MPDConnectionException("IDLE connection lost");
     }
 
 	public boolean isMpdConnectionNull() {
@@ -243,34 +248,34 @@ public class MPD {
 	 *            if an error occur while closing connection
 	 */
 	public void disconnect() throws MPDServerException {
-		MPDServerException ex = null;
-		if (mpdConnection == null)
-			return;
-		if (mpdConnection.isConnected()) {
-			try {
-				mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLOSE);
-			} catch (MPDServerException e) {
-				ex = e;
-			}
-		}
-		if (mpdConnection.isConnected()) {
-			try {
-				mpdConnection.disconnect();
-			} catch (MPDServerException e) {
-				ex = (ex != null) ? ex : e;// Always keep first non null exception
-			}
-		}
-		if (mpdIdleConnection.isConnected()) {
-			try {
-				mpdIdleConnection.disconnect();
-			} catch (MPDServerException e) {
-				ex = (ex != null) ? ex : e;// Always keep non null first exception
-			}
-		}
+        MPDServerException ex = null;
+        if (mpdConnection != null && mpdConnection.isConnected()) {
+            try {
+                mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLOSE);
+            } catch (MPDServerException e) {
+                ex = e;
+            }
+        }
+        if (mpdConnection != null && mpdConnection.isConnected()) {
+            try {
+                mpdConnection.disconnect();
+            } catch (MPDServerException e) {
+                ex = (ex != null) ? ex : e;// Always keep first non null
+                                           // exception
+            }
+        }
+        if (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
+            try {
+                mpdIdleConnection.disconnect();
+            } catch (MPDServerException e) {
+                ex = (ex != null) ? ex : e;// Always keep non null first
+                                           // exception
+            }
+        }
 
-		if (ex != null) {
-			throw ex;
-		}
+        if (ex != null) {
+            throw ex;
+        }
 	}
 
 	/**
@@ -441,7 +446,7 @@ public class MPD {
 	public boolean isConnected() {
 		if (mpdConnection == null)
 			return false;
-		return mpdConnection.isConnected() && mpdIdleConnection.isConnected();
+		return mpdConnection.isConnected() ;
 	}
 
 
