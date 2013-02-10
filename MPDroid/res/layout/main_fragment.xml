@@ -83,6 +83,7 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/progress_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dip" >
@@ -124,6 +125,7 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/buttons_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
@@ -177,6 +179,7 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/volume_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dip"

@@ -96,7 +96,7 @@
         </RelativeLayout>
         
 	    <RelativeLayout
-	        android:id="@+id/volumeLayout"
+	        android:id="@+id/volume_layout"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -124,12 +124,12 @@
 	    </RelativeLayout>
 	        
         <RelativeLayout
-            android:id="@+id/seekLayout"
+            android:id="@+id/progress_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dip"
             android:layout_toRightOf="@id/coverLayout"
-            android:layout_above="@id/volumeLayout" >
+            android:layout_above="@id/volume_layout" >
 
             <TextView
                 android:id="@+id/trackTime"
@@ -169,6 +169,7 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/buttons_layout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/playerbutton_height"
         android:gravity="center_horizontal" >
