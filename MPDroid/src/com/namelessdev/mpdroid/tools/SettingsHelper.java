@@ -103,7 +103,8 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 	
 	private String getCurrentSSID() {
 		WifiInfo info = mWifiManager.getConnectionInfo();
-		return info.getSSID();
+		final String ssid = info.getSSID();
+		return ssid == null ? null : ssid.replace("\"", "");
 	}
 	
 	private String getStringWithSSID(String param, String wifiSSID) {
