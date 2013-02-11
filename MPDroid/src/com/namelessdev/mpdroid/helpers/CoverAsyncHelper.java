@@ -118,31 +118,37 @@ public class CoverAsyncHelper extends Handler {
 			switch (msg.what) {
 			case EVENT_DOWNLOADCOVER:
 				CoverInfo info = (CoverInfo) msg.obj;
-				String url = null;
+				String[] urls = null;
 				try {
 					// Get URL to the Cover...
-					url = coverRetriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath);
+					urls = coverRetriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 				}
 
-				if (url == null) {
+				if (urls == null || urls.length == 0) {
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 					return;
 				}
 
-				Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
-				Bitmap bmImg=download(url);
-				
-				if (null==bmImg && url.endsWith("/cover.jpg")) {
-					bmImg=download(url.replace("/cover.jpg", "/cover.png"));
+				Bitmap downloadedCover = null;
+				for (String url : urls) {
+					Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
+					if(coverRetriever.isCoverLocal()) {
+						// TODO : Implement local cover downloading later
+					} else {
+						downloadedCover = download(url);
+					}
+
+					if (downloadedCover != null) {
+						CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
+					} else {
+						CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, downloadedCover).sendToTarget();
+					}
 				}
-				
-				if (null==bmImg) {
+				if (downloadedCover == null) {
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-				} else {
-					CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, bmImg).sendToTarget();
 				}
 				break;
 			default:

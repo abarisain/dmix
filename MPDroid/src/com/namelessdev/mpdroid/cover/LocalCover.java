@@ -18,7 +18,7 @@ public class LocalCover implements ICoverRetriever {
 		this.settings = settings;
 	}
 
-	public String getCoverUrl(String artist, String album, String path) throws Exception {
+	public String[] getCoverUrl(String artist, String album, String path) throws Exception {
 		// load URL parts from settings
 		String musicPath = settings.getString("musicPath", null);
 		String coverFileName = settings.getString("coverFileName", null);
@@ -33,10 +33,15 @@ public class LocalCover implements ICoverRetriever {
 				coverFileName
 			});
 
-			return (musicPath.toLowerCase().startsWith(URL_PREFIX) ? url : (URL_PREFIX + serverName + "/" + url));
+			return new String[] { (musicPath.toLowerCase().startsWith(URL_PREFIX) ? url : (URL_PREFIX + serverName + "/" + url)) };
 		}else{
 			return null;
 		}
+	}
+
+	@Override
+	public boolean isCoverLocal() {
+		return false;
 	}
 
 }
