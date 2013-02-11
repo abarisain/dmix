@@ -161,4 +161,7 @@
 	<string name="pauseOnPhoneStateChangeDescription">Mettre la lecture en pause lors d\'un appel</string>
 	<string name="playOnPhoneStateChange">Reprendre la lecture</string>
 	<string name="playOnPhoneStateChangeDescription">Reprendre la lecture lorsqu\'un appel se termine</string>
+	
+	<string name="coverArtTitle">Paramètres des pochettes</string>
+	<string name="coverArtDescription">Changer comment les pochettes sont téléchargées et stockées</string>
 </resources>

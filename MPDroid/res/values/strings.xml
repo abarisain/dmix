@@ -191,5 +191,7 @@
 	<string name="visibleTabs">Visible Tabs</string>
 	<string name="hiddenTabs">Hidden Tabs</string>
 	
+	<string name="coverArtTitle">Cover art settings</string>
+	<string name="coverArtDescription">Change how cover art is downloaded and stored</string>
 	
 </resources>
