@@ -44,4 +44,9 @@ public class LocalCover implements ICoverRetriever {
 		return false;
 	}
 
+	@Override
+	public String getName() {
+		return "User's HTTP Server";
+	}
+
 }

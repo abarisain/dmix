@@ -16,4 +16,9 @@ public class LastFMCover implements ICoverRetriever {
 	public boolean isCoverLocal() {
 		return false;
 	}
+
+	@Override
+	public String getName() {
+		return "LastFM";
+	}
 }

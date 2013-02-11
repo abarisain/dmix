@@ -13,4 +13,9 @@ public class CachedCover implements ICoverRetriever {
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "SD Card Cache";
+	}
+
 }
