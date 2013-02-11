@@ -94,8 +94,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private Timer posTimer = null;
 	private TimerTask posTimerTask = null;
 
-	private boolean enableLastFM;
-
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -169,8 +167,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		settings.registerOnSharedPreferenceChangeListener(this);
 
-		enableLastFM = settings.getBoolean("enableLastFM", true);
-
 		streamingMode = ((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode;
 		connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
 		artistNameText = (TextView) view.findViewById(R.id.artistName);
@@ -202,11 +198,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
-		if(enableLastFM) {
-			oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LASTFM);
-		}else{
-			oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LOCAL);
-		}
+		oCoverAsyncHelper.setCoverRetrieversFromPreferences();
 		oCoverAsyncHelper.addCoverDownloadListener(this);
 
 		buttonEventHandler = new ButtonEventHandler();
@@ -656,14 +648,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals("enableLastFM")) {
-			enableLastFM = sharedPreferences.getBoolean("enableLastFM", true);
-
-			if(enableLastFM) {
-				oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LASTFM);
-			}else{
-				oCoverAsyncHelper.setCoverRetriever(CoverAsyncHelper.CoverRetrievers.LOCAL);
-			}
+		if (key.equals(CoverAsyncHelper.PREFERENCE_CACHE) || key.equals(CoverAsyncHelper.PREFERENCE_LASTFM)
+				|| key.equals(CoverAsyncHelper.PREFERENCE_LOCALSERVER)) {
+			oCoverAsyncHelper.setCoverRetrieversFromPreferences();
 		} else if(key.equals("enableStopButton")) {
 			applyStopButtonVisibility(sharedPreferences);
 		}

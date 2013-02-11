@@ -18,4 +18,7 @@ public class CachedCover implements ICoverRetriever {
 		return "SD Card Cache";
 	}
 
+	public static void clear() {
+
+	}
 }

@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -15,9 +17,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.cover.LastFMCover;
 import com.namelessdev.mpdroid.cover.LocalCover;
@@ -33,6 +37,10 @@ public class CoverAsyncHelper extends Handler {
 	private static final int EVENT_COVERDOWNLOADED = 1;
 	private static final int EVENT_COVERNOTFOUND = 2;
 
+	public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
+	public static final String PREFERENCE_LASTFM = "enableLastFM";
+	public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
+
 	private String urlOverride = null;
 
 	public String getUrlOverride() {
@@ -47,17 +55,25 @@ public class CoverAsyncHelper extends Handler {
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
 
-	private ICoverRetriever coverRetriever = null;
+	private ICoverRetriever[] coverRetrievers = null;
 
-	public void setCoverRetriever(CoverRetrievers whichCoverRetriever) {
-		// create concrete cover retriever
-		switch(whichCoverRetriever) {
-		case LASTFM:
-			this.coverRetriever = new LastFMCover();
-			break;
-		case LOCAL:
-			this.coverRetriever = new LocalCover(this.app, this.settings);
-			break;
+	public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
+		if (whichCoverRetrievers == null) {
+			coverRetrievers = new ICoverRetriever[0];
+		}
+		coverRetrievers = new ICoverRetriever[whichCoverRetrievers.size()];
+		for (int i = 0; i < whichCoverRetrievers.size(); i++) {
+			switch (whichCoverRetrievers.get(i)) {
+			case CACHE:
+				this.coverRetrievers[i] = new CachedCover();
+				break;
+			case LASTFM:
+				this.coverRetrievers[i] = new LastFMCover();
+				break;
+			case LOCAL:
+				this.coverRetrievers[i] = new LocalCover(this.app, this.settings);
+				break;
+			}
 		}
 	}
 
@@ -79,6 +95,23 @@ public class CoverAsyncHelper extends Handler {
 		oThread.start();
 		oCoverAsyncWorker = new CoverAsyncWorker(oThread.getLooper());
 		coverDownloadListener = new LinkedList<CoverDownloadListener>();
+	}
+
+	public void setCoverRetrieversFromPreferences() {
+		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+		final List<CoverRetrievers> enabledRetrievers = new ArrayList<CoverRetrievers>();
+		//There is a cover provider order, respect it.
+		//Cache -> LastFM -> MPD Server
+		if(settings.getBoolean(PREFERENCE_CACHE, true)) {
+			enabledRetrievers.add(CoverRetrievers.CACHE);
+		}
+		if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
+			enabledRetrievers.add(CoverRetrievers.LASTFM);
+		}
+		if (settings.getBoolean(PREFERENCE_LOCALSERVER, true)) {
+			enabledRetrievers.add(CoverRetrievers.LOCAL);
+		}
+		setCoverRetrievers(enabledRetrievers);
 	}
 
 	public void addCoverDownloadListener(CoverDownloadListener listener) {
@@ -114,41 +147,50 @@ public class CoverAsyncHelper extends Handler {
 			super(looper);
 		}
 
+		public Bitmap getBitmapForRetriever(CoverInfo info, ICoverRetriever retriever) {
+			String[] urls = null;
+			try {
+				// Get URL to the Cover...
+				urls = retriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				return null;
+			}
+
+			if (urls == null || urls.length == 0) {
+				return null;
+			}
+
+			Bitmap downloadedCover = null;
+			for (String url : urls) {
+				Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
+				if (retriever.isCoverLocal()) {
+					// TODO : Implement local cover downloading later
+				} else {
+					downloadedCover = download(url);
+				}
+
+				if (downloadedCover != null) {
+					break;
+				}
+			}
+			return downloadedCover;
+		}
+
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case EVENT_DOWNLOADCOVER:
-				CoverInfo info = (CoverInfo) msg.obj;
-				String[] urls = null;
-				try {
-					// Get URL to the Cover...
-					urls = coverRetriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath);
-				} catch (Exception e1) {
-					e1.printStackTrace();
-					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-				}
-
-				if (urls == null || urls.length == 0) {
-					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-					return;
-				}
-
-				Bitmap downloadedCover = null;
-				for (String url : urls) {
-					Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
-					if(coverRetriever.isCoverLocal()) {
-						// TODO : Implement local cover downloading later
-					} else {
-						downloadedCover = download(url);
-					}
-
-					if (downloadedCover != null) {
-						CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-					} else {
-						CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, downloadedCover).sendToTarget();
+				Bitmap cover = null;
+				for (ICoverRetriever coverRetriever : coverRetrievers) {
+					cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
+					if (cover != null) {
+						break;
 					}
 				}
-				if (downloadedCover == null) {
+				if (cover == null) {
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
+				} else {
+					CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
 				}
 				break;
 			default:
@@ -190,6 +232,7 @@ public class CoverAsyncHelper extends Handler {
 	}
 
 	public enum CoverRetrievers {
+		CACHE,
 		LASTFM,
 		LOCAL;
 	}

@@ -72,6 +72,12 @@
 		<PreferenceScreen android:key="coverArtScreen"
 			android:title="@string/coverArtTitle" android:summary="@string/coverArtDescription">
 			<CheckBoxPreference android:persistent="true"
+				android:title="@string/enableLocalCoverCache" android:summary="@string/enableLocalCoverCacheDescription"
+				android:key="enableLocalCoverCache" android:defaultValue="true" />
+			<PreferenceScreen android:title="@string/clearLocalCoverCache"
+				android:summary="@string/clearLocalCoverCacheDescription" android:key="clearLocalCoverCache">
+			</PreferenceScreen>
+			<CheckBoxPreference android:persistent="true"
 				android:title="@string/enableLastFM" android:summary="@string/enableLastFMDescription"
 				android:key="enableLastFM" android:defaultValue="true" />
 			<CheckBoxPreference android:persistent="true"
