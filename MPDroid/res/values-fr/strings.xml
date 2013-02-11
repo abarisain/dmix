@@ -161,4 +161,9 @@
 	<string name="pauseOnPhoneStateChangeDescription">Mettre la lecture en pause lors d\'un appel</string>
 	<string name="playOnPhoneStateChange">Reprendre la lecture</string>
 	<string name="playOnPhoneStateChangeDescription">Reprendre la lecture lorsqu\'un appel se termine</string>
+
+	<string name="libraryTabsSettings">Onglets de la bibliothèque</string>
+	<string name="libraryTabsSettingsDescription">Choisir les onglets visibles et leur ordre</string>
+	<string name="visibleTabs">Onglets visibles</string>
+	<string name="hiddenTabs">Onglets cachés</string>
 </resources>
