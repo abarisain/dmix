@@ -118,11 +118,12 @@ public class CoverAsyncHelper extends Handler {
 		coverDownloadListener.add(listener);
 	}
 
-	public void downloadCover(String artist, String album, String path) {
+	public void downloadCover(String artist, String album, String path, String filename) {
 		CoverInfo info = new CoverInfo();
 		info.sArtist = artist;
 		info.sAlbum = album;
 		info.sPath = path;
+		info.sFilename = filename;
 		oCoverAsyncWorker.obtainMessage(EVENT_DOWNLOADCOVER, info).sendToTarget();
 	}
 
@@ -151,7 +152,7 @@ public class CoverAsyncHelper extends Handler {
 			String[] urls = null;
 			try {
 				// Get URL to the Cover...
-				urls = retriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath);
+				urls = retriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath, info.sFilename);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 				return null;
@@ -238,6 +239,7 @@ public class CoverAsyncHelper extends Handler {
 		public String sArtist;
 		public String sAlbum;
 		public String sPath;
+		public String sFilename;
 	}
 
 	public enum CoverRetrievers {

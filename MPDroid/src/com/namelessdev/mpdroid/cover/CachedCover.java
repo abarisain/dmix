@@ -21,7 +21,7 @@ public class CachedCover implements ICoverRetriever {
 	}
 
 	@Override
-	public String[] getCoverUrl(String artist, String album, String path) throws Exception {
+	public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
 		final String storageState = Environment.getExternalStorageState();
 		// If there is no external storage available, don't bother
 		if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState) || Environment.MEDIA_MOUNTED.equals(storageState)) {

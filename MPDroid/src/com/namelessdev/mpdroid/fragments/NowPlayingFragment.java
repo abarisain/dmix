@@ -524,6 +524,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				String title = null;
 				String album = null;
 				String path = null;
+				String filename = null;
 				int songMax = 0;
 				boolean noSong=actSong == null || status.getPlaylistLength() == 0;
 				if (noSong) {
@@ -534,6 +535,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					title = actSong.getTitle();
 					album = actSong.getAlbum();
 					path = actSong.getPath();
+					filename = actSong.getFilename();
 					songMax = (int) actSong.getTime();
 				}
 
@@ -555,7 +557,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
 					coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-					oCoverAsyncHelper.downloadCover(artist, album, path);
+					oCoverAsyncHelper.downloadCover(artist, album, path, filename);
 					lastArtist = artist;
 					lastAlbum = album;
 				}
