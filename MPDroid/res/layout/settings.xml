@@ -66,9 +66,6 @@
 				android:targetClass="com.namelessdev.mpdroid.LibraryTabsSettings" />
 		</PreferenceScreen>
  	    
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/enableStopButton"
-			android:key="enableStopButton" android:defaultValue="false" />
 		<PreferenceScreen android:key="coverArtScreen"
 			android:title="@string/coverArtTitle" android:summary="@string/coverArtDescription">
 			<CheckBoxPreference android:persistent="true"
@@ -90,6 +87,9 @@
 				android:title="@string/coverFileName" android:summary="@string/coverFileNameDescription"
 				android:key="coverFileName" android:defaultValue="folder.jpg" />
 		</PreferenceScreen>
+		<CheckBoxPreference android:persistent="true"
+			android:title="@string/enableStopButton"
+			android:key="enableStopButton" android:defaultValue="false" />
 	</PreferenceCategory>
 	
  	<PreferenceCategory android:title="@string/behavior">
