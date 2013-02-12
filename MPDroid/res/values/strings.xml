@@ -191,5 +191,12 @@
 	<string name="visibleTabs">Visible Tabs</string>
 	<string name="hiddenTabs">Hidden Tabs</string>
 	
+	<string name="coverArtTitle">Cover art settings</string>
+	<string name="coverArtDescription">Change how cover art is downloaded and stored</string>
+	<string name="enableLocalCoverCache">Cache cover art</string>
+	<string name="enableLocalCoverCacheDescription">Saves downloaded cover art on the device for faster retrieval</string>
+	<string name="clearLocalCoverCache">Clear cover art cache</string>
+	<string name="clearLocalCoverCacheDescription">Free the storage space used by the cover art cache</string>
+	
 	
 </resources>

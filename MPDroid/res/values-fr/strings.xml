@@ -166,4 +166,11 @@
 	<string name="libraryTabsSettingsDescription">Choisir les onglets visibles et leur ordre</string>
 	<string name="visibleTabs">Onglets visibles</string>
 	<string name="hiddenTabs">Onglets cachés</string>
+	
+	<string name="coverArtTitle">Paramètres des pochettes</string>
+	<string name="coverArtDescription">Changer comment les pochettes sont téléchargées et stockées</string>
+	<string name="enableLocalCoverCache">Mettre en cache les pochettes</string>
+	<string name="enableLocalCoverCacheDescription">Sauvegarde les pochettes téléchargées pour un chargement plus rapide</string>
+	<string name="clearLocalCoverCache">Vider le cache</string>
+	<string name="clearLocalCoverCacheDescription">Libère l\'espace utilisé par le cache de pochettes</string>
 </resources>

@@ -23,6 +23,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.namelessdev.mpdroid.cover.CachedCover;
+
 public class SettingsActivity extends PreferenceActivity implements
 		StatusChangeListener {
 
@@ -204,15 +206,11 @@ public class SettingsActivity extends PreferenceActivity implements
 			}
 			return true;
 
-		} else if (preference.getKey().equals("enableLocalCover")
-				|| preference.getKey().equals("enableLastFM")) {
-			if (preference.getKey().equals("enableLocalCover")) {
-				CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLastFM");
-				c.setChecked(false);
-			} else if (preference.getKey().equals("enableLastFM")) {
-				CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
-				c.setChecked(false);
-			}
+		} else if (preference.getKey().equals("clearLocalCoverCache")) {
+			new CachedCover(app).clear();
+			return true;
+
+		} else if (preference.getKey().equals("enableLocalCover")) {
 
 			CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
 			Preference mp = (Preference) findPreference("musicPath");
