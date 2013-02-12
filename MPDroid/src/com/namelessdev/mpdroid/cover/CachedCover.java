@@ -25,7 +25,9 @@ public class CachedCover implements ICoverRetriever {
 		final String storageState = Environment.getExternalStorageState();
 		// If there is no external storage available, don't bother
 		if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState) || Environment.MEDIA_MOUNTED.equals(storageState)) {
-			return new String[] { getAbsolutePathForSong(application, artist, album) };
+			final String url = getAbsolutePathForSong(application, artist, album);
+			if (new File(url).exists())
+				return new String[] { url };
 		}
 		return null;
 	}
