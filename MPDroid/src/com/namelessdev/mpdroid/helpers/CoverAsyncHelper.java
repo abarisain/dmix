@@ -186,6 +186,7 @@ public class CoverAsyncHelper extends Handler {
 				for (ICoverRetriever coverRetriever : coverRetrievers) {
 					cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
 					if (cover != null) {
+						Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
 						break;
 					}
 				}
