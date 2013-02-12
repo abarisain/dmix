@@ -50,7 +50,7 @@ public class CachedCover implements ICoverRetriever {
 		try {
 			new File(getAbsoluteCoverFolderPath()).mkdirs();
 			FileOutputStream out = new FileOutputStream(getAbsolutePathForSong(artist, album));
-			cover.compress(Bitmap.CompressFormat.JPEG, 100, out);
+			cover.compress(Bitmap.CompressFormat.JPEG, 90, out);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
