@@ -192,6 +192,12 @@ public class CoverAsyncHelper extends Handler {
 				if (cover == null) {
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 				} else {
+					// Save this cover into cache, if it is enabled.
+					for (ICoverRetriever coverRetriever : coverRetrievers) {
+						if (coverRetriever instanceof CachedCover) {
+							((CachedCover) coverRetriever).save(((CoverInfo) msg.obj).sArtist, ((CoverInfo) msg.obj).sAlbum, cover);
+						}
+					}
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
 				}
 				break;
