@@ -50,6 +50,9 @@ public class LocalCover implements ICoverRetriever {
 
 				url = String.format(URL, new Object[] { musicPath, path.replaceAll(" ", "%20"), lfilename });
 				url = musicPath.toLowerCase().startsWith(URL_PREFIX) ? url : (URL_PREFIX + serverName + "/" + url);
+				while (url.lastIndexOf("//") != -1) {
+					url = url.replace("//", "/");
+				}
 				if (!urls.contains(url))
 					urls.add(url);
 			}
