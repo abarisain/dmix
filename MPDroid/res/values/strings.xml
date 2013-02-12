@@ -179,6 +179,7 @@
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
 	<string name="donate">Donate</string>
+	<string name="stop">Stop</string>
 	
 	<string name="behavior">Phone Behavior</string>
 	<string name="pauseOnPhoneStateChange">Pause playback</string>

@@ -428,6 +428,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	}
 
 	public void showNotification() {
+		showNotification(false);
+	}
+
+	public void showNotification(boolean streamingStatusChanged) {
 		try {
 			MPDApplication app = (MPDApplication) getApplication();
 			MPDStatus statusMpd = null;
@@ -436,10 +440,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			} catch (MPDServerException e) {
 				// Do nothing cause I suck hard at android programming
 			}
-			if (statusMpd != null && !isPaused) {
+			// Don't show the notification if paused, except on Jelly bean where it has buttons
+			if (statusMpd != null && (!isPaused || Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)) {
 				String state = statusMpd.getState();
 				if (state != null) {
-					if (state == oldStatus)
+					if (state == oldStatus && !streamingStatusChanged)
 						return;
 					oldStatus = state;
 					int songPos = statusMpd.getSongPos();
@@ -462,10 +467,28 @@ public class StreamingService extends Service implements StatusChangeListener, O
 							setMusicState(PLAYSTATE_BUFFERING);
 							notificationBuilder.setContentTitle(getString(R.string.buffering));
 							notificationBuilder.setContentText(actSong.getTitle() + " - " + actSong.getArtist());
+							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+								notificationBuilder.addAction(R.drawable.ic_media_stop, getString(R.string.stop), PendingIntent.getService(
+										this, 41,
+										new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_STOP),
+										PendingIntent.FLAG_CANCEL_CURRENT));
+							}
 						} else {
-							setMusicState(PLAYSTATE_PLAYING);
+							setMusicState(isPaused ? PLAYSTATE_PAUSED : PLAYSTATE_PLAYING);
 							notificationBuilder.setContentTitle(actSong.getTitle());
 							notificationBuilder.setContentText(actSong.getAlbum() + " - " + actSong.getArtist());
+							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+								notificationBuilder.addAction(R.drawable.ic_appwidget_music_prev, "", PendingIntent.getService(this, 11,
+										new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_PREV),
+										PendingIntent.FLAG_CANCEL_CURRENT));
+								notificationBuilder.addAction(isPaused ? R.drawable.ic_appwidget_music_play
+										: R.drawable.ic_appwidget_music_pause, "", PendingIntent.getService(this, 21, new Intent(this,
+										StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_PLAYPAUSE),
+										PendingIntent.FLAG_CANCEL_CURRENT));
+								notificationBuilder.addAction(R.drawable.ic_appwidget_music_next, "", PendingIntent.getService(this, 31,
+										new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_NEXT),
+										PendingIntent.FLAG_CANCEL_CURRENT));
+							}
 						}
 						status = notificationBuilder.getNotification();
 
@@ -488,7 +511,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		if (mediaPlayer != null) { // If that stupid thing crashes
 			mediaPlayer.stop(); // So it stops faster
 		}
-		showNotification();
+		showNotification(true);
 	}
 
 	public void resumeStreaming() {
@@ -497,6 +520,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			return;
 		
 		needStoppedNotification = false;
+		isPaused = false;
 		buffering = true;
 		// MPDApplication app = (MPDApplication) getApplication();
 		// MPD mpd = app.oMPDAsyncHelper.oMPD;
@@ -515,7 +539,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mediaPlayer.setDataSource(streamSource);
 			mediaPlayer.prepareAsync();
-			showNotification();
+			showNotification(true);
 		} catch (IOException e) {
 			// Error ? Notify the user ! (Another day)
 			buffering = false; // Obviously if it failed we are not buffering.
