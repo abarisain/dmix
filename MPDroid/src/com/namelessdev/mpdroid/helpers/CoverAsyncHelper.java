@@ -65,7 +65,7 @@ public class CoverAsyncHelper extends Handler {
 		for (int i = 0; i < whichCoverRetrievers.size(); i++) {
 			switch (whichCoverRetrievers.get(i)) {
 			case CACHE:
-				this.coverRetrievers[i] = new CachedCover();
+				this.coverRetrievers[i] = new CachedCover(app);
 				break;
 			case LASTFM:
 				this.coverRetrievers[i] = new LastFMCover();
