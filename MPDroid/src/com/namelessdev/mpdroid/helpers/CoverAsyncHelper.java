@@ -163,9 +163,11 @@ public class CoverAsyncHelper extends Handler {
 
 			Bitmap downloadedCover = null;
 			for (String url : urls) {
+				if (url == null)
+					continue;
 				Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
 				if (retriever.isCoverLocal()) {
-					// TODO : Implement local cover downloading later
+					downloadedCover = BitmapFactory.decodeFile(url);
 				} else {
 					downloadedCover = download(url);
 				}
