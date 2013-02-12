@@ -25,7 +25,7 @@ public class LocalCover implements ICoverRetriever {
 
 	public String[] getCoverUrl(String artist, String album, String path) throws Exception {
 		// load URL parts from settings
-		String musicPath = settings.getString("musicPath", null);
+		String musicPath = settings.getString("musicPath", "music/");
 		FILENAMES[0] = settings.getString("coverFileName", null);
 
 		if (musicPath != null) {
