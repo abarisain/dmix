@@ -25,7 +25,7 @@ public class CachedCover implements ICoverRetriever {
 		final String storageState = Environment.getExternalStorageState();
 		// If there is no external storage available, don't bother
 		if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState) || Environment.MEDIA_MOUNTED.equals(storageState)) {
-			final String url = getAbsolutePathForSong(application, artist, album);
+			final String url = getAbsolutePathForSong(artist, album);
 			if (new File(url).exists())
 				return new String[] { url };
 		}
@@ -42,22 +42,22 @@ public class CachedCover implements ICoverRetriever {
 		return "SD Card Cache";
 	}
 
-	public static void save(MPDApplication context, String artist, String album, Bitmap cover) {
+	public void save(String artist, String album, Bitmap cover) {
 		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			// External storage is not there or read only, don't do anything
 			return;
 		}
 		try {
-			new File(getAbsoluteCoverFolderPath(context)).mkdirs();
-			FileOutputStream out = new FileOutputStream(getAbsolutePathForSong(context, artist, album));
+			new File(getAbsoluteCoverFolderPath()).mkdirs();
+			FileOutputStream out = new FileOutputStream(getAbsolutePathForSong(artist, album));
 			cover.compress(Bitmap.CompressFormat.JPEG, 100, out);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static void clear(MPDApplication context) {
-		final File cacheFolder = new File(getAbsoluteCoverFolderPath(context));
+	public void clear() {
+		final File cacheFolder = new File(getAbsoluteCoverFolderPath());
 		if (!cacheFolder.exists()) {
 			return;
 		}
@@ -71,22 +71,22 @@ public class CachedCover implements ICoverRetriever {
 		}
 	}
 
-	public static String getFilenameForSong(String artist, String album) {
+	public String getFilenameForSong(String artist, String album) {
 		return Tools.getHashFromString(artist + ";" + album) + ".jpg";
 	}
 	
-	public static String getAbsoluteCoverFolderPath(MPDApplication context) {
-		final File cacheDir = context.getExternalCacheDir();
+	public String getAbsoluteCoverFolderPath() {
+		final File cacheDir = application.getExternalCacheDir();
 		if (cacheDir == null)
 			return null;
 		return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
 	}
 
-	public static String getAbsolutePathForSong(MPDApplication context, String artist, String album) {
-		final File cacheDir = context.getExternalCacheDir();
+	public String getAbsolutePathForSong(String artist, String album) {
+		final File cacheDir = application.getExternalCacheDir();
 		if (cacheDir == null)
 			return null;
-		return getAbsoluteCoverFolderPath(context) + getFilenameForSong(artist, album);
+		return getAbsoluteCoverFolderPath() + getFilenameForSong(artist, album);
 	}
 
 }

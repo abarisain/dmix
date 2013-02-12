@@ -207,7 +207,7 @@ public class SettingsActivity extends PreferenceActivity implements
 			return true;
 
 		} else if (preference.getKey().equals("clearLocalCoverCache")) {
-			CachedCover.clear(app);
+			new CachedCover(app).clear();
 			return true;
 
 		} else if (preference.getKey().equals("enableLocalCover")) {
