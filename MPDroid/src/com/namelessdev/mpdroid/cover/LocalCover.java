@@ -53,7 +53,7 @@ public class LocalCover implements ICoverRetriever {
 				if (!urls.contains(url))
 					urls.add(url);
 			}
-			return (String[]) urls.toArray();
+			return urls.toArray(new String[urls.size()]);
 		} else {
 			return null;
 		}
