@@ -41,17 +41,6 @@ public class CoverAsyncHelper extends Handler {
 	public static final String PREFERENCE_LASTFM = "enableLastFM";
 	public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
 
-	private String urlOverride = null;
-
-	public String getUrlOverride() {
-		return urlOverride;
-	}
-
-	public void setUrlOverride(String urlOverride) {
-		this.urlOverride = urlOverride.replace(" ", "%20");
-		Log.i("MPDroid", "Setting urlOverride : " + this.urlOverride);
-	}
-
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
 
