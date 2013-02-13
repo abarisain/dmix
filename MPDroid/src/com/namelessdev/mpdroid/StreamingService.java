@@ -18,6 +18,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaMetadataRetriever;
@@ -34,13 +35,17 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.tools.Tools;
 
 /**
  * StreamingService is my code which notifies and streams MPD (theoretically) I hope I'm doing things right. Really. And say farewell to your
@@ -490,6 +495,22 @@ public class StreamingService extends Service implements StatusChangeListener, O
 										PendingIntent.FLAG_CANCEL_CURRENT));
 							}
 						}
+
+						// Dont make not compatible devices decode the bitmap for nothing
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+							// Check if we have a sdcard cover cache for this song
+							// Maybe find a more efficient way
+							final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+							if (settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
+								final CachedCover cache = new CachedCover(app);
+								final String[] coverArtPath = cache.getCoverUrl(actSong.getArtist(), actSong.getAlbum(), actSong.getPath(),
+										actSong.getFilename());
+								if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
+									notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(this, coverArtPath[0], 48, 48));
+								}
+							}
+						}
+
 						status = notificationBuilder.getNotification();
 
 						startForeground(STREAMINGSERVICE_STATUS, status);
