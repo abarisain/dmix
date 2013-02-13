@@ -472,7 +472,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 						views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
 						Notification status = null;
 						NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-						 .setSmallIcon(R.drawable.icon)
+								.setSmallIcon(Build.VERSION.SDK_INT >= 9 ? R.drawable.icon_bw : R.drawable.icon)
 						 .setOngoing(true)
 						 .setContentTitle(getString(R.string.streamStopped))
 						 .setContentIntent(PendingIntent.getActivity(this, 0,
