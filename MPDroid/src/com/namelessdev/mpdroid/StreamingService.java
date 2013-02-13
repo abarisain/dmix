@@ -19,6 +19,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaMetadataRetriever;
@@ -243,6 +244,14 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		}
 	}
 	
+	@TargetApi(14)
+	private void setMusicCover(Bitmap cover) {
+		if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+			((RemoteControlClient) remoteControlClient).editMetadata(false)
+					.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, cover).apply();
+		}
+	}
+
 	@TargetApi(14)
 	private void setMusicInfo(Music song) {
 		if(Build.VERSION.SDK_INT > 14 && remoteControlClient != null && song != null) {
@@ -507,7 +516,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 										actSong.getFilename());
 								if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
 									notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(this, coverArtPath[0], 48, 48));
+									setMusicCover(Tools.decodeSampledBitmapFromPath(this, coverArtPath[0], 200, 200));
+								} else {
+									setMusicCover(null);
 								}
+							} else {
+								setMusicCover(null);
 							}
 						}
 
