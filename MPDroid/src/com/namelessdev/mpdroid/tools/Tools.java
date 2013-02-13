@@ -88,7 +88,7 @@ public final class Tools {
 		return inSampleSize;
 	}
 
-	public static Bitmap decodeSampledBitmapFromPath(Context context, String path, int reqWidth, int reqHeight) {
+	public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth, int reqHeight) {
 
 		// First decode with inJustDecodeBounds=true to check dimensions
 		final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -96,8 +96,7 @@ public final class Tools {
 		BitmapFactory.decodeFile(path, options);
 
 		// Calculate inSampleSize
-		options.inSampleSize = calculateInSampleSize(options, (int) convertDpToPixel(reqWidth, context),
-				(int) convertDpToPixel(reqHeight, context));
+		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;

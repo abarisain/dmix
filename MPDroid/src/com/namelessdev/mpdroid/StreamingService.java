@@ -515,8 +515,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 								final String[] coverArtPath = cache.getCoverUrl(actSong.getArtist(), actSong.getAlbum(), actSong.getPath(),
 										actSong.getFilename());
 								if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
-									notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(this, coverArtPath[0], 48, 48));
-									setMusicCover(Tools.decodeSampledBitmapFromPath(this, coverArtPath[0], 200, 200));
+									notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
+											.getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
+											.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)));
+									setMusicCover(Tools.decodeSampledBitmapFromPath(coverArtPath[0],
+											(int) Tools.convertDpToPixel(200, this), (int) Tools.convertDpToPixel(200, this)));
 								} else {
 									setMusicCover(null);
 								}
