@@ -66,7 +66,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
         
         exitCounterReset = new Handler();
         
-		if (android.os.Build.VERSION.SDK_INT > 9) {
+		if (android.os.Build.VERSION.SDK_INT >= 9) {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 			StrictMode.setThreadPolicy(policy);
 		}
@@ -96,7 +96,8 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-		mViewPager.setOverScrollMode(View.OVER_SCROLL_NEVER);
+		if (android.os.Build.VERSION.SDK_INT >= 9)
+			mViewPager.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         // When swiping between different sections, select the corresponding tab.
         // We can also use ActionBar.Tab#select() to do this if we have a reference to the
