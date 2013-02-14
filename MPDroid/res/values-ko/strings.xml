@@ -179,6 +179,7 @@
 	<string name="singleMode">단일 모드</string>
 	<string name="consumeMode">소비 모드</string>
 	<string name="donate">기부</string>
+	<string name="stop">멈춤</string>
 
 	<string name="behavior">전화 받기</string>
 	<string name="pauseOnPhoneStateChange">연주 잠시 멈춤</string>
@@ -190,6 +191,13 @@
 	<string name="libraryTabsSettingsDescription">어떤 탭을 보이게 할지와 정렬을 어떻게 할지를 선택합니다</string>
 	<string name="visibleTabs">보일 탭</string>
 	<string name="hiddenTabs">숨길 탭</string>
+
+	<string name="coverArtTitle">음반 표지 설정</string>
+	<string name="coverArtDescription">음반 표지를 내려받고 저장하는 방법을 바꿉니다</string>
+	<string name="enableLocalCoverCache">음반 표지 캐시</string>
+	<string name="enableLocalCoverCacheDescription">음반 표지를 빨리 찾기 위하여 내려받은 표지를 장치에 저장합니다</string>
+	<string name="clearLocalCoverCache">음반 표지 캐시 지우기</string>
+	<string name="clearLocalCoverCacheDescription">음반 표지 캐시의 저장 공간을 비웁니다</string>
 
 
 </resources>
