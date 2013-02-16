@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 
 import com.namelessdev.mpdroid.MPDApplication;
 
 
 public class LocalCover implements ICoverRetriever {
 
-	private final static String URL = "%s/%s/%s";
-	private final static String URL_PREFIX = "http://";
+//	private final static String URL = "%s/%s/%s";
+//	private final static String URL_PREFIX = "http://";
 	private final static String PLACEHOLDER_FILENAME = "%placeholder_filename";
 	// Note that having two PLACEHOLDER_FILENAME is on purpose
 	private final static String[] FILENAMES = new String[] { "%placeholder_custom", PLACEHOLDER_FILENAME, PLACEHOLDER_FILENAME,
@@ -24,12 +25,22 @@ public class LocalCover implements ICoverRetriever {
 		this.app = app;
 		this.settings = settings;
 	}
+	
+	public String buildCoverUrl(String serverName, String musicPath, String path, String fileName){
+		Uri uriBuilder = new Uri.Builder().scheme("http")
+				.authority(serverName)
+				.path(musicPath)
+				.appendPath(path)
+				.appendPath(fileName)
+				.build();
+		return uriBuilder.toString();
+	}	
 
 	public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
 		// load URL parts from settings
 		String musicPath = settings.getString("musicPath", "music/");
 		FILENAMES[0] = settings.getString("coverFileName", null);
-
+	
 		if (musicPath != null) {
 			// load server name/ip
 			final String serverName = app.oMPDAsyncHelper.getConnectionSettings().sServer;
@@ -48,11 +59,13 @@ public class LocalCover implements ICoverRetriever {
 					secondFilenamePlaceholder = true;
 				}
 
-				url = String.format(URL, new Object[] { musicPath, path.replaceAll(" ", "%20"), lfilename });
+			/*	url = String.format(URL, new Object[] { musicPath, path.replaceAll(" ", "%20"), lfilename });
 				url = musicPath.toLowerCase().startsWith(URL_PREFIX) ? url : (URL_PREFIX + serverName + "/" + url);
 				while (url.lastIndexOf("//") != -1) {
 					url = url.replace("//", "/");
-				}
+				}*/
+				url = buildCoverUrl(serverName, musicPath, path, lfilename);
+				
 				if (!urls.contains(url))
 					urls.add(url);
 			}
