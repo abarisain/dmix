@@ -1,5 +1,8 @@
 package com.namelessdev.mpdroid.helpers;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -43,6 +46,8 @@ public class CoverAsyncHelper extends Handler {
 
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
+	
+	private int coverMaxSize = 0;
 
 	private ICoverRetriever[] coverRetrievers = null;
 
@@ -64,6 +69,10 @@ public class CoverAsyncHelper extends Handler {
 				break;
 			}
 		}
+	}
+
+	public void setCoverMaxSize(int size) {
+		coverMaxSize = size;
 	}
 
 	public interface CoverDownloadListener {
@@ -212,11 +221,43 @@ public class CoverAsyncHelper extends Handler {
 			conn.setDoInput(true);
 			conn.setDoOutput(false);
 			conn.connect();
-			InputStream is = conn.getInputStream();
-			Bitmap bmp=BitmapFactory.decodeStream(is);
-			is.close();
-			conn.disconnect();
-			return bmp;
+			BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+			try {
+		        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		        byte[] buffer = new byte[1024];
+		        int len;
+		        while ((len = bis.read(buffer)) > -1 ) {
+		           baos.write(buffer, 0, len);
+		        }
+		        baos.flush();
+		        InputStream is = new ByteArrayInputStream(baos.toByteArray()); 
+
+		        BitmapFactory.Options o = new BitmapFactory.Options();
+		        o.inJustDecodeBounds = true;
+		        BitmapFactory.decodeStream(is,null,o);
+
+			    System.out.println("orig.height:" + o.outHeight + " orig.width:" + o.outWidth);
+			    System.out.println("max.size:" + coverMaxSize);
+			    int scale = 1;
+			    if (o.outHeight > coverMaxSize || o.outWidth > coverMaxSize) {
+			         scale = (int)Math.pow(2, (int) Math.round(Math.log(coverMaxSize / 
+			         (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+			    }
+			    System.out.println("scale factor:" + scale);
+
+			    o.inSampleSize = scale;
+		        o.inJustDecodeBounds = false;
+			    is.reset();  
+			    Bitmap bmp = BitmapFactory.decodeStream(is,null,o);
+			    System.out.println("new.height:" + bmp.getHeight() + " new.width:" + bmp.getWidth());
+			    is.close();
+				conn.disconnect();
+			    
+			    return bmp;
+			    } catch (Exception e) {
+			        return null;
+			    }
+			
 		} catch (MalformedURLException e) {
 			return null;
 		} catch (IOException e) {

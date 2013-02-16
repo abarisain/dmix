@@ -199,6 +199,11 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
 		oCoverAsyncHelper.setCoverRetrieversFromPreferences();
+		// get screen dimensions    
+		DisplayMetrics metrics = new DisplayMetrics();
+		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		// scale cover images down to screen width
+		oCoverAsyncHelper.setCoverMaxSize(Math.min(metrics.widthPixels,metrics.heightPixels));
 		oCoverAsyncHelper.addCoverDownloadListener(this);
 
 		buttonEventHandler = new ButtonEventHandler();
