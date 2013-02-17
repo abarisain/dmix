@@ -165,12 +165,5 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 			return mTabList.size();
 		}
 
-/*		think we don't need	this	
-		@Override
-		public CharSequence getPageTitle(int position) {
-			return getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(position)));
-		}
-*/		
-
 	}
 }
