@@ -119,16 +119,11 @@ public class CoverAsyncHelper extends Handler {
 	}
 
 	public void downloadCover(String artist, String album, String path, String filename) {
-		downloadCover(artist, album, path, filename, MAX_SIZE);
-	}
-
-	public void downloadCover(String artist, String album, String path, String filename, int targetSize) {
 		CoverInfo info = new CoverInfo();
 		info.sArtist = artist;
 		info.sAlbum = album;
 		info.sPath = path;
 		info.sFilename = filename;
-		info.iSize = targetSize;
 		oCoverAsyncWorker.obtainMessage(EVENT_DOWNLOADCOVER, info).sendToTarget();
 	}
 
@@ -241,7 +236,7 @@ public class CoverAsyncHelper extends Handler {
 	}
 */
 
-private Bitmap download(String url) {
+	private Bitmap download(String url) {
 		URL myFileUrl = null;
 		HttpURLConnection conn = null;
 		try {
@@ -301,7 +296,6 @@ private Bitmap download(String url) {
 		public String sAlbum;
 		public String sPath;
 		public String sFilename;
-		public int iSize;
 	}
 
 	public enum CoverRetrievers {
