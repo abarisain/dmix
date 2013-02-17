@@ -300,29 +300,70 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 
 	}
 	
-	public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+	@Override
+	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
 		final MPDApplication app = (MPDApplication) getApplicationContext();
-		switch (keyCode) {
+		switch (event.getKeyCode()) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						app.oMPDAsyncHelper.oMPD.next();
+					} catch (MPDServerException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+			return true;
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						app.oMPDAsyncHelper.oMPD.previous();
+					} catch (MPDServerException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+			return true;
+		}
+		return super.onKeyLongPress(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+			// For onKeyLongPress to work
+			event.startTracking();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, final KeyEvent event) {
+		final MPDApplication app = (MPDApplication) getApplicationContext();
+		switch (event.getKeyCode()) {
 		case KeyEvent.KEYCODE_VOLUME_UP:
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			if(!app.getApplicationState().streamingMode) {
+			if (event.isTracking() && !event.isCanceled() && !app.getApplicationState().streamingMode) {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
 						try {
-							app.oMPDAsyncHelper.oMPD.adjustVolume(keyCode == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP : -NowPlayingFragment.VOLUME_STEP);
+							app.oMPDAsyncHelper.oMPD.adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
+									: -NowPlayingFragment.VOLUME_STEP);
 						} catch (MPDServerException e) {
 							e.printStackTrace();
 						}
 					}
 				}).start();
-				return true;
 			}
-			break;
-		default:
-			return super.onKeyDown(keyCode, event);
+			return true;
 		}
-		return super.onKeyDown(keyCode, event);
+		return super.onKeyUp(keyCode, event);
 	}
     
 }
