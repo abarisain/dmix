@@ -36,6 +36,7 @@ public class CoverAsyncHelper extends Handler {
 	private static final int EVENT_DOWNLOADCOVER = 0;
 	private static final int EVENT_COVERDOWNLOADED = 1;
 	private static final int EVENT_COVERNOTFOUND = 2;
+	private static final int MAX_SIZE = 0;
 
 	public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
 	public static final String PREFERENCE_LASTFM = "enableLastFM";
@@ -108,11 +109,16 @@ public class CoverAsyncHelper extends Handler {
 	}
 
 	public void downloadCover(String artist, String album, String path, String filename) {
+		downloadCover(artist, album, path, filename, MAX_SIZE);
+	}
+
+	public void downloadCover(String artist, String album, String path, String filename, int targetSize) {
 		CoverInfo info = new CoverInfo();
 		info.sArtist = artist;
 		info.sAlbum = album;
 		info.sPath = path;
 		info.sFilename = filename;
+		info.iSize = targetSize;
 		oCoverAsyncWorker.obtainMessage(EVENT_DOWNLOADCOVER, info).sendToTarget();
 	}
 
@@ -234,6 +240,7 @@ public class CoverAsyncHelper extends Handler {
 		public String sAlbum;
 		public String sPath;
 		public String sFilename;
+		public int iSize;
 	}
 
 	public enum CoverRetrievers {
