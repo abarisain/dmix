@@ -243,6 +243,7 @@ public class CoverAsyncHelper extends Handler {
 
 private Bitmap download(String url) {
 		URL myFileUrl = null;
+		HttpURLConnection conn = null;
 		try {
 			// Download Cover File...
 			myFileUrl = new URL(url);
@@ -292,7 +293,6 @@ private Bitmap download(String url) {
 		} catch (IOException e) {
 			return null;
 		}
-		
 	}
 	
 	
