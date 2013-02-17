@@ -88,7 +88,7 @@ public final class Tools {
 		return inSampleSize;
 	}
 
-	public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth, int reqHeight) {
+	public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth, int reqHeight, boolean resizePerfectlty) {
 
 		// First decode with inJustDecodeBounds=true to check dimensions
 		final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -100,7 +100,12 @@ public final class Tools {
 
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
-		return BitmapFactory.decodeFile(path, options);
+		final Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+		if (resizePerfectlty) {
+			return Bitmap.createScaledBitmap(bitmap, reqWidth, reqHeight, true);
+		} else {
+			return bitmap;
+		}
 	}
 
 	public static float convertDpToPixel(float dp, Context context) {
