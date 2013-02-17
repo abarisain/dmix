@@ -2,13 +2,18 @@ package com.namelessdev.mpdroid.helpers;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -210,27 +215,22 @@ public class CoverAsyncHelper extends Handler {
 
 	private Bitmap download(String url) {
 		URL myFileUrl = null;
-		HttpURLConnection conn = null;
 		try {
 			// Download Cover File...
-			myFileUrl = new URL(url);
-			conn = (HttpURLConnection) myFileUrl.openConnection();
-			conn.setDoInput(true);
-			conn.setDoOutput(false);
-			conn.connect();
-			InputStream is = conn.getInputStream();
-			Bitmap bmp=BitmapFactory.decodeStream(is);
-			is.close();
-			conn.disconnect();
-			return bmp;
-		} catch (MalformedURLException e) {
+			HttpGet httpRequest = null;
+			httpRequest = new HttpGet(url);
+
+			final HttpClient httpclient = new DefaultHttpClient();
+			final HttpResponse response = (HttpResponse) httpclient.execute(httpRequest);
+			final HttpEntity entity = response.getEntity();
+			final BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
+			final InputStream instream = bufHttpEntity.getContent();
+			return BitmapFactory.decodeStream(instream);
+		} catch (IllegalArgumentException e) {
+			Log.e(MPDApplication.TAG, "Cover URI is invalid : " + url);
 			return null;
 		} catch (IOException e) {
 			return null;
-		} finally {
-			if (null!=conn) {
-				conn.disconnect();
-			}
 		}
 		
 	}
