@@ -116,8 +116,8 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
 		
 		for(int i = 0; i < (sections.length - 1); i ++) {
 			int begin = alphaIndexer.get(sections[i]);
-			int end = alphaIndexer.get(sections[i]) - 1;
-			if(position >= begin && position < end)
+			int end = alphaIndexer.get(sections[i + 1]) - 1;
+			if (position >= begin && position <= end)
 				return i;
 		}
 		return sections.length - 1;
