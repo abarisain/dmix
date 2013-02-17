@@ -48,7 +48,7 @@ public class CoverAsyncHelper extends Handler {
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
 	
-	private int coverMaxSize = 0;
+	private int coverMaxSize = MAX_SIZE;
 
 	private ICoverRetriever[] coverRetrievers = null;
 	
@@ -212,29 +212,6 @@ public class CoverAsyncHelper extends Handler {
 		}	
 
 	}
-/*
-	private Bitmap download(String url) {
-		URL myFileUrl = null;
-		try {
-			// Download Cover File...
-			HttpGet httpRequest = null;
-			httpRequest = new HttpGet(url);
-
-			final HttpClient httpclient = new DefaultHttpClient();
-			final HttpResponse response = (HttpResponse) httpclient.execute(httpRequest);
-			final HttpEntity entity = response.getEntity();
-			final BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
-			final InputStream instream = bufHttpEntity.getContent();
-			return BitmapFactory.decodeStream(instream);
-		} catch (IllegalArgumentException e) {
-			Log.e(MPDApplication.TAG, "Cover URI is invalid : " + url);
-			return null;
-		} catch (IOException e) {
-			return null;
-		}
-		
-	}
-*/
 
 	private Bitmap download(String url) {
 		URL myFileUrl = null;
@@ -264,7 +241,7 @@ public class CoverAsyncHelper extends Handler {
 			    System.out.println("orig.height:" + o.outHeight + " orig.width:" + o.outWidth);
 			    System.out.println("max.size:" + coverMaxSize);
 			    int scale = 1;
-			    if (o.outHeight > coverMaxSize || o.outWidth > coverMaxSize) {
+				if (coverMaxSize != MAX_SIZE || o.outHeight > coverMaxSize || o.outWidth > coverMaxSize) {
 			         scale = (int)Math.pow(2, (int) Math.round(Math.log(coverMaxSize / 
 			         (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
 			    }
