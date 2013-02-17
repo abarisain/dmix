@@ -103,7 +103,7 @@ public class CoverAsyncHelper extends Handler {
 		if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
 			enabledRetrievers.add(CoverRetrievers.LASTFM);
 		}
-		if (settings.getBoolean(PREFERENCE_LOCALSERVER, true)) {
+		if (settings.getBoolean(PREFERENCE_LOCALSERVER, false)) {
 			enabledRetrievers.add(CoverRetrievers.LOCAL);
 		}
 		setCoverRetrievers(enabledRetrievers);
