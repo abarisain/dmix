@@ -1,19 +1,17 @@
 package com.namelessdev.mpdroid.helpers;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -49,9 +47,11 @@ public class CoverAsyncHelper extends Handler {
 
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
+	
+	private int coverMaxSize = 0;
 
 	private ICoverRetriever[] coverRetrievers = null;
-
+	
 	public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
 		if (whichCoverRetrievers == null) {
 			coverRetrievers = new ICoverRetriever[0];
@@ -108,6 +108,11 @@ public class CoverAsyncHelper extends Handler {
 		}
 		setCoverRetrievers(enabledRetrievers);
 	}
+	
+	public void setCoverMaxSize(int size) {
+		coverMaxSize = size;
+	}
+
 
 	public void addCoverDownloadListener(CoverDownloadListener listener) {
 		coverDownloadListener.add(listener);
@@ -212,7 +217,7 @@ public class CoverAsyncHelper extends Handler {
 		}	
 
 	}
-
+/*
 	private Bitmap download(String url) {
 		URL myFileUrl = null;
 		try {
@@ -234,7 +239,63 @@ public class CoverAsyncHelper extends Handler {
 		}
 		
 	}
+*/
 
+private Bitmap download(String url) {
+		URL myFileUrl = null;
+		HttpURLConnection conn = null;
+		try {
+			// Download Cover File...
+			myFileUrl = new URL(url);
+			conn = (HttpURLConnection) myFileUrl.openConnection();
+			conn.setDoInput(true);
+			conn.setDoOutput(false);
+			conn.connect();
+			BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+			try {
+		        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		        byte[] buffer = new byte[1024];
+		        int len;
+		        while ((len = bis.read(buffer)) > -1 ) {
+		           baos.write(buffer, 0, len);
+		        }
+		        baos.flush();
+		        InputStream is = new ByteArrayInputStream(baos.toByteArray()); 
+
+		        BitmapFactory.Options o = new BitmapFactory.Options();
+		        o.inJustDecodeBounds = true;
+		        BitmapFactory.decodeStream(is,null,o);
+
+			    System.out.println("orig.height:" + o.outHeight + " orig.width:" + o.outWidth);
+			    System.out.println("max.size:" + coverMaxSize);
+			    int scale = 1;
+			    if (o.outHeight > coverMaxSize || o.outWidth > coverMaxSize) {
+			         scale = (int)Math.pow(2, (int) Math.round(Math.log(coverMaxSize / 
+			         (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+			    }
+			    System.out.println("scale factor:" + scale);
+
+			    o.inSampleSize = scale;
+		        o.inJustDecodeBounds = false;
+			    is.reset();  
+			    Bitmap bmp = BitmapFactory.decodeStream(is,null,o);
+			    System.out.println("new.height:" + bmp.getHeight() + " new.width:" + bmp.getWidth());
+			    is.close();
+				conn.disconnect();
+			    
+			    return bmp;
+			    } catch (Exception e) {
+			        return null;
+			    }
+			
+		} catch (MalformedURLException e) {
+			return null;
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
+	
 	private class CoverInfo {
 		public String sArtist;
 		public String sAlbum;
