@@ -177,24 +177,29 @@ public class CoverAsyncHelper extends Handler {
 					cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
 					if (cover != null) {
 						Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
+						// if cover is not read from cache
+						if (!(coverRetriever instanceof CachedCover)) {
+							// Save this cover into cache, if it is enabled.
+							for (ICoverRetriever coverRetriever1 : coverRetrievers) {
+								if (coverRetriever1 instanceof CachedCover) {
+									Log.i(MPDApplication.TAG, "Saving cover art to cache");
+									((CachedCover) coverRetriever1).save(((CoverInfo) msg.obj).sArtist, ((CoverInfo) msg.obj).sAlbum, cover);
+								}
+							}	
+						}
+						CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
 						break;
-					}
+					}	
 				}
 				if (cover == null) {
+					Log.i(MPDApplication.TAG, "No cover art found");
 					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-				} else {
-					// Save this cover into cache, if it is enabled.
-					for (ICoverRetriever coverRetriever : coverRetrievers) {
-						if (coverRetriever instanceof CachedCover) {
-							((CachedCover) coverRetriever).save(((CoverInfo) msg.obj).sArtist, ((CoverInfo) msg.obj).sAlbum, cover);
-						}
-					}
-					CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
 				}
 				break;
 			default:
 			}
-		}
+		}	
+
 	}
 
 	private Bitmap download(String url) {
