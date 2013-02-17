@@ -51,6 +51,8 @@ public class CoverAsyncHelper extends Handler {
 	private SharedPreferences settings = null;
 
 	private ICoverRetriever[] coverRetrievers = null;
+	
+	private int coverMaxSize = 0;
 
 	public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
 		if (whichCoverRetrievers == null) {
@@ -108,6 +110,11 @@ public class CoverAsyncHelper extends Handler {
 		}
 		setCoverRetrievers(enabledRetrievers);
 	}
+	
+	public void setCoverMaxSize(int size) {
+		coverMaxSize = size;
+	}
+
 
 	public void addCoverDownloadListener(CoverDownloadListener listener) {
 		coverDownloadListener.add(listener);
@@ -212,7 +219,7 @@ public class CoverAsyncHelper extends Handler {
 		}	
 
 	}
-
+/*
 	private Bitmap download(String url) {
 		URL myFileUrl = null;
 		try {
@@ -234,7 +241,7 @@ public class CoverAsyncHelper extends Handler {
 		}
 		
 	}
-
+*/
 	private class CoverInfo {
 		public String sArtist;
 		public String sAlbum;
