@@ -2,12 +2,15 @@ package com.namelessdev.mpdroid;
 
 import java.util.ArrayList;
 
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.KeyEvent;
 import android.widget.ArrayAdapter;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -17,6 +20,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
+import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
 
@@ -153,5 +157,71 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 	public void pageChanged(int position) {
 		if(actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST)
 			actionBar.setSelectedNavigationItem(position);
+	}
+	
+	@Override
+	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+		final MPDApplication app = (MPDApplication) getApplicationContext();
+		switch (event.getKeyCode()) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						app.oMPDAsyncHelper.oMPD.next();
+					} catch (MPDServerException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+			return true;
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						app.oMPDAsyncHelper.oMPD.previous();
+					} catch (MPDServerException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+			return true;
+		}
+		return super.onKeyLongPress(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+			// For onKeyLongPress to work
+			event.startTracking();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, final KeyEvent event) {
+		final MPDApplication app = (MPDApplication) getApplicationContext();
+		switch (event.getKeyCode()) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			if (event.isTracking() && !event.isCanceled() && !app.getApplicationState().streamingMode) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							app.oMPDAsyncHelper.oMPD.adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
+									: -NowPlayingFragment.VOLUME_STEP);
+						} catch (MPDServerException e) {
+							e.printStackTrace();
+						}
+					}
+				}).start();
+			}
+			return true;
+		}
+		return super.onKeyUp(keyCode, event);
 	}
 }
