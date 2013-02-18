@@ -148,7 +148,7 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		Object selectedItem = l.getAdapter().getItem(position);
 		if(selectedItem instanceof Music) {
 			add((Music) selectedItem);
-		} else if(selectedItem instanceof Artist) {
+		}/* else if(selectedItem instanceof Artist) {
 			Intent intent = new Intent(this, AlbumsActivity.class);
 			intent.putExtra("artist", ((Artist) selectedItem));
 			startActivityForResult(intent, -1);
@@ -156,7 +156,7 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 			Intent intent = new Intent(this, SongsActivity.class);
 			intent.putExtra("album", ((Album) selectedItem));
 			startActivityForResult(intent, -1);
-		}
+		}*/
 	}
 
 	protected void add(Object object) {
