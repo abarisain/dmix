@@ -26,4 +26,6 @@
     <dimen name="actionBarSizeLocal">?attr/actionBarSize</dimen>
     <dimen name="playerbutton_height">70dip</dimen>
     <dimen name="playerbutton_width">65dip</dimen>
+    <dimen name="playerbutton_small_height">48dip</dimen>
+    <dimen name="playerbutton_small_width">40dip</dimen>
 </resources>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dip"
+    android:orientation="horizontal" >
+
+    <RelativeLayout
+        android:layout_width="0dip"
+        android:layout_height="48dip"
+        android:layout_weight="1" >
+
+        <RelativeLayout
+            android:id="@+id/albumCoverFrame"
+            android:layout_width="44dip"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="2dip"
+            android:layout_marginLeft="2dip"
+            android:layout_marginRight="2dip"
+            android:layout_marginTop="2dip" >
+
+            <ImageView
+                android:id="@+id/albumCover"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/no_cover_art" />
+
+            <ProgressBar
+                android:id="@+id/albumCoverProgress"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visible="false" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/song_title"
+            android:layout_width="fill_parent"
+            android:layout_height="24dip"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/albumCoverFrame"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textIsSelectable="false" />
+
+        <TextView
+            android:id="@+id/song_artist"
+            android:layout_width="fill_parent"
+            android:layout_height="24dip"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@+id/albumCoverFrame"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textIsSelectable="false" />
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/prev"
+        style="@style/PlayerSmallButton"
+        android:src="@drawable/ic_media_previous" />
+
+    <ImageButton
+        android:id="@+id/playpause"
+        style="@style/PlayerSmallButton"
+        android:src="@drawable/ic_media_play" />
+
+    <ImageButton
+        android:id="@+id/next"
+        style="@style/PlayerSmallButton"
+        android:src="@drawable/ic_media_next" />
+
+</LinearLayout>
