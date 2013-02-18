@@ -10,12 +10,14 @@
 		android:layout_width="fill_parent"
 		android:measureWithLargestChild="true"
 	>
-		<Button
+		<TextView
 		    android:id="@+id/add_stream"
-			android:layout_height="wrap_content" 
+			android:layout_height="?android:attr/listPreferredItemHeight" 
 			android:layout_width="match_parent"
 			android:drawableLeft="@drawable/ic_action_add"
-			android:text="@string/addStream"/>
+			android:background="@android:drawable/list_selector_background"
+			android:text="@string/addStream"
+			android:gravity="center" />
 	</LinearLayout>
 	<View
         android:background="@color/compatactionbar_separator"
