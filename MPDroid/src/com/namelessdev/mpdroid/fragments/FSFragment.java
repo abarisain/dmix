@@ -5,23 +5,22 @@ import java.util.List;
 
 import org.a0z.mpd.Directory;
 import org.a0z.mpd.Item;
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 
-import com.namelessdev.mpdroid.FSActivity;
+import com.namelessdev.mpdroid.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class FSFragment extends BrowseFragment {
 	private Directory currentDirectory = null;
+	private String directory = null;
 
 	public FSFragment() {
 		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPDCommand.MPD_SEARCH_FILENAME);
@@ -33,12 +32,19 @@ public class FSFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		registerForContextMenu(getListView());
-		UpdateList();
+	public String getTitle() {
+		if(directory == null) {
+			return getString(R.string.files);
+		} else {
+			return directory;
+		}
 	}
-
+	
+	public FSFragment init(String path) {
+		directory = path;
+		return this;
+	}
+	
 	@Override
 	protected void Add(Item item) {
 		try {
@@ -82,10 +88,8 @@ public class FSFragment extends BrowseFragment {
 	@Override
 	protected void asyncUpdate() {
 		MPDApplication app = (MPDApplication) getActivity().getApplication();
-		if (this.getActivity().getIntent().getStringExtra("directory") != null) {
-			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(
-					(String) this.getActivity().getIntent().getStringExtra("directory"));
-			setActivityTitle((String) getActivity().getIntent().getStringExtra("directory"));
+		if (directory != null) {
+			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(directory);
 		} else {
 			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
 		}
@@ -124,18 +128,8 @@ public class FSFragment extends BrowseFragment {
 				}
 			});
 		} else {
-			// click on a directory
-			// open the same sub activity, it would be better to reuse the
-			// same instance
-
-			Intent intent = new Intent(getActivity(), FSActivity.class);
-			String dir;
-
-			dir = ((Directory) currentDirectory.getDirectories().toArray()[position]).getFullpath();
-			if (dir != null) {
-				intent.putExtra("directory", dir);
-				startActivityForResult(intent, -1);
-			}
+			final String dir = ((Directory) currentDirectory.getDirectories().toArray()[position]).getFullpath();
+			((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new FSFragment().init(dir), "filesystem");
 		}
 
 	}

@@ -51,6 +51,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	protected TextView loadingTextView;
 	protected View noResultView;
 	protected ListView list;
+	private boolean firstUpdateDone = false;
 
 	String context;
 	int irAdd, irAdded;
@@ -87,7 +88,10 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	public void onStart() {
 		super.onStart();
 		app.setActivity(getActivity());
-		UpdateList();
+		if(!firstUpdateDone) {
+			firstUpdateDone = true;
+			UpdateList();
+		}
 	}
 
 	@Override
@@ -104,7 +108,6 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		loadingView = view.findViewById(R.id.loadingLayout);
 		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
 		noResultView = view.findViewById(R.id.noResultLayout);
-		loadingView.setVisibility(View.VISIBLE);
 		loadingTextView.setText(getLoadingText());
 		return view;
 	}
@@ -128,6 +131,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	}
 
 	public void UpdateList() {
+		list.setAdapter(null);
 		noResultView.setVisibility(View.GONE);
 		loadingView.setVisibility(View.VISIBLE);
 
