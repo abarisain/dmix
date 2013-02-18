@@ -20,14 +20,12 @@ import android.util.Xml;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
@@ -116,6 +114,20 @@ public class StreamsFragment extends BrowseFragment {
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setHasOptionsMenu(true);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		final View v = super.onCreateView(inflater, container, savedInstanceState);
+		final View header = inflater.inflate(R.layout.add_stream_header, null);
+		header.findViewById(R.id.add_stream).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				addEdit();
+			}
+		});
+		list.addHeaderView(header, null, false);
+		return v;
 	}
 
 	@Override
@@ -251,7 +263,8 @@ public class StreamsFragment extends BrowseFragment {
         			streams.add(new Stream(name, url));
         			Collections.sort(streams);
         			items=streams;
-        			saveStreams();
+					saveStreams();
+					UpdateList();
         		}
         	}
         }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -259,23 +272,5 @@ public class StreamsFragment extends BrowseFragment {
         		// Do nothing.
         	}
         }).show();
-	}
-	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.mpd_streamsmenu, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.add:
-			addEdit();
-			return true;
-		default:
-			return false;
-		}
-
 	}
 }

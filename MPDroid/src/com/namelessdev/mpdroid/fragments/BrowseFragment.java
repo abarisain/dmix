@@ -292,7 +292,8 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		if (items != null) {
 			setListAdapter(getCustomListAdapter());
 			try {
-				getListView().setEmptyView(noResultView);
+				if (getListView().getHeaderViewsCount() == 0)
+					getListView().setEmptyView(noResultView);
 				loadingView.setVisibility(View.GONE);
 			} catch (Exception e) {}
 		}
