@@ -1,29 +1,23 @@
 package com.namelessdev.mpdroid.fragments;
 
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.exception.MPDServerException;
-import org.a0z.mpd.Artist;
 import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.MPDConnection;
-import org.a0z.mpd.UnknownAlbum;
+import org.a0z.mpd.exception.MPDServerException;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.SongsActivity;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 
 public class AlbumsFragment extends BrowseFragment {
-	private MPDApplication app;
 	private Artist artist = null;
 
 	public AlbumsFragment() {
@@ -43,23 +37,31 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		app = (MPDApplication) getActivity().getApplication();
-		registerForContextMenu(getListView());
-		artist = getActivity().getIntent().getParcelableExtra("artist");
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+	}
+
+	public AlbumsFragment init(Artist a) {
+		artist = a;
+		return this;
+	}
+
+	@Override
+	public String getTitle() {
 		if (artist != null) {
-			setActivityTitle(artist.getName());
+			return artist.getName();
 		} else {
-			getActivity().setTitle(getResources().getString(R.string.albums));
+			return getString(R.string.albums);
 		}
-		UpdateList();
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Intent intent = new Intent(getActivity(), SongsActivity.class);
-		intent.putExtra("album", ((Album) items.get(position)));
-		intent.putExtra("artist", artist);
-		startActivityForResult(intent, -1);
+		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init(artist, (Album) items.get(position)),
+				"songs");
 	}
 	
 	@Override

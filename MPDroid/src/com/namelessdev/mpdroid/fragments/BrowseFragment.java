@@ -46,6 +46,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 
 	protected List<? extends Item> items = null;
 	
+	protected MPDApplication app = null;
 	protected View loadingView;
 	protected TextView loadingTextView;
 	protected View noResultView;
@@ -68,6 +69,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		app = (MPDApplication) getActivity().getApplicationContext();
 		try {
 			Activity activity = this.getActivity();
 			ActionBar actionBar = activity.getActionBar();
@@ -84,14 +86,13 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	@Override
 	public void onStart() {
 		super.onStart();
-		MPDApplication app = (MPDApplication) getActivity().getApplicationContext();
 		app.setActivity(getActivity());
+		UpdateList();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		MPDApplication app = (MPDApplication) getActivity().getApplicationContext();
 		app.unsetActivity(getActivity());
 	}
 
@@ -99,6 +100,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.browse, container, false);
 		list = (ListView) view.findViewById(android.R.id.list);
+		registerForContextMenu(list);
 		loadingView = view.findViewById(R.id.loadingLayout);
 		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
 		noResultView = view.findViewById(R.id.noResultLayout);
@@ -107,6 +109,13 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		return view;
 	}
 	
+	/*
+	 * Override this to display a custom activity title
+	 */
+	public String getTitle() {
+		return "";
+	}
+
 	/*
 	 * Override this to display a custom loading text
 	 */
@@ -121,7 +130,6 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	public void UpdateList() {
 		noResultView.setVisibility(View.GONE);
 		loadingView.setVisibility(View.VISIBLE);
-		MPDApplication app = (MPDApplication) getActivity().getApplication();
 
 		// Loading Artists asynchronous...
 		app.oMPDAsyncHelper.addAsyncExecListener(this);
@@ -174,7 +182,6 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	@Override
 	public boolean onMenuItemClick(final android.view.MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		switch (item.getGroupId()) {
 		case ADDNREPLACEPLAY:
 		case ADDNREPLACE:

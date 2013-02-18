@@ -39,6 +39,21 @@ public class SongsFragment extends BrowseFragment {
 		super.onCreate(icicle);
 	}
 
+	public SongsFragment init(Artist ar, Album al) {
+		artist = ar;
+		album = al;
+		return this;
+	}
+
+	@Override
+	public String getTitle() {
+		if (album != null) {
+			return album.getName();
+		} else {
+			return getString(R.string.songs);
+		}
+	}
+
 	@Override
 	public int getLoadingText() {
 		return R.string.loadingSongs;
@@ -53,18 +68,6 @@ public class SongsFragment extends BrowseFragment {
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
 		list.addHeaderView(headerView, null, false);
 		return view;
-	}
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		registerForContextMenu(getListView());
-		artist = getActivity().getIntent().getParcelableExtra("artist");
-		album = getActivity().getIntent().getParcelableExtra("album");
-		UpdateList();
-
-		setActivityTitle(album.getName());
-
 	}
 
 	@Override

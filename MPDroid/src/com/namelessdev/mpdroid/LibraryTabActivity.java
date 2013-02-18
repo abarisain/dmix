@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.widget.ArrayAdapter;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -18,6 +20,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.ArtistsFragment;
+import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.FSFragment;
 import com.namelessdev.mpdroid.fragments.GenresFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistsFragment;
@@ -25,7 +28,7 @@ import com.namelessdev.mpdroid.fragments.StreamsFragment;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
 
-public class LibraryTabActivity extends SherlockFragmentActivity implements OnNavigationListener {
+public class LibraryTabActivity extends SherlockFragmentActivity implements OnNavigationListener, ILibraryFragmentActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
@@ -38,9 +41,11 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;	
+	ViewPager mViewPager;
+	ActionBar actionBar;
     
     ArrayList<String> mTabList;
+
 
     @TargetApi(11)
 	@Override
@@ -56,9 +61,9 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         mTabList=LibraryTabsUtil.getCurrentLibraryTabs(this.getApplicationContext());
 
         // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actionBar.setDisplayShowTitleEnabled(false);
+		actionBar = getSupportActionBar();
+		// Will set the action bar to it's List style.
+		refreshActionBarNavigation(true, null);
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         
@@ -146,9 +151,9 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 			Fragment fragment = null;
 			String tab = mTabList.get(i); 
 			if (tab.equals(LibraryTabsUtil.TAB_ARTISTS))
-				fragment = new ArtistsFragment();
+				fragment = new ArtistsFragment().init(null);
 			else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS))
-				fragment = new AlbumsFragment();
+				fragment = new AlbumsFragment().init(null);
 			else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS))
 				fragment = new PlaylistsFragment();
 			else if (tab.equals(LibraryTabsUtil.TAB_STREAMS))
@@ -165,5 +170,46 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 			return mTabList.size();
 		}
 
+	}
+
+	public void refreshActionBarNavigation(boolean enableTabs, CharSequence title) {
+		if (enableTabs) {
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+			actionBar.setDisplayShowTitleEnabled(false);
+		} else {
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setTitle(title);
+		}
+	}
+
+	@Override
+	public void pushLibraryFragment(Fragment fragment, String label) {
+		mViewPager.setVisibility(View.GONE);
+		String title = "";
+		if (fragment instanceof BrowseFragment) {
+			title = ((BrowseFragment) fragment).getTitle();
+		}
+		refreshActionBarNavigation(false, title);
+		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		ft.replace(R.id.root_frame, fragment);
+		ft.addToBackStack(label);
+		ft.setBreadCrumbTitle(title);
+		ft.commit();
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		final FragmentManager supportFM = getSupportFragmentManager();
+		final int fmStackCount = supportFM.getBackStackEntryCount();
+		if(fmStackCount > 0) {
+			refreshActionBarNavigation(false, supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
+			mViewPager.setVisibility(View.GONE);
+		} else {
+			refreshActionBarNavigation(true, null);
+			mViewPager.setVisibility(View.VISIBLE);
+		}
 	}
 }
