@@ -25,6 +25,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
@@ -148,15 +149,15 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 		Object selectedItem = l.getAdapter().getItem(position);
 		if(selectedItem instanceof Music) {
 			add((Music) selectedItem);
-		}/* else if(selectedItem instanceof Artist) {
-			Intent intent = new Intent(this, AlbumsActivity.class);
+		} else if(selectedItem instanceof Artist) {
+			Intent intent = new Intent(this, SimpleLibraryActivity.class);
 			intent.putExtra("artist", ((Artist) selectedItem));
 			startActivityForResult(intent, -1);
 		} else if(selectedItem instanceof Album) {
-			Intent intent = new Intent(this, SongsActivity.class);
+			Intent intent = new Intent(this, SimpleLibraryActivity.class);
 			intent.putExtra("album", ((Album) selectedItem));
 			startActivityForResult(intent, -1);
-		}*/
+		}
 	}
 
 	protected void add(Object object) {
