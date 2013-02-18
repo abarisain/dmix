@@ -20,10 +20,10 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.namelessdev.mpdroid.LibraryTabActivity;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.PlaylistEditActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.LibraryTabActivity;
+import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 
 public class StoredPlaylistFragment extends SherlockListFragment {
 	private ArrayList<HashMap<String, Object>> songlist;

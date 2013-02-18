@@ -9,9 +9,9 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.view.View;
 import android.widget.ListView;
 
-import com.namelessdev.mpdroid.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class ArtistsFragment extends BrowseFragment {

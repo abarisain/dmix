@@ -9,8 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 
-import com.namelessdev.mpdroid.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class GenresFragment extends BrowseFragment {

@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.library;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +23,11 @@ import android.widget.SimpleAdapter;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.R.id;
+import com.namelessdev.mpdroid.R.layout;
+import com.namelessdev.mpdroid.R.string;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 

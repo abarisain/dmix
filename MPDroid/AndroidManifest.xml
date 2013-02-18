@@ -44,14 +44,14 @@
 			<meta-data android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
 		</activity>
-		<activity android:name=".PlaylistEditActivity" android:label="@string/playlist" >
+		<activity android:name=".library.PlaylistEditActivity" android:label="@string/playlist" >
 		</activity>
-		<activity android:name=".StoredPlaylistActivity" android:label="@string/playlist"/>
+		<activity android:name=".library.StoredPlaylistActivity" android:label="@string/playlist"/>
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		<activity android:name=".WifiConnectionSettings"
 			android:label="@string/settings" android:theme="@style/AppTheme.ActionBar" />
 		<activity android:name=".ConnectionSettings" android:label="@string/settings" />
-		<activity android:name=".LibraryTabsSettings" android:label="@string/libraryTabsSettings" />
+		<activity android:name=".library.LibraryTabsSettings" android:label="@string/libraryTabsSettings" />
 		
 		<activity android:name=".ServerListActivity" android:theme="@style/AppTheme.ActionBar" />
 		<activity android:name=".ServerBonjourListActivity" android:theme="@style/AppTheme.ActionBar" />
@@ -59,7 +59,7 @@
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" />
 		<activity android:name=".WarningActivity" android:label="@string/warningTitle"  android:theme="@style/AppTheme.Dialog" />
-		<activity android:name=".LibraryTabActivity" android:label="@string/libraryTabActivity" >
+		<activity android:name=".library.LibraryTabActivity" android:label="@string/libraryTabActivity" >
 			<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchActivity" />
 		</activity>

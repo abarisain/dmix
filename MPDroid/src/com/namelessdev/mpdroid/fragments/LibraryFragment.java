@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.namelessdev.mpdroid.ILibraryTabActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
 public class LibraryFragment extends SherlockFragment {

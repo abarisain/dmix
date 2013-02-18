@@ -15,9 +15,9 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.PlaylistEditActivity;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.StoredPlaylistActivity;
+import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.library.StoredPlaylistActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class PlaylistsFragment  extends BrowseFragment {

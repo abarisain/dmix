@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.library;
 
 import android.support.v4.app.Fragment;
 

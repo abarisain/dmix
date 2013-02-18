@@ -1,4 +1,4 @@
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.library;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,12 @@ import android.view.View;
 import android.widget.ListView;
 import android.content.Context;
 import android.widget.TextView;
+
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.R.id;
+import com.namelessdev.mpdroid.R.layout;
+import com.namelessdev.mpdroid.R.string;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
