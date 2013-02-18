@@ -219,4 +219,9 @@ public class SongsFragment extends BrowseFragment {
 		final int count = items.size();
 		return String.format(getString(count > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader), count, getTotalTimeForTrackList());
 	}
+	
+	@Override
+	protected boolean forceEmptyView() {
+		return true;
+	}
 }

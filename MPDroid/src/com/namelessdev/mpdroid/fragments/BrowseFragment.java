@@ -296,7 +296,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		if (items != null) {
 			setListAdapter(getCustomListAdapter());
 			try {
-				if (getListView().getHeaderViewsCount() == 0)
+				if (forceEmptyView() || getListView().getHeaderViewsCount() == 0)
 					getListView().setEmptyView(noResultView);
 				loadingView.setVisibility(View.GONE);
 			} catch (Exception e) {}
@@ -305,6 +305,11 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 
 	protected ListAdapter getCustomListAdapter() {
 		return new ArrayIndexerAdapter(getActivity(), R.layout.simple_list_item_1, items);
+	}
+	
+	//Override if you want setEmptyView to be called on the list even if you have a header
+	protected boolean forceEmptyView() {
+		return false;
 	}
 	
 	@Override

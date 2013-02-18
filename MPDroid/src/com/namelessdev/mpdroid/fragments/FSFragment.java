@@ -11,6 +11,8 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.ILibraryFragmentActivity;
@@ -132,6 +134,12 @@ public class FSFragment extends BrowseFragment {
 			((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new FSFragment().init(dir), "filesystem");
 		}
 
+	}
+	
+	//Disable the indexer for FSFragment
+	@SuppressWarnings("unchecked")
+	protected ListAdapter getCustomListAdapter() {
+		return new ArrayAdapter<Item>(getActivity(), R.layout.simple_list_item_1, (List<Item>) items);
 	}
 
 }
