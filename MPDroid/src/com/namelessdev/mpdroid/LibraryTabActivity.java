@@ -151,6 +151,7 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 
 	@Override
 	public void pageChanged(int position) {
-		actionBar.setSelectedNavigationItem(position);
+		if(actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST)
+			actionBar.setSelectedNavigationItem(position);
 	}
 }
