@@ -14,7 +14,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +43,7 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	ImageView coverArt;
 	ProgressBar coverArtProgress;
 	CoverAsyncHelper coverHelper;
+	Bitmap coverBitmap;
 
 	public SongsFragment() {
 		super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -76,6 +76,25 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 					FALLBACK_COVER_SIZE,
 					getResources().getDisplayMetrics())));
 		}
+	}
+
+	@Override
+	public void onDestroyView() {
+		headerArtist = null;
+		headerInfo = null;
+		coverArtProgress = null;
+		coverArt.setImageResource(R.drawable.no_cover_art);
+		coverArt = null;
+		if (coverBitmap != null)
+			coverBitmap.recycle();
+		coverBitmap = null;
+		super.onDestroyView();
+	}
+
+	@Override
+	public void onDetach() {
+		coverHelper = null;
+		super.onDetach();
 	}
 
 	@Override
@@ -278,11 +297,9 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	@Override
 	public void onCoverDownloaded(Bitmap cover) {
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-		DisplayMetrics metrics = new DisplayMetrics();
 		try {
-			getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 			if (cover != null) {
-				cover.setDensity((int) metrics.density);
+				coverBitmap = cover;
 				BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
 				coverArt.setImageDrawable(myCover);
 			} else {
