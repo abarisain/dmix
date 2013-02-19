@@ -61,7 +61,4 @@
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
-    <ImageView>
-    </ImageView>
-
 </RelativeLayout>

@@ -32,12 +32,12 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		this.app = app;
 		this.artist = artist;
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-		if(settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
+		if (artist != null && settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
 			coverHelper = new CachedCover(app);
 		}
 	}
 
-	public void onDataBind(Context context, View targetView, List<? extends Item> items, Object item, int position) {
+	public void onDataBind(final Context context, final View targetView, List<? extends Item> items, Object item, int position) {
 		final Album album = (Album) item;
 		String info = "";
 		final long songCount = album.getSongCount();
@@ -72,13 +72,19 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 								}
 							});
 						} else {
-							final int maxSize = albumCover.getHeight();
+							int maxSize = albumCover.getLayoutParams().width;
+							if (maxSize == 0) {
+								// For some reason getWidth returned 0.
+								// It shouldn't do that with layoutparams but whatever.
+								// Use a fallback value. Better have a low quality image than nothing.
+								maxSize = 96;
+							}
 							final Bitmap cover = Tools.decodeSampledBitmapFromPath(urls[0], maxSize, maxSize, false);
 							if (cover != null) {
-								final BitmapDrawable myCover = new BitmapDrawable(app.getResources(), cover);
 								handler.post(new Runnable() {
 									@Override
 									public void run() {
+										final BitmapDrawable myCover = new BitmapDrawable(context.getResources(), cover);
 										albumCover.setImageDrawable(myCover);
 									}
 								});

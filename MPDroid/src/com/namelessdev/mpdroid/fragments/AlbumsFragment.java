@@ -67,7 +67,8 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	protected ListAdapter getCustomListAdapter() {
 		if(items != null) {
-			return new ArrayIndexerAdapter(getActivity(), new AlbumDataBinder(app, artist.getName()), items);
+			return new ArrayIndexerAdapter(getActivity(),
+					new AlbumDataBinder(app, artist == null ? null : artist.getName()), items);
 		}
 		return super.getCustomListAdapter();
 	}
