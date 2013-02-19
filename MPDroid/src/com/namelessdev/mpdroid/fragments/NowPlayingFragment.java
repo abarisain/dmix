@@ -17,12 +17,12 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -94,6 +94,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private Timer posTimer = null;
 	private TimerTask posTimerTask = null;
 
+	private Bitmap coverBitmap;
+	private Drawable coverDrawable;
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -120,6 +123,13 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addTrackPositionListener(this);
 		app.setActivity(this);
+	}
+
+	@Override
+	public void onDestroyView() {
+		coverArt.setImageResource(R.drawable.no_cover_art);
+		freeCoverDrawable();
+		super.onDestroyView();
 	}
 
 	@Override
@@ -622,11 +632,11 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	public void onCoverDownloaded(Bitmap cover) {
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-		DisplayMetrics metrics = new DisplayMetrics();
 		try {
 			if (cover != null) {
-				BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
-				coverArt.setImageDrawable(myCover);
+				coverBitmap = cover;
+				coverDrawable = new BitmapDrawable(getResources(), cover);
+				coverArt.setImageDrawable(coverDrawable);
 			} else {
 				// Should not be happening, but happened.
 				onCoverNotFound();
@@ -640,6 +650,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public void onCoverNotFound() {
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 		coverArt.setImageResource(R.drawable.no_cover_art);
+		freeCoverDrawable();
 		// coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
 	}
 
@@ -752,4 +763,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		}
 	}
 
+	private void freeCoverDrawable() {
+		if (coverDrawable != null)
+			coverDrawable.setCallback(null);
+		if (coverBitmap != null)
+			coverBitmap.recycle();
+		coverDrawable = null;
+		coverBitmap = null;
+	}
 }

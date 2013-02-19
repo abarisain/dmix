@@ -296,6 +296,11 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 
 	@Override
 	public void onCoverDownloaded(Bitmap cover) {
+		if (coverArtProgress == null && coverArt == null) {
+			// The view is detached, bail.
+			cover.recycle();
+			return;
+		}
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 		try {
 			if (cover != null) {
