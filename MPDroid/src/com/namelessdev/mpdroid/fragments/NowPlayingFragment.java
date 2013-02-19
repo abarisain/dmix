@@ -684,9 +684,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
-		// Can someone explain why this is nessesary?
-		// Maybe the song gets changed before the playlist?
-		// Makes little sense tho.
+		// If the playlist changed but not the song position in the playlist
+		// We end up being desynced. Update the current song.
 		try {
 			updateTrackInfo();
 		} catch (Exception e) {
