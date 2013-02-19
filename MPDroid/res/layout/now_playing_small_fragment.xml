@@ -11,14 +11,11 @@
 
         <RelativeLayout
             android:id="@+id/albumCoverFrame"
-            android:layout_width="44dip"
+            android:layout_width="48dip"
             android:layout_height="fill_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:layout_marginBottom="2dip"
-            android:layout_marginLeft="2dip"
-            android:layout_marginRight="2dip"
-            android:layout_marginTop="2dip" >
+            android:layout_marginRight="8dip" >
 
             <ImageView
                 android:id="@+id/albumCover"
@@ -43,9 +40,11 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/albumCoverFrame"
             android:ellipsize="end"
-            android:gravity="center_vertical"
+            android:gravity="bottom"
             android:singleLine="true"
-            android:textIsSelectable="false" />
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/song_artist"
@@ -54,9 +53,11 @@
             android:layout_alignParentBottom="true"
             android:layout_toRightOf="@+id/albumCoverFrame"
             android:ellipsize="end"
-            android:gravity="center_vertical"
+            android:gravity="top"
             android:singleLine="true"
-            android:textIsSelectable="false" />
+            android:textIsSelectable="false"
+            android:textSize="12sp" />
+
     </RelativeLayout>
 
     <ImageButton
