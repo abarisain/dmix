@@ -261,7 +261,7 @@ public class CoverAsyncHelper extends Handler {
 			conn.setDoInput(true);
 			conn.setDoOutput(false);
 			conn.connect();
-			BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+			BufferedInputStream bis = new BufferedInputStream(conn.getInputStream(), 8192);
 			try {
 		        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		        byte[] buffer = new byte[1024];
