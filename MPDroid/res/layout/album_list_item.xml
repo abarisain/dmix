@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2006 The Android Open Source Project
+<!--
+     Copyright (C) 2006 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,34 +14,54 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?attr/listItemHeight"
-    android:orientation="vertical"
->
-    <TextView 
-	    android:id="@+id/album_name"
-	    android:layout_width="match_parent"
-	    android:layout_height="0dip"
-		android:layout_weight="1"
-		android:layout_marginLeft="8dip"
-		android:layout_marginRight="8dip"
-		android:gravity="center_vertical"
-		android:ellipsize="end"
-		android:singleLine="true"
-	    android:textAppearance="?android:attr/textAppearanceMedium"
-	/>
-    <TextView 
-	    android:id="@+id/album_info"
-	    android:layout_width="match_parent"
-	    android:layout_height="0dip"
-		android:layout_weight="1"
-		android:layout_marginLeft="8dip"
-		android:layout_marginRight="8dip"
-		android:gravity="center_vertical"
-		android:ellipsize="end"
-		android:singleLine="true"
-		android:paddingBottom="5dip"
-	    android:textAppearance="?android:attr/textAppearanceSmall"
-	/>
-</LinearLayout>
+    android:layout_height="?attr/listItemHeight" >
+
+    <ImageView
+        android:id="@+id/albumCover"
+        android:layout_width="?attr/listItemHeight"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="2dip"
+        android:scaleType="fitCenter"
+        android:src="@drawable/no_cover_art" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toRightOf="@+id/albumCover"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/album_name"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_marginLeft="8dip"
+            android:layout_marginRight="8dip"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/album_info"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_marginLeft="8dip"
+            android:layout_marginRight="8dip"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:paddingBottom="5dip"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+    <ImageView>
+    </ImageView>
+
+</RelativeLayout>
