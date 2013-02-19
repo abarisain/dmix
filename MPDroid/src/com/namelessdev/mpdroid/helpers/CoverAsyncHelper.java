@@ -276,20 +276,16 @@ public class CoverAsyncHelper extends Handler {
 		        o.inJustDecodeBounds = true;
 		        BitmapFactory.decodeStream(is,null,o);
 
-			    System.out.println("orig.height:" + o.outHeight + " orig.width:" + o.outWidth);
-			    System.out.println("max.size:" + coverMaxSize);
 			    int scale = 1;
 				if (coverMaxSize != MAX_SIZE || o.outHeight > coverMaxSize || o.outWidth > coverMaxSize) {
 			         scale = (int)Math.pow(2, (int) Math.round(Math.log(coverMaxSize / 
 			         (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
 			    }
-			    System.out.println("scale factor:" + scale);
 
 			    o.inSampleSize = scale;
 		        o.inJustDecodeBounds = false;
 			    is.reset();  
 			    Bitmap bmp = BitmapFactory.decodeStream(is,null,o);
-			    System.out.println("new.height:" + bmp.getHeight() + " new.width:" + bmp.getWidth());
 			    is.close();
 				conn.disconnect();
 			    
