@@ -9,26 +9,41 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
-public class SongsFragment extends BrowseFragment {
+public class SongsFragment extends BrowseFragment implements CoverDownloadListener {
+
+	private static final int FALLBACK_COVER_SIZE = 80; // In DIP
 
 	Album album = null;
 	Artist artist = null;
 	TextView headerArtist;
 	TextView headerInfo;
+	ImageView coverArt;
+	ProgressBar coverArtProgress;
+	CoverAsyncHelper coverHelper;
 
 	public SongsFragment() {
 		super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -43,6 +58,24 @@ public class SongsFragment extends BrowseFragment {
 		artist = ar;
 		album = al;
 		return this;
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		app = (MPDApplication) activity.getApplication();
+		coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(activity));
+		coverHelper.setCoverRetrieversFromPreferences();
+		coverHelper.addCoverDownloadListener(this);
+		coverHelper.setCoverMaxSizeFromScreen(activity);
+		if (coverArt != null) {
+			coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
+		} else {
+			// Fallback on the hardcoded size.
+			coverHelper.setCachedCoverMaxSize((int) Math.ceil(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+					FALLBACK_COVER_SIZE,
+					getResources().getDisplayMetrics())));
+		}
 	}
 
 	@Override
@@ -65,6 +98,8 @@ public class SongsFragment extends BrowseFragment {
 		final View headerView = inflater.inflate(R.layout.song_header, null, false);
 		headerArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
 		headerInfo = (TextView) headerView.findViewById(R.id.tracks_info);
+		coverArt = (ImageView) headerView.findViewById(R.id.albumCover);
+		coverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
 		list.addHeaderView(headerView, null, false);
 		return view;
@@ -140,8 +175,23 @@ public class SongsFragment extends BrowseFragment {
 					}
 				}
 			}
-			headerArtist.setText(getArtistForTrackList());
+			String artistName = getArtistForTrackList();
+			headerArtist.setText(artistName);
 			headerInfo.setText(getHeaderInfoString());
+			if (coverHelper != null) {
+				String filename = null;
+				String path = null;
+				if (items.size() > 0) {
+					song = (Music) items.get(0);
+					filename = song.getFilename();
+					path = song.getPath();
+					artistName = song.getArtist();
+				}
+				coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+				coverHelper.downloadCover(artistName, album.getName(), path, filename);
+			} else {
+				onCoverNotFound();
+			}
 		}
 		
 	}
@@ -223,5 +273,29 @@ public class SongsFragment extends BrowseFragment {
 	@Override
 	protected boolean forceEmptyView() {
 		return true;
+	}
+
+	@Override
+	public void onCoverDownloaded(Bitmap cover) {
+		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+		DisplayMetrics metrics = new DisplayMetrics();
+		try {
+			getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+			if (cover != null) {
+				cover.setDensity((int) metrics.density);
+				BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
+				coverArt.setImageDrawable(myCover);
+			} else {
+				onCoverNotFound();
+			}
+		} catch (Exception e) {
+			// Just ignore
+		}
+	}
+
+	@Override
+	public void onCoverNotFound() {
+		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+		coverArt.setImageResource(R.drawable.no_cover_art);
 	}
 }
