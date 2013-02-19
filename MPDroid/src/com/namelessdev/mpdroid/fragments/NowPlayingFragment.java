@@ -107,13 +107,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-		// WifiManager wifi = (WifiManager)getSystemService(WIFI_SERVICE);
-		// myLogger.log(Level.INFO, "onCreate");
 		handler = new Handler();
 		setHasOptionsMenu(false);
 		getActivity().setTitle(getResources().getString(R.string.nowPlaying));
-
-		// registerReceiver(, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION) );
 		getActivity().registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
 	}
 
@@ -124,14 +120,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addTrackPositionListener(this);
 		app.setActivity(this);
-		// myLogger.log(Level.INFO, "onStart");
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		// myLogger.log(Level.INFO, "onResume");
-		// Annoyingly this seams to be run when the app starts the first time to.
+		// Annoyingly this seems to be run when the app starts the first time to.
 		// Just to make sure that we do actually get an update.
 		try {
 			updateTrackInfo();
@@ -670,11 +664,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void trackPositionChanged(MPDStatus status) {
 		startPosTimer(status.getElapsedTime());
-		/*lastElapsedTime = status.getElapsedTime();
-		lastSongTime = status.getTotalTime();
-		trackTime.setText(timeToString(lastElapsedTime));
-   	 	trackTotalTime.setText(timeToString(lastSongTime));
-		progressBarTrack.setProgress((int) status.getElapsedTime());*/
 	}
 
 	@Override
