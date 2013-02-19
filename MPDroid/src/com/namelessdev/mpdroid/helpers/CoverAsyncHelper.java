@@ -28,6 +28,7 @@ import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.cover.LastFMCover;
 import com.namelessdev.mpdroid.cover.LocalCover;
+import com.namelessdev.mpdroid.tools.Tools;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -49,6 +50,8 @@ public class CoverAsyncHelper extends Handler {
 	private SharedPreferences settings = null;
 	
 	private int coverMaxSize = MAX_SIZE;
+	private int cachedCoverMaxSize = MAX_SIZE;
+	private boolean cacheWritable = true;
 
 	private ICoverRetriever[] coverRetrievers = null;
 	
@@ -110,7 +113,25 @@ public class CoverAsyncHelper extends Handler {
 	}
 	
 	public void setCoverMaxSize(int size) {
+		if (size < 0)
+			size = MAX_SIZE;
 		coverMaxSize = size;
+	}
+
+	/*
+	 * If you want cached images to be read as a different size than the downloaded ones.
+	 * If this equals MAX_SIZE, it will use the coverMaxSize (if not also MAX_SIZE)
+	 * Example : useful for NowPlayingSmallFragment, where
+	 * it's useless to read a big image, but since downloading one will fill the cache, download it at a bigger size.
+	 */
+	public void setCachedCoverMaxSize(int size) {
+		if (size < 0)
+			size = MAX_SIZE;
+		cachedCoverMaxSize = size;
+	}
+
+	public void setCacheWritable(boolean writable) {
+		cacheWritable = writable;
 	}
 
 
@@ -168,7 +189,16 @@ public class CoverAsyncHelper extends Handler {
 					continue;
 				Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
 				if (retriever.isCoverLocal()) {
-					downloadedCover = BitmapFactory.decodeFile(url);
+					int maxSize = coverMaxSize;
+					if (cachedCoverMaxSize != MAX_SIZE) {
+						maxSize = cachedCoverMaxSize;
+					}
+
+					if (maxSize == MAX_SIZE) {
+						downloadedCover = BitmapFactory.decodeFile(url);
+					} else {
+						downloadedCover = Tools.decodeSampledBitmapFromPath(url, maxSize, maxSize, false);
+					}
 				} else {
 					downloadedCover = download(url);
 				}
@@ -188,8 +218,8 @@ public class CoverAsyncHelper extends Handler {
 					cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
 					if (cover != null) {
 						Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
-						// if cover is not read from cache
-						if (!(coverRetriever instanceof CachedCover)) {
+							// if cover is not read from cache and saving is enabled
+							if (cacheWritable && !(coverRetriever instanceof CachedCover)) {
 							// Save this cover into cache, if it is enabled.
 							for (ICoverRetriever coverRetriever1 : coverRetrievers) {
 								if (coverRetriever1 instanceof CachedCover) {
