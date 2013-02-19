@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +22,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.namelessdev.mpdroid.MPDApplication;
@@ -112,6 +114,12 @@ public class CoverAsyncHelper extends Handler {
 		setCoverRetrievers(enabledRetrievers);
 	}
 	
+	public void setCoverMaxSizeFromScreen(Activity activity) {
+		final DisplayMetrics metrics = new DisplayMetrics();
+		activity.getWindowManager().getDefaultDisplay().getMetrics(new DisplayMetrics());
+		setCoverMaxSize(Math.min(metrics.widthPixels, metrics.heightPixels));
+	}
+
 	public void setCoverMaxSize(int size) {
 		if (size < 0)
 			size = MAX_SIZE;
