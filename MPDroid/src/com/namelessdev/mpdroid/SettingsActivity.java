@@ -210,20 +210,20 @@ public class SettingsActivity extends PreferenceActivity implements
 
 		} else if (preference.getKey().equals("clearLocalCoverCache")) {
 			new AlertDialog.Builder(this)
-		    .setTitle(R.string.clearLocalCoverCache)
-		    .setMessage(R.string.clearLocalCoverCachePrompt)
-			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int which) { 
-		    		MPDApplication app = (MPDApplication) getApplication();
-					new CachedCover(app).clear();
-		        }
-		     })
-		    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int which) { 
-		            // do nothing
-		        }
-		     })
-		     .show();		
+					.setTitle(R.string.clearLocalCoverCache)
+					.setMessage(R.string.clearLocalCoverCachePrompt)
+					.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							MPDApplication app = (MPDApplication) getApplication();
+							new CachedCover(app).clear();
+						}
+					})
+					.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							// do nothing
+						}
+					})
+					.show();
 			return true;
 
 		} else if (preference.getKey().equals("enableLocalCover")) {
