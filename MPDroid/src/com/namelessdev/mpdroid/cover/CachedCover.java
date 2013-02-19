@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.util.Log;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -45,6 +46,7 @@ public class CachedCover implements ICoverRetriever {
 	public void save(String artist, String album, Bitmap cover) {
 		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			// External storage is not there or read only, don't do anything
+			Log.e(MPDApplication.TAG, "No writable external storage, not saving cover to cache");
 			return;
 		}
 		try {
@@ -57,7 +59,10 @@ public class CachedCover implements ICoverRetriever {
 	}
 
 	public void clear() {
-		final File cacheFolder = new File(getAbsoluteCoverFolderPath());
+		final String cacheFolderPath = getAbsoluteCoverFolderPath();
+		if (cacheFolderPath == null)
+			return;
+		final File cacheFolder = new File(cacheFolderPath);
 		if (!cacheFolder.exists()) {
 			return;
 		}

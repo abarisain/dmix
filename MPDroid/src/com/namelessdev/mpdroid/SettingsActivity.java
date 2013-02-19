@@ -9,6 +9,8 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -207,7 +209,21 @@ public class SettingsActivity extends PreferenceActivity implements
 			return true;
 
 		} else if (preference.getKey().equals("clearLocalCoverCache")) {
-			new CachedCover(app).clear();
+			new AlertDialog.Builder(this)
+					.setTitle(R.string.clearLocalCoverCache)
+					.setMessage(R.string.clearLocalCoverCachePrompt)
+					.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							MPDApplication app = (MPDApplication) getApplication();
+							new CachedCover(app).clear();
+						}
+					})
+					.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							// do nothing
+						}
+					})
+					.show();
 			return true;
 
 		} else if (preference.getKey().equals("enableLocalCover")) {
