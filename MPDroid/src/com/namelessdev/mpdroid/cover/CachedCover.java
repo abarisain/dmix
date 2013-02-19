@@ -59,7 +59,10 @@ public class CachedCover implements ICoverRetriever {
 	}
 
 	public void clear() {
-		final File cacheFolder = new File(getAbsoluteCoverFolderPath());
+		final String cacheFolderPath = getAbsoluteCoverFolderPath();
+		if (cacheFolderPath == null)
+			return;
+		final File cacheFolder = new File(cacheFolderPath);
 		if (!cacheFolder.exists()) {
 			return;
 		}
