@@ -102,7 +102,9 @@ public final class Tools {
 		options.inJustDecodeBounds = false;
 		final Bitmap bitmap = BitmapFactory.decodeFile(path, options);
 		if (resizePerfectlty) {
-			return Bitmap.createScaledBitmap(bitmap, reqWidth, reqHeight, true);
+			final Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, reqWidth, reqHeight, true);
+			bitmap.recycle();
+			return scaledBitmap;
 		} else {
 			return bitmap;
 		}
