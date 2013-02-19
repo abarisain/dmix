@@ -63,7 +63,7 @@
 			android:title="@string/libraryTabsSettings" android:summary="@string/libraryTabsSettingsDescription">
 			<intent android:action="android.intent.action.MAIN"
 				android:targetPackage="com.namelessdev.mpdroid"
-				android:targetClass="com.namelessdev.mpdroid.LibraryTabsSettings" />
+				android:targetClass="com.namelessdev.mpdroid.library.LibraryTabsSettings" />
 		</PreferenceScreen>
  	    
 		<PreferenceScreen android:key="coverArtScreen"
