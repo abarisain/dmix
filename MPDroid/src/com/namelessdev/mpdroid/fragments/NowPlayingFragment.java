@@ -624,9 +624,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 		DisplayMetrics metrics = new DisplayMetrics();
 		try {
-			getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 			if (cover != null) {
-				cover.setDensity((int) metrics.density);
 				BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
 				coverArt.setImageDrawable(myCover);
 			} else {

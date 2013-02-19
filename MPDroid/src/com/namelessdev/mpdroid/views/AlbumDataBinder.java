@@ -6,14 +6,12 @@ import org.a0z.mpd.Album;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,17 +26,14 @@ import com.namelessdev.mpdroid.tools.Tools;
 public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	CachedCover coverHelper = null;
 	String artist = null;
-	DisplayMetrics metrics = null;
 	MPDApplication app = null;
 
-	public AlbumDataBinder(MPDApplication app, Activity activity, String artist) {
+	public AlbumDataBinder(MPDApplication app, String artist) {
 		this.app = app;
 		this.artist = artist;
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 		if(settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
 			coverHelper = new CachedCover(app);
-			metrics = new DisplayMetrics();
-			activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		}
 	}
 
@@ -80,7 +75,6 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 							final int maxSize = albumCover.getHeight();
 							final Bitmap cover = Tools.decodeSampledBitmapFromPath(urls[0], maxSize, maxSize, false);
 							if (cover != null) {
-								cover.setDensity((int) metrics.density);
 								final BitmapDrawable myCover = new BitmapDrawable(app.getResources(), cover);
 								handler.post(new Runnable() {
 									@Override
