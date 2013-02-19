@@ -47,7 +47,7 @@
 		<activity android:name=".library.PlaylistEditActivity" android:label="@string/playlist" >
 		</activity>
 		<activity android:name=".library.StoredPlaylistActivity" android:label="@string/playlist"/>
-		<activity android:name=".library.SimpleLibraryActivity" />
+		<activity android:name=".library.SimpleLibraryActivity" android:windowSoftInputMode="adjustNothing" />
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		<activity android:name=".WifiConnectionSettings"
 			android:label="@string/settings" android:theme="@style/AppTheme.ActionBar" />
@@ -60,7 +60,8 @@
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" />
 		<activity android:name=".WarningActivity" android:label="@string/warningTitle"  android:theme="@style/AppTheme.Dialog" />
-		<activity android:name=".library.LibraryTabActivity" android:label="@string/libraryTabActivity" >
+		<activity android:name=".library.LibraryTabActivity" android:label="@string/libraryTabActivity"
+		    android:windowSoftInputMode="adjustNothing" >
 			<meta-data android:name="android.app.default_searchable"
 				android:value=".SearchActivity" />
 		</activity>
