@@ -9,7 +9,7 @@ import org.a0z.mpd.Music;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -20,6 +20,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
 import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -58,20 +59,20 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		}
 		if (coverHelper != null) {
 			final ImageView albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
+			final Drawable oldDrawable = albumCover.getDrawable();
+			albumCover.setImageResource(R.drawable.no_cover_art);
+			if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
+				final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
+				if (oldBitmap != null)
+					oldBitmap.recycle();
+			}
 			final Handler handler = new Handler();
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						final String[] urls = coverHelper.getCoverUrl(artist, album.getName(), null, null);
-						if(urls == null || urls.length == 0) {
-							handler.post(new Runnable() {
-								@Override
-								public void run() {
-									albumCover.setImageResource(R.drawable.no_cover_art);
-								}
-							});
-						} else {
+						if (urls != null && urls.length > 0) {
 							int maxSize = albumCover.getLayoutParams().width;
 							if (maxSize == 0) {
 								// For some reason getWidth returned 0.
@@ -84,19 +85,13 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 								handler.post(new Runnable() {
 									@Override
 									public void run() {
-										final BitmapDrawable myCover = new BitmapDrawable(context.getResources(), cover);
+										final CoverBitmapDrawable myCover = new CoverBitmapDrawable(context.getResources(), cover);
 										albumCover.setImageDrawable(myCover);
 									}
 								});
 							}
 						}
 					} catch (Exception e) {
-						handler.post(new Runnable() {
-							@Override
-							public void run() {
-								albumCover.setImageResource(R.drawable.no_cover_art);
-							}
-						});
 					}
 				}
 			}).start();

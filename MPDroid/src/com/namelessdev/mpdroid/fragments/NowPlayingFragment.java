@@ -41,6 +41,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
+import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
@@ -93,9 +94,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	private Timer posTimer = null;
 	private TimerTask posTimerTask = null;
-
-	private Bitmap coverBitmap;
-	private Drawable coverDrawable;
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -634,9 +632,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 		try {
 			if (cover != null) {
-				coverBitmap = cover;
-				coverDrawable = new BitmapDrawable(getResources(), cover);
-				coverArt.setImageDrawable(coverDrawable);
+				final Drawable oldDrawable = coverArt.getDrawable();
+				coverArt.setImageDrawable(new CoverBitmapDrawable(getResources(), cover));
+				freeCoverDrawable(oldDrawable);
 			} else {
 				// Should not be happening, but happened.
 				onCoverNotFound();
@@ -764,11 +762,21 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	private void freeCoverDrawable() {
-		if (coverDrawable != null)
-			coverDrawable.setCallback(null);
+		freeCoverDrawable(null);
+	}
+
+	private void freeCoverDrawable(Drawable oldDrawable) {
+		if (coverArt == null)
+			return;
+		final Drawable coverDrawable = oldDrawable == null ? coverArt.getDrawable() : oldDrawable;
+		if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable))
+			return;
+		if (oldDrawable == null)
+			coverArt.setImageResource(R.drawable.no_cover_art);
+
+		coverDrawable.setCallback(null);
+		final Bitmap coverBitmap = ((BitmapDrawable) coverDrawable).getBitmap();
 		if (coverBitmap != null)
 			coverBitmap.recycle();
-		coverDrawable = null;
-		coverBitmap = null;
 	}
 }

@@ -8,7 +8,7 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 
@@ -93,6 +94,20 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 		return view;
 	}
 
+	@Override
+	public void onDestroyView() {
+		if (coverArt != null) {
+			final Drawable oldDrawable = coverArt.getDrawable();
+			coverArt.setImageResource(R.drawable.no_cover_art);
+			if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
+				final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
+				if (oldBitmap != null)
+					oldBitmap.recycle();
+			}
+		}
+		super.onDestroyView();
+	}
+
 	final OnClickListener buttonClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
@@ -148,7 +163,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 		try {
 			if (cover != null) {
-				BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
+				final CoverBitmapDrawable myCover = new CoverBitmapDrawable(getResources(), cover);
 				coverArt.setImageDrawable(myCover);
 			} else {
 				onCoverNotFound();
