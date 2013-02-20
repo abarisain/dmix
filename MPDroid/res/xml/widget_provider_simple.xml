@@ -6,6 +6,7 @@
 	android:minHeight="36dp"
 	android:initialLayout="@layout/widget_simple"
 	android:minWidth="220dp"
-	android:previewImage="@drawable/widget_preview">
+	android:previewImage="@drawable/widget_preview"
+	android:widgetCategory="keyguard|home_screen">
 
 </appwidget-provider>
