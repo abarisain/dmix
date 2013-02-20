@@ -159,6 +159,13 @@ public class SettingsActivity extends PreferenceActivity implements
 	}
 
 	@Override
+	protected void onDestroy() {
+		MPDApplication app = (MPDApplication) getApplicationContext();
+		app.oMPDAsyncHelper.removeStatusChangeListener(this);
+		super.onDestroy();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
 		if (getPreferenceScreen().getKey().equals("connectionscreen"))
