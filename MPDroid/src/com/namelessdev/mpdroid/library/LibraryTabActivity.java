@@ -20,9 +20,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.R.id;
-import com.namelessdev.mpdroid.R.layout;
-import com.namelessdev.mpdroid.R.menu;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
@@ -31,6 +28,8 @@ import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
 public class LibraryTabActivity extends SherlockFragmentActivity implements OnNavigationListener, ILibraryFragmentActivity,
 		ILibraryTabActivity {
+
+	private static final String FRAGMENT_TAG_LIBRARY = "library";
 
 	LibraryFragment libraryFragment;
     
@@ -67,11 +66,15 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         }
         actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
-		libraryFragment = new LibraryFragment();
-		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-		ft.replace(R.id.root_frame, libraryFragment);
-		ft.commit();
+		final FragmentManager fm = getSupportFragmentManager();
+		libraryFragment = (LibraryFragment) fm.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
+		if (libraryFragment == null) {
+			libraryFragment = new LibraryFragment();
+			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			ft.replace(R.id.root_frame, libraryFragment, FRAGMENT_TAG_LIBRARY);
+			ft.commit();
+		}
 
     }
 

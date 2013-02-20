@@ -21,6 +21,8 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class FSFragment extends BrowseFragment {
+	private static final String EXTRA_DIRECTORY = "directory";
+
 	private Directory currentDirectory = null;
 	private String directory = null;
 
@@ -31,6 +33,8 @@ public class FSFragment extends BrowseFragment {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+		if (icicle != null)
+			init(icicle.getString(EXTRA_DIRECTORY));
 	}
 
 	@Override
@@ -42,6 +46,12 @@ public class FSFragment extends BrowseFragment {
 		}
 	}
 	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putString(EXTRA_DIRECTORY, directory);
+		super.onSaveInstanceState(outState);
+	}
+
 	public FSFragment init(String path) {
 		directory = path;
 		return this;

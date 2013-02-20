@@ -35,6 +35,8 @@ import com.namelessdev.mpdroid.views.SongDataBinder;
 public class SongsFragment extends BrowseFragment implements CoverDownloadListener {
 
 	private static final int FALLBACK_COVER_SIZE = 80; // In DIP
+	private static final String EXTRA_ARTIST = "artist";
+	private static final String EXTRA_ALBUM = "album";
 
 	Album album = null;
 	Artist artist = null;
@@ -52,6 +54,8 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+		if (icicle != null)
+			init((Artist) icicle.getParcelable(EXTRA_ARTIST), (Album) icicle.getParcelable(EXTRA_ALBUM));
 	}
 
 	public SongsFragment init(Artist ar, Album al) {
@@ -122,6 +126,13 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
 		list.addHeaderView(headerView, null, false);
 		return view;
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putParcelable(EXTRA_ALBUM, album);
+		outState.putParcelable(EXTRA_ARTIST, artist);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override

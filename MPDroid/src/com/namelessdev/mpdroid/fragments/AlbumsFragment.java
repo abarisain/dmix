@@ -18,6 +18,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 
 public class AlbumsFragment extends BrowseFragment {
+	private static final String EXTRA_ARTIST = "artist";
 	private Artist artist = null;
 
 	public AlbumsFragment() {
@@ -27,6 +28,8 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+		if (icicle != null)
+			init((Artist) icicle.getParcelable(EXTRA_ARTIST));
 	}
 
 	@Override
@@ -42,6 +45,12 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putParcelable(EXTRA_ARTIST, artist);
+		super.onSaveInstanceState(outState);
 	}
 
 	public AlbumsFragment init(Artist a) {
