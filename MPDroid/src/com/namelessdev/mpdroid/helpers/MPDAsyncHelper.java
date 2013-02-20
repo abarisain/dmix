@@ -2,7 +2,6 @@ package com.namelessdev.mpdroid.helpers;
 
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.LinkedList;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
@@ -19,6 +18,7 @@ import android.util.Log;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
 /**
  * This Class implements the whole MPD Communication as a thread. It also "translates" the monitor event of the JMPDComm Library back to the
@@ -85,10 +85,10 @@ public class MPDAsyncHelper extends Handler {
 		oMPDAsyncWorkerThread.start();
 		oMPDAsyncWorker = new MPDAsyncWorker(oMPDAsyncWorkerThread.getLooper());
 		
-		connectionListners = new LinkedList<ConnectionListener>();
-		statusChangedListeners = new LinkedList<StatusChangeListener>();
-		trackPositionListeners = new LinkedList<TrackPositionListener>();
-		asyncExecListeners = new LinkedList<AsyncExecListener>();
+		connectionListners = new WeakLinkedList<ConnectionListener>("ConnectionListener");
+		statusChangedListeners = new WeakLinkedList<StatusChangeListener>("StatusChangeListener");
+		trackPositionListeners = new WeakLinkedList<TrackPositionListener>("TrackPositionListener");
+		asyncExecListeners = new WeakLinkedList<AsyncExecListener>("AsyncExecListener");
 		
 		conInfo = new MPDConnectionInfo();
 	}
