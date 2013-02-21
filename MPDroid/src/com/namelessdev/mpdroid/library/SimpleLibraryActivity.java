@@ -43,6 +43,8 @@ public class SimpleLibraryActivity extends SherlockFragmentActivity implements I
 			}
 		}
 		if (rootFragment != null) {
+			if (rootFragment instanceof BrowseFragment)
+				setTitle(((BrowseFragment) rootFragment).getTitle());
 			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 			ft.replace(R.id.root_frame, rootFragment);
