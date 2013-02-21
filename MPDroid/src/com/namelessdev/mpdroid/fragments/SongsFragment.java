@@ -117,12 +117,26 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View view = super.onCreateView(inflater, container, savedInstanceState);
+		final View view = inflater.inflate(R.layout.songs, container, false);
+		list = (ListView) view.findViewById(android.R.id.list);
+		registerForContextMenu(list);
+		loadingView = view.findViewById(R.id.loadingLayout);
+		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
+		noResultView = view.findViewById(R.id.noResultLayout);
+		loadingTextView.setText(getLoadingText());
+
 		final View headerView = inflater.inflate(R.layout.song_header, null, false);
-		headerArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
-		headerInfo = (TextView) headerView.findViewById(R.id.tracks_info);
-		coverArt = (ImageView) headerView.findViewById(R.id.albumCover);
-		coverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
+		coverArt = (ImageView) view.findViewById(R.id.albumCover);
+		if (coverArt != null) {
+			headerArtist = (TextView) view.findViewById(R.id.tracks_artist);
+			headerInfo = (TextView) view.findViewById(R.id.tracks_info);
+			coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+		} else {
+			headerArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
+			headerInfo = (TextView) headerView.findViewById(R.id.tracks_info);
+			coverArt = (ImageView) headerView.findViewById(R.id.albumCover);
+			coverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
+		}
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
 		list.addHeaderView(headerView, null, false);
 		return view;
