@@ -139,6 +139,10 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		}
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
 		list.addHeaderView(headerView, null, false);
+		
+		if (coverHelper != null)
+			coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
+		
 		return view;
 	}
 
