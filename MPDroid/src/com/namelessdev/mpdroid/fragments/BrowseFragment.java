@@ -293,6 +293,10 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	 * Update the view from the items list if items is set.
 	 */
 	public void updateFromItems() {
+		if (getView() == null) {
+			// The view has been destroyed, bail.
+			return;
+		}
 		if (items != null) {
 			setListAdapter(getCustomListAdapter());
 			try {
