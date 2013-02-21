@@ -42,6 +42,8 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.library_tabs);
+        
+		final FragmentManager fm = getSupportFragmentManager();
 
         // Get the list of the currently visible tabs
         mTabList=LibraryTabsUtil.getCurrentLibraryTabs(this.getApplicationContext());
@@ -49,7 +51,12 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         // Set up the action bar.
 		actionBar = getSupportActionBar();
 		// Will set the action bar to it's List style.
-		refreshActionBarNavigation(true, null);
+		final int fmStackCount = fm.getBackStackEntryCount();
+		if(fmStackCount > 0) {
+			refreshActionBarNavigation(false, fm.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
+		} else {
+			refreshActionBarNavigation(true, null);
+		}
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         
@@ -66,7 +73,6 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
         }
         actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
-		final FragmentManager fm = getSupportFragmentManager();
 		libraryFragment = (LibraryFragment) fm.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
 		if (libraryFragment == null) {
 			libraryFragment = new LibraryFragment();
