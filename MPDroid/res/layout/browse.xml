@@ -1,55 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
+    android:orientation="vertical" >
 
-    <FrameLayout
+    <ListView
+        android:id="@id/android:list"
         android:layout_width="fill_parent"
-		android:layout_height="0dip"
-		android:layout_weight="1">
-	    <ListView android:id="@id/android:list"
-	        android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:fastScrollEnabled="true"
-			/>
-	    <RelativeLayout
-	        android:id="@+id/loadingLayout"
-	        android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:visibility="gone">
+        android:layout_height="fill_parent"
+        android:fastScrollEnabled="true" />
 
-	        <ProgressBar
-	            android:id="@+id/progressBar"
-	            style="?android:attr/progressBarStyleLarge"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_centerInParent="true" />
-	        <TextView
-	            android:id="@+id/loadingText"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_below="@id/progressBar"
-	            android:layout_centerHorizontal="true"
-	            android:layout_marginTop="5dip"
-				android:text="@string/loading" />
-	        
-	    </RelativeLayout>
-	    <RelativeLayout
-	        android:id="@+id/noResultLayout"
-	        android:orientation="horizontal"
-	        android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:visibility="gone">
+    <RelativeLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone" >
 
-	        <TextView
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_centerInParent="true"
-	            android:text="@string/no_result"/>
-	        
-	    </RelativeLayout>
-    </FrameLayout>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/loadingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progressBar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dip"
+            android:text="@string/loading" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/noResultLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/no_result" />
+    </RelativeLayout>
+
+</FrameLayout>
