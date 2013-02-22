@@ -48,7 +48,7 @@ public class GenresFragment extends BrowseFragment {
 	}
 
 	@Override
-	protected void Add(Item item) {
+	protected void add(Item item, boolean replace, boolean play) {
 		try {
 			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
@@ -58,7 +58,7 @@ public class GenresFragment extends BrowseFragment {
 	}
 
 	@Override
-	protected void Add(Item item, String playlist) {
+	protected void add(Item item, String playlist) {
 		try {
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());

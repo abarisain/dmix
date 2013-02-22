@@ -65,9 +65,9 @@ public class PlaylistsFragment  extends BrowseFragment {
 	}
 
     @Override
-    protected void Add(Item item) {
+	protected void add(Item item, boolean replace, boolean play) {
     	try {
-    		app.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getName());
+			app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();
@@ -75,7 +75,7 @@ public class PlaylistsFragment  extends BrowseFragment {
     }
     
     @Override
-	protected void Add(Item item, String playlist) {
+	protected void add(Item item, String playlist) {
     }
 
 	@Override
