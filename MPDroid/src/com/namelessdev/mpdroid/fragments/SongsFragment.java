@@ -22,7 +22,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -34,6 +33,8 @@ import com.actionbarsherlock.internal.widget.IcsListPopupWindow;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
+import com.namelessdev.mpdroid.adapters.PopupMenuItem;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -382,44 +383,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	/**
 	 * Popup button methods and classes
 	 */
-	private class PopupMenuAdapter extends ArrayAdapter<PopupMenuItem> {
-
-		Context context;
-		int layoutResourceId;
-		PopupMenuItem data[] = null;
-
-		public PopupMenuAdapter(Context context, int layoutResourceId, PopupMenuItem[] data) {
-			super(context, layoutResourceId, data);
-			this.layoutResourceId = layoutResourceId;
-			this.context = context;
-			this.data = data;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = convertView;
-
-			if (view == null) {
-				LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-				view = inflater.inflate(layoutResourceId, parent, false);
-			}
-
-			PopupMenuItem pItem = data[position];
-			TextView text = (TextView) view.findViewById(android.R.id.text1);
-			text.setText(pItem.textId);
-			return view;
-		}
-	}
-
-	private static class PopupMenuItem {
-		public int actionId;
-		public int textId;
-
-		public PopupMenuItem(int actionId, int textId) {
-			this.actionId = actionId;
-			this.textId = textId;
-		}
-	}
 
 	private PopupMenuAdapter getPopupMenuAdapter(Context context) {
 		final PopupMenuItem items[] = new PopupMenuItem[4];
