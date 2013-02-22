@@ -10,17 +10,24 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -41,6 +48,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	private String title;
 	private boolean firstUpdate = true;
 	private MPDApplication app;
+	private ListView list;
+	private ActionMode actionMode;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -59,10 +68,84 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		app = (MPDApplication) getActivity().getApplication();
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.playlist_activity, container, false);
-		registerForContextMenu((ListView) view.findViewById(android.R.id.list));
+		list = (ListView) view.findViewById(android.R.id.list);
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			registerForContextMenu((ListView) view.findViewById(android.R.id.list));
+		} else {
+			list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+
+				@Override
+				public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
+					actionMode = mode;
+					return false;
+				}
+
+				@Override
+				public void onDestroyActionMode(ActionMode mode) {
+					actionMode = null;
+				}
+
+				@Override
+				public boolean onCreateActionMode(ActionMode mode, android.view.Menu menu) {
+					final android.view.MenuInflater inflater = mode.getMenuInflater();
+					inflater.inflate(R.menu.mpd_queuemenu, menu);
+					return true;
+				}
+
+				@SuppressWarnings("unchecked")
+				@Override
+				public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
+					switch (item.getItemId()) {
+						case R.id.menu_delete:
+							final SparseBooleanArray checkedItems = list.getCheckedItemPositions();
+							final int count = list.getCount();
+							final int positions[] = new int[list.getCheckedItemCount()];
+							final ListAdapter adapter = list.getAdapter();
+							int j = 0;
+							for (int i = 0; i < count; i++) {
+								if (checkedItems.get(i)) {
+									positions[j] = ((Integer) ((HashMap<String, Object>) adapter.getItem(i)).get("songid")).intValue();
+									j++;
+								}
+							}
+							app.oMPDAsyncHelper.execAsync(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
+									} catch (MPDServerException e) {
+										e.printStackTrace();
+									}
+								}
+							});
+
+							mode.finish();
+							return true;
+						default:
+							return false;
+					}
+				}
+
+				@Override
+				public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+					final int selectCount = list.getCheckedItemCount();
+					if (selectCount == 0)
+						mode.finish();
+					if (selectCount == 1) {
+						mode.setTitle(R.string.actionSongSelected);
+					} else {
+						mode.setTitle(getString(R.string.actionSongsSelected, selectCount));
+					}
+				}
+			});
+		}
+
 		return view;
 	}
 	
@@ -96,11 +179,14 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			final int finalListPlayingID = listPlayingID;
 
 			getActivity().runOnUiThread(new Runnable() {
+				@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 				public void run() {
 					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item, new String[] { "play",
 							"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
 					setListAdapter(songs);
+					if (actionMode != null)
+						actionMode.finish();
 
 					// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
 					// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
@@ -220,6 +306,9 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.mpd_playlistmenu, menu);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			menu.removeItem(R.id.PLM_EditPL);
+		}
 	}
 
 	@Override
