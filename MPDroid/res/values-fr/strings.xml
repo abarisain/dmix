@@ -178,5 +178,6 @@
 	
 	<string name="goToAlbum">Aller à l\'album</string>
     <string name="goToArtist">Aller à l\'artiste</string>
+    <string name="goToFolder">Aller au dossier</string>
     <string name="goToStream">Aller aux flux</string>
 </resources>

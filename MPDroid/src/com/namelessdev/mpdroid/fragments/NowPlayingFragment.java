@@ -63,7 +63,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	
 	private static final int POPUP_ARTIST = 0;
 	private static final int POPUP_ALBUM = 1;
-	private static final int POPUP_STREAM = 2;
+	private static final int POPUP_FOLDER = 2;
+	private static final int POPUP_STREAM = 3;
 
 	private TextView artistNameText;
 	private TextView songNameText;
@@ -267,9 +268,10 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 						items = new PopupMenuItem[1];
 						items[0] = new PopupMenuItem(POPUP_STREAM, R.string.goToStream);
 					} else {
-						items = new PopupMenuItem[2];
+						items = new PopupMenuItem[3];
 						items[0] = new PopupMenuItem(POPUP_ARTIST, R.string.goToAlbum);
 						items[1] = new PopupMenuItem(POPUP_ALBUM, R.string.goToArtist);
+						items[2] = new PopupMenuItem(POPUP_FOLDER, R.string.goToFolder);
 					}
 					popupMenu.setAdapter(new PopupMenuAdapter(getActivity(),
 							Build.VERSION.SDK_INT >= 14 ? android.R.layout.simple_spinner_dropdown_item
@@ -840,6 +842,15 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
 				intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
 				intent.putExtra("album", new Album(currentSong.getAlbum()));
+				startActivityForResult(intent, -1);
+				break;
+			case POPUP_FOLDER:
+				final String path = currentSong.getFullpath();
+				if (path == null) {
+					break;
+				}
+				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+				intent.putExtra("folder", currentSong.getParent());
 				startActivityForResult(intent, -1);
 				break;
 			case POPUP_STREAM:

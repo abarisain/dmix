@@ -5,7 +5,6 @@ import org.a0z.mpd.Artist;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -16,6 +15,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
+import com.namelessdev.mpdroid.fragments.FSFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
@@ -24,12 +24,14 @@ public class SimpleLibraryActivity extends SherlockFragmentActivity implements I
 
 	public final String EXTRA_ALBUM = "album";
 	public final String EXTRA_ARTIST = "artist";
+	public final String EXTRA_STREAM = "streams";
+	public final String EXTRA_FOLDER = "folder";
 
 	@Override
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		setContentView(R.layout.library_tabs);
-		Parcelable targetElement = null;
+		Object targetElement = null;
 		Fragment rootFragment = null;
 		if (getIntent().getBooleanExtra("streams", false)) {
 			rootFragment = new StreamsFragment();
@@ -37,6 +39,8 @@ public class SimpleLibraryActivity extends SherlockFragmentActivity implements I
 			targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
 			if (targetElement == null)
 				targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
+			if (targetElement == null)
+				targetElement = getIntent().getStringExtra(EXTRA_FOLDER);
 			if (targetElement == null) {
 				throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
 			} else {
@@ -44,6 +48,8 @@ public class SimpleLibraryActivity extends SherlockFragmentActivity implements I
 					rootFragment = new AlbumsFragment().init((Artist) targetElement);
 				} else if (targetElement instanceof Album) {
 					rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST), (Album) targetElement);
+				} else if (targetElement instanceof String) {
+					rootFragment = new FSFragment().init((String) targetElement);
 				}
 			}
 		}

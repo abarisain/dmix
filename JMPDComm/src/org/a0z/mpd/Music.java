@@ -115,7 +115,6 @@ public class Music extends Item implements FilesystemTreeEntry {
 				// (new InvalidResponseException("unknown response: " + line)).printStackTrace();
 			}
 		}
-		this.parent = null;
 	}
 	
 	public static List<Music> getMusicFromList(List<String> response, boolean sort) {
@@ -309,8 +308,13 @@ public class Music extends Item implements FilesystemTreeEntry {
 	 * 
 	 * @return file's parent directory
 	 */
-	public Directory getParent() {
-		return parent;
+	public String getParent() {
+		int pos = fullpath.lastIndexOf("/");
+		if (pos == -1) {
+			return null;
+		} else {
+			return fullpath.substring(0, pos);
+		}
 	}
 
 	/**
