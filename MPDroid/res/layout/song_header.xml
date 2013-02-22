@@ -46,19 +46,29 @@
         android:id="@+id/tracks_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/tracks_artist"
         android:layout_marginBottom="10dip"
         android:layout_marginLeft="8dip"
         android:layout_toRightOf="@+id/albumCoverFrame"
-        android:layout_below="@+id/tracks_artist"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <include
+        android:id="@+id/list_separator_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/albumCoverFrame"
         layout="@layout/list_separator" />
+
+    <ImageButton
+        android:id="@+id/album_menu"
+        android:layout_width="40dip"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/list_separator_layout"
+        android:layout_alignParentRight="true"
+        android:background="?attr/actionBarItemBackground"
+        android:src="@drawable/ic_action_menu_indicator" />
 
 </RelativeLayout>

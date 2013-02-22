@@ -8,20 +8,29 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.actionbarsherlock.internal.widget.IcsListPopupWindow;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -30,7 +39,7 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
-public class SongsFragment extends BrowseFragment implements CoverDownloadListener {
+public class SongsFragment extends BrowseFragment implements CoverDownloadListener, OnItemClickListener {
 
 	private static final int FALLBACK_COVER_SIZE = 80; // In DIP
 	private static final String EXTRA_ARTIST = "artist";
@@ -44,6 +53,8 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	ProgressBar coverArtProgress;
 	CoverAsyncHelper coverHelper;
 	Bitmap coverBitmap;
+	ImageButton albumMenu;
+	IcsListPopupWindow popupMenu;
 
 	public SongsFragment() {
 		super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -78,6 +89,12 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 					FALLBACK_COVER_SIZE,
 					getResources().getDisplayMetrics())));
 		}
+
+		// Setup the popup menu
+		popupMenu = new IcsListPopupWindow(activity);
+		popupMenu.setAdapter(getPopupMenuAdapter(activity));
+		popupMenu.setModal(true);
+		popupMenu.setOnItemClickListener(this);
 	}
 
 	@Override
@@ -112,7 +129,7 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	public int getLoadingText() {
 		return R.string.loadingSongs;
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(R.layout.songs, container, false);
@@ -129,18 +146,31 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 			headerArtist = (TextView) view.findViewById(R.id.tracks_artist);
 			headerInfo = (TextView) view.findViewById(R.id.tracks_info);
 			coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+			albumMenu = (ImageButton) view.findViewById(R.id.album_menu);
 		} else {
 			headerArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
 			headerInfo = (TextView) headerView.findViewById(R.id.tracks_info);
 			coverArt = (ImageView) headerView.findViewById(R.id.albumCover);
 			coverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
+			albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
 		}
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
 		list.addHeaderView(headerView, null, false);
-		
+
+		albumMenu.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				final DisplayMetrics displaymetrics = new DisplayMetrics();
+				getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+				popupMenu.setContentWidth(displaymetrics.widthPixels / 2);
+				popupMenu.setAnchorView(v);
+				popupMenu.show();
+			}
+		});
+
 		if (coverHelper != null)
 			coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
-		
+
 		return view;
 	}
 
@@ -176,17 +206,17 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		}
 	}
 
-    @Override
+	@Override
 	protected void add(Item item, String playlist) {
-    	try {
-    		MPDApplication app = (MPDApplication) getActivity().getApplication();
+		try {
+			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
-    		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-    	} catch (MPDServerException e) {
-    		e.printStackTrace();
-    	}
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
 	}
-   
+
 	@Override
 	public void asyncUpdate() {
 		try {
@@ -196,24 +226,24 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void updateFromItems() {
 		super.updateFromItems();
-		if(items != null) {
+		if (items != null) {
 			Music song;
 			String lastArtist = null;
-			for(Item item : items) {
+			for (Item item : items) {
 				song = (Music) item;
-				if(lastArtist == null) {
+				if (lastArtist == null) {
 					lastArtist = song.getArtist();
 					continue;
 				}
 			}
-			if(lastArtist == null) {
-				for(Item item : items) {
+			if (lastArtist == null) {
+				for (Item item : items) {
 					song = (Music) item;
-					if(lastArtist == null) {
+					if (lastArtist == null) {
 						lastArtist = song.getArtist();
 						continue;
 					}
@@ -237,22 +267,22 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 				onCoverNotFound();
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	protected ListAdapter getCustomListAdapter() {
-		if(items != null) {
+		if (items != null) {
 			Music song;
 			boolean differentArtists = false;
 			String lastArtist = null;
-			for(Item item : items) {
+			for (Item item : items) {
 				song = (Music) item;
-				if(lastArtist == null) {
+				if (lastArtist == null) {
 					lastArtist = song.getArtist();
 					continue;
 				}
-				if(!lastArtist.equalsIgnoreCase(song.getArtist())) {
+				if (!lastArtist.equalsIgnoreCase(song.getArtist())) {
 					differentArtists = true;
 					break;
 				}
@@ -261,59 +291,60 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		}
 		return super.getCustomListAdapter();
 	}
-	
+
 	private String getArtistForTrackList() {
 		Music song;
 		String lastArtist = null;
 		boolean differentArtists = false;
-		for(Item item : items) {
+		for (Item item : items) {
 			song = (Music) item;
-			if(lastArtist == null) {
+			if (lastArtist == null) {
 				lastArtist = song.getAlbumArtist();
 				continue;
 			}
-			if(!lastArtist.equalsIgnoreCase(song.getAlbumArtist())) {
+			if (!lastArtist.equalsIgnoreCase(song.getAlbumArtist())) {
 				differentArtists = true;
 				break;
 			}
 		}
-		if(differentArtists || lastArtist == null || lastArtist.equals("")) {
+		if (differentArtists || lastArtist == null || lastArtist.equals("")) {
 			differentArtists = false;
-			for(Item item : items) {
+			for (Item item : items) {
 				song = (Music) item;
-				if(lastArtist == null) {
+				if (lastArtist == null) {
 					lastArtist = song.getArtist();
 					continue;
 				}
-				if(!lastArtist.equalsIgnoreCase(song.getArtist())) {
+				if (!lastArtist.equalsIgnoreCase(song.getArtist())) {
 					differentArtists = true;
 					break;
 				}
 			}
-			if(differentArtists || lastArtist == null || lastArtist.equals("")) {
+			if (differentArtists || lastArtist == null || lastArtist.equals("")) {
 				return getString(R.string.variousArtists);
 			}
 			return lastArtist;
 		}
 		return lastArtist;
 	}
-	
+
 	private String getTotalTimeForTrackList() {
 		Music song;
 		long totalTime = 0;
-		for(Item item : items) {
+		for (Item item : items) {
 			song = (Music) item;
-			if(song.getTime() > 0)
+			if (song.getTime() > 0)
 				totalTime += song.getTime();
 		}
 		return Music.timeToString(totalTime);
 	}
-	
+
 	private String getHeaderInfoString() {
 		final int count = items.size();
-		return String.format(getString(count > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader), count, getTotalTimeForTrackList());
+		return String.format(getString(count > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader), count,
+				getTotalTimeForTrackList());
 	}
-	
+
 	@Override
 	protected boolean forceEmptyView() {
 		return true;
@@ -346,5 +377,90 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 			return;
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 		coverArt.setImageResource(R.drawable.no_cover_art);
+	}
+
+	/**
+	 * Popup button methods and classes
+	 */
+	private class PopupMenuAdapter extends ArrayAdapter<PopupMenuItem> {
+
+		Context context;
+		int layoutResourceId;
+		PopupMenuItem data[] = null;
+
+		public PopupMenuAdapter(Context context, int layoutResourceId, PopupMenuItem[] data) {
+			super(context, layoutResourceId, data);
+			this.layoutResourceId = layoutResourceId;
+			this.context = context;
+			this.data = data;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view = convertView;
+
+			if (view == null) {
+				LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+				view = inflater.inflate(layoutResourceId, parent, false);
+			}
+
+			PopupMenuItem pItem = data[position];
+			TextView text = (TextView) view.findViewById(android.R.id.text1);
+			text.setText(pItem.textId);
+			return view;
+		}
+	}
+
+	private static class PopupMenuItem {
+		public int actionId;
+		public int textId;
+
+		public PopupMenuItem(int actionId, int textId) {
+			this.actionId = actionId;
+			this.textId = textId;
+		}
+	}
+
+	private PopupMenuAdapter getPopupMenuAdapter(Context context) {
+		final PopupMenuItem items[] = new PopupMenuItem[4];
+		items[0] = new PopupMenuItem(ADD, irAdd);
+		items[1] = new PopupMenuItem(ADDNREPLACE, R.string.addAndReplace);
+		items[2] = new PopupMenuItem(ADDNREPLACEPLAY, R.string.addAndReplacePlay);
+		items[3] = new PopupMenuItem(ADDNPLAY, R.string.addAndPlay);
+		return new PopupMenuAdapter(context, Build.VERSION.SDK_INT >= 14 ? android.R.layout.simple_spinner_dropdown_item
+				: R.layout.sherlock_spinner_dropdown_item, items);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> adpaterView, View view, int position, long id) {
+		final int action = ((PopupMenuItem) adpaterView.getAdapter().getItem(position)).actionId;
+
+		app.oMPDAsyncHelper.execAsync(new Runnable() {
+			@Override
+			public void run() {
+				boolean replace = false;
+				boolean play = false;
+				switch (action) {
+					case ADDNREPLACEPLAY:
+						replace = true;
+						play = true;
+						break;
+					case ADDNREPLACE:
+						replace = true;
+						break;
+					case ADDNPLAY:
+						play = true;
+						break;
+				}
+				try {
+					app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
+					Tools.notifyUser(String.format(getResources().getString(irAdded), album), getActivity());
+				} catch (MPDServerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		popupMenu.dismiss();
 	}
 }
