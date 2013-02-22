@@ -1,7 +1,5 @@
 package com.namelessdev.mpdroid.fragments;
 
-import java.util.ArrayList;
-
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
@@ -159,17 +157,17 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		app.oMPDAsyncHelper.execAsync(new Runnable() {
 			@Override
 			public void run() {
-				Add((Item) l.getAdapter().getItem(position));
+				add((Item) l.getAdapter().getItem(position), false, false);
 			}
 		});
 	}
 
 	@Override
-	protected void Add(Item item) {
-		Music music = (Music)item;
+	protected void add(Item item, boolean replace, boolean play) {
+		Music music = (Music) item;
 		try {
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
+			app.oMPDAsyncHelper.oMPD.add(music, replace, play);
 			Tools.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()),
 					getActivity());
 		} catch (MPDServerException e) {
@@ -179,12 +177,10 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	}
 
     @Override
-    protected void Add(Item item, String playlist) {
+	protected void add(Item item, String playlist) {
     	try {
     		MPDApplication app = (MPDApplication) getActivity().getApplication();
-    		ArrayList<Music> songs = new ArrayList<Music> ();
-    		songs.add((Music)item);
-    		app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
+			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();

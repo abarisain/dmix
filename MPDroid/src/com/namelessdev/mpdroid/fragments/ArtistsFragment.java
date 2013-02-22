@@ -59,10 +59,10 @@ public class ArtistsFragment extends BrowseFragment {
 	}
 
     @Override
-    protected void Add(Item item) {
+	protected void add(Item item, boolean replace, boolean play) {
     	try {
     		MPDApplication app = (MPDApplication) getActivity().getApplication();
-    		app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getSongs(((Artist) item), null));
+			app.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();
@@ -70,10 +70,10 @@ public class ArtistsFragment extends BrowseFragment {
     }
     
     @Override
-    protected void Add(Item item, String playlist) {
+	protected void add(Item item, String playlist) {
     	try {
     		MPDApplication app = (MPDApplication) getActivity().getApplication();
-    		app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getSongs(((Artist) item), null));
+			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();

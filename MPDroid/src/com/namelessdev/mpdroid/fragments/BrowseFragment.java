@@ -3,8 +3,6 @@ package com.namelessdev.mpdroid.fragments;
 import java.util.List;
 
 import org.a0z.mpd.Item;
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
@@ -181,106 +179,79 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		}
 	}
 
-	protected abstract void Add(Item item);
-	protected abstract void Add(Item item, String playlist);
+	protected abstract void add(Item item, boolean replace, boolean play);
+
+	protected abstract void add(Item item, String playlist);
+
 	@Override
 	public boolean onMenuItemClick(final android.view.MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getGroupId()) {
-		case ADDNREPLACEPLAY:
-		case ADDNREPLACE:
-			app.oMPDAsyncHelper.execAsync(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						String status = app.oMPDAsyncHelper.oMPD.getStatus().getState();
-						app.oMPDAsyncHelper.oMPD.stop();
-						app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
-
-						Add(items.get((int) info.id));
-						if (status.equals(MPDStatus.MPD_STATE_PLAYING) || item.getItemId() == ADDNREPLACEPLAY) {
-							app.oMPDAsyncHelper.oMPD.play();
+			case ADDNREPLACEPLAY:
+			case ADDNREPLACE:
+			case ADD:
+			case ADDNPLAY:
+				app.oMPDAsyncHelper.execAsync(new Runnable() {
+					@Override
+					public void run() {
+						boolean replace = false;
+						boolean play = false;
+						switch (item.getGroupId()) {
+							case ADDNREPLACEPLAY:
+								replace = true;
+								play = true;
+								break;
+							case ADDNREPLACE:
+								replace = true;
+								break;
+							case ADDNPLAY:
+								play = true;
+								break;
 						}
-					} catch (MPDServerException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						add(items.get((int) info.id), replace, play);
 					}
-
+				});
+				break;
+			case ADD_TO_PLAYLIST: {
+				final EditText input = new EditText(getActivity());
+				final int id = (int) item.getOrder();
+				if (item.getItemId() == 0) {
+					new AlertDialog.Builder(getActivity())
+							.setTitle(R.string.playlistName)
+							.setMessage(R.string.newPlaylistPrompt)
+							.setView(input)
+							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int whichButton) {
+									final String name = input.getText().toString().trim();
+									if (null != name && name.length() > 0) {
+										app.oMPDAsyncHelper.execAsync(new Runnable() {
+											@Override
+											public void run() {
+												add(items.get(id), name);
+											}
+										});
+									}
+								}
+							}).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int whichButton) {
+									// Do nothing.
+								}
+							}).show();
+				} else {
+					add(items.get(id), item.getTitle().toString());
 				}
-			});
-			break;
-		case ADD:
-			app.oMPDAsyncHelper.execAsync(new Runnable() {
-				@Override
-				public void run() {
-					Add(items.get((int) info.id));
-				}
-			});
-
-			break;
-
-		case ADDNPLAY:
-			app.oMPDAsyncHelper.execAsync(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						MPDPlaylist pl = app.oMPDAsyncHelper.oMPD.getPlaylist();
-						int oldsize = pl.size();
-						Add(items.get((int) info.id));
-						try {
-							int id = pl.getByIndex(oldsize).getSongId();
-							app.oMPDAsyncHelper.oMPD.skipToId(id);
-							app.oMPDAsyncHelper.oMPD.play();
-						} catch (NullPointerException e) {
-							// If song adding fails, don't crash !
-						}
-					} catch (MPDServerException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+				break;
+			}
+			default:
+				final String name = item.getTitle().toString();
+				final int id = (int) item.getOrder();
+				app.oMPDAsyncHelper.execAsync(new Runnable() {
+					@Override
+					public void run() {
+						add(items.get(id), name);
 					}
-				}
-			});
-			break;
-		case ADD_TO_PLAYLIST: {
-			final EditText input = new EditText(getActivity());
-			final int id=(int) item.getOrder();
-            if (item.getItemId() == 0) {
-                new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.playlistName)
-                .setMessage(R.string.newPlaylistPrompt)
-                .setView(input)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        final String name = input.getText().toString().trim();
-                        if (null!=name && name.length()>0) {
-                            app.oMPDAsyncHelper.execAsync(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Add(items.get(id), name);
-                                }
-                            });
-                        }
-                    }
-                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // Do nothing.
-                    }
-                }).show();
-             } else {
-                Add(items.get(id),item.getTitle().toString());
-            }
-			break;
-		}
-		default:
-			final String name=item.getTitle().toString();
-			final int id=(int) item.getOrder();
-			app.oMPDAsyncHelper.execAsync(new Runnable() {
-				@Override
-				public void run() {
-					Add(items.get(id), name);
-				}
-			});
-			break;
+				});
+				break;
 		}
 		return false;
 	}

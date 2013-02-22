@@ -1,6 +1,7 @@
 package org.a0z.mpd;
 
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -1318,31 +1320,114 @@ public class MPD {
 	}
 
 	public void add(Artist artist) throws MPDServerException {
-		add(null, artist, null, false, false);
+		add(artist, false, false);
 	}
 
 	public void add(Album album) throws MPDServerException {
-		add(null, null, album, false, false);
+		add(album, false, false);
 	}
 
 	public void add(Music music) throws MPDServerException {
-		add(music, null, null, false, false);
+		add(music, false, false);
+	}
+
+	public void add(String playlist) throws MPDServerException {
+		add(playlist, false, false);
 	}
 
 	public void add(Artist artist, boolean replace, boolean play) throws MPDServerException {
-		add(null, artist, null, replace, play);
+		add(artist, null, replace, play);
 	}
 
 	public void add(Album album, boolean replace, boolean play) throws MPDServerException {
-		add(null, null, album, replace, play);
+		add(null, album, replace, play);
 	}
 
-	public void add(Artist artist, Album album, boolean replace, boolean play) throws MPDServerException {
-		add(null, artist, album, replace, play);
+	public void add(final Music music, boolean replace, boolean play) throws MPDServerException {
+		final Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					getPlaylist().add(music);
+				} catch (MPDServerException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		add(r, replace, play);
 	}
 
-	// Too ugly to be public, only to prevent code duplication
-	private void add(Music music, Artist artist, Album album, boolean replace, boolean play) throws MPDServerException {
+	public void add(final Artist artist, final Album album, boolean replace, boolean play) throws MPDServerException {
+		final Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					final ArrayList<Music> songs = new ArrayList<Music>(getSongs(artist, album));
+					getPlaylist().addAll(songs);
+				} catch (MPDServerException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		add(r, replace, play);
+	}
+
+	public void add(final String playlist, boolean replace, boolean play) throws MPDServerException {
+		final Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					getPlaylist().load(playlist);
+				} catch (MPDServerException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		add(r, replace, play);
+	}
+
+	public void add(final URL stream, boolean replace, boolean play) throws MPDServerException {
+		final Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					getPlaylist().add(stream);
+				} catch (MPDServerException e) {
+					e.printStackTrace();
+				} catch (MPDClientException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		add(r, replace, play);
+	}
+
+	public void add(final Directory directory, boolean replace, boolean play) throws MPDServerException {
+		final Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					getPlaylist().add(directory);
+				} catch (MPDServerException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		add(r, replace, play);
+	}
+
+	/**
+	 * Adds songs to the queue. It is possible to request a clear of the current one, and to start the playback once done.
+	 * 
+	 * @param runnable
+	 *            The runnable that will be responsible of inserting the songs into the queue
+	 * @param replace
+	 *            If true, clears the queue before inserting
+	 * @param play
+	 *            If true, starts playing once added
+	 * @throws MPDServerException
+	 */
+	public void add(Runnable runnable, boolean replace, boolean play) throws MPDServerException {
 		int oldSize = 0;
 		String status = null;
 		if (replace) {
@@ -1352,12 +1437,9 @@ public class MPD {
 		} else if (play) {
 			oldSize = getPlaylist().size();
 		}
-		if (music != null) {
-			getPlaylist().add(music);
-		} else {
-			final ArrayList<Music> songs = new ArrayList<Music>(getSongs(artist, album));
-			getPlaylist().addAll(songs);
-		}
+
+		runnable.run();
+
 		if (replace) {
 			if (play || MPDStatus.MPD_STATE_PLAYING.equals(status)) {
 				play();

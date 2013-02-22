@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.a0z.mpd.Item;
-import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDServerException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -154,22 +153,20 @@ public class StreamsFragment extends BrowseFragment {
 	}
 
     @Override
-    protected void Add(Item item) {
+	protected void add(Item item, boolean replace, boolean play) {
     	try {
-    		Stream s=(Stream)item;
-    		app.oMPDAsyncHelper.oMPD.getPlaylist().add(StreamFetcher.instance().get(s.getUrl()));
+    		final Stream s = (Stream) item;
+    		app.oMPDAsyncHelper.oMPD.add(StreamFetcher.instance().get(s.getUrl()), replace, play);
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
     		e.printStackTrace();
-    	} catch (MPDClientException e) {
-        	e.printStackTrace();
     	} catch (MalformedURLException e) {
     		e.printStackTrace();
     	}
     }
     
     @Override
-	protected void Add(Item item, String playlist) {
+	protected void add(Item item, String playlist) {
     }
 
 	@Override
