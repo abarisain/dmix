@@ -18,6 +18,7 @@ import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
+import com.namelessdev.mpdroid.fragments.StreamsFragment;
 
 public class SimpleLibraryActivity extends SherlockFragmentActivity implements ILibraryFragmentActivity {
 
@@ -27,19 +28,23 @@ public class SimpleLibraryActivity extends SherlockFragmentActivity implements I
 	@Override
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
-		setContentView(R.layout.simple_frame);
+		setContentView(R.layout.library_tabs);
 		Parcelable targetElement = null;
 		Fragment rootFragment = null;
-		targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
-		if (targetElement == null)
-			targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
-		if (targetElement == null) {
-			throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
+		if (getIntent().getBooleanExtra("streams", false)) {
+			rootFragment = new StreamsFragment();
 		} else {
-			if (targetElement instanceof Artist) {
-				rootFragment = new AlbumsFragment().init((Artist) targetElement);
-			} else if (targetElement instanceof Album) {
-				rootFragment = new SongsFragment().init(null, (Album) targetElement);
+			targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
+			if (targetElement == null)
+				targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
+			if (targetElement == null) {
+				throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
+			} else {
+				if (targetElement instanceof Artist) {
+					rootFragment = new AlbumsFragment().init((Artist) targetElement);
+				} else if (targetElement instanceof Album) {
+					rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST), (Album) targetElement);
+				}
 			}
 		}
 		if (rootFragment != null) {

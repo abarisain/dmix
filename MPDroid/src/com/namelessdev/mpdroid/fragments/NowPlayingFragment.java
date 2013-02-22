@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -11,6 +13,7 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -20,6 +23,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -30,6 +34,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -38,18 +44,26 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.internal.widget.IcsListPopupWindow;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
+import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
+import com.namelessdev.mpdroid.adapters.PopupMenuItem;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
 public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
-		OnSharedPreferenceChangeListener {
+		OnSharedPreferenceChangeListener, OnItemClickListener {
 	
 	public static final String PREFS_NAME = "mpdroid.properties";
+	
+	private static final int POPUP_ARTIST = 0;
+	private static final int POPUP_ALBUM = 1;
+	private static final int POPUP_STREAM = 2;
 
 	private TextView artistNameText;
 	private TextView songNameText;
@@ -78,6 +92,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	private ProgressBar coverArtProgress;
 
+	private IcsListPopupWindow popupMenu;
+
 	public static final int VOLUME_STEP = 5;
 
 	private static final int ANIMATION_DURATION_MSEC = 1000;
@@ -87,6 +103,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@SuppressWarnings("unused")
 	private boolean streamingMode;
 	private boolean connected;
+
+	private Music currentSong = null;
 
 	private Timer volTimer = new Timer();
 	private TimerTask volTimerTask = null;
@@ -121,6 +139,14 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addTrackPositionListener(this);
 		app.setActivity(this);
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		popupMenu = new IcsListPopupWindow(activity);
+		popupMenu.setModal(true);
+		popupMenu.setOnItemClickListener(this);
 	}
 
 	@Override
@@ -198,7 +224,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		coverArtProgress.setIndeterminate(true);
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 
-		MPDApplication app = (MPDApplication) getActivity().getApplication();
+		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
 		oCoverAsyncHelper.setCoverRetrieversFromPreferences();
 		// Scale cover images down to screen width
@@ -234,8 +260,23 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			songInfo.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					// TODO Auto-generated method stub
-					
+					if (currentSong == null)
+						return;
+					PopupMenuItem items[];
+					if (currentSong.isStream()) {
+						items = new PopupMenuItem[1];
+						items[0] = new PopupMenuItem(POPUP_STREAM, R.string.goToStream);
+					} else {
+						items = new PopupMenuItem[2];
+						items[0] = new PopupMenuItem(POPUP_ARTIST, R.string.goToAlbum);
+						items[1] = new PopupMenuItem(POPUP_ALBUM, R.string.goToArtist);
+					}
+					popupMenu.setAdapter(new PopupMenuAdapter(getActivity(),
+							Build.VERSION.SDK_INT >= 14 ? android.R.layout.simple_spinner_dropdown_item
+									: R.layout.sherlock_spinner_dropdown_item, items));
+					popupMenu.setContentWidth((int) (v.getWidth() - v.getWidth() * 0.05));
+					popupMenu.setAnchorView(v);
+					popupMenu.show();
 				}
 			});
 		}
@@ -533,8 +574,10 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				int songMax = 0;
 				boolean noSong=actSong == null || status.getPlaylistLength() == 0;
 				if (noSong) {
+					currentSong = null;
 					title = getResources().getString(R.string.noSongInfo);
 				} else {
+					currentSong = actSong;
 					Log.d("MPDroid", "We did find an artist");
 					artist = actSong.getArtist();
 					title = actSong.getTitle();
@@ -778,5 +821,32 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		final Bitmap coverBitmap = ((BitmapDrawable) coverDrawable).getBitmap();
 		if (coverBitmap != null)
 			coverBitmap.recycle();
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> adpaterView, View view, int position, long id) {
+		popupMenu.dismiss();
+		if(currentSong == null)
+			return;
+		final int action = ((PopupMenuItem) adpaterView.getAdapter().getItem(position)).actionId;
+		Intent intent;
+		switch(action) {
+			case POPUP_ALBUM:
+				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+				intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
+				startActivityForResult(intent, -1);
+				break;
+			case POPUP_ARTIST:
+				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+				intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
+				intent.putExtra("album", new Album(currentSong.getAlbum()));
+				startActivityForResult(intent, -1);
+				break;
+			case POPUP_STREAM:
+				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+				intent.putExtra("steams", true);
+				startActivityForResult(intent, -1);
+				break;
+		}
 	}
 }
