@@ -205,7 +205,7 @@
     <string name="goToFolder">Go to folder</string>
     <string name="goToStream">Go to streams</string>
     
-    <string name="actionSongSelected">One song selected</string>
+    <string name="actionSongSelected">1 song selected</string>
     <string name="actionSongsSelected">%s songs selected</string>
 	
 </resources>
