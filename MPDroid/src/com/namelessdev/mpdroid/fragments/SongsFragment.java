@@ -423,7 +423,7 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 
 	private PopupMenuAdapter getPopupMenuAdapter(Context context) {
 		final PopupMenuItem items[] = new PopupMenuItem[4];
-		items[0] = new PopupMenuItem(ADD, irAdd);
+		items[0] = new PopupMenuItem(ADD, R.string.addAlbum);
 		items[1] = new PopupMenuItem(ADDNREPLACE, R.string.addAndReplace);
 		items[2] = new PopupMenuItem(ADDNREPLACEPLAY, R.string.addAndReplacePlay);
 		items[3] = new PopupMenuItem(ADDNPLAY, R.string.addAndPlay);
@@ -454,7 +454,7 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 				}
 				try {
 					app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
-					Tools.notifyUser(String.format(getResources().getString(irAdded), album), getActivity());
+					Tools.notifyUser(String.format(getResources().getString(R.string.albumAdded), album), getActivity());
 				} catch (MPDServerException e) {
 					e.printStackTrace();
 				}
