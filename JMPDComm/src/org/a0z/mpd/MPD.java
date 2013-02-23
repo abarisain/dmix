@@ -1203,7 +1203,7 @@ public class MPD {
 		if(artist != null) {
 			albumNames = listAlbums(artist.getName(), useAlbumArtist);
 		}else{
-			albumNames = listAlbums(useAlbumArtist);
+			albumNames = listAlbums(false);
 		}
 
 		if (null!=albumNames && !albumNames.isEmpty()) {
