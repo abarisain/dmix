@@ -224,7 +224,7 @@ public class SearchActivity extends SherlockListActivity implements OnMenuItemCl
 			public void run() {
 				boolean replace = false;
 				boolean play = false;
-				switch (item.getGroupId()) {
+				switch (item.getItemId()) {
 					case ADDNREPLACEPLAY:
 						replace = true;
 						play = true;
