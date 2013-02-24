@@ -44,7 +44,7 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:gravity="center_vertical"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -57,7 +57,7 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:paddingBottom="5dip"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
