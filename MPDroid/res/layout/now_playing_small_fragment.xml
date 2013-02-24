@@ -41,7 +41,7 @@
             android:layout_toRightOf="@+id/albumCoverFrame"
             android:ellipsize="end"
             android:gravity="bottom"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textIsSelectable="false"
             android:textStyle="bold"
             android:textSize="14sp" />
@@ -54,7 +54,7 @@
             android:layout_toRightOf="@+id/albumCoverFrame"
             android:ellipsize="end"
             android:gravity="top"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textIsSelectable="false"
             android:textSize="12sp" />
 
