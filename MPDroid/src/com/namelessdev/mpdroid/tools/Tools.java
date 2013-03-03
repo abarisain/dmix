@@ -116,4 +116,8 @@ public final class Tools {
 		float px = dp * (metrics.densityDpi / 160f);
 		return px;
 	}
+
+	public static boolean isStringEmptyOrNull(String str) {
+		return (str == null || "".equals(str));
+	}
 }

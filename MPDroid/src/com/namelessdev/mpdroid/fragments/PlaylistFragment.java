@@ -156,7 +156,11 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 				}
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
-				item.put("artist", m.getArtist());
+				if (Tools.isStringEmptyOrNull(m.getAlbum())) {
+					item.put("artist", m.getArtist());
+				} else {
+					item.put("artist", m.getArtist() + " - " + m.getAlbum());
+				}
 				item.put("title", m.getTitle());
 				if (m.getSongId() == playingID) {
 					item.put("play", android.R.drawable.ic_media_play);
