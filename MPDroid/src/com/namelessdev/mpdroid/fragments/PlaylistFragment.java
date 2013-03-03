@@ -43,7 +43,6 @@ import com.namelessdev.mpdroid.tools.Tools;
 public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
-	// private int arrayListId;
 
 	private String title;
 	private MPDApplication app;
