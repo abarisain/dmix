@@ -179,7 +179,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 					fragment = new NowPlayingFragment();
 					break;
 				case 1:
-					if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 						fragment = new PlaylistFragment();
 					} else {
 						fragment = new PlaylistFragmentCompat();
