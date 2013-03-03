@@ -11,23 +11,19 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.SparseBooleanArray;
-import android.view.ActionMode;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -40,15 +36,17 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener {
+/**
+ * Implementation of PlaylistFragment for devices prior to Honeycomb
+ * 
+ */
+public class PlaylistFragmentCompat extends SherlockListFragment implements StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
 	// private int arrayListId;
 
 	private String title;
 	private MPDApplication app;
-	private ListView list;
-	private ActionMode actionMode;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -56,11 +54,14 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public static final int SAVE = 4;
 	public static final int EDIT = 2;
 
-	public PlaylistFragment() {
+	public PlaylistFragmentCompat() {
 		super();
 		setHasOptionsMenu(true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			Log.e(MPDApplication.TAG, "PlaylistFragmentCompat is not meant to be used on Android 3.0+. Please use the regular version.");
+		}
 	}
-
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -71,78 +72,11 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.playlist_activity, container, false);
-		list = (ListView) view.findViewById(android.R.id.list);
-		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-
-			@Override
-			public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
-				actionMode = mode;
-				return false;
-			}
-
-			@Override
-			public void onDestroyActionMode(ActionMode mode) {
-				actionMode = null;
-			}
-
-			@Override
-			public boolean onCreateActionMode(ActionMode mode, android.view.Menu menu) {
-				final android.view.MenuInflater inflater = mode.getMenuInflater();
-				inflater.inflate(R.menu.mpd_queuemenu, menu);
-				return true;
-			}
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
-				switch (item.getItemId()) {
-					case R.id.menu_delete:
-						final SparseBooleanArray checkedItems = list.getCheckedItemPositions();
-						final int count = list.getCount();
-						final int positions[] = new int[list.getCheckedItemCount()];
-						final ListAdapter adapter = list.getAdapter();
-						int j = 0;
-						for (int i = 0; i < count; i++) {
-							if (checkedItems.get(i)) {
-								positions[j] = ((Integer) ((HashMap<String, Object>) adapter.getItem(i)).get("songid")).intValue();
-								j++;
-							}
-						}
-						app.oMPDAsyncHelper.execAsync(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
-								} catch (MPDServerException e) {
-									e.printStackTrace();
-								}
-							}
-						});
-
-						mode.finish();
-						return true;
-					default:
-						return false;
-				}
-			}
-
-			@Override
-			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-				final int selectCount = list.getCheckedItemCount();
-				if (selectCount == 0)
-					mode.finish();
-				if (selectCount == 1) {
-					mode.setTitle(R.string.actionSongSelected);
-				} else {
-					mode.setTitle(getString(R.string.actionSongsSelected, selectCount));
-				}
-			}
-		});
+		registerForContextMenu((ListView) view.findViewById(android.R.id.list));
 
 		return view;
 	}
-
+	
 	protected void update() {
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
@@ -173,14 +107,11 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			final int finalListPlayingID = listPlayingID;
 
 			getActivity().runOnUiThread(new Runnable() {
-				@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 				public void run() {
 					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item, new String[] { "play",
 							"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
 					setListAdapter(songs);
-					if (actionMode != null)
-						actionMode.finish();
 
 					// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
 					// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
@@ -195,7 +126,6 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		}
 
 	}
-
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -238,57 +168,57 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		int songId = (Integer) songlist.get(info.position).get("songid");
 		switch (item.getItemId()) {
-			case R.id.PLCX_SkipToHere:
-				// skip to selected Song
-				try {
-					app.oMPDAsyncHelper.oMPD.skipToId(songId);
-				} catch (MPDServerException e) {
+		case R.id.PLCX_SkipToHere:
+			// skip to selected Song
+			try {
+				app.oMPDAsyncHelper.oMPD.skipToId(songId);
+			} catch (MPDServerException e) {
+			}
+			return true;
+		case R.id.PLCX_playNext:
+			try { // Move song to next in playlist
+				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+				if (info.id < status.getSongPos()) {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos());
+				} else {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
 				}
-				return true;
-			case R.id.PLCX_playNext:
-				try { // Move song to next in playlist
-					MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-					if (info.id < status.getSongPos()) {
-						app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos());
-					} else {
-						app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
-					}
-					Tools.notifyUser("Song moved to next in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			case R.id.PLCX_moveFirst:
-				try { // Move song to first in playlist
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0);
-					Tools.notifyUser("Song moved to first in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			case R.id.PLCX_moveLast:
-				try { // Move song to last in playlist
-					MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getPlaylistLength() - 1);
-					Tools.notifyUser("Song moved to last in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			case R.id.PLCX_removeFromPlaylist:
-				try {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(songId);
-					Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			default:
-				return super.onContextItemSelected(item);
+				Tools.notifyUser("Song moved to next in list", getActivity());
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		case R.id.PLCX_moveFirst:
+			try { // Move song to first in playlist
+				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0);
+				Tools.notifyUser("Song moved to first in list", getActivity());
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		case R.id.PLCX_moveLast:
+			try { // Move song to last in playlist
+				MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getPlaylistLength() - 1);
+				Tools.notifyUser("Song moved to last in list", getActivity());
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		case R.id.PLCX_removeFromPlaylist:
+			try {
+				app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(songId);
+				Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), getActivity());
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		default:
+			return super.onContextItemSelected(item);
 		}
 	}
 
@@ -301,7 +231,6 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.mpd_playlistmenu, menu);
-		menu.removeItem(R.id.PLM_EditPL);
 	}
 
 	@Override
@@ -309,51 +238,51 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		// Menu actions...
 		Intent i;
 		switch (item.getItemId()) {
-			case R.id.PLM_Clear:
-				try {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
-					songlist.clear();
-					Tools.notifyUser(getResources().getString(R.string.playlistCleared), getActivity());
-					((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			case R.id.PLM_EditPL:
-				i = new Intent(getActivity(), PlaylistEditActivity.class);
-				startActivity(i);
-				return true;
-			case R.id.PLM_Save:
-				final EditText input = new EditText(getActivity());
-				new AlertDialog.Builder(getActivity())
-						.setTitle(R.string.playlistName)
-						.setMessage(R.string.newPlaylistPrompt)
-						.setView(input)
-						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int whichButton) {
-								final String name = input.getText().toString().trim();
-								if (null != name && name.length() > 0) {
-									app.oMPDAsyncHelper.execAsync(new Runnable() {
-										@Override
-										public void run() {
-											try {
-												app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
-											} catch (MPDServerException e) {
-												e.printStackTrace();
-											}
-										}
-									});
+		case R.id.PLM_Clear:
+			try {
+				app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
+				songlist.clear();
+				Tools.notifyUser(getResources().getString(R.string.playlistCleared), getActivity());
+				((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+			} catch (MPDServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		case R.id.PLM_EditPL:
+			i = new Intent(getActivity(), PlaylistEditActivity.class);
+			startActivity(i);
+			return true;
+		case R.id.PLM_Save:
+			final EditText input = new EditText(getActivity());
+			new AlertDialog.Builder(getActivity())
+		    .setTitle(R.string.playlistName)
+		    .setMessage(R.string.newPlaylistPrompt)
+		    .setView(input)
+		    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int whichButton) {
+		            final String name = input.getText().toString().trim();
+		            if (null!=name && name.length()>0) {
+		            	app.oMPDAsyncHelper.execAsync(new Runnable() {
+		    				@Override
+		    				public void run() {
+		    					try {
+									app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
+								} catch (MPDServerException e) {
+									e.printStackTrace();
 								}
-							}
-						}).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int whichButton) {
-								// Do nothing.
-							}
-						}).show();
-				return true;
-			default:
-				return false;
+		    				}
+		    			});
+		            }
+		        }
+		    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int whichButton) {
+		            // Do nothing.
+		        }
+		    }).show();
+			return true;
+		default:
+			return false;
 		}
 
 	}
@@ -374,8 +303,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public void scrollToNowPlaying() {
 		for (HashMap<String, Object> song : songlist) {
 			try {
-				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD
-						.getStatus()
+				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.getStatus()
 						.getSongId()) {
 					getListView().requestFocusFromTouch();
 					getListView().setSelection(songlist.indexOf(song));
@@ -388,13 +316,13 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	@Override
 	public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
 		update();
-
+		
 	}
 
 	@Override
@@ -408,39 +336,39 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 
 		}
 		final SimpleAdapter adapter = (SimpleAdapter) getListAdapter();
-		if (adapter != null)
+		if(adapter != null)
 			adapter.notifyDataSetChanged();
-
+		
 	}
 
 	@Override
 	public void stateChanged(MPDStatus mpdStatus, String oldState) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void repeatChanged(boolean repeating) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void randomChanged(boolean random) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void connectionStateChanged(boolean connected, boolean connectionLost) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void libraryStateChanged(boolean updating) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 }

@@ -26,6 +26,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
+import com.namelessdev.mpdroid.fragments.PlaylistFragmentCompat;
 import com.namelessdev.mpdroid.library.LibraryTabActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -174,8 +175,16 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
         public Fragment getItem(int i) {
             Fragment fragment = null;
             switch (i) {
-            	case 0: fragment = new NowPlayingFragment(); break;
-            	case 1: fragment = new PlaylistFragment(); break;
+				case 0:
+					fragment = new NowPlayingFragment();
+					break;
+				case 1:
+					if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+						fragment = new PlaylistFragment();
+					} else {
+						fragment = new PlaylistFragmentCompat();
+					}
+					break;
             }
             return fragment;
         }
