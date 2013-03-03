@@ -39,6 +39,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
@@ -71,6 +72,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.playlist_activity, container, false);
 		list = (ListView) view.findViewById(android.R.id.list);
+		((TouchInterceptor) list).setDropListener(dropListener);
+		list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
 		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
@@ -178,7 +181,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			getActivity().runOnUiThread(new Runnable() {
 				@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 				public void run() {
-					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item, new String[] { "play",
+					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_queue_item, new String[] {
+							"play",
 							"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
 					setListAdapter(songs);
@@ -445,5 +449,19 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		// TODO Auto-generated method stub
 
 	}
+
+	private TouchInterceptor.DropListener dropListener = new TouchInterceptor.DropListener() {
+		public void drop(int from, int to) {
+			if (from == to) {
+				return;
+			}
+			HashMap<String, Object> itemFrom = songlist.get(from);
+			Integer songID = (Integer) itemFrom.get("songid");
+			try {
+				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
+			} catch (MPDServerException e) {
+			}
+		}
+	};
 
 }
