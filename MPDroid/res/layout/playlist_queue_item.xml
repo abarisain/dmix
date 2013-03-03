@@ -54,14 +54,6 @@
                 android:layout_gravity="left"
                 android:gravity="center"
                 android:padding="4dp" />
-
-            <CheckBox
-                android:id="@+id/removeCBox"
-                android:layout_width="26dp"
-                android:layout_height="20dp"
-                android:button="@drawable/checkbox_grey"
-                android:clickable="false"
-                android:focusable="false" />
         </LinearLayout>
     </LinearLayout>
 
