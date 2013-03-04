@@ -5,6 +5,7 @@
     android:baselineAligned="true"
     android:gravity="bottom"
     android:orientation="horizontal"
+    android:background="?android:attr/activatedBackgroundIndicator"
     android:paddingBottom="4dip"
     android:paddingTop="4dip" >
 
