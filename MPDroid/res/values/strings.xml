@@ -207,5 +207,6 @@
     
     <string name="actionSongSelected">1 song selected</string>
     <string name="actionSongsSelected">%s songs selected</string>
+    <string name="searchQueue">Search play queue …</string>
 	
 </resources>

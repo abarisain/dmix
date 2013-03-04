@@ -29,6 +29,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -49,6 +50,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	private MPDApplication app;
 	private ListView list;
 	private ActionMode actionMode;
+	private SearchView searchView;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -71,7 +73,9 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.playlist_activity, container, false);
+		searchView = (SearchView) view.findViewById(R.id.search);
 		list = (ListView) view.findViewById(android.R.id.list);
+		list.requestFocus();
 		((TouchInterceptor) list).setDropListener(dropListener);
 		list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
 		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);

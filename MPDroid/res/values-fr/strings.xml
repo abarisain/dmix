@@ -183,4 +183,5 @@
     
 	<string name="actionSongSelected">1 chanson selectionnée</string>
     <string name="actionSongsSelected">%s chansons selectionnées</string>
+    <string name="searchQueue">Rechercher dans la file …</string>
 </resources>
