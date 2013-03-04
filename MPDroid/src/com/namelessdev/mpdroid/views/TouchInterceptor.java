@@ -16,10 +16,6 @@ package com.namelessdev.mpdroid.views;
  * limitations under the License.
  */
 
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.R.dimen;
-import com.namelessdev.mpdroid.R.id;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -28,16 +24,18 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+
+import com.namelessdev.mpdroid.R;
 
 //Straight out of Google ! Oh the joy of open source ... :)
 public class TouchInterceptor extends ListView {
@@ -65,10 +63,12 @@ public class TouchInterceptor extends ListView {
 	private int mItemHeightNormal;
 	private int mItemHeightExpanded;
 	private int mItemHeightHalf;
+	private boolean mDraggingEnabled;
 
 	public TouchInterceptor(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		mRemoveMode = -1;
+		mDraggingEnabled = true;
 		mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 		Resources res = getResources();
 		mItemHeightNormal = res.getDimensionPixelSize(R.dimen.normal_height);
@@ -77,12 +77,12 @@ public class TouchInterceptor extends ListView {
 	}
 	
 	private boolean isDragItem(View item){
-	    return (item.findViewById(R.id.icon)!=null);				
+		return (mDraggingEnabled && item.findViewById(R.id.icon) != null);
 	}
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		if (mRemoveListener != null && mGestureDetector == null) {
+		if (mDraggingEnabled && mRemoveListener != null && mGestureDetector == null) {
 			if (mRemoveMode == FLING) {
 				mGestureDetector = new GestureDetector(getContext(), new SimpleOnGestureListener() {
 					@Override
@@ -106,7 +106,7 @@ public class TouchInterceptor extends ListView {
 				});
 			}
 		}
-		if (mDragListener != null || mDropListener != null) {
+		if (mDraggingEnabled && mDragListener != null || mDropListener != null) {
 			switch (ev.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				int x = (int) ev.getX();
@@ -275,7 +275,7 @@ public class TouchInterceptor extends ListView {
 		if (mGestureDetector != null) {
 			mGestureDetector.onTouchEvent(ev);
 		}
-		if ((mDragListener != null || mDropListener != null) && mDragView != null) {
+		if (mDraggingEnabled && (mDragListener != null || mDropListener != null) && mDragView != null) {
 			int action = ev.getAction();
 			switch (action) {
 			case MotionEvent.ACTION_UP:
@@ -395,6 +395,10 @@ public class TouchInterceptor extends ListView {
 			mDragBitmap.recycle();
 			mDragBitmap = null;
 		}
+	}
+
+	public void setDraggingEnabled(boolean enable) {
+		mDraggingEnabled = enable;
 	}
 
 	public void setDragListener(DragListener l) {

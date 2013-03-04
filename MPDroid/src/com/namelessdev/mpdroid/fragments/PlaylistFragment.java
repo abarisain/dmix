@@ -13,6 +13,7 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -23,6 +24,7 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -30,6 +32,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
 import android.widget.SimpleAdapter;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -42,6 +45,7 @@ import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
@@ -51,6 +55,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	private ListView list;
 	private ActionMode actionMode;
 	private SearchView searchView;
+	private String filter = null;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -74,6 +79,29 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.playlist_activity, container, false);
 		searchView = (SearchView) view.findViewById(R.id.search);
+		searchView.setOnQueryTextListener(new OnQueryTextListener() {
+
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				// Hide the keyboard and give focus to the list
+				InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+				list.requestFocus();
+				return true;
+			}
+
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				filter = newText;
+				if ("".equals(newText))
+					filter = null;
+				if (filter != null)
+					filter = filter.toLowerCase();
+				((TouchInterceptor) list).setDraggingEnabled(filter == null);
+				update();
+				return false;
+			}
+		});
 		list = (ListView) view.findViewById(android.R.id.list);
 		list.requestFocus();
 		((TouchInterceptor) list).setDropListener(dropListener);
@@ -157,18 +185,42 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			// The position in the songlist of the currently played song
 			int listPlayingID = -1;
+			String tmpArtist = null;
+			String tmpAlbum = null;
+			String tmpAlbumArtist = null;
+			String tmpTitle = null;
 			for (Music m : musics) {
 				if (m == null) {
 					continue;
 				}
+				tmpArtist = m.getArtist();
+				tmpAlbum = m.getAlbum();
+				tmpAlbumArtist = m.getAlbumArtist();
+				tmpTitle = m.getTitle();
+				if (filter != null) {
+					if (tmpArtist == null)
+						tmpArtist = "";
+					if (tmpAlbum == null)
+						tmpAlbum = "";
+					if (tmpAlbumArtist == null)
+						tmpAlbumArtist = "";
+					if (tmpTitle == null)
+						tmpTitle = "";
+					if (!tmpArtist.toLowerCase().contains(filter) &&
+							!tmpAlbum.toLowerCase().contains(filter) &&
+							!tmpAlbumArtist.toLowerCase().contains(filter) &&
+							!tmpTitle.toLowerCase().contains(filter)) {
+						continue;
+					}
+				}
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
-				if (Tools.isStringEmptyOrNull(m.getAlbum())) {
-					item.put("artist", m.getArtist());
+				if (Tools.isStringEmptyOrNull(tmpAlbum)) {
+					item.put("artist", tmpArtist);
 				} else {
-					item.put("artist", m.getArtist() + " - " + m.getAlbum());
+					item.put("artist", tmpArtist + " - " + tmpAlbum);
 				}
-				item.put("title", m.getTitle());
+				item.put("title", tmpTitle);
 				if (m.getSongId() == playingID) {
 					item.put("play", android.R.drawable.ic_media_play);
 					// Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
@@ -183,7 +235,6 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			final int finalListPlayingID = listPlayingID;
 
 			getActivity().runOnUiThread(new Runnable() {
-				@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 				public void run() {
 					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_queue_item, new String[] {
 							"play",
@@ -456,7 +507,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 
 	private TouchInterceptor.DropListener dropListener = new TouchInterceptor.DropListener() {
 		public void drop(int from, int to) {
-			if (from == to) {
+			if (from == to || filter != null) {
 				return;
 			}
 			HashMap<String, Object> itemFrom = songlist.get(from);
