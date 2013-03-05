@@ -2,10 +2,10 @@
     android:layout_width="fill_parent"
     android:layout_height="55dip"
     android:layout_gravity="left"
+    android:background="?android:attr/activatedBackgroundIndicator"
     android:baselineAligned="true"
     android:gravity="bottom"
     android:orientation="horizontal"
-    android:background="?android:attr/activatedBackgroundIndicator"
     android:paddingBottom="4dip"
     android:paddingTop="4dip" >
 
@@ -16,8 +16,8 @@
         android:layout_gravity="bottom"
         android:layout_marginLeft="2dip"
         android:layout_marginRight="2dip"
-        android:scaleType="center"
         android:alpha="0.5"
+        android:scaleType="center"
         android:src="@drawable/ic_mp_move" />
 
     <LinearLayout
@@ -58,5 +58,20 @@
                 android:padding="4px" />
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:layout_width="0.75dip"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dip"
+        android:layout_marginTop="8dip"
+        android:layout_marginLeft="2dip"
+        android:background="@color/list_item_horizontal_separator" />
+
+    <ImageButton
+        android:id="@+id/menu"
+        android:layout_width="40dip"
+        android:layout_height="wrap_content"
+        android:background="?attr/actionBarItemBackground"
+        android:src="@drawable/ic_action_menu_indicator" />
 
 </LinearLayout>

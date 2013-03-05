@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.fragments;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
@@ -10,7 +11,6 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -20,17 +20,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.SimpleAdapter;
@@ -46,16 +48,17 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener {
+public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener, OnMenuItemClickListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
 
-	private String title;
 	private MPDApplication app;
 	private ListView list;
 	private ActionMode actionMode;
 	private SearchView searchView;
 	private String filter = null;
+	private PopupMenu popupMenu;
+	private Integer popupSongID;
 
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
@@ -74,7 +77,6 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		app = (MPDApplication) getActivity().getApplication();
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.playlist_activity, container, false);
@@ -236,7 +238,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 
 			getActivity().runOnUiThread(new Runnable() {
 				public void run() {
-					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_queue_item, new String[] {
+					SimpleAdapter songs = new QueueAdapter(getActivity(), songlist, R.layout.playlist_queue_item, new String[] {
 							"play",
 							"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
@@ -278,80 +280,6 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public void onPause() {
 		app.oMPDAsyncHelper.removeStatusChangeListener(this);
 		super.onPause();
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-
-		super.onCreateContextMenu(menu, v, menuInfo);
-		android.view.MenuInflater inflater = getActivity().getMenuInflater();
-		inflater.inflate(R.menu.mpd_playlistcnxmenu, menu);
-
-		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		// arrayListId = info.position;
-
-		title = (String) songlist.get(info.position).get("title");
-		menu.setHeaderTitle(title);
-	}
-
-	@Override
-	public boolean onContextItemSelected(android.view.MenuItem item) {
-		MPDApplication app = (MPDApplication) getActivity().getApplication();
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-		int songId = (Integer) songlist.get(info.position).get("songid");
-		switch (item.getItemId()) {
-			case R.id.PLCX_SkipToHere:
-				// skip to selected Song
-				try {
-					app.oMPDAsyncHelper.oMPD.skipToId(songId);
-				} catch (MPDServerException e) {
-				}
-				return true;
-			case R.id.PLCX_playNext:
-				try { // Move song to next in playlist
-					MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-					if (info.id < status.getSongPos()) {
-						app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos());
-					} else {
-						app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getSongPos() + 1);
-					}
-					Tools.notifyUser("Song moved to next in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			case R.id.PLCX_moveFirst:
-				try { // Move song to first in playlist
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0);
-					Tools.notifyUser("Song moved to first in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			case R.id.PLCX_moveLast:
-				try { // Move song to last in playlist
-					MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-					app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getPlaylistLength() - 1);
-					Tools.notifyUser("Song moved to last in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			case R.id.PLCX_removeFromPlaylist:
-				try {
-					app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(songId);
-					Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			default:
-				return super.onContextItemSelected(item);
-		}
 	}
 
 	/*
@@ -518,5 +446,93 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			}
 		}
 	};
+
+	private OnClickListener itemMenuButtonListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			popupSongID = (Integer) v.getTag();
+			popupMenu = new PopupMenu(getActivity(), v);
+			popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistcnxmenu, popupMenu.getMenu());
+			popupMenu.setOnMenuItemClickListener(PlaylistFragment.this);
+			popupMenu.show();
+		}
+	};
+
+	@Override
+	public boolean onMenuItemClick(android.view.MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+			case R.id.PLCX_SkipToHere:
+				// skip to selected Song
+				try {
+					app.oMPDAsyncHelper.oMPD.skipToId(popupSongID);
+				} catch (MPDServerException e) {
+				}
+				return true;
+			case R.id.PLCX_playNext:
+				try { // Move song to next in playlist
+					MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+					if (info.id < status.getSongPos()) {
+						app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, status.getSongPos());
+					} else {
+						app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, status.getSongPos() + 1);
+					}
+					Tools.notifyUser("Song moved to next in list", getActivity());
+				} catch (MPDServerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return true;
+			case R.id.PLCX_moveFirst:
+				try { // Move song to first in playlist
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, 0);
+					Tools.notifyUser("Song moved to first in list", getActivity());
+				} catch (MPDServerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return true;
+			case R.id.PLCX_moveLast:
+				try { // Move song to last in playlist
+					MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+					app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, status.getPlaylistLength() - 1);
+					Tools.notifyUser("Song moved to last in list", getActivity());
+				} catch (MPDServerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return true;
+			case R.id.PLCX_removeFromPlaylist:
+				try {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(popupSongID);
+					Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), getActivity());
+				} catch (MPDServerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return true;
+			default:
+				return true;
+		}
+	}
+
+	private class QueueAdapter extends SimpleAdapter {
+
+		public QueueAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
+			super(context, data, resource, from, to);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			final View view = super.getView(position, convertView, parent);
+			view.findViewById(R.id.icon).setVisibility(filter == null ? View.VISIBLE : View.GONE);
+			final ImageButton menuButton = (ImageButton) view.findViewById(R.id.menu);
+			if (convertView == null)
+				menuButton.setOnClickListener(itemMenuButtonListener);
+			menuButton.setTag(((Map<String, ?>) getItem(position)).get("songid"));
+			return view;
+		}
+	}
 
 }
