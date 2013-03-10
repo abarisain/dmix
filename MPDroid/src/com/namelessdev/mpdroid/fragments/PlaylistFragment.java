@@ -353,9 +353,10 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 
 		MPDApplication app = (MPDApplication) getActivity().getApplication(); // Play selected Song
 
-		Music m = musics.get(position);
+		@SuppressWarnings("unchecked")
+		final Integer song = (Integer) ((HashMap<String, Object>) l.getAdapter().getItem(position)).get("songid");
 		try {
-			app.oMPDAsyncHelper.oMPD.skipToId(m.getSongId());
+			app.oMPDAsyncHelper.oMPD.skipToId(song);
 		} catch (MPDServerException e) {
 		}
 
