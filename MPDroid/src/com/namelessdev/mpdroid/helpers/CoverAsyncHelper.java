@@ -116,7 +116,7 @@ public class CoverAsyncHelper extends Handler {
 	
 	public void setCoverMaxSizeFromScreen(Activity activity) {
 		final DisplayMetrics metrics = new DisplayMetrics();
-		activity.getWindowManager().getDefaultDisplay().getMetrics(new DisplayMetrics());
+		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		setCoverMaxSize(Math.min(metrics.widthPixels, metrics.heightPixels));
 	}
 
