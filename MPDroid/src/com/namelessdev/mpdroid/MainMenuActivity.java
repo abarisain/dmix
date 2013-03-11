@@ -252,60 +252,61 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 		Intent i = null;
 		final MPDApplication app = (MPDApplication) this.getApplication();
 		final MPD mpd = app.oMPDAsyncHelper.oMPD;
-		
+
 		// Handle item selection
 		switch (item.getItemId()) {
-		case R.id.menu_search:
-			this.onSearchRequested();
-			return true;
-		case R.id.GMM_LibTab:
-			openLibrary();
-			return true;
-		case R.id.GMM_Settings:
-			i = new Intent(this, SettingsActivity.class);
-			startActivityForResult(i, SETTINGS);
-			return true;
-		case R.id.GMM_Outputs:
-			i = new Intent(this, SettingsActivity.class);
-			i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
-			startActivityForResult(i, SETTINGS);
-			return true;
-		case CONNECT:
-			((MPDApplication) this.getApplication()).connect();
-			return true;
-		case R.id.GMM_Stream:
-			if (((MPDApplication) this.getApplication()).getApplicationState().streamingMode) { // yeah, yeah getApplication for that may be ugly but
-																						// ...
-				i = new Intent(this, StreamingService.class);
-				i.setAction("com.namelessdev.mpdroid.DIE");
-				this.startService(i);
-				((MPDApplication) this.getApplication()).getApplicationState().streamingMode = false;
-				// Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
-			} else {
-				i = new Intent(this, StreamingService.class);
-				i.setAction("com.namelessdev.mpdroid.START_STREAMING");
-				this.startService(i);
-				((MPDApplication) this.getApplication()).getApplicationState().streamingMode = true;
-				// Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
-			}
-			return true;
-		case R.id.GMM_bonjour:
-			startActivity(new Intent(this, ServerListActivity.class));
-			return true;
-		case R.id.GMM_Consume:
-			try {
-				mpd.setConsume(!mpd.getStatus().isConsume());
-			} catch (MPDServerException e) {
-			}
-			return true;
-		case R.id.GMM_Single:
-			try {
-				mpd.setSingle(!mpd.getStatus().isSingle());
-			} catch (MPDServerException e) {
-			}
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
+			case R.id.menu_search:
+				this.onSearchRequested();
+				return true;
+			case R.id.GMM_LibTab:
+				openLibrary();
+				return true;
+			case R.id.GMM_Settings:
+				i = new Intent(this, SettingsActivity.class);
+				startActivityForResult(i, SETTINGS);
+				return true;
+			case R.id.GMM_Outputs:
+				i = new Intent(this, SettingsActivity.class);
+				i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
+				startActivityForResult(i, SETTINGS);
+				return true;
+			case CONNECT:
+				((MPDApplication) this.getApplication()).connect();
+				return true;
+			case R.id.GMM_Stream:
+				if (app.getApplicationState().streamingMode) {
+					i = new Intent(this, StreamingService.class);
+					i.setAction("com.namelessdev.mpdroid.DIE");
+					this.startService(i);
+					((MPDApplication) this.getApplication()).getApplicationState().streamingMode = false;
+					// Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
+				} else {
+					if (app.oMPDAsyncHelper.oMPD.isConnected()) {
+						i = new Intent(this, StreamingService.class);
+						i.setAction("com.namelessdev.mpdroid.START_STREAMING");
+						this.startService(i);
+						((MPDApplication) this.getApplication()).getApplicationState().streamingMode = true;
+						// Toast.makeText(this, "MPD Streaming Started", Toast.LENGTH_SHORT).show();
+					}
+				}
+				return true;
+			case R.id.GMM_bonjour:
+				startActivity(new Intent(this, ServerListActivity.class));
+				return true;
+			case R.id.GMM_Consume:
+				try {
+					mpd.setConsume(!mpd.getStatus().isConsume());
+				} catch (MPDServerException e) {
+				}
+				return true;
+			case R.id.GMM_Single:
+				try {
+					mpd.setSingle(!mpd.getStatus().isSingle());
+				} catch (MPDServerException e) {
+				}
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
 		}
 
 	}
