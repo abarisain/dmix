@@ -60,6 +60,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	private PopupMenu popupMenu;
 	private Integer popupSongID;
 
+	private int lastPlayingID = -1;
+
 	public static final int MAIN = 0;
 	public static final int CLEAR = 1;
 	public static final int MANAGER = 3;
@@ -100,7 +102,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 				if (filter != null)
 					filter = filter.toLowerCase();
 				((TouchInterceptor) list).setDraggingEnabled(filter == null);
-				update();
+				update(false);
 				return false;
 			}
 		});
@@ -180,11 +182,16 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	}
 
 	protected void update() {
+		update(true);
+	}
+
+	protected void update(boolean forcePlayingIDRefresh) {
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			songlist = new ArrayList<HashMap<String, Object>>();
 			musics = playlist.getMusicList();
-			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
+			if (lastPlayingID == -1 || forcePlayingIDRefresh)
+				lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			// The position in the songlist of the currently played song
 			int listPlayingID = -1;
 			String tmpArtist = null;
@@ -223,7 +230,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 					item.put("artist", tmpArtist + " - " + tmpAlbum);
 				}
 				item.put("title", tmpTitle);
-				if (m.getSongId() == playingID) {
+				if (m.getSongId() == lastPlayingID) {
 					item.put("play", android.R.drawable.ic_media_play);
 					// Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
 					// it
