@@ -45,7 +45,7 @@ public class FSFragment extends BrowseFragment {
 
             MPDApplication app = (MPDApplication) getActivity().getApplication();
 
-            if(item.getName().equals(getResources().getString(R.string.allMusic)))
+            if(item.getId() == -1)
             {
                 //All Music
                 app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getAllMusic());
@@ -74,7 +74,7 @@ public class FSFragment extends BrowseFragment {
 		try {
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
 
-            if(item.getName().equals(getResources().getString(R.string.allMusic)))
+            if(item.getId() == -1)
             {
                 //All Music
                 app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getAllMusic());
@@ -129,6 +129,12 @@ public class FSFragment extends BrowseFragment {
                 public String getName()
                 {
                     return getResources().getString(R.string.allMusic);
+                }
+
+                @Override
+                public int getId()
+                {
+                    return -1;
                 }
             });
         }
