@@ -126,8 +126,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 			if (line.startsWith("file: ")) {
 				if (lineCache.size() != 0) {
                     Music m = new Music(lineCache);
-                    if(m.getName() != null || m.getFullpath() != null)
-                    {
+                    if(m.getName() != null || m.getFullpath() != null) {
                         result.add(new Music(lineCache));
                     }
 

@@ -45,13 +45,11 @@ public class FSFragment extends BrowseFragment {
 
             MPDApplication app = (MPDApplication) getActivity().getApplication();
 
-            if(item.getId() == -1)
-            {
+            if(item.getId() == -1){
                 //All Music
                 app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getAllMusic());
             }
-            else
-            {
+            else{
 
                 Directory ToAdd = currentDirectory.getDirectory(item.getName());
                 if (ToAdd != null) {
@@ -74,13 +72,11 @@ public class FSFragment extends BrowseFragment {
 		try {
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
 
-            if(item.getId() == -1)
-            {
+            if(item.getId() == -1){
                 //All Music
                 app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getAllMusic());
             }
-            else
-            {
+            else{
                 Directory ToAdd = currentDirectory.getDirectory(item.getName());
                 if (ToAdd != null) {
                     // Valid directory
@@ -123,17 +119,14 @@ public class FSFragment extends BrowseFragment {
         dirItems.addAll(currentDirectory.getFiles());
 
         if (this.getActivity().getIntent().getStringExtra("directory") == null) {
-            dirItems.add(0,new Item()
-            {
+            dirItems.add(0,new Item(){
                 @Override
-                public String getName()
-                {
+                public String getName(){
                     return getResources().getString(R.string.allMusic);
                 }
 
                 @Override
-                public int getId()
-                {
+                public int getId(){
                     return -1;
                 }
             });
@@ -145,8 +138,7 @@ public class FSFragment extends BrowseFragment {
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 
-        if(position == 0)
-        {
+        if(position == 0){
             return;
         }
 
