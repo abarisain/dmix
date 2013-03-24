@@ -199,5 +199,7 @@
 	<string name="clearLocalCoverCache">Clear cover art cache</string>
 	<string name="clearLocalCoverCacheDescription">Free the storage space used by the cover art cache</string>
     <string name="clearLocalCoverCachePrompt">Delete all cached cover art ?</string>
+
+    <string name="allMusic">(ALL)</string>
 	
 </resources>

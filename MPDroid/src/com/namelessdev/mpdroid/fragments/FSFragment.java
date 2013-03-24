@@ -42,17 +42,28 @@ public class FSFragment extends BrowseFragment {
 	@Override
 	protected void Add(Item item) {
 		try {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			Directory ToAdd = currentDirectory.getDirectory(item.getName());
-			if (ToAdd != null) {
-				// Valid directory
-				app.oMPDAsyncHelper.oMPD.getPlaylist().add(ToAdd);
-				Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
-						FSFragment.this.getActivity());
-			} else {
-				app.oMPDAsyncHelper.oMPD.getPlaylist().add((Music) item);
-				Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
-			}
+
+            MPDApplication app = (MPDApplication) getActivity().getApplication();
+
+            if(item.getName().equals(getResources().getString(R.string.allMusic)))
+            {
+                //All Music
+                app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.getAllMusic());
+            }
+            else
+            {
+
+                Directory ToAdd = currentDirectory.getDirectory(item.getName());
+                if (ToAdd != null) {
+                    // Valid directory
+                    app.oMPDAsyncHelper.oMPD.getPlaylist().add(ToAdd);
+                    Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
+                            FSFragment.this.getActivity());
+                } else {
+                    app.oMPDAsyncHelper.oMPD.getPlaylist().add((Music) item);
+                    Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
+                }
+            }
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
@@ -62,18 +73,29 @@ public class FSFragment extends BrowseFragment {
 	protected void Add(Item item, String playlist) {
 		try {
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
-			Directory ToAdd = currentDirectory.getDirectory(item.getName());
-			if (ToAdd != null) {
-				// Valid directory
-				app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
-				Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
-						FSFragment.this.getActivity());
-			} else {
-				ArrayList<Music> songs = new ArrayList<Music>();
-				songs.add((Music) item);
-				app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
-				Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
-			}
+
+            if(item.getName().equals(getResources().getString(R.string.allMusic)))
+            {
+                //All Music
+                app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.getAllMusic());
+            }
+            else
+            {
+                Directory ToAdd = currentDirectory.getDirectory(item.getName());
+                if (ToAdd != null) {
+                    // Valid directory
+                    app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
+                    Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
+                            FSFragment.this.getActivity());
+                } else {
+                    ArrayList<Music> songs = new ArrayList<Music>();
+                    songs.add((Music) item);
+                    app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
+                    Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
+                }
+            }
+
+
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
@@ -99,11 +121,29 @@ public class FSFragment extends BrowseFragment {
         List<Item> dirItems=new ArrayList<Item>();
         dirItems.addAll(currentDirectory.getDirectories());
         dirItems.addAll(currentDirectory.getFiles());
+
+        if (this.getActivity().getIntent().getStringExtra("directory") == null) {
+            dirItems.add(0,new Item()
+            {
+                @Override
+                public String getName()
+                {
+                    return getResources().getString(R.string.allMusic);
+                }
+            });
+        }
+
         items=dirItems;
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
+
+        if(position == 0)
+        {
+            return;
+        }
+
 		// click on a file
 		if (position > currentDirectory.getDirectories().size() - 1 || currentDirectory.getDirectories().size() == 0) {
 
