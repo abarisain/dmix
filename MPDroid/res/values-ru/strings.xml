@@ -44,7 +44,7 @@
 	<string name="playlistAdded">Список воспроизведения %s добавлен</string>
 	<string name="addedDirectoryToPlaylist">Added %s to playlist</string>
 	<string name="artistAdded">Исполнитель %s добавлен</string>
-	<string name="host">Host</string>
+	<string name="host">Сервер</string>
 	<string name="hostDescription">Имя или IP-адрес MPD-сервера </string>
 	<string name="hostStreaming">Streaming host</string>
 	<string name="hostStreamingDescription">Streaming server Hostname or IP-Address</string>
@@ -97,7 +97,7 @@
 	<string name="wlanBasedSettingsDescription">Set WLAN based MPD-Host/Port and password</string>
 	<string name="defaultSettingsDescription">Set default MPD-Host/Port and password</string>
 	<string name="stream">Streaming</string>
-	<string name="buffering">Buffering …</string>
+	<string name="buffering">Буферизация …</string>
 	<string name="portStreaming">Streaming port</string>
 	<string name="portStreamingDescription">MPD Streaming port (Default: 8000)</string>
 	<string name="suffixStreaming">Streaming url suffix</string>
@@ -109,12 +109,12 @@
 	<string name="aboutText1">MPDroid is open-source software. Visit http://github.com/abarisain/dmix for source code !</string>
 	<string name="aboutText2">MPDroid is a fork of PMix (http://code.google.com/p/pmix/). Thanks to them !</string>
 	<string name="aboutLastFM">Thanks to last.fm for providing album arts</string>
-	<string name="search">Search</string>
+	<string name="search">Поиск</string>
 	<string name="search_label">MPDroid</string>
 	<string name="search_hint">Поиск…</string>
 	<string name="libraryTabActivity">Библиотека</string>
 	<string name="warningTitle">Пожалуйста прочитайте</string>
-	<string name="warningText1">Welcome to MPDroid 1.0 !\nThis will only display once.\n\nFirst of all, if you don\'t know what a MPD server is, you should uninstall the application now, it is not made for you.\n\nImportant known bug : Widget sometimes crashes or drains battery.\n\nFor previous users, thanks a lot for your support and contributions. I really hope that you will like the new MPDroid version. Feel free to tell me what you dislike or want back in an email :)\nThe old version is stil available on my github page.</string>
+	<string name="warningText1">Добро пожаловать в MPDroid 1.0 !\nЭто сообщение отобразится только один раз.\n\nВо первых, если вы не знаете, что такое MPD, удалите приложение прямо сейчас, оно созданно не для вас.\n\nВажный баг : Виджет может иногда падать или жрать заряд аккумулятора.\n\nFor previous users, огромное спасибо за вашу поддержку и вклад в развитие. Я надеюсь вам понравится новая версия MPDroid. Не стесняйтесь сообщать мне, что вас не устраивет через email :)\nСтарая версия все ещё доступна на моём гитхабе.</string>
 	<string name="editPlaylist">Редактировать</string>
 	<string name="edit">Редактировать</string>
 	<string name="nowPlaying">Проигрывается</string>
@@ -147,11 +147,11 @@
 	<string name="whatsNew">Что нового ?</string>
 	<string name="whatsNewDescription">Смотреть список изменений (Открывает внешнюю web-страницу)</string>
 	<string name="deleteServer">Удалить эту страницу</string>
-	<string name="aboutIcon">Original app icon by Asher (http://kyo-tux.deviantart.com/) and brsev (http://brsev.deviantart.com/), modified for MPDroid.</string>
-	<string name="connectionFailedMessageSetting">Connection failed, check your connection settings. (%s)</string>
+	<string name="aboutIcon">Оригальная иконка сделана Asher (http://kyo-tux.deviantart.com/) и brsev (http://brsev.deviantart.com/), изменена для MPDroid.</string>
+	<string name="connectionFailedMessageSetting">Подключение не установленно, проверьте настройки соединения. (%s)</string>
 	<string name="widget_initial_text">Touch to select music.</string>
-	<string name="no_result">No results</string>
-	<string name="backpressToQuit">Press back again to quit</string>
+	<string name="no_result">Ничего не найдено</string>
+	<string name="backpressToQuit">Для выхода нажмите назад ещё раз</string>
 	<string name="playQueue">Play Queue</string>
 	<string name="deletePlaylistPrompt">Вы уверены в том, что хотите удалить %s?</string>
 	<string name="failedToDelete">Не удалось удалить %s</string>
@@ -159,7 +159,7 @@
 	<string name="tracksInfoHeader">%1$s Tracks, %2$s</string>
 	<string name="tracksInfoHeaderPlural">%1$s Tracks, %2$s</string>
 	<string name="audioFocusFailed">Cannot start streaming : Another application is playing music.</string>
-	<string name="addToPlaylist">Add to playlist</string>
+	<string name="addToPlaylist">Добавить к списку воспроизведения</string>
 	<string name="newPlaylist">(Новый список воспроизведения)</string>
 	<string name="playlistName">Название списка воспроизведения</string>
 	<string name="newPlaylistPrompt">Введите названия нового списка воспроизведения:</string>
@@ -170,23 +170,23 @@
 	<string name="loadingStreams">Загрузка потоков…</string>
 	<string name="streamDeleted">Поток %s удален</string>
 	<string name="deleteStream">Удалить поток</string>
-	<string name="deleteStreamPrompt">Вы уверены ы томб что хотите удалить %s?</string>
+	<string name="deleteStreamPrompt">Вы уверены в том что хотите удалить %s?</string>
 	<string name="streamName">Название:</string>
 	<string name="streamUrl">URL:</string>
-	<string name="streamDetails">Stream details:</string>
+	<string name="streamDetails">Детали потока:</string>
 	<string name="genreAdded">Жанр %s добавлен</string>
 	<string name="enableStopButton">Показывать кнопку "Стоп"</string>
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
-	<string name="donate">Donate</string>
+	<string name="donate">Пожертвовать</string>
 	<string name="stop">Стоп</string>
 
-	<string name="behavior">Phone Behavior</string>
-	<string name="pauseOnPhoneStateChange">Pause playback</string>
-	<string name="pauseOnPhoneStateChangeDescription">Pause playback when in a call</string>
-	<string name="playOnPhoneStateChange">Resume playback</string>
-	<string name="playOnPhoneStateChangeDescription">Resume playback when a call ends</string>
-
+	<string name="behavior">Реакция на звонки</string>
+	<string name="pauseOnPhoneStateChange">Приостонавливать воспроизведение</string>
+	<string name="pauseOnPhoneStateChangeDescription">Приостонавливать воспроизведение при звонке</string>
+	<string name="playOnPhoneStateChange">Продолжать воспроизведение</string>
+	<string name="playOnPhoneStateChangeDescription">Продолжать воспроизведение после окончания звонка</string>
+	
 	<string name="libraryTabsSettings">Настройки вкладок библиотеки</string>
 	<string name="libraryTabsSettingsDescription">Выбрать какие вкладки видны и в каком порядке они расположенны</string>
 	<string name="visibleTabs">Видимые вкладки</string>
