@@ -197,6 +197,7 @@
 	<string name="enableLocalCoverCacheDescription">Сохранять загруженные обложки для ускорения работы</string>
 	<string name="clearLocalCoverCache">Очистить кэш обложек</string>
 	<string name="clearLocalCoverCacheDescription">Освободить память занятую кэшем обложек</string>
-    <string name="clearLocalCoverCachePrompt">Удалить все кэшированные обложки?</string>
-	
+    	<string name="clearLocalCoverCachePrompt">Удалить все кэшированные обложки?</string>
+
 </resources>
+
