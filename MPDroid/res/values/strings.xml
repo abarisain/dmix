@@ -208,5 +208,7 @@
     <string name="actionSongSelected">1 song selected</string>
     <string name="actionSongsSelected">%s songs selected</string>
     <string name="searchQueue">Search play queue …</string>
+    <string name="enableDoubleBackExit">Exit with double back press</string>
+    <string name="enableDoubleBackExitDescription">Avoid from undesired exits. Requires app restart</string>
 	
 </resources>

@@ -7,6 +7,8 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -59,6 +61,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
     private int backPressExitCount;
     private Handler exitCounterReset;
 
+    boolean doubleBack;
 	@SuppressLint("NewApi")
 	@TargetApi(11)
 	@Override
@@ -89,7 +92,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
         
         if(Build.VERSION.SDK_INT >= 14) {
         	//Bug on ICS with sherlock's layout
-        	actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         } else {
         	actionBarAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
         }
@@ -110,6 +113,8 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
                 actionBar.setSelectedNavigationItem(position);
             }
         });
+	final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+	doubleBack = settings.getBoolean("enableDoubleBackExit", true);
     }
 
 	@Override
@@ -137,7 +142,7 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 	 */
 	@Override
 	public void onBackPressed() {
-		if (backPressExitCount < 1) {
+		if (doubleBack && backPressExitCount < 1 ) {
 			Tools.notifyUser(String.format(getResources().getString(R.string.backpressToQuit)), this);
 			backPressExitCount += 1;
 			exitCounterReset.postDelayed(new Runnable() {
