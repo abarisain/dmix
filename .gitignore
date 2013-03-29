@@ -17,7 +17,3 @@
 /lastfm-java/bin
 /JmDNS/bin
 .DS_Store
-/ActionBarSherlock/project.properties
-/MPDroid/proguard-project.txt
-/JMPDComm/proguard-project.txt
-*.swp
