@@ -93,7 +93,7 @@
 	<string name="preferredConnection">Предпочитаемое соединение</string>
 	<string name="chooseWLAN">Выберите WLAN сеть</string>
 	<string name="wlanBasedSettings">Настройки основанные на WLAN</string>
-	<string name="defaultSettings">СтандартныеСтандартные  настройки соединения</string>
+	<string name="defaultSettings">Стандартные настройки соединения</string>
 	<string name="wlanBasedSettingsDescription">Указать IP-адрес, порт и пароль индивидуально для каждой сети</string>
 	<string name="defaultSettingsDescription">Указать используемый по умолчанию IP-адрес, порт и пароль</string>
 	<string name="stream">Потоковое воспроизведение</string>
