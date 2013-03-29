@@ -90,6 +90,9 @@
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableStopButton"
 			android:key="enableStopButton" android:defaultValue="false" />
+		<CheckBoxPreference android:persistent="true"
+			android:title="@string/enableDoubleBackExit" android:summary="@string/enableDoubleBackExitDescription"
+			android:key="enableDoubleBackExit" android:defaultValue="false" />
 	</PreferenceCategory>
 	
  	<PreferenceCategory android:title="@string/behavior">
