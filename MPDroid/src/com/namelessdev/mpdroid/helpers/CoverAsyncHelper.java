@@ -15,6 +15,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -24,6 +25,9 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.CachedCover;
@@ -47,6 +51,7 @@ public class CoverAsyncHelper extends Handler {
 	public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
 	public static final String PREFERENCE_LASTFM = "enableLastFM";
 	public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
+	public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
 
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
@@ -95,25 +100,42 @@ public class CoverAsyncHelper extends Handler {
 		oThread.start();
 		oCoverAsyncWorker = new CoverAsyncWorker(oThread.getLooper());
 		coverDownloadListener = new LinkedList<CoverDownloadListener>();
+
 	}
 
 	public void setCoverRetrieversFromPreferences() {
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 		final List<CoverRetrievers> enabledRetrievers = new ArrayList<CoverRetrievers>();
-		//There is a cover provider order, respect it.
-		//Cache -> LastFM -> MPD Server
-		if(settings.getBoolean(PREFERENCE_CACHE, true)) {
-			enabledRetrievers.add(CoverRetrievers.CACHE);
-		}
-		if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
-			enabledRetrievers.add(CoverRetrievers.LASTFM);
-		}
-		if (settings.getBoolean(PREFERENCE_LOCALSERVER, false)) {
-			enabledRetrievers.add(CoverRetrievers.LOCAL);
+			//There is a cover provider order, respect it.
+			//Cache -> LastFM -> MPD Server
+			if(settings.getBoolean(PREFERENCE_CACHE, true)) {
+				enabledRetrievers.add(CoverRetrievers.CACHE);
+			}
+		if ( !(settings.getBoolean(PREFERENCE_ONLY_WIFI, false)) | (isWifi()) ){
+			if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
+				enabledRetrievers.add(CoverRetrievers.LASTFM);
+			}
+			if (settings.getBoolean(PREFERENCE_LOCALSERVER, false)) {
+				enabledRetrievers.add(CoverRetrievers.LOCAL);
+			}
 		}
 		setCoverRetrievers(enabledRetrievers);
 	}
-	
+
+	/**
+	 * Checks if device connected or connecting to wifi network
+	 */
+	private boolean isWifi(){
+		ConnectivityManager conMan = (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
+		//Get status of wifi connection
+		State wifi = conMan.getNetworkInfo(1).getState();
+		if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 	public void setCoverMaxSizeFromScreen(Activity activity) {
 		final DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
