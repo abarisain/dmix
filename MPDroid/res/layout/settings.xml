@@ -86,6 +86,10 @@
 			<EditTextPreference android:persistent="true"
 				android:title="@string/coverFileName" android:summary="@string/coverFileNameDescription"
 				android:key="coverFileName" android:defaultValue="folder.jpg" />
+			<CheckBoxPreference android:persistent="true"
+				android:title="@string/enableCoverOnlyOnWifi"
+				android:summary="@string/enableCoverOnlyOnWifiDescription"
+				android:key="enableCoverOnlyOnWifi" android:defaultValue="false"/>
 		</PreferenceScreen>
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableStopButton"
