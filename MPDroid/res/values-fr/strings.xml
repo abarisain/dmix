@@ -83,9 +83,9 @@
 	<string name="deletePlaylist">Supprimer la Playlist</string>
 	<string name="preferredConnection">Connexion preferée</string>
 	<string name="chooseWLAN">Choisissez un réseau wifi</string>
-	<string name="wlanBasedSettings">Connexion par WIFI</string>
+	<string name="wlanBasedSettings">Connexion par Wi-Fi</string>
 	<string name="defaultSettings">Paramètres de connexion par défaut</string>
-	<string name="wlanBasedSettingsDescription">Définir l\'addresse/port du serveur MPD (WIFI)</string>
+	<string name="wlanBasedSettingsDescription">Définir l\'addresse/port du serveur MPD (Wi-Fi)</string>
 	<string name="defaultSettingsDescription">Définir l\'addresse/port et mot de passe du serveur MPD par défaut</string>
 	<string name="stream">Streaming</string>
 	<string name="buffering">Mise en cache …</string>

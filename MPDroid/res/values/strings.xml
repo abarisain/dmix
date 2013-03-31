@@ -119,11 +119,11 @@
 	<string name="edit">Edit</string>
 	<string name="nowPlaying">Now Playing</string>
 	<string name="cancel">Cancel</string>
-	<string name="skipToHere">Skip to Here</string>
-	<string name="playNext">Play Next</string>
-	<string name="moveFirst">Move to First</string>
-	<string name="moveLast">Move to Last</string>
-	<string name="removeFromPlaylist">Remove from Playlist</string>
+	<string name="skipToHere">Skip to here</string>
+	<string name="playNext">Play next</string>
+	<string name="moveFirst">Move to first</string>
+	<string name="moveLast">Move to last</string>
+	<string name="removeFromPlaylist">Remove from playlist</string>
 	<string name="manage">Manage</string>
 	<string name="save">Save</string>
 	<string name="sc_LibTab">L</string>
