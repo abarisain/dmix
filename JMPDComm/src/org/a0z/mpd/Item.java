@@ -10,6 +10,11 @@ public abstract class Item implements Comparable<Item> {
 	public String sort() {
 		return mainText();
 	}
+
+    public int getId() {
+        return 0;
+    }
+
 	abstract public String getName();
 
 	@Override

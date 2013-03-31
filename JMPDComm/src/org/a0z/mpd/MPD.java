@@ -600,21 +600,14 @@ public class MPD {
 	 *            if an error occur while contacting server.
 	 * @return <code>FileStorage</code> with all songs and directories.
 	 */
-	/*public Directory listAllFiles(String dir) throws MPDServerException {
+	public List<Music> listAllFiles(String dir) throws MPDServerException {
 		if(!isConnected())
 			throw new MPDServerException("MPD Connection is not established");
 		
-		List<String> list = mpdConnection.sendCommand(MPD_CMD_LISTALL, dir);
+		List<String> list = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTALL, dir);
 		
-		for (String line : list) {
-			if (line.startsWith("directory: ")) {
-				rootDirectory.makeDirectory(line.substring("directory: ".length()));
-			} else if (line.startsWith("file: ")) {
-				rootDirectory.addFile(new Music(line.substring("file: ".length())));
-			}
-		}
-		return rootDirectory;
-	}*/
+        return Music.getMusicFromList(list,false);
+	}
 	
 	/**
 	 * List all genre names from database.
@@ -866,6 +859,10 @@ public class MPD {
 		
 		mpdConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH);
 	}
+
+    public Collection<Music> getAllMusic() throws MPDServerException{
+        return listAllFiles("");
+    }
 
 	/**
 	 * Similar to <code>find</code>,<code>search</code> looks for partial matches in the MPD database.
@@ -1264,6 +1261,7 @@ public class MPD {
 		if (null!=artists) {
        	 	Collections.sort(artists);
 		}
+
 		return artists;
 	}
 
