@@ -208,7 +208,7 @@
     <string name="actionSongSelected">1 song selected</string>
     <string name="actionSongsSelected">%s songs selected</string>
     <string name="searchQueue">Search play queue …</string>
-    <string name="enableCoverOnlyOnWifi">Download only on WiFi</string>
-    <string name="enableCoverOnlyOnWifiDescription">For people with tight 3G usage limits. Cashed covers will be used anyway.</string>
+    <string name="enableCoverOnlyOnWifi">Download via Wi-Fi only</string>
+    <string name="enableCoverOnlyOnWifiDescription">Do not download cover art over mobile network. Reduces carrier charges.</string>
 
 </resources>

@@ -184,4 +184,6 @@
 	<string name="actionSongSelected">1 chanson selectionnée</string>
     <string name="actionSongsSelected">%s chansons selectionnées</string>
     <string name="searchQueue">Rechercher dans la file …</string>
+	<string name="enableCoverOnlyOnWifi">Télécharger seulement via Wi-Fi</string>
+	<string name="enableCoverOnlyOnWifiDescription">Ne pas télécharger les pochettes via le réseau mobile. Réduis les frais d\'opérateur.</string>
 </resources>
