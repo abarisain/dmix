@@ -52,6 +52,7 @@
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/nowplaying_primary_text"
+            android:fontFamily="sans-serif-light"
             android:textSize="15sp" />
 
         <TextView
@@ -61,6 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/songName"
             android:layout_marginTop="1dip"
+            android:fontFamily="sans-serif-light"
             android:gravity="center_horizontal" />
 
         <TextView
@@ -70,6 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/artistName"
             android:layout_marginTop="1dip"
+            android:fontFamily="sans-serif-light"
             android:gravity="center_horizontal" />
 
         <ImageView
