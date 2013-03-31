@@ -19,4 +19,9 @@
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
         <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
+    
+    <style name="AppTheme.Light" parent="Theme.Sherlock.Light.DarkActionBar">
+        <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="android:seekBarStyle">@style/SeekBar</item>
+    </style>
 </resources>
