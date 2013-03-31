@@ -7,10 +7,12 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -127,6 +129,12 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 		app.unsetActivity(this);
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		backPressExitCount = 0;
+	}
+
 	/**
 	 * Called when Back button is pressed, displays message to user indicating the if back button is pressed again the application will exit. We keep a count of how many time back
 	 * button is pressed within 5 seconds. If the count is greater than 1 then call system.exit(0)
@@ -137,7 +145,9 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
 	 */
 	@Override
 	public void onBackPressed() {
-		if (backPressExitCount < 1) {
+		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		final boolean exitConfirmationRequired = settings.getBoolean("enableExitConfirmation", false);
+		if (exitConfirmationRequired && backPressExitCount < 1) {
 			Tools.notifyUser(String.format(getResources().getString(R.string.backpressToQuit)), this);
 			backPressExitCount += 1;
 			exitCounterReset.postDelayed(new Runnable() {

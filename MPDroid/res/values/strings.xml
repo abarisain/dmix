@@ -210,5 +210,7 @@
     <string name="searchQueue">Search play queue …</string>
     <string name="enableCoverOnlyOnWifi">Download via Wi-Fi only</string>
     <string name="enableCoverOnlyOnWifiDescription">Do not download cover art over mobile network. Reduces carrier charges.</string>
+	<string name="enableExitConfirmation">Ask confirmation before exiting</string>
+    <string name="enableExitConfirmationDescription">Require to double tap Back to exit.</string>
 
 </resources>

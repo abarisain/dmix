@@ -94,6 +94,10 @@
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableStopButton"
 			android:key="enableStopButton" android:defaultValue="false" />
+		<CheckBoxPreference android:persistent="true"
+			android:title="@string/enableExitConfirmation"
+			android:summary="@string/enableExitConfirmationDescription"
+			android:key="enableExitConfirmation" android:defaultValue="false" />
 	</PreferenceCategory>
 	
  	<PreferenceCategory android:title="@string/behavior">
