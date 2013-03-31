@@ -1,8 +1,11 @@
 package android.support.v4.app;
 
+import java.util.ArrayList;
+
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+
 import com.actionbarsherlock.ActionBarSherlock.OnCreatePanelMenuListener;
 import com.actionbarsherlock.ActionBarSherlock.OnMenuItemSelectedListener;
 import com.actionbarsherlock.ActionBarSherlock.OnPreparePanelListener;
@@ -10,12 +13,10 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-import java.util.ArrayList;
-
 /** I'm in ur package. Stealing ur variables. */
-public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity implements OnCreatePanelMenuListener, OnPreparePanelListener, OnMenuItemSelectedListener {
+public abstract class Watson extends FragmentActivity implements OnCreatePanelMenuListener, OnPreparePanelListener, OnMenuItemSelectedListener {
     private static final boolean DEBUG = false;
-    private static final String TAG = "_ActionBarSherlockTrojanHorse";
+    private static final String TAG = "Watson";
 
     /** Fragment interface for menu creation callback. */
     public interface OnCreateOptionsMenuListener {
@@ -27,7 +28,7 @@ public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity imp
     }
     /** Fragment interface for menu item selection callback. */
     public interface OnOptionsItemSelectedListener {
-      public boolean onOptionsItemSelected(MenuItem item);
+        public boolean onOptionsItemSelected(MenuItem item);
     }
 
     private ArrayList<Fragment> mCreatedMenus;
@@ -36,6 +37,33 @@ public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity imp
     ///////////////////////////////////////////////////////////////////////////
     // Sherlock menu handling
     ///////////////////////////////////////////////////////////////////////////
+
+    private boolean recurseOnCreatePanelMenu(ArrayList<Fragment> newMenus, Fragment f, Menu menu, MenuInflater inflater)
+    {
+        boolean show = false;
+        if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible && f instanceof OnCreateOptionsMenuListener) {
+            show = true;
+            ((OnCreateOptionsMenuListener)f).onCreateOptionsMenu(menu, inflater);
+            if (newMenus == null) {
+                newMenus = new ArrayList<Fragment>();
+            }
+            newMenus.add(f);
+        }
+
+		if (!f.mMenuVisible)
+			return show;
+
+        // Dispatch calls to any child fragments
+        if (f != null && f.mChildFragmentManager != null && f.mChildFragmentManager.mAdded != null)
+        {
+            for (int j = 0; j < f.mChildFragmentManager.mAdded.size(); j++) {
+                Fragment f2 = f.mChildFragmentManager.mAdded.get(j);
+                show |= recurseOnCreatePanelMenu(newMenus, f2, menu, inflater);
+            }
+        }
+
+    return show;
+    }
 
     @Override
     public boolean onCreatePanelMenu(int featureId, Menu menu) {
@@ -48,17 +76,10 @@ public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity imp
             MenuInflater inflater = getSupportMenuInflater();
             boolean show = false;
             ArrayList<Fragment> newMenus = null;
-            if (mFragments.mActive != null) {
+            if (mFragments.mAdded != null) {
                 for (int i = 0; i < mFragments.mAdded.size(); i++) {
                     Fragment f = mFragments.mAdded.get(i);
-                    if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible && f instanceof OnCreateOptionsMenuListener) {
-                        show = true;
-                        ((OnCreateOptionsMenuListener)f).onCreateOptionsMenu(menu, inflater);
-                        if (newMenus == null) {
-                            newMenus = new ArrayList<Fragment>();
-                        }
-                        newMenus.add(f);
-                    }
+                    show |= recurseOnCreatePanelMenu(newMenus, f, menu, inflater);
                 }
             }
 
@@ -82,6 +103,27 @@ public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity imp
         return false;
     }
 
+    private boolean recurseOnPreparePanel(Fragment f, Menu menu)
+    {
+        boolean show = false;
+        if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible && f instanceof OnPrepareOptionsMenuListener) {
+            show = true;
+            ((OnPrepareOptionsMenuListener)f).onPrepareOptionsMenu(menu);
+        }
+
+		if (!f.mMenuVisible)
+			return show;
+
+        // Dispatch calls to any child fragments
+        if (f != null && f.mChildFragmentManager != null && f.mChildFragmentManager.mAdded != null) {
+            for (int j = 0; j < f.mChildFragmentManager.mAdded.size(); j++) {
+                Fragment f2 = f.mChildFragmentManager.mAdded.get(j);
+                show = recurseOnPreparePanel(f2, menu);
+            }
+        }
+        return show;
+    }
+
     @Override
     public boolean onPreparePanel(int featureId, View view, Menu menu) {
         if (DEBUG) Log.d(TAG, "[onPreparePanel] featureId: " + featureId + ", view: " + view + " menu: " + menu);
@@ -91,13 +133,10 @@ public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity imp
             if (DEBUG) Log.d(TAG, "[onPreparePanel] activity prepare result: " + result);
 
             boolean show = false;
-            if (mFragments.mActive != null) {
+            if (mFragments.mAdded != null) {
                 for (int i = 0; i < mFragments.mAdded.size(); i++) {
                     Fragment f = mFragments.mAdded.get(i);
-                    if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible && f instanceof OnPrepareOptionsMenuListener) {
-                        show = true;
-                        ((OnPrepareOptionsMenuListener)f).onPrepareOptionsMenu(menu);
-                    }
+                    show |= recurseOnPreparePanel(f, menu);
                 }
             }
 
@@ -111,6 +150,30 @@ public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity imp
         return false;
     }
 
+    private boolean recurseOnMenuItemSelected(Fragment f, MenuItem item)
+    {
+        if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible && f instanceof OnOptionsItemSelectedListener) {
+            if (((OnOptionsItemSelectedListener)f).onOptionsItemSelected(item)) {
+                return true;
+            }
+        }
+
+		if (!f.mMenuVisible)
+			return false;
+
+        // Dispatch calls to any child fragments
+        if (f != null && f.mChildFragmentManager != null && f.mChildFragmentManager.mAdded != null) {
+            for (int j = 0; j < f.mChildFragmentManager.mAdded.size(); j++) {
+                Fragment f2 = f.mChildFragmentManager.mAdded.get(j);
+                if (recurseOnMenuItemSelected(f2, item)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         if (DEBUG) Log.d(TAG, "[onMenuItemSelected] featureId: " + featureId + ", item: " + item);
@@ -120,13 +183,11 @@ public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity imp
                 return true;
             }
 
-            if (mFragments.mActive != null) {
+            if (mFragments.mAdded != null) {
                 for (int i = 0; i < mFragments.mAdded.size(); i++) {
                     Fragment f = mFragments.mAdded.get(i);
-                    if (f != null && !f.mHidden && f.mHasMenu && f.mMenuVisible && f instanceof OnOptionsItemSelectedListener) {
-                        if (((OnOptionsItemSelectedListener)f).onOptionsItemSelected(item)) {
-                            return true;
-                        }
+                    if (recurseOnMenuItemSelected(f, item)) {
+                        return true;
                     }
                 }
             }
