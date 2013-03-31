@@ -140,6 +140,8 @@ public class LibraryTabActivity extends SherlockFragmentActivity implements OnNa
 		String title = "";
 		if (fragment instanceof BrowseFragment) {
 			title = ((BrowseFragment) fragment).getTitle();
+		} else {
+			title = fragment.toString();
 		}
 		refreshActionBarNavigation(false, title);
 		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

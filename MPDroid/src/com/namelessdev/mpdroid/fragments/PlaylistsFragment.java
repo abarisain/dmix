@@ -16,8 +16,8 @@ import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
-import com.namelessdev.mpdroid.library.StoredPlaylistActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class PlaylistsFragment  extends BrowseFragment {
@@ -51,9 +51,8 @@ public class PlaylistsFragment  extends BrowseFragment {
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Intent intent = new Intent(getActivity(), StoredPlaylistActivity.class);
-		intent.putExtra("playlist", items.get(position).getName());
-		startActivityForResult(intent, -1);
+		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new StoredPlaylistFragment().init(items.get(position).getName()),
+				"stored_playlist");
 	}
 
 	@Override

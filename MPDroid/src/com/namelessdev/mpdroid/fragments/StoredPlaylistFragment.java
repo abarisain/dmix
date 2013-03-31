@@ -26,6 +26,8 @@ import com.namelessdev.mpdroid.library.LibraryTabActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 
 public class StoredPlaylistFragment extends SherlockListFragment {
+	private static final String EXTRA_PLAYLIST_NAME = "playlist";
+
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
 
@@ -37,12 +39,37 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 		setHasOptionsMenu(true);
 	}
 	
+	public StoredPlaylistFragment init(String name) {
+		playlistName = name;
+		return this;
+	}
+
+	@Override
+	public void onCreate(Bundle icicle) {
+		super.onCreate(icicle);
+		if (icicle != null)
+			init(icicle.getString(EXTRA_PLAYLIST_NAME));
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putString(EXTRA_PLAYLIST_NAME, playlistName);
+		super.onSaveInstanceState(outState);
+	}
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		app = (MPDApplication) getActivity().getApplication();
-		playlistName=getActivity().getIntent().getStringExtra("playlist");
-		getActivity().setTitle(playlistName);
+	}
+
+	@Override
+	public String toString() {
+		if (playlistName != null) {
+			return playlistName;
+		} else {
+			return getString(R.string.playlist);
+		}
 	}
 
 	@Override

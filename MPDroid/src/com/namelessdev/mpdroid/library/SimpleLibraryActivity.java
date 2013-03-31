@@ -138,6 +138,8 @@ public class SimpleLibraryActivity extends SherlockFragmentActivity implements I
 		String title = "";
 		if (fragment instanceof BrowseFragment) {
 			title = ((BrowseFragment) fragment).getTitle();
+		} else {
+			title = fragment.toString();
 		}
 		setTitle(title);
 		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
