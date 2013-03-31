@@ -14,10 +14,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -25,9 +28,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.NetworkInfo.State;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.CachedCover;
@@ -55,13 +55,13 @@ public class CoverAsyncHelper extends Handler {
 
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
-	
+
 	private int coverMaxSize = MAX_SIZE;
 	private int cachedCoverMaxSize = MAX_SIZE;
 	private boolean cacheWritable = true;
 
 	private ICoverRetriever[] coverRetrievers = null;
-	
+
 	public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
 		if (whichCoverRetrievers == null) {
 			coverRetrievers = new ICoverRetriever[0];
@@ -69,15 +69,15 @@ public class CoverAsyncHelper extends Handler {
 		coverRetrievers = new ICoverRetriever[whichCoverRetrievers.size()];
 		for (int i = 0; i < whichCoverRetrievers.size(); i++) {
 			switch (whichCoverRetrievers.get(i)) {
-			case CACHE:
-				this.coverRetrievers[i] = new CachedCover(app);
-				break;
-			case LASTFM:
-				this.coverRetrievers[i] = new LastFMCover();
-				break;
-			case LOCAL:
-				this.coverRetrievers[i] = new LocalCover(this.app, this.settings);
-				break;
+				case CACHE:
+					this.coverRetrievers[i] = new CachedCover(app);
+					break;
+				case LASTFM:
+					this.coverRetrievers[i] = new LastFMCover();
+					break;
+				case LOCAL:
+					this.coverRetrievers[i] = new LocalCover(this.app, this.settings);
+					break;
 			}
 		}
 	}
@@ -106,12 +106,12 @@ public class CoverAsyncHelper extends Handler {
 	public void setCoverRetrieversFromPreferences() {
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 		final List<CoverRetrievers> enabledRetrievers = new ArrayList<CoverRetrievers>();
-			//There is a cover provider order, respect it.
-			//Cache -> LastFM -> MPD Server
-			if(settings.getBoolean(PREFERENCE_CACHE, true)) {
-				enabledRetrievers.add(CoverRetrievers.CACHE);
-			}
-		if ( !(settings.getBoolean(PREFERENCE_ONLY_WIFI, false)) | (isWifi()) ){
+		// There is a cover provider order, respect it.
+		// Cache -> LastFM -> MPD Server
+		if (settings.getBoolean(PREFERENCE_CACHE, true)) {
+			enabledRetrievers.add(CoverRetrievers.CACHE);
+		}
+		if (!(settings.getBoolean(PREFERENCE_ONLY_WIFI, false)) | (isWifi())) {
 			if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
 				enabledRetrievers.add(CoverRetrievers.LASTFM);
 			}
@@ -125,13 +125,13 @@ public class CoverAsyncHelper extends Handler {
 	/**
 	 * Checks if device connected or connecting to wifi network
 	 */
-	private boolean isWifi(){
+	private boolean isWifi() {
 		ConnectivityManager conMan = (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
-		//Get status of wifi connection
+		// Get status of wifi connection
 		State wifi = conMan.getNetworkInfo(1).getState();
 		if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
@@ -164,7 +164,6 @@ public class CoverAsyncHelper extends Handler {
 		cacheWritable = writable;
 	}
 
-
 	public void addCoverDownloadListener(CoverDownloadListener listener) {
 		coverDownloadListener.add(listener);
 	}
@@ -180,17 +179,17 @@ public class CoverAsyncHelper extends Handler {
 
 	public void handleMessage(Message msg) {
 		switch (msg.what) {
-		case EVENT_COVERDOWNLOADED:
-			for (CoverDownloadListener listener : coverDownloadListener)
-				listener.onCoverDownloaded((Bitmap) msg.obj);
-			break;
+			case EVENT_COVERDOWNLOADED:
+				for (CoverDownloadListener listener : coverDownloadListener)
+					listener.onCoverDownloaded((Bitmap) msg.obj);
+				break;
 
-		case EVENT_COVERNOTFOUND:
-			for (CoverDownloadListener listener : coverDownloadListener)
-				listener.onCoverNotFound();
-			break;
-		default:
-			break;
+			case EVENT_COVERNOTFOUND:
+				for (CoverDownloadListener listener : coverDownloadListener)
+					listener.onCoverNotFound();
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -242,34 +241,35 @@ public class CoverAsyncHelper extends Handler {
 
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case EVENT_DOWNLOADCOVER:
-				Bitmap cover = null;
-				for (ICoverRetriever coverRetriever : coverRetrievers) {
-					cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
-					if (cover != null) {
-						Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
+				case EVENT_DOWNLOADCOVER:
+					Bitmap cover = null;
+					for (ICoverRetriever coverRetriever : coverRetrievers) {
+						cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
+						if (cover != null) {
+							Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
 							// if cover is not read from cache and saving is enabled
 							if (cacheWritable && !(coverRetriever instanceof CachedCover)) {
-							// Save this cover into cache, if it is enabled.
-							for (ICoverRetriever coverRetriever1 : coverRetrievers) {
-								if (coverRetriever1 instanceof CachedCover) {
-									Log.i(MPDApplication.TAG, "Saving cover art to cache");
-									((CachedCover) coverRetriever1).save(((CoverInfo) msg.obj).sArtist, ((CoverInfo) msg.obj).sAlbum, cover);
+								// Save this cover into cache, if it is enabled.
+								for (ICoverRetriever coverRetriever1 : coverRetrievers) {
+									if (coverRetriever1 instanceof CachedCover) {
+										Log.i(MPDApplication.TAG, "Saving cover art to cache");
+										((CachedCover) coverRetriever1).save(((CoverInfo) msg.obj).sArtist, ((CoverInfo) msg.obj).sAlbum,
+												cover);
+									}
 								}
-							}	
+							}
+							CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
+							break;
 						}
-						CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
-						break;
-					}	
-				}
-				if (cover == null) {
-					Log.i(MPDApplication.TAG, "No cover art found");
-					CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-				}
-				break;
-			default:
+					}
+					if (cover == null) {
+						Log.i(MPDApplication.TAG, "No cover art found");
+						CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
+					}
+					break;
+				default:
 			}
-		}	
+		}
 
 	}
 
@@ -285,45 +285,44 @@ public class CoverAsyncHelper extends Handler {
 			conn.connect();
 			BufferedInputStream bis = new BufferedInputStream(conn.getInputStream(), 8192);
 			try {
-		        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		        byte[] buffer = new byte[1024];
-		        int len;
-		        while ((len = bis.read(buffer)) > -1 ) {
-		           baos.write(buffer, 0, len);
-		        }
-		        baos.flush();
-		        InputStream is = new ByteArrayInputStream(baos.toByteArray()); 
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				byte[] buffer = new byte[1024];
+				int len;
+				while ((len = bis.read(buffer)) > -1) {
+					baos.write(buffer, 0, len);
+				}
+				baos.flush();
+				InputStream is = new ByteArrayInputStream(baos.toByteArray());
 
-		        BitmapFactory.Options o = new BitmapFactory.Options();
-		        o.inJustDecodeBounds = true;
-		        BitmapFactory.decodeStream(is,null,o);
+				BitmapFactory.Options o = new BitmapFactory.Options();
+				o.inJustDecodeBounds = true;
+				BitmapFactory.decodeStream(is, null, o);
 
-			    int scale = 1;
+				int scale = 1;
 				if (coverMaxSize != MAX_SIZE || o.outHeight > coverMaxSize || o.outWidth > coverMaxSize) {
-			         scale = (int)Math.pow(2, (int) Math.round(Math.log(coverMaxSize / 
-			         (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
-			    }
+					scale = (int) Math.pow(2, (int) Math.round(Math.log(coverMaxSize /
+							(double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+				}
 
-			    o.inSampleSize = scale;
-		        o.inJustDecodeBounds = false;
-			    is.reset();  
-			    Bitmap bmp = BitmapFactory.decodeStream(is,null,o);
-			    is.close();
+				o.inSampleSize = scale;
+				o.inJustDecodeBounds = false;
+				is.reset();
+				Bitmap bmp = BitmapFactory.decodeStream(is, null, o);
+				is.close();
 				conn.disconnect();
-			    
-			    return bmp;
-			    } catch (Exception e) {
-			        return null;
-			    }
-			
+
+				return bmp;
+			} catch (Exception e) {
+				return null;
+			}
+
 		} catch (MalformedURLException e) {
 			return null;
 		} catch (IOException e) {
 			return null;
 		}
 	}
-	
-	
+
 	private class CoverInfo {
 		public String sArtist;
 		public String sAlbum;
