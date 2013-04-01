@@ -187,7 +187,10 @@
     <string name="actionSongsSelected">%s chansons selectionnées</string>
     <string name="searchQueue">Rechercher dans la file …</string>
 	<string name="enableCoverOnlyOnWifi">Télécharger seulement via Wi-Fi</string>
-	<string name="enableCoverOnlyOnWifiDescription">Ne pas télécharger les pochettes via le réseau mobile. Réduit les frais d\'opérateur.</string>
+	<string name="enableCoverOnlyOnWifiDescription">Ne pas télécharger les pochettes via le réseau mobile. Réduit les frais d\'opérateur</string>
 	<string name="enableExitConfirmation">Demander une confirmation avant de quitter</string>
-    <string name="enableExitConfirmationDescription">Faire effectuer un double appui sur Retour pour quitter.</string>
+    <string name="enableExitConfirmationDescription">Faire effectuer un double appui sur Retour pour quitter</string>
+    <string name="enableLightTheme">Utiliser le thème clair</string>
+    <string name="enableLightNowPlayingTheme">Utiliser le thème clair pour "En Cours"</string>
+    <string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
 </resources>
