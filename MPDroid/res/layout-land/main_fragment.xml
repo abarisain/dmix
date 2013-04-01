@@ -112,6 +112,7 @@
 	            android:layout_height="wrap_content"
 	            android:layout_marginLeft="40dip"
 	            android:layout_marginRight="40dip"
+	            android:layout_centerVertical="true"
 	            android:max="100"
 	            android:progress="0" />
 	        
