@@ -42,6 +42,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -109,7 +110,12 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		list = (ListView) view.findViewById(android.R.id.list);
 		list.requestFocus();
 		((TouchInterceptor) list).setDropListener(dropListener);
-		list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
+		if ((getActivity() instanceof MainMenuActivity && MPDApplication.isLightNowPlayingThemeSelected()) ||
+				(!(getActivity() instanceof MainMenuActivity) && MPDApplication.isLightThemeSelected())) {
+			list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
+		} else {
+			list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
+		}
 		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 

@@ -71,10 +71,13 @@
         android:layout_marginLeft="2dip"
         android:background="?attr/listItemHorizontalSeparatorColor" />
 
+    <!-- Height and padding are hardcoded because of this stupid TouchInterceptor -->
     <ImageButton
         android:id="@+id/menu"
         android:layout_width="40dip"
-        android:layout_height="wrap_content"
+        android:layout_height="55dip"
+        android:layout_gravity="bottom"
+        android:paddingTop="20dip"
         android:background="?attr/actionBarItemBackground"
         android:src="?attr/menuButton" />
 
