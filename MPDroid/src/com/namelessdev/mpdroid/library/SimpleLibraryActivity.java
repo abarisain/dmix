@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.R;
@@ -158,5 +159,15 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 		if (fmStackCount > 0) {
 			setTitle(supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
 		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+		}
+		return false;
 	}
 }

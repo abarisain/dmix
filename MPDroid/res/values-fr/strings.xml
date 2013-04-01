@@ -52,6 +52,8 @@
 	<string name="repeatDescription">Activer/Désactiver répetition</string>
 	<string name="albumartist">Album Artiste</string>
 	<string name="albumartistDescription">Utiliser le tag Album Artiste dans la vue Artistes</string>
+	<string name="albumTrackSort">Tri d\'album par numéro</string>
+	<string name="albumTrackSortDescription">Trier les albums par numéro de piste</string>
 	<string name="version">Version</string>
 	<string name="songs">Chansons</string>
 	<string name="serverInformation">Information serveur</string>
@@ -185,7 +187,7 @@
     <string name="actionSongsSelected">%s chansons selectionnées</string>
     <string name="searchQueue">Rechercher dans la file …</string>
 	<string name="enableCoverOnlyOnWifi">Télécharger seulement via Wi-Fi</string>
-	<string name="enableCoverOnlyOnWifiDescription">Ne pas télécharger les pochettes via le réseau mobile. Réduis les frais d\'opérateur.</string>
+	<string name="enableCoverOnlyOnWifiDescription">Ne pas télécharger les pochettes via le réseau mobile. Réduit les frais d\'opérateur.</string>
 	<string name="enableExitConfirmation">Demander une confirmation avant de quitter</string>
     <string name="enableExitConfirmationDescription">Faire effectuer un double appui sur Retour pour quitter.</string>
 </resources>
