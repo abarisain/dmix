@@ -5,10 +5,10 @@ before_install:
   - tar -zxf android-sdk_r20.0.3-linux.tgz
   - export ANDROID_HOME=~/build/abarisain/dmix/android-sdk-linux
   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools 
-  - android update sdk --filter 1,5 --no-ui --force
+  - android update sdk --filter 1 --no-ui --force
 
 script:
   - cd ./MPDroid
-  - android update project -path .
+  - android update project --path .
   - ant clean
   - ant debug
