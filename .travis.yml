@@ -9,7 +9,7 @@ before_install:
 
 script:
   - cd ~/build/abarisain/dmix/MPDroid
-- echo "sdk.dir=/home/travis/build/abarisain/dmix/android-sdk-linux" > local.properties
+  - echo "sdk.dir=/home/travis/build/abarisain/dmix/android-sdk-linux" > local.properties
   - android update project --path .
   - ant clean
   - ant debug
