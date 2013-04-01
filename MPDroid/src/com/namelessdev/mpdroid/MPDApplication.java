@@ -270,15 +270,15 @@ public class MPDApplication extends Application implements ConnectionListener {
 		}
 	}
 
-	public static boolean isLightThemeSelected() {
+	public boolean isLightThemeSelected() {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 			return false;
-		return true;
+		return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lightTheme", false);
 	}
 
-	public static boolean isLightNowPlayingThemeSelected() {
+	public boolean isLightNowPlayingThemeSelected() {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 			return false;
-		return true;
+		return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lightNowPlayingTheme", false);
 	}
 }

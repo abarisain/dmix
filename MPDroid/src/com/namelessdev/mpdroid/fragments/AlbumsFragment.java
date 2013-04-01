@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
@@ -78,7 +77,7 @@ public class AlbumsFragment extends BrowseFragment {
 	protected ListAdapter getCustomListAdapter() {
 		if(items != null) {
 			return new ArrayIndexerAdapter(getActivity(),
-					new AlbumDataBinder(app, artist == null ? null : artist.getName(), MPDApplication.isLightThemeSelected()), items);
+					new AlbumDataBinder(app, artist == null ? null : artist.getName(), app.isLightThemeSelected()), items);
 		}
 		return super.getCustomListAdapter();
 	}

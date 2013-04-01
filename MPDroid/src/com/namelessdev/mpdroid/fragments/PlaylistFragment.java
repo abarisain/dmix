@@ -110,8 +110,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		list = (ListView) view.findViewById(android.R.id.list);
 		list.requestFocus();
 		((TouchInterceptor) list).setDropListener(dropListener);
-		if ((getActivity() instanceof MainMenuActivity && MPDApplication.isLightNowPlayingThemeSelected()) ||
-				(!(getActivity() instanceof MainMenuActivity) && MPDApplication.isLightThemeSelected())) {
+		if ((getActivity() instanceof MainMenuActivity && app.isLightNowPlayingThemeSelected()) ||
+				(!(getActivity() instanceof MainMenuActivity) && app.isLightThemeSelected())) {
 			list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
 		} else {
 			list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
