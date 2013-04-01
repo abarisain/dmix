@@ -32,6 +32,7 @@
         <item name="menuButton">@drawable/spinner_default_holo_dark</item>
         <item name="listItemHandle">@drawable/ic_mp_move</item>
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
+        <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text</item>
     </style>
     
     <style name="AppTheme.ActionBar" parent="AppTheme">

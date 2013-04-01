@@ -6,6 +6,7 @@
 	<drawable name="solid_blue">#0000ff</drawable>
 	<drawable name="solid_green">#f0f0</drawable>
 	<color name="nowplaying_primary_text">#ffffffff</color>
+	<color name="nowplaying_primary_text_light">#ff000000</color>
 	<color name="nowplaying_secondary_text">#ff868686</color>
 	<color name="actionbar_background_dark">#66000000</color>
 	<color name="transparent">#00000000</color>

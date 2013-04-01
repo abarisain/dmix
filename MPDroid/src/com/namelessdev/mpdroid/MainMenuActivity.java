@@ -23,16 +23,16 @@ import android.widget.ArrayAdapter;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragmentCompat;
 import com.namelessdev.mpdroid.library.LibraryTabActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class MainMenuActivity extends SherlockFragmentActivity implements OnNavigationListener {
+public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener {
 
 	public static final int PLAYLIST = 1;
 
@@ -85,7 +85,8 @@ public class MainMenuActivity extends SherlockFragmentActivity implements OnNavi
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowHomeEnabled(true);
         
-        ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
+		ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(getSupportActionBar().getThemedContext(),
+				R.layout.sherlock_spinner_item);
         actionBarAdapter.add(getString(R.string.nowPlaying));
         actionBarAdapter.add(getString(R.string.playQueue));
         

@@ -76,6 +76,6 @@
         android:layout_width="40dip"
         android:layout_height="wrap_content"
         android:background="?attr/actionBarItemBackground"
-        android:src="@drawable/ic_action_menu_indicator" />
+        android:src="?attr/menuButton" />
 
 </LinearLayout>

@@ -11,6 +11,7 @@
         <attr name="noCoverArtIcon" format="reference" />
         <attr name="menuButton" format="reference" />
         <attr name="listItemHandle" format="reference" />
+        <attr name="nowPlayingPrimaryTextColor" format="color" />
         <attr name="listItemHorizontalSeparatorColor" format="color" />
     </declare-styleable>
 
