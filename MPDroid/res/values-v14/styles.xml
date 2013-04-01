@@ -20,6 +20,7 @@
         <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art</item>
         <item name="menuButton">@drawable/spinner_default_holo_dark</item>
+        <item name="listItemHandle">@drawable/ic_mp_move</item>
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
     </style>
     
@@ -28,6 +29,7 @@
         <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
         <item name="menuButton">@drawable/spinner_default_holo_light</item>
+        <item name="listItemHandle">@drawable/ic_mp_move_light</item>
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light</item>
     </style>
 </resources>

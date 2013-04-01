@@ -20,7 +20,7 @@
         android:layout_marginRight="2dip"
         android:alpha="0.5"
         android:scaleType="center"
-        android:src="@drawable/ic_mp_move" />
+        android:src="?attr/listItemHandle" />
 
     <LinearLayout
         android:layout_width="0dip"

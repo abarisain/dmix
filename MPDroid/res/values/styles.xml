@@ -30,6 +30,7 @@
         <item name="listItemHeight">?android:attr/listPreferredItemHeight</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art</item>
         <item name="menuButton">@drawable/spinner_default_holo_dark</item>
+        <item name="listItemHandle">@drawable/ic_mp_move</item>
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
     </style>
     

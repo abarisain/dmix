@@ -21,17 +21,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MPDroidActivities.MPDroidListActivity;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.R.id;
-import com.namelessdev.mpdroid.R.layout;
-import com.namelessdev.mpdroid.R.string;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 
-public class PlaylistEditActivity extends SherlockListActivity implements StatusChangeListener, OnClickListener {
+public class PlaylistEditActivity extends MPDroidListActivity implements StatusChangeListener, OnClickListener {
 	private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
 	private List<Music> musics;
 	private String playlistName=null;
