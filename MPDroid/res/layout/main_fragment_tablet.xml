@@ -99,8 +99,9 @@
         android:layout_marginLeft="60dip"
         android:layout_toRightOf="@+id/albumCoverProgress"
         android:src="@drawable/ic_media_stop" >
-
-    </ImageButton>
+        
+    </ImageButton>
+    
     <ImageButton
         android:id="@+id/next"
         style="@style/PlayerButton"
