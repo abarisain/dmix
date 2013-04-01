@@ -57,7 +57,7 @@
  			android:title="@string/showAlbumTrackCount" android:summary="@string/showAlbumTrackCountDescription"
  			android:key="showAlbumTrackCount" android:defaultValue="true"/>
  	</PreferenceCategory>
- 	<PreferenceCategory android:title="@string/interfaceSettings">
+ 	<PreferenceCategory android:key="category_interface" android:title="@string/interfaceSettings">
 
  	    <PreferenceScreen android:key="libraryTabsSettings"
 			android:title="@string/libraryTabsSettings" android:summary="@string/libraryTabsSettingsDescription">

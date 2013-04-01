@@ -12,6 +12,7 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.CheckBoxPreference;
@@ -69,6 +70,12 @@ public class SettingsActivity extends PreferenceActivity implements
 		 * wifiConnection.setOrder(0);
 		 * pConnectionScreen.addPreference(wifiConnection);
 		 */
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final PreferenceCategory interfaceCategory = (PreferenceCategory) findPreference("category_interface");
+			interfaceCategory.removePreference(findPreference("lightTheme"));
+			interfaceCategory.removePreference(findPreference("lightNowPlayingTheme"));
+		}
 
 		final EditTextPreference pVersion = (EditTextPreference) findPreference("version");
 		final EditTextPreference pArtists = (EditTextPreference) findPreference("artists");

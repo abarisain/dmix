@@ -78,6 +78,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		app = (MPDApplication) getActivity().getApplication();
+		refreshListColorCacheHint();
 	}
 
 	@Override
@@ -110,12 +111,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		list = (ListView) view.findViewById(android.R.id.list);
 		list.requestFocus();
 		((TouchInterceptor) list).setDropListener(dropListener);
-		if ((getActivity() instanceof MainMenuActivity && app.isLightNowPlayingThemeSelected()) ||
-				(!(getActivity() instanceof MainMenuActivity) && app.isLightThemeSelected())) {
-			list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
-		} else {
-			list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
-		}
+		refreshListColorCacheHint();
 		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
@@ -185,6 +181,17 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		});
 
 		return view;
+	}
+
+	private void refreshListColorCacheHint() {
+		if (app == null || list == null)
+			return;
+		if ((getActivity() instanceof MainMenuActivity && app.isLightNowPlayingThemeSelected()) ||
+				(!(getActivity() instanceof MainMenuActivity) && app.isLightThemeSelected())) {
+			list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
+		} else {
+			list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
+		}
 	}
 
 	protected void update() {
