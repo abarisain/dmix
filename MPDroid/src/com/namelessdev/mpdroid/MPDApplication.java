@@ -13,13 +13,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -258,8 +256,6 @@ public class MPDApplication extends Application implements ConnectionListener {
 	public ApplicationState getApplicationState() {
 		return state;
 	}
-
-	
 	
 	private void dismissAlertDialog() {
 		if (ad != null) {
@@ -271,5 +267,9 @@ public class MPDApplication extends Application implements ConnectionListener {
 				}
 			}
 		}
+	}
+
+	public static boolean isWhiteThemeSelected() {
+		return true;
 	}
 }

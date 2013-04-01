@@ -10,8 +10,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
 
-public class SimpleLibraryActivity extends SherlockFragmentActivity implements ILibraryFragmentActivity {
+public class SimpleLibraryActivity extends MPDroidFragmentActivity implements ILibraryFragmentActivity {
 
 	public final String EXTRA_ALBUM = "album";
 	public final String EXTRA_ARTIST = "artist";

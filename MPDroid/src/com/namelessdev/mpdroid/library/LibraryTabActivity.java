@@ -15,10 +15,10 @@ import android.widget.ArrayAdapter;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
@@ -26,7 +26,7 @@ import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
 
-public class LibraryTabActivity extends SherlockFragmentActivity implements OnNavigationListener, ILibraryFragmentActivity,
+public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNavigationListener, ILibraryFragmentActivity,
 		ILibraryTabActivity {
 
 	private static final String FRAGMENT_TAG_LIBRARY = "library";
