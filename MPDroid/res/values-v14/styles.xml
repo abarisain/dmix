@@ -18,10 +18,12 @@
     <style name="AppTheme" parent="Theme.Sherlock">
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
         <item name="android:seekBarStyle">@style/SeekBar</item>
+        <item name="noCoverArtIcon">@drawable/no_cover_art</item>
     </style>
     
     <style name="AppTheme.Light" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
         <item name="android:seekBarStyle">@style/SeekBar</item>
+        <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
     </style>
 </resources>

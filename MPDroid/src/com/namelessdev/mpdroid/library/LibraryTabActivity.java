@@ -26,7 +26,8 @@ import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
 
-public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNavigationListener, ILibraryFragmentActivity,
+public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNavigationListener,
+		ILibraryFragmentActivity,
 		ILibraryTabActivity {
 
 	private static final String FRAGMENT_TAG_LIBRARY = "library";

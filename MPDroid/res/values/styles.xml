@@ -28,6 +28,7 @@
     <style name="AppTheme" parent="Theme.Sherlock">
         <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="listItemHeight">?android:attr/listPreferredItemHeight</item>
+        <item name="noCoverArtIcon">@drawable/no_cover_art</item>
     </style>
     
     <style name="AppTheme.ActionBar" parent="AppTheme">

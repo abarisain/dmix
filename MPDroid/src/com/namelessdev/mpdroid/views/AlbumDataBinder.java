@@ -28,10 +28,12 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	CachedCover coverHelper = null;
 	String artist = null;
 	MPDApplication app = null;
+	boolean lightTheme = false;
 
-	public AlbumDataBinder(MPDApplication app, String artist) {
+	public AlbumDataBinder(MPDApplication app, String artist, boolean isLightTheme) {
 		this.app = app;
 		this.artist = artist;
+		this.lightTheme = isLightTheme;
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 		if (artist != null && settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
 			coverHelper = new CachedCover(app);
@@ -60,7 +62,7 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		if (coverHelper != null) {
 			final ImageView albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
 			final Drawable oldDrawable = albumCover.getDrawable();
-			albumCover.setImageResource(R.drawable.no_cover_art);
+			albumCover.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
 			if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
 				final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
 				if (oldBitmap != null)
