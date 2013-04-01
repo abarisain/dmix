@@ -5,11 +5,10 @@ before_install:
   - tar -zxf android-sdk_r21.1-linux.tgz
   - export ANDROID_HOME=~/build/abarisain/dmix/android-sdk-linux
   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools 
-  - android update sdk --filter 1,5 --no-ui --force
+  - android update sdk --filter 1,2,3 --no-ui --force
 
 script:
   - cd ~/build/abarisain/dmix/MPDroid
   - echo "sdk.dir=/home/travis/build/abarisain/dmix/android-sdk-linux" > local.properties
-  - android update project --path .
   - ant clean
   - ant debug
