@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -38,7 +37,6 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 	ArrayList<String> mTabList;
 
 
-    @TargetApi(11)
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +59,8 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         
-        ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(this, R.layout.sherlock_spinner_item);
+		ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(getSupportActionBar().getThemedContext(),
+				R.layout.sherlock_spinner_item);
         for (int i=0;i<mTabList.size();i++){
             actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(i))));
         }
