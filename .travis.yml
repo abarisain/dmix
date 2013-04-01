@@ -8,7 +8,7 @@ before_install:
   - android update sdk --filter 1 --no-ui --force
 
 script:
-  - cd ./MPDroid
+  - cd ~/build/abarisain/dmix/MPDroid
   - android update project --path .
   - ant clean
   - ant debug
