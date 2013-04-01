@@ -269,7 +269,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 		}
 	}
 
-	public static boolean isWhiteThemeSelected() {
+	public static boolean isLightThemeSelected() {
 		return true;
 	}
 }

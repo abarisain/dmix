@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.SherlockListActivity;
 
 public class MPDroidActivities {
 
@@ -15,7 +16,18 @@ public class MPDroidActivities {
 		@Override
 		protected void onCreate(Bundle arg0) {
 			super.onCreate(arg0);
-			if(MPDApplication.isWhiteThemeSelected()) {
+			if(MPDApplication.isLightThemeSelected()) {
+				setTheme(R.style.AppTheme_Light);
+			}
+		}
+	}
+
+	public static class MPDroidListActivity extends SherlockListActivity {
+
+		@Override
+		protected void onCreate(Bundle arg0) {
+			super.onCreate(arg0);
+			if (MPDApplication.isLightThemeSelected()) {
 				setTheme(R.style.AppTheme_Light);
 			}
 		}

@@ -78,7 +78,7 @@ public class AlbumsFragment extends BrowseFragment {
 	protected ListAdapter getCustomListAdapter() {
 		if(items != null) {
 			return new ArrayIndexerAdapter(getActivity(),
-					new AlbumDataBinder(app, artist == null ? null : artist.getName(), MPDApplication.isWhiteThemeSelected()), items);
+					new AlbumDataBinder(app, artist == null ? null : artist.getName(), MPDApplication.isLightThemeSelected()), items);
 		}
 		return super.getCustomListAdapter();
 	}
