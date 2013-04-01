@@ -92,12 +92,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 					FALLBACK_COVER_SIZE,
 					getResources().getDisplayMetrics())));
 		}
-
-		// Setup the popup menu
-		popupMenu = new IcsListPopupWindow(activity);
-		popupMenu.setAdapter(getPopupMenuAdapter(activity));
-		popupMenu.setModal(true);
-		popupMenu.setOnItemClickListener(this);
 	}
 
 	@Override
@@ -163,6 +157,10 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		albumMenu.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				popupMenu = new IcsListPopupWindow(getActivity());
+				popupMenu.setAdapter(getPopupMenuAdapter(getActivity()));
+				popupMenu.setModal(true);
+				popupMenu.setOnItemClickListener(SongsFragment.this);
 				final DisplayMetrics displaymetrics = new DisplayMetrics();
 				getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 				popupMenu.setContentWidth(displaymetrics.widthPixels / 2);
