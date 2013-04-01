@@ -9,8 +9,10 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -377,7 +379,12 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		if (coverArt == null || coverArtProgress == null)
 			return;
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-		coverArt.setImageResource(R.drawable.no_cover_art);
+
+		int[] attrs = new int[] { R.attr.noCoverArtIcon };
+		final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
+		final Drawable drawableFromTheme = ta.getDrawable(0);
+		coverArt.setImageDrawable(drawableFromTheme);
+		ta.recycle();
 	}
 
 	/**

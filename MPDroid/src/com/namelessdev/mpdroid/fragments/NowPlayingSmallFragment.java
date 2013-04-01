@@ -7,6 +7,7 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -176,7 +177,11 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 	@Override
 	public void onCoverNotFound() {
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-		coverArt.setImageResource(R.drawable.no_cover_art);
+		int[] attrs = new int[] { R.attr.noCoverArtIcon };
+		final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
+		final Drawable drawableFromTheme = ta.getDrawable(0);
+		coverArt.setImageDrawable(drawableFromTheme);
+		ta.recycle();
 	}
 
 	@Override
