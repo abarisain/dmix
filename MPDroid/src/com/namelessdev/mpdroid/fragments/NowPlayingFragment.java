@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -792,7 +793,10 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	private void setShuffleButton(boolean on) {
 		if (null!=shuffleButton && shuffleCurrent!=on) {
-			shuffleButton.setImageResource(on ? R.drawable.ic_media_shuffle_on : R.drawable.ic_media_shuffle);
+			int[] attrs = new int[] { on ? R.attr.shuffleEnabled : R.attr.shuffleDisabled };
+			final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
+			final Drawable drawableFromTheme = ta.getDrawable(0);
+			shuffleButton.setImageDrawable(drawableFromTheme);
 			shuffleButton.invalidate();
 			shuffleCurrent=on;
 		}
@@ -800,7 +804,10 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	private void setRepeatButton(boolean on) {
 		if (null!=repeatButton && repeatCurrent!=on) {
-			repeatButton.setImageResource(on ? R.drawable.ic_media_repeat_on : R.drawable.ic_media_repeat);
+			int[] attrs = new int[] { on ? R.attr.repeatEnabled : R.attr.repeatDisabled };
+			final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
+			final Drawable drawableFromTheme = ta.getDrawable(0);
+			repeatButton.setImageDrawable(drawableFromTheme);
 			repeatButton.invalidate();
 			repeatCurrent=on;
 		}

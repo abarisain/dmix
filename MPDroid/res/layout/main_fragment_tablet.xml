@@ -44,7 +44,7 @@
         android:gravity="center_vertical"
         android:layout_marginRight="15dip"
         android:layout_toLeftOf="@+id/progress_volume"
-        android:src="@drawable/volume" />
+        android:src="?attr/volumeIcon" />
     
     <ImageButton
         android:id="@+id/playpause"
@@ -76,7 +76,7 @@
         android:layout_alignTop="@+id/playpause"
         android:layout_marginRight="60dip"
         android:layout_toLeftOf="@+id/prev"
-        android:src="@drawable/ic_media_shuffle" />
+        android:src="?attr/shuffleDisabled" />
     
     <ImageButton
         android:id="@+id/prev"
@@ -121,7 +121,7 @@
         android:layout_alignTop="@+id/playpause"
         android:layout_marginLeft="60dip"
         android:layout_toRightOf="@+id/next"
-        android:src="@drawable/ic_media_repeat" />
+        android:src="?attr/repeatDisabled" />
     
     <TextView
         android:id="@+id/trackTime"
@@ -132,10 +132,6 @@
         android:layout_marginRight="36dp"
         android:layout_toLeftOf="@+id/progress_track"
         android:gravity="center_horizontal"
-        android:shadowColor="#FF000000"
-        android:shadowRadius="3.0"
-        android:textColor="#FFFFFFFF"
-        android:textScaleX="1"
         android:textSize="18sp" >
     </TextView>
 
@@ -160,9 +156,6 @@
         android:gravity="left"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
-        android:shadowColor="#FF000000"
-        android:shadowRadius="3.0"
-        android:textColor="#FFFFFFFF"
         android:textSize="26sp" >
     </TextView>
 
@@ -198,9 +191,6 @@
         android:gravity="left"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
-        android:shadowColor="#FF000000"
-        android:shadowRadius="3.0"
-        android:textColor="#FFFFFFFF"
         android:textSize="20sp" >
     </TextView>
 
@@ -214,9 +204,6 @@
         android:gravity="left"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
-        android:shadowColor="#FF000000"
-        android:shadowRadius="3.0"
-        android:textColor="#FFFFFFFF"
         android:textSize="20sp" >
     </TextView>
 
@@ -229,10 +216,6 @@
         android:layout_marginLeft="36dp"
         android:layout_toRightOf="@+id/progress_track"
         android:gravity="center_horizontal"
-        android:shadowColor="#FF000000"
-        android:shadowRadius="3.0"
-        android:textColor="#FFFFFFFF"
-        android:textScaleX="1"
         android:textSize="18sp" />
     
     

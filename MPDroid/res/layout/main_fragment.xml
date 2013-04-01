@@ -137,7 +137,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_media_shuffle"/>
+            android:src="?attr/shuffleDisabled"/>
 
         <ImageButton
             android:id="@+id/prev"
@@ -177,7 +177,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_media_repeat"/>
+            android:src="?attr/repeatDisabled"/>
     </LinearLayout>
 
     <RelativeLayout
@@ -203,7 +203,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dip"
-            android:src="@drawable/volume" />
+            android:src="?attr/volumeIcon" />
     </RelativeLayout>
     
 </LinearLayout>

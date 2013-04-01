@@ -23,6 +23,11 @@
         <item name="listItemHandle">@drawable/ic_mp_move</item>
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text</item>
+        <item name="repeatDisabled">@drawable/ic_media_repeat</item>
+        <item name="repeatEnabled">@drawable/ic_media_repeat_on</item>
+        <item name="shuffleDisabled">@drawable/ic_media_shuffle</item>
+        <item name="shuffleEnabled">@drawable/ic_media_shuffle_on</item>
+        <item name="volumeIcon">@drawable/ic_action_volume</item>
     </style>
     
     <style name="AppTheme.Light" parent="Theme.Sherlock.Light.DarkActionBar">
@@ -33,5 +38,10 @@
         <item name="listItemHandle">@drawable/ic_mp_move_light</item>
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text_light</item>
+        <item name="repeatDisabled">@drawable/ic_media_repeat_light</item>
+        <item name="repeatEnabled">@drawable/ic_media_repeat_on_light</item>
+        <item name="shuffleDisabled">@drawable/ic_media_shuffle_light</item>
+        <item name="shuffleEnabled">@drawable/ic_media_shuffle_on_light</item>
+        <item name="volumeIcon">@drawable/ic_action_volume_light</item>
     </style>
 </resources>

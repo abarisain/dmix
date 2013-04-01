@@ -13,6 +13,11 @@
         <attr name="listItemHandle" format="reference" />
         <attr name="nowPlayingPrimaryTextColor" format="color" />
         <attr name="listItemHorizontalSeparatorColor" format="color" />
+        <attr name="repeatDisabled" format="reference" />
+        <attr name="repeatEnabled" format="reference" />
+        <attr name="shuffleDisabled" format="reference" />
+        <attr name="shuffleEnabled" format="reference" />
+        <attr name="volumeIcon" format="reference" />
     </declare-styleable>
 
 </resources>
