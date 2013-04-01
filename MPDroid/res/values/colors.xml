@@ -12,6 +12,7 @@
     <color name="compatactionbar_separator">#22ffffff</color>
     <color name="appwidget_text">#ffffffff</color>
     <color name="list_item_horizontal_separator">#33FFFFFF</color>
+    <color name="list_item_horizontal_separator_light">#FFD3D3D3</color>
     <color name="nowplaying_background">#ff1a1a1a</color>
     <color name="holo_button_highlight">#9933b5e5</color>
     <color name="holo_button_highlight_low">#5533b5e5</color>

@@ -81,7 +81,7 @@
             android:layout_alignBottom="@+id/albumName"
             android:layout_alignParentRight="true"
             android:clickable="false"
-            android:src="@drawable/spinner_holo_dark" />
+            android:src="?attr/menuButton" />
     </RelativeLayout>
 
     <RelativeLayout

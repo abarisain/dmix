@@ -70,7 +70,7 @@
                 android:layout_gravity="right"
                 android:layout_marginTop="-40dip"
                 android:background="?attr/actionBarItemBackground"
-                android:src="@drawable/ic_action_menu_indicator" />
+                android:src="?attr/menuButton" />
         </LinearLayout>
 
         <LinearLayout

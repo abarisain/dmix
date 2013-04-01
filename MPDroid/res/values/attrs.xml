@@ -9,6 +9,8 @@
     
     <declare-styleable name="AppTheme">
         <attr name="noCoverArtIcon" format="reference" />
+        <attr name="menuButton" format="reference" />
+        <attr name="listItemHorizontalSeparatorColor" format="color" />
     </declare-styleable>
 
 </resources>
