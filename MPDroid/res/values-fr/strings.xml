@@ -52,6 +52,8 @@
 	<string name="repeatDescription">Activer/Désactiver répetition</string>
 	<string name="albumartist">Album Artiste</string>
 	<string name="albumartistDescription">Utiliser le tag Album Artiste dans la vue Artistes</string>
+	<string name="albumTrackSort">Tri d\'album par numéro</string>
+	<string name="albumTrackSortDescription">Trier les albums par numéro de piste</string>
 	<string name="version">Version</string>
 	<string name="songs">Chansons</string>
 	<string name="serverInformation">Information serveur</string>
