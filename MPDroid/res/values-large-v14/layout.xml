@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="layout" name="main_fragment">
+            @layout/main_fragment_land
+    </item>
+</resources>

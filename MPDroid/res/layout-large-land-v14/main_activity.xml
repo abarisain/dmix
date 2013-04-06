@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context=".MainMenuActivity" >
+
+    <com.namelessdev.mpdroid.views.MainMenuViewPager
+        android:id="@+id/pager"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="40" />
+
+    <fragment
+        android:id="@+id/playlist_fragment"
+        android:name="com.namelessdev.mpdroid.fragments.PlaylistFragment"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="60"
+        tools:layout="@layout/playlist_activity" />
+
+</LinearLayout>
