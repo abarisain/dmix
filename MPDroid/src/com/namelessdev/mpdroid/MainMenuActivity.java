@@ -60,6 +60,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     ViewPager mViewPager;	
     private int backPressExitCount;
     private Handler exitCounterReset;
+	private boolean isDualPaneMode;
 
 	@SuppressLint("NewApi")
 	@TargetApi(11)
@@ -68,6 +69,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         
+		isDualPaneMode = (findViewById(R.id.playlist_fragment) != null);
+
         exitCounterReset = new Handler();
         
 		if (android.os.Build.VERSION.SDK_INT >= 9) {
@@ -81,9 +84,16 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowHomeEnabled(true);
+		if (!isDualPaneMode) {
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+			actionBar.setDisplayShowTitleEnabled(false);
+			actionBar.setDisplayShowHomeEnabled(true);
+		} else {
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayShowHomeEnabled(true);
+			setTitle(R.string.nowPlaying);
+		}
         
 		ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(getSupportActionBar().getThemedContext(),
 				R.layout.sherlock_spinner_item);
@@ -202,7 +212,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         @Override
         public int getCount() {
-            return 2;
+			return isDualPaneMode ? 1 : 2;
         }
 
         @Override
