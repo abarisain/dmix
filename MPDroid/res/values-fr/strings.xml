@@ -193,4 +193,6 @@
     <string name="enableLightTheme">Utiliser le thème clair</string>
     <string name="enableLightNowPlayingTheme">Utiliser le thème clair pour "En Cours"</string>
     <string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
+    <string name="share">Partager</string>
+    <string name="sharePrefix">Now Playing :</string>
 </resources>

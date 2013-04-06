@@ -213,7 +213,9 @@
 	<string name="enableExitConfirmation">Ask confirmation before exiting</string>
     <string name="enableExitConfirmationDescription">Require to double tap Back to exit</string>
     <string name="enableLightTheme">Use light theme</string>
-    <string name="enableLightNowPlayingTheme">Use light theme for ""Now Playing"</string>
+    <string name="enableLightNowPlayingTheme">Use light theme for "Now Playing"</string>
     <string name="enableLightNowPlayingThemeDescription">Restart the application to see the changes</string>
+    <string name="share">Share</string>
+    <string name="sharePrefix">Now Playing :</string>
 
 </resources>
