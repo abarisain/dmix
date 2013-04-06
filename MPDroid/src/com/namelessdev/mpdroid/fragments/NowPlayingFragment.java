@@ -166,6 +166,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		updateStatus(null);
 
 		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		new Thread(new Runnable() {
@@ -743,7 +744,13 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		if (getActivity() == null)
 			return;
 		final MPDApplication app = (MPDApplication) getActivity().getApplication();
-		app.getApplicationState().currentMpdStatus = status;
+		if (status == null) {
+			status = app.getApplicationState().currentMpdStatus;
+			if (status == null)
+				return;
+		} else {
+			app.getApplicationState().currentMpdStatus = status;
+		}
 		lastElapsedTime = status.getElapsedTime();
 		lastSongTime = status.getTotalTime();
 		trackTime.setText(timeToString(lastElapsedTime));

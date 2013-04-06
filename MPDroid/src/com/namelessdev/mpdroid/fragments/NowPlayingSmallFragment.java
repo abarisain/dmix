@@ -191,6 +191,8 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 
 	@Override
 	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+		if (isDetached())
+			return;
 		// If the playlist changed but not the song position in the playlist
 		// We end up being desynced. Update the current song.
 		new updateTrackInfoAsync().execute((MPDStatus[]) null);
@@ -198,6 +200,8 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 
 	@Override
 	public void stateChanged(MPDStatus status, String oldState) {
+		if (isDetached())
+			return;
 		app.getApplicationState().currentMpdStatus = status;
 		if (status.getState() != null && buttonPlayPause != null) {
 			if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
@@ -210,7 +214,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 
 	@Override
 	public void connectionStateChanged(boolean connected, boolean connectionLost) {
-		if (songTitle == null || songArtist == null)
+		if (isDetached() || songTitle == null || songArtist == null)
 			return;
 		connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
 		if (connected) {
