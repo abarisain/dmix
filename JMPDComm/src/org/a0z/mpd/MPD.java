@@ -218,6 +218,7 @@ public class MPD {
 	 *           server port
 	 */
 	public final void connect(InetAddress server, int port) throws MPDServerException {
+		disconnect();
 		this.mpdConnection = new MPDConnection(server, port);
 		this.mpdIdleConnection = new MPDConnection(server, port, 1000);
 	}

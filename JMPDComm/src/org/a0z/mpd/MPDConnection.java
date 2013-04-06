@@ -7,13 +7,11 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.a0z.mpd.exception.MPDConnectionException;
-import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.util.Log;
@@ -24,7 +22,7 @@ import android.util.Log;
  * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDConnection {
-	private static final int CONNECTION_TIMEOUT = 1000;
+	private static final int CONNECTION_TIMEOUT = 10000;
 	
 	private static final String MPD_RESPONSE_ERR = "ACK";
 	private static final String MPD_RESPONSE_OK = "OK";
