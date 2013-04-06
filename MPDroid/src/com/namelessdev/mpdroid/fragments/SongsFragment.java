@@ -221,6 +221,8 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	@Override
 	public void asyncUpdate() {
 		try {
+			if (getActivity() == null)
+				return;
 			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			items = app.oMPDAsyncHelper.oMPD.getSongs(artist, album);
 		} catch (MPDServerException e) {
