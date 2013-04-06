@@ -147,9 +147,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		popupMenu = new IcsListPopupWindow(activity);
-		popupMenu.setModal(true);
-		popupMenu.setOnItemClickListener(this);
 	}
 
 	@Override
@@ -265,6 +262,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				public void onClick(View v) {
 					if (currentSong == null)
 						return;
+					popupMenu = new IcsListPopupWindow(getActivity());
+					popupMenu.setModal(true);
+					popupMenu.setOnItemClickListener(NowPlayingFragment.this);
 					PopupMenuItem items[];
 					if (currentSong.isStream()) {
 						items = new PopupMenuItem[2];
