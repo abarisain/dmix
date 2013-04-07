@@ -209,11 +209,11 @@
     <string name="actionSongsSelected">%s 곡이 선택됨</string>
     <string name="searchQueue">연주순서 찾기…</string>
     <string name="enableCoverOnlyOnWifi">와이파이로만 내려받기</string>
-    <string name="enableCoverOnlyOnWifiDescription">이동 통신으로 음반표지를 내려받지 않습니다 - 요금 절약</string>
+    <string name="enableCoverOnlyOnWifiDescription">이동 통신으로 음반표지를 내려받지 않습니다 (요금 절약)</string>
 	<string name="enableExitConfirmation">나가기 전에 확인</string>
     <string name="enableExitConfirmationDescription">나가려면 두 번 누릅니다</string>
-    <string name="enableLightTheme">밝은 테마 사용</string>
-    <string name="enableLightNowPlayingTheme">"지금 연주 중"에 밝은 테마 사용</string>
+    <string name="enableLightTheme">밝은 테마</string>
+    <string name="enableLightNowPlayingTheme">"지금 연주 중"에 밝은 테마</string>
     <string name="enableLightNowPlayingThemeDescription">바뀐 것을 보려면 앱을 재시작해야 합니다</string>
     <string name="share">공유</string>
     <string name="sharePrefix">지금 연주 중 :</string>
