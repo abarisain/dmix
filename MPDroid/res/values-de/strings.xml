@@ -183,8 +183,34 @@
     <string name="genres">Genres</string>
     <string name="addGenre">Genre hinzufügen</string>
     <string name="libraryTabsSettings">Bibliotheksansichten</string>
-    <string name="libraryTabsSettingsDescription">Auswahl und Anordnung der Bibliotheksansichten</string>
+    <string name="libraryTabsSettingsDescription">Wähle die Bibliotheksansichten aus und bestimme deren Anordnung</string>
     <string name="visibleTabs">Benutzte Ansichten</string>
     <string name="hiddenTabs">Unbenutzte Ansichten</string>
+    	
+	<string name="coverArtTitle">Albencovereinstellungen</string>
+	<string name="coverArtDescription">Bestimme wie Albencover geladen und gespeichert werden</string>
+	<string name="enableLocalCoverCache">Albencover speichern</string>
+	<string name="enableLocalCoverCacheDescription">Speichert Albencover auf der SD-Karte zur schnelleren Anzeige</string>
+	<string name="clearLocalCoverCache">Leere Albencover-Cache</string>
+	<string name="clearLocalCoverCacheDescription">Lösche alle gespeicherten Albencover von der SD-Karte</string>
+	<string name="clearLocalCoverCachePrompt">Alle Albencover löschen ?</string>
+    
+	<string name="goToAlbum">Gehe zum Album</string>
+	<string name="goToArtist">Gehe zum Künstler</string>
+	<string name="goToFolder">Gehe zum Verzeichnis</string>
+	<string name="goToStream">Gehe zu Streams</string>
+
+	<string name="actionSongSelected">1 Titel ausgewählt</string>
+	<string name="actionSongsSelected">%s Titel ausgewählt</string>
+	<string name="searchQueue">Suche in Wiedergabeliste …</string>
+	<string name="enableCoverOnlyOnWifi">Nur über Wi-Fi laden</string>
+	<string name="enableCoverOnlyOnWifiDescription">Albencover nicht über Telefonnetzwerk laden. Kann Netzwerkkosten reduzieren</string>
+	<string name="enableExitConfirmation">Vor dem Beenden nachfragen</string>
+	<string name="enableExitConfirmationDescription">Zweimaliges Drücken der Zurück-Taste zum Beenden erforderlich</string>
+	<string name="enableLightTheme">Benutze Light Theme</string>
+	<string name="enableLightNowPlayingTheme">Benutze Light Theme für "Du hörst"</string>
+	<string name="enableLightNowPlayingThemeDescription">Starte die App neu um Änderung anzuwenden</string>
+	<string name="share">Weiterleiten</string>
+	<string name="sharePrefix">Wird abgespielt :</string>
 
 </resources>
