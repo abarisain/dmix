@@ -125,7 +125,7 @@ public class CoverAsyncHelper extends Handler {
 	/**
 	 * Checks if device connected or connecting to wifi network
 	 */
-	private boolean isWifi() {
+	public boolean isWifi() {
 		ConnectivityManager conMan = (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
 		// Get status of wifi connection
 		State wifi = conMan.getNetworkInfo(1).getState();
