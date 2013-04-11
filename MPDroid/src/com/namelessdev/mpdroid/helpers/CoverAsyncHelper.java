@@ -107,16 +107,16 @@ public class CoverAsyncHelper extends Handler {
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 		final List<CoverRetrievers> enabledRetrievers = new ArrayList<CoverRetrievers>();
 		// There is a cover provider order, respect it.
-		// Cache -> LastFM -> MPD Server
+		// Cache -> MPD Server -> LastFM
 		if (settings.getBoolean(PREFERENCE_CACHE, true)) {
 			enabledRetrievers.add(CoverRetrievers.CACHE);
 		}
 		if (!(settings.getBoolean(PREFERENCE_ONLY_WIFI, false)) | (isWifi())) {
-			if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
-				enabledRetrievers.add(CoverRetrievers.LASTFM);
-			}
 			if (settings.getBoolean(PREFERENCE_LOCALSERVER, false)) {
 				enabledRetrievers.add(CoverRetrievers.LOCAL);
+			}
+			if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
+				enabledRetrievers.add(CoverRetrievers.LASTFM);
 			}
 		}
 		setCoverRetrievers(enabledRetrievers);
@@ -125,7 +125,7 @@ public class CoverAsyncHelper extends Handler {
 	/**
 	 * Checks if device connected or connecting to wifi network
 	 */
-	private boolean isWifi() {
+	public boolean isWifi() {
 		ConnectivityManager conMan = (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
 		// Get status of wifi connection
 		State wifi = conMan.getNetworkInfo(1).getState();
