@@ -42,7 +42,7 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
-public class SongsFragment extends BrowseFragment implements CoverDownloadListener, OnItemClickListener {
+public class SongsFragment extends BrowseFragment implements CoverDownloadListener {
 
 	private static final int FALLBACK_COVER_SIZE = 80; // In DIP
 	private static final String EXTRA_ARTIST = "artist";
@@ -130,8 +130,9 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(R.layout.songs, container, false);
-		list = (ListView) view.findViewById(android.R.id.list);
+		list = (ListView) view.findViewById(R.id.list);
 		registerForContextMenu(list);
+		list.setOnItemClickListener(this);
 		loadingView = view.findViewById(R.id.loadingLayout);
 		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
 		noResultView = view.findViewById(R.id.noResultLayout);
@@ -152,7 +153,7 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 			albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
 		}
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
-		list.addHeaderView(headerView, null, false);
+		((ListView) list).addHeaderView(headerView, null, false);
 
 		albumMenu.setOnClickListener(new OnClickListener() {
 			@Override
@@ -160,7 +161,41 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 				popupMenu = new IcsListPopupWindow(getActivity());
 				popupMenu.setAdapter(getPopupMenuAdapter(getActivity()));
 				popupMenu.setModal(true);
-				popupMenu.setOnItemClickListener(SongsFragment.this);
+				popupMenu.setOnItemClickListener(new OnItemClickListener() {
+					@Override
+					public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+						final int action = ((PopupMenuItem) adapterView.getAdapter().getItem(position)).actionId;
+
+						app.oMPDAsyncHelper.execAsync(new Runnable() {
+							@Override
+							public void run() {
+								boolean replace = false;
+								boolean play = false;
+								switch (action) {
+									case ADDNREPLACEPLAY:
+										replace = true;
+										play = true;
+										break;
+									case ADDNREPLACE:
+										replace = true;
+										break;
+									case ADDNPLAY:
+										play = true;
+										break;
+								}
+								try {
+									app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
+									Tools.notifyUser(String.format(getResources().getString(R.string.albumAdded), album), getActivity());
+								} catch (MPDServerException e) {
+									e.printStackTrace();
+								}
+							}
+						});
+
+						popupMenu.dismiss();
+					}
+				});
+
 				final DisplayMetrics displaymetrics = new DisplayMetrics();
 				getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 				popupMenu.setContentWidth(displaymetrics.widthPixels / 2);
@@ -183,12 +218,12 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	}
 
 	@Override
-	public void onListItemClick(final ListView l, View v, final int position, long id) {
+	public void onItemClick(final AdapterView adapterView, View v, final int position, long id) {
 		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		app.oMPDAsyncHelper.execAsync(new Runnable() {
 			@Override
 			public void run() {
-				add((Item) l.getAdapter().getItem(position), false, false);
+				add((Item) adapterView.getAdapter().getItem(position), false, false);
 			}
 		});
 	}
@@ -401,36 +436,4 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 				: R.layout.sherlock_spinner_dropdown_item, items);
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> adpaterView, View view, int position, long id) {
-		final int action = ((PopupMenuItem) adpaterView.getAdapter().getItem(position)).actionId;
-
-		app.oMPDAsyncHelper.execAsync(new Runnable() {
-			@Override
-			public void run() {
-				boolean replace = false;
-				boolean play = false;
-				switch (action) {
-					case ADDNREPLACEPLAY:
-						replace = true;
-						play = true;
-						break;
-					case ADDNREPLACE:
-						replace = true;
-						break;
-					case ADDNPLAY:
-						play = true;
-						break;
-				}
-				try {
-					app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
-					Tools.notifyUser(String.format(getResources().getString(R.string.albumAdded), album), getActivity());
-				} catch (MPDServerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-		popupMenu.dismiss();
-	}
 }

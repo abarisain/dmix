@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -132,13 +133,13 @@ public class StreamsFragment extends BrowseFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		app = (MPDApplication) getActivity().getApplication();
-		registerForContextMenu(getListView());
+		registerForContextMenu(list);
 		UpdateList();
 		getActivity().setTitle(getResources().getString(R.string.streams));
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
 	}
 
 	@Override

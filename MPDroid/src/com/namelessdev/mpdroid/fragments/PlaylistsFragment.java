@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
@@ -20,7 +21,7 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class PlaylistsFragment  extends BrowseFragment {
+public class PlaylistsFragment extends BrowseFragment {
 	private MPDApplication app;
 
 	public static final int EDIT   = 101;
@@ -44,13 +45,13 @@ public class PlaylistsFragment  extends BrowseFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		app = (MPDApplication) getActivity().getApplication();
-		registerForContextMenu(getListView());
+		registerForContextMenu(list);
 		UpdateList();
 		getActivity().setTitle(getResources().getString(R.string.playlists));
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new StoredPlaylistFragment().init(items.get(position).getName()),
 				"stored_playlist");
 	}

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.AdapterView;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -68,7 +69,7 @@ public class AlbumsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init(artist, (Album) items.get(position)),
 				"songs");
 	}
