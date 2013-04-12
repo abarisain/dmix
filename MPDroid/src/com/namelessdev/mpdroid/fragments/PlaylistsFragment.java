@@ -15,15 +15,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class PlaylistsFragment extends BrowseFragment {
-	private MPDApplication app;
-
 	public static final int EDIT   = 101;
 	public static final int DELETE = 102;
 
@@ -44,7 +41,6 @@ public class PlaylistsFragment extends BrowseFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		app = (MPDApplication) getActivity().getApplication();
 		registerForContextMenu(list);
 		UpdateList();
 		getActivity().setTitle(getResources().getString(R.string.playlists));

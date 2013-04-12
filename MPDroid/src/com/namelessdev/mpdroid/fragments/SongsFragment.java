@@ -79,7 +79,7 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		app = (MPDApplication) activity.getApplication();
+		final MPDApplication app = (MPDApplication) activity.getApplication();
 		coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(activity));
 		coverHelper.setCoverRetrieversFromPreferences();
 		coverHelper.addCoverDownloadListener(this);
@@ -219,7 +219,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 
 	@Override
 	public void onItemClick(final AdapterView adapterView, View v, final int position, long id) {
-		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		app.oMPDAsyncHelper.execAsync(new Runnable() {
 			@Override
 			public void run() {
@@ -232,7 +231,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	protected void add(Item item, boolean replace, boolean play) {
 		Music music = (Music) item;
 		try {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			app.oMPDAsyncHelper.oMPD.add(music, replace, play);
 			Tools.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()),
 					getActivity());
@@ -245,7 +243,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	@Override
 	protected void add(Item item, String playlist) {
 		try {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
 		} catch (MPDServerException e) {
@@ -258,7 +255,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		try {
 			if (getActivity() == null)
 				return;
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			items = app.oMPDAsyncHelper.oMPD.getSongs(artist, album);
 		} catch (MPDServerException e) {
 			e.printStackTrace();

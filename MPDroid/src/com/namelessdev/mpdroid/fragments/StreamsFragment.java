@@ -29,13 +29,11 @@ import android.widget.ListView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class StreamsFragment extends BrowseFragment {
-	private MPDApplication app;
 	ArrayList<Stream> streams = new ArrayList<Stream>();
 
 	private static class Stream extends Item {
@@ -132,7 +130,6 @@ public class StreamsFragment extends BrowseFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		app = (MPDApplication) getActivity().getApplication();
 		registerForContextMenu(list);
 		UpdateList();
 		getActivity().setTitle(getResources().getString(R.string.streams));

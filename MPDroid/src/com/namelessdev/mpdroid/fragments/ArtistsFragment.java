@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.AdapterView;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -49,7 +48,6 @@ public class ArtistsFragment extends BrowseFragment {
 	@Override
 	protected void asyncUpdate() {
 		try {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			if (genre != null) {
 				items = app.oMPDAsyncHelper.oMPD.getArtists(genre);
 			} else {
@@ -62,7 +60,6 @@ public class ArtistsFragment extends BrowseFragment {
     @Override
 	protected void add(Item item, boolean replace, boolean play) {
     	try {
-    		MPDApplication app = (MPDApplication) getActivity().getApplication();
 			app.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
@@ -73,7 +70,6 @@ public class ArtistsFragment extends BrowseFragment {
     @Override
 	protected void add(Item item, String playlist) {
     	try {
-    		MPDApplication app = (MPDApplication) getActivity().getApplication();
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
     		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
     	} catch (MPDServerException e) {
