@@ -39,14 +39,6 @@ public class PlaylistsFragment extends BrowseFragment {
 	}
 	
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		registerForContextMenu(list);
-		UpdateList();
-		getActivity().setTitle(getResources().getString(R.string.playlists));
-	}
-
-	@Override
 	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new StoredPlaylistFragment().init(items.get(position).getName()),
 				"stored_playlist");
