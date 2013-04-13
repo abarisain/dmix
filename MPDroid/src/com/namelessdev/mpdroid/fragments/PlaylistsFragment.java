@@ -29,11 +29,6 @@ public class PlaylistsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-	}
-
-	@Override
 	public int getLoadingText() {
 		return R.string.loadingPlaylists;
 	}

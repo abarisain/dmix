@@ -39,16 +39,6 @@ public class AlbumsFragment extends BrowseFragment {
 	}
 	
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
-
-	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		outState.putParcelable(EXTRA_ARTIST, artist);
 		super.onSaveInstanceState(outState);

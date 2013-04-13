@@ -107,11 +107,6 @@ public class StreamsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onStop() {
-		super.onStop();
-	}
-
-	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setHasOptionsMenu(true);
