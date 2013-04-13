@@ -12,7 +12,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 public class LocalCover implements ICoverRetriever {
 
 //	private final static String URL = "%s/%s/%s";
-//	private final static String URL_PREFIX = "http://";
+	private final static String URL_PREFIX = "http://";
 	private final static String PLACEHOLDER_FILENAME = "%placeholder_filename";
 	// Note that having two PLACEHOLDER_FILENAME is on purpose
 	private final static String[] FILENAMES = new String[] { "%placeholder_custom", PLACEHOLDER_FILENAME, PLACEHOLDER_FILENAME,
@@ -27,13 +27,22 @@ public class LocalCover implements ICoverRetriever {
 	}
 	
 	public String buildCoverUrl(String serverName, String musicPath, String path, String fileName){
-		Uri uriBuilder = new Uri.Builder().scheme("http")
-				.authority(serverName)
-				.path(musicPath)
-				.appendPath(path)
-				.appendPath(fileName)
-				.build();
-		return uriBuilder.toString();
+
+		if (musicPath.startsWith(URL_PREFIX)) {
+			int hostPortEnd = musicPath.indexOf(URL_PREFIX.length(), '/');
+			if (hostPortEnd == -1) {
+				hostPortEnd = musicPath.length();
+			}
+			serverName=musicPath.substring(URL_PREFIX.length(), hostPortEnd);
+			musicPath=musicPath.substring(hostPortEnd);
+		}
+		Uri.Builder b = Uri.parse(URL_PREFIX + serverName).buildUpon();
+		Uri uri = b
+			.appendPath(musicPath)
+			.appendPath(path)
+			.appendPath(fileName)
+			.build();
+		return uri.toString();
 	}	
 
 	public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
