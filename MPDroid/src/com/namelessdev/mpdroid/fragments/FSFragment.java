@@ -109,10 +109,10 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 
-        List<Item> dirItems=new ArrayList<Item>();
-        dirItems.addAll(currentDirectory.getDirectories());
-        dirItems.addAll(currentDirectory.getFiles());
-        items=dirItems;
+		List<Item> dirItems=new ArrayList<Item>();
+		dirItems.addAll(currentDirectory.getDirectories());
+		dirItems.addAll(currentDirectory.getFiles());
+		items=dirItems;
 	}
 
 	@Override

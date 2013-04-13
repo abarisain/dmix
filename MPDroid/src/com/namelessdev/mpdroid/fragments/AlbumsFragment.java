@@ -81,23 +81,23 @@ public class AlbumsFragment extends BrowseFragment {
 		}
 	}
 
-    @Override
+	@Override
 	protected void add(Item item, boolean replace, boolean play) {
-    	try {
+		try {
 			app.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
-    		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-    	} catch (MPDServerException e) {
-    		e.printStackTrace();
-    	}
-    }
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	}
 
-    @Override
+	@Override
 	protected void add(Item item, String playlist) {
-    	try {
+		try {
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, artist, ((Album) item));
-    		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-    	} catch (MPDServerException e) {
-    		e.printStackTrace();
-    	}
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
 	}
 }
