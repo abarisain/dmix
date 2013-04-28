@@ -43,6 +43,16 @@ public class CachedCover implements ICoverRetriever {
 		return "SD Card Cache";
 	}
 
+	public long getCacheUsage() {
+		long size = 0;
+		for (File file : new File(getAbsoluteCoverFolderPath()).listFiles()) {
+			if (file.isFile()) {
+				size += file.length();
+			}
+		}
+		return size;
+	}
+
 	public void save(String artist, String album, Bitmap cover) {
 		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			// External storage is not there or read only, don't do anything
