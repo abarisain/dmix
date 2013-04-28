@@ -272,7 +272,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 
 	public boolean isTabletUiEnabled() {
 		return getResources().getBoolean(R.bool.isTablet)
-				&& PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletUi", true);
+				&& PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletUI", true);
 	}
 
 	public boolean isLightThemeSelected() {
