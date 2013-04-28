@@ -217,5 +217,7 @@
     <string name="enableLightNowPlayingThemeDescription">Restart the application to see the changes</string>
     <string name="share">Share</string>
     <string name="sharePrefix">Now Playing :</string>
+    <string name="enableTabletUI">Use tablet UI</string>
+    <string name="enableTabletUIDescription">Restart the application to see the changes</string>
 
 </resources>

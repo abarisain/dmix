@@ -99,6 +99,10 @@
 			android:summary="@string/enableExitConfirmationDescription"
 			android:key="enableExitConfirmation" android:defaultValue="false" />
 		<CheckBoxPreference android:persistent="true"
+			android:title="@string/enableTabletUI"
+			android:summary="@string/enableTabletUIDescription"
+			android:key="tabletUI" android:defaultValue="true" />
+		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableLightTheme"
 			android:key="lightTheme" android:defaultValue="false" />
 		<CheckBoxPreference android:persistent="true"

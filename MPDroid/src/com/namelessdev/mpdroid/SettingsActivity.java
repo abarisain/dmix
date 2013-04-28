@@ -77,6 +77,11 @@ public class SettingsActivity extends PreferenceActivity implements
 			interfaceCategory.removePreference(findPreference("lightNowPlayingTheme"));
 		}
 
+		if (!getResources().getBoolean(R.bool.isTablet)) {
+			final PreferenceCategory interfaceCategory = (PreferenceCategory) findPreference("category_interface");
+			interfaceCategory.removePreference(findPreference("tabletUI"));
+		}
+
 		final EditTextPreference pVersion = (EditTextPreference) findPreference("version");
 		final EditTextPreference pArtists = (EditTextPreference) findPreference("artists");
 		final EditTextPreference pAlbums = (EditTextPreference) findPreference("albums");

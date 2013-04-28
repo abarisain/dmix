@@ -195,4 +195,6 @@
     <string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
     <string name="share">Partager</string>
     <string name="sharePrefix">Now Playing :</string>
+	<string name="enableTabletUI">Utiliser l\'interface pour tablette</string>
+    <string name="enableTabletUIDescription">Redémarrer l\'application pour voir les changements</string>
 </resources>
