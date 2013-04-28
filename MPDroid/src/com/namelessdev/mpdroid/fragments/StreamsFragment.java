@@ -150,7 +150,7 @@ public class StreamsFragment extends BrowseFragment {
 	protected void add(Item item, boolean replace, boolean play) {
 		try {
 			final Stream s = (Stream) item;
-			app.oMPDAsyncHelper.oMPD.add(StreamFetcher.instance().get(s.getUrl()), replace, play);
+			app.oMPDAsyncHelper.oMPD.add(StreamFetcher.instance().get(s.getUrl(), s.getName()), replace, play);
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
 		} catch (MPDServerException e) {
 			e.printStackTrace();

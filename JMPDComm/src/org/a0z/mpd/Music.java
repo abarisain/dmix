@@ -115,8 +115,25 @@ public class Music extends Item implements FilesystemTreeEntry {
 				// (new InvalidResponseException("unknown response: " + line)).printStackTrace();
 			}
 		}
+		
+		if (isStream()) {
+			String n=getStreamName();
+			if (null!=n && !n.isEmpty()) {
+				name=n;
+			}
+		}
 	}
 	
+	private String getStreamName() {
+		if (null!=fullpath && !fullpath.isEmpty()) {
+			int pos=fullpath.indexOf("#");
+			if (pos>1) {
+				return fullpath.substring(pos+1, fullpath.length());
+			}
+		}
+		return null;
+	}
+
 	public static List<Music> getMusicFromList(List<String> response, boolean sort) {
 		ArrayList<Music> result = new ArrayList<Music>();
 		LinkedList<String> lineCache = new LinkedList<String>();
@@ -244,6 +261,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 	 */
 	public long getTime() {
 		return time;
+	}
+
+	public boolean haveTitle() {
+		return null!=title && title.length()>0;
 	}
 
 	/**

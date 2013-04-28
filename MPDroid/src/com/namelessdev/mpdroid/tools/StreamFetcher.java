@@ -139,7 +139,15 @@ public class StreamFetcher {
     	handlers.add("rtmpts");
     }
 
-    public URL get(String url) throws MalformedURLException {
+    // Add stream name to fragment part of URL sent to MPD. This way, when the
+    // playqueue listing is received back from MPD, the name can be determined.
+    private static String addName(String url, String name) {
+    	String fixed=name.replace(" # ", " ");
+    	fixed=fixed.replace("#", "");
+    	return url+"#"+fixed;
+    }
+
+    public URL get(String url, String name) throws MalformedURLException {
     	String parsed=null;
     	if (url.startsWith("http://")) {
     		HttpURLConnection connection=null;
@@ -160,8 +168,7 @@ public class StreamFetcher {
     				connection.disconnect();
     			}
     		}
-
     	}
-    	return new URL(null==parsed ? url : parsed);
+    	return new URL(addName(null==parsed ? url : parsed, name));
     }
 }

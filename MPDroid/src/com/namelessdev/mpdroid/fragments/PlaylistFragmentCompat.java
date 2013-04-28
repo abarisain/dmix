@@ -90,12 +90,25 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 				}
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
-				if (Tools.isStringEmptyOrNull(m.getAlbum())) {
-					item.put("artist", m.getArtist());
+				if (m.isStream()) {
+					if (m.haveTitle()) {
+						item.put("title", m.getTitle());
+						if (Tools.isStringEmptyOrNull(m.getName())) {
+							item.put("artist", m.getArtist());
+						} else {
+							item.put("artist", m.getArtist() + " - " + m.getName());
+						}
+					} else {
+						item.put("title", m.getName());
+					}
 				} else {
-					item.put("artist", m.getArtist() + " - " + m.getAlbum());
+					if (Tools.isStringEmptyOrNull(m.getAlbum())) {
+						item.put("artist", m.getArtist());
+					} else {
+						item.put("artist", m.getArtist() + " - " + m.getAlbum());
+					}
+					item.put("title", m.getTitle());
 				}
-				item.put("title", m.getTitle());
 				if (m.getSongId() == playingID) {
 					item.put("play", android.R.drawable.ic_media_play);
 					// Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before

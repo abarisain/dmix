@@ -583,6 +583,17 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				if (noSong) {
 					currentSong = null;
 					title = getResources().getString(R.string.noSongInfo);
+				} else if (actSong.isStream()){
+					currentSong = actSong;
+					Log.d("MPDroid", "Playing a stream");
+					if (actSong.haveTitle()) {
+						title = actSong.getTitle();
+					}
+					artist = actSong.getArtist();
+					album = actSong.getName();
+					path = actSong.getPath();
+					filename = actSong.getFilename();
+					songMax = (int) actSong.getTime();
 				} else {
 					currentSong = actSong;
 					Log.d("MPDroid", "We did find an artist");
