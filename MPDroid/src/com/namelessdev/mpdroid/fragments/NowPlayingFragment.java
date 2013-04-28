@@ -191,13 +191,14 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.main_fragment, container, false);
+		final MPDApplication app = (MPDApplication) getActivity().getApplication();
+		View view = inflater.inflate(app.isTabletUiEnabled() ? R.layout.main_fragment_tablet : R.layout.main_fragment, container, false);
 
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		settings.registerOnSharedPreferenceChangeListener(this);
 
-		streamingMode = ((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode;
-		connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
+		streamingMode = app.getApplicationState().streamingMode;
+		connected = app.oMPDAsyncHelper.oMPD.isConnected();
 		artistNameText = (TextView) view.findViewById(R.id.artistName);
 		albumNameText = (TextView) view.findViewById(R.id.albumName);
 		songNameText = (TextView) view.findViewById(R.id.songName);
@@ -225,7 +226,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		coverArtProgress.setIndeterminate(true);
 		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 
-		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
 		oCoverAsyncHelper.setCoverRetrieversFromPreferences();
 		// Scale cover images down to screen width

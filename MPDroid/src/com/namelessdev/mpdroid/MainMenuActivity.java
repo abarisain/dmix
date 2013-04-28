@@ -67,7 +67,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+		final MPDApplication app = (MPDApplication) getApplication();
+		setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_tablet : R.layout.main_activity);
         
 		isDualPaneMode = (findViewById(R.id.playlist_fragment) != null);
 
