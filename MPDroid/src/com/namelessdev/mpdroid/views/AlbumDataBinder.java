@@ -10,10 +10,6 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,14 +19,11 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
 import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
-import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 
 public class AlbumDataBinder implements ArrayIndexerDataBinder {
-	CoverAsyncHelper coverHelper = null;
-	Context context = null;
+	protected CoverAsyncHelper coverHelper = null;
 	String artist = null;
 	MPDApplication app = null;
 	boolean lightTheme = false;
@@ -42,7 +35,6 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	}
 
 	public void onDataBind(final Context context, final View targetView, List<? extends Item> items, Object item, int position) {
-		this.context = context;
 		final Album album = (Album) item;
 		String info = "";
 		final long songCount = album.getSongCount();
@@ -71,7 +63,7 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 
 			// listen for new artwork to be loaded
 			ImageView albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
-			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(albumCover));
+			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(context, albumCover));
 
 			loadArtwork(artist, album.getName());
 		}
@@ -112,47 +104,6 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 			}
 		}else{
 			coverHelper.downloadCover(artist, album, null, null);
-		}
-	}
-
-	private class AlbumCoverDownloadListener implements CoverDownloadListener {
-		ImageView albumCover;
-
-		public AlbumCoverDownloadListener(ImageView albumCover) {
-			this.albumCover = albumCover;
-			this.albumCover.setVisibility(View.VISIBLE);
-		}
-
-		@Override
-		public void onCoverDownloaded(Bitmap cover) {
-			if (albumCover == null) {
-				// The view is detached, bail.
-				cover.recycle();
-				return;
-			}
-			try {
-				// recycle the placeholder
-				final Drawable oldDrawable = albumCover.getDrawable();
-				if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
-					final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
-					if (oldBitmap != null)
-						oldBitmap.recycle();
-				}
-
-				if (cover != null) {
-					BitmapDrawable myCover = new CoverBitmapDrawable(context.getResources(), cover);
-					albumCover.setImageDrawable(myCover);
-				} else {
-					onCoverNotFound();
-				}
-			} catch (Exception e) {
-				// Just ignore
-			}
-		}
-
-		@Override
-		public void onCoverNotFound() {
-			// A placeholder is already shown so do nothing here
 		}
 	}
 
