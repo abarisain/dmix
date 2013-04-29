@@ -217,5 +217,7 @@
     <string name="enableLightNowPlayingThemeDescription">바뀐 것을 보려면 앱을 재시작해야 합니다</string>
     <string name="share">공유</string>
     <string name="sharePrefix">지금 연주 중 :</string>
+    <string name="enableTabletUI">태블릿 UI 사용</string>
+    <string name="enableTabletUIDescription">바뀐 것을 보려면 앱을 재시작해야 합니다</string>
 
 </resources>
