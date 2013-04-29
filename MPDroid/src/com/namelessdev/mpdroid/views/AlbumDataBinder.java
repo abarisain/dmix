@@ -10,7 +10,6 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.BitmapDrawable;
@@ -70,50 +69,49 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 			coverHelper = new CoverAsyncHelper(app, settings);
 			coverHelper.setCoverRetrieversFromPreferences();
 
-			// display a placeholder
+			// listen for new artwork to be loaded
 			ImageView albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
-			int[] attrs = new int[] { R.attr.noCoverArtIcon };
-			final TypedArray ta = context.obtainStyledAttributes(attrs);
-			final Drawable drawableFromTheme = ta.getDrawable(0);
-			albumCover.setImageDrawable(drawableFromTheme);
-			ta.recycle();
-
 			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(albumCover));
 
-			boolean haveCachedArtwork = false;
+			loadArtwork(artist, album.getName());
+		}
+	}
+
+	protected void loadArtwork(String artist, String album) {
+		boolean haveCachedArtwork = false;
+
+		try {
+			CachedCover cachedCover = new CachedCover(app);
+			final String[] urls = cachedCover.getCoverUrl(artist, album, null, null);
+			if((urls != null) && (urls.length > 0)) {
+				haveCachedArtwork = true;
+			}
+		} catch (Exception e) {
+			// no cached artwork available
+		}
+
+		if(haveCachedArtwork == false && coverHelper.isWifi()) {
+			// proactively download and cache artwork
+			String filename = null;
+			String path = null;
+			List<? extends Item> songs = null;
 
 			try {
-				CachedCover cachedCover = new CachedCover(app);
-				final String[] urls = cachedCover.getCoverUrl(artist, album.getName(), null, null);
-				if(urls.length > 0) {
-					haveCachedArtwork = true;
+				// load songs for this album
+				songs = app.oMPDAsyncHelper.oMPD.getSongs(((artist != null) ? new Artist(artist, 0) : null), new Album(album));
+
+				if (songs.size() > 0) {
+					Music song = (Music) songs.get(0);
+					filename = song.getFilename();
+					path = song.getPath();
+					coverHelper.downloadCover(artist, album, path, filename);
 				}
-			} catch (Exception e) {
-				// no cached artwork available
+			} catch (MPDServerException e) {
+				// MPD error, bail on loading artwork
+				return;
 			}
-
-			if(haveCachedArtwork == false && coverHelper.isWifi()) {
-				// proactively download and cache artwork
-				String filename = null;
-				String path = null;
-				List<? extends Item> songs = null;
-
-				try {
-					songs = app.oMPDAsyncHelper.oMPD.getSongs(new Artist(artist, 0), album);
-
-					if (songs.size() > 0) {
-						Music song = (Music) songs.get(0);
-						filename = song.getFilename();
-						path = song.getPath();
-						coverHelper.downloadCover(artist, album.getName(), path, filename);
-					}
-				} catch (MPDServerException e) {
-					// MPD error, bail on loading artwork
-					return;
-				}
-			}else{
-				coverHelper.downloadCover(artist, album.getName(), null, null);
-			}
+		}else{
+			coverHelper.downloadCover(artist, album, null, null);
 		}
 	}
 
