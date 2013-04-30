@@ -77,7 +77,7 @@ public class LibraryFragment extends SherlockFragment {
 			if (tab.equals(LibraryTabsUtil.TAB_ARTISTS))
 				fragment = new ArtistsFragment().init(null);
 			else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS))
-				fragment = new AlbumsFragment().init(null);
+				fragment = new AlbumsGridFragment().init(null);
 			else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS))
 				fragment = new PlaylistsFragment();
 			else if (tab.equals(LibraryTabsUtil.TAB_STREAMS))

@@ -86,10 +86,6 @@ public class CachedCover implements ICoverRetriever {
 		}
 	}
 
-	public String getFilenameForSong(String artist, String album) {
-		return Tools.getHashFromString(artist + ";" + album) + ".jpg";
-	}
-	
 	public String getAbsoluteCoverFolderPath() {
 		final File cacheDir = application.getExternalCacheDir();
 		if (cacheDir == null)
@@ -101,7 +97,13 @@ public class CachedCover implements ICoverRetriever {
 		final File cacheDir = application.getExternalCacheDir();
 		if (cacheDir == null)
 			return null;
-		return getAbsoluteCoverFolderPath() + getFilenameForSong(artist, album);
+		String filename;
+		if (artist == null) {
+			filename = Tools.getHashFromString(artist + ";" + album) + ".jpg";
+		}else{
+			filename = Tools.getHashFromString(album) + ".jpg";
+		}
+		return getAbsoluteCoverFolderPath() + filename;
 	}
 
 }

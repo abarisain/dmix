@@ -22,6 +22,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -49,7 +50,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	protected View loadingView;
 	protected TextView loadingTextView;
 	protected View noResultView;
-	protected ListView list;
+	protected AbsListView list;
 	private boolean firstUpdateDone = false;
 
 	String context;
@@ -290,7 +291,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 		if (items != null) {
 			list.setAdapter(getCustomListAdapter());
 			try {
-				if (forceEmptyView() || ((ListView) list).getHeaderViewsCount() == 0)
+				if (forceEmptyView() || ((list instanceof ListView) && ((ListView) list).getHeaderViewsCount() == 0))
 					list.setEmptyView(noResultView);
 				loadingView.setVisibility(View.GONE);
 			} catch (Exception e) {}
