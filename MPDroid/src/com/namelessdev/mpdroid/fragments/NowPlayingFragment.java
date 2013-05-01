@@ -53,11 +53,11 @@ import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
 import com.namelessdev.mpdroid.adapters.PopupMenuItem;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
-public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener, CoverDownloadListener,
+public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener,
 		OnSharedPreferenceChangeListener, OnItemClickListener {
 	
 	public static final String PREFS_NAME = "mpdroid.properties";
@@ -91,8 +91,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	long lastSongTime = 0;
 	long lastElapsedTime = 0;
 
+	private AlbumCoverDownloadListener coverArtListener;
 	private ImageView coverArt;
-
 	private ProgressBar coverArtProgress;
 
 	private IcsListPopupWindow popupMenu;
@@ -152,7 +152,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void onDestroyView() {
 		coverArt.setImageResource(R.drawable.no_cover_art);
-		freeCoverDrawable();
+		coverArtListener.freeCoverDrawable();
 		super.onDestroyView();
 	}
 
@@ -221,17 +221,16 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		fadeOut.setDuration(ANIMATION_DURATION_MSEC);
 
 		coverArt = (ImageView) view.findViewById(R.id.albumCover);
-
 		coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-		coverArtProgress.setIndeterminate(true);
-		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
 
 		oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
 		oCoverAsyncHelper.setCoverRetrieversFromPreferences();
 		// Scale cover images down to screen width
 		oCoverAsyncHelper.setCoverMaxSizeFromScreen(getActivity());
 		oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());
-		oCoverAsyncHelper.addCoverDownloadListener(this);
+
+		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress);
+		oCoverAsyncHelper.addCoverDownloadListener(coverArtListener);
 
 		buttonEventHandler = new ButtonEventHandler();
 		ImageButton button = (ImageButton) view.findViewById(R.id.next);
@@ -619,7 +618,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					lastAlbum = album;
 					trackTime.setText(timeToString(0));
 					trackTotalTime.setText(timeToString(0));
-					onCoverNotFound();
+					coverArtListener.onCoverNotFound();
 				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					// coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
 					coverArtProgress.setVisibility(ProgressBar.VISIBLE);
@@ -687,30 +686,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		} else {
 			return String.format("%02d:%02d:%02d", hours, minutes, seconds);
 		}
-	}
-
-	public void onCoverDownloaded(Bitmap cover) {
-		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-		try {
-			if (cover != null) {
-				final Drawable oldDrawable = coverArt.getDrawable();
-				coverArt.setImageDrawable(new CoverBitmapDrawable(getResources(), cover));
-				freeCoverDrawable(oldDrawable);
-			} else {
-				// Should not be happening, but happened.
-				onCoverNotFound();
-			}
-		} catch (Exception e) {
-			//Probably rotated, ignore
-			e.printStackTrace();
-		}
-	}
-
-	public void onCoverNotFound() {
-		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-		coverArt.setImageResource(R.drawable.no_cover_art);
-		freeCoverDrawable();
-		// coverSwitcher.setVisibility(ImageSwitcher.VISIBLE);
 	}
 
 	@Override
@@ -834,25 +809,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			repeatButton.invalidate();
 			repeatCurrent=on;
 		}
-	}
-
-	private void freeCoverDrawable() {
-		freeCoverDrawable(null);
-	}
-
-	private void freeCoverDrawable(Drawable oldDrawable) {
-		if (coverArt == null)
-			return;
-		final Drawable coverDrawable = oldDrawable == null ? coverArt.getDrawable() : oldDrawable;
-		if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable))
-			return;
-		if (oldDrawable == null)
-			coverArt.setImageResource(R.drawable.no_cover_art);
-
-		coverDrawable.setCallback(null);
-		final Bitmap coverBitmap = ((BitmapDrawable) coverDrawable).getBitmap();
-		if (coverBitmap != null)
-			coverBitmap.recycle();
 	}
 
 	@Override
