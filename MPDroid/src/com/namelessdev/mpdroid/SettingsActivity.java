@@ -111,6 +111,11 @@ public class SettingsActivity extends PreferenceActivity implements
 		pCacheUsage2 = (EditTextPreference) findPreference("cacheUsage2");
 		pCacheUsage2.setSummary(usage);
 
+		// album art library listing requires cover art cache
+		CheckBoxPreference lcc = (CheckBoxPreference) findPreference("enableLocalCoverCache");
+		CheckBoxPreference aal = (CheckBoxPreference) findPreference("enableAlbumArtLibrary");
+		aal.setEnabled(lcc.isChecked());
+
 		// Enable/Disable playback resume when call ends only if playback pause
 		// is enabled when call starts
 		CheckBoxPreference cPause = (CheckBoxPreference) findPreference("pauseOnPhoneStateChange");
@@ -261,7 +266,6 @@ public class SettingsActivity extends PreferenceActivity implements
 			return true;
 
 		} else if (preference.getKey().equals("enableLocalCover")) {
-
 			CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
 			Preference mp = (Preference) findPreference("musicPath");
 			Preference cf = (Preference) findPreference("coverFileName");
@@ -274,6 +278,19 @@ public class SettingsActivity extends PreferenceActivity implements
 				cf.setEnabled(false);
 			}
 			return true;
+
+		} else if (preference.getKey().equals("enableLocalCoverCache")) {
+			// album art library listing requires cover art cache
+			CheckBoxPreference lcc = (CheckBoxPreference) findPreference("enableLocalCoverCache");
+			CheckBoxPreference aal = (CheckBoxPreference) findPreference("enableAlbumArtLibrary");
+			if (lcc.isChecked()) {
+				aal.setEnabled(true);
+			}else{
+				aal.setEnabled(false);
+				aal.setChecked(false);
+			}
+			return true;
+
 		} else if (preference.getKey().equals("pauseOnPhoneStateChange")) {
 			// Enable/Disable playback resume when call ends only if playback
 			// pause is enabled when call starts

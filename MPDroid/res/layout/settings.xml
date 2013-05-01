@@ -96,6 +96,9 @@
 				android:title="@string/enableCoverOnlyOnWifi"
 				android:summary="@string/enableCoverOnlyOnWifiDescription"
 				android:key="enableCoverOnlyOnWifi" android:defaultValue="false"/>
+			<CheckBoxPreference android:persistent="true"
+				android:title="@string/enableAlbumArtLibrary" android:summary="@string/enableAlbumArtLibraryDescription"
+				android:key="enableAlbumArtLibrary" android:defaultValue="false" />
 		</PreferenceScreen>
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableStopButton"

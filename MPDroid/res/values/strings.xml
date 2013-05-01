@@ -201,6 +201,8 @@
 	<string name="clearLocalCoverCacheDescription">Free the storage space used by the cover art cache</string>
     <string name="clearLocalCoverCachePrompt">Delete all cached cover art ?</string>
 
+	<string name="enableAlbumArtLibrary">Album cover art listing in library</string>
+	<string name="enableAlbumArtLibraryDescription">Use large cover art tiles for the albums listing in the library. This feature is experimental! You may experience lag and/or crashes. (Requires cache cover art)</string>
     <string name="albumGridWifiUnavailable">Wi-Fi unavailable, so no new artwork will be retrieved</string>
     
     <string name="goToAlbum">Go to album</string>
