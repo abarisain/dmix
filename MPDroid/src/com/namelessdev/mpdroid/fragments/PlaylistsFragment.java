@@ -11,18 +11,16 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class PlaylistsFragment  extends BrowseFragment {
-	private MPDApplication app;
-
+public class PlaylistsFragment extends BrowseFragment {
 	public static final int EDIT   = 101;
 	public static final int DELETE = 102;
 
@@ -31,26 +29,12 @@ public class PlaylistsFragment  extends BrowseFragment {
 	}
 
 	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-	}
-
-	@Override
 	public int getLoadingText() {
 		return R.string.loadingPlaylists;
 	}
 	
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		app = (MPDApplication) getActivity().getApplication();
-		registerForContextMenu(getListView());
-		UpdateList();
-		getActivity().setTitle(getResources().getString(R.string.playlists));
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new StoredPlaylistFragment().init(items.get(position).getName()),
 				"stored_playlist");
 	}
@@ -63,19 +47,19 @@ public class PlaylistsFragment  extends BrowseFragment {
 		}
 	}
 
-    @Override
+	@Override
 	protected void add(Item item, boolean replace, boolean play) {
-    	try {
+		try {
 			app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
-    		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-    	} catch (MPDServerException e) {
-    		e.printStackTrace();
-    	}
-    }
-    
-    @Override
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
 	protected void add(Item item, String playlist) {
-    }
+	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -99,18 +83,18 @@ public class PlaylistsFragment  extends BrowseFragment {
 		case DELETE:
 			String playlist = items.get((int) info.id).getName();
 			
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(getResources().getString(R.string.deletePlaylist));
-            builder.setMessage(String.format(getResources().getString(R.string.deletePlaylistPrompt), playlist));
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle(getResources().getString(R.string.deletePlaylist));
+			builder.setMessage(String.format(getResources().getString(R.string.deletePlaylistPrompt), playlist));
 
-            DialogClickListener oDialogClickListener = new DialogClickListener((int) info.id);
-            builder.setNegativeButton(getResources().getString(android.R.string.no), oDialogClickListener);
-            builder.setPositiveButton(getResources().getString(R.string.deletePlaylist), oDialogClickListener);
-            try {
-            	builder.show();
-            } catch (BadTokenException e) {
-            	// Can't display it. Don't care.
-            }
+			DialogClickListener oDialogClickListener = new DialogClickListener((int) info.id);
+			builder.setNegativeButton(getResources().getString(android.R.string.no), oDialogClickListener);
+			builder.setPositiveButton(getResources().getString(R.string.deletePlaylist), oDialogClickListener);
+			try {
+				builder.show();
+			} catch (BadTokenException e) {
+				// Can't display it. Don't care.
+			}
 			break;
 		default:
 			super.onMenuItemClick(item);
@@ -135,16 +119,16 @@ public class PlaylistsFragment  extends BrowseFragment {
 					Tools.notifyUser(String.format(getResources().getString(R.string.playlistDeleted), playlist), getActivity());
 					items.remove(itemIndex);
 				} catch (MPDServerException e) {
-		            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		            builder.setTitle(getResources().getString(R.string.deletePlaylist));
-		            builder.setMessage(String.format(getResources().getString(R.string.failedToDelete), playlist));
-		            builder.setPositiveButton(getResources().getString(android.R.string.cancel), null);
+					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+					builder.setTitle(getResources().getString(R.string.deletePlaylist));
+					builder.setMessage(String.format(getResources().getString(R.string.failedToDelete), playlist));
+					builder.setPositiveButton(getResources().getString(android.R.string.cancel), null);
 
-		            try {
-		            	builder.show();
-		            } catch (BadTokenException ex) {
-		            	// Can't display it. Don't care.
-		            }
+					try {
+						builder.show();
+					} catch (BadTokenException ex) {
+						// Can't display it. Don't care.
+					}
 				}
 				updateFromItems();
 				break;
