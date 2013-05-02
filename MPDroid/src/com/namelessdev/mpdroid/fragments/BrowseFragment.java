@@ -18,18 +18,19 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 
-public abstract class BrowseFragment extends SherlockListFragment implements OnMenuItemClickListener, AsyncExecListener {
+public abstract class BrowseFragment extends SherlockFragment implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
 
 	protected int iJobID = -1;
 
@@ -101,8 +102,9 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.browse, container, false);
-		list = (ListView) view.findViewById(android.R.id.list);
+		list = (ListView) view.findViewById(R.id.list);
 		registerForContextMenu(list);
+		list.setOnItemClickListener(this);
 		loadingView = view.findViewById(R.id.loadingLayout);
 		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
 		noResultView = view.findViewById(R.id.noResultLayout);
@@ -110,6 +112,23 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 		return view;
 	}
 	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		if(items != null) {
+			list.setAdapter(getCustomListAdapter());
+		}
+	}
+
+	@Override
+	public void onDestroyView() {
+		// help out the GC; imitated from ListFragment source
+		loadingView = null;
+		loadingTextView = null;
+		noResultView = null;
+		super.onDestroyView();
+	}
+
 	/*
 	 * Override this to display a custom activity title
 	 */
@@ -269,10 +288,10 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 			return;
 		}
 		if (items != null) {
-			setListAdapter(getCustomListAdapter());
+			list.setAdapter(getCustomListAdapter());
 			try {
-				if (forceEmptyView() || getListView().getHeaderViewsCount() == 0)
-					getListView().setEmptyView(noResultView);
+				if (forceEmptyView() || ((ListView) list).getHeaderViewsCount() == 0)
+					list.setEmptyView(noResultView);
 				loadingView.setVisibility(View.GONE);
 			} catch (Exception e) {}
 		}
@@ -297,7 +316,7 @@ public abstract class BrowseFragment extends SherlockListFragment implements OnM
 
 	public void scrollToTop() {
 		try {
-			getListView().setSelection(-1);
+			list.setSelection(-1);
 		} catch (Exception e) {
 			// What if the list is empty or some other bug ? I don't want any crashes because of that
 		}

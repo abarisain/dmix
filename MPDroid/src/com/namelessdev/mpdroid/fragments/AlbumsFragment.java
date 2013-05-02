@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.AdapterView;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -38,16 +39,6 @@ public class AlbumsFragment extends BrowseFragment {
 	}
 	
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
-
-	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		outState.putParcelable(EXTRA_ARTIST, artist);
 		super.onSaveInstanceState(outState);
@@ -68,7 +59,7 @@ public class AlbumsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init(artist, (Album) items.get(position)),
 				"songs");
 	}
@@ -90,23 +81,23 @@ public class AlbumsFragment extends BrowseFragment {
 		}
 	}
 
-    @Override
+	@Override
 	protected void add(Item item, boolean replace, boolean play) {
-    	try {
+		try {
 			app.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
-    		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-    	} catch (MPDServerException e) {
-    		e.printStackTrace();
-    	}
-    }
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	}
 
-    @Override
+	@Override
 	protected void add(Item item, String playlist) {
-    	try {
+		try {
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, artist, ((Album) item));
-    		Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-    	} catch (MPDServerException e) {
-    		e.printStackTrace();
-    	}
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
 	}
 }

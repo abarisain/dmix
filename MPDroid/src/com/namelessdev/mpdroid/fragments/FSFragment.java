@@ -14,8 +14,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.AdapterView;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -60,7 +60,6 @@ public class FSFragment extends BrowseFragment {
 	@Override
 	protected void add(Item item, boolean replace, boolean play) {
 		try {
-			final MPDApplication app = (MPDApplication) getActivity().getApplication();
 			final Directory ToAdd = currentDirectory.getDirectory(item.getName());
 			if (ToAdd != null) {
 				// Valid directory
@@ -79,7 +78,6 @@ public class FSFragment extends BrowseFragment {
 	@Override
 	protected void add(Item item, String playlist) {
 		try {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			Directory ToAdd = currentDirectory.getDirectory(item.getName());
 			if (ToAdd != null) {
 				// Valid directory
@@ -99,7 +97,6 @@ public class FSFragment extends BrowseFragment {
 	
 	@Override
 	protected void asyncUpdate() {
-		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		if (directory != null) {
 			currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(directory);
 		} else {
@@ -112,19 +109,18 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 
-        List<Item> dirItems=new ArrayList<Item>();
-        dirItems.addAll(currentDirectory.getDirectories());
-        dirItems.addAll(currentDirectory.getFiles());
-        items=dirItems;
+		List<Item> dirItems=new ArrayList<Item>();
+		dirItems.addAll(currentDirectory.getDirectories());
+		dirItems.addAll(currentDirectory.getFiles());
+		items=dirItems;
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(AdapterView l, View v, int position, long id) {
 		// click on a file
 		if (position > currentDirectory.getDirectories().size() - 1 || currentDirectory.getDirectories().size() == 0) {
 
 			final Music music = (Music) currentDirectory.getFiles().toArray()[position - currentDirectory.getDirectories().size()];
-			final MPDApplication app = (MPDApplication) getActivity().getApplication();
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
 				@Override
 				public void run() {

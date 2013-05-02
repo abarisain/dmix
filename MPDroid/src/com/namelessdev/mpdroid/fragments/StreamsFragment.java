@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -28,13 +29,11 @@ import android.widget.ListView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class StreamsFragment extends BrowseFragment {
-	private MPDApplication app;
 	ArrayList<Stream> streams = new ArrayList<Stream>();
 
 	private static class Stream extends Item {
@@ -108,11 +107,6 @@ public class StreamsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onStop() {
-		super.onStop();
-	}
-
-	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setHasOptionsMenu(true);
@@ -131,14 +125,13 @@ public class StreamsFragment extends BrowseFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		app = (MPDApplication) getActivity().getApplication();
-		registerForContextMenu(getListView());
+		registerForContextMenu(list);
 		UpdateList();
 		getActivity().setTitle(getResources().getString(R.string.streams));
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
 	}
 
 	@Override

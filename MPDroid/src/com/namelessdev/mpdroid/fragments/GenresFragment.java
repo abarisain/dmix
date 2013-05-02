@@ -8,6 +8,7 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.AdapterView;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
@@ -17,11 +18,6 @@ public class GenresFragment extends BrowseFragment {
 
 	public GenresFragment() {
 		super(R.string.addGenre, R.string.genreAdded, MPDCommand.MPD_SEARCH_GENRE);
-	}
-
-	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
 	}
 
 	@Override
@@ -35,7 +31,7 @@ public class GenresFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new ArtistsFragment().init((Genre) items.get(position)), "artist");
 	}
 

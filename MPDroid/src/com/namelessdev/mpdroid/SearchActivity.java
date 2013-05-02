@@ -14,20 +14,22 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidListActivity;
+import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
-public class SearchActivity extends MPDroidListActivity implements OnMenuItemClickListener, AsyncExecListener {
+public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
 	public static final int MAIN = 0;
 	public static final int PLAYLIST = 3;
 
@@ -40,6 +42,7 @@ public class SearchActivity extends MPDroidListActivity implements OnMenuItemCli
 	private ArrayList<Object> arrayResults;
 	
 	protected int iJobID = -1;
+	private ListView list = null;
 	protected View loadingView;
 	protected TextView loadingTextView;
 	protected View noResultView;
@@ -60,6 +63,8 @@ public class SearchActivity extends MPDroidListActivity implements OnMenuItemCli
 		app = (MPDApplication) getApplication();
 		
 		setContentView(R.layout.browse);
+		list = (ListView) findViewById(R.id.list);
+		list.setOnItemClickListener(this);
 		loadingView = findViewById(R.id.loadingLayout);
 		loadingTextView = (TextView) findViewById(R.id.loadingText);
 		noResultView = findViewById(R.id.noResultLayout);
@@ -77,7 +82,7 @@ public class SearchActivity extends MPDroidListActivity implements OnMenuItemCli
 
 		setTitle(getTitle() + " : " + searchKeywords);
 
-		registerForContextMenu(getListView());
+		registerForContextMenu(list);
 		updateList();
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
@@ -142,9 +147,8 @@ public class SearchActivity extends MPDroidListActivity implements OnMenuItemCli
 		}
 	}
 	
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Object selectedItem = l.getAdapter().getItem(position);
+	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
+		Object selectedItem = adapterView.getAdapter().getItem(position);
 		if(selectedItem instanceof Music) {
 			add((Music) selectedItem, false, false);
 		} else if(selectedItem instanceof Artist) {
@@ -307,12 +311,12 @@ public class SearchActivity extends MPDroidListActivity implements OnMenuItemCli
 	 */
 	public void updateFromItems() {
 		if (arrayResults != null) {
-			setListAdapter(new SeparatedListAdapter(this,
+			list.setAdapter(new SeparatedListAdapter(this,
 					R.layout.simple_list_item_1,
 					new SearchResultDataBinder(),
 					arrayResults));
 			try {
-				getListView().setEmptyView(noResultView);
+				list.setEmptyView(noResultView);
 				loadingView.setVisibility(View.GONE);
 			} catch (Exception e) {}
 		}
