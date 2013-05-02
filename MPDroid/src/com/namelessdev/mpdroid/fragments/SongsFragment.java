@@ -38,11 +38,11 @@ import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
 import com.namelessdev.mpdroid.adapters.PopupMenuItem;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
-public class SongsFragment extends BrowseFragment implements CoverDownloadListener {
+public class SongsFragment extends BrowseFragment {
 
 	private static final int FALLBACK_COVER_SIZE = 80; // In DIP
 	private static final String EXTRA_ARTIST = "artist";
@@ -52,8 +52,11 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	Artist artist = null;
 	TextView headerArtist;
 	TextView headerInfo;
+
+	private AlbumCoverDownloadListener coverArtListener;
 	ImageView coverArt;
 	ProgressBar coverArtProgress;
+
 	CoverAsyncHelper coverHelper;
 	Bitmap coverBitmap;
 	ImageButton albumMenu;
@@ -74,24 +77,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 		artist = ar;
 		album = al;
 		return this;
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		final MPDApplication app = (MPDApplication) activity.getApplication();
-		coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(activity));
-		coverHelper.setCoverRetrieversFromPreferences();
-		coverHelper.addCoverDownloadListener(this);
-		coverHelper.setCoverMaxSizeFromScreen(activity);
-		if (coverArt != null) {
-			coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
-		} else {
-			// Fallback on the hardcoded size.
-			coverHelper.setCachedCoverMaxSize((int) Math.ceil(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-					FALLBACK_COVER_SIZE,
-					getResources().getDisplayMetrics())));
-		}
 	}
 
 	@Override
@@ -151,6 +136,14 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 			coverArt = (ImageView) headerView.findViewById(R.id.albumCover);
 			coverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
 			albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
+
+			final MPDApplication app = (MPDApplication) getActivity().getApplication();
+			coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress);
+			coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
+			coverHelper.setCoverRetrieversFromPreferences();
+			coverHelper.setCoverMaxSizeFromScreen(getActivity());
+			coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
+			coverHelper.addCoverDownloadListener(coverArtListener);
 		}
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
 		((ListView) list).addHeaderView(headerView, null, false);
@@ -203,9 +196,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 				popupMenu.show();
 			}
 		});
-
-		if (coverHelper != null)
-			coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
 
 		return view;
 	}
@@ -298,7 +288,7 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 				coverArtProgress.setVisibility(ProgressBar.VISIBLE);
 				coverHelper.downloadCover(artistName, album.getName(), path, filename);
 			} else {
-				onCoverNotFound();
+				coverArtListener.onCoverNotFound();
 			}
 		}
 
@@ -382,40 +372,6 @@ public class SongsFragment extends BrowseFragment implements CoverDownloadListen
 	@Override
 	protected boolean forceEmptyView() {
 		return true;
-	}
-
-	@Override
-	public void onCoverDownloaded(Bitmap cover) {
-		if (coverArtProgress == null || coverArt == null) {
-			// The view is detached, bail.
-			cover.recycle();
-			return;
-		}
-		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-		try {
-			if (cover != null) {
-				coverBitmap = cover;
-				BitmapDrawable myCover = new BitmapDrawable(getResources(), cover);
-				coverArt.setImageDrawable(myCover);
-			} else {
-				onCoverNotFound();
-			}
-		} catch (Exception e) {
-			// Just ignore
-		}
-	}
-
-	@Override
-	public void onCoverNotFound() {
-		if (coverArt == null || coverArtProgress == null)
-			return;
-		coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-
-		int[] attrs = new int[] { R.attr.noCoverArtIcon };
-		final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
-		final Drawable drawableFromTheme = ta.getDrawable(0);
-		coverArt.setImageDrawable(drawableFromTheme);
-		ta.recycle();
 	}
 
 	/**

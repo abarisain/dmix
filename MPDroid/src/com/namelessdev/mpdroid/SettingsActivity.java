@@ -25,6 +25,7 @@ import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.text.format.Formatter;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
 
@@ -42,6 +43,9 @@ public class SettingsActivity extends PreferenceActivity implements
 	private PreferenceScreen pOutputsScreen;
 	private PreferenceScreen pInformationScreen;
 	private Handler handler;
+
+	private EditTextPreference pCacheUsage1;
+ 	private	EditTextPreference pCacheUsage2;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -98,6 +102,20 @@ public class SettingsActivity extends PreferenceActivity implements
 			mp.setEnabled(false);
 			cf.setEnabled(false);
 		}
+
+		// artwork cache usage
+		long size = new CachedCover(app).getCacheUsage();
+		String usage = Formatter.formatFileSize(app, size);
+		pCacheUsage1 = (EditTextPreference) findPreference("cacheUsage1");
+		pCacheUsage1.setSummary(usage);
+		pCacheUsage2 = (EditTextPreference) findPreference("cacheUsage2");
+		pCacheUsage2.setSummary(usage);
+
+		// album art library listing requires cover art cache
+		CheckBoxPreference lcc = (CheckBoxPreference) findPreference("enableLocalCoverCache");
+		CheckBoxPreference aal = (CheckBoxPreference) findPreference("enableAlbumArtLibrary");
+		aal.setEnabled(lcc.isChecked());
+
 		// Enable/Disable playback resume when call ends only if playback pause
 		// is enabled when call starts
 		CheckBoxPreference cPause = (CheckBoxPreference) findPreference("pauseOnPhoneStateChange");
@@ -235,6 +253,8 @@ public class SettingsActivity extends PreferenceActivity implements
 						public void onClick(DialogInterface dialog, int which) {
 							MPDApplication app = (MPDApplication) getApplication();
 							new CachedCover(app).clear();
+							pCacheUsage1.setSummary("0.00B");
+							pCacheUsage2.setSummary("0.00B");
 						}
 					})
 					.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -246,7 +266,6 @@ public class SettingsActivity extends PreferenceActivity implements
 			return true;
 
 		} else if (preference.getKey().equals("enableLocalCover")) {
-
 			CheckBoxPreference c = (CheckBoxPreference) findPreference("enableLocalCover");
 			Preference mp = (Preference) findPreference("musicPath");
 			Preference cf = (Preference) findPreference("coverFileName");
@@ -259,6 +278,19 @@ public class SettingsActivity extends PreferenceActivity implements
 				cf.setEnabled(false);
 			}
 			return true;
+
+		} else if (preference.getKey().equals("enableLocalCoverCache")) {
+			// album art library listing requires cover art cache
+			CheckBoxPreference lcc = (CheckBoxPreference) findPreference("enableLocalCoverCache");
+			CheckBoxPreference aal = (CheckBoxPreference) findPreference("enableAlbumArtLibrary");
+			if (lcc.isChecked()) {
+				aal.setEnabled(true);
+			}else{
+				aal.setEnabled(false);
+				aal.setChecked(false);
+			}
+			return true;
+
 		} else if (preference.getKey().equals("pauseOnPhoneStateChange")) {
 			// Enable/Disable playback resume when call ends only if playback
 			// pause is enabled when call starts

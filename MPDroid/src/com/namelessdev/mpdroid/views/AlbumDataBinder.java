@@ -10,11 +10,6 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
@@ -24,14 +19,11 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
 import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
-import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 
 public class AlbumDataBinder implements ArrayIndexerDataBinder {
-	CoverAsyncHelper coverHelper = null;
-	Context context = null;
+	protected CoverAsyncHelper coverHelper = null;
 	String artist = null;
 	MPDApplication app = null;
 	boolean lightTheme = false;
@@ -43,7 +35,6 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	}
 
 	public void onDataBind(final Context context, final View targetView, List<? extends Item> items, Object item, int position) {
-		this.context = context;
 		final Album album = (Album) item;
 		String info = "";
 		final long songCount = album.getSongCount();
@@ -70,91 +61,49 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 			coverHelper = new CoverAsyncHelper(app, settings);
 			coverHelper.setCoverRetrieversFromPreferences();
 
-			// display a placeholder
+			// listen for new artwork to be loaded
 			ImageView albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
-			int[] attrs = new int[] { R.attr.noCoverArtIcon };
-			final TypedArray ta = context.obtainStyledAttributes(attrs);
-			final Drawable drawableFromTheme = ta.getDrawable(0);
-			albumCover.setImageDrawable(drawableFromTheme);
-			ta.recycle();
+			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(context, albumCover));
 
-			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(albumCover));
-
-			boolean haveCachedArtwork = false;
-
-			try {
-				CachedCover cachedCover = new CachedCover(app);
-				final String[] urls = cachedCover.getCoverUrl(artist, album.getName(), null, null);
-				if(urls.length > 0) {
-					haveCachedArtwork = true;
-				}
-			} catch (Exception e) {
-				// no cached artwork available
-			}
-
-			if(haveCachedArtwork == false && coverHelper.isWifi()) {
-				// proactively download and cache artwork
-				String filename = null;
-				String path = null;
-				List<? extends Item> songs = null;
-
-				try {
-					songs = app.oMPDAsyncHelper.oMPD.getSongs(new Artist(artist, 0), album);
-
-					if (songs.size() > 0) {
-						Music song = (Music) songs.get(0);
-						filename = song.getFilename();
-						path = song.getPath();
-						coverHelper.downloadCover(artist, album.getName(), path, filename);
-					}
-				} catch (MPDServerException e) {
-					// MPD error, bail on loading artwork
-					return;
-				}
-			}else{
-				coverHelper.downloadCover(artist, album.getName(), null, null);
-			}
+			loadArtwork(artist, album.getName());
 		}
 	}
 
-	private class AlbumCoverDownloadListener implements CoverDownloadListener {
-		ImageView albumCover;
+	protected void loadArtwork(String artist, String album) {
+		boolean haveCachedArtwork = false;
 
-		public AlbumCoverDownloadListener(ImageView albumCover) {
-			this.albumCover = albumCover;
-			this.albumCover.setVisibility(View.VISIBLE);
+		try {
+			CachedCover cachedCover = new CachedCover(app);
+			final String[] urls = cachedCover.getCoverUrl(artist, album, null, null);
+			if((urls != null) && (urls.length > 0)) {
+				haveCachedArtwork = true;
+			}
+		} catch (Exception e) {
+			// no cached artwork available
 		}
 
-		@Override
-		public void onCoverDownloaded(Bitmap cover) {
-			if (albumCover == null) {
-				// The view is detached, bail.
-				cover.recycle();
+		if(haveCachedArtwork == false && coverHelper.isWifi()) {
+			// proactively download and cache artwork
+			String filename = null;
+			String path = null;
+			List<? extends Item> songs = null;
+
+			try {
+				// load songs for this album
+				songs = app.oMPDAsyncHelper.oMPD.getSongs(((artist != null) ? new Artist(artist, 0) : null), new Album(album));
+
+				if (songs.size() > 0) {
+					Music song = (Music) songs.get(0);
+					filename = song.getFilename();
+					path = song.getPath();
+					coverHelper.downloadCover(artist, album, path, filename);
+				}
+			} catch (MPDServerException e) {
+				// MPD error, bail on loading artwork
 				return;
 			}
-			try {
-				// recycle the placeholder
-				final Drawable oldDrawable = albumCover.getDrawable();
-				if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
-					final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
-					if (oldBitmap != null)
-						oldBitmap.recycle();
-				}
-
-				if (cover != null) {
-					BitmapDrawable myCover = new CoverBitmapDrawable(context.getResources(), cover);
-					albumCover.setImageDrawable(myCover);
-				} else {
-					onCoverNotFound();
-				}
-			} catch (Exception e) {
-				// Just ignore
-			}
-		}
-
-		@Override
-		public void onCoverNotFound() {
-			// A placeholder is already shown so do nothing here
+		}else{
+			coverHelper.downloadCover(artist, album, null, null);
 		}
 	}
 

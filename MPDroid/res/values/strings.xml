@@ -144,6 +144,7 @@
 	<string name="musicPathDescription">Path to your music directory on the MPD server ie, files/mp3 (music/ for vortexbox users)</string>
 	<string name="coverFileName">Cover filename</string>
 	<string name="coverFileNameDescription">Standard filename for your album artwork ie, folder.jpg (cover.jpg for vortexbox users)</string>
+	<string name="cacheUsage">Cache usage</string>
 	<string name="whatsNew">What\'s new ?</string>
 	<string name="whatsNewDescription">See changelog (opens external webpage)</string>
 	<string name="deleteServer">Delete this server</string>
@@ -199,6 +200,10 @@
 	<string name="clearLocalCoverCache">Clear cover art cache</string>
 	<string name="clearLocalCoverCacheDescription">Free the storage space used by the cover art cache</string>
     <string name="clearLocalCoverCachePrompt">Delete all cached cover art ?</string>
+
+	<string name="enableAlbumArtLibrary">Album cover art listing in library</string>
+	<string name="enableAlbumArtLibraryDescription">Use large cover art tiles for the albums listing in the library. This feature is experimental! You may experience lag and/or crashes. (Requires cache cover art)</string>
+    <string name="albumGridWifiUnavailable">Wi-Fi unavailable, so no new artwork will be retrieved</string>
     
     <string name="goToAlbum">Go to album</string>
     <string name="goToArtist">Go to artist</string>

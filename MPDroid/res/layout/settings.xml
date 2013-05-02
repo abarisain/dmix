@@ -39,6 +39,9 @@
 				<EditTextPreference android:key="songs"
 					android:title="@string/songs" android:defaultValue=""
 					android:enabled="false" />
+				<EditTextPreference android:key="cacheUsage1"
+					android:title="@string/cacheUsage" android:defaultValue=""
+					android:enabled="false" />
 			</PreferenceCategory>
 		</PreferenceScreen>
 
@@ -71,6 +74,9 @@
 			<CheckBoxPreference android:persistent="true"
 				android:title="@string/enableLocalCoverCache" android:summary="@string/enableLocalCoverCacheDescription"
 				android:key="enableLocalCoverCache" android:defaultValue="true" />
+			<EditTextPreference android:key="cacheUsage2"
+				android:title="@string/cacheUsage" android:defaultValue=""
+				android:enabled="false" />
 			<PreferenceScreen android:title="@string/clearLocalCoverCache"
 				android:summary="@string/clearLocalCoverCacheDescription" android:key="clearLocalCoverCache">
 			</PreferenceScreen>
@@ -90,6 +96,9 @@
 				android:title="@string/enableCoverOnlyOnWifi"
 				android:summary="@string/enableCoverOnlyOnWifiDescription"
 				android:key="enableCoverOnlyOnWifi" android:defaultValue="false"/>
+			<CheckBoxPreference android:persistent="true"
+				android:title="@string/enableAlbumArtLibrary" android:summary="@string/enableAlbumArtLibraryDescription"
+				android:key="enableAlbumArtLibrary" android:defaultValue="false" />
 		</PreferenceScreen>
 		<CheckBoxPreference android:persistent="true"
 			android:title="@string/enableStopButton"
