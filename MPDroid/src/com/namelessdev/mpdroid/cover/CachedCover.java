@@ -43,6 +43,16 @@ public class CachedCover implements ICoverRetriever {
 		return "SD Card Cache";
 	}
 
+	public long getCacheUsage() {
+		long size = 0;
+		for (File file : new File(getAbsoluteCoverFolderPath()).listFiles()) {
+			if (file.isFile()) {
+				size += file.length();
+			}
+		}
+		return size;
+	}
+
 	public void save(String artist, String album, Bitmap cover) {
 		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			// External storage is not there or read only, don't do anything
@@ -76,10 +86,6 @@ public class CachedCover implements ICoverRetriever {
 		}
 	}
 
-	public String getFilenameForSong(String artist, String album) {
-		return Tools.getHashFromString(artist + ";" + album) + ".jpg";
-	}
-	
 	public String getAbsoluteCoverFolderPath() {
 		final File cacheDir = application.getExternalCacheDir();
 		if (cacheDir == null)
@@ -91,7 +97,13 @@ public class CachedCover implements ICoverRetriever {
 		final File cacheDir = application.getExternalCacheDir();
 		if (cacheDir == null)
 			return null;
-		return getAbsoluteCoverFolderPath() + getFilenameForSong(artist, album);
+		String filename;
+		if (artist == null) {
+			filename = Tools.getHashFromString(artist + ";" + album) + ".jpg";
+		}else{
+			filename = Tools.getHashFromString(album) + ".jpg";
+		}
+		return getAbsoluteCoverFolderPath() + filename;
 	}
 
 }

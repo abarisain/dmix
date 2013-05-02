@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.views.AlbumDataBinder;
 
 public class AlbumsFragment extends BrowseFragment {
 	private static final String EXTRA_ARTIST = "artist";
-	private Artist artist = null;
+	protected Artist artist = null;
 
 	public AlbumsFragment() {
 		super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
