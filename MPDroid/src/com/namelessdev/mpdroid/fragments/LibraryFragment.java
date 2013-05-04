@@ -1,7 +1,9 @@
 package com.namelessdev.mpdroid.fragments;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -9,8 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.namelessdev.mpdroid.R;
@@ -83,7 +83,7 @@ public class LibraryFragment extends SherlockFragment {
 			} else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
 				// display either normal album listing, or album artwork grid
 				final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(((Activity) activity).getApplication());
-				if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
+				if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, false)) {
 					fragment = new AlbumsGridFragment().init(null);
 				}else{
 					fragment = new AlbumsFragment().init(null);
