@@ -144,6 +144,7 @@
 	<string name="musicPathDescription">MPD 서버의 음악 디렉터리, 예) files/mp3 (vortexbox 사용자들은 music/)</string>
 	<string name="coverFileName">음반표지 이름</string>
 	<string name="coverFileNameDescription">음반표지의 기본 파일 이름, 예) folder.jpg (vortexbox 사용자들은 cover.jpg)</string>
+	<string name="cacheUsage">캐시 사용</string>
 	<string name="whatsNew">새로운 점?</string>
 	<string name="whatsNewDescription">바뀐 내용 읽기 (외부 웹페이지를 엽니다)</string>
 	<string name="deleteServer">이 서버를 지우기</string>
@@ -199,6 +200,10 @@
 	<string name="clearLocalCoverCache">음반표지 캐시 지우기</string>
 	<string name="clearLocalCoverCacheDescription">음반표지 캐시의 저장 공간을 비웁니다</string>
     <string name="clearLocalCoverCachePrompt">음반표지 캐시를 모두 지웁니까?</string>
+
+	<string name="enableAlbumArtLibrary">음반표지를 라이브러리에 표시</string>
+	<string name="enableAlbumArtLibraryDescription">큰 음반표지를 라이브러리에 타일형태로 보여줍니다. 이 기능은 실험적입니다! 느려지거나 실패할 수 있습니다. (음반표지 캐시 필요)</string>
+    <string name="albumGridWifiUnavailable">무선랜이 연결되지 않아, 새로운 음반표지를 읽을 수 없습니다</string>
 
     <string name="goToAlbum">음반으로 가기</string>
     <string name="goToArtist">연주자로 가기</string>
