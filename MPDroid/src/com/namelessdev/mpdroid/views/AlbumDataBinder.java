@@ -21,6 +21,8 @@ import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	protected CoverAsyncHelper coverHelper = null;
@@ -34,7 +36,9 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		this.lightTheme = isLightTheme;
 	}
 
-	public void onDataBind(final Context context, final View targetView, List<? extends Item> items, Object item, int position) {
+	public void onDataBind(final Context context, final View targetView, final AbstractViewHolder viewHolder, List<? extends Item> items, Object item, int position) {
+		AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+
 		final Album album = (Album) item;
 		String info = "";
 		final long songCount = album.getSongCount();
@@ -45,13 +49,12 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 				info += " - ";
 			info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader), songCount, Music.timeToString(album.getDuration()));
 		}
-		((TextView) targetView.findViewById(R.id.album_name)).setText(album.getName());
-		final TextView albumInfo = (TextView) targetView.findViewById(R.id.album_info);
+		holder.albumName.setText(album.getName());
 		if(info != null && info.length() > 0) {
-			albumInfo.setVisibility(View.VISIBLE);
-			albumInfo.setText(info);
+			holder.albumInfo.setVisibility(View.VISIBLE);
+			holder.albumInfo.setText(info);
 		} else {
-			albumInfo.setVisibility(View.GONE);
+			holder.albumInfo.setVisibility(View.GONE);
 		}
 
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
@@ -62,8 +65,7 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 			coverHelper.setCoverRetrieversFromPreferences();
 
 			// listen for new artwork to be loaded
-			ImageView albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
-			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(context, albumCover));
+			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(context, holder.albumCover));
 
 			loadArtwork(artist, album.getName());
 		}
@@ -120,6 +122,16 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
 		targetView.findViewById(R.id.albumCover).setVisibility(coverHelper == null ? View.GONE : View.VISIBLE);
 		return targetView;
+	}
+
+	@Override
+	public AbstractViewHolder findInnerViews(View targetView) {
+		// look up all references to inner views
+		AlbumViewHolder viewHolder = new AlbumViewHolder();
+		viewHolder.albumName = (TextView) targetView.findViewById(R.id.album_name);
+		viewHolder.albumInfo = (TextView) targetView.findViewById(R.id.album_info);
+		viewHolder.albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
+		return viewHolder;
 	}
 
 }

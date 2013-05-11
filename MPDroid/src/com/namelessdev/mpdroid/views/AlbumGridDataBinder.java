@@ -16,8 +16,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
@@ -25,6 +23,8 @@ import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 public class AlbumGridDataBinder extends AlbumDataBinder {
 
@@ -33,7 +33,9 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 	}
 
 	@Override
-	public void onDataBind(final Context context, final View targetView, List<? extends Item> items, Object item, int position) {
+	public void onDataBind(final Context context, final View targetView, final AbstractViewHolder viewHolder, List<? extends Item> items, Object item, int position) {
+		AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+
 		final Album album = (Album) item;
 
 		// Caching must be switch on to use this view
@@ -42,8 +44,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 		coverHelper.setCoverRetrieversFromPreferences();
 
 		// display the album title
-		((TextView) targetView.findViewById(R.id.album_name)).setText(album.getName());
-
+		holder.albumName.setText(album.getName());
 
 		// display message if wifi off
 		if(coverHelper.isWifi() == false) {
@@ -51,8 +52,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 		}
 
 		// listen for new artwork to be loaded
-		ImageView albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
-		coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(context, albumCover));
+		coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(context, holder.albumCover));
 
 		// Can't get artwork for missing album name
 		if((!album.getName().equals("")) && (!album.getName().equals("-"))) {
