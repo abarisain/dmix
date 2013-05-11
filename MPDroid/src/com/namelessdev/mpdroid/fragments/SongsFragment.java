@@ -58,7 +58,6 @@ public class SongsFragment extends BrowseFragment {
 	ProgressBar coverArtProgress;
 
 	CoverAsyncHelper coverHelper;
-	Bitmap coverBitmap;
 	ImageButton albumMenu;
 	IcsListPopupWindow popupMenu;
 
@@ -83,12 +82,7 @@ public class SongsFragment extends BrowseFragment {
 	public void onDestroyView() {
 		headerArtist = null;
 		headerInfo = null;
-		coverArtProgress = null;
-		coverArt.setImageResource(R.drawable.no_cover_art);
-		coverArt = null;
-		if (coverBitmap != null)
-			coverBitmap.recycle();
-		coverBitmap = null;
+		coverArtListener.freeCoverDrawable();
 		super.onDestroyView();
 	}
 

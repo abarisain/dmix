@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.SectionIndexer;
 
+import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
 //Thanks qlimax !
@@ -143,16 +144,24 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
 			return super.getView(position, convertView, parent);
 		}
 
+		// cache all inner view references with ViewHolder pattern
+		AbstractViewHolder holder;
+
 		if(convertView == null) {
 			convertView = inflater.inflate(dataBinder.getLayoutId(), parent, false);
 			convertView = dataBinder.onLayoutInflation(context, convertView, items);
+
+			// use the databinder to look up all references to inner views
+			holder = dataBinder.findInnerViews(convertView);
+			convertView.setTag(holder);
+		}else{
+			holder = (AbstractViewHolder) convertView.getTag();
 		}
-		
-		dataBinder.onDataBind(context, convertView, items, items.get(position), position);
-		
+
+		dataBinder.onDataBind(context, convertView, holder, items, items.get(position), position);
 		return convertView;
 	}
-	
+
 	@Override
 	public boolean isEnabled(int position) {
 		if(dataBinder == null) {
