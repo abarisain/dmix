@@ -15,6 +15,8 @@ import android.widget.AdapterView;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.tools.AlbumGroup;
+import com.namelessdev.mpdroid.tools.AlbumGroups;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 
@@ -58,9 +60,19 @@ public class AlbumsFragment extends BrowseFragment {
 		}
 	}
 
+	protected Album lookup(int position)
+	{
+		return (Album) items.get(position);
+	}
+	
 	@Override
 	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
-		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init(artist, (Album) items.get(position)),
+		Album album = lookup(position);
+		if (album instanceof AlbumGroup)
+			((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new AlbumGroupFragment().init(artist, (AlbumGroup)album),
+				"albumgroup");
+		else
+			((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init(artist, album),
 				"songs");
 	}
 	
@@ -76,7 +88,8 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	protected void asyncUpdate() {
 		try {
-			items = app.oMPDAsyncHelper.oMPD.getAlbums(artist);
+			java.util.List<Album> albums = app.oMPDAsyncHelper.oMPD.getAlbums(artist);
+			items = artist == null? albums : AlbumGroups.items(albums);
 		} catch (MPDServerException e) {
 		}
 	}
