@@ -145,13 +145,14 @@ public class MPDConnection {
 	
 	
 
+	private static final java.util.regex.Pattern escape = java.util.regex.Pattern.compile("(?<!\\\\)\"");
 	private static String commandToString(String command, String[] args) {
 		StringBuffer outBuf = new StringBuffer();
 		outBuf.append(command);
 		for (String arg : args) {
 			if(arg == null)
 				continue;
-			outBuf.append(" \"" + arg + "\"");
+			outBuf.append(" \"" + escape.matcher(arg).replaceAll("\\$1") + "\"");
 		}
 		outBuf.append("\n");
 		final String outString = outBuf.toString();
