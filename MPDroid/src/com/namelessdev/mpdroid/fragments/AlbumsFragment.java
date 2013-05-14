@@ -85,11 +85,20 @@ public class AlbumsFragment extends BrowseFragment {
 		return super.getCustomListAdapter();
 	}
 
+	protected static final java.util.HashMap<Artist, java.util.List<Album>> albumCache = new java.util.HashMap<Artist, java.util.List<Album>>();
+	protected static final Artist none = new Artist("", 0);
+	
 	@Override
 	protected void asyncUpdate() {
+		if (artist != null)
 		try {
-			java.util.List<Album> albums = app.oMPDAsyncHelper.oMPD.getAlbums(artist);
-			items = artist == null? albums : AlbumGroups.items(albums);
+			if ((items = albumCache.get(artist == null? none : artist)) == null) {
+				java.util.List<Album> albums = app.oMPDAsyncHelper.oMPD.getAlbums(artist);
+				if (artist != null)
+					albums = AlbumGroups.items(albums, albums.size() > 20);
+				albumCache.put(artist, albums);
+				items = albums;
+			}
 		} catch (MPDServerException e) {
 		}
 	}
