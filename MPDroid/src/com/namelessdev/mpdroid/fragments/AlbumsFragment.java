@@ -95,7 +95,7 @@ public class AlbumsFragment extends BrowseFragment {
 			if ((items = albumCache.get(artist == null? none : artist)) == null) {
 				java.util.List<Album> albums = app.oMPDAsyncHelper.oMPD.getAlbums(artist);
 				if (artist != null)
-					albums = AlbumGroups.items(albums, albums.size() > 20);
+					albums = AlbumGroups.items(albums, albums.size() > 200);
 				albumCache.put(artist, albums);
 				items = albums;
 			}
