@@ -13,6 +13,18 @@ object Utils {
 	def mapMaybe[A,B](xs: Traversable[A])(f: A => B) = {
 		xs.map(f(_)).filter(_ != null)
 	}
+	import collection.mutable.{LinkedHashMap, LinkedHashSet}
+
+	implicit def traversableToGroupByOrderedImplicit[A](t: Traversable[A]) = new {
+		def groupByOrdered[K](f: A => K): LinkedHashMap[K, LinkedHashSet[A]] = {
+		    val map = LinkedHashMap[K,LinkedHashSet[A]]()
+		    for (i <- t) {
+		    	val key = f(i)
+    			map(key) = map.lift(key).getOrElse(LinkedHashSet[A]()) + i
+		    }
+		    map
+		}
+	}
 }
 
 import Utils._
@@ -33,7 +45,7 @@ object AlbumGroups {
   protected def items(xs : Traversable[Album]) = {
 	xs
 	.map(x => (recordings.replaceAllIn(x.getName(), m => m.group(1)?:"" + m.group(2)?:"" + " ..."), x))
-	.groupBy(x =>
+	.groupByOrdered(x =>
 	  numbers.replaceAllIn(punct.replaceAllIn(x._1, " ").toLowerCase(), x => {
 	    var ns = for (
 	      i <- (1 to x.groupCount) if x.group(i) != null;
@@ -41,8 +53,9 @@ object AlbumGroups {
 	    ) yield n
 	    ns.sum.formatted("ZZ%04d")
 	  }))
-	.values.map(xs => {
-	  val x::_xs = xs
+	 .valuesIterator.map(xs => {
+	  val x = xs.head
+	  val _xs = xs.tail
 	  if (_xs.isEmpty)
 	    x._2
 	  else
