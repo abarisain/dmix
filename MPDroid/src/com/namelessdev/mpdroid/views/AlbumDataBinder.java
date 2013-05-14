@@ -56,19 +56,6 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		} else {
 			holder.albumInfo.setVisibility(View.GONE);
 		}
-
-		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-
-		// display cover art in album listing if caching is on
-		if (this.artist != null && settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
-			coverHelper = new CoverAsyncHelper(app, settings);
-			coverHelper.setCoverRetrieversFromPreferences();
-
-			// listen for new artwork to be loaded
-			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(context, holder.albumCover));
-
-			loadArtwork(artist, album.getName());
-		}
 	}
 
 	protected void loadArtwork(String artist, String album) {
