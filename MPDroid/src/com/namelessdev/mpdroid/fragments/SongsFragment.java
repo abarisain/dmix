@@ -65,6 +65,7 @@ public class SongsFragment extends BrowseFragment {
 
 	public SongsFragment() {
 		super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
+		showRelated = lastShowRelated;
 	}
 
 	@Override
@@ -162,7 +163,7 @@ public class SongsFragment extends BrowseFragment {
 								boolean play = false;
 								switch (action) {
 									case SHOW_RELATED:
-										showRelated ^= true;
+										lastShowRelated = showRelated ^= true;
 										UpdateList(false);
 										break;
 									case ADDNREPLACEPLAY:
@@ -392,6 +393,7 @@ public class SongsFragment extends BrowseFragment {
 		return true;
 	}
 	
+	static boolean lastShowRelated = false;
 	boolean showRelated;
 
 	/**
