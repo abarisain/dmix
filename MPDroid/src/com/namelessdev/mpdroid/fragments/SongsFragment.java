@@ -39,6 +39,7 @@ import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
 import com.namelessdev.mpdroid.adapters.PopupMenuItem;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.RelatedSongs;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
@@ -207,13 +208,25 @@ public class SongsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onItemClick(final AdapterView adapterView, View v, final int position, long id) {
-		app.oMPDAsyncHelper.execAsync(new Runnable() {
-			@Override
-			public void run() {
-				add((Item) adapterView.getAdapter().getItem(position), false, false);
-			}
-		});
+	public void onItemClick(AdapterView adapterView, View v, final int position, long id) {
+		final Music item = (Music) adapterView.getAdapter().getItem(position);
+		if (item.getSelected())
+			app.oMPDAsyncHelper.execAsync(new Runnable() {
+				@Override
+				public void run() {
+					add(item, false, false);
+				}
+			});
+		else
+			NavigateTo(item);
+	}
+	
+	public void NavigateTo(Music item)
+	{
+		Artist artist = new Artist(item.getArtist(), 1);
+		Album album = new Album(item.getAlbum());
+		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init(artist, album),
+				"songs");
 	}
 
 	@Override
