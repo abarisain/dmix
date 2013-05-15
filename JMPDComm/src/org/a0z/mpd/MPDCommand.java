@@ -13,6 +13,7 @@ public class MPDCommand {
 	public static final String MPD_CMD_LIST_TAG = "list";
 	@SuppressWarnings("unused")
 	public static final String MPD_CMD_LISTALL = "listall";
+	public static final String MPD_CMD_LISTALLINFO = "listallinfo";
 	public static final String MPD_CMD_LISTPLAYLISTS = "listplaylists";
 	public static final String MPD_CMD_LSDIR = "lsinfo";
 	public static final String MPD_CMD_NEXT = "next";

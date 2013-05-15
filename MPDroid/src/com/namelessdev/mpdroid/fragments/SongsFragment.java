@@ -39,6 +39,7 @@ import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
 import com.namelessdev.mpdroid.adapters.PopupMenuItem;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.tools.RelatedSongs;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
@@ -159,6 +160,10 @@ public class SongsFragment extends BrowseFragment {
 								boolean replace = false;
 								boolean play = false;
 								switch (action) {
+									case SHOW_RELATED:
+										showRelated ^= true;
+										UpdateList(false);
+										break;
 									case ADDNREPLACEPLAY:
 										replace = true;
 										play = true;
@@ -234,12 +239,18 @@ public class SongsFragment extends BrowseFragment {
 		}
 	}
 
+	java.util.List<Music> songs, related;
+	
 	@Override
 	public void asyncUpdate() {
 		try {
 			if (getActivity() == null)
 				return;
-			items = app.oMPDAsyncHelper.oMPD.getSongs(artist, album);
+			if (songs == null)
+				songs = app.oMPDAsyncHelper.oMPD.getSongs(artist, album);
+			if (showRelated && related == null)
+				related = RelatedSongs.items(app.oMPDAsyncHelper.oMPD, songs);
+			items = showRelated? related : songs;
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
@@ -305,7 +316,7 @@ public class SongsFragment extends BrowseFragment {
 					break;
 				}
 			}
-			return new ArrayIndexerAdapter(getActivity(), new SongDataBinder(differentArtists), items);
+			return new ArrayIndexerAdapter(getActivity(), new SongDataBinder(differentArtists, showRelated), items);
 		}
 		return super.getCustomListAdapter();
 	}
@@ -367,17 +378,21 @@ public class SongsFragment extends BrowseFragment {
 	protected boolean forceEmptyView() {
 		return true;
 	}
+	
+	boolean showRelated;
 
 	/**
 	 * Popup button methods and classes
 	 */
 
 	private PopupMenuAdapter getPopupMenuAdapter(Context context) {
-		final PopupMenuItem items[] = new PopupMenuItem[4];
-		items[0] = new PopupMenuItem(ADD, R.string.addAlbum);
-		items[1] = new PopupMenuItem(ADDNREPLACE, R.string.addAndReplace);
-		items[2] = new PopupMenuItem(ADDNREPLACEPLAY, R.string.addAndReplacePlay);
-		items[3] = new PopupMenuItem(ADDNPLAY, R.string.addAndPlay);
+		final PopupMenuItem items[] = new PopupMenuItem[5];
+		
+		items[0] = new PopupMenuItem(SHOW_RELATED, showRelated? R.string.hideRelated : R.string.showRelated);
+		items[1] = new PopupMenuItem(ADD, R.string.addAlbum);
+		items[2] = new PopupMenuItem(ADDNREPLACE, R.string.addAndReplace);
+		items[3] = new PopupMenuItem(ADDNREPLACEPLAY, R.string.addAndReplacePlay);
+		items[4] = new PopupMenuItem(ADDNPLAY, R.string.addAndPlay);
 		return new PopupMenuAdapter(context, Build.VERSION.SDK_INT >= 14 ? android.R.layout.simple_spinner_dropdown_item
 				: R.layout.sherlock_spinner_dropdown_item, items);
 	}

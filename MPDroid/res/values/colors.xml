@@ -18,4 +18,5 @@
     <color name="holo_button_highlight">#9933b5e5</color>
     <color name="holo_button_highlight_low">#5533b5e5</color>
     <color name="now_playing_small_separator">#ff33b5e5</color>
+    <color name="highlighted_song_dark">#18FFFFFF</color>
 </resources>

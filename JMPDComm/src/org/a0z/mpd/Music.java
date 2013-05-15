@@ -51,6 +51,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 
 	private String name;
 
+	private boolean selected = true;
+	
 	/**
 	 * Constructs a new Music.
 	 * 
@@ -145,7 +147,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 					lineCache.clear();
 				}
 			}
-			lineCache.add(line);
+			if (!line.startsWith("directory: "))
+				lineCache.add(line);
 		}
 
 		if (lineCache.size() != 0) {
@@ -200,6 +203,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 	 * @return filename.
 	 */
 	public String getFilename() {
+		if (fullpath == null)
+			return null;
 		int pos = fullpath.lastIndexOf("/");
 		if (pos == -1) {
 			return fullpath;
@@ -228,6 +233,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 	 */
 	public int getSongId() {
 		return songId;
+	}
+
+	public boolean getSelected() {
+		return selected;
 	}
 
 	/**
@@ -420,6 +429,13 @@ public class Music extends Item implements FilesystemTreeEntry {
 		songId = value;
 	}
 
+	public Music setSelected(boolean value) {
+		selected = value;
+		return this;
+	}
+	
+	
+
 	/**
 	 * Copies, artist, album, title, time, totalTracks and track from another <code>music</code>.
 	 * 
@@ -477,6 +493,16 @@ public class Music extends Item implements FilesystemTreeEntry {
 		return timeToString(time);
 	}
 
+	@Override
+	public int hashCode() {
+		return fullpath.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return o != null && (o instanceof Music) && (fullpath == null? ((Music)o).fullpath == null : fullpath.equals(((Music)o).fullpath));
+	}
+	
 	public static int compare(String a, String b) {
 		if (null == a) {
 			return null == b ? 0 : -1;

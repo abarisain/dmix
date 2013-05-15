@@ -43,6 +43,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	public static final int ADDNREPLACEPLAY = 4;
 	public static final int ADDNPLAY = 2;
 	public static final int ADD_TO_PLAYLIST = 3;
+	public static final int SHOW_RELATED = 5;
 
 	protected List<? extends Item> items = null;
 	
@@ -149,12 +150,19 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	}
 
 	public void UpdateList() {
-		((android.widget.AdapterView)list).setAdapter(null);
-		noResultView.setVisibility(View.GONE);
-		loadingView.setVisibility(View.VISIBLE);
+		UpdateList(true);
+	}
+	
+	protected void UpdateList(boolean first) {
+		if (first)
+		{
+			((android.widget.AdapterView)list).setAdapter(null);
+			noResultView.setVisibility(View.GONE);
+			loadingView.setVisibility(View.VISIBLE);
 
-		// Loading Artists asynchronous...
-		app.oMPDAsyncHelper.addAsyncExecListener(this);
+			// Loading Artists asynchronous...
+			app.oMPDAsyncHelper.addAsyncExecListener(this);
+		}
 		iJobID = app.oMPDAsyncHelper.execAsync(new Runnable() {
 			@Override
 			public void run() {

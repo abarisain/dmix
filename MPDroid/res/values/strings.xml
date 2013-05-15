@@ -224,5 +224,7 @@
     <string name="sharePrefix">Now Playing :</string>
     <string name="enableTabletUI">Use tablet UI</string>
     <string name="enableTabletUIDescription">Restart the application to see the changes</string>
+    <string name="showRelated">Show Related</string>
+    <string name="hideRelated">Hide Related</string>
 
 </resources>

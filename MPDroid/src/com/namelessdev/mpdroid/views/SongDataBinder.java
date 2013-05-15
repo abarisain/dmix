@@ -17,13 +17,15 @@ import com.namelessdev.mpdroid.views.holders.SongViewHolder;
 public class SongDataBinder implements ArrayIndexerDataBinder {
 
 	boolean showArtist;
+	boolean showRelated;
 	
 	public SongDataBinder() {
-		showArtist = false;
+		this(false, false);
 	}
 	
-	public SongDataBinder(boolean showArtist) {
+	public SongDataBinder(boolean showArtist, boolean showRelated) {
 		this.showArtist = showArtist;
+		this.showRelated = showRelated;
 	}
 	
 	public void onDataBind(final Context context, final View targetView, final AbstractViewHolder viewHolder, List<? extends Item> items, Object item, int position) {
@@ -40,10 +42,12 @@ public class SongDataBinder implements ArrayIndexerDataBinder {
 
 		if(showArtist)
 			holder.trackArtist.setText(song.getArtist());
+		
+		targetView.setBackgroundColor(showRelated && song.getSelected()? highlight : lowlight);
 	}
 
 	public boolean isEnabled(int position, List<? extends Item> items, Object item) {
-		return true;
+		return true; //((Music)items.get(position)).getSelected();
 	}
 
 	@Override
@@ -51,8 +55,13 @@ public class SongDataBinder implements ArrayIndexerDataBinder {
 		return R.layout.song_list_item;
 	}
 
+	int highlight;
+	int lowlight;
+	
 	@Override
 	public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
+		highlight = context.getResources().getColor(R.color.highlighted_song_dark);
+		lowlight = context.getResources().getColor(R.color.lowlighted_song_dark);
 		targetView.findViewById(R.id.track_artist).setVisibility(showArtist ? View.VISIBLE : View.GONE);
 		return targetView;
 	}

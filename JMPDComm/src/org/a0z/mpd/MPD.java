@@ -1196,6 +1196,10 @@ public class MPD {
         return songs;
 	}
 
+	public List<Music> getSongs(String directory) throws MPDServerException {
+        return genericSearch(MPDCommand.MPD_CMD_LISTALLINFO, new String[] { directory }, true);
+	}
+
 	public List<Album> getAlbums(Artist artist) throws MPDServerException {
 		List<String> albumNames = null;
 		List<Album> albums = null;
