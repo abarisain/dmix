@@ -152,7 +152,7 @@ public class MPDConnection {
 		for (String arg : args) {
 			if(arg == null)
 				continue;
-			outBuf.append(" \"" + escape.matcher(arg).replaceAll("\\$1") + "\"");
+			outBuf.append(" \"" + escape.matcher(arg).replaceAll("\\\\$0") + "\"");
 		}
 		outBuf.append("\n");
 		final String outString = outBuf.toString();
