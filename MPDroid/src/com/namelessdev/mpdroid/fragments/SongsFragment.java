@@ -165,7 +165,7 @@ public class SongsFragment extends BrowseFragment {
 									case SHOW_RELATED:
 										lastShowRelated = showRelated ^= true;
 										UpdateList(false);
-										break;
+										return;
 									case ADDNREPLACEPLAY:
 										replace = true;
 										play = true;
