@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">MPDroid</string>
-	<string name="artists">Artists</string>
-	<string name="genres">Genres</string>
+	<string name="artists">Composers</string>
+	<string name="genres">Performers</string>
 	<string name="playlists">Playlists</string>
 	<string name="files">Files</string>
-	<string name="albums">Albums</string>
+	<string name="albums">Works</string>
 	<string name="settings">Settings</string>
 	<string name="volume">Volume</string>
 	<string name="track">Track</string>
@@ -16,21 +16,21 @@
 	<string name="ok">OK</string>
 	<string name="quit">Quit</string>
 	<string name="retry">Retry</string>
-	<string name="loading">Loading…</string>
-	<string name="loadingGenres">Loading genres…</string>
-	<string name="loadingAlbums">Loading albums…</string>
-	<string name="loadingArtists">Loading artists…</string>
-	<string name="loadingSongs">Loading songs…</string>
-	<string name="loadingPlaylists">Loading playlists…</string>
+	<string name="loading">Loading</string>
+	<string name="loadingGenres">Loading</string>
+	<string name="loadingAlbums">Loading</string>
+	<string name="loadingArtists">Loading</string>
+	<string name="loadingSongs">Loading</string>
+	<string name="loadingPlaylists">Loading</string>
 	<string name="serverAddress">Server address :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Add and replace</string>
 	<string name="addAndReplacePlay">Add, replace and play</string>
-	<string name="addAlbum">Add album</string>
+	<string name="addAlbum">Add all</string>
 	<string name="addPlaylist">Add playlist</string>
 	<string name="addAndPlay">Add and play</string>
-	<string name="addArtist">Add artist</string>
-	<string name="addGenre">Add genre</string>
+	<string name="addArtist">Add composer</string>
+	<string name="addGenre">Add performer</string>
 	<string name="addDirectory">Add</string>
 	<string name="addSong">Add song</string>
 	<string name="removeSong">Remove song</string>
@@ -43,7 +43,7 @@
 	<string name="albumAdded">Album %s added</string>
 	<string name="playlistAdded">Playlist %s added</string>
 	<string name="addedDirectoryToPlaylist">Added %s to playlist</string>
-	<string name="artistAdded">Artist %s added</string>
+	<string name="artistAdded">Composer %s added</string>
 	<string name="host">Host</string>
 	<string name="hostDescription">MPD-Server Hostname or IP-Address</string>
 	<string name="hostStreaming">Streaming host</string>
@@ -57,7 +57,7 @@
 	<string name="repeat">Repeat</string>
 	<string name="repeatDescription">Enable/Disable repeat</string>
 	<string name="albumartist">Album Artist</string>
-	<string name="albumartistDescription">Use Album Artist tag in Artists view</string>
+	<string name="albumartistDescription">Use Album Artist tag in Composers view</string>
 	<string name="albumTrackSort">Sort by track number</string>
 	<string name="albumTrackSortDescription">Sort tracks within an album by number not name</string>
 	<string name="version">Version</string>
@@ -156,7 +156,7 @@
 	<string name="playQueue">Play Queue</string>
 	<string name="deletePlaylistPrompt">Are you sure you wish to delete %s?</string>
 	<string name="failedToDelete">Failed to delete %s</string>
-	<string name="variousArtists">Various artists</string>
+	<string name="variousArtists">Various authors</string>
 	<string name="tracksInfoHeader">%1$s Tracks, %2$s</string>
 	<string name="tracksInfoHeaderPlural">%1$s Tracks, %2$s</string>
 	<string name="audioFocusFailed">Cannot start streaming : Another application is playing music.</string>
@@ -168,14 +168,14 @@
 	<string name="addStream">Add Stream</string>
 	<string name="editStream">Edit Stream</string>
 	<string name="streamAdded">Stream %s added</string>
-	<string name="loadingStreams">Loading streams…</string>
+	<string name="loadingStreams">Loading</string>
 	<string name="streamDeleted">Stream %s deleted</string>
 	<string name="deleteStream">Delete stream</string>
 	<string name="deleteStreamPrompt">Are you sure you wish to delete %s?</string>
 	<string name="streamName">Name:</string>
 	<string name="streamUrl">URL:</string>
 	<string name="streamDetails">Stream details:</string>
-	<string name="genreAdded">Genre %s added</string>
+	<string name="genreAdded">Performer %s added</string>
 	<string name="enableStopButton">Show stop button</string>
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
@@ -205,9 +205,9 @@
 	<string name="enableAlbumArtLibraryDescription">Use large cover art tiles for the albums listing in the library. This feature is experimental! You may experience lag and/or crashes. (Requires cache cover art)</string>
     <string name="albumGridWifiUnavailable">Wi-Fi unavailable, so no new artwork will be retrieved</string>
     
-    <string name="goToAlbum">Go to album</string>
-    <string name="goToArtist">Go to artist</string>
-    <string name="goToFolder">Go to folder</string>
+    <string name="goToAlbum">Go to work</string>
+    <string name="goToArtist">Go to composer</string>
+    <string name="goToFolder">Go to album</string>
     <string name="goToStream">Go to streams</string>
     
     <string name="actionSongSelected">1 song selected</string>
