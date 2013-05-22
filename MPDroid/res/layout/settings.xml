@@ -58,7 +58,7 @@
  			android:key="sortAlbumsByYear" />
  		<CheckBoxPreference android:persistent="true"
  			android:title="@string/showAlbumTrackCount" android:summary="@string/showAlbumTrackCountDescription"
- 			android:key="showAlbumTrackCount" android:defaultValue="true"/>
+ 			android:key="showAlbumTrackCount" />
  	</PreferenceCategory>
  	<PreferenceCategory android:key="category_interface" android:title="@string/interfaceSettings">
 
@@ -85,13 +85,13 @@
 				android:key="enableLastFM" android:defaultValue="true" />
 			<CheckBoxPreference android:persistent="true"
 				android:title="@string/enableLocalCover" android:summary="@string/enableLocalCoverDescription"
-				android:key="enableLocalCover" android:defaultValue="false" />
+				android:key="enableLocalCover" android:defaultValue="true" />
 			<EditTextPreference android:persistent="true"
 				android:title="@string/musicPath" android:summary="@string/musicPathDescription"
 				android:key="musicPath" android:defaultValue="" />
 			<EditTextPreference android:persistent="true"
 				android:title="@string/coverFileName" android:summary="@string/coverFileNameDescription"
-				android:key="coverFileName" android:defaultValue="folder.jpg" />
+				android:key="coverFileName" android:defaultValue="cover.jpg" />
 			<CheckBoxPreference android:persistent="true"
 				android:title="@string/enableCoverOnlyOnWifi"
 				android:summary="@string/enableCoverOnlyOnWifiDescription"
