@@ -1,7 +1,7 @@
 package com.namelessdev.mpdroid.fragments;
 
-import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
+import org.a0z.mpd.Item;
 
 import com.namelessdev.mpdroid.tools.AlbumGroup;
 
@@ -19,7 +19,7 @@ public class AlbumGroupFragment extends AlbumsFragment {
 	}
 
 	@Override
-	protected Album lookup(int position)
+	protected Item lookup(int position)
 	{
 		return group.get(position);
 	}

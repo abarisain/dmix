@@ -60,14 +60,9 @@ public class AlbumsFragment extends BrowseFragment {
 		}
 	}
 
-	protected Album lookup(int position)
-	{
-		return (Album) items.get(position);
-	}
-	
 	@Override
 	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
-		Album album = lookup(position);
+		Album album = (Album)lookup(position);
 		if (album instanceof AlbumGroup)
 			((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new AlbumGroupFragment().init(artist, (AlbumGroup)album),
 				"albumgroup");

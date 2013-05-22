@@ -2,6 +2,7 @@ package com.namelessdev.mpdroid.fragments;
 
 import java.util.List;
 
+import org.a0z.mpd.Album;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -171,11 +172,16 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 		});
 	}
 
+	protected Item lookup(int position)
+	{
+		return items.get(position);
+	}
+	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
-		menu.setHeaderTitle(items.get((int) info.id).toString());
+		menu.setHeaderTitle(lookup((int) info.id).toString());
 		android.view.MenuItem addItem = menu.add(ADD, ADD, 0, getResources().getString(irAdd));
 		addItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndReplaceItem = menu.add(ADDNREPLACE, ADDNREPLACE, 0, R.string.addAndReplace);
@@ -236,7 +242,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 								play = true;
 								break;
 						}
-						add(items.get((int) info.id), replace, play);
+						add(lookup((int) info.id), replace, play);
 					}
 				});
 				break;
@@ -298,6 +304,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 		}
 		if (items != null) {
 			((android.widget.AdapterView)list).setAdapter(getCustomListAdapter());
+			//((android.widget.BaseAdapter)((android.widget.AdapterView)list).getAdapter()).notifyDataSetChanged();
 			try {
 				if (forceEmptyView() || ((list instanceof ListView) && ((ListView) list).getHeaderViewsCount() == 0))
 					list.setEmptyView(noResultView);
@@ -317,7 +324,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	
 	@Override
 	public void asyncExecSucceeded(int jobID) {
-		if (iJobID == jobID) {
+		if (iJobID == jobID || jobID == -1) {
 			updateFromItems();
 		}
 

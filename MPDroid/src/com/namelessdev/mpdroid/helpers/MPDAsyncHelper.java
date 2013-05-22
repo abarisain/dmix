@@ -203,6 +203,10 @@ public class MPDAsyncHelper extends Handler {
 		oMPDAsyncWorker.obtainMessage(EVENT_EXECASYNC, actjobid, 0, run).sendToTarget();
 		return actjobid;
 	}
+	
+	public void execAsyncFinished() {
+		obtainMessage(EVENT_EXECASYNCFINISHED, -1, 0).sendToTarget();
+	}
 
 	public void addStatusChangeListener(StatusChangeListener listener) {
 		statusChangedListeners.add(listener);
