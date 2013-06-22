@@ -1,18 +1,15 @@
 package com.namelessdev.mpdroid.helpers;
 
-import android.widget.ImageView;
-
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
@@ -56,8 +53,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 	public void onCoverNotFound() {
 		if (coverArtProgress != null)
 			coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-		coverArt.setImageResource(R.drawable.no_cover_art);
-		freeCoverDrawable(null);
+		freeCoverDrawable();
 	}
 
 	public void freeCoverDrawable() {
