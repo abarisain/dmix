@@ -43,10 +43,10 @@ import com.namelessdev.mpdroid.tools.Tools;
  * @version $Id: $
  */
 public class CoverAsyncHelper extends Handler {
-	private static final int EVENT_DOWNLOADCOVER = 0;
-	private static final int EVENT_COVERDOWNLOADED = 1;
-	private static final int EVENT_COVERNOTFOUND = 2;
-	private static final int MAX_SIZE = 0;
+	public static final int EVENT_DOWNLOADCOVER = 0;
+	public static final int EVENT_COVERDOWNLOADED = 1;
+	public static final int EVENT_COVERNOTFOUND = 2;
+	public static final int MAX_SIZE = 0;
 
 	public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
 	public static final String PREFERENCE_LASTFM = "enableLastFM";
@@ -92,23 +92,16 @@ public class CoverAsyncHelper extends Handler {
 
 	private CoverAsyncWorker oCoverAsyncWorker;
 
-	private static HandlerThread oThread = null;
-
 	public CoverAsyncHelper(MPDApplication app, SharedPreferences settings) {
-		this(app, settings, null);
-	}
-
-	public CoverAsyncHelper(MPDApplication app, SharedPreferences settings, HandlerThread targetThread) {
 		this.app = app;
 		this.settings = settings;
 
-		if (oThread == null) {
-			oThread = new HandlerThread("CoverAsyncWorker");
-			oThread.start();
-		}
-		oCoverAsyncWorker = new CoverAsyncWorker(targetThread == null ? oThread.getLooper() : targetThread.getLooper());
-		coverDownloadListener = new LinkedList<CoverDownloadListener>();
+		HandlerThread oThread = new HandlerThread("CoverAsyncWorker");
+		oThread.start();
 
+		oCoverAsyncWorker = new CoverAsyncWorker(oThread.getLooper());
+		coverDownloadListener = new LinkedList<CoverDownloadListener>();
+		setCoverRetrieversFromPreferences();
 	}
 
 	public void setCoverRetrieversFromPreferences() {
@@ -230,7 +223,7 @@ public class CoverAsyncHelper extends Handler {
 					if (cachedCoverMaxSize != MAX_SIZE) {
 						maxSize = cachedCoverMaxSize;
 					}
-
+					Log.i("DIFJSDIFJ", "osdkfosdkfo " + maxSize);
 					if (maxSize == MAX_SIZE) {
 						downloadedCover = BitmapFactory.decodeFile(url);
 					} else {

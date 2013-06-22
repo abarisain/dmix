@@ -35,6 +35,8 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 	public void onCoverDownloaded(Bitmap cover) {
 		if (coverArtProgress != null)
 			coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+		if (coverArt == null)
+			return;
 		try {
 			if (cover != null) {
 				final Drawable oldDrawable = coverArt.getDrawable();
@@ -73,6 +75,11 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 		final Bitmap coverBitmap = ((BitmapDrawable) coverDrawable).getBitmap();
 		if (coverBitmap != null)
 			coverBitmap.recycle();
+	}
+
+	public void detach() {
+		coverArtProgress = null;
+		coverArt = null;
 	}
 
 }
