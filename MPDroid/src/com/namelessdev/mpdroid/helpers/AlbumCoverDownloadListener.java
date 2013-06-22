@@ -30,6 +30,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 		this.coverArtProgress = coverArtProgress;
 		this.coverArtProgress.setIndeterminate(true);
 		this.coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+		freeCoverDrawable();
 	}
 
 	public void onCoverDownloaded(Bitmap cover) {
