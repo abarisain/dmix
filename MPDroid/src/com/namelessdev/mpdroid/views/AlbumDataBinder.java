@@ -2,14 +2,16 @@ package com.namelessdev.mpdroid.views;
 
 import java.util.List;
 
-import org.a0z.mpd.Artist;
 import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,8 +21,8 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
 import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
@@ -29,11 +31,22 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	String artist = null;
 	MPDApplication app = null;
 	boolean lightTheme = false;
+	Handler asyncWorker = null;
+	boolean enableCache = true;
+	boolean onlyDownloadOnWifi = true;
 
 	public AlbumDataBinder(MPDApplication app, String artist, boolean isLightTheme) {
 		this.app = app;
 		this.artist = artist;
 		this.lightTheme = isLightTheme;
+		HandlerThread thread = new HandlerThread("CoverAsyncWorker");
+		thread.start();
+		asyncWorker = new Handler(thread.getLooper());
+
+		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+
+		enableCache = settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true);
+		onlyDownloadOnWifi = settings.getBoolean(CoverAsyncHelper.PREFERENCE_ONLY_WIFI, false);
 	}
 
 	public void onDataBind(final Context context, final View targetView, final AbstractViewHolder viewHolder, List<? extends Item> items, Object item, int position) {
@@ -74,37 +87,26 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 	protected void loadArtwork(String artist, String album) {
 		boolean haveCachedArtwork = false;
 
-		try {
-			CachedCover cachedCover = new CachedCover(app);
-			final String[] urls = cachedCover.getCoverUrl(artist, album, null, null);
-			if((urls != null) && (urls.length > 0)) {
-				haveCachedArtwork = true;
+		if (enableCache) {
+			try {
+				CachedCover cachedCover = new CachedCover(app);
+				final String[] urls = cachedCover.getCoverUrl(artist, album, null, null);
+				if ((urls != null) && (urls.length > 0)) {
+					haveCachedArtwork = true;
+				}
+			} catch (Exception e) {
+				// no cached artwork available
 			}
-		} catch (Exception e) {
-			// no cached artwork available
 		}
 
-		if(haveCachedArtwork == false && coverHelper.isWifi()) {
-			// proactively download and cache artwork
-			String filename = null;
-			String path = null;
-			List<? extends Item> songs = null;
-
-			try {
-				// load songs for this album
-				songs = app.oMPDAsyncHelper.oMPD.getSongs(((artist != null) ? new Artist(artist, 0) : null), new Album(album));
-
-				if (songs.size() > 0) {
-					Music song = (Music) songs.get(0);
-					filename = song.getFilename();
-					path = song.getPath();
-					coverHelper.downloadCover(artist, album, path, filename);
-				}
-			} catch (MPDServerException e) {
-				// MPD error, bail on loading artwork
-				return;
+		// Did we find a cached cover ? If yes, skip the download
+		// Only continue if we are not on WiFi and Cellular download is enabled
+		if (!haveCachedArtwork) {
+			// If we are not on WiFi and Cellular download is enabled
+			if (!coverHelper.isWifi() && !onlyDownloadOnWifi) {
+				asyncWorker.post(new DownloaderRunnable(album, artist));
 			}
-		}else{
+		} else {
 			coverHelper.downloadCover(artist, album, null, null);
 		}
 	}
@@ -134,4 +136,35 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		return viewHolder;
 	}
 
+	public class DownloaderRunnable implements Runnable {
+		String album;
+		String artist;
+		
+		public DownloaderRunnable(String album, String artist) {
+			this.album = album;
+			this.artist = artist;
+		}
+		
+		@Override
+		public void run() {
+			String filename = null;
+			String path = null;
+			List<? extends Item> songs = null;
+
+			try {
+				// load songs for this album
+				songs = app.oMPDAsyncHelper.oMPD.getSongs(((artist != null) ? new Artist(artist, 0) : null), new Album(album));
+
+				if (songs.size() > 0) {
+					Music song = (Music) songs.get(0);
+					filename = song.getFilename();
+					path = song.getPath();
+					coverHelper.downloadCover(artist, album, path, filename);
+				}
+			} catch (MPDServerException e) {
+				// MPD error, bail on loading artwork
+				return;
+			}
+		}
+	}
 }
