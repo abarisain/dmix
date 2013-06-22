@@ -318,6 +318,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			StrictMode.setThreadPolicy(policy);
 		}
 
+		if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
+			stopSelf();
+			return;
+		}
+
 		isServiceRunning = true;
 		mediaPlayer = new MediaPlayer();
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -700,7 +705,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	@Override
 	public void connectionFailed(String message) {
 		// TODO Auto-generated method stub
-		Toast.makeText(this, "Connection Failed !", Toast.LENGTH_SHORT).show();
+		// Toast.makeText(this, "Connection Failed !", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
