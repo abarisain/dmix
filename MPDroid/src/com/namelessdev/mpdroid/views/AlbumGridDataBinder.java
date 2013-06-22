@@ -43,7 +43,8 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 		// listen for new artwork to be loaded
 		final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover);
 		final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover.getTag(R.id.AlbumCoverDownloadListener);
-		oldAcd.detach();
+		if (oldAcd != null)
+			oldAcd.detach();
 		holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
 		coverHelper.addCoverDownloadListener(acd);
 
