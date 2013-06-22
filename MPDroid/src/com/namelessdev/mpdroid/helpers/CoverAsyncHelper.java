@@ -95,6 +95,10 @@ public class CoverAsyncHelper extends Handler {
 	private static HandlerThread oThread = null;
 
 	public CoverAsyncHelper(MPDApplication app, SharedPreferences settings) {
+		this(app, settings, null);
+	}
+
+	public CoverAsyncHelper(MPDApplication app, SharedPreferences settings, HandlerThread targetThread) {
 		this.app = app;
 		this.settings = settings;
 
@@ -102,7 +106,7 @@ public class CoverAsyncHelper extends Handler {
 			oThread = new HandlerThread("CoverAsyncWorker");
 			oThread.start();
 		}
-		oCoverAsyncWorker = new CoverAsyncWorker(oThread.getLooper());
+		oCoverAsyncWorker = new CoverAsyncWorker(targetThread == null ? oThread.getLooper() : targetThread.getLooper());
 		coverDownloadListener = new LinkedList<CoverDownloadListener>();
 
 	}
@@ -248,6 +252,7 @@ public class CoverAsyncHelper extends Handler {
 				case EVENT_DOWNLOADCOVER:
 					Bitmap cover = null;
 					for (ICoverRetriever coverRetriever : coverRetrievers) {
+						Log.i(MPDApplication.TAG, "lablalbakegogniofjgre : " + coverRetriever.getName());
 						cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
 						if (cover != null) {
 							Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
