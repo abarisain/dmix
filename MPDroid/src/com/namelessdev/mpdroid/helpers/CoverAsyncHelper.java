@@ -92,12 +92,16 @@ public class CoverAsyncHelper extends Handler {
 
 	private CoverAsyncWorker oCoverAsyncWorker;
 
+	private static HandlerThread oThread = null;
+
 	public CoverAsyncHelper(MPDApplication app, SharedPreferences settings) {
 		this.app = app;
 		this.settings = settings;
 
-		HandlerThread oThread = new HandlerThread("CoverAsyncWorker");
-		oThread.start();
+		if (oThread == null) {
+			oThread = new HandlerThread("CoverAsyncWorker");
+			oThread.start();
+		}
 		oCoverAsyncWorker = new CoverAsyncWorker(oThread.getLooper());
 		coverDownloadListener = new LinkedList<CoverDownloadListener>();
 
