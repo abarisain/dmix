@@ -1,16 +1,12 @@
 package com.namelessdev.mpdroid.fragments;
 
-import org.a0z.mpd.MPDCommand;
-
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.LayoutInflater;
-import android.widget.ListAdapter;
-import android.widget.AbsListView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.GridView;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -31,6 +27,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
 		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
 		noResultView = view.findViewById(R.id.noResultLayout);
 		loadingTextView.setText(getLoadingText());
+		
 		return view;
 	}
 
