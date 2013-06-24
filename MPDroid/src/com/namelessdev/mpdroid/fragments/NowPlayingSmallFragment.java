@@ -7,14 +7,12 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,8 +26,8 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 
 public class NowPlayingSmallFragment extends SherlockFragment implements StatusChangeListener {
 
@@ -86,7 +84,6 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress);
 
 		coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
-		coverHelper.setCoverRetrieversFromPreferences();
 		coverHelper.setCoverMaxSizeFromScreen(getActivity());
 		coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
 		coverHelper.addCoverDownloadListener(coverArtListener);

@@ -223,7 +223,6 @@ public class CoverAsyncHelper extends Handler {
 					if (cachedCoverMaxSize != MAX_SIZE) {
 						maxSize = cachedCoverMaxSize;
 					}
-					Log.i("DIFJSDIFJ", "osdkfosdkfo " + maxSize);
 					if (maxSize == MAX_SIZE) {
 						downloadedCover = BitmapFactory.decodeFile(url);
 					} else {
@@ -245,7 +244,6 @@ public class CoverAsyncHelper extends Handler {
 				case EVENT_DOWNLOADCOVER:
 					Bitmap cover = null;
 					for (ICoverRetriever coverRetriever : coverRetrievers) {
-						Log.i(MPDApplication.TAG, "lablalbakegogniofjgre : " + coverRetriever.getName());
 						cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
 						if (cover != null) {
 							Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());

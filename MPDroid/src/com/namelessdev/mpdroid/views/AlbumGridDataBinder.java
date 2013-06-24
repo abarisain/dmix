@@ -32,7 +32,6 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 		// Caching must be switch on to use this view
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 		coverHelper = new CoverAsyncHelper(app, settings);
-		coverHelper.setCoverRetrieversFromPreferences();
 		final int height = holder.albumCover.getHeight();
 		// If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
 		coverHelper.setCoverMaxSize(height == 0 ? 256 : height);
@@ -48,11 +47,11 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 		holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
 		coverHelper.addCoverDownloadListener(acd);
 
+		loadPlaceholder();
+
 		// Can't get artwork for missing album name
 		if((!album.getName().equals("")) && (!album.getName().equals("-"))) {
 			loadArtwork(null, album.getName());
-		} else {
-			loadPlaceholder();
 		}
 	}
 

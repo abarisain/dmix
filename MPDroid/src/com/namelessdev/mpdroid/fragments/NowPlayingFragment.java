@@ -19,8 +19,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -51,9 +49,8 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
 import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
 import com.namelessdev.mpdroid.adapters.PopupMenuItem;
-import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
@@ -224,7 +221,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
 
 		oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
-		oCoverAsyncHelper.setCoverRetrieversFromPreferences();
 		// Scale cover images down to screen width
 		oCoverAsyncHelper.setCoverMaxSizeFromScreen(getActivity());
 		oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());

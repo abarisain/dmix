@@ -7,17 +7,11 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,8 +31,8 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
 import com.namelessdev.mpdroid.adapters.PopupMenuItem;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
@@ -134,7 +128,6 @@ public class SongsFragment extends BrowseFragment {
 			final MPDApplication app = (MPDApplication) getActivity().getApplication();
 			coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress);
 			coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
-			coverHelper.setCoverRetrieversFromPreferences();
 			coverHelper.setCoverMaxSizeFromScreen(getActivity());
 			coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
 			coverHelper.addCoverDownloadListener(coverArtListener);

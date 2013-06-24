@@ -72,16 +72,23 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
+		coverHelper = new CoverAsyncHelper(app, settings);
+		final int height = holder.albumCover.getHeight();
+		// If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
+		coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
+
+		loadPlaceholder();
+		
 		// display cover art in album listing if caching is on
 		if (this.artist != null && settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
-			coverHelper = new CoverAsyncHelper(app, settings);
-			coverHelper.setCoverRetrieversFromPreferences();
-			final int height = holder.albumCover.getHeight();
-			// If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
-			coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
-
 			// listen for new artwork to be loaded
-			coverHelper.addCoverDownloadListener(new AlbumCoverDownloadListener(context, holder.albumCover));
+			final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover);
+			final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
+					.getTag(R.id.AlbumCoverDownloadListener);
+			if (oldAcd != null)
+				oldAcd.detach();
+			holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+			coverHelper.addCoverDownloadListener(acd);
 
 			loadArtwork(artist, album.getName());
 		}
@@ -106,14 +113,14 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 			}
 		}
 
+		loadPlaceholder();
+
 		// Did we find a cached cover ? If yes, skip the download
 		// Only continue if we are not on WiFi and Cellular download is enabled
 		if (!haveCachedArtwork) {
 			// If we are not on WiFi and Cellular download is enabled
 			if (!coverHelper.isWifi() && !onlyDownloadOnWifi) {
 				asyncWorker.post(new DownloaderRunnable(album, artist));
-			} else {
-				loadPlaceholder();
 			}
 		} else {
 			coverHelper.downloadCover(artist, album, null, null);
