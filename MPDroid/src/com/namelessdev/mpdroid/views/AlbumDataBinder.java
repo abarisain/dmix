@@ -113,8 +113,6 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 			}
 		}
 
-		loadPlaceholder();
-
 		// Did we find a cached cover ? If yes, skip the download
 		// Only continue if we are not on WiFi and Cellular download is enabled
 		if (!haveCachedArtwork) {
