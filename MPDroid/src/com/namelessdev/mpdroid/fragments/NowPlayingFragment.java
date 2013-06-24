@@ -225,7 +225,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		oCoverAsyncHelper.setCoverMaxSizeFromScreen(getActivity());
 		oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());
 
-		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress);
+		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected());
 		oCoverAsyncHelper.addCoverDownloadListener(coverArtListener);
 
 		buttonEventHandler = new ButtonEventHandler();

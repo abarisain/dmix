@@ -16,16 +16,20 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 	Context context;
 	ImageView coverArt;
 	ProgressBar coverArtProgress;
+	boolean lightTheme;
 
-	public AlbumCoverDownloadListener(Context context, ImageView coverArt) {
+	public AlbumCoverDownloadListener(Context context, ImageView coverArt, boolean lightTheme) {
 		this.context = context;
 		this.coverArt = coverArt;
 		this.coverArt.setVisibility(View.VISIBLE);
+		this.lightTheme = lightTheme;
+		freeCoverDrawable();
 	}
 
-	public AlbumCoverDownloadListener(Context context, ImageView coverArt, ProgressBar coverArtProgress) {
+	public AlbumCoverDownloadListener(Context context, ImageView coverArt, ProgressBar coverArtProgress, boolean lightTheme) {
 		this.context = context;
 		this.coverArt = coverArt;
+		this.lightTheme = lightTheme;
 		this.coverArt.setVisibility(View.VISIBLE);
 		this.coverArtProgress = coverArtProgress;
 		this.coverArtProgress.setIndeterminate(true);
@@ -70,7 +74,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 		if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable))
 			return;
 		if (oldDrawable == null)
-			coverArt.setImageResource(R.drawable.no_cover_art);
+			coverArt.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
 
 		coverDrawable.setCallback(null);
 		final Bitmap coverBitmap = ((BitmapDrawable) coverDrawable).getBitmap();

@@ -126,7 +126,7 @@ public class SongsFragment extends BrowseFragment {
 			albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
 
 			final MPDApplication app = (MPDApplication) getActivity().getApplication();
-			coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress);
+			coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected());
 			coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
 			coverHelper.setCoverMaxSizeFromScreen(getActivity());
 			coverHelper.setCachedCoverMaxSize(coverArt.getHeight());

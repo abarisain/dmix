@@ -73,7 +73,7 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		// display cover art in album listing if caching is on
 		if (this.artist != null && enableCache) {
 			// listen for new artwork to be loaded
-			final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover);
+			final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, lightTheme);
 			final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
 					.getTag(R.id.AlbumCoverDownloadListener);
 			if (oldAcd != null)

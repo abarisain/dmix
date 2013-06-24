@@ -81,7 +81,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 
 		coverArt = (ImageView) view.findViewById(R.id.albumCover);
 		coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress);
+		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected());
 
 		coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
 		coverHelper.setCoverMaxSizeFromScreen(getActivity());

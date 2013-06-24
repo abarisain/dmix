@@ -8,9 +8,8 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.AdapterView;
+import android.widget.ListAdapter;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
