@@ -12,6 +12,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Item;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,8 +30,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
@@ -62,6 +68,12 @@ public class CoverAsyncHelper extends Handler {
 
 	private ICoverRetriever[] coverRetrievers = null;
 
+	public static ExecutorService threadPool;
+
+	static {
+		threadPool = Executors.newCachedThreadPool();
+	}
+
 	public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
 		if (whichCoverRetrievers == null) {
 			coverRetrievers = new ICoverRetriever[0];
@@ -90,16 +102,10 @@ public class CoverAsyncHelper extends Handler {
 
 	private Collection<CoverDownloadListener> coverDownloadListener;
 
-	private CoverAsyncWorker oCoverAsyncWorker;
-
 	public CoverAsyncHelper(MPDApplication app, SharedPreferences settings) {
 		this.app = app;
 		this.settings = settings;
 
-		HandlerThread oThread = new HandlerThread("CoverAsyncWorker");
-		oThread.start();
-
-		oCoverAsyncWorker = new CoverAsyncWorker(oThread.getLooper());
 		coverDownloadListener = new LinkedList<CoverDownloadListener>();
 		setCoverRetrieversFromPreferences();
 	}
@@ -170,12 +176,12 @@ public class CoverAsyncHelper extends Handler {
 	}
 
 	public void downloadCover(String artist, String album, String path, String filename) {
-		CoverInfo info = new CoverInfo();
+		final CoverInfo info = new CoverInfo();
 		info.sArtist = artist;
 		info.sAlbum = album;
 		info.sPath = path;
 		info.sFilename = filename;
-		oCoverAsyncWorker.obtainMessage(EVENT_DOWNLOADCOVER, info).sendToTarget();
+		threadPool.execute(new CoverAsyncWorker(info));
 	}
 
 	public void handleMessage(Message msg) {
@@ -194,12 +200,14 @@ public class CoverAsyncHelper extends Handler {
 		}
 	}
 
-	private class CoverAsyncWorker extends Handler {
-		public CoverAsyncWorker(Looper looper) {
-			super(looper);
+	private class CoverAsyncWorker implements Runnable {
+		CoverInfo info;
+
+		public CoverAsyncWorker(CoverInfo info) {
+			this.info = info;
 		}
 
-		public Bitmap getBitmapForRetriever(CoverInfo info, ICoverRetriever retriever) {
+		public Bitmap getBitmapForRetriever(ICoverRetriever retriever) {
 			String[] urls = null;
 			try {
 				// Get URL to the Cover...
@@ -239,38 +247,54 @@ public class CoverAsyncHelper extends Handler {
 			return downloadedCover;
 		}
 
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-				case EVENT_DOWNLOADCOVER:
-					Bitmap cover = null;
-					for (ICoverRetriever coverRetriever : coverRetrievers) {
-						cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
-						if (cover != null) {
-							Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
-							// if cover is not read from cache and saving is enabled
-							if (cacheWritable && !(coverRetriever instanceof CachedCover)) {
-								// Save this cover into cache, if it is enabled.
-								for (ICoverRetriever coverRetriever1 : coverRetrievers) {
-									if (coverRetriever1 instanceof CachedCover) {
-										Log.i(MPDApplication.TAG, "Saving cover art to cache");
-										((CachedCover) coverRetriever1).save(((CoverInfo) msg.obj).sArtist, ((CoverInfo) msg.obj).sAlbum,
-												cover);
-									}
-								}
-							}
-							CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
-							break;
-						}
-					}
-					if (cover == null) {
-						Log.i(MPDApplication.TAG, "No cover art found");
-						CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-					}
-					break;
-				default:
+		public boolean fillEmptyArtist() {
+			if (info.sArtist != null)
+				return true;
+			try {
+				// load songs for this album
+				final List<? extends Item> songs = app.oMPDAsyncHelper.oMPD.getSongs(null, new Album(info.sAlbum));
+
+				if (songs.size() > 0) {
+					Music song = (Music) songs.get(0);
+					info.sFilename = song.getFilename();
+					info.sPath = song.getPath();
+					info.sArtist = MPD.useAlbumArtist() ? song.getAlbumArtist() : song.getArtist();
+					return true;
+				}
+			} catch (MPDServerException e) {
+				// MPD error, bail on loading artwork
 			}
+			return false;
 		}
 
+		public void run() {
+			Bitmap cover = null;
+			if (fillEmptyArtist()) {
+				for (ICoverRetriever coverRetriever : coverRetrievers) {
+					cover = getBitmapForRetriever(coverRetriever);
+					if (cover != null) {
+						Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
+						// if cover is not read from cache and saving is enabled
+						if (cacheWritable && !(coverRetriever instanceof CachedCover)) {
+							// Save this cover into cache, if it is enabled.
+							for (ICoverRetriever coverRetriever1 : coverRetrievers) {
+								if (coverRetriever1 instanceof CachedCover) {
+									Log.i(MPDApplication.TAG, "Saving cover art to cache");
+									((CachedCover) coverRetriever1).save(info.sArtist, info.sAlbum, cover);
+								}
+							}
+						}
+						CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
+						break;
+					}
+				}
+			}
+
+			if (cover == null) {
+				Log.i(MPDApplication.TAG, "No cover art found");
+				CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
+			}
+		}
 	}
 
 	private Bitmap download(String url) {
