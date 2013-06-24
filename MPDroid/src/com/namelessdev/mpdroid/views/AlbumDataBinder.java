@@ -108,7 +108,7 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		// Only continue if we are not on WiFi and Cellular download is enabled
 		if (!haveCachedArtwork) {
 			// If we are not on WiFi and Cellular download is enabled
-			if (!coverHelper.isWifi() && !onlyDownloadOnWifi) {
+			if (coverHelper.isWifi() || !onlyDownloadOnWifi) {
 				coverHelper.downloadCover(null, album, null, null);
 			}
 		} else {
