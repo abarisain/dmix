@@ -507,7 +507,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			case R.id.PLCX_playNext:
 				try { // Move song to next in playlist
 					MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-					if (info.id < status.getSongPos()) {
+					if (popupSongID < status.getSongPos()) {
 						app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, status.getSongPos());
 					} else {
 						app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, status.getSongPos() + 1);
