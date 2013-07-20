@@ -26,7 +26,7 @@ public class LocalCover implements ICoverRetriever {
 		this.settings = settings;
 	}
 	
-	public String buildCoverUrl(String serverName, String musicPath, String path, String fileName){
+	static public String buildCoverUrl(String serverName, String musicPath, String path, String fileName){
 
 		if (musicPath.startsWith(URL_PREFIX)) {
 			int hostPortEnd = musicPath.indexOf(URL_PREFIX.length(), '/');
@@ -37,11 +37,16 @@ public class LocalCover implements ICoverRetriever {
 			musicPath=musicPath.substring(hostPortEnd);
 		}
 		Uri.Builder b = Uri.parse(URL_PREFIX + serverName).buildUpon();
-		Uri uri = b
-			.appendPath(musicPath)
-			.appendPath(path)
-			.appendPath(fileName)
-			.build();
+		if (null != musicPath && musicPath.length() > 0) {
+			b.appendPath(musicPath);
+		}
+		if (null != path && path.length() > 0) {
+			b.appendPath(path);
+		}
+		if (null != fileName && fileName.length() > 0) {
+			b.appendPath(fileName);
+		}
+		Uri uri = b.build();
 		return uri.toString();
 	}	
 
