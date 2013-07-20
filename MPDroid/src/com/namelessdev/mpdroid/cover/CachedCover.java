@@ -45,9 +45,15 @@ public class CachedCover implements ICoverRetriever {
 
 	public long getCacheUsage() {
 		long size = 0;
-		for (File file : new File(getAbsoluteCoverFolderPath()).listFiles()) {
-			if (file.isFile()) {
-				size += file.length();
+		final String cacheDir = getAbsoluteCoverFolderPath();
+		if (null != cacheDir && 0 != cacheDir.length()) {
+			File[] files = new File(cacheDir).listFiles();
+			if (null != files) {
+				for (File file : files) {
+					if (file.isFile()) {
+						size += file.length();
+					}
+				}
 			}
 		}
 		return size;
