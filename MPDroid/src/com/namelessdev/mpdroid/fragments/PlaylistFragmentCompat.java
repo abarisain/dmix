@@ -95,6 +95,8 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 						item.put("title", m.getTitle());
 						if (Tools.isStringEmptyOrNull(m.getName())) {
 							item.put("artist", m.getArtist());
+						} else if (Tools.isStringEmptyOrNull(m.getArtist())) {
+							item.put("artist", m.getName());
 						} else {
 							item.put("artist", m.getArtist() + " - " + m.getName());
 						}

@@ -119,6 +119,9 @@ public class StreamFetcher {
             return parsePlaylist(data, "ref", handlers);
         } else if (data.length()>5 && start.startsWith("<?xml")) {
             return parseXml(data, handlers);
+        } else if ( (-1==data.indexOf("<html") && -1!=data.indexOf("http:/")) || // flat list?
+                (-1!=data.indexOf("#EXTM3U")) ) { // m3u with comments?
+        	return parseExt3Mu(data, handlers);
         }
 
         return null;
@@ -150,25 +153,36 @@ public class StreamFetcher {
     public URL get(String url, String name) throws MalformedURLException {
     	String parsed=null;
     	if (url.startsWith("http://")) {
-    		HttpURLConnection connection=null;
-    		try {
-    			URL u = new URL(url);
-    			connection = (HttpURLConnection)u.openConnection();
-    			InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
-
-    			byte buffer[]=new byte[8192];
-    			int read=in.read(buffer);
-    			if (read<buffer.length) {
-    				buffer[read]='\0';
-    			}
-    			parsed=parse(new String(buffer), handlers);
-    		} catch (IOException e) {
-    		} finally {
-    			if (null!=connection) {
-    				connection.disconnect();
-    			}
-    		}
+    	    parsed=check(url);
+    	    if (null != parsed && parsed.startsWith("http://")) {
+    	        // If 'check' returned a http link, then see if this points to the stream
+    	        // or if it points to the playlist (which would point to the stream). This
+    	        // case is mainly for TuneIn links...
+    	        parsed=check(parsed);
+    	    }
     	}
     	return new URL(addName(null==parsed ? url : parsed, name));
+    }
+    
+    private String check(String url) {
+      	HttpURLConnection connection = null;
+    	try {
+    		URL u = new URL(url);
+    		connection = (HttpURLConnection)u.openConnection();
+    		InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
+
+    		byte buffer[] = new byte[8192];
+    		int read = in.read(buffer);
+    		if (read < buffer.length) {
+    			buffer[read] = '\0';
+    		}
+    		return parse(new String(buffer), handlers);
+    	} catch (IOException e) {
+    	} finally {
+    		if (null != connection) {
+    			connection.disconnect();
+    		}
+    	}
+    	return null;
     }
 }

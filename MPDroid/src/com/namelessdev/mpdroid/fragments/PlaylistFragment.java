@@ -242,6 +242,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 						item.put("title", tmpTitle);
 						if (Tools.isStringEmptyOrNull(m.getName())) {
 							item.put("artist", tmpArtist);
+						} else if (Tools.isStringEmptyOrNull(tmpArtist)) {
+							item.put("artist", m.getName());
 						} else {
 							item.put("artist", tmpArtist + " - " + m.getName());
 						}
