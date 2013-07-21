@@ -244,9 +244,19 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 				if (noSong) {
 					title = getResources().getString(R.string.noSongInfo);
 				} else {
-					artist = actSong.getArtist();
-					title = actSong.getTitle();
-					album = actSong.getAlbum();
+					if (actSong.isStream()) {
+						if (actSong.haveTitle()) {
+							title = actSong.getTitle();
+							artist = actSong.getName();
+						} else {
+							title = actSong.getName();
+							artist = "";
+						}
+					} else {
+						artist = actSong.getArtist();
+						title = actSong.getTitle();
+						album = actSong.getAlbum();	
+					}
 				}
 
 				artist = artist == null ? "" : artist;

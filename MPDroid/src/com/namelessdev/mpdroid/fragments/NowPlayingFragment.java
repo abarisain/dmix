@@ -578,9 +578,12 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					Log.d("MPDroid", "Playing a stream");
 					if (actSong.haveTitle()) {
 						title = actSong.getTitle();
+						album = actSong.getName();
+					} else {
+						title = actSong.getName();
+						album = "";
 					}
 					artist = actSong.getArtist();
-					album = actSong.getName();
 					path = actSong.getPath();
 					filename = actSong.getFilename();
 					songMax = (int) actSong.getTime();
@@ -834,7 +837,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				break;
 			case POPUP_STREAM:
 				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-				intent.putExtra("steams", true);
+				intent.putExtra("streams", true);
 				startActivityForResult(intent, -1);
 				break;
 			case POPUP_SHARE:
