@@ -207,7 +207,7 @@ public class CoverAsyncHelper extends Handler {
 			this.info = info;
 		}
 
-		public Bitmap getBitmapForRetriever(ICoverRetriever retriever) {
+		public Bitmap[] getBitmapForRetriever(ICoverRetriever retriever) {
 			String[] urls = null;
 			try {
 				// Get URL to the Cover...
@@ -221,7 +221,7 @@ public class CoverAsyncHelper extends Handler {
 				return null;
 			}
 
-			Bitmap downloadedCover = null;
+			Bitmap[] downloadedCovers = null;
 			for (String url : urls) {
 				if (url == null)
 					continue;
@@ -232,19 +232,19 @@ public class CoverAsyncHelper extends Handler {
 						maxSize = cachedCoverMaxSize;
 					}
 					if (maxSize == MAX_SIZE) {
-						downloadedCover = BitmapFactory.decodeFile(url);
+						downloadedCovers = new Bitmap[] { BitmapFactory.decodeFile(url) };
 					} else {
-						downloadedCover = Tools.decodeSampledBitmapFromPath(url, maxSize, maxSize, false);
+						downloadedCovers = new Bitmap[] { Tools.decodeSampledBitmapFromPath(url, maxSize, maxSize, false) };
 					}
 				} else {
-					downloadedCover = download(url);
+					downloadedCovers = download(url);
 				}
 
-				if (downloadedCover != null) {
+				if (downloadedCovers != null) {
 					break;
 				}
 			}
-			return downloadedCover;
+			return downloadedCovers;
 		}
 
 		public boolean fillEmptyArtist() {
@@ -268,11 +268,11 @@ public class CoverAsyncHelper extends Handler {
 		}
 
 		public void run() {
-			Bitmap cover = null;
+			Bitmap[] covers = null;
 			if (fillEmptyArtist()) {
 				for (ICoverRetriever coverRetriever : coverRetrievers) {
-					cover = getBitmapForRetriever(coverRetriever);
-					if (cover != null) {
+					covers = getBitmapForRetriever(coverRetriever);
+					if (covers != null && covers[0] != null) {
 						Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
 						// if cover is not read from cache and saving is enabled
 						if (cacheWritable && !(coverRetriever instanceof CachedCover)) {
@@ -280,24 +280,25 @@ public class CoverAsyncHelper extends Handler {
 							for (ICoverRetriever coverRetriever1 : coverRetrievers) {
 								if (coverRetriever1 instanceof CachedCover) {
 									Log.i(MPDApplication.TAG, "Saving cover art to cache");
-									((CachedCover) coverRetriever1).save(info.sArtist, info.sAlbum, cover);
+									// Save the fullsize bitmap
+									((CachedCover) coverRetriever1).save(info.sArtist, info.sAlbum, covers[1]);
 								}
 							}
 						}
-						CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
+						CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, covers[0]).sendToTarget();
 						break;
 					}
 				}
 			}
 
-			if (cover == null) {
+			if (covers == null) {
 				Log.i(MPDApplication.TAG, "No cover art found");
 				CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 			}
 		}
 	}
 
-	private Bitmap download(String url) {
+	private Bitmap[] download(String url) {
 		URL myFileUrl = null;
 		HttpURLConnection conn = null;
 		try {
@@ -328,14 +329,26 @@ public class CoverAsyncHelper extends Handler {
 							(double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
 				}
 
-				o.inSampleSize = scale;
-				o.inJustDecodeBounds = false;
 				is.reset();
-				Bitmap bmp = BitmapFactory.decodeStream(is, null, o);
+				o.inSampleSize = 1;
+				o.inJustDecodeBounds = false;
+				Bitmap fullBmp = BitmapFactory.decodeStream(is, null, o);
+				Bitmap bmp = null;
+				if (scale == 1) {
+					// This can cause some problem (a bitmap being freed will free both references)
+					// But the only use is to save it in the cache so it's okay.
+					bmp = fullBmp;
+				} else {
+					o.inSampleSize = scale;
+					o.inJustDecodeBounds = false;
+					is.reset();
+					bmp = BitmapFactory.decodeStream(is, null, o);
+				}
+
 				is.close();
 				conn.disconnect();
 
-				return bmp;
+				return new Bitmap[] { bmp, fullBmp };
 			} catch (Exception e) {
 				return null;
 			}
