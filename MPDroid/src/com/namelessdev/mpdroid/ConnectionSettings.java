@@ -9,6 +9,7 @@ import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 
+@SuppressWarnings("deprecation")
 public class ConnectionSettings extends PreferenceActivity {
 	public static final int MAIN = 0;
 

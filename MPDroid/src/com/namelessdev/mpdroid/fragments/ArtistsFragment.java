@@ -40,7 +40,7 @@ public class ArtistsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
+	public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new AlbumsFragment().init((Artist) items.get(position)), "album");
 	}
 

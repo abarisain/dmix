@@ -18,8 +18,8 @@ public class UnknownAlbum extends Album {
 		return "";
 	}
 
-	public static final Parcelable.Creator CREATOR =
-    	new Parcelable.Creator() {
+	public static final Parcelable.Creator<UnknownAlbum> CREATOR =
+			new Parcelable.Creator<UnknownAlbum>() {
             public UnknownAlbum createFromParcel(Parcel in) {
                 return new UnknownAlbum(in);
             }

@@ -93,8 +93,8 @@ public class Album extends Item implements Parcelable {
 		dest.writeLong(this.year);
 	}
 
-	public static final Parcelable.Creator CREATOR =
-    	new Parcelable.Creator() {
+	public static final Parcelable.Creator<Album> CREATOR =
+			new Parcelable.Creator<Album>() {
             public Album createFromParcel(Parcel in) {
                 return new Album(in);
             }

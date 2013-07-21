@@ -82,8 +82,8 @@ public class Artist extends Item implements Parcelable {
 		dest.writeInt(this.albumCount);
 	}
 
-	public static final Parcelable.Creator CREATOR =
-    	new Parcelable.Creator() {
+	public static final Parcelable.Creator<Artist> CREATOR =
+			new Parcelable.Creator<Artist>() {
             public Artist createFromParcel(Parcel in) {
                 return new Artist(in);
             }

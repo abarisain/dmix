@@ -172,7 +172,7 @@ public class StreamsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
+	public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
 	}
 
 	@Override

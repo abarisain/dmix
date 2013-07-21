@@ -1,7 +1,6 @@
 package com.namelessdev.mpdroid;
 
 import java.util.Collection;
-import java.util.HashMap;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDOutput;
@@ -23,6 +22,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.text.format.Formatter;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -37,7 +37,7 @@ public class SettingsActivity extends PreferenceActivity implements
 	public static final String OPEN_OUTPUT = "open_output";
 
 	private OnPreferenceClickListener onPreferenceClickListener;
-	private HashMap<Integer, CheckBoxPreference> cbPrefs;
+	private SparseArray<CheckBoxPreference> cbPrefs;
 
 	private PreferenceScreen pOutputsScreen;
 	private PreferenceScreen pInformationScreen;
@@ -55,7 +55,7 @@ public class SettingsActivity extends PreferenceActivity implements
 		// Log.i("MPDroid", "onCreate");
 
 		onPreferenceClickListener = new OutputPreferenceClickListener();
-		cbPrefs = new HashMap<Integer, CheckBoxPreference>();
+		cbPrefs = new SparseArray<CheckBoxPreference>();
 		pOutputsScreen = (PreferenceScreen) findPreference("outputsScreen");
 		pInformationScreen = (PreferenceScreen) findPreference("informationScreen");
 		PreferenceScreen pUpdate = (PreferenceScreen) findPreference("updateDB");

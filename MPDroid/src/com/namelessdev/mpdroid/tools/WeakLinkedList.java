@@ -113,7 +113,7 @@ public class WeakLinkedList<T> implements List<T> {
 	 */
 	public void clear() {
 		synchronized (LOCK) {
-			for (final ListIterator itr = this.listIterator(); itr.hasNext();) {
+			for (final ListIterator<?> itr = this.listIterator(); itr.hasNext();) {
 				itr.next();
 				itr.remove();
 			}
@@ -130,11 +130,11 @@ public class WeakLinkedList<T> implements List<T> {
 	/**
 	 * @see java.util.List#containsAll(java.util.Collection)
 	 */
-	public boolean containsAll(Collection c) {
+	public boolean containsAll(Collection<?> c) {
 		synchronized (LOCK) {
 			boolean foundAll = true;
 
-			for (final Iterator elementItr = c.iterator(); elementItr.hasNext() && foundAll;) {
+			for (final Iterator<?> elementItr = c.iterator(); elementItr.hasNext() && foundAll;) {
 				foundAll = this.contains(elementItr.next());
 			}
 
@@ -266,7 +266,7 @@ public class WeakLinkedList<T> implements List<T> {
 	 */
 	public boolean remove(Object o) {
 		synchronized (LOCK) {
-			for (final ListIterator itr = this.listIterator(); itr.hasNext();) {
+			for (final ListIterator<?> itr = this.listIterator(); itr.hasNext();) {
 				final Object value = itr.next();
 				if (o == value || (o != null && o.equals(value))) {
 					itr.remove();
@@ -281,11 +281,11 @@ public class WeakLinkedList<T> implements List<T> {
 	/**
 	 * @see java.util.List#removeAll(java.util.Collection)
 	 */
-	public boolean removeAll(Collection c) {
+	public boolean removeAll(Collection<?> c) {
 		synchronized (LOCK) {
 			boolean changed = false;
 
-			for (final ListIterator itr = this.listIterator(); itr.hasNext();) {
+			for (final ListIterator<?> itr = this.listIterator(); itr.hasNext();) {
 				final Object value = itr.next();
 				if (c.contains(value)) {
 					itr.remove();
@@ -300,11 +300,11 @@ public class WeakLinkedList<T> implements List<T> {
 	/**
 	 * @see java.util.List#retainAll(java.util.Collection)
 	 */
-	public boolean retainAll(Collection c) {
+	public boolean retainAll(Collection<?> c) {
 		synchronized (LOCK) {
 			boolean changed = false;
 
-			for (final ListIterator itr = this.listIterator(); itr.hasNext();) {
+			for (final ListIterator<?> itr = this.listIterator(); itr.hasNext();) {
 				final Object value = itr.next();
 				if (!c.contains(value)) {
 					itr.remove();
@@ -363,6 +363,7 @@ public class WeakLinkedList<T> implements List<T> {
 	/**
 	 * @see java.util.List#toArray(java.lang.Object[])
 	 */
+	@SuppressWarnings("unchecked")
 	public Object[] toArray(Object[] a) {
 		synchronized (LOCK) {
 			this.cleanPhantomReferences();
@@ -372,7 +373,7 @@ public class WeakLinkedList<T> implements List<T> {
 			}
 
 			int index = 0;
-			for (final ListIterator itr = this.listIterator(); itr.hasNext();) {
+			for (final ListIterator<?> itr = this.listIterator(); itr.hasNext();) {
 				final Object value = itr.next();
 				a[index] = value;
 				index++;
@@ -397,15 +398,15 @@ public class WeakLinkedList<T> implements List<T> {
 			return false;
 		}
 		else {
-			final List other = (List) obj;
+			final List<?> other = (List<?>) obj;
 
 			if (this.size() != other.size()) {
 				return false;
 			}
 			else {
 				synchronized (LOCK) {
-					final Iterator itr1 = this.iterator();
-					final Iterator itr2 = other.iterator();
+					final Iterator<?> itr1 = this.iterator();
+					final Iterator<?> itr2 = other.iterator();
 
 					while (itr1.hasNext() && itr2.hasNext()) {
 						final Object v1 = itr1.next();
@@ -429,7 +430,7 @@ public class WeakLinkedList<T> implements List<T> {
 		int hashCode = 1;
 
 		synchronized (LOCK) {
-			for (final Iterator itr = this.iterator(); itr.hasNext();) {
+			for (final Iterator<?> itr = this.iterator(); itr.hasNext();) {
 				final Object obj = itr.next();
 				hashCode = 31 * hashCode + (obj == null ? 0 : obj.hashCode());
 			}
@@ -446,7 +447,7 @@ public class WeakLinkedList<T> implements List<T> {
 
 		buff.append("[");
 		synchronized (LOCK) {
-			for (final Iterator itr = this.iterator(); itr.hasNext();) {
+			for (final Iterator<?> itr = this.iterator(); itr.hasNext();) {
 				buff.append(itr.next());
 
 				if (itr.hasNext()) {
@@ -463,6 +464,7 @@ public class WeakLinkedList<T> implements List<T> {
 	 * Checks the ReferenceQueue for nodes whos values are no long valid and
 	 * cleanly removes them from the list
 	 */
+	@SuppressWarnings("unchecked")
 	private void cleanPhantomReferences() {
 		synchronized (LOCK) {
 			WeakListNode deadNode;

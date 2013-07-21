@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.fragments;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.a0z.mpd.MPDPlaylist;
@@ -223,10 +224,10 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 						tmpAlbumArtist = "";
 					if (tmpTitle == null)
 						tmpTitle = "";
-					if (!tmpArtist.toLowerCase().contains(filter) &&
-							!tmpAlbum.toLowerCase().contains(filter) &&
-							!tmpAlbumArtist.toLowerCase().contains(filter) &&
-							!tmpTitle.toLowerCase().contains(filter)) {
+					if (!tmpArtist.toLowerCase(Locale.getDefault()).contains(filter) &&
+							!tmpAlbum.toLowerCase(Locale.getDefault()).contains(filter) &&
+							!tmpAlbumArtist.toLowerCase(Locale.getDefault()).contains(filter) &&
+							!tmpTitle.toLowerCase(Locale.getDefault()).contains(filter)) {
 						continue;
 					}
 				}

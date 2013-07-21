@@ -58,7 +58,7 @@ public class Genre extends Item implements Parcelable {
 		dest.writeString(this.sort);
 	}
 
-	public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+	public static final Parcelable.Creator<Genre> CREATOR = new Parcelable.Creator<Genre>() {
 		public Genre createFromParcel(Parcel in) {
 			return new Genre(in);
 		}

@@ -202,7 +202,7 @@ public class SongsFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onItemClick(final AdapterView adapterView, View v, final int position, long id) {
+	public void onItemClick(final AdapterView<?> adapterView, View v, final int position, long id) {
 		app.oMPDAsyncHelper.execAsync(new Runnable() {
 			@Override
 			public void run() {

@@ -147,7 +147,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 		}
 	}
 	
-	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
+	public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
 		Object selectedItem = adapterView.getAdapter().getItem(position);
 		if(selectedItem instanceof Music) {
 			add((Music) selectedItem, false, false);

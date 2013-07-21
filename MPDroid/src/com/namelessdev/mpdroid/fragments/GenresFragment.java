@@ -29,7 +29,7 @@ public class GenresFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onItemClick(AdapterView adapterView, View v, int position, long id) {
+	public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new ArtistsFragment().init((Genre) items.get(position)), "artist");
 	}
 

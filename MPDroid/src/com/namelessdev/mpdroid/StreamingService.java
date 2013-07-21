@@ -10,6 +10,7 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -159,6 +160,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
 	private static final int IDLE_DELAY = 60000;
 
+	@SuppressLint("HandlerLeak")
 	private Handler delayedStopHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -375,7 +377,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 				.setSmallIcon(R.drawable.icon)
 				.setContentIntent(PendingIntent.getActivity(this, 0,
 						new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0))
-				.getNotification();
+					.build();
 			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_STOPPED, status);
 		}
 		isServiceRunning = false;
@@ -533,7 +535,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 							setMusicCover(null);
 						}
 
-						status = notificationBuilder.getNotification();
+						status = notificationBuilder.build();
 
 						startForeground(STREAMINGSERVICE_STATUS, status);
 					}
