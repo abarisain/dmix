@@ -89,7 +89,8 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 		final ViewTreeObserver vto = coverArt.getViewTreeObserver();
 		vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
 			public boolean onPreDraw() {
-				coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
+				if (coverHelper != null)
+					coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
 				return true;
 			}
 		});
