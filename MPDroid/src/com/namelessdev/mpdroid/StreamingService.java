@@ -211,6 +211,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
 	}
 
