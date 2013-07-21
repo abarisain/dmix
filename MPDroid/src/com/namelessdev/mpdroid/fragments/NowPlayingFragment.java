@@ -53,12 +53,13 @@ import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener,
 		OnSharedPreferenceChangeListener, OnItemClickListener {
-	
+
 	public static final String PREFS_NAME = "mpdroid.properties";
-	
+
 	private static final int POPUP_ARTIST = 0;
 	private static final int POPUP_ALBUM = 1;
 	private static final int POPUP_FOLDER = 2;
@@ -68,11 +69,11 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private TextView artistNameText;
 	private TextView songNameText;
 	private TextView albumNameText;
-	private ImageButton shuffleButton=null;
-	private ImageButton repeatButton=null;
+	private ImageButton shuffleButton = null;
+	private ImageButton repeatButton = null;
 	private ImageButton stopButton = null;
-	private boolean shuffleCurrent=false;
-	private boolean repeatCurrent=false;
+	private boolean shuffleCurrent = false;
+	private boolean repeatCurrent = false;
 
 	public static final int ALBUMS = 4;
 
@@ -112,13 +113,14 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	private Timer posTimer = null;
 	private TimerTask posTimerTask = null;
+	private MPDApplication app;
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
-		default:
-			break;
+			default:
+				break;
 		}
 
 	}
@@ -126,6 +128,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+		app = (MPDApplication) getActivity().getApplication();
 		handler = new Handler();
 		setHasOptionsMenu(false);
 		getActivity().setTitle(getResources().getString(R.string.nowPlaying));
@@ -135,7 +138,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void onStart() {
 		super.onStart();
-		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addTrackPositionListener(this);
 		app.setActivity(this);
@@ -165,9 +167,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		}
 		updateStatus(null);
 
-		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {
@@ -188,7 +189,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		View view = inflater.inflate(app.isTabletUiEnabled() ? R.layout.main_fragment_tablet : R.layout.main_fragment, container, false);
 
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -238,21 +238,21 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		button = (ImageButton) view.findViewById(R.id.playpause);
 		button.setOnClickListener(buttonEventHandler);
 		button.setOnLongClickListener(buttonEventHandler);
-		
+
 		stopButton = (ImageButton) view.findViewById(R.id.stop);
 		stopButton.setOnClickListener(buttonEventHandler);
 		stopButton.setOnLongClickListener(buttonEventHandler);
 		applyStopButtonVisibility(settings);
 
-		if (null!=shuffleButton) {
+		if (null != shuffleButton) {
 			shuffleButton.setOnClickListener(buttonEventHandler);
 		}
-		if (null!=repeatButton) {
+		if (null != repeatButton) {
 			repeatButton.setOnClickListener(buttonEventHandler);
 		}
 
 		final View songInfo = view.findViewById(R.id.songInfo);
-		if(songInfo != null) {
+		if (songInfo != null) {
 			songInfo.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -292,7 +292,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				volTimerTask = new TimerTask() {
 					public void run() {
-						final MPDApplication app = (MPDApplication) getActivity().getApplication();
 						if (lastSentVol != progress.getProgress()) {
 							lastSentVol = progress.getProgress();
 							new Thread(new Runnable() {
@@ -338,8 +337,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			}
 
 			public void onStopTrackingTouch(final SeekBar seekBar) {
-
-				final MPDApplication app = (MPDApplication) getActivity().getApplication();
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -362,120 +359,118 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private class ButtonEventHandler implements Button.OnClickListener, Button.OnLongClickListener {
 
 		public void onClick(View v) {
-			final MPDApplication app = (MPDApplication) getActivity().getApplication();
 			final MPD mpd = app.oMPDAsyncHelper.oMPD;
 			Intent i = null;
 
 			switch (v.getId()) {
-			case R.id.stop:
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							mpd.stop();
-						} catch (MPDServerException e) {
-							Log.w(MPDApplication.TAG, e.getMessage());
-						}
-					}
-				}).start();
-				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
-					i = new Intent(app, StreamingService.class);
-					i.setAction("com.namelessdev.mpdroid.DIE");
-					getActivity().startService(i);
-					((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode = false;
-				}
-				break;
-			case R.id.next:
-				new Thread(new Runnable() {					
-					@Override
-					public void run() {
-						try {
-							mpd.next();
-						} catch (MPDServerException e) {
-							Log.w(MPDApplication.TAG, e.getMessage());
-						}
-					}
-				}).start();
-				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
-					i = new Intent(app, StreamingService.class);
-					i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-					getActivity().startService(i);
-				}
-				break;
-			case R.id.prev:
-				new Thread(new Runnable() {					
-					@Override
-					public void run() {
-						try {
-							mpd.previous();
-						} catch (MPDServerException e) {
-							Log.w(MPDApplication.TAG, e.getMessage());
-						}
-					}
-				}).start();
-						
-				if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
-					i = new Intent(app, StreamingService.class);
-					i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-					getActivity().startService(i);
-				}
-				break;
-			case R.id.playpause:
-				/**
-				 * If playing or paused, just toggle state, otherwise start playing.
-				 * 
-				 * @author slubman
-				 */
-				new Thread(new Runnable() {					
-					@Override
-					public void run() {
-						String state;
-						try {
-							state = mpd.getStatus().getState();
-							if (state.equals(MPDStatus.MPD_STATE_PLAYING) || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-								mpd.pause();
-							} else {
-								mpd.play();
+				case R.id.stop:
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								mpd.stop();
+							} catch (MPDServerException e) {
+								Log.w(MPDApplication.TAG, e.getMessage());
 							}
-						} catch (MPDServerException e) {
-							Log.w(MPDApplication.TAG, e.getMessage());
 						}
+					}).start();
+					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+						i = new Intent(app, StreamingService.class);
+						i.setAction("com.namelessdev.mpdroid.DIE");
+						getActivity().startService(i);
+						((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode = false;
 					}
-				}).start();
-				break;
-            case R.id.shuffle:
-                try {
-					mpd.setRandom(!mpd.getStatus().isRandom());
-				} catch (MPDServerException e) {
-				}
-                break;
-            case R.id.repeat:
-                try {
-					mpd.setRepeat(!mpd.getStatus().isRepeat());
-				} catch (MPDServerException e) {
-				}
-                break;
+					break;
+				case R.id.next:
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								mpd.next();
+							} catch (MPDServerException e) {
+								Log.w(MPDApplication.TAG, e.getMessage());
+							}
+						}
+					}).start();
+					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+						i = new Intent(app, StreamingService.class);
+						i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
+						getActivity().startService(i);
+					}
+					break;
+				case R.id.prev:
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								mpd.previous();
+							} catch (MPDServerException e) {
+								Log.w(MPDApplication.TAG, e.getMessage());
+							}
+						}
+					}).start();
+
+					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+						i = new Intent(app, StreamingService.class);
+						i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
+						getActivity().startService(i);
+					}
+					break;
+				case R.id.playpause:
+					/**
+					 * If playing or paused, just toggle state, otherwise start playing.
+					 * 
+					 * @author slubman
+					 */
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							String state;
+							try {
+								state = mpd.getStatus().getState();
+								if (state.equals(MPDStatus.MPD_STATE_PLAYING) || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
+									mpd.pause();
+								} else {
+									mpd.play();
+								}
+							} catch (MPDServerException e) {
+								Log.w(MPDApplication.TAG, e.getMessage());
+							}
+						}
+					}).start();
+					break;
+				case R.id.shuffle:
+					try {
+						mpd.setRandom(!mpd.getStatus().isRandom());
+					} catch (MPDServerException e) {
+					}
+					break;
+				case R.id.repeat:
+					try {
+						mpd.setRepeat(!mpd.getStatus().isRepeat());
+					} catch (MPDServerException e) {
+					}
+					break;
 
 			}
 		}
 
 		public boolean onLongClick(View v) {
-			MPDApplication app = (MPDApplication) getActivity().getApplication();
 			MPD mpd = app.oMPDAsyncHelper.oMPD;
 			try {
 				switch (v.getId()) {
-				case R.id.playpause:
-					// Implements the ability to stop playing (may be useful for streams)
-					mpd.stop();
-					Intent i;
-					if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
-						i = new Intent(app, StreamingService.class);
-						i.setAction("com.namelessdev.mpdroid.STOP_STREAMING");
-						getActivity().startService(i);
-					}
-					break;
-				default:
-					return false;
+					case R.id.playpause:
+						// Implements the ability to stop playing (may be useful for streams)
+						mpd.stop();
+						Intent i;
+						if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+							i = new Intent(app, StreamingService.class);
+							i.setAction("com.namelessdev.mpdroid.STOP_STREAMING");
+							getActivity().startService(i);
+						}
+						break;
+					default:
+						return false;
 				}
 				return true;
 			} catch (MPDServerException e) {
@@ -488,22 +483,24 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	private class PosTimerTask extends TimerTask {
 		Date date = new Date();
-		long start=0;
-		long ellapsed=0;
+		long start = 0;
+		long ellapsed = 0;
+
 		public PosTimerTask(long start) {
-			this.start=start;
+			this.start = start;
 		}
+
 		@Override
 		public void run() {
-			Date now=new Date();
-			ellapsed=start+((now.getTime()-date.getTime())/1000);
-			progressBarTrack.setProgress((int)ellapsed);
+			Date now = new Date();
+			ellapsed = start + ((now.getTime() - date.getTime()) / 1000);
+			progressBarTrack.setProgress((int) ellapsed);
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-			    	 trackTime.setText(timeToString(ellapsed));
-			    	 trackTotalTime.setText(timeToString(lastSongTime));
-			    }
+					trackTime.setText(timeToString(ellapsed));
+					trackTotalTime.setText(timeToString(lastSongTime));
+				}
 			});
 			lastElapsedTime = ellapsed;
 		}
@@ -517,9 +514,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	private void stopPosTimer() {
-		if (null!=posTimer) {
+		if (null != posTimer) {
 			posTimer.cancel();
-			posTimer=null;
+			posTimer = null;
 		}
 	}
 
@@ -541,7 +538,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		@Override
 		protected Boolean doInBackground(MPDStatus... params) {
 			if (params == null) {
-				MPDApplication app = (MPDApplication) getActivity().getApplication();
 				try {
 					// A recursive call doesn't seem that bad here.
 					return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
@@ -555,7 +551,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				if (state != null) {
 					int songPos = params[0].getSongPos();
 					if (songPos >= 0) {
-						MPDApplication app = (MPDApplication) getActivity().getApplication();
 						actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
 						status = params[0];
 						return true;
@@ -574,11 +569,11 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				String path = null;
 				String filename = null;
 				int songMax = 0;
-				boolean noSong=actSong == null || status.getPlaylistLength() == 0;
+				boolean noSong = actSong == null || status.getPlaylistLength() == 0;
 				if (noSong) {
 					currentSong = null;
 					title = getResources().getString(R.string.noSongInfo);
-				} else if (actSong.isStream()){
+				} else if (actSong.isStream()) {
 					currentSong = actSong;
 					Log.d("MPDroid", "Playing a stream");
 					if (actSong.haveTitle()) {
@@ -649,7 +644,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void onStop() {
 		super.onStop();
-		MPDApplication app = (MPDApplication) getActivity().getApplicationContext();
 		app.oMPDAsyncHelper.removeStatusChangeListener(this);
 		app.oMPDAsyncHelper.removeTrackPositionListener(this);
 		stopPosTimer();
@@ -669,8 +663,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	private static String timeToString(long seconds) {
-		if (seconds<0) {
-			seconds=0;
+		if (seconds < 0) {
+			seconds = 0;
 		}
 
 		long hours = seconds / 3600;
@@ -689,7 +683,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		if (key.equals(CoverAsyncHelper.PREFERENCE_CACHE) || key.equals(CoverAsyncHelper.PREFERENCE_LASTFM)
 				|| key.equals(CoverAsyncHelper.PREFERENCE_LOCALSERVER)) {
 			oCoverAsyncHelper.setCoverRetrieversFromPreferences();
-		} else if(key.equals("enableStopButton")) {
+		} else if (key.equals("enableStopButton")) {
 			applyStopButtonVisibility(sharedPreferences);
 		}
 	}
@@ -725,7 +719,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private void updateStatus(MPDStatus status) {
 		if (getActivity() == null)
 			return;
-		final MPDApplication app = (MPDApplication) getActivity().getApplication();
 		if (status == null) {
 			status = app.getApplicationState().currentMpdStatus;
 			if (status == null)
@@ -736,7 +729,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		lastElapsedTime = status.getElapsedTime();
 		lastSongTime = status.getTotalTime();
 		trackTime.setText(timeToString(lastElapsedTime));
-   	 	trackTotalTime.setText(timeToString(lastSongTime));
+		trackTotalTime.setText(timeToString(lastSongTime));
 		progressBarTrack.setProgress((int) status.getElapsedTime());
 		if (status.getState() != null) {
 
@@ -750,8 +743,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
 			}
 		}
-        setShuffleButton(status.isRandom());
-        setRepeatButton(status.isRepeat());
+		setShuffleButton(status.isRandom());
+		setRepeatButton(status.isRepeat());
 	}
 
 	@Override
@@ -782,28 +775,28 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void libraryStateChanged(boolean updating) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void setShuffleButton(boolean on) {
-		if (null!=shuffleButton && shuffleCurrent!=on) {
+		if (null != shuffleButton && shuffleCurrent != on) {
 			int[] attrs = new int[] { on ? R.attr.shuffleEnabled : R.attr.shuffleDisabled };
 			final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
 			final Drawable drawableFromTheme = ta.getDrawable(0);
 			shuffleButton.setImageDrawable(drawableFromTheme);
 			shuffleButton.invalidate();
-			shuffleCurrent=on;
+			shuffleCurrent = on;
 		}
 	}
 
 	private void setRepeatButton(boolean on) {
-		if (null!=repeatButton && repeatCurrent!=on) {
+		if (null != repeatButton && repeatCurrent != on) {
 			int[] attrs = new int[] { on ? R.attr.repeatEnabled : R.attr.repeatDisabled };
 			final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
 			final Drawable drawableFromTheme = ta.getDrawable(0);
 			repeatButton.setImageDrawable(drawableFromTheme);
 			repeatButton.invalidate();
-			repeatCurrent=on;
+			repeatCurrent = on;
 		}
 	}
 
@@ -817,12 +810,16 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		switch(action) {
 			case POPUP_ALBUM:
 				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-				intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
+				intent.putExtra("artist", new Artist(
+						(MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
+								: currentSong.getArtist(), 0));
 				startActivityForResult(intent, -1);
 				break;
 			case POPUP_ARTIST:
 				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-				intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
+				intent.putExtra("artist", new Artist(
+						(MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
+								: currentSong.getArtist(), 0));
 				intent.putExtra("album", new Album(currentSong.getAlbum()));
 				startActivityForResult(intent, -1);
 				break;
