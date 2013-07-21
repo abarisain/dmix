@@ -9,7 +9,6 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -116,22 +115,6 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		android.view.MenuInflater inflater = getActivity().getMenuInflater();
-		inflater.inflate(R.menu.mpd_browsermenu, menu);
-
-		//AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		// arrayListId = info.position;
-		menu.setHeaderTitle(playlistName);
-	}
-
-	@Override
-	public boolean onContextItemSelected(android.view.MenuItem item) {
-		return false;
 	}
 
 	/*

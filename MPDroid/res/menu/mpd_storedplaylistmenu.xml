@@ -7,10 +7,11 @@
         android:showAsAction="always"
         android:title="@string/editPlaylist" android:orderInCategory="1">
     </item>
-    <item
+    <!-- <item
         android:id="@+id/PLM_Clear"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@string/clear">
     </item>
+    -->
 
 </menu>
