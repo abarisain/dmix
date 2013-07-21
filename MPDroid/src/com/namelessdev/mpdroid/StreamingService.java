@@ -73,7 +73,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	public static final String CMD_PREV = "PREV";
 	public static final String CMD_NEXT = "NEXT";
 	public static final String CMD_DIE = "DIE"; // Just in case
-	public static Boolean isServiceRunning = false;
+	public static boolean isServiceRunning = false;
 
 	
     /**
@@ -146,9 +146,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
 	private String streamSource;
 	private Boolean buffering;
 	private String oldStatus;
-	private Boolean isPlaying;
-	private Boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
-	private Boolean needStoppedNotification;
+	private boolean isPlaying;
+	private boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
+	private boolean needStoppedNotification;
 	private Integer lastStartID;
 	//private Integer mediaPlayerError;
 
@@ -380,7 +380,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		setMusicState(PLAYSTATE_STOPPED);
 		unregisterMediaButtonEvent();
 		unregisterRemoteControlClient();
-		audioManager.abandonAudioFocus(this);
+		if (audioManager != null)
+			audioManager.abandonAudioFocus(this);
 		if (mediaPlayer != null) {
 			mediaPlayer.stop();
 			mediaPlayer.release();
