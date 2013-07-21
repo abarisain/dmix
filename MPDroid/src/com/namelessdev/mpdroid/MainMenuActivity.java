@@ -61,13 +61,14 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private int backPressExitCount;
     private Handler exitCounterReset;
 	private boolean isDualPaneMode;
+	private MPDApplication app;
 
 	@SuppressLint("NewApi")
 	@TargetApi(11)
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		final MPDApplication app = (MPDApplication) getApplication();
+		app = (MPDApplication) getApplication();
 		setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_tablet : R.layout.main_activity);
         
 		isDualPaneMode = (findViewById(R.id.playlist_fragment) != null);
@@ -370,14 +371,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
 			// For onKeyLongPress to work
 			event.startTracking();
-			return true;
+			return !app.getApplicationState().streamingMode;
 		}
 		return super.onKeyDown(keyCode, event);
 	}
 
 	@Override
 	public boolean onKeyUp(int keyCode, final KeyEvent event) {
-		final MPDApplication app = (MPDApplication) getApplicationContext();
 		switch (event.getKeyCode()) {
 		case KeyEvent.KEYCODE_VOLUME_UP:
 		case KeyEvent.KEYCODE_VOLUME_DOWN:

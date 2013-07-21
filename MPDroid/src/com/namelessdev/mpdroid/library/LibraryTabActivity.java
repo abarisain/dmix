@@ -35,6 +35,7 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
     
 	ActionBar actionBar;
 	ArrayList<String> mTabList;
+	private MPDApplication app;
 
 
 	@Override
@@ -42,6 +43,8 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
         super.onCreate(savedInstanceState);
         setContentView(R.layout.library_tabs);
         
+		app = (MPDApplication) getApplicationContext();
+
 		final FragmentManager fm = getSupportFragmentManager();
 
         // Get the list of the currently visible tabs
@@ -212,14 +215,13 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
 			// For onKeyLongPress to work
 			event.startTracking();
-			return true;
+			return !app.getApplicationState().streamingMode;
 		}
 		return super.onKeyDown(keyCode, event);
 	}
 
 	@Override
 	public boolean onKeyUp(int keyCode, final KeyEvent event) {
-		final MPDApplication app = (MPDApplication) getApplicationContext();
 		switch (event.getKeyCode()) {
 		case KeyEvent.KEYCODE_VOLUME_UP:
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
