@@ -8,7 +8,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -28,7 +27,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
-import com.namelessdev.mpdroid.fragments.PlaylistFragmentCompat;
 import com.namelessdev.mpdroid.library.LibraryTabActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -102,12 +100,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         actionBarAdapter.add(getString(R.string.nowPlaying));
         actionBarAdapter.add(getString(R.string.playQueue));
         
-        if(Build.VERSION.SDK_INT >= 14) {
-        	//Bug on ICS with sherlock's layout
-        	actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        } else {
-        	actionBarAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
-        }
+		actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
         // Set up the ViewPager with the sections adapter.
@@ -202,11 +195,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 					fragment = new NowPlayingFragment();
 					break;
 				case 1:
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-						fragment = new PlaylistFragment();
-					} else {
-						fragment = new PlaylistFragmentCompat();
-					}
+					fragment = new PlaylistFragment();
 					break;
             }
             return fragment;

@@ -117,7 +117,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		if(items != null) {
-			((ListView) list).setAdapter(getCustomListAdapter());
+			list.setAdapter(getCustomListAdapter());
 		}
 	}
 
@@ -143,13 +143,13 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	public int getLoadingText() {
 		return R.string.loading;
 	}
-	
+
 	public void setActivityTitle(String title) {
 		getActivity().setTitle(title);
 	}
 
 	public void UpdateList() {
-		((ListView) list).setAdapter(null);
+		list.setAdapter(null);
 		noResultView.setVisibility(View.GONE);
 		loadingView.setVisibility(View.VISIBLE);
 
@@ -289,7 +289,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 			return;
 		}
 		if (items != null) {
-			((ListView) list).setAdapter(getCustomListAdapter());
+			list.setAdapter(getCustomListAdapter());
 			try {
 				if (forceEmptyView() || ((list instanceof ListView) && ((ListView) list).getHeaderViewsCount() == 0))
 					list.setEmptyView(noResultView);

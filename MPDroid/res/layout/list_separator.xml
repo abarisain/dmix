@@ -8,9 +8,22 @@
   android:focusable="false" >
     <TextView
     	android:id="@+id/separator_title"
+    	android:textColor="@android:color/holo_blue_light"
 		android:layout_height="match_parent"
     	android:layout_width="match_parent"
-    	style="?android:attr/listSeparatorTextViewStyle"
+    	android:layout_marginTop="4dip"
+    	android:paddingLeft="10dip"
+    	android:gravity="center_vertical"
+   	/>
+    <View
+    	android:id="@+id/separator_line"
+    	android:background="@android:color/holo_blue_light"
+		android:layout_height="1dip"
+    	android:layout_width="match_parent"
+    	android:layout_marginTop="4dip"
+    	android:layout_marginBottom="0dip"
+    	android:layout_marginLeft="0dip"
+    	android:layout_marginRight="0dip"
    	/>
     
 </LinearLayout>
