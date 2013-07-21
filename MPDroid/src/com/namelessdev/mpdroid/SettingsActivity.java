@@ -28,6 +28,7 @@ import android.view.MenuItem;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
 
+@SuppressWarnings("deprecation")
 public class SettingsActivity extends PreferenceActivity implements
 		StatusChangeListener {
 
@@ -36,7 +37,6 @@ public class SettingsActivity extends PreferenceActivity implements
 	public static final String OPEN_OUTPUT = "open_output";
 
 	private OnPreferenceClickListener onPreferenceClickListener;
-	private OnPreferenceClickListener onCheckPreferenceClickListener;
 	private HashMap<Integer, CheckBoxPreference> cbPrefs;
 
 	private PreferenceScreen pOutputsScreen;
@@ -55,7 +55,6 @@ public class SettingsActivity extends PreferenceActivity implements
 		// Log.i("MPDroid", "onCreate");
 
 		onPreferenceClickListener = new OutputPreferenceClickListener();
-		onCheckPreferenceClickListener = new CheckPreferenceClickListener();
 		cbPrefs = new HashMap<Integer, CheckBoxPreference>();
 		pOutputsScreen = (PreferenceScreen) findPreference("outputsScreen");
 		pInformationScreen = (PreferenceScreen) findPreference("informationScreen");
@@ -128,10 +127,6 @@ public class SettingsActivity extends PreferenceActivity implements
 			@Override
 			public void run() {
 				try {
-					final boolean isRandom = app.oMPDAsyncHelper.oMPD
-							.getStatus().isRandom();
-					final boolean isRepeat = app.oMPDAsyncHelper.oMPD
-							.getStatus().isRepeat();
 					final String version = app.oMPDAsyncHelper.oMPD
 							.getMpdVersion();
 					final String artists = ""

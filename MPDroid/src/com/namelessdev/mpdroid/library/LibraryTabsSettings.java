@@ -2,22 +2,20 @@ package com.namelessdev.mpdroid.library;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.view.View;
 import android.widget.ListView;
-import android.content.Context;
 import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.R.id;
-import com.namelessdev.mpdroid.R.layout;
-import com.namelessdev.mpdroid.R.string;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
-import com.namelessdev.mpdroid.views.TouchInterceptor;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
+import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 class TabItem {
 	String text;

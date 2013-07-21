@@ -37,13 +37,14 @@ public class Music extends Item implements FilesystemTreeEntry {
 
 	private long time = -1;
 
+	@SuppressWarnings("unused")
+	private Directory parent;
+
 	private String title;
 
 	private int totalTracks = -1;
 
 	private int track = -1;
-
-	private Directory parent;
 
 	private int songId = -1;
 

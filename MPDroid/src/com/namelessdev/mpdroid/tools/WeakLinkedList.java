@@ -631,10 +631,6 @@ public class WeakLinkedList<T> implements List<T> {
 		private int index;
 		private byte lastDirection;
 
-		public DurableListIterator() {
-			this(0);
-		}
-
 		public DurableListIterator(final int initialIndex) {
 			synchronized (LOCK) {
 				this.expectedModCount = WeakLinkedList.this.modcount;

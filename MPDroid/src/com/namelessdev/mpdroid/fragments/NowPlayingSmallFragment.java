@@ -47,8 +47,6 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 	private String lastArtist = "";
 	private String lastAlbum = "";
 
-	private static final int FALLBACK_COVER_SIZE = 48; // In DIP
-
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);

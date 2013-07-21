@@ -39,7 +39,6 @@ import com.namelessdev.mpdroid.views.SongDataBinder;
 
 public class SongsFragment extends BrowseFragment {
 
-	private static final int FALLBACK_COVER_SIZE = 80; // In DIP
 	private static final String EXTRA_ARTIST = "artist";
 	private static final String EXTRA_ALBUM = "album";
 

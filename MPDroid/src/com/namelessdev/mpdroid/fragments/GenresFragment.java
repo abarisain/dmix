@@ -5,9 +5,7 @@ import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.os.Bundle;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.AdapterView;
 
 import com.namelessdev.mpdroid.R;

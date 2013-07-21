@@ -11,7 +11,6 @@ public class MPDCommand {
 	public static final String MPD_CMD_FIND = "find";
 	public static final String MPD_CMD_KILL = "kill";
 	public static final String MPD_CMD_LIST_TAG = "list";
-	@SuppressWarnings("unused")
 	public static final String MPD_CMD_LISTALL = "listall";
 	public static final String MPD_CMD_LISTPLAYLISTS = "listplaylists";
 	public static final String MPD_CMD_LSDIR = "lsinfo";
@@ -43,7 +42,6 @@ public class MPDCommand {
 	
 	public static final String MPD_CMD_IDLE="idle";
 	// deprecated commands
-	@SuppressWarnings("unused")
 	public static final String MPD_CMD_VOLUME = "volume";
 
 	/**
