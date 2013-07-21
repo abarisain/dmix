@@ -1,43 +1,38 @@
 package com.namelessdev.mpdroid.fragments;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import org.a0z.mpd.Item;
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.widget.AdapterView;
+import android.widget.ListAdapter;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.library.LibraryTabActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.StoredPlaylistDataBinder;
 
-public class StoredPlaylistFragment extends SherlockListFragment {
+public class StoredPlaylistFragment extends BrowseFragment {
 	private static final String EXTRA_PLAYLIST_NAME = "playlist";
-
-	private ArrayList<HashMap<String, Object>> songlist;
-	private List<Music> musics;
 
 	private String playlistName;
 	private MPDApplication app;
 
 	public StoredPlaylistFragment() {
-		super();
+		super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
 		setHasOptionsMenu(true);
 	}
-	
+
 	public StoredPlaylistFragment init(String name) {
 		playlistName = name;
 		return this;
@@ -48,6 +43,16 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 		super.onCreate(icicle);
 		if (icicle != null)
 			init(icicle.getString(EXTRA_PLAYLIST_NAME));
+	}
+
+	@Override
+	public String getTitle() {
+		return playlistName;
+	}
+
+	@Override
+	public int getLoadingText() {
+		return R.string.loadingSongs;
 	}
 
 	@Override
@@ -72,49 +77,14 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.simple_list, container, false);
-		registerForContextMenu((ListView) view.findViewById(android.R.id.list));
-		return view;
-	}
-	
-	protected void update() {
+	public void asyncUpdate() {
 		try {
-			musics = app.oMPDAsyncHelper.oMPD.getPlaylistSongs(playlistName);
-			songlist = new ArrayList<HashMap<String, Object>>();
-			for (Music m : musics) {
-				if (m == null) {
-					continue;
-				}
-				HashMap<String, Object> item = new HashMap<String, Object>();
-				item.put("songid", m.getSongId());
-				item.put("artist", m.getArtist());
-				item.put("title", m.getTitle());
-				item.put("play", 0);
-				songlist.add(item);
-			}
-			SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item,
-					new String[] { "play", "title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
-
-			setListAdapter(songs);
+			if (getActivity() == null)
+				return;
+			items = app.oMPDAsyncHelper.oMPD.getPlaylistSongs(playlistName);
 		} catch (MPDServerException e) {
+			e.printStackTrace();
 		}
-
-	}
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		update();
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
 	}
 
 	/*
@@ -133,21 +103,59 @@ public class StoredPlaylistFragment extends SherlockListFragment {
 		// Menu actions...
 		Intent i;
 		switch (item.getItemId()) {
-		case R.id.PLM_EditPL:
-			i = new Intent(getActivity(), PlaylistEditActivity.class);
-			i.putExtra("playlist", playlistName);
-			startActivity(i);
-			return true;
-		case R.id.GMM_LibTab:
-			i = new Intent(getActivity(), LibraryTabActivity.class);
-			startActivity(i);
-		default:
-			return false;
+			case R.id.PLM_EditPL:
+				i = new Intent(getActivity(), PlaylistEditActivity.class);
+				i.putExtra("playlist", playlistName);
+				startActivity(i);
+				return true;
+			case R.id.GMM_LibTab:
+				i = new Intent(getActivity(), LibraryTabActivity.class);
+				startActivity(i);
+			default:
+				return false;
 		}
 
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onItemClick(final AdapterView adapterView, View v, final int position, long id) {
+		app.oMPDAsyncHelper.execAsync(new Runnable() {
+			@Override
+			public void run() {
+				add((Item) adapterView.getAdapter().getItem(position), false, false);
+			}
+		});
+	}
+
+	@Override
+	protected void add(Item item, boolean replace, boolean play) {
+		Music music = (Music) item;
+		try {
+			app.oMPDAsyncHelper.oMPD.add(music, replace, play);
+			Tools.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()),
+					getActivity());
+		} catch (MPDServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	protected void add(Item item, String playlist) {
+		try {
+			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
+			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+		} catch (MPDServerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	protected ListAdapter getCustomListAdapter() {
+		if (items != null) {
+			return new ArrayIndexerAdapter(getActivity(),
+					new StoredPlaylistDataBinder(app, app.isLightThemeSelected()), items);
+		}
+		return super.getCustomListAdapter();
 	}
 }
