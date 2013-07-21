@@ -17,12 +17,12 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -117,7 +117,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		if(items != null) {
-			list.setAdapter(getCustomListAdapter());
+			((ListView) list).setAdapter(getCustomListAdapter());
 		}
 	}
 
@@ -149,7 +149,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	}
 
 	public void UpdateList() {
-		list.setAdapter(null);
+		((ListView) list).setAdapter(null);
 		noResultView.setVisibility(View.GONE);
 		loadingView.setVisibility(View.VISIBLE);
 
@@ -289,7 +289,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 			return;
 		}
 		if (items != null) {
-			list.setAdapter(getCustomListAdapter());
+			((ListView) list).setAdapter(getCustomListAdapter());
 			try {
 				if (forceEmptyView() || ((list instanceof ListView) && ((ListView) list).getHeaderViewsCount() == 0))
 					list.setEmptyView(noResultView);
