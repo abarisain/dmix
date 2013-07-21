@@ -126,7 +126,7 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 
 			getActivity().runOnUiThread(new Runnable() {
 				public void run() {
-					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item, new String[] { "play",
+					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item_compat, new String[] { "play",
 							"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
 					setListAdapter(songs);
