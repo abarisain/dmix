@@ -15,46 +15,36 @@ import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
-import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
-public class AlbumDataBinder implements ArrayIndexerDataBinder {
+public class AlbumDataBinder extends BaseDataBinder {
 	String artist = null;
-	MPDApplication app = null;
-	boolean lightTheme = false;
-	boolean enableCache = true;
-	boolean onlyDownloadOnWifi = true;
 
 	public AlbumDataBinder(MPDApplication app, String artist, boolean isLightTheme) {
-		this.app = app;
+		super(app, isLightTheme);
 		this.artist = artist;
-		this.lightTheme = isLightTheme;
-
-		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-
-		enableCache = settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true);
-		onlyDownloadOnWifi = settings.getBoolean(CoverAsyncHelper.PREFERENCE_ONLY_WIFI, false);
 	}
 
-	public void onDataBind(final Context context, final View targetView, final AbstractViewHolder viewHolder, List<? extends Item> items, Object item, int position) {
+	public void onDataBind(final Context context, final View targetView, final AbstractViewHolder viewHolder, List<? extends Item> items,
+			Object item, int position) {
 		AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
 
 		final Album album = (Album) item;
 		String info = "";
 		final long songCount = album.getSongCount();
-		if(album.getYear() > 0)
+		if (album.getYear() > 0)
 			info = Long.toString(album.getYear());
-		if(songCount > 0) {
-			if(info != null && info.length() > 0)
+		if (songCount > 0) {
+			if (info != null && info.length() > 0)
 				info += " - ";
-			info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader), songCount, Music.timeToString(album.getDuration()));
+			info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader),
+					songCount, Music.timeToString(album.getDuration()));
 		}
 		holder.albumName.setText(album.getName());
-		if(info != null && info.length() > 0) {
+		if (info != null && info.length() > 0) {
 			holder.albumInfo.setVisibility(View.VISIBLE);
 			holder.albumInfo.setText(info);
 		} else {
@@ -69,7 +59,7 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 		coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
 
 		loadPlaceholder(coverHelper);
-		
+
 		// display cover art in album listing if caching is on
 		if (this.artist != null && enableCache) {
 			// listen for new artwork to be loaded
@@ -82,37 +72,6 @@ public class AlbumDataBinder implements ArrayIndexerDataBinder {
 			coverHelper.addCoverDownloadListener(acd);
 
 			loadArtwork(coverHelper, artist, album.getName());
-		}
-	}
-
-	protected void loadPlaceholder(CoverAsyncHelper coverHelper) {
-		coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVERNOTFOUND).sendToTarget();
-	}
-
-	protected void loadArtwork(CoverAsyncHelper coverHelper, String artist, String album) {
-		boolean haveCachedArtwork = false;
-
-		if (enableCache) {
-			try {
-				CachedCover cachedCover = new CachedCover(app);
-				final String[] urls = cachedCover.getCoverUrl(artist, album, null, null);
-				if ((urls != null) && (urls.length > 0)) {
-					haveCachedArtwork = true;
-				}
-			} catch (Exception e) {
-				// no cached artwork available
-			}
-		}
-
-		// Did we find a cached cover ? If yes, skip the download
-		// Only continue if we are not on WiFi and Cellular download is enabled
-		if (!haveCachedArtwork) {
-			// If we are not on WiFi and Cellular download is enabled
-			if (coverHelper.isWifi() || !onlyDownloadOnWifi) {
-				coverHelper.downloadCover(null, album, null, null);
-			}
-		} else {
-			coverHelper.downloadCover(artist, album, null, null);
 		}
 	}
 
