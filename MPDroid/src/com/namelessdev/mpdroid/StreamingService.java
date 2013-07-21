@@ -513,27 +513,24 @@ public class StreamingService extends Service implements StatusChangeListener, O
 							}
 						}
 
-						// Dont make not compatible devices decode the bitmap for nothing
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-							// Check if we have a sdcard cover cache for this song
-							// Maybe find a more efficient way
-							final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-							if (settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
-								final CachedCover cache = new CachedCover(app);
-								final String[] coverArtPath = cache.getCoverUrl(actSong.getArtist(), actSong.getAlbum(), actSong.getPath(),
-										actSong.getFilename());
-								if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
-									notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
-											.getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
-											.getDimensionPixelSize(android.R.dimen.notification_large_icon_height), true));
-									setMusicCover(Tools.decodeSampledBitmapFromPath(coverArtPath[0],
-											(int) Tools.convertDpToPixel(200, this), (int) Tools.convertDpToPixel(200, this), false));
-								} else {
-									setMusicCover(null);
-								}
+						// Check if we have a sdcard cover cache for this song
+						// Maybe find a more efficient way
+						final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+						if (settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
+							final CachedCover cache = new CachedCover(app);
+							final String[] coverArtPath = cache.getCoverUrl(actSong.getArtist(), actSong.getAlbum(), actSong.getPath(),
+									actSong.getFilename());
+							if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
+								notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
+										.getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
+										.getDimensionPixelSize(android.R.dimen.notification_large_icon_height), true));
+								setMusicCover(Tools.decodeSampledBitmapFromPath(coverArtPath[0],
+										(int) Tools.convertDpToPixel(200, this), (int) Tools.convertDpToPixel(200, this), false));
 							} else {
 								setMusicCover(null);
 							}
+						} else {
+							setMusicCover(null);
 						}
 
 						status = notificationBuilder.getNotification();

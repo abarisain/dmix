@@ -12,7 +12,6 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.CheckBoxPreference;
@@ -22,10 +21,10 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.text.format.Formatter;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
 
@@ -74,12 +73,6 @@ public class SettingsActivity extends PreferenceActivity implements
 		 * wifiConnection.setOrder(0);
 		 * pConnectionScreen.addPreference(wifiConnection);
 		 */
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final PreferenceCategory interfaceCategory = (PreferenceCategory) findPreference("category_interface");
-			interfaceCategory.removePreference(findPreference("lightTheme"));
-			interfaceCategory.removePreference(findPreference("lightNowPlayingTheme"));
-		}
 
 		if (!getResources().getBoolean(R.bool.isTablet)) {
 			final PreferenceCategory interfaceCategory = (PreferenceCategory) findPreference("category_interface");

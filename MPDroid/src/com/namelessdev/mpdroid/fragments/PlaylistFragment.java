@@ -11,12 +11,10 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -47,8 +45,6 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
-
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener, OnMenuItemClickListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;

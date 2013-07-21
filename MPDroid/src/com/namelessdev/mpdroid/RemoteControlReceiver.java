@@ -4,8 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.view.KeyEvent;
 
 /**
@@ -53,13 +51,6 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 					i.setAction(StreamingService.CMD_REMOTE);
 					i.putExtra(StreamingService.CMD_COMMAND, command);
 					context.startService(i);
-					
-					// If are running froyo, don't use the hackish way.
-					if (VERSION.SDK_INT <= VERSION_CODES.ECLAIR_MR1) {
-						if (StreamingService.getStreamingServiceStatus()) { // Uses static variable ... vomit :<
-							abortBroadcast(); // Vomit MOAR FOR THE LOVE OF GOD MOAR!!!!!!!§§§§§§§
-						}
-					}
 				}
 			}
 		}
