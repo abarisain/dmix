@@ -124,21 +124,22 @@ public class SongsFragment extends BrowseFragment {
 			coverArt = (ImageView) headerView.findViewById(R.id.albumCover);
 			coverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
 			albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
-
-			final MPDApplication app = (MPDApplication) getActivity().getApplication();
-			coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected());
-			coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
-			coverHelper.setCoverMaxSizeFromScreen(getActivity());
-			final ViewTreeObserver vto = coverArt.getViewTreeObserver();
-			vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-				public boolean onPreDraw() {
-					if (coverHelper != null)
-						coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
-					return true;
-				}
-			});
-			coverHelper.addCoverDownloadListener(coverArtListener);
 		}
+
+		final MPDApplication app = (MPDApplication) getActivity().getApplication();
+		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected());
+		coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
+		coverHelper.setCoverMaxSizeFromScreen(getActivity());
+		final ViewTreeObserver vto = coverArt.getViewTreeObserver();
+		vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+			public boolean onPreDraw() {
+				if (coverHelper != null)
+					coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
+				return true;
+			}
+		});
+		coverHelper.addCoverDownloadListener(coverArtListener);
+
 		((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
 		((ListView) list).addHeaderView(headerView, null, false);
 
