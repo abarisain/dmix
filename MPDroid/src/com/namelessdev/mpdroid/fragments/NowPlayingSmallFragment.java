@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -85,7 +86,13 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 
 		coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
 		coverHelper.setCoverMaxSizeFromScreen(getActivity());
-		coverHelper.setCachedCoverMaxSize(coverArt.getHeight());
+		final ViewTreeObserver vto = coverArt.getViewTreeObserver();
+		vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+			public boolean onPreDraw() {
+				coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
+				return true;
+			}
+		});
 		coverHelper.addCoverDownloadListener(coverArtListener);
 
 		return view;
