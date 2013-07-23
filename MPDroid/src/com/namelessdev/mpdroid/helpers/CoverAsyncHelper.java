@@ -175,6 +175,10 @@ public class CoverAsyncHelper extends Handler {
 		coverDownloadListener.add(listener);
 	}
 
+	public void removeCoverDownloadListener(CoverDownloadListener listener) {
+		coverDownloadListener.remove(listener);
+	}
+
 	public void downloadCover(String artist, String album, String path, String filename) {
 		final CoverInfo info = new CoverInfo();
 		info.sArtist = artist;

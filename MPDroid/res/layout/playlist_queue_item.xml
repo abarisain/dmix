@@ -7,16 +7,15 @@
     android:gravity="bottom"
     android:orientation="horizontal"
     android:paddingBottom="4dip"
-    android:paddingLeft="10dip"
     android:paddingTop="4dip"
     android:descendantFocusability="blocksDescendants" >
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="wrap_content"
-        android:layout_height="55dip"
-        android:layout_gravity="bottom"
-        android:layout_marginLeft="-5dip"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_gravity="center"
+        android:layout_marginLeft="2dip"
         android:layout_marginRight="2dip"
         android:alpha="0.5"
         android:scaleType="center"
