@@ -44,9 +44,8 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 			return;
 		try {
 			if (cover != null) {
-				final Drawable oldDrawable = coverArt.getDrawable();
+				freeCoverDrawable(coverArt.getDrawable());
 				coverArt.setImageDrawable(new CoverBitmapDrawable(context.getResources(), cover));
-				freeCoverDrawable(oldDrawable);
 			} else {
 				// Should not be happening, but happened.
 				onCoverNotFound();
