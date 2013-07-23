@@ -4,22 +4,28 @@
     android:layout_gravity="left"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:baselineAligned="true"
+    android:descendantFocusability="blocksDescendants"
     android:gravity="bottom"
     android:orientation="horizontal"
     android:paddingBottom="4dip"
-    android:paddingTop="4dip"
-    android:descendantFocusability="blocksDescendants" >
+    android:paddingTop="4dip" >
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="48dip"
-        android:layout_height="48dip"
-        android:layout_gravity="center"
-        android:layout_marginLeft="2dip"
-        android:layout_marginRight="2dip"
-        android:alpha="0.5"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:paddingLeft="4dip"
+        android:paddingRight="4dip"
         android:scaleType="center"
         android:src="?attr/listItemHandle" />
+
+    <ImageView
+        android:id="@+id/cover"
+        android:layout_width="46dip"
+        android:layout_height="46dip"
+        android:layout_gravity="center"
+        android:layout_marginRight="4dip" />
 
     <LinearLayout
         android:layout_width="0dip"
@@ -33,8 +39,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:maxLines="1"
             android:fontFamily="sans-serif-light"
+            android:maxLines="1"
             android:textSize="20sp" />
 
         <LinearLayout
@@ -62,22 +68,16 @@
         </LinearLayout>
     </LinearLayout>
 
-    <View
-        android:layout_width="0.75dip"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dip"
-        android:layout_marginTop="8dip"
-        android:layout_marginLeft="2dip"
-        android:background="?attr/listItemHorizontalSeparatorColor" />
-
     <!-- Height and padding are hardcoded because of this stupid TouchInterceptor -->
+
     <ImageButton
         android:id="@+id/menu"
         android:layout_width="40dip"
         android:layout_height="55dip"
         android:layout_gravity="bottom"
-        android:paddingTop="20dip"
+        android:layout_marginLeft="2dip"
         android:background="?attr/actionBarItemBackground"
+        android:paddingTop="20dip"
         android:src="?attr/menuButton" />
 
 </LinearLayout>

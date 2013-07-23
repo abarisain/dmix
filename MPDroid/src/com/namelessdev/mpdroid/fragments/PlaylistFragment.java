@@ -16,7 +16,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -27,6 +29,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -42,6 +45,9 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverRetrievers;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
@@ -233,6 +239,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 				}
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
+				item.put("_artist", tmpArtist);
+				item.put("_album", tmpAlbum);
 				if (m.isStream()) {
 					if (m.haveTitle()) {
 						item.put("title", tmpTitle);
@@ -550,8 +558,23 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 
 	private class QueueAdapter extends SimpleAdapter {
 
+		private List<CoverRetrievers> enabledRetrievers;
+		private MPDApplication app;
+		private SharedPreferences settings;
+		private boolean lightTheme;
+
 		public QueueAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
 			super(context, data, resource, from, to);
+
+			enabledRetrievers = null;
+			
+			app = (MPDApplication) getActivity().getApplication();
+			settings = PreferenceManager.getDefaultSharedPreferences(app);
+			lightTheme = app.isLightNowPlayingThemeSelected();
+			if (settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true)) {
+				enabledRetrievers = new ArrayList<CoverAsyncHelper.CoverRetrievers>();
+				enabledRetrievers.add(CoverRetrievers.CACHE);
+			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -560,9 +583,32 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			final View view = super.getView(position, convertView, parent);
 			view.findViewById(R.id.icon).setVisibility(filter == null ? View.VISIBLE : View.GONE);
 			final ImageButton menuButton = (ImageButton) view.findViewById(R.id.menu);
-			if (convertView == null)
+			if (convertView == null) {
 				menuButton.setOnClickListener(itemMenuButtonListener);
-			menuButton.setTag(((Map<String, ?>) getItem(position)).get("songid"));
+				if (enabledRetrievers == null)
+					view.findViewById(R.id.cover).setVisibility(View.GONE);
+			}
+
+			final Map<String, ?> item = (Map<String, ?>) getItem(position);
+			menuButton.setTag(item.get("songid"));
+			if (enabledRetrievers != null) {
+				final ImageView albumCover = (ImageView) view.findViewById(R.id.cover);
+				final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
+				// coverHelper.setCoverRetrievers(enabledRetrievers);
+				final int height = albumCover.getHeight();
+				// If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
+				coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
+				final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(getActivity(), albumCover, lightTheme);
+				final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) albumCover
+						.getTag(R.id.AlbumCoverDownloadListener);
+				if (oldAcd != null) {
+					oldAcd.detach();
+				}
+
+				albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+				coverHelper.addCoverDownloadListener(acd);
+				coverHelper.downloadCover((String) item.get("_artist"), (String) item.get("_album"), null, null);
+			}
 			return view;
 		}
 	}
