@@ -286,6 +286,11 @@ public class CoverAsyncHelper extends Handler {
 									Log.i(MPDApplication.TAG, "Saving cover art to cache");
 									// Save the fullsize bitmap
 									((CachedCover) coverRetriever1).save(info.sArtist, info.sAlbum, covers[1]);
+									// Release the cover immediately if not used
+									if (covers[0] != covers[1]) {
+										covers[1].recycle();
+										covers[1] = null;
+									}
 								}
 							}
 						}
