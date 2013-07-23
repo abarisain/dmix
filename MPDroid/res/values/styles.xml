@@ -26,6 +26,7 @@
     </style>
     
     <style name="AppTheme" parent="Theme.Sherlock">
+        <item name="android:windowBackground">@color/nowplaying_background</item>
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
         <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art</item>
