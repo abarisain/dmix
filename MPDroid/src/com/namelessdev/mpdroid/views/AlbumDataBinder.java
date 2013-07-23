@@ -67,7 +67,6 @@ public class AlbumDataBinder extends BaseDataBinder {
 			final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
 					.getTag(R.id.AlbumCoverDownloadListener);
 			if (oldAcd != null) {
-				coverHelper.removeCoverDownloadListener(oldAcd);
 				oldAcd.detach();
 			}
 
