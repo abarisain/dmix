@@ -22,33 +22,31 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.internal.widget.IcsListPopupWindow;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
-import com.namelessdev.mpdroid.adapters.PopupMenuAdapter;
-import com.namelessdev.mpdroid.adapters.PopupMenuItem;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
@@ -56,7 +54,7 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener,
-		OnSharedPreferenceChangeListener, OnItemClickListener {
+		OnSharedPreferenceChangeListener, OnMenuItemClickListener {
 
 	public static final String PREFS_NAME = "mpdroid.properties";
 
@@ -74,6 +72,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private ImageButton stopButton = null;
 	private boolean shuffleCurrent = false;
 	private boolean repeatCurrent = false;
+	private PopupMenu popupMenu = null;
+	private PopupMenu popupMenuStream = null;
 
 	public static final int ALBUMS = 4;
 
@@ -92,8 +92,6 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private AlbumCoverDownloadListener coverArtListener;
 	private ImageView coverArt;
 	private ProgressBar coverArtProgress;
-
-	private IcsListPopupWindow popupMenu;
 
 	public static final int VOLUME_STEP = 5;
 
@@ -253,32 +251,29 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 		final View songInfo = view.findViewById(R.id.songInfo);
 		if (songInfo != null) {
+			popupMenu = new PopupMenu(getActivity(), songInfo);
+			popupMenu.getMenu().add(Menu.NONE, POPUP_ALBUM, Menu.NONE, R.string.goToAlbum);
+			popupMenu.getMenu().add(Menu.NONE, POPUP_ARTIST, Menu.NONE, R.string.goToArtist);
+			popupMenu.getMenu().add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
+			popupMenu.getMenu().add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
+			popupMenu.setOnMenuItemClickListener(NowPlayingFragment.this);
+
+			popupMenuStream = new PopupMenu(getActivity(), songInfo);
+			popupMenuStream.getMenu().add(Menu.NONE, POPUP_STREAM, Menu.NONE, R.string.goToStream);
+			popupMenuStream.getMenu().add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
+			popupMenuStream.setOnMenuItemClickListener(NowPlayingFragment.this);
+
 			songInfo.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					if (currentSong == null)
 						return;
-					popupMenu = new IcsListPopupWindow(getActivity());
-					popupMenu.setModal(true);
-					popupMenu.setOnItemClickListener(NowPlayingFragment.this);
-					PopupMenuItem items[];
+
 					if (currentSong.isStream()) {
-						items = new PopupMenuItem[2];
-						items[0] = new PopupMenuItem(POPUP_STREAM, R.string.goToStream);
-						items[1] = new PopupMenuItem(POPUP_SHARE, R.string.share);
+						popupMenuStream.show();
 					} else {
-						items = new PopupMenuItem[4];
-						items[0] = new PopupMenuItem(POPUP_ARTIST, R.string.goToAlbum);
-						items[1] = new PopupMenuItem(POPUP_ALBUM, R.string.goToArtist);
-						items[2] = new PopupMenuItem(POPUP_FOLDER, R.string.goToFolder);
-						items[3] = new PopupMenuItem(POPUP_SHARE, R.string.share);
+						popupMenu.show();
 					}
-					popupMenu.setAdapter(new PopupMenuAdapter(getActivity(),
-							Build.VERSION.SDK_INT >= 14 ? android.R.layout.simple_spinner_dropdown_item
-									: R.layout.sherlock_spinner_dropdown_item, items));
-					popupMenu.setContentWidth((int) (v.getWidth() - v.getWidth() * 0.05));
-					popupMenu.setAnchorView(v);
-					popupMenu.show();
 				}
 			});
 		}
@@ -804,21 +799,17 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> adpaterView, View view, int position, long id) {
-		popupMenu.dismiss();
-		if(currentSong == null)
-			return;
-		final int action = ((PopupMenuItem) adpaterView.getAdapter().getItem(position)).actionId;
+	public boolean onMenuItemClick(MenuItem item) {
 		Intent intent;
-		switch(action) {
-			case POPUP_ALBUM:
+		switch (item.getItemId()) {
+			case POPUP_ARTIST:
 				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
 				intent.putExtra("artist", new Artist(
 						(MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
 								: currentSong.getArtist(), 0));
 				startActivityForResult(intent, -1);
 				break;
-			case POPUP_ARTIST:
+			case POPUP_ALBUM:
 				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
 				intent.putExtra("artist", new Artist(
 						(MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
@@ -851,6 +842,9 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				sendIntent.putExtra(Intent.EXTRA_TEXT, shareString);
 				sendIntent.setType("text/plain");
 				startActivity(sendIntent);
+			default:
+				return false;
 		}
+		return true;
 	}
 }
