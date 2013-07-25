@@ -251,10 +251,12 @@ public class MPDAsyncHelper extends Handler {
 			case EVENT_CONNECT:
 				try {
 					MPDConnectionInfo conInfo = (MPDConnectionInfo) msg.obj;
-					oMPD.connect(conInfo.sServer, conInfo.iPort);
-					if (conInfo.sPassword != null)
-						oMPD.password(conInfo.sPassword);
-					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTSUCCEEDED).sendToTarget();
+						if (oMPD != null) {
+							oMPD.connect(conInfo.sServer, conInfo.iPort);
+							if (conInfo.sPassword != null)
+								oMPD.password(conInfo.sPassword);
+							MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTSUCCEEDED).sendToTarget();
+						}
 				} catch (MPDServerException e) {
 					MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED, Tools.toObjectArray(e.getMessage())).sendToTarget();
 				} catch (UnknownHostException e) {
@@ -262,17 +264,21 @@ public class MPDAsyncHelper extends Handler {
 				}
 				break;
 			case EVENT_STARTMONITOR:
-				oMonitor = new MPDStatusMonitor(oMPD, 500);
-				oMonitor.addStatusChangeListener(this);
-				oMonitor.addTrackPositionListener(this);
-				oMonitor.start();
+					if (oMonitor != null) {
+						oMonitor = new MPDStatusMonitor(oMPD, 500);
+						oMonitor.addStatusChangeListener(this);
+						oMonitor.addTrackPositionListener(this);
+						oMonitor.start();
+					}
 				break;
 			case EVENT_STOPMONITOR:
-				oMonitor.giveup();
+					if (oMonitor != null)
+						oMonitor.giveup();
 				break;
 			case EVENT_DISCONNECT:
 				try {
-					oMPD.disconnect();
+						if (oMPD != null)
+							oMPD.disconnect();
 					Log.d(MPDApplication.TAG, "Disconnected");
 				} catch (MPDServerException e) {
 					Log.e(MPDApplication.TAG, "Error on disconnect", e);//Silent exception are dangerous
