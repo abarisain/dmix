@@ -15,13 +15,13 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.annotation.TargetApi;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidListActivity;
 import com.namelessdev.mpdroid.R;
@@ -62,7 +62,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 		Button button = (Button) findViewById(R.id.Remove);
 		button.setOnClickListener(this);
 
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	protected void update() {

@@ -1,10 +1,9 @@
 package com.namelessdev.mpdroid;
 
+import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
-
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.app.SherlockListActivity;
+import android.support.v4.app.FragmentActivity;
 
 public class MPDroidActivities {
 
@@ -12,7 +11,7 @@ public class MPDroidActivities {
 	private MPDroidActivities() {
 	}
 
-	public static class MPDroidFragmentActivity extends SherlockFragmentActivity {
+	public static class MPDroidFragmentActivity extends FragmentActivity {
 
 		@Override
 		protected void onCreate(Bundle arg0) {
@@ -25,7 +24,7 @@ public class MPDroidActivities {
 		}
 	}
 
-	public static class MPDroidActivity extends SherlockActivity {
+	public static class MPDroidActivity extends Activity {
 
 		@Override
 		protected void onCreate(Bundle arg0) {
@@ -36,7 +35,7 @@ public class MPDroidActivities {
 		}
 	}
 
-	public static class MPDroidListActivity extends SherlockListActivity {
+	public static class MPDroidListActivity extends ListActivity {
 
 		@Override
 		protected void onCreate(Bundle arg0) {

@@ -3,9 +3,7 @@ package com.namelessdev.mpdroid;
 import android.os.Bundle;
 import android.webkit.WebView;
 
-import com.actionbarsherlock.app.SherlockActivity;
-
-public class WebViewActivity extends SherlockActivity {
+public class WebViewActivity extends MPDroidActivities.MPDroidActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

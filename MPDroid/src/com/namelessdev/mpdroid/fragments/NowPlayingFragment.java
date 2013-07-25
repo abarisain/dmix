@@ -25,6 +25,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,7 +44,6 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
@@ -53,7 +53,7 @@ import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener,
+public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener,
 		OnSharedPreferenceChangeListener, OnMenuItemClickListener {
 
 	public static final String PREFS_NAME = "mpdroid.properties";

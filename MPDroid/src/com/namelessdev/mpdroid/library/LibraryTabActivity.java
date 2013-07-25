@@ -4,18 +4,17 @@ import java.util.ArrayList;
 
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.os.Build;
+import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.R;
@@ -24,7 +23,6 @@ import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
-
 public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNavigationListener,
 		ILibraryFragmentActivity,
 		ILibraryTabActivity {
@@ -32,49 +30,43 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 	private static final String FRAGMENT_TAG_LIBRARY = "library";
 
 	LibraryFragment libraryFragment;
-    
+
 	ActionBar actionBar;
 	ArrayList<String> mTabList;
 	private MPDApplication app;
 
-
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.library_tabs);
-        
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.library_tabs);
+
 		app = (MPDApplication) getApplicationContext();
 
 		final FragmentManager fm = getSupportFragmentManager();
 
-        // Get the list of the currently visible tabs
-        mTabList=LibraryTabsUtil.getCurrentLibraryTabs(this.getApplicationContext());
+		// Get the list of the currently visible tabs
+		mTabList = LibraryTabsUtil.getCurrentLibraryTabs(this.getApplicationContext());
 
-        // Set up the action bar.
-		actionBar = getSupportActionBar();
+		// Set up the action bar.
+		actionBar = getActionBar();
 		// Will set the action bar to it's List style.
 		final int fmStackCount = fm.getBackStackEntryCount();
-		if(fmStackCount > 0) {
+		if (fmStackCount > 0) {
 			refreshActionBarNavigation(false, fm.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
 		} else {
 			refreshActionBarNavigation(true, null);
 		}
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        
-		ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(getSupportActionBar().getThemedContext(),
-				R.layout.sherlock_spinner_item);
-        for (int i=0;i<mTabList.size();i++){
-            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(i))));
-        }
+		actionBar.setDisplayShowHomeEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
-        if(Build.VERSION.SDK_INT >= 14) {
-        	//Bug on ICS with sherlock's layout
-        	actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        } else {
-        	actionBarAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
-        }
-        actionBar.setListNavigationCallbacks(actionBarAdapter, this);
+		ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(actionBar.getThemedContext(),
+				android.R.layout.simple_spinner_item);
+		for (int i = 0; i < mTabList.size(); i++) {
+			actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(i))));
+		}
+
+		actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
 		libraryFragment = (LibraryFragment) fm.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
 		if (libraryFragment == null) {
@@ -85,7 +77,7 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 			ft.commit();
 		}
 
-    }
+	}
 
 	@Override
 	public void onStart() {
@@ -104,23 +96,23 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		getSupportMenuInflater().inflate(R.menu.mpd_browsermenu, menu);
+		getMenuInflater().inflate(R.menu.mpd_browsermenu, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu_search:
-			this.onSearchRequested();
-			return true;
-		case android.R.id.home:
-			finish();
-			return true;
+			case R.id.menu_search:
+				this.onSearchRequested();
+				return true;
+			case android.R.id.home:
+				finish();
+				return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
 		libraryFragment.setCurrentItem(itemPosition, true);
@@ -160,7 +152,7 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 		super.onBackPressed();
 		final FragmentManager supportFM = getSupportFragmentManager();
 		final int fmStackCount = supportFM.getBackStackEntryCount();
-		if(fmStackCount > 0) {
+		if (fmStackCount > 0) {
 			refreshActionBarNavigation(false, supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
 		} else {
 			refreshActionBarNavigation(true, null);
@@ -174,38 +166,38 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 
 	@Override
 	public void pageChanged(int position) {
-		if(actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST)
+		if (actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST)
 			actionBar.setSelectedNavigationItem(position);
 	}
-	
+
 	@Override
 	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
 		final MPDApplication app = (MPDApplication) getApplicationContext();
 		switch (event.getKeyCode()) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						app.oMPDAsyncHelper.oMPD.next();
-					} catch (MPDServerException e) {
-						e.printStackTrace();
+			case KeyEvent.KEYCODE_VOLUME_UP:
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							app.oMPDAsyncHelper.oMPD.next();
+						} catch (MPDServerException e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			}).start();
-			return true;
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						app.oMPDAsyncHelper.oMPD.previous();
-					} catch (MPDServerException e) {
-						e.printStackTrace();
+				}).start();
+				return true;
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							app.oMPDAsyncHelper.oMPD.previous();
+						} catch (MPDServerException e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			}).start();
-			return true;
+				}).start();
+				return true;
 		}
 		return super.onKeyLongPress(keyCode, event);
 	}
@@ -223,22 +215,23 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 	@Override
 	public boolean onKeyUp(int keyCode, final KeyEvent event) {
 		switch (event.getKeyCode()) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			if (event.isTracking() && !event.isCanceled() && !app.getApplicationState().streamingMode) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							app.oMPDAsyncHelper.oMPD.adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
-									: -NowPlayingFragment.VOLUME_STEP);
-						} catch (MPDServerException e) {
-							e.printStackTrace();
+			case KeyEvent.KEYCODE_VOLUME_UP:
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+				if (event.isTracking() && !event.isCanceled() && !app.getApplicationState().streamingMode) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								app.oMPDAsyncHelper.oMPD
+										.adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
+												: -NowPlayingFragment.VOLUME_STEP);
+							} catch (MPDServerException e) {
+								e.printStackTrace();
+							}
 						}
-					}
-				}).start();
-			}
-			return true;
+					}).start();
+				}
+				return true;
 		}
 		return super.onKeyUp(keyCode, event);
 	}
