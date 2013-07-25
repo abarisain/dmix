@@ -32,7 +32,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -583,7 +582,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 		public View getView(int position, View convertView, ViewGroup parent) {
 			final View view = super.getView(position, convertView, parent);
 			view.findViewById(R.id.icon).setVisibility(filter == null ? View.VISIBLE : View.GONE);
-			final ImageButton menuButton = (ImageButton) view.findViewById(R.id.menu);
+			final View menuButton = view.findViewById(R.id.menu);
 			if (convertView == null) {
 				menuButton.setOnClickListener(itemMenuButtonListener);
 				if (enabledRetrievers == null)

@@ -73,11 +73,11 @@
     <ImageButton
         android:id="@+id/menu"
         android:layout_width="40dip"
-        android:layout_height="55dip"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom"
-        android:layout_marginLeft="2dip"
-        android:background="?android:attr/actionBarItemBackground"
-        android:paddingTop="20dip"
-        android:src="?attr/menuButton" />
+        android:paddingLeft="2dip"
+        android:paddingRight="4dip"
+        android:background="@null"
+        android:src="@drawable/ic_menu_moreoverflow_card" />
 
 </LinearLayout>

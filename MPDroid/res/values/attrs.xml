@@ -18,6 +18,7 @@
         <attr name="shuffleDisabled" format="reference" />
         <attr name="shuffleEnabled" format="reference" />
         <attr name="volumeIcon" format="reference" />
+        <attr name="cardBackground" format="reference" />
     </declare-styleable>
 
 </resources>

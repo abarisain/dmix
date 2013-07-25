@@ -1,27 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			 android:layout_width="match_parent"
-			 android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/cardBackground" >
 
-	<com.namelessdev.mpdroid.ui.SquareImageView
-		android:id="@+id/albumCover"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true"
-		android:layout_marginRight="2dip"
-		android:scaleType="centerCrop"
-		android:src="?attr/noCoverArtIcon" />
+    <com.namelessdev.mpdroid.ui.SquareImageView
+        android:id="@+id/albumCover"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:paddingTop="1dip"
+        android:scaleType="centerCrop"
+        android:src="?attr/noCoverArtIcon" />
 
-	<TextView
-		android:id="@+id/album_name"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingLeft="10dp"
-		android:paddingRight="10dp"
-		android:paddingTop="15dp"
-		android:paddingBottom="15dp"
-		android:layout_gravity="bottom"
-		android:textColor="@android:color/white"
-		android:background="#55000000" />
-</FrameLayout>
+    <TextView
+        android:id="@+id/album_name"
+        android:layout_width="match_parent"
+        android:layout_height="40dip"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/albumCover"
+        android:layout_toLeftOf="@+id/menu"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_vertical"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
+        android:singleLine="true" />
+
+    <!--<ImageButton
+        android:id="@+id/menu"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/album_name"
+        android:background="@null"
+        android:src="@drawable/ic_menu_moreoverflow_card" />-->
+
+</RelativeLayout>

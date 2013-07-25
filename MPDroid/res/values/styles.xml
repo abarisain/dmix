@@ -36,6 +36,7 @@
         <item name="shuffleDisabled">@drawable/ic_media_shuffle</item>
         <item name="shuffleEnabled">@drawable/ic_media_shuffle_on</item>
         <item name="volumeIcon">@drawable/ic_action_volume</item>
+        <item name="cardBackground">@drawable/card_dark</item>
     </style>
     
     <style name="AppTheme.Light" parent="@android:style/Theme.Holo.Light.DarkActionBar">
@@ -43,7 +44,7 @@
         <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
         <item name="menuButton">@drawable/spinner_default_holo_light</item>
-        <item name="listItemHandle">@drawable/ic_mp_move_light</item>
+        <item name="listItemHandle">@drawable/ic_mp_move</item>
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text_light</item>
         <item name="repeatDisabled">@drawable/ic_media_repeat_light</item>
@@ -51,6 +52,7 @@
         <item name="shuffleDisabled">@drawable/ic_media_shuffle_light</item>
         <item name="shuffleEnabled">@drawable/ic_media_shuffle_on_light</item>
         <item name="volumeIcon">@drawable/ic_action_volume_light</item>
+        <item name="cardBackground">@drawable/card_light</item>
     </style>
     
     <style name="AppTheme.ActionBar" parent="AppTheme">
