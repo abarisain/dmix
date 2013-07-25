@@ -595,7 +595,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 			if (enabledRetrievers != null) {
 				final ImageView albumCover = (ImageView) view.findViewById(R.id.cover);
 				final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
-				// coverHelper.setCoverRetrievers(enabledRetrievers);
+				coverHelper.setCoverRetrievers(enabledRetrievers);
 				final int height = albumCover.getHeight();
 				// If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
 				coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
