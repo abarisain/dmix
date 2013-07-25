@@ -68,7 +68,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/list_separator_layout"
         android:layout_alignParentRight="true"
-        android:background="?attr/actionBarItemBackground"
+        android:background="?android:attr/actionBarItemBackground"
         android:src="?attr/menuButton" />
 
 </RelativeLayout>

@@ -20,12 +20,8 @@
     <style name="ActionBar.Dark" parent="@style/ActionBar">
         <item name="android:background">@color/transparent</item>
     </style>
-    
-    <style name="SherlockActionBar.Dark" parent="Widget.Sherlock.ActionBar">
-        <item name="background">@color/transparent</item>
-    </style>
-    
-    <style name="AppTheme" parent="Theme.Sherlock">
+
+    <style name="AppTheme" parent="@android:style/Theme.Holo">
         <item name="android:windowBackground">@color/nowplaying_background</item>
         <item name="android:actionBarStyle">@style/ActionBar.Dark</item>
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
@@ -42,7 +38,7 @@
         <item name="volumeIcon">@drawable/ic_action_volume</item>
     </style>
     
-    <style name="AppTheme.Light" parent="Theme.Sherlock.Light.DarkActionBar">
+    <style name="AppTheme.Light" parent="@android:style/Theme.Holo.Light.DarkActionBar">
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
         <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
@@ -64,10 +60,9 @@
 		<item name="android:windowBackground">@color/nowplaying_background</item> 
 		<item name="android:colorBackgroundCacheHint">@color/nowplaying_background</item>
 		<item name="android:actionBarStyle">@style/ActionBar.Dark</item>
-		<item name="actionBarStyle">@style/SherlockActionBar.Dark</item>
     </style>
     
-    <style name="AppTheme.Dialog" parent="Theme.Sherlock.Dialog" />
+    <style name="AppTheme.Dialog" parent="@android:style/Theme.Holo.Dialog" />
     
     <style name="SeekBar" parent="android:Widget.SeekBar">
 		<item name="android:indeterminateOnly">false</item>
@@ -85,12 +80,12 @@
 	</style>
     
     <style name="PlayerButton" parent="android:Widget.Holo.ImageButton">
-        <item name="android:background">?attr/actionBarItemBackground</item>
+        <item name="android:background">?android:attr/actionBarItemBackground</item>
         <item name="android:minHeight">@dimen/playerbutton_height</item>
     </style>
     
     <style name="PlayerSmallButton" parent="android:Widget.Holo.ImageButton">
-        <item name="android:background">?attr/actionBarItemBackground</item>
+        <item name="android:background">?android:attr/actionBarItemBackground</item>
         <item name="android:layout_height">@dimen/playerbutton_small_height</item>
         <item name="android:layout_width">@dimen/playerbutton_small_width</item>
     </style>

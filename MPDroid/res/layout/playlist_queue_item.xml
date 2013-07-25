@@ -76,7 +76,7 @@
         android:layout_height="55dip"
         android:layout_gravity="bottom"
         android:layout_marginLeft="2dip"
-        android:background="?attr/actionBarItemBackground"
+        android:background="?android:attr/actionBarItemBackground"
         android:paddingTop="20dip"
         android:src="?attr/menuButton" />
 

@@ -23,7 +23,7 @@
     <dimen name="actionbar_height_minus_one">44dip</dimen>
     <dimen name="actionbar_logo_width">54dip</dimen>
     <dimen name="actionbar_button_size">45dip</dimen>
-    <dimen name="actionBarSizeLocal">?attr/actionBarSize</dimen>
+    <dimen name="actionBarSizeLocal">?android:attr/actionBarSize</dimen>
     <dimen name="playerbutton_height">70dip</dimen>
     <dimen name="playerbutton_width">65dip</dimen>
     <dimen name="playerbutton_small_height">48dip</dimen>
