@@ -6,18 +6,17 @@ You can browse your library, control the current song and playlist, manage your 
 
 What's not to like ? 
 
-![Now Playing/library Screenshot](https://raw.github.com/abarisain/dmix/master/Screenshots/readme.png)
+![Now Playing/library Screenshot](https://raw.github.com/abarisain/dmix/master/Screenshots/readme.png)  
+Note : Screenshots are from an old version and will be updated
 
 #### Compatibility
 
-MPDroid works on **all** devices from 2.2 to 4.1
-1280x800 (13") Tablets are also supported, and even have a special layout.
-10" will use the phone layout, and Nexus 7 support is being worked on.
+MPDroid works on **all** devices from 4.0.3 (API 15) to 4.3+
 
 
 #### Libraries used
 
-ActionBarSherlock - Wonderful library, allowing me to backport all of the holo goodness to Android 2.x  
+DragSortListView - Really nice and widly used TouchInterceptor replacement
 JmDNS - For bonjour integration. Still WIP (and may even be finished one day), allows local MPD servers to be discovered without finding their IP  
 JMPDComm - The core MPD interface lib. Heavily modified.
 LastFM-java - Last.FM cover art support
