@@ -137,6 +137,7 @@
 	<string name="musicPathDescription">Chemin vers votre répertoire de musique sur vôtre serveur MPD, par ex. files/mp3 (music/ pour les utilisateurs de vortexbox)</string>
 	<string name="coverFileName">Nom du fichier pochette</string>
 	<string name="coverFileNameDescription">Nom de fichier des pochettes, par ex. folder.jpg (cover.jpg pour les utilisateurs de vortexbox)</string>
+	<string name="cacheUsage">Espace occupé par le cache</string>
 	<string name="whatsNew">Quoi de neuf ?</string>
 	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
 	<string name="deleteServer">Supprimer ce serveur</string>
