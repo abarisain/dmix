@@ -15,8 +15,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:paddingLeft="4dip"
-        android:paddingRight="4dip"
+        android:paddingLeft="6dip"
+        android:paddingRight="6dip"
         android:scaleType="center"
         android:src="?attr/listItemHandle" />
 

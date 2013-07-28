@@ -41,6 +41,8 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.SimpleAdapter;
 
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
@@ -49,14 +51,13 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverRetrievers;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
-import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
 	private ArrayList<HashMap<String, Object>> songlist;
 	private List<Music> musics;
 
 	private MPDApplication app;
-	private ListView list;
+	private DragSortListView list;
 	private ActionMode actionMode;
 	private SearchView searchView;
 	private String filter = null;
@@ -105,14 +106,24 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 					filter = null;
 				if (filter != null)
 					filter = filter.toLowerCase();
-				((TouchInterceptor) list).setDraggingEnabled(filter == null);
+				list.setDragEnabled(filter == null);
 				update(false);
 				return false;
 			}
 		});
-		list = (ListView) view.findViewById(android.R.id.list);
+		list = (DragSortListView) view.findViewById(android.R.id.list);
 		list.requestFocus();
-		((TouchInterceptor) list).setDropListener(dropListener);
+		list.setDropListener(onDrop);
+		DragSortController controller = new DragSortController(list);
+		controller.setDragHandleId(R.id.icon);
+		controller.setRemoveEnabled(false);
+		controller.setSortEnabled(true);
+		controller.setDragInitMode(1);
+
+		list.setFloatViewManager(controller);
+		list.setOnTouchListener(controller);
+		list.setDragEnabled(true);
+
 		refreshListColorCacheHint();
 		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
@@ -474,7 +485,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
 	}
 
-	private TouchInterceptor.DropListener dropListener = new TouchInterceptor.DropListener() {
+	private DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
 		public void drop(int from, int to) {
 			if (from == to || filter != null) {
 				return;
@@ -487,7 +498,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 			}
 		}
 	};
-
+	
 	private OnClickListener itemMenuButtonListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
