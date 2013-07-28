@@ -15,6 +15,7 @@ import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
 public class AlbumsGridFragment extends AlbumsFragment {
 	public AlbumsGridFragment() {
 		super();
+		isCountPossiblyDisplayed = false;
 	}
 
 	@Override

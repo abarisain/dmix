@@ -6,6 +6,8 @@ import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -41,7 +43,15 @@ public class ArtistsFragment extends BrowseFragment {
 
 	@Override
 	public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
-		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new AlbumsFragment().init((Artist) items.get(position)), "album");
+		AlbumsFragment af;
+		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication());
+		if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, false)) {
+			af = new AlbumsGridFragment();
+		} else {
+			af = new AlbumsFragment();
+		}
+		af.init((Artist) items.get(position));
+		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, "album");
 	}
 
 	@Override

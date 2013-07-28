@@ -20,9 +20,11 @@ import com.namelessdev.mpdroid.views.AlbumDataBinder;
 public class AlbumsFragment extends BrowseFragment {
 	private static final String EXTRA_ARTIST = "artist";
 	protected Artist artist = null;
+	protected boolean isCountPossiblyDisplayed;
 
 	public AlbumsFragment() {
 		super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
+		isCountPossiblyDisplayed = true;
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	protected void asyncUpdate() {
 		try {
-			items = app.oMPDAsyncHelper.oMPD.getAlbums(artist);
+			items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountPossiblyDisplayed);
 		} catch (MPDServerException e) {
 		}
 	}
