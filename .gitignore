@@ -3,10 +3,10 @@
 /MPDroid/.classpath
 /MPDroid/local.properties
 /MPDroid/proguard
-/ActionBarSherlock/bin
-/ActionBarSherlock/gen
-/ActionBarSherlock/.classpath
-/ActionBarSherlock/local.properties
+/DragSortListView/bin
+/DragSortListView/gen
+/DragSortListView/.classpath
+/DragSortListView/local.properties
 /JMPDComm/JMPDComm.jar
 /JMPDComm/bin
 /JMPDComm/gen
