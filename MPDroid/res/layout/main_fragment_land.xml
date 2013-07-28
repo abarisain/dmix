@@ -29,7 +29,7 @@
                 android:layout_height="fill_parent"
                 android:layout_centerVertical="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/no_cover_art" />
+                android:src="@drawable/no_cover_art_big" />
 
             <ProgressBar
                 android:id="@+id/albumCoverProgress"

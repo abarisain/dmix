@@ -124,7 +124,7 @@ public class SongsFragment extends BrowseFragment {
 		}
 
 		final MPDApplication app = (MPDApplication) getActivity().getApplication();
-		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected());
+		coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected(), false);
 		coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
 		coverHelper.setCoverMaxSizeFromScreen(getActivity());
 		final ViewTreeObserver vto = coverArt.getViewTreeObserver();
