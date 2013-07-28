@@ -59,6 +59,8 @@ public class CoverAsyncHelper extends Handler {
 	public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
 	public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
 
+	private static final boolean DEBUG = false;
+
 	private MPDApplication app = null;
 	private SharedPreferences settings = null;
 
@@ -229,7 +231,8 @@ public class CoverAsyncHelper extends Handler {
 			for (String url : urls) {
 				if (url == null)
 					continue;
-				Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
+				if (DEBUG)
+					Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
 				if (retriever.isCoverLocal()) {
 					int maxSize = coverMaxSize;
 					if (cachedCoverMaxSize != MAX_SIZE) {
@@ -277,13 +280,15 @@ public class CoverAsyncHelper extends Handler {
 				for (ICoverRetriever coverRetriever : coverRetrievers) {
 					covers = getBitmapForRetriever(coverRetriever);
 					if (covers != null && covers[0] != null) {
-						Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
+						if (DEBUG)
+							Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
 						// if cover is not read from cache and saving is enabled
 						if (cacheWritable && !(coverRetriever instanceof CachedCover)) {
 							// Save this cover into cache, if it is enabled.
 							for (ICoverRetriever coverRetriever1 : coverRetrievers) {
 								if (coverRetriever1 instanceof CachedCover) {
-									Log.i(MPDApplication.TAG, "Saving cover art to cache");
+									if (DEBUG)
+										Log.i(MPDApplication.TAG, "Saving cover art to cache");
 									// Save the fullsize bitmap
 									((CachedCover) coverRetriever1).save(info.sArtist, info.sAlbum, covers[1]);
 									// Release the cover immediately if not used
@@ -301,7 +306,8 @@ public class CoverAsyncHelper extends Handler {
 			}
 
 			if (covers == null) {
-				Log.i(MPDApplication.TAG, "No cover art found");
+				if (DEBUG)
+					Log.i(MPDApplication.TAG, "No cover art found");
 				CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 			}
 		}
