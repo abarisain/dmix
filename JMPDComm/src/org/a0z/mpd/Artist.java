@@ -16,7 +16,7 @@ public class Artist extends Item implements Parcelable {
 
 	public Artist(String name, int albumCount) {
 		this.name=name;
-		if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("The ")) {
+		if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
 			sort=name.substring(4);
 		} else {
 			sort=null;
