@@ -41,6 +41,7 @@ public class MPDCommand {
 	public static final String MPD_CMD_PLAYLIST_ADD = "playlistadd";
 	public static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
 	public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
+	public static final String MPD_CMD_STICKER = "sticker";
 	
 	public static final String MPD_CMD_IDLE="idle";
 	// deprecated commands

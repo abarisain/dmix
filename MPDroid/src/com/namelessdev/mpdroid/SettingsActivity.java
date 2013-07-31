@@ -308,7 +308,13 @@ public class SettingsActivity extends PreferenceActivity implements
 		final MPDApplication app = (MPDApplication) getApplication();
 		try {
 			Collection<MPDOutput> list = app.oMPDAsyncHelper.oMPD.getOutputs();
-
+			java.util.List<String> slaves = app.oMPDAsyncHelper.oMPD.listStickers("global", "slaves");
+			for(int i = 0, N = slaves.size(); i < N; i++)
+			{
+				String[] is = slaves.get(i).split("=");
+				slaves.set(i, is.length == 3 && "on".equals(is[2])? is[0].substring(9) : "");
+			}
+			
 			pOutput.removeAll();
 			for (MPDOutput out : list) {
 				if ("Quiet".equals(out.getName()))
@@ -317,9 +323,17 @@ public class SettingsActivity extends PreferenceActivity implements
 				pref.setPersistent(false);
 				pref.setTitle(out.getName());
 				pref.setChecked(out.isEnabled());
-				pref.setKey("" + out.getId());
+				pref.setKey(out.getId() + ":enabled");
 				pref.setOnPreferenceClickListener(onPreferenceClickListener);
 				cbPrefs.put(out.getId(), pref);
+				pOutput.addPreference(pref);
+				
+				pref = new CheckBoxPreference(this);
+				pref.setPersistent(false);
+				pref.setTitle(out.getName() + " mimics");
+				pref.setChecked(slaves.contains(out.getName()));
+				pref.setKey(out.getName() + ":slave");
+				pref.setOnPreferenceClickListener(onPreferenceClickListener);
 				pOutput.addPreference(pref);
 
 			}
@@ -356,15 +370,16 @@ public class SettingsActivity extends PreferenceActivity implements
 			CheckBoxPreference prefCB = (CheckBoxPreference) pref;
 			MPDApplication app = (MPDApplication) getApplication();
 			MPD oMPD = app.oMPDAsyncHelper.oMPD;
-			String id = prefCB.getKey();
+			String[] id = prefCB.getKey().split(":");
 			try {
-				if (prefCB.isChecked()) {
-					oMPD.enableOutput(Integer.parseInt(id));
-					return false;
-				} else {
-					oMPD.disableOutput(Integer.parseInt(id));
-					return true;
-				}
+				boolean on = prefCB.isChecked();
+				if ("slave".equals(id[1]))
+					oMPD.setStickers("global", "slaves", id[0], (System.currentTimeMillis()/1000) + (on? "=on" : "=off"));
+				else if (on)
+					oMPD.enableOutput(Integer.parseInt(id[0]));
+				else
+					oMPD.disableOutput(Integer.parseInt(id[0]));
+				return on;
 			} catch (MPDServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

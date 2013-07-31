@@ -1164,6 +1164,22 @@ public class MPD {
 		
 		mpdConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
 	}
+	
+	public List<String> setStickers(String type, String uri, String name, String value) throws MPDServerException
+	{
+		if (!isConnected())
+			throw new MPDServerException("MPD Connection is not established");
+
+		return mpdConnection.sendCommand(MPDCommand.MPD_CMD_STICKER, "set", type, uri, name, value);
+	}
+
+	public List<String> listStickers(String type, String uri) throws MPDServerException
+	{
+		if (!isConnected())
+			throw new MPDServerException("MPD Connection is not established");
+
+		return mpdConnection.sendCommand(MPDCommand.MPD_CMD_STICKER, "list", type, uri);
+	}
 
 	public List<Music> getSongs(Artist artist, Album album) throws MPDServerException {
 		boolean haveArtist = (null != artist);
