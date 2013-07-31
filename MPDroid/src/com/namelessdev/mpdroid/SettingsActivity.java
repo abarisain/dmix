@@ -311,6 +311,8 @@ public class SettingsActivity extends PreferenceActivity implements
 
 			pOutput.removeAll();
 			for (MPDOutput out : list) {
+				if ("Quiet".equals(out.getName()))
+					continue;
 				CheckBoxPreference pref = new CheckBoxPreference(this);
 				pref.setPersistent(false);
 				pref.setTitle(out.getName());
