@@ -1,6 +1,7 @@
 package com.namelessdev.mpdroid;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,10 +14,16 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
+import com.namelessdev.mpdroid.tools.SettingsHelper;
+
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 public class ServerBonjourListActivity extends ListActivity implements ServiceListener {
@@ -30,12 +37,16 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 	private JmDNS jmdns = null;
 	private List<Map<String,String>> servers = null;
 	private SimpleAdapter listAdapter = null;
-	    	
+	SettingsHelper settings;
+	MPDAsyncHelper oMPDAsyncHelper;
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-
+    	
+    	final MPDApplication app = (MPDApplication) getApplicationContext();
+    	settings = new SettingsHelper(app, oMPDAsyncHelper = app.oMPDAsyncHelper);
+    	
     	servers = new ArrayList<Map<String,String>>();
     	
     	//By default, the android wifi stack will ignore broadcasts, fix that
@@ -48,7 +59,7 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 		} catch (IOException e) {
 			//Do nothing, stuff will just not work
 		}
-			
+		
 		listAdapter = new SimpleAdapter(this, servers, android.R.layout.simple_list_item_1, new String[]{SERVER_NAME}, new int[]{android.R.id.text1});
 		getListView().setAdapter(listAdapter);
     }
@@ -91,19 +102,41 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 		super.onDestroy();
     }
     
+    @Override
+    protected void onListItemClick (ListView l, View v, int position, long id) {
+    	settings.setHostname(
+			servers
+			.get(position)
+			.get(SERVER_IP)
+		);
+    	oMPDAsyncHelper.disconnect();
+    	finish();
+    }
+    
+    String chooseAddress(InetAddress[] addresses) {
+    	for (InetAddress address : addresses) {
+    		if (Inet4Address.class.isInstance(address) && !address.isMulticastAddress())
+    			return address.getHostAddress();
+    	}
+    	for (InetAddress address : addresses) {
+			return address.getHostAddress();
+    	}
+    	return null;
+    }
+    
 	@Override
 	public void serviceAdded(ServiceEvent event) {
 		ServiceInfo info = event.getDNS().getServiceInfo(event.getType(),
 				event.getName());
-		InetAddress[] addresses = info.getInetAddresses();
-		if(addresses[0] != null) {
-			Map<String, String> server = new HashMap<String, String>();
+		String address = chooseAddress(info.getInetAddresses());
+		if(address != null) {
+			final Map<String, String> server = new HashMap<String, String>();
 			server.put(SERVER_NAME, info.getName());
-			server.put(SERVER_IP, addresses[0].toString());
+			server.put(SERVER_IP, address);
 			server.put(SERVER_PORT, Integer.toString(info.getPort()));
-			servers.add(server);
 			runOnUiThread(new Runnable() {
 			    public void run() {
+					servers.add(server);
 			    	listAdapter.notifyDataSetChanged();
 			    }
 			});

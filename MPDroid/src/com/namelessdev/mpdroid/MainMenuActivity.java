@@ -313,7 +313,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 				}
 				return true;
 			case R.id.GMM_bonjour:
-				startActivity(new Intent(this, ServerListActivity.class));
+				startActivity(new Intent(this, ServerBonjourListActivity.class));
 				return true;
 			case R.id.GMM_Consume:
 				try {

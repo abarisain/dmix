@@ -68,6 +68,7 @@
 	<string name="connectionSettingsDescription">Set MPD-Host/Port and password</string>
 	<string name="outputs">Outputs</string>
 	<string name="outputsDescription">Enable/Disable MPD-Outputs</string>
+	<string name="servers">Players</string>
 	<string name="serverSettings">Server settings</string>
 	<string name="coverSettings">Cover artwork settings</string>
 	<string name="clientSettings">Client settings</string>
