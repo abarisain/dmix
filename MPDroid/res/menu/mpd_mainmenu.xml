@@ -32,6 +32,12 @@
         android:checkable="true" >
     </item>
     <item
+        android:id="@+id/GMM_bonjour"
+        android:icon="@drawable/ic_action_server"
+        android:showAsAction="ifRoom"
+        android:title="@string/servers" android:orderInCategory="2" >
+    </item>
+    <item
         android:id="@+id/GMM_Outputs"
         android:icon="@drawable/ic_action_output"
         android:showAsAction="ifRoom"
@@ -48,10 +54,4 @@
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="@string/settings">
     </item>
-    <item
-        android:id="@+id/GMM_bonjour"
-        android:title="Bonjour"
-        android:visible="false">
-    </item>
-
 </menu>
