@@ -59,7 +59,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
 				break;
 			case AlertDialog.BUTTON_NEGATIVE:
-				currentActivity.finish();
+				currentActivity.startActivityForResult(new Intent(currentActivity, ServerBonjourListActivity.class), SETTINGS);
 				break;
 			case AlertDialog.BUTTON_POSITIVE:
 				connectMPD();
@@ -235,7 +235,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 				builder.setMessage(String.format(getResources().getString(R.string.connectionFailedMessage), message));
 				
 				DialogClickListener oDialogClickListener = new DialogClickListener();
-				builder.setNegativeButton(getResources().getString(R.string.quit), oDialogClickListener);
+				builder.setNegativeButton(getResources().getString(R.string.search), oDialogClickListener);
 				builder.setNeutralButton(getResources().getString(R.string.settings), oDialogClickListener);
 				builder.setPositiveButton(getResources().getString(R.string.retry), oDialogClickListener);
 				try {
