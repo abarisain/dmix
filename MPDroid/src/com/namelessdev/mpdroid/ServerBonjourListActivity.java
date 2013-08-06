@@ -14,14 +14,20 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
+import org.a0z.mpd.MPD;
+
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
+import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -62,8 +68,39 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 		
 		listAdapter = new SimpleAdapter(this, servers, android.R.layout.simple_list_item_1, new String[]{SERVER_NAME}, new int[]{android.R.id.text1});
 		getListView().setAdapter(listAdapter);
+		
+		final ActionBar actionBar = getActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowHomeEnabled(true);
+		setTitle(R.string.servers);
     }
     
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		getMenuInflater().inflate(R.menu.mpd_servermenu, menu);
+		return true;
+	}
+	
+	public static final int SETTINGS = 5;
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		Intent i = null;
+
+		// Handle item selection
+		switch (item.getItemId()) {
+			case R.id.GMM_Settings:
+				i = new Intent(this, WifiConnectionSettings.class);
+				startActivityForResult(i, SETTINGS);
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+	
     @Override
     protected void onPause() {
     	if(multicastLock == null || jmdns == null) {
