@@ -68,7 +68,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 	public TreeSet<Music> getFiles() {
 		TreeSet<Music> c = new TreeSet<Music>(new Comparator<Music>() {
 			public int compare(Music o1, Music o2) {
-				return o1.getFilename().compareTo(o2.getFilename());
+				return VersionComparer.Instance.compare(o1.getFilename(), o2.getFilename());
 			}
 		});
 		
@@ -99,7 +99,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 	public TreeSet<Directory> getDirectories() {
 		TreeSet<Directory> c = new TreeSet<Directory>(new Comparator<Directory>() {
 			public int compare(Directory o1, Directory o2) {
-				return o1.getName().compareTo(o2.getName());
+				return VersionComparer.Instance.compare(o1.getName(), o2.getName());
 			}
 		});
 		
