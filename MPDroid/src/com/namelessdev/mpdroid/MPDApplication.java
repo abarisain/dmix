@@ -140,7 +140,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 		if(!settingsHelper.updateSettings()) {
 			// Absolutely no settings defined! Open Settings!
 			if (currentActivity != null && !state.settingsShown) {
-				currentActivity.startActivityForResult(new Intent(currentActivity, WifiConnectionSettings.class), SETTINGS);
+				currentActivity.startActivityForResult(new Intent(currentActivity, ServerBonjourListActivity.class), SETTINGS);
 				state.settingsShown = true;
 			}
 		}
