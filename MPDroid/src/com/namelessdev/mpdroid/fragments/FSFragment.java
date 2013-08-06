@@ -116,10 +116,11 @@ public class FSFragment extends BrowseFragment {
 
 	@Override
 	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+		final Item item = items.get(position);
 		// click on a file
-		if (position > currentDirectory.getDirectories().size() - 1 || currentDirectory.getDirectories().size() == 0) {
+		if (Music.class.isInstance(item)) {
 
-			final Music music = (Music) currentDirectory.getFiles().toArray()[position - currentDirectory.getDirectories().size()];
+			final Music music = (Music) item;
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
 				@Override
 				public void run() {
@@ -135,7 +136,7 @@ public class FSFragment extends BrowseFragment {
 				}
 			});
 		} else {
-			final String dir = ((Directory) currentDirectory.getDirectories().toArray()[position]).getFullpath();
+			final String dir = ((Directory) item).getFullpath();
 			((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new FSFragment().init(dir), "filesystem");
 		}
 
