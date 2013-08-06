@@ -4,8 +4,8 @@
     <item
         android:id="@+id/PLM_EditPL"
         android:icon="@drawable/ic_action_edit"
-        android:showAsAction="always"
-        android:title="@string/editPlaylist" android:orderInCategory="1">
+        android:showAsAction="ifRoom"
+        android:title="@string/editPlaylist" android:orderInCategory="4">
     </item>
     <item
         android:id="@+id/PLM_Save"

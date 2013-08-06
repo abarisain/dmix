@@ -325,7 +325,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.mpd_playlistmenu, menu);
-		menu.removeItem(R.id.PLM_EditPL);
+		menu.findItem(R.id.menu_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 	}
 
 	@Override
