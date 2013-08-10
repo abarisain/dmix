@@ -11,7 +11,6 @@ public class MPDCommand {
 	public static final String MPD_CMD_FIND = "find";
 	public static final String MPD_CMD_KILL = "kill";
 	public static final String MPD_CMD_LIST_TAG = "list";
-	@SuppressWarnings("unused")
 	public static final String MPD_CMD_LISTALL = "listall";
 	public static final String MPD_CMD_LISTALLINFO = "listallinfo";
 	public static final String MPD_CMD_LISTPLAYLISTS = "listplaylists";

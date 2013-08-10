@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
     <issue id="HardcodedText">
-        <ignore path="res\layout\main_fragment.xml" />
+        <ignore path="res/layout/main_fragment.xml" />
     </issue>
     <issue id="NestedWeights">
-        <ignore path="res\layout\song_list_item.xml" />
+        <ignore path="res/layout/song_list_item.xml" />
     </issue>
     <issue id="NewApi">
-        <ignore path="res\layout-v14\list_separator.xml" />
+        <ignore path="res/layout-v14/list_separator.xml" />
     </issue>
 </lint>
