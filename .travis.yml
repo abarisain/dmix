@@ -1,16 +1,15 @@
 language: java
 
 before_install:
-  - wget http://dl.google.com/android/android-sdk_r21.1-linux.tgz
-  - tar -zxf android-sdk_r21.1-linux.tgz
-  - export ANDROID_HOME=~/build/abarisain/dmix/android-sdk-linux
-  - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+  - wget http://dl.google.com/android/android-sdk_r22.0.5-linux.tgz -O - | tar zx
+  - export ANDROID_HOME="${PWD}/android-sdk-linux"
+  - export PATH="${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools"
   - sudo apt-get update -qq
   - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
-  - android update sdk --filter 1,3 --no-ui --force
+  - echo yes |android update sdk --filter platform-tools,build-tools-18.0.1,android-18,extra-android-support,sysimg-18 --no-ui --force > /dev/null
 
 script:
-  - cd ~/build/abarisain/dmix/MPDroid
-  - echo "sdk.dir=/home/travis/build/abarisain/dmix/android-sdk-linux" > local.properties
+  - cd ./MPDroid
+  - echo "sdk.dir=${ANDROID_HOME}" > local.properties
   - ant clean
   - ant debug
