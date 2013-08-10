@@ -55,7 +55,7 @@
 		<activity android:name=".library.LibraryTabsSettings" android:label="@string/libraryTabsSettings" />
 		
 		<activity android:name=".ServerListActivity" android:theme="@style/AppTheme.ActionBar" />
-		<activity android:name=".ServerBonjourListActivity" android:theme="@style/AppTheme.ActionBar" />
+		<activity android:name=".ServerBonjourListActivity" android:label="@string/servers" android:theme="@style/AppTheme.ActionBar" />
 		
 		<activity android:name=".AboutActivity" android:label="@string/about" />
 		<activity android:name=".WebViewActivity" />

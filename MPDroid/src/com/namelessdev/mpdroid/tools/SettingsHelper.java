@@ -39,6 +39,14 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 		return getBooleanSetting("newWarningShown");
 	}
 	
+	public void setHostname(String hostname) {
+		String wifiSSID = getCurrentConfiguredSSID();
+		settings
+			.edit()
+			.putString(getStringWithSSID("hostname", wifiSSID), hostname)
+			.commit();
+	}
+	
 	public boolean updateSettings() {
 		
 		
@@ -52,23 +60,12 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 	}
 	
 	public boolean updateConnectionSettings(){
-		String wifiSSID = getCurrentSSID();
-		if (getStringSetting(getStringWithSSID("hostname",  wifiSSID)) != null) {
-			updateConnectionSettings(wifiSSID);
-			return true;
-		} else if (getStringSetting("hostname") != null) {
-			updateConnectionSettings(null);
-			return true;
-		} else {
-			return false;
-		}
+		return updateConnectionSettings(getCurrentConfiguredSSID());
 	}
 	
-	private void updateConnectionSettings(String wifiSSID) {
-		// an empty SSID should be null
-		if (wifiSSID != null) 
-			if (wifiSSID.trim().equals(""))
-				wifiSSID = null;
+	private boolean updateConnectionSettings(String wifiSSID) {
+		if (getStringSetting(getStringWithSSID("hostname", wifiSSID)) == null)
+			return false;
 		
 		oMPDAsyncHelper.getConnectionSettings().sServer				= getStringSetting(getStringWithSSID("hostname", wifiSSID));
 		oMPDAsyncHelper.getConnectionSettings().iPort				= getIntegerSetting(getStringWithSSID("port", wifiSSID), DEFAULT_MPD_PORT);
@@ -78,6 +75,8 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 		oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming = getStringSetting(getStringWithSSID("suffixStreaming", wifiSSID));
 		if (oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming == null)
 			oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming = "";
+		
+		return true;
 	}
 
 	private int getIntegerSetting(String name, int defaultValue) {
@@ -101,6 +100,14 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 		return settings.getBoolean(name, false);
 	}
 	
+	private String getCurrentConfiguredSSID() {
+		String wifiSSID = getCurrentSSID();
+		return
+			getStringSetting(getStringWithSSID("hostname",  wifiSSID)) == null ? null :
+			wifiSSID.trim().equals("") ? null :
+			wifiSSID;
+	}
+
 	private String getCurrentSSID() {
 		WifiInfo info = mWifiManager.getConnectionInfo();
 		final String ssid = info.getSSID();
