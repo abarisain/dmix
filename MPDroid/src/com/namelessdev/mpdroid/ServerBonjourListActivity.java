@@ -16,23 +16,22 @@ import javax.jmdns.ServiceListener;
 
 import org.a0z.mpd.MPD;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
-import android.app.ActionBar;
-import android.app.ListActivity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-public class ServerBonjourListActivity extends ListActivity implements ServiceListener {
+public class ServerBonjourListActivity extends SherlockListActivity implements ServiceListener {
 	
 	private static final String SERVER_NAME = "server_name";
 	private static final String SERVER_IP = "server_ip";
@@ -68,8 +67,8 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 		
 		listAdapter = new SimpleAdapter(this, servers, android.R.layout.simple_list_item_1, new String[]{SERVER_NAME}, new int[]{android.R.id.text1});
 		getListView().setAdapter(listAdapter);
-		
-		final ActionBar actionBar = getActionBar();
+
+		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setDisplayShowHomeEnabled(true);
@@ -79,7 +78,7 @@ public class ServerBonjourListActivity extends ListActivity implements ServiceLi
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.mpd_servermenu, menu);
+		getSupportMenuInflater().inflate(R.menu.mpd_servermenu, menu);
 		return true;
 	}
 	
