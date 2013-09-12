@@ -13,6 +13,7 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,8 +25,10 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidListActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.tools.Function.*;
 import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.tools.Utils;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 public class PlaylistEditActivity extends MPDroidListActivity implements StatusChangeListener, OnClickListener {
@@ -67,8 +70,10 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 
 	protected void update() {
 		// TODO: Preserve position!!!
-		MPDApplication app = (MPDApplication) getApplicationContext();
-		try {
+		final MPDApplication app = (MPDApplication) getApplicationContext();
+		final Activity activity = this;
+		Utils.retry(new MPDAction0() {
+		  public void apply() throws MPDServerException {
 			if (isPlayQueue) {
 				MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 				musics = playlist.getMusicList();
@@ -96,7 +101,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 				}
 				songlist.add(item);
 			}
-			SimpleAdapter songs = new SimpleAdapter(this, songlist, R.layout.playlist_editlist_item, new String[] { "play", "title", "artist",
+			SimpleAdapter songs = new SimpleAdapter(activity, songlist, R.layout.playlist_editlist_item, new String[] { "play", "title", "artist",
 					"marked" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox });
 
 			setListAdapter(songs);
@@ -109,10 +114,8 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 					getListView().setSelectionFromTop(pos, top);
 				}
 			}
-
-		} catch (MPDServerException e) {
-		}
-
+		  }
+		});
 	}
 
 	/**
@@ -254,12 +257,18 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
 		if (isPlayQueue) {
 			// Mark running track...
-			for (HashMap<String, Object> song : songlist) {
-				if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId())
-					song.put("play", android.R.drawable.ic_media_play);
-				else
-					song.put("play", 0);
-			}
+			Utils.retry(new MPDAction0() {
+				public void apply() throws MPDServerException {
+					final Integer songId = ((MPDApplication) getApplication())
+						.oMPDAsyncHelper.oMPD.getStatus()
+						.getSongId();
+					for (HashMap<String, Object> song : songlist)
+						if (songId.equals(song.get("songid")))
+							song.put("play", android.R.drawable.ic_media_play);
+						else
+							song.put("play", 0);
+				}
+			});
 			final SimpleAdapter adapter = (SimpleAdapter) getListAdapter();
 			if(adapter != null)
 				adapter.notifyDataSetChanged();

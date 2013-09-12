@@ -47,6 +47,8 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.tools.Utils;
+import com.namelessdev.mpdroid.tools.Function.MPDAction0;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -397,17 +399,19 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	}
 
 	public void scrollToNowPlaying() {
-		for (HashMap<String, Object> song : songlist) {
-			try {
-				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD
-						.getStatus()
-						.getSongId()) {
-					getListView().requestFocusFromTouch();
-					getListView().setSelection(songlist.indexOf(song));
-				}
-			} catch (MPDServerException e) {
+		Utils.retry(new MPDAction0() {
+			public void apply() throws MPDServerException {
+				final Integer songId = ((MPDApplication) getActivity().getApplication())
+					.oMPDAsyncHelper.oMPD.getStatus()
+					.getSongId();
+				final ListView view = getListView();
+				for (HashMap<String, Object> song : songlist)
+					if (songId.equals(song.get("songid"))) {
+						view.requestFocusFromTouch();
+						view.setSelection(songlist.indexOf(song));
+					}
 			}
-		}
+		});
 	}
 
 	@Override
@@ -423,15 +427,19 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 	}
 
 	@Override
-	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+	public void trackChanged(final MPDStatus mpdStatus, int oldTrack) {
 		// Mark running track...
-		for (HashMap<String, Object> song : songlist) {
-			if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId())
-				song.put("play", android.R.drawable.ic_media_play);
-			else
-				song.put("play", 0);
-
-		}
+		Utils.retry(new MPDAction0() {
+			public void apply() throws MPDServerException {
+				final Integer songId = mpdStatus
+					.getSongId();
+				for (HashMap<String, Object> song : songlist)
+					if (songId.equals(song.get("songid")))
+						song.put("play", android.R.drawable.ic_media_play);
+					else
+						song.put("play", 0);
+			}
+		});
 		final SimpleAdapter adapter = (SimpleAdapter) getListAdapter();
 		if (adapter != null)
 			adapter.notifyDataSetChanged();

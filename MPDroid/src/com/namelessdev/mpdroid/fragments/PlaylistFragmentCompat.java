@@ -33,8 +33,10 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.tools.Function.*;
 import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.tools.Utils;
 
 /**
  * Implementation of PlaylistFragment for devices prior to Honeycomb
@@ -77,7 +79,8 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 	}
 	
 	protected void update() {
-		try {
+		Utils.retry(new MPDAction0(){
+		  public void apply() throws MPDServerException {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			songlist = new ArrayList<HashMap<String, Object>>();
 			musics = playlist.getMusicList();
@@ -137,11 +140,10 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 						setSelection(finalListPlayingID);
 				}
 			});
-
-		} catch (MPDServerException e) {
-		}
-
+		  }
+		});
 	}
+
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -312,16 +314,19 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 	}
 
 	public void scrollToNowPlaying() {
-		for (HashMap<String, Object> song : songlist) {
-			try {
-				if (((Integer) song.get("songid")).intValue() == ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.getStatus()
-						.getSongId()) {
-					getListView().requestFocusFromTouch();
-					getListView().setSelection(songlist.indexOf(song));
-				}
-			} catch (MPDServerException e) {
+		Utils.retry(new MPDAction0() {
+			public void apply() throws MPDServerException {
+				final Integer songId = ((MPDApplication) getActivity().getApplication())
+					.oMPDAsyncHelper.oMPD.getStatus()
+					.getSongId();
+				final ListView view = getListView();
+				for (HashMap<String, Object> song : songlist)
+					if (songId.equals(song.get("songid"))) {
+						view.requestFocusFromTouch();
+						view.setSelection(songlist.indexOf(song));
+					}
 			}
-		}
+		});
 	}
 
 	@Override
@@ -337,15 +342,19 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 	}
 
 	@Override
-	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+	public void trackChanged(final MPDStatus mpdStatus, int oldTrack) {
 		// Mark running track...
-		for (HashMap<String, Object> song : songlist) {
-			if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId())
-				song.put("play", android.R.drawable.ic_media_play);
-			else
-				song.put("play", 0);
-
-		}
+		Utils.retry(new MPDAction0() {
+			public void apply() throws MPDServerException {
+				final Integer songId = mpdStatus
+					.getSongId();
+				for (HashMap<String, Object> song : songlist)
+					if (songId.equals(song.get("songid")))
+						song.put("play", android.R.drawable.ic_media_play);
+					else
+						song.put("play", 0);
+			}
+		});
 		final SimpleAdapter adapter = (SimpleAdapter) getListAdapter();
 		if(adapter != null)
 			adapter.notifyDataSetChanged();
