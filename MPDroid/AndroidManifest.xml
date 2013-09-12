@@ -10,7 +10,8 @@
 	<uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
 	<!-- Cover art cache -->
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	
+    <uses-permission android:name="android.permission.READ_LOGS" />
+		
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="18" />
 	
 	<application android:icon="@drawable/icon"

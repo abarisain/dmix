@@ -8,6 +8,10 @@ import java.util.TimerTask;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 
+import org.acra.*;
+import org.acra.annotation.*;
+import org.acra.sender.HttpSender.*;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,6 +34,16 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.tools.NetworkHelper;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
+@ReportsCrashes(
+	mode = ReportingInteractionMode.TOAST,
+	resToastText = R.string.app_name, 
+	httpMethod = Method.PUT,
+	reportType = Type.JSON,
+	formUri = "http://mupeace.iriscouch.com/acra-mupeace/_design/acra-storage/_update/report",
+	formUriBasicAuthLogin = "mupeace",
+	formUriBasicAuthPassword = "foopeace",
+	formKey = ""
+)
 public class MPDApplication extends Application implements ConnectionListener {
 
 	public static final String TAG = "MPDroid";
@@ -77,6 +91,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 	public void onCreate() {
 		super.onCreate();
 		System.err.println("onCreate Application");
+		ACRA.init(this);
 		
 		MPD.setApplicationContext(getApplicationContext());
 
