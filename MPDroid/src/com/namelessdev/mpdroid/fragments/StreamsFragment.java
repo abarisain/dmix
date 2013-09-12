@@ -10,11 +10,13 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Xml;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -30,11 +32,12 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class StreamsFragment extends BrowseFragment {
-	ArrayList<Stream> streams = new ArrayList<Stream>();
+	ArrayList<Stream> streams = null;
 
 	private static class Stream extends Item {
 		private String name = null;
@@ -59,13 +62,13 @@ public class StreamsFragment extends BrowseFragment {
 	public static final int DELETE = 102;
 	private static final String FILE_NAME = "streams.xml";
 
-	private void loadStreams() {
+	private void loadStreams(Activity activity) {
 		streams = new ArrayList<Stream>();
 		try {
 			XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 			XmlPullParser xpp = factory.newPullParser();
 
-			xpp.setInput(getActivity().openFileInput(FILE_NAME), "UTF-8");
+			xpp.setInput(activity.openFileInput(FILE_NAME), "UTF-8");
 			int eventType = xpp.getEventType();
 			while (eventType != XmlPullParser.END_DOCUMENT) {
 				if (eventType == XmlPullParser.START_TAG) {
@@ -76,16 +79,17 @@ public class StreamsFragment extends BrowseFragment {
 				eventType = xpp.next();
 			}
 		} catch (Exception e) {
+			Log.w(e);
 		}
 
 		Collections.sort(streams);
 		items = streams;
 	}
 
-	private void saveStreams() {
+	private void saveStreams(Activity activity) {
 		XmlSerializer serializer = Xml.newSerializer();
 		try {
-			serializer.setOutput(getActivity().openFileOutput(FILE_NAME, Context.MODE_PRIVATE), "UTF-8");
+			serializer.setOutput(activity.openFileOutput(FILE_NAME, Context.MODE_PRIVATE), "UTF-8");
 			serializer.startDocument("UTF-8", true);
 			serializer.startTag("", "streams");
 			if (null != streams) {
@@ -99,6 +103,7 @@ public class StreamsFragment extends BrowseFragment {
 			serializer.endTag("", "streams");
 			serializer.flush();
 		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 
@@ -136,7 +141,7 @@ public class StreamsFragment extends BrowseFragment {
 
 	@Override
 	protected void asyncUpdate() {
-		loadStreams();
+		loadStreams(getActivity());
 	}
 
 	@Override
@@ -213,6 +218,21 @@ public class StreamsFragment extends BrowseFragment {
 		}
 	}
 
+	public void addStream(String name, String url, int index, Activity activity) {
+		if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(url)) {
+			if (streams == null)
+				loadStreams(activity);
+			if (index >= 0 && index < streams.size()) {
+				streams.remove(index);
+			}
+			streams.add(new Stream(name, url));
+			Collections.sort(streams);
+			items = streams;
+			saveStreams(activity);
+			UpdateList();
+		}
+	}
+
 	private void addEdit() {
 		addEdit(-1);
 	}
@@ -232,7 +252,8 @@ public class StreamsFragment extends BrowseFragment {
 				urlEdit.setText(s.getUrl());
 			}
 		}
-		new AlertDialog.Builder(getActivity())
+		final Activity activity = getActivity();
+		new AlertDialog.Builder(activity)
 				.setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
 				.setMessage(R.string.streamDetails)
 				.setView(view)
@@ -242,16 +263,7 @@ public class StreamsFragment extends BrowseFragment {
 						EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
 						String name = null == nameEdit ? null : nameEdit.getText().toString().trim();
 						String url = null == urlEdit ? null : urlEdit.getText().toString().trim();
-						if (null != name && name.length() > 0 && null != url && url.length() > 0) {
-							if (index >= 0 && index < streams.size()) {
-								streams.remove(index);
-							}
-							streams.add(new Stream(name, url));
-							Collections.sort(streams);
-							items = streams;
-							saveStreams();
-							UpdateList();
-						}
+						addStream(name, url, index, activity);
 					}
 				}).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {

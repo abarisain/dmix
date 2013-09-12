@@ -155,6 +155,8 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 	}
 	
 	protected void UpdateList(boolean first) {
+		if (list == null)
+			return;
 		if (first)
 		{
 			((android.widget.AdapterView)list).setAdapter(null);

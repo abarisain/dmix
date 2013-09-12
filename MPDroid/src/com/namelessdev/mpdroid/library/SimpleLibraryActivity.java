@@ -4,6 +4,7 @@ import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,12 +15,14 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.R.string;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.FSFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
+import com.namelessdev.mpdroid.tools.YouTube;
 
 public class SimpleLibraryActivity extends MPDroidFragmentActivity implements ILibraryFragmentActivity {
 
@@ -34,14 +37,24 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 		setContentView(R.layout.library_tabs);
 		Object targetElement = null;
 		Fragment rootFragment = null;
-		if (getIntent().getBooleanExtra("streams", false)) {
-			rootFragment = new StreamsFragment();
+		Intent intent = getIntent();
+		if (Intent.ACTION_SEND.equals(intent.getAction()) || intent.getBooleanExtra("streams", false)) {
+			StreamsFragment sf;
+			rootFragment = sf = new StreamsFragment();
+			try {
+				Bundle extras = intent.getExtras();
+				String url = extras.getString(Intent.EXTRA_TEXT);
+				scala.Tuple2<String,String> stream = YouTube.resolve(url);
+				sf.addStream(stream._1, stream._2, -1, this);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 		} else {
-			targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
+			targetElement = intent.getParcelableExtra(EXTRA_ALBUM);
 			if (targetElement == null)
-				targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
+				targetElement = intent.getParcelableExtra(EXTRA_ARTIST);
 			if (targetElement == null)
-				targetElement = getIntent().getStringExtra(EXTRA_FOLDER);
+				targetElement = intent.getStringExtra(EXTRA_FOLDER);
 			if (targetElement == null) {
 				throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
 			} else {

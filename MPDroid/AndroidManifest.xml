@@ -47,7 +47,13 @@
 		</activity>
 		<activity android:name=".library.PlaylistEditActivity" android:label="@string/playlist" >
 		</activity>
-		<activity android:name=".library.SimpleLibraryActivity" android:windowSoftInputMode="adjustNothing" />
+		<activity android:name=".library.SimpleLibraryActivity" android:windowSoftInputMode="adjustNothing" >
+			<intent-filter>
+				<action android:name="android.intent.action.SEND" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:host="www.youtube.com" android:mimeType="text/*" />
+			</intent-filter>
+		</activity>
 		<activity android:name=".SettingsActivity" android:label="@string/settings" />
 		<activity android:name=".WifiConnectionSettings"
 			android:label="@string/settings" android:theme="@style/AppTheme.ActionBar" />
