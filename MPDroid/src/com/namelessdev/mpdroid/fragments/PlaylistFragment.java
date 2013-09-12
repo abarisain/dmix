@@ -45,6 +45,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 
@@ -155,7 +156,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 								try {
 									app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
 								} catch (MPDServerException e) {
-									e.printStackTrace();
+									Log.w(e);
 								}
 							}
 						});
@@ -339,9 +340,8 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 					songlist.clear();
 					Tools.notifyUser(getResources().getString(R.string.playlistCleared), getActivity());
 					((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					Log.w(e);
 				}
 				return true;
 			case R.id.PLM_EditPL:
@@ -364,7 +364,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 											try {
 												app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
 											} catch (MPDServerException e) {
-												e.printStackTrace();
+												Log.w(e);
 											}
 										}
 									});
@@ -513,18 +513,16 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 						app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, status.getSongPos() + 1);
 					}
 					Tools.notifyUser("Song moved to next in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					Log.w(e);
 				}
 				return true;
 			case R.id.PLCX_moveFirst:
 				try { // Move song to first in playlist
 					app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, 0);
 					Tools.notifyUser("Song moved to first in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					Log.w(e);
 				}
 				return true;
 			case R.id.PLCX_moveLast:
@@ -532,18 +530,16 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 					MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
 					app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, status.getPlaylistLength() - 1);
 					Tools.notifyUser("Song moved to last in list", getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					Log.w(e);
 				}
 				return true;
 			case R.id.PLCX_removeFromPlaylist:
 				try {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(popupSongID);
 					Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), getActivity());
-				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					Log.w(e);
 				}
 				return true;
 			default:

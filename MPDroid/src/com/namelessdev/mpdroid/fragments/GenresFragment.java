@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class GenresFragment extends BrowseFragment {
@@ -48,8 +49,8 @@ public class GenresFragment extends BrowseFragment {
 		try {
 			app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 
@@ -58,8 +59,8 @@ public class GenresFragment extends BrowseFragment {
 		try {
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 }

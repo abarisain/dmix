@@ -28,7 +28,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -56,6 +55,7 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+import com.namelessdev.mpdroid.tools.Log;
 
 public class NowPlayingFragment extends SherlockFragment implements StatusChangeListener, TrackPositionListener,
 		OnSharedPreferenceChangeListener, OnItemClickListener {
@@ -164,7 +164,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		try {
 			updateTrackInfo();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Log.w(e);
 		}
 		updateStatus(null);
 
@@ -182,8 +182,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 						}
 					});
 				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Log.w(e);
 				}
 			}
 		}).start();
@@ -305,7 +304,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 									try {
 										app.oMPDAsyncHelper.oMPD.setVolume(lastSentVol);
 									} catch (MPDServerException e) {
-										e.printStackTrace();
+										Log.w(e);
 									}
 								}
 							}).start();
@@ -350,7 +349,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 						try {
 							app.oMPDAsyncHelper.oMPD.seek(seekBar.getProgress());
 						} catch (MPDServerException e) {
-							e.printStackTrace();
+							Log.w(e);
 						}
 					}
 				}).start();
@@ -358,7 +357,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		});
 
 		songNameText.setText(getResources().getString(R.string.notConnected));
-		Log.i(MPDApplication.TAG, "Initialization succeeded");
+		Log.i("Initialization succeeded");
 
 		return view;
 	}
@@ -378,7 +377,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 						try {
 							mpd.stop();
 						} catch (MPDServerException e) {
-							Log.w(MPDApplication.TAG, e.getMessage());
+							Log.w(e);
 						}
 					}
 				}).start();
@@ -396,7 +395,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 						try {
 							mpd.next();
 						} catch (MPDServerException e) {
-							Log.w(MPDApplication.TAG, e.getMessage());
+							Log.w(e);
 						}
 					}
 				}).start();
@@ -413,7 +412,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 						try {
 							mpd.previous();
 						} catch (MPDServerException e) {
-							Log.w(MPDApplication.TAG, e.getMessage());
+							Log.w(e);
 						}
 					}
 				}).start();
@@ -442,7 +441,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 								mpd.play();
 							}
 						} catch (MPDServerException e) {
-							Log.w(MPDApplication.TAG, e.getMessage());
+							Log.w(e);
 						}
 					}
 				}).start();
@@ -550,7 +549,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					// A recursive call doesn't seem that bad here.
 					return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
 				} catch (MPDServerException e) {
-					e.printStackTrace();
+					Log.w(e);
 				}
 				return false;
 			}
@@ -584,7 +583,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					title = getResources().getString(R.string.noSongInfo);
 				} else if (actSong.isStream()){
 					currentSong = actSong;
-					Log.d("MPDroid", "Playing a stream");
+					Log.d("Playing a stream");
 					if (actSong.haveTitle()) {
 						title = actSong.getTitle();
 					}
@@ -595,7 +594,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 					songMax = (int) actSong.getTime();
 				} else {
 					currentSong = actSong;
-					Log.d("MPDroid", "We did find an artist");
+					Log.d("We did find an artist");
 					artist = actSong.getArtist();
 					title = actSong.getTitle();
 					album = actSong.getAlbum();
@@ -722,7 +721,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 		try {
 			updateTrackInfo();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Log.w(e);
 		}
 	}
 

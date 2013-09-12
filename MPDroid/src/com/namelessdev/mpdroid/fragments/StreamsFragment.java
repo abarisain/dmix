@@ -150,10 +150,8 @@ public class StreamsFragment extends BrowseFragment {
 			final Stream s = (Stream) item;
 			app.oMPDAsyncHelper.oMPD.add(StreamFetcher.instance().get(s.getUrl(), s.getName()), replace, play);
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 
@@ -210,7 +208,11 @@ public class StreamsFragment extends BrowseFragment {
 					break;
 				case AlertDialog.BUTTON_POSITIVE:
 					String name = items.get(itemIndex).getName();
-					Tools.notifyUser(String.format(getResources().getString(R.string.streamDeleted), name), getActivity());
+					try {
+						Tools.notifyUser(String.format(getResources().getString(R.string.streamDeleted), name), getActivity());
+					} catch (Exception e) {
+						Log.w(e);
+					}
 					items.remove(itemIndex);
 					updateFromItems();
 					break;

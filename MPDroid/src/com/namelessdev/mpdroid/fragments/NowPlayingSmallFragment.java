@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +29,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.tools.Log;
 
 public class NowPlayingSmallFragment extends SherlockFragment implements StatusChangeListener {
 
@@ -119,7 +119,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 							try {
 								app.oMPDAsyncHelper.oMPD.previous();
 							} catch (MPDServerException e) {
-								Log.w(MPDApplication.TAG, e.getMessage());
+								Log.w(e.getMessage());
 							}
 						}
 					}).start();
@@ -137,7 +137,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 									mpd.play();
 								}
 							} catch (MPDServerException e) {
-								Log.w(MPDApplication.TAG, e.getMessage());
+								Log.w(e.getMessage());
 							}
 						}
 					}).start();
@@ -149,7 +149,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 							try {
 								app.oMPDAsyncHelper.oMPD.next();
 							} catch (MPDServerException e) {
-								Log.w(MPDApplication.TAG, e.getMessage());
+								Log.w(e.getMessage());
 							}
 						}
 					}).start();
@@ -212,7 +212,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 					// A recursive call doesn't seem that bad here.
 					return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
 				} catch (MPDServerException e) {
-					e.printStackTrace();
+					Log.w(e);
 				}
 				return false;
 			}
@@ -261,7 +261,11 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 					lastArtist = artist;
 					lastAlbum = album;
 				}
-				stateChanged(status, null);
+				try {
+					stateChanged(status, null);
+				} catch(Exception e) {
+					Log.w(e);
+				}
 			} else {
 				songArtist.setText("");
 				songTitle.setText(R.string.noSongInfo);

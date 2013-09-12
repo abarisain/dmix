@@ -18,6 +18,7 @@ import android.widget.ListView;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class PlaylistsFragment extends BrowseFragment {
@@ -52,8 +53,8 @@ public class PlaylistsFragment extends BrowseFragment {
 		try {
 			app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 
@@ -129,6 +130,8 @@ public class PlaylistsFragment extends BrowseFragment {
 					} catch (BadTokenException ex) {
 						// Can't display it. Don't care.
 					}
+				} catch (Exception e) {
+					Log.w(e);
 				}
 				updateFromItems();
 				break;

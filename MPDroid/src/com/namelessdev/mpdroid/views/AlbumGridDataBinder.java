@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
@@ -48,7 +49,11 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 
 		// display message if wifi off
 		if(coverHelper.isWifi() == false) {
-			Tools.notifyUser(context.getResources().getString(R.string.albumGridWifiUnavailable), context);
+			try {
+				Tools.notifyUser(context.getResources().getString(R.string.albumGridWifiUnavailable), context);
+			} catch (Exception e) {
+				Log.w(e);
+			}
 		}
 
 		// listen for new artwork to be loaded

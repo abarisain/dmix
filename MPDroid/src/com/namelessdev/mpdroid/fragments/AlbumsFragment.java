@@ -17,6 +17,7 @@ import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.AlbumGroup;
 import com.namelessdev.mpdroid.tools.AlbumGroups;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 
@@ -95,6 +96,7 @@ public class AlbumsFragment extends BrowseFragment {
 				items = albums;
 			}
 		} catch (MPDServerException e) {
+			Log.w(e);
 		}
 	}
 
@@ -103,8 +105,8 @@ public class AlbumsFragment extends BrowseFragment {
 		try {
 			app.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 
@@ -113,8 +115,8 @@ public class AlbumsFragment extends BrowseFragment {
 		try {
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, artist, ((Album) item));
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 }

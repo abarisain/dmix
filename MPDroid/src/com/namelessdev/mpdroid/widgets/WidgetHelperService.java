@@ -8,6 +8,7 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.tools.Log;
 
 public class WidgetHelperService extends IntentService {
 	static final String TAG = "MPDroidWidgetHelperService";
@@ -64,7 +65,7 @@ public class WidgetHelperService extends IntentService {
 				SimpleWidgetProvider.getInstance().notifyChange(this);
 			}
 		} catch (MPDServerException e) {
-			e.printStackTrace();
+			Log.w(e);
 		}
 	}
 

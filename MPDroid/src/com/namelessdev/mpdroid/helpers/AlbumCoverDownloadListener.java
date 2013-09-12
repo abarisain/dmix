@@ -14,6 +14,7 @@ import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
+import com.namelessdev.mpdroid.tools.Log;
 
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
 	Context context;
@@ -49,7 +50,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 			}
 		} catch (Exception e) {
 			//Probably rotated, ignore
-			e.printStackTrace();
+			Log.w(e);
 		}
 	}
 

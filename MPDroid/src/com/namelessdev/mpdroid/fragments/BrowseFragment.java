@@ -31,6 +31,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.tools.Log;
 
 public abstract class BrowseFragment extends SherlockFragment implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
 
@@ -209,8 +210,7 @@ public abstract class BrowseFragment extends SherlockFragment implements OnMenuI
 					}
 				}
 			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(e);
 			}
 		}
 	}

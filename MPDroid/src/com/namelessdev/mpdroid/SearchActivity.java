@@ -26,6 +26,7 @@ import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
@@ -177,8 +178,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 		try {
 			app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
 			Tools.notifyUser(String.format(getResources().getString(addedString), null == album ? artist.getName() : (null == artist ? album.getName() : artist.getName() + " - " + album.getName())), this);
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 	
@@ -186,9 +187,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 		try {
 			app.oMPDAsyncHelper.oMPD.add(music, replace, play);
 			Tools.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()), this);
-		} catch (MPDServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 

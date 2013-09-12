@@ -1,10 +1,12 @@
 package com.namelessdev.mpdroid;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockListActivity;
+import com.namelessdev.mpdroid.tools.Log;
 
 public class MPDroidActivities {
 
@@ -16,6 +18,8 @@ public class MPDroidActivities {
 
 		@Override
 		protected void onCreate(Bundle arg0) {
+			if (TextUtils.isEmpty(Log.tag))
+				Log.tag = getResources().getString(R.string.app_name);
 			super.onCreate(arg0);
 			final MPDApplication app = (MPDApplication) getApplication();
 			if ((this instanceof MainMenuActivity && app.isLightNowPlayingThemeSelected()) ||
@@ -29,6 +33,8 @@ public class MPDroidActivities {
 
 		@Override
 		protected void onCreate(Bundle arg0) {
+			if (TextUtils.isEmpty(Log.tag))
+				Log.tag = getResources().getString(R.string.app_name);
 			super.onCreate(arg0);
 			if (((MPDApplication) getApplication()).isLightThemeSelected()) {
 				setTheme(R.style.AppTheme_Light);
@@ -40,6 +46,8 @@ public class MPDroidActivities {
 
 		@Override
 		protected void onCreate(Bundle arg0) {
+			if (TextUtils.isEmpty(Log.tag))
+				Log.tag = getResources().getString(R.string.app_name);
 			super.onCreate(arg0);
 			if (((MPDApplication) getApplication()).isLightThemeSelected()) {
 				setTheme(R.style.AppTheme_Light);

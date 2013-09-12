@@ -23,6 +23,7 @@ import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
+import com.namelessdev.mpdroid.tools.Log;
 
 
 public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNavigationListener,
@@ -186,7 +187,7 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 					try {
 						app.oMPDAsyncHelper.oMPD.next();
 					} catch (MPDServerException e) {
-						e.printStackTrace();
+						Log.w(e);
 					}
 				}
 			}).start();
@@ -198,7 +199,7 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 					try {
 						app.oMPDAsyncHelper.oMPD.previous();
 					} catch (MPDServerException e) {
-						e.printStackTrace();
+						Log.w(e);
 					}
 				}
 			}).start();
@@ -231,7 +232,7 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 							app.oMPDAsyncHelper.oMPD.adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
 									: -NowPlayingFragment.VOLUME_STEP);
 						} catch (MPDServerException e) {
-							e.printStackTrace();
+							Log.w(e);
 						}
 					}
 				}).start();

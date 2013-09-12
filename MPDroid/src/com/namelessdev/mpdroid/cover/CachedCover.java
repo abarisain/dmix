@@ -5,9 +5,9 @@ import java.io.FileOutputStream;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.util.Log;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class CachedCover implements ICoverRetriever {
@@ -52,7 +52,7 @@ public class CachedCover implements ICoverRetriever {
 				}
 			}
 		} catch(Exception e) {
-			Log.w(MPDApplication.TAG, e);
+			Log.w(e);
 		}
 		return size;
 	}
@@ -60,7 +60,7 @@ public class CachedCover implements ICoverRetriever {
 	public void save(String artist, String album, Bitmap cover) {
 		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			// External storage is not there or read only, don't do anything
-			Log.e(MPDApplication.TAG, "No writable external storage, not saving cover to cache");
+			Log.e("No writable external storage, not saving cover to cache");
 			return;
 		}
 		try {
@@ -68,7 +68,7 @@ public class CachedCover implements ICoverRetriever {
 			FileOutputStream out = new FileOutputStream(getAbsolutePathForSong(artist, album));
 			cover.compress(Bitmap.CompressFormat.JPEG, 95, out);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Log.w(e);
 		}
 	}
 

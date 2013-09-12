@@ -14,7 +14,6 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -25,6 +24,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidListActivity;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
 
@@ -151,6 +151,11 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 			if (from == to) {
 				return;
 			}
+			try {
+				Tools.notifyUser("Updating...", getApplication());
+			} catch (Exception e) {
+				Log.w(e);
+			}
 			HashMap<String, Object> itemFrom = songlist.get(from);
 			Integer songID = (Integer) itemFrom.get("songid");
 			MPDApplication app = (MPDApplication) getApplication();
@@ -168,7 +173,6 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 				// }
 			} catch (MPDServerException e) {
 			}
-			Tools.notifyUser("Updating ...", getApplication());
 		}
 	};
 
@@ -212,7 +216,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 				}
 				Tools.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
 			} catch (Exception e) {
-				Log.e("MPDroid", "General: " + e.toString());
+				Log.e(e);
 				update();
 			}
 			break;

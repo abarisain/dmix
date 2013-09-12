@@ -22,12 +22,12 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.text.format.Formatter;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.tools.Log;
 
 public class SettingsActivity extends PreferenceActivity implements
 		StatusChangeListener {
@@ -161,8 +161,7 @@ public class SettingsActivity extends PreferenceActivity implements
 						}
 					});
 				} catch (MPDServerException e) {
-					// TODO Auto-generated catch block
-					// e.printStackTrace();
+					Log.w(e);
 				}
 			}
 		}).start();
@@ -226,7 +225,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
 			Preference preference) {
-		Log.d("MPDroid", preferenceScreen.getKey());
+		Log.d(preferenceScreen.getKey());
 		MPDApplication app = (MPDApplication) getApplication();
 
 		// Is it the connectionscreen which is called?
@@ -356,8 +355,7 @@ public class SettingsActivity extends PreferenceActivity implements
 					oMPD.setRepeat(prefCB.isChecked());
 				return prefCB.isChecked();
 			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(e);
 			}
 			return false;
 		}
@@ -381,8 +379,7 @@ public class SettingsActivity extends PreferenceActivity implements
 					oMPD.disableOutput(Integer.parseInt(id[0]));
 				return on;
 			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(e);
 			}
 			return true;
 		}

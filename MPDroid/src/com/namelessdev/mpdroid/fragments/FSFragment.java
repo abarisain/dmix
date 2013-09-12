@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class FSFragment extends BrowseFragment {
@@ -70,8 +71,8 @@ public class FSFragment extends BrowseFragment {
 				app.oMPDAsyncHelper.oMPD.add((Music) item, replace, play);
 				Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
 			}
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 	
@@ -90,8 +91,8 @@ public class FSFragment extends BrowseFragment {
 				app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
 				Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
 			}
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 	
@@ -106,7 +107,7 @@ public class FSFragment extends BrowseFragment {
 		try {
 			currentDirectory.refreshData();
 		} catch (MPDServerException e) {
-			e.printStackTrace();
+			Log.w(e);
 		}
 
 		List<Item> dirItems=new ArrayList<Item>();
@@ -132,7 +133,7 @@ public class FSFragment extends BrowseFragment {
 							app.oMPDAsyncHelper.oMPD.skipToId(songId);
 						}
 					} catch (MPDServerException e) {
-						e.printStackTrace();
+						Log.w(e);
 					}
 				}
 			});

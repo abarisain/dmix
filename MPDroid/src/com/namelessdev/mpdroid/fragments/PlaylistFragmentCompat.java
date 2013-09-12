@@ -16,7 +16,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +33,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 
 /**
@@ -57,7 +57,7 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 		super();
 		setHasOptionsMenu(true);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			Log.e(MPDApplication.TAG, "PlaylistFragmentCompat is not meant to be used on Android 3.0+. Please use the regular version.");
+			Log.e("PlaylistFragmentCompat is not meant to be used on Android 3.0+. Please use the regular version.");
 		}
 	}
 	
@@ -201,8 +201,7 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 				}
 				Tools.notifyUser("Song moved to next in list", getActivity());
 			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(e);
 			}
 			return true;
 		case R.id.PLCX_moveFirst:
@@ -210,8 +209,7 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, 0);
 				Tools.notifyUser("Song moved to first in list", getActivity());
 			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(e);
 			}
 			return true;
 		case R.id.PLCX_moveLast:
@@ -220,8 +218,7 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 				app.oMPDAsyncHelper.oMPD.getPlaylist().move(songId, status.getPlaylistLength() - 1);
 				Tools.notifyUser("Song moved to last in list", getActivity());
 			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(e);
 			}
 			return true;
 		case R.id.PLCX_removeFromPlaylist:
@@ -229,8 +226,7 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 				app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(songId);
 				Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), getActivity());
 			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(e);
 			}
 			return true;
 		default:
@@ -261,8 +257,7 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 				Tools.notifyUser(getResources().getString(R.string.playlistCleared), getActivity());
 				((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
 			} catch (MPDServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.w(e);
 			}
 			return true;
 		case R.id.PLM_EditPL:
@@ -285,7 +280,7 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 		    					try {
 									app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
 								} catch (MPDServerException e) {
-									e.printStackTrace();
+									Log.w(e);
 								}
 		    				}
 		    			});

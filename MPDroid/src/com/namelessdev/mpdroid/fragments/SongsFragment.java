@@ -40,6 +40,7 @@ import com.namelessdev.mpdroid.adapters.PopupMenuItem;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.RelatedSongs;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
@@ -155,6 +156,7 @@ public class SongsFragment extends BrowseFragment {
 					@Override
 					public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 						final int action = ((PopupMenuItem) adapterView.getAdapter().getItem(position)).actionId;
+						final Activity activity = getActivity();
 
 						app.oMPDAsyncHelper.execAsync(new Runnable() {
 							@Override
@@ -179,9 +181,9 @@ public class SongsFragment extends BrowseFragment {
 								}
 								try {
 									app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
-									Tools.notifyUser(String.format(getResources().getString(R.string.albumAdded), album), getActivity());
-								} catch (MPDServerException e) {
-									e.printStackTrace();
+									Tools.notifyUser(String.format(getResources().getString(R.string.albumAdded), album), activity);
+								} catch (Exception e) {
+									Log.w(e);
 								}
 							}
 						});
@@ -237,9 +239,8 @@ public class SongsFragment extends BrowseFragment {
 			app.oMPDAsyncHelper.oMPD.add(music, replace, play);
 			Tools.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()),
 					getActivity());
-		} catch (MPDServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 
@@ -248,8 +249,8 @@ public class SongsFragment extends BrowseFragment {
 		try {
 			app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
-		} catch (MPDServerException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.w(e);
 		}
 	}
 
@@ -266,7 +267,7 @@ public class SongsFragment extends BrowseFragment {
 				related = RelatedSongs.items(app.oMPDAsyncHelper.oMPD, songs);
 			items = showRelated? related : songs;
 		} catch (MPDServerException e) {
-			e.printStackTrace();
+			Log.w(e);
 		}
 	}
 

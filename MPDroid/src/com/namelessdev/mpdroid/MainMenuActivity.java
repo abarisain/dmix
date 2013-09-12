@@ -30,6 +30,7 @@ import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragmentCompat;
 import com.namelessdev.mpdroid.library.LibraryTabActivity;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 
 public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener {
@@ -160,7 +161,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		final boolean exitConfirmationRequired = settings.getBoolean("enableExitConfirmation", false);
 		if (exitConfirmationRequired && backPressExitCount < 1) {
-			Tools.notifyUser(String.format(getResources().getString(R.string.backpressToQuit)), this);
+			try {
+				Tools.notifyUser(String.format(getResources().getString(R.string.backpressToQuit)), this);
+			} catch (Exception e) {
+				Log.w(e);
+			}
 			backPressExitCount += 1;
 			exitCounterReset.postDelayed(new Runnable() {
 				@Override
@@ -344,7 +349,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 					try {
 						app.oMPDAsyncHelper.oMPD.next();
 					} catch (MPDServerException e) {
-						e.printStackTrace();
+						Log.w(e);
 					}
 				}
 			}).start();
@@ -356,7 +361,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 					try {
 						app.oMPDAsyncHelper.oMPD.previous();
 					} catch (MPDServerException e) {
-						e.printStackTrace();
+						Log.w(e);
 					}
 				}
 			}).start();
@@ -389,7 +394,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 							app.oMPDAsyncHelper.oMPD.adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
 									: -NowPlayingFragment.VOLUME_STEP);
 						} catch (MPDServerException e) {
-							e.printStackTrace();
+							Log.w(e);
 						}
 					}
 				}).start();

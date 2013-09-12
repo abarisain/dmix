@@ -27,13 +27,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.cover.LastFMCover;
 import com.namelessdev.mpdroid.cover.LocalCover;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 
 /**
@@ -203,8 +203,8 @@ public class CoverAsyncHelper extends Handler {
 			try {
 				// Get URL to the Cover...
 				urls = retriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath, info.sFilename);
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			} catch (Exception e) {
+				Log.w(e);
 				return null;
 			}
 
@@ -216,7 +216,7 @@ public class CoverAsyncHelper extends Handler {
 			for (String url : urls) {
 				if (url == null)
 					continue;
-				Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
+				Log.i("Downloading cover art at url : " + url);
 				if (retriever.isCoverLocal()) {
 					int maxSize = coverMaxSize;
 					if (cachedCoverMaxSize != MAX_SIZE) {
@@ -246,13 +246,13 @@ public class CoverAsyncHelper extends Handler {
 					for (ICoverRetriever coverRetriever : coverRetrievers) {
 						cover = getBitmapForRetriever((CoverInfo) msg.obj, coverRetriever);
 						if (cover != null) {
-							Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
+							Log.i("Found cover art using retriever : " + coverRetriever.getName());
 							// if cover is not read from cache and saving is enabled
 							if (cacheWritable && !(coverRetriever instanceof CachedCover)) {
 								// Save this cover into cache, if it is enabled.
 								for (ICoverRetriever coverRetriever1 : coverRetrievers) {
 									if (coverRetriever1 instanceof CachedCover) {
-										Log.i(MPDApplication.TAG, "Saving cover art to cache");
+										Log.i("Saving cover art to cache");
 										((CachedCover) coverRetriever1).save(((CoverInfo) msg.obj).sArtist, ((CoverInfo) msg.obj).sAlbum,
 												cover);
 									}
@@ -263,7 +263,7 @@ public class CoverAsyncHelper extends Handler {
 						}
 					}
 					if (cover == null) {
-						Log.i(MPDApplication.TAG, "No cover art found");
+						Log.i("No cover art found");
 						CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
 					}
 					break;

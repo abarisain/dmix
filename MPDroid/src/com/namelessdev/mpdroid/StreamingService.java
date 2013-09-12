@@ -46,6 +46,7 @@ import android.widget.Toast;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.Tools;
 
 /**
@@ -191,11 +192,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		try {
 			registerMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			Log.w(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			Log.w(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			Log.w(e);
 		}
 	}
 
@@ -206,11 +207,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		try {
 			unregisterMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			Log.w(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			Log.w(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			Log.w(e);
 		}
 	}
 

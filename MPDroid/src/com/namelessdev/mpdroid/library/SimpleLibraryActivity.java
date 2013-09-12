@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.fragments.FSFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
+import com.namelessdev.mpdroid.tools.Log;
 import com.namelessdev.mpdroid.tools.YouTube;
 
 public class SimpleLibraryActivity extends MPDroidFragmentActivity implements ILibraryFragmentActivity {
@@ -47,7 +48,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 				scala.Tuple2<String,String> stream = YouTube.resolve(url);
 				sf.addStream(stream._1, stream._2, -1, this);
 			} catch(Exception e) {
-				e.printStackTrace();
+				Log.e(e);
 			}
 		} else {
 			targetElement = intent.getParcelableExtra(EXTRA_ALBUM);
@@ -90,7 +91,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 					try {
 						app.oMPDAsyncHelper.oMPD.next();
 					} catch (MPDServerException e) {
-						e.printStackTrace();
+						Log.w(e);
 					}
 				}
 			}).start();
@@ -102,7 +103,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 					try {
 						app.oMPDAsyncHelper.oMPD.previous();
 					} catch (MPDServerException e) {
-						e.printStackTrace();
+						Log.w(e);
 					}
 				}
 			}).start();
@@ -137,7 +138,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 											NowPlayingFragment.VOLUME_STEP
 											: -NowPlayingFragment.VOLUME_STEP);
 						} catch (MPDServerException e) {
-							e.printStackTrace();
+							Log.w(e);
 						}
 					}
 				}).start();
