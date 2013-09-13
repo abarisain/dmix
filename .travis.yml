@@ -23,3 +23,20 @@ script:
   - cp ${SCALA_PATH}/lib/scala-library.jar libs/
   - ant clean
   - ant debug
+
+env:
+  global:
+    secure: YAXKp+63QcUZdFNAXrFA7iAC8WEiKg6qXWFlIWkHZIs+Vajylv+IFsh9f4TSUK1LC8HwzOgA0KlZE0v32E9hA3LHu/mPvocvKE8psYO6yR/ozLcBDy+9dA6/M5WUqieHnjNazdmF4NWjrLkN91qkX/g7hy3erHWCBTWC+MDmSz4=
+
+after_success:
+  - cat ../.travis.hosts >> $HOME/.ssh/known_hosts
+  - openssl aes-128-cbc -d -salt -in ../.travis-deploy.enc -out .travis-deploy -k $key
+  - chmod 600 .travis-deploy
+  - ssh-agent bash -c "ssh-add .travis-deploy; git clone --depth=1 --branch=downloads git@github.com:${TRAVIS_REPO_SLUG} downloads"
+  - cd downloads
+  - find ../bin -name '*.apk'|while read i; do cp $i $(basename $(cd ..; pwd -P))-${i#*-}; done
+  - git add \*.apk
+  - git config user.email "${USER}@$(hostname -f)"
+  - git config user.name "Travis CI"
+  - git commit -m "Travis build ${TRAVIS_BUILD_NUMBER} for ${TRAVIS_COMMIT} (${TRAVIS_BRANCH})"
+  - ssh-agent bash -c "ssh-add ../.travis-deploy; git push origin downloads:downloads"
