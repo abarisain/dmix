@@ -1,0 +1,319 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-scala">
+
+    <!-- This file is imported by the main Ant script. -->
+
+    <!-- Scala SDK (www.scala-lang.org) -->
+    <property name="scala-compiler.jar" value="${scala.dir}/lib/scala-compiler.jar" />
+    <property name="scala-reflect.jar" value="${scala.dir}/lib/scala-reflect.jar" />
+    <property name="scala-library.jar" value="${scala.dir}/lib/scala-library.jar" />
+    <!-- ProGuard (www.proguard.com) -->
+    <property name="proguard.jar" value="${proguard.dir}/lib/proguard.jar" />
+    <!-- Project settings -->
+    <property name="configs.dir" value="${ant.android.scala.dir}/configs" />
+    <property name="ant-invoked.jar" value="${configs.dir}/ant-invoked.jar" />
+    <property name="out.classes.absolute.dir" value="${source.dir}/../bin/classes" />
+
+    <condition property="extensible.classpath"
+        value="${tested.project.absolute.dir}/bin/classes"
+        else=".">
+        <isset property="tested.project.absolute.dir" />
+    </condition>
+    <condition property="extensible.libs.classpath"
+        value="${tested.project.absolute.dir}/${jar.libs.dir}"
+        else="${jar.libs.dir}">
+        <isset property="tested.project.absolute.dir" />
+    </condition>
+    <path id="android.target.classpath"> 
+        <path refid="project.target.class.path" />
+    </path>
+    <path id="project.libraries.jars" >
+        <path refid="project.all.jars.path" />
+    </path>
+
+    <path id="scala.path">
+        <pathelement path="${scala-compiler.jar}" />
+        <pathelement path="${scala-reflect.jar}" />
+        <pathelement path="${scala-library.jar}" />
+    </path>
+    <taskdef
+        resource="scala/tools/ant/antlib.xml"
+        classpathref="scala.path" />
+
+    <resourcecount property="scala.files.count">
+        <fileset dir="${source.dir}" includes="**/*.scala" />
+    </resourcecount>
+    <condition property="myapp.containsScala">
+        <not><equals arg1="${scala.files.count}" arg2="0" /></not>
+    </condition>
+
+    <uptodate property="do.not.compile" targetfile="${out.dir}/classes.complete">
+        <srcfiles dir="${source.dir}" includes="**/*.scala,**/*.java" />
+        <srcfiles dir="${resource.absolute.dir}" />
+    </uptodate>
+
+    <target name="scala-compile" depends="-build-setup,-code-gen"
+        description="Compiles project's .scala files into .class files"
+        if="myapp.containsScala" unless="do.not.compile">
+        <condition property="logging" value="verbose" else="none">
+            <istrue value="${verbose}" />
+        </condition>
+        <property prefix="scala"
+            resource="compiler.properties"
+            classpathref="scala.path" />
+        <echo
+            message="Scala version ${scala.version.number} - http://scala-lang.org"
+            level="info" taskname="scalac" />
+        <scalac
+            srcdir="${source.dir}" includes="**/*.scala,**/*.java"
+            destdir="${out.classes.absolute.dir}"
+            bootclasspathref="android.target.classpath"
+            logging="${logging}" addparams="${scalac.addparams}"
+            classpath="${extensible.classpath}">
+            <src path="${gen.absolute.dir}" />
+            <classpath>
+                <pathelement location="${scala-library.jar}" />
+                <pathelement location="${out.classes.absolute.dir}" />
+                <fileset dir="${extensible.libs.classpath}" includes="*.jar" />
+                <path refid="project.libraries.jars" />
+            </classpath>
+        </scalac>
+        <!-- if the project is a library then we generate a jar file -->
+        <if condition="${project.is.library}">
+            <then>
+                <echo>Creating library output jar file...</echo>
+                <property name="out.library.jar.file" location="${out.absolute.dir}/classes.jar" />
+                <if>
+                    <condition>
+                        <length string="${android.package.excludes}" trim="true" when="greater" length="0" />
+                    </condition>
+                    <then>
+                        <echo>Custom jar packaging exclusion: ${android.package.excludes}</echo>
+                    </then>
+                </if>
+                <jar destfile="${out.library.jar.file}">
+                    <fileset dir="${out.classes.absolute.dir}" excludes="**/R.class **/R$*.class"/>
+                    <fileset dir="${source.absolute.dir}" excludes="**/*.java **/*.scala ${android.package.excludes}" />
+                </jar>
+            </then>
+        </if>
+        <touch file="${out.dir}/classes.complete" verbose="no"/>
+    </target>
+
+    <target name="-shrink-if-test">
+        <echo
+            message="Checking if Scala libraries are installed on emulator or device..." />
+        <exec executable="${adb}" failonerror="false" outputproperty="adb.out">
+            <arg line="${adb.device.arg}" />
+            <arg line="shell echo '$BOOTCLASSPATH'" />
+        </exec>
+        <condition property="framework.isavailable">
+            <contains string="${adb.out}" substring="/data/framework/scala-" />
+        </condition>
+        <echo message="BOOTCLASSPATH=${adb.out}" taskname="adb" />
+    </target>
+
+    <target name="-shrink-config"
+            description="Generate ProGuard configuration file">
+        <do-only-if-not-library elseText="Library project: do not shrink..." >
+            <taskdef resource="scala/tools/ant/task.properties"
+                     classpath="${ant-invoked.jar}" />
+            <invoked property="root.target" />
+            <condition property="infix" value="-debug"><or>
+                 <equals arg1="${root.target}" arg2="debug" />
+                 <equals arg1="${root.target}" arg2="install" />
+                 <equals arg1="${root.target}" arg2="run-tests" />
+            </or></condition>
+            <condition property="infix" value="-release"><or>
+                 <equals arg1="${root.target}" arg2="release" />
+                 <equals arg1="${root.target}" arg2="install-release" />
+            </or></condition>
+            <!-- If ${infix} has not been set, then the root target is not
+                 one that is supported. Give user a sensible error message. -->
+            <property name="infix" value="not-supported" />
+            <fail message="Your root target is '${root.target}'. This is not supported with Scala compilation.">
+                <condition><equals arg1="${infix}" arg2="not-supported" /></condition>
+            </fail>
+            <!-- priority is given to local configuration if present -->
+            <condition property="template.cfg" value="${configs.dir}/local${infix}.cfg">
+                <available file="${configs.dir}/local${infix}.cfg" />
+            </condition>
+            <condition property="template.cfg" value="${configs.dir}/default${infix}.cfg">
+                <available file="${configs.dir}/default${infix}.cfg" />
+            </condition>
+            <fail message="Template file '${template.cfg}' not found">
+                <condition><not><available file="${template.cfg}" /></not></condition>
+            </fail>
+            <basename property="basename.cfg" file="${template.cfg}" />
+            <property
+                name="gen.proguard.cfg"
+                value="${out.dir}/proguard.cfg" />
+            <property
+                name="proguard.cfg"
+                value="${out.dir}/${basename.cfg}" />
+            <property
+                name="myapp.jar"
+                value="${out.absolute.dir}/${ant.project.name}${infix}-shrinked.jar" />
+            <echo message="Generating configuration file ${proguard.cfg}" />
+            <dirname property="parentdir" file="${basedir}" />
+            <pathconvert property="rel.template.cfg">
+                <map from="${parentdir}${file.separator}" to="" />
+                <path location="${template.cfg}" />
+            </pathconvert>
+            <property name="header" value="# This file is automatically generated from ${rel.template.cfg}" />
+            <xpath input="AndroidManifest.xml"
+                                expression="/manifest/@package" output="myapp.package" />
+            <pathconvert property="injars.libs.path">
+                <regexpmapper
+                   from="^(.*)\.jar$$"
+                   to="\1.jar(!META-INF/MANIFEST.MF,!library.properties)"/>
+                <fileset dir="${jar.libs.dir}" includes="*.jar" excludes="android-support-v4.jar,scala-library.jar" />
+                <path refid="project.libraries.jars" />
+            </pathconvert>
+            <proguard-helper property="injars" prefix="-injars"
+                path="${out.classes.absolute.dir}${path.separator}${injars.libs.path}" />
+            <proguard-helper property="outjars" prefix="-outjars"
+                path="${myapp.jar}" />
+            <pathconvert property="libraryjars.path" refid="android.target.classpath" />
+            <proguard-helper property="libraryjars" prefix="-libraryjars"
+                path="${libraryjars.path}" />
+            <copy file="${template.cfg}" tofile="${gen.proguard.cfg}">
+                <filterchain>
+                    <replacetokens>
+                        <token key="HEADER" value="${header}" />
+                        <token key="INJARS" value="${injars}" />
+                        <token key="OUTJARS" value="${outjars}" />
+                        <token key="LIBRARYJARS" value="${libraryjars}" />
+                        <token key="MYAPP_PACKAGE" value="${myapp.package}" />
+                    </replacetokens>
+                </filterchain>
+            </copy>
+        </do-only-if-not-library>
+        <condition property="do.not.shrink"><or>
+            <isset property="framework.isavailable" />
+            <and>
+                <isset property="do.not.compile" />
+                <filesmatch file1="${gen.proguard.cfg}" file2="${proguard.cfg}" />
+            </and>
+            <equals arg1="${project.is.library}" arg2="true" />
+            <and>
+                <equals arg1="${scala.library.installed}" arg2="true" />
+                <equals arg1="${infix}" arg2="-debug" />
+            </and>
+        </or></condition>
+    </target>
+
+    <target name="scala-shrink" depends="-shrink-if-test, -shrink-config"
+            unless="do.not.shrink" description="Shrink the Scala library code">
+        <taskdef resource="proguard/ant/task.properties"
+                 classpath="${proguard.jar}" />
+        <delete><fileset file="${myapp.jar}" /></delete>
+        <proguard configuration="${gen.proguard.cfg}" />
+        <move file="${gen.proguard.cfg}" tofile="${proguard.cfg}" />
+    </target>
+
+    <target name="install-release" depends="release"
+            description="Installs/reinstalls the release package onto a running
+                         emulator or device. If the application was previously
+                         installed, the signatures must match." >
+        <install-release-helper />
+    </target>
+
+    <macrodef name="install-release-helper">
+        <sequential>
+            <echo>Installing ${out.release.file} onto default emulator or device...</echo>
+            <exec executable="${adb}" failonerror="true">
+                <arg line="${adb.device.arg}" />
+                <arg value="install" />
+                <arg value="-r" />
+                <arg path="${out.release.file}" />
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="scala-dex-helper">
+        <element name="external-libs" optional="yes" />
+        <element name="extra-parameters" optional="yes" />
+        <sequential>
+            <!-- sets the primary input for dex. If a pre-dex task sets it to
+                 something else this has no effect -->
+            <property name="out.dex.input.absolute.dir" value="${out.classes.absolute.dir}" />
+
+            <!-- set the secondary dx input: the project (and library) jar files
+                 If a pre-dex task sets it to something else this has no effect -->
+            <if>
+                <condition>
+                    <isreference refid="out.dex.jar.input.ref" />
+                </condition>
+                <else><if>
+                    <condition><and>
+                        <available file="${myapp.jar}" />
+                        <not><isset property="framework.isavailable" /></not>
+                    </and></condition>
+                    <then>
+                        <path id="out.dex.jar.input.ref" />
+                    </then>
+                    <else>
+                        <path id="out.dex.jar.input.ref">
+                            <fileset dir="${jar.libs.dir}" includes="*.jar" />
+                        </path>
+                    </else>
+                </if></else>
+            </if>
+            <condition property="dex.input" value="${myapp.jar}"
+                       else="${out.dex.input.absolute.dir}"><and>
+                 <available file="${myapp.jar}" />
+                 <not><isset property="framework.isavailable" /></not>
+            </and></condition>
+            <echo>Converting compiled files and external libraries into ${intermediate.dex.file}...</echo>
+            <dex executable="${dx}"
+                    output="${intermediate.dex.file}"
+                    nolocals="@{nolocals}"
+                    verbose="${verbose}"
+                    previousBuildType="${build.last.target}"
+                    buildType="${build.target}">
+                <path path="${dex.input}"/>
+                <path refid="out.dex.jar.input.ref" />
+                <external-libs />
+            </dex>
+        </sequential>
+    </macrodef>
+
+    <!-- extract the first two package names (Android naming convention) -->
+    <macrodef name="package-prefix">
+        <attribute name="property" />
+        <sequential>
+            <tempfile property="temp.file" destdir="${out.dir}"
+                deleteonexit="true" />
+            <xmlproperty file="${basedir}/AndroidManifest.xml" />
+            <echo message="${manifest.package}" file="${temp.file}" />
+            <loadfile srcfile="${temp.file}" property="@{property}">
+                <filterchain>
+                    <tokenfilter>
+                        <stringtokenizer/>
+                        <replaceregex pattern="([^.]+\.[^.]+\.).*" replace="\1**"/>
+                    </tokenfilter>
+                </filterchain>
+            </loadfile>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="proguard-helper">
+        <attribute name="property" />
+        <attribute name="prefix" />
+        <attribute name="path" />
+        <sequential>
+            <tempfile property="temp.file" destdir="${out.dir}"
+                deleteonexit="true" />
+            <echo message="@{path}" file="${temp.file}" />
+            <loadfile srcfile="${temp.file}" property="@{property}.list">
+                <filterchain>
+                    <replacestring from="${path.separator}" to="${line.separator}"/>
+                    <replaceregex pattern="(.*)" replace="@{prefix} \1" />
+                </filterchain>
+            </loadfile>
+            <property name="@{property}" value="${@{property}.list}" />
+        </sequential>
+    </macrodef>
+
+</project>

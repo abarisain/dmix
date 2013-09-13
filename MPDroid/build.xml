@@ -79,5 +79,12 @@
     -->
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
+    <import file="${ant.android.scala.dir}/build-scala.xml"/>
+    <!-- Converts this project's .class files into .dex files -->
+    <target name="-dex" depends="scala-compile,-compile,scala-shrink">
+        <do-only-if-not-library elseText="Library project: do not dex..." >
+            <scala-dex-helper />
+        </do-only-if-not-library>
+    </target>
 
 </project>

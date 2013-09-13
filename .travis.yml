@@ -1,4 +1,6 @@
-language: java
+language: scala
+scala:
+  - 2.10.2
 
 before_install:
   - wget http://dl.google.com/android/android-sdk_r22.0.5-linux.tgz -O - | tar zx
@@ -6,10 +8,18 @@ before_install:
   - export PATH="${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools"
   - sudo apt-get update -qq
   - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
-  - echo yes |android update sdk --filter platform-tools,build-tools-18.0.1,android-18,extra-android-support,sysimg-18 --no-ui --force > /dev/null
+  - export TOOLS=$(android list sdk --no-ui | grep "Android SDK Platform-tools" | cut -d"-" -f1)
+  - env
+  - echo yes |android -s update sdk --filter $TOOLS,build-tools-18.0.1,android-18,extra-android-support,sysimg-18 --no-ui --force
+  - wget http://www.scala-lang.org/files/archive/scala-$TRAVIS_SCALA_VERSION.tgz -O - |tar zx
+  - export SCALA_PATH="${PWD}/scala-$TRAVIS_SCALA_VERSION"
+  - echo git clone --depth 1 https://github.com/imsizon/ant-android-scala.git
+  - export AAS="${PWD}/ant-android-scala"
+  - sed -i s/source.dir/scala.source.dir/g ${AAS}/build-scala.xml
 
 script:
   - cd ./MPDroid
-  - echo "sdk.dir=${ANDROID_HOME}" > local.properties
+  - envsubst < local.properties.tmpl |tee local.properties
+  - cp ${SCALA_PATH}/lib/scala-library.jar libs/
   - ant clean
   - ant debug
