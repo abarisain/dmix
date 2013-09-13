@@ -104,7 +104,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 		String wifiSSID = getCurrentSSID();
 		return
 			getStringSetting(getStringWithSSID("hostname",  wifiSSID)) == null ? null :
-			wifiSSID.trim().equals("") ? null :
+			wifiSSID == null || wifiSSID.trim().equals("") ? null :
 			wifiSSID;
 	}
 
