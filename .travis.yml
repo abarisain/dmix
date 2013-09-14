@@ -16,6 +16,8 @@ before_install:
   - echo git clone --depth 1 https://github.com/imsizon/ant-android-scala.git
   - export AAS="${PWD}/ant-android-scala"
   - sed -i s/source.dir/scala.source.dir/g ${AAS}/build-scala.xml
+  - openssl aes-128-cbc -d -salt -in .travis-debug.enc -out .travis-debug -k $key
+  - export KEY_STORE="${PWD}/.travis-debug"
 
 script:
   - cd ./MPDroid
