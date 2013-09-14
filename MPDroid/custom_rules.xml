@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="custom_rules" default="debug">
+    <property name="build.is.signing.debug" value="false"/>
+    <target name="-do-debug" depends="-set-debug-mode, -debug-obfuscation-check, -package, -post-package">
+        <!-- only create apk if *not* a library project -->
+        <do-only-if-not-library elseText="Library project: do not create apk..." >
+            <sequential>
+                <property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-debug-unaligned.apk" />
+    
+                <!-- Signs the APK -->
+                <echo>Signing final apk...</echo>
+                <signjar
+                        jar="${out.packaged.file}"
+                        signedjar="${out.unaligned.file}"
+                        keystore="${key.store}"
+                        storepass="${key.store.password}"
+                        alias="${key.alias}"
+                        keypass="${key.alias.password}"
+                        verbose="${verbose}" />
+    
+                <!-- Zip aligns the APK -->
+                <zipalign-helper
+                        in.package="${out.unaligned.file}"
+                        out.package="${out.final.file}" />
+                <echo>Debug Package: ${out.final.file}</echo>
+            </sequential>
+        </do-only-if-not-library>
+        <record-build-info />
+    </target>
+</project>
