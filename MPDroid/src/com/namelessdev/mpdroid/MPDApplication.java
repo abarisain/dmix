@@ -36,7 +36,7 @@ import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 @ReportsCrashes(
 	mode = ReportingInteractionMode.TOAST,
-	resToastText = R.string.app_name, 
+	resToastText = R.string.crashReport, 
 	httpMethod = Method.PUT,
 	reportType = Type.JSON,
 	formUri = "http://mupeace.iriscouch.com/acra-mupeace/_design/acra-storage/_update/report",

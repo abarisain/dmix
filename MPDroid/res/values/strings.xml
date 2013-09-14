@@ -227,5 +227,6 @@
     <string name="enableTabletUIDescription">Restart the application to see the changes</string>
     <string name="showRelated">Show Related</string>
     <string name="hideRelated">Hide Related</string>
+    <string name="crashReport">Please restart the application</string>
 
 </resources>
