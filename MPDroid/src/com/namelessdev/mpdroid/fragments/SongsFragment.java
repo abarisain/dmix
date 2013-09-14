@@ -275,40 +275,39 @@ public class SongsFragment extends BrowseFragment {
 	public void updateFromItems() {
 		super.updateFromItems();
 		if (items != null) {
-			Music song;
-			String lastArtist = null;
-			for (Item item : items) {
-				song = (Music) item;
-				if (lastArtist == null) {
-					lastArtist = song.getArtist();
-					continue;
-				}
+			String artistName = null;
+			try {
+				artistName = getArtistForTrackList();
+				headerArtist.setText(artistName);
+			} catch (Exception e) {
+				Log.w(e);
 			}
-			if (lastArtist == null) {
-				for (Item item : items) {
-					song = (Music) item;
-					if (lastArtist == null) {
-						lastArtist = song.getArtist();
-						continue;
-					}
-				}
+			try {
+				headerInfo.setText(getHeaderInfoString());
+			} catch (Exception e) {
+				Log.w(e);
 			}
-			String artistName = getArtistForTrackList();
-			headerArtist.setText(artistName);
-			headerInfo.setText(getHeaderInfoString());
-			if (coverHelper != null) {
-				String filename = null;
-				String path = null;
-				if (items.size() > 0) {
-					song = (Music) items.get(0);
-					filename = song.getFilename();
-					path = song.getPath();
-					artistName = song.getArtist();
+			try {
+				if (coverHelper != null) {
+					String filename = null;
+					String path = null;
+					for (Item item : items)
+						try {
+							Music song = (Music) item;
+							filename = song.getFilename();
+							path = song.getPath();
+							artistName = song.getArtist();
+							break;
+						} catch (Exception e) {
+							Log.w(e);
+						}
+					coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+					coverHelper.downloadCover(artistName, album.getName(), path, filename);
+				} else {
+					coverArtListener.onCoverNotFound();
 				}
-				coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-				coverHelper.downloadCover(artistName, album.getName(), path, filename);
-			} else {
-				coverArtListener.onCoverNotFound();
+			} catch (Exception e) {
+				Log.w(e);
 			}
 		}
 

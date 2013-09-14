@@ -305,10 +305,11 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 
 		MPDApplication app = (MPDApplication) getActivity().getApplication(); // Play selected Song
 
-		Music m = musics.get(position);
 		try {
-			app.oMPDAsyncHelper.oMPD.skipToId(m.getSongId());
+			app.oMPDAsyncHelper.oMPD.skipToId(musics.get(position).getSongId());
 		} catch (MPDServerException e) {
+		} catch (Exception e) {
+			Log.e(e);
 		}
 
 	}
