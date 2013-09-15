@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <!-- <include android:id="@+id/header" layout="@layout/generic_header" /> -->
+    <org.musicpd.android.views.TouchInterceptor android:id="@android:id/list"
+        android:layout_width="fill_parent"
+		android:layout_height="0dip"
+		android:layout_weight="1"
+		android:drawSelectorOnTop="false"
+		android:fastScrollEnabled="true"/>
+    
+
+	<LinearLayout android:id="@+id/LinearLayout01" android:background="@android:drawable/title_bar"
+		android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingTop="4dip" >
+		<Button android:layout_width="match_parent" 
+			android:layout_height="wrap_content" 
+			android:id="@+id/Remove"
+			android:text="@string/removeSongs"/>
+	</LinearLayout>
+
+
+</LinearLayout>

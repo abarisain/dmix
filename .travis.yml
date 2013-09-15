@@ -20,9 +20,10 @@ before_install:
   - export KEY_STORE="${PWD}/.travis-debug"
   - wget http://mirrors.ukfast.co.uk/sites/ftp.apache.org//ant/binaries/apache-ant-1.9.2-bin.tar.bz2 -O - |tar jx
   - export PATH="${PWD}/apache-ant-1.9.2/bin:${PATH}"
+  - export APP="$(sed 's/.*"app_name"[^>]*>\([^<]*\).*/\1/p' -n ./main/res/values-de/strings.xml)"
 
 script:
-  - cd ./MPDroid
+  - cd ./main
   - envsubst < local.properties.tmpl |tee local.properties
   - cp ${SCALA_PATH}/lib/scala-library.jar libs/
   - ant clean
@@ -38,7 +39,7 @@ after_success:
   - chmod 600 .travis-deploy
   - ssh-agent bash -c "ssh-add .travis-deploy; git clone --depth=1 --branch=downloads git@github.com:${TRAVIS_REPO_SLUG} downloads"
   - cd downloads
-  - find ../bin -name '*.apk'|while read i; do cp $i $(basename $(cd ..; pwd -P))-${i#*-}; done
+  - find ../bin -name '*.apk'|while read i; do cp $i ${APP}-${i#*-}; done
   - git add \*.apk
   - git config user.email "${USER}@$(hostname -f)"
   - git config user.name "Travis CI"

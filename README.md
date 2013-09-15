@@ -1,16 +1,14 @@
-## MPDroid
+## Mupeace
 
-**MPDroid** is a MPD client for Android. It is a fork of [PMix](http://code.google.com/p/pmix/).
+**Mupeace** is an Android Music Player Client (/ˈmjuːˌpiːs/, from MPC with pronounceability vowels) for MPD, the Music Player Daemon. It is a fork of MPDroid and, in turn, [PMix](http://code.google.com/p/pmix/). This fork retains Gingerbread compatibility, is active at squashing bugs, especially crashes, and adds features to aid navigation of large jazz or classical collections.
 
-You can browse your library, control the current song and playlist, manage your outputs, and stream music right to your phone. And all of this wrapped up in a beautiful modern Holo design !
+You can browse your library, control the current song and playlist, manage your outputs and stream music to your phone. Switch between different servers, say, in different rooms, easily with Zeroconf auto-discovery and share from the YouTube application to queue the audio for your stereo. 
 
-What's not to like ? 
-
-![Now Playing/library Screenshot](https://raw.github.com/abarisain/dmix/master/Screenshots/readme.png)
+![Now Playing/library Screenshot](https://raw.github.com/eisnerd/dmix/master/Screenshots/readme.png)
 
 #### Compatibility
 
-MPDroid works on **all** devices from 2.2 to 4.1
+Mupeace works on **all** devices from 2.2 to 4.1
 1280x800 (13") Tablets are also supported, and even have a special layout.
 10" will use the phone layout, and Nexus 7 support is being worked on.
 
@@ -28,9 +26,9 @@ LastFM-java - Last.FM cover art support
  - Lack some library information (read the roadmap)
 
 ## Roadmap
-New features will most likely be delayed. MPDroid is, in my opinion, almost fully-featured and pushes (hits) MPD's api limits. Widely requested features (like better search, better library browsing) can't be done whithout duplicating MPD's database locally.  
+New features will most likely be delayed. Mupeace is, in my opinion, almost fully-featured and pushes (hits) MPD's api limits. Widely requested features (like better search, better library browsing) can't be done whithout duplicating MPD's database locally.  
 This is a huge project, and it will take a lot of time (if ever done).
-Also, MPDroid's speed isn't that great, but considering that MPD's api was never made for 3G (read crappy) connections, it is also not that bad.
+Also, Mupeace's speed isn't that great, but considering that MPD's api was never made for 3G (read crappy) connections, it is also not that bad.
 
 So, the current roadmap is :
 
@@ -39,7 +37,7 @@ So, the current roadmap is :
  - [x] ~~Select default library tab to show (for people who mainly use filesystem view)~~ (done in 1.03)
  - [ ] Add better streams support
  - [ ] Add lyrics & artist/album info
- - [ ] Make MPDroid configurable for multiple servers (Better implementation than the hackish wlan based one)
+ - [ ] Make Mupeace configurable for multiple servers (Better implementation than the hackish wlan based one)
  - [ ] Add bonjour support
  - [ ] Streams XML Import/Export
  - [ ] Rework AlbumArtist (also, see LouBas's request on the blog)
@@ -47,13 +45,13 @@ So, the current roadmap is :
  - [x] ~~Fix the stupdly small hitbox for the progress thumb, make the view sliding impossible around it so accidents don't happen as often as they do now~~ (1.04)
  - [x] ~~Improve cover art support and add a local cache~~
  - [x] ~~Better Android 4.x integration (Jelly Bean notifications, lock screen controls)~~
- - Keep it the most up to date and best MPDroid client for android
+ - Keep it the most up to date and best Mupeace client for android
  - ???
  - Profit
 
 ## Donations
 
-Since MPDroid is a fork of dmix and that a lot of people helped me with some huge patches (see special thanks), I don't really belive it would be ethical to accept donations.
+Since Mupeace is a fork of dmix and that a lot of people helped me with some huge patches (see special thanks), I don't really belive it would be ethical to accept donations.
 
 If you still want to donate, I have a paypal address at dreamteam69@gmail.com , you can send how much you want to it :)
 
@@ -64,12 +62,12 @@ Please consider donating to some of the developpers down there :)
 
 Obviously, PMix for their work on the original application. There is not much of PMix left, but their core code is still here.
 
-Everybody who blogged about MPDroid, allowing it to gain a large userbase.
+Everybody who blogged about Mupeace, allowing it to gain a large userbase.
 Mopidy, for working with me on the search support.
 
 #### Developpers
 
-There are a lot of people here. Developpers who crossed my path now and then, working on mpdroid and fixing some things. This project wouldn't be the same without you !
+There are a lot of people here. Developpers who crossed my path now and then, working on Mupeace and fixing some things. This project wouldn't be the same without you !
 
 [Kent Gustavsson](https://github.com/orrche) - Cleaned up a lot of PMix's old bugged core and polished the interface. Huge refactoring work on the activities.
 
@@ -79,7 +77,7 @@ There are a lot of people here. Developpers who crossed my path now and then, wo
 
 Andrew Blackburn - Various stuff, suggestions and layout work
 
-[Stefan Richter](https://github.com/02strich) - Refactoring and … Widget ! I was really too lazy about this one, and it was a much requested feature. Also added a way to build MPDroid from the command line, which I didn't even try.
+[Stefan Richter](https://github.com/02strich) - Refactoring and … Widget ! I was really too lazy about this one, and it was a much requested feature. Also added a way to build Mupeace from the command line, which I didn't even try.
 
 [Matt Black](https://github.com/mafrosis) - Also worked on ant building. Reported a log of bugs/improvement suggestions. We may not agree on everything but it's been useful !
 

@@ -1,8 +1,8 @@
-/MPDroid/bin
-/MPDroid/gen
-/MPDroid/.classpath
-/MPDroid/local.properties
-/MPDroid/proguard*
+/main/bin
+/main/gen
+/main/.classpath
+/main/local.properties
+/main/proguard*
 /ActionBarSherlock/bin
 /ActionBarSherlock/gen
 /ActionBarSherlock/proguard*
