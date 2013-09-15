@@ -16,6 +16,8 @@
                         storepass="${key.store.password}"
                         alias="${key.alias}"
                         keypass="${key.alias.password}"
+                        sigalg="MD5withRSA"
+                        digestalg="SHA1"
                         verbose="${verbose}" />
     
                 <!-- Zip aligns the APK -->

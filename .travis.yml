@@ -18,6 +18,8 @@ before_install:
   - sed -i s/source.dir/scala.source.dir/g ${AAS}/build-scala.xml
   - openssl aes-128-cbc -d -salt -in .travis-debug.enc -out .travis-debug -k $key
   - export KEY_STORE="${PWD}/.travis-debug"
+  - wget http://mirrors.ukfast.co.uk/sites/ftp.apache.org//ant/binaries/apache-ant-1.9.2-bin.tar.bz2 -O - |tar jx
+  - export PATH="${PWD}/apache-ant-1.9.2/bin:${PATH}"
 
 script:
   - cd ./MPDroid
