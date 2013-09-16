@@ -26,8 +26,8 @@ import org.musicpd.android.MPDActivities.MPDActivity;
 import org.musicpd.android.adapters.SeparatedListAdapter;
 import org.musicpd.android.helpers.MPDAsyncHelper.AsyncExecListener;
 import org.musicpd.android.library.SimpleLibraryActivity;
-import org.musicpd.android.tools.Log;
-import org.musicpd.android.tools.Tools;
+import org.musicpd.android.tools.*;
+import org.musicpd.android.tools.Function.*;
 import org.musicpd.android.views.SearchResultDataBinder;
 
 public class SearchActivity extends MPDActivity implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
@@ -248,62 +248,61 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 	
 	protected void asyncUpdate() {
 		final String finalsearch = this.searchKeywords.toLowerCase();
+		
+		Utils.retry(new MPDAction0() {
+			public void apply() throws MPDServerException {
+				ArrayList<Music> arrayMusic = (ArrayList<Music>) app.oMPDAsyncHelper.oMPD.search("any", finalsearch);
 
-		ArrayList<Music> arrayMusic = null;
-		
-		try {
-			arrayMusic = (ArrayList<Music>) app.oMPDAsyncHelper.oMPD.search("any", finalsearch);
-		} catch (MPDServerException e) {
-		}
-
-		final ArrayList<Music> musicItems = new ArrayList<Music>();
-		final ArrayList<Artist> artistItems = new ArrayList<Artist>();
-		final ArrayList<Album> albumItems = new ArrayList<Album>();
-		String tmpValue;
-		boolean valueFound;
-		for (Music music : arrayMusic) {
-			if(music.getTitle() != null &&  music.getTitle().toLowerCase().contains(finalsearch)) {
-				musicItems.add(music);
-			}
-			valueFound = false;
-			tmpValue = music.getArtist();
-			if(tmpValue != null && tmpValue.toLowerCase().contains(finalsearch)) {
-				for (Artist artistItem : artistItems) {
-					if(artistItem.getName().equalsIgnoreCase(tmpValue))
-						valueFound = true;
+				final ArrayList<Music> musicItems = new ArrayList<Music>();
+				final ArrayList<Artist> artistItems = new ArrayList<Artist>();
+				final ArrayList<Album> albumItems = new ArrayList<Album>();
+				String tmpValue;
+				boolean valueFound;
+				for (Music music : arrayMusic) {
+					if(music.getTitle() != null &&  music.getTitle().toLowerCase().contains(finalsearch)) {
+						musicItems.add(music);
+					}
+					valueFound = false;
+					tmpValue = music.getArtist();
+					if(tmpValue != null && tmpValue.toLowerCase().contains(finalsearch)) {
+						for (Artist artistItem : artistItems) {
+							if(artistItem.getName().equalsIgnoreCase(tmpValue))
+								valueFound = true;
+						}
+						if(!valueFound)
+							artistItems.add(new Artist(tmpValue, 0));
+					}
+					valueFound = false;
+					tmpValue = music.getAlbum();
+					if(tmpValue != null &&  tmpValue.toLowerCase().contains(finalsearch)) {
+						for (Album albumItem : albumItems) {
+							if(albumItem.getName().equalsIgnoreCase(tmpValue))
+								valueFound = true;
+						}
+						if(!valueFound)
+							albumItems.add(new Album(tmpValue));
+					}			
 				}
-				if(!valueFound)
-					artistItems.add(new Artist(tmpValue, 0));
-			}
-			valueFound = false;
-			tmpValue = music.getAlbum();
-			if(tmpValue != null &&  tmpValue.toLowerCase().contains(finalsearch)) {
-				for (Album albumItem : albumItems) {
-					if(albumItem.getName().equalsIgnoreCase(tmpValue))
-						valueFound = true;
+				
+				Collections.sort(musicItems);
+				Collections.sort(artistItems);
+				Collections.sort(albumItems);
+				
+				arrayResults.clear();
+				if(!artistItems.isEmpty()) {
+					arrayResults.add(getString(R.string.artists));
+					arrayResults.addAll(artistItems);
 				}
-				if(!valueFound)
-					albumItems.add(new Album(tmpValue));
-			}			
-		}
-		
-		Collections.sort(musicItems);
-		Collections.sort(artistItems);
-		Collections.sort(albumItems);
-		
-		arrayResults.clear();
-		if(!artistItems.isEmpty()) {
-			arrayResults.add(getString(R.string.artists));
-			arrayResults.addAll(artistItems);
-		}
-		if(!albumItems.isEmpty()) {
-			arrayResults.add(getString(R.string.albums));
-			arrayResults.addAll(albumItems);
-		}
-		if(!musicItems.isEmpty()) {
-			arrayResults.add(getString(R.string.songs));
-			arrayResults.addAll(musicItems);
-		}
+				if(!albumItems.isEmpty()) {
+					arrayResults.add(getString(R.string.albums));
+					arrayResults.addAll(albumItems);
+				}
+				if(!musicItems.isEmpty()) {
+					arrayResults.add(getString(R.string.songs));
+					arrayResults.addAll(musicItems);
+				}
+			}
+		});
 	}
 	
 	/**
