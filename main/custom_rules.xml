@@ -29,4 +29,27 @@
         </do-only-if-not-library>
         <record-build-info />
     </target>
+
+    <target name="-pre-compile">
+	<exec executable="sh" outputproperty="git.version.name">
+	    <arg value="-c" />
+	    <arg value="git describe --long --match v[0-9.]*| sed 's/^v//;s/-/./'" />
+	</exec>
+	<echo>git.version.name: ${git.version.name}</echo>
+
+        <exec executable="sh" outputproperty="git.version.code">
+            <arg value="-c" />
+            <arg value="echo $((($(date +%s)-$(date -d 2013-1-1 +%s))/30))" />
+        </exec>
+        <echo>git.version.code: ${git.version.code}</echo>
+
+	<replaceregexp
+	    file="${out.manifest.abs.file}"
+	    match='android:versionName="[^"]*"'
+	    replace='android:versionName="${git.version.name}"' />
+        <replaceregexp
+            file="${out.manifest.abs.file}"
+            match='android:versionCode="[^"]*"'
+            replace='android:versionCode="${git.version.code}"' />
+    </target>
 </project>
