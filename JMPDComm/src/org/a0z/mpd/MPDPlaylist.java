@@ -184,21 +184,28 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 	 * @return current playlist version.
 	 */
 	private int refresh() throws MPDServerException {
-		if (firstRefreash) {
-			// TODO should be atomic
-			MPDStatus status = this.mpd.getStatus();
-			List<String> response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_LIST);
-			List<Music> playlist = Music.getMusicFromList(response, false);
-
-			list.clear();
-			list.addAll(playlist);
-			
-			lastPlaylistVersion = status.getPlaylistVersion();
-			firstRefreash = false;
-		} else {
-			this.lastPlaylistVersion = this.refresh(lastPlaylistVersion);
-		}
-		return this.lastPlaylistVersion;
+		while(true) 
+			try {
+				if (firstRefreash) {
+					// TODO should be atomic
+					MPDStatus status = this.mpd.getStatus();
+					List<String> response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_LIST);
+					List<Music> playlist = Music.getMusicFromList(response, false);
+		
+					list.clear();
+					list.addAll(playlist);
+					
+					lastPlaylistVersion = status.getPlaylistVersion();
+					firstRefreash = false;
+				} else {
+					this.lastPlaylistVersion = this.refresh(lastPlaylistVersion);
+				}
+				return this.lastPlaylistVersion;
+			} catch(Exception e) {
+				// Log and ignore errors relating to lack of atomicity
+				e.printStackTrace();
+				firstRefreash = true;
+			}
 	}
 
 	/**
