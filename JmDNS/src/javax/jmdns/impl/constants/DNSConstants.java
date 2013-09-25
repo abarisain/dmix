@@ -42,10 +42,10 @@ public final class DNSConstants {
     public static final int    QUERY_WAIT_INTERVAL            = 225;                                                          // milliseconds between query loops.
     public static final int    PROBE_WAIT_INTERVAL            = 250;                                                          // milliseconds between probe loops.
     public static final int    RESPONSE_MIN_WAIT_INTERVAL     = 20;                                                           // minimal wait interval for response.
-    public static final int    RESPONSE_MAX_WAIT_INTERVAL     = 115;                                                          // maximal wait interval for response
-    public static final int    PROBE_CONFLICT_INTERVAL        = 1000;                                                         // milliseconds to wait after conflict.
-    public static final int    PROBE_THROTTLE_COUNT           = 10;                                                           // After x tries go 1 time a sec. on probes.
-    public static final int    PROBE_THROTTLE_COUNT_INTERVAL  = 5000;                                                         // We only increment the throttle count, if the previous increment is inside this interval.
+    public static final int    RESPONSE_MAX_WAIT_INTERVAL     = 200;                                                          // maximal wait interval for response
+    public static final int    PROBE_CONFLICT_INTERVAL        = 500;                                                         // milliseconds to wait after conflict.
+    public static final int    PROBE_THROTTLE_COUNT           = 30;                                                           // After x tries go 1 time a sec. on probes.
+    public static final int    PROBE_THROTTLE_COUNT_INTERVAL  = 1000;                                                         // We only increment the throttle count, if the previous increment is inside this interval.
     public static final int    ANNOUNCE_WAIT_INTERVAL         = 1000;                                                         // milliseconds between Announce loops.
     public static final int    RECORD_REAPER_INTERVAL         = 10000;                                                        // milliseconds between cache cleanups.
     public static final int    RECORD_EXPIRY_DELAY            = 1;                                                            // This is 1s delay used in ttl and therefore in seconds
