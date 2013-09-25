@@ -39,9 +39,9 @@ import org.musicpd.android.tools.SettingsHelper;
 	resToastText = R.string.crashReport, 
 	httpMethod = Method.PUT,
 	reportType = Type.JSON,
-	formUri = "http://mupeace.iriscouch.com/acra-mupeace/_design/acra-storage/_update/report",
-	formUriBasicAuthLogin = "mupeace",
-	formUriBasicAuthPassword = "foopeace",
+	formUri = "http://mupeace.cloudant.com/acra-mupeace/_design/acra-storage/_update/report",
+	formUriBasicAuthLogin = "waskervaptembrivoutstone",
+	formUriBasicAuthPassword = "yH27tfmOtgx8DkwgoJtAEJDN",
 	formKey = ""
 )
 public class MPDApplication extends Application implements ConnectionListener {
