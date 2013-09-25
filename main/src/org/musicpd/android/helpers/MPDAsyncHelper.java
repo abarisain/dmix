@@ -155,7 +155,8 @@ public class MPDAsyncHelper extends Handler {
 		case EVENT_EXECASYNCFINISHED:
 			// Asynchronous operation finished, call the listeners and supply the JobID...
 			for (AsyncExecListener listener : asyncExecListeners)
-				listener.asyncExecSucceeded(msg.arg1);
+				if (listener != null)
+					listener.asyncExecSucceeded(msg.arg1);
 			break;
 		}
 		} catch(ClassCastException e) {
