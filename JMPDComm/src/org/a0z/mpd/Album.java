@@ -1,9 +1,11 @@
 package org.a0z.mpd;
 
+import java.io.Serializable;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Album extends Item implements Parcelable {
+public class Album extends Item implements Parcelable, Serializable {
 	public static String singleTrackFormat="%1 Track (%2)";
 	public static String multipleTracksFormat="%1 Tracks (%2)";
 

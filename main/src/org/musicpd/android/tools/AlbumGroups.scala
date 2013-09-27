@@ -5,7 +5,7 @@ import org.a0z.mpd._
 
 import Utils._
 
-class AlbumGroup(display : String, as : List[Album]) extends Album(display) {
+class AlbumGroup(display : String, as : List[Album]) extends Album(display) with Serializable {
   protected val catalogue = new scala.util.matching.Regex("""^(.*?)(?:,? +[(]([^()]+)[)])$""")
   def albums() = new java.util.ArrayList(as.map(a => new Album(catalogue.replaceAllIn(a.getName(), "$2, $1"))).toList.asJava)
   def get(i : Int) = as(i)

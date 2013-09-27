@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -826,7 +827,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 			case POPUP_ARTIST:
 				intent = new Intent(getActivity(), SimpleLibraryActivity.class);
 				intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
-				intent.putExtra("album", new Album(currentSong.getAlbum()));
+				intent.putExtra("album", (Parcelable)new Album(currentSong.getAlbum()));
 				startActivityForResult(intent, -1);
 				break;
 			case POPUP_FOLDER:

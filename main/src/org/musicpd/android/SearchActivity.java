@@ -11,6 +11,7 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.ContextMenu;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
@@ -158,7 +159,7 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 			startActivityForResult(intent, -1);
 		} else if(selectedItem instanceof Album) {
 			Intent intent = new Intent(this, SimpleLibraryActivity.class);
-			intent.putExtra("album", ((Album) selectedItem));
+			intent.putExtra("album", ((Parcelable) selectedItem));
 			startActivityForResult(intent, -1);
 		}
 	}
