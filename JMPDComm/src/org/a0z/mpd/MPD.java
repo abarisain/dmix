@@ -33,7 +33,7 @@ public class MPD {
 	static private boolean sortByTrackNumber = true;
 	static private boolean sortAlbumsByYear = false;
 	static private boolean showArtistAlbumCount = false;
-	static private boolean showAlbumTrackCount = true;
+	static private boolean showAlbumTrackCount = false;
 
 	static private Context applicationContext = null;
 
