@@ -115,7 +115,7 @@
 	<string name="search_hint">Search …</string>
 	<string name="libraryTabActivity">Library</string>
 	<string name="warningTitle">Please read</string>
-	<string name="warningText1">Welcome to Mupeace\nThis will only display once.\n\nFirst of all, this application is for controlling an MPD server, so it is no use unless you have one. MPD is open source, free and easy to set up on your PC or embedded linux devices, however, so why not have a look for a tutorial?\n\nMupeace will attempt to discover MPD servers on your wifi network. If this fails, you\'re using mobile data not wifi or your server is password protected, you will need to use the settings menu, accessed with the cog icon, to enter the connection details.</string>
+	<string name="warningText1">Welcome to Mupeace\nThis will only display once.\n\nFirst of all, this application is for controlling an MPD server, so it is no use unless you have one. MPD is open source, free and easy to set up on your PC or embedded linux devices, however, so why not have a look for a tutorial?\n\nMupeace will attempt to discover MPD servers on your wifi network. If this fails, you\'re using mobile data not wifi or your server is password protected, you will need to use the settings menu, accessed with the spanner or rotary switch icon, to enter the connection details.</string>
 	<string name="editPlaylist">Edit</string>
 	<string name="edit">Edit</string>
 	<string name="nowPlaying">Now Playing</string>
