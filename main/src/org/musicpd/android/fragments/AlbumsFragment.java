@@ -86,7 +86,8 @@ public class AlbumsFragment extends BrowseFragment {
 	
 	@Override
 	protected void asyncUpdate() {
-		if (artist != null)
+		if (artist == null)
+			Log.w("Listing all albums");
 		try {
 			if ((items = albumCache.get(artist == null? none : artist)) == null) {
 				java.util.List<Album> albums = app.oMPDAsyncHelper.oMPD.getAlbums(artist);
