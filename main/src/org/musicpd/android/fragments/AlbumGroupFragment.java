@@ -4,6 +4,7 @@ import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
 
 import org.musicpd.android.R;
+import org.musicpd.android.tools.Log;
 import org.musicpd.android.tools.AlbumGroup;
 
 import android.os.Bundle;
@@ -18,9 +19,14 @@ public class AlbumGroupFragment extends AlbumsFragment {
 
 	@Override
 	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-		if (icicle != null)
-			init((AlbumGroup) icicle.getParcelable(EXTRA_ALBUMGROUP));
+		try {
+			super.onCreate(icicle);
+			if (icicle != null)
+				init((AlbumGroup) icicle.getSerializable(EXTRA_ALBUMGROUP));
+		} catch(Exception e) {
+			Log.e(e);
+			getActivity().getSupportFragmentManager().popBackStack();
+		}
 	}
 
 	@Override
