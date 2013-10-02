@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
@@ -51,7 +52,15 @@ public class ServerBonjourListActivity extends SherlockListActivity implements S
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-    	
+
+		try {
+			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+				.permitAll()
+				.build());
+		} catch (Throwable t) {
+			Log.w(t);
+		}
+
     	final MPDApplication app = (MPDApplication) getApplicationContext();
     	settings = new SettingsHelper(app, oMPDAsyncHelper = app.oMPDAsyncHelper);
     	
