@@ -205,7 +205,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			songlist = new ArrayList<HashMap<String, Object>>();
-			musics = playlist.getMusicList();
+			List<Music> currentMusics = musics = playlist.getMusicList();
 			if (lastPlayingID == -1 || forcePlayingIDRefresh)
 				lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			// The position in the songlist of the currently played song
@@ -214,7 +214,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			String tmpAlbum = null;
 			String tmpAlbumArtist = null;
 			String tmpTitle = null;
-			for (Music m : musics) {
+			for (Music m : currentMusics) {
 				if (m == null) {
 					continue;
 				}
