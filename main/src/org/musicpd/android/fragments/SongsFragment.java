@@ -86,7 +86,8 @@ public class SongsFragment extends BrowseFragment {
 	public void onDestroyView() {
 		headerArtist = null;
 		headerInfo = null;
-		coverArtListener.freeCoverDrawable();
+		if (coverArtListener != null)
+			coverArtListener.freeCoverDrawable();
 		super.onDestroyView();
 	}
 

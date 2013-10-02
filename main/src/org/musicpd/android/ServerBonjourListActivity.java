@@ -146,8 +146,8 @@ public class ServerBonjourListActivity extends SherlockListActivity implements S
     		super.onDestroy();
     		return;
     	}
-    	
-		threadAddingServers.interrupt();
+    	if (threadAddingServers != null)
+    		threadAddingServers.interrupt();
     	try {
 			jmdns.close();
 		} catch (IOException e) {

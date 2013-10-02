@@ -152,8 +152,10 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 
 	@Override
 	public void onDestroyView() {
-		coverArt.setImageResource(R.drawable.no_cover_art);
-		coverArtListener.freeCoverDrawable();
+		if (coverArt != null)
+			coverArt.setImageResource(R.drawable.no_cover_art);
+		if (coverArtListener)
+			coverArtListener.freeCoverDrawable();
 		super.onDestroyView();
 	}
 
