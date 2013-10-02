@@ -83,11 +83,11 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 		  public void apply() throws MPDServerException {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			songlist = new ArrayList<HashMap<String, Object>>();
-			musics = playlist.getMusicList();
+			List<Music> currentMusics = musics = playlist.getMusicList();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			// The position in the songlist of the currently played song
 			int listPlayingID = -1;
-			for (Music m : musics) {
+			for (Music m : currentMusics) {
 				if (m == null) {
 					continue;
 				}
@@ -125,21 +125,25 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 
 			final int finalListPlayingID = listPlayingID;
 
-			getActivity().runOnUiThread(new Runnable() {
-				public void run() {
-					SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item, new String[] { "play",
-							"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
+			try {
+				getActivity().runOnUiThread(new Runnable() {
+					public void run() {
+						SimpleAdapter songs = new SimpleAdapter(getActivity(), songlist, R.layout.playlist_list_item, new String[] { "play",
+								"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
-					setListAdapter(songs);
+						setListAdapter(songs);
 
-					// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
-					// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
-					// other
-					// stuff.
-					if (finalListPlayingID > 0)
-						setSelection(finalListPlayingID);
-				}
-			});
+						// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
+						// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
+						// other
+						// stuff.
+						if (finalListPlayingID > 0)
+							setSelection(finalListPlayingID);
+					}
+				});
+			} catch (Exception e) {
+				Log.w(e);
+			}
 		  }
 		});
 	}
