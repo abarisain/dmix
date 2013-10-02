@@ -533,40 +533,36 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private String lastAlbum = "";
 
 	public void updateTrackInfo() {
-		new updateTrackInfoAsync().execute((MPDStatus[]) null);
+		updateTrackInfo(null);
 	}
 
 	public void updateTrackInfo(MPDStatus status) {
-		new updateTrackInfoAsync().execute(status);
+		new updateTrackInfoAsync(((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD).execute(status);
 	}
 
 	public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
 		Music actSong = null;
 		MPDStatus status = null;
+		final MPD oMPD;
+		public updateTrackInfoAsync(MPD oMPD) { this.oMPD = oMPD; }
 
 		@Override
 		protected Boolean doInBackground(MPDStatus... params) {
-			if (params == null) {
-				MPDApplication app = (MPDApplication) getActivity().getApplication();
-				try {
-					// A recursive call doesn't seem that bad here.
-					return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
-				} catch (MPDServerException e) {
-					Log.w(e);
-				}
-				return false;
-			}
-			if (params[0] != null) {
-				String state = params[0].getState();
+			String state = null;
+			try {
+				if (params == null || params[0] == null)
+					state = (status = oMPD.getStatus()).getState();
+				else
+					state = (status = params[0]).getState();
 				if (state != null) {
-					int songPos = params[0].getSongPos();
+					int songPos = status.getSongPos();
 					if (songPos >= 0) {
-						MPDApplication app = (MPDApplication) getActivity().getApplication();
-						actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-						status = params[0];
+						actSong = oMPD.getPlaylist().getByIndex(songPos);
 						return true;
 					}
 				}
+			} catch (Exception e) {
+				Log.w(e);
 			}
 			return false;
 		}

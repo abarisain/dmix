@@ -60,7 +60,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 	public void onStart() {
 		super.onStart();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
-		new updateTrackInfoAsync().execute((MPDStatus[]) null);
+		updateTrackInfo();
 	}
 
 	@Override
@@ -160,7 +160,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 	
 	@Override
 	public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-		new updateTrackInfoAsync().execute(mpdStatus);
+		updateTrackInfo(mpdStatus);
 	}
 
 	@Override
@@ -169,7 +169,7 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 			return;
 		// If the playlist changed but not the song position in the playlist
 		// We end up being desynced. Update the current song.
-		new updateTrackInfoAsync().execute((MPDStatus[]) null);
+		updateTrackInfo();
 	}
 
 	@Override
@@ -201,31 +201,37 @@ public class NowPlayingSmallFragment extends SherlockFragment implements StatusC
 		return;
 	}
 	
+	public void updateTrackInfo() {
+		updateTrackInfo(null);
+	}
+
+	public void updateTrackInfo(MPDStatus status) {
+		new updateTrackInfoAsync(((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD).execute(status);
+	}
+
 	public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
 		Music actSong = null;
 		MPDStatus status = null;
+		final MPD oMPD;
+		public updateTrackInfoAsync(MPD oMPD) { this.oMPD = oMPD; }
 
 		@Override
 		protected Boolean doInBackground(MPDStatus... params) {
-			if (params == null) {
-				try {
-					// A recursive call doesn't seem that bad here.
-					return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
-				} catch (MPDServerException e) {
-					Log.w(e);
-				}
-				return false;
-			}
-			if (params[0] != null) {
-				String state = params[0].getState();
+			String state = null;
+			try {
+				if (params == null || params[0] == null)
+					state = (status = oMPD.getStatus()).getState();
+				else
+					state = (status = params[0]).getState();
 				if (state != null) {
-					int songPos = params[0].getSongPos();
+					int songPos = status.getSongPos();
 					if (songPos >= 0) {
-						actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-						status = params[0];
+						actSong = oMPD.getPlaylist().getByIndex(songPos);
 						return true;
 					}
 				}
+			} catch (Exception e) {
+				Log.w(e);
 			}
 			return false;
 		}
