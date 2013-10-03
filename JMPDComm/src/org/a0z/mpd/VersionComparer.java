@@ -13,10 +13,10 @@ public class VersionComparer implements Comparator<String> {
     static final byte S_Zeros = 0x9;
 
     /* result_type: CMP: return diff; LEN: compare using len_diff/diff */
-	static final byte R_BFR = -1;
-	static final byte R_AFT = +1;
-	static final byte R_CMP = 2;
-	static final byte R_LEN = 3;
+    static final byte R_BFR = -1;
+    static final byte R_AFT = +1;
+    static final byte R_CMP = 2;
+    static final byte R_LEN = 3;
 
     /* Symbol(s)    0       [1-9]   others
        Transition   (10) 0  (01) d  (00) x   */
@@ -74,7 +74,7 @@ public class VersionComparer implements Comparator<String> {
             state += (c1 == '0' ? O : Z) + (Character.isDigit(c1) ? O : Z);
         }
 
-        switch (result_type[state * 3 + (((c2 == '0' ? O : Z) + (Character.isDigit(c2) ? O : Z)))])
+        switch (state = result_type[state * 3 + (((c2 == '0' ? O : Z) + (Character.isDigit(c2) ? O : Z)))])
         {
             case R_CMP:
                 return diff;
