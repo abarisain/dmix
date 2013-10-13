@@ -76,11 +76,19 @@
                 android:gravity="center_horizontal"/>
 
         <TextView
+                android:id="@+id/yearName"
+                style="@style/InfoSubText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dip"
+                android:fontFamily="sans-serif-light"
+                android:layout_below="@+id/albumName" android:gravity="center_horizontal"/>
+        <TextView
                 android:id="@+id/audioName"
                 style="@style/InfoSubText"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/albumName"
+                android:layout_below="@+id/yearName"
                 android:layout_marginTop="1dip"
                 android:fontFamily="sans-serif-light"
                 android:gravity="center_horizontal"/>

@@ -52,6 +52,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private TextView songNameText;
     private TextView albumNameText;
     private TextView audioNameText;
+    private TextView yearNameText;
     private ImageButton shuffleButton = null;
     private ImageButton repeatButton = null;
     private ImageButton stopButton = null;
@@ -183,12 +184,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         albumNameText = (TextView) view.findViewById(R.id.albumName);
         songNameText = (TextView) view.findViewById(R.id.songName);
         audioNameText = (TextView) view.findViewById(R.id.audioName);
+        yearNameText = (TextView) view.findViewById(R.id.yearName);
         artistNameText.setSelected(true);
         albumNameText.setSelected(true);
         songNameText.setSelected(true);
-        if (audioNameText != null) {
-            audioNameText.setSelected(true);
-        }
+        audioNameText.setSelected(true);
+        yearNameText.setSelected(true);
         shuffleButton = (ImageButton) view.findViewById(R.id.shuffle);
         repeatButton = (ImageButton) view.findViewById(R.id.repeat);
 
@@ -551,8 +552,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 String album = null;
                 String path = null;
                 String filename = null;
-                long date = 0;
-                int trackNumber = 0;
+                String date = null;
+                String trackNumber = null;
 
                 int songMax = 0;
                 boolean noSong = actSong == null || status.getPlaylistLength() == 0;
@@ -565,7 +566,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     if (actSong.haveTitle()) {
                         title = actSong.getTitle();
                         album = actSong.getName();
-                        date = actSong.getDate();
                     } else {
                         title = actSong.getName();
                         album = "";
@@ -574,30 +574,36 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     path = actSong.getPath();
                     filename = actSong.getFilename();
                     songMax = (int) actSong.getTime();
+                    trackNumber = "0";
+                    date = "";
+
                 } else {
                     currentSong = actSong;
                     Log.d("MPDroid", "We did find an artist");
                     artist = actSong.getArtist();
                     title = actSong.getTitle();
                     album = actSong.getAlbum();
-                    date = actSong.getDate();
+                    date = Long.toString(actSong.getDate());
                     path = actSong.getPath();
                     filename = actSong.getFilename();
                     songMax = (int) actSong.getTime();
-                    trackNumber = actSong.getTrack();
+                    trackNumber = Integer.toString(actSong.getTrack());
                 }
 
                 artist = artist == null ? "" : artist;
                 title = title == null ? "" : title;
-                title = trackNumber != 0 ? trackNumber + " - " + title : title;
+                title = trackNumber == null || trackNumber == "0" || trackNumber == "" ? title : trackNumber + " - " +title;
                 album = album == null ? "" : album;
-                album = date == 0 ? album : album + " - " + date;
+                date = date == "0" ? "" : date ;
+
 
 
                 artistNameText.setText(artist);
                 songNameText.setText(title);
                 albumNameText.setText(album);
                 progressBarTrack.setMax(songMax);
+                yearNameText.setText(date);
+
                 updateStatus(status);
                 if (noSong || actSong.isStream()) {
                     lastArtist = artist;
@@ -617,6 +623,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 songNameText.setText(R.string.noSongInfo);
                 albumNameText.setText("");
                 progressBarTrack.setMax(0);
+                yearNameText.setText("");
             }
         }
     }
