@@ -592,10 +592,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
                 artist = artist == null ? "" : artist;
                 title = title == null ? "" : title;
-                title = trackNumber == null || trackNumber == "0" || trackNumber == "" ? title : trackNumber + " - " +title;
+                title = trackNumber == null || trackNumber == "0" || trackNumber == "" ? title : title + " - " + trackNumber;
                 album = album == null ? "" : album;
-                date = date == "0" ? "" : date ;
-
+                date = date == "0" ? "" : " - " + date;
 
 
                 artistNameText.setText(artist);

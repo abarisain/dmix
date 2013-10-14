@@ -65,30 +65,36 @@
                 android:fontFamily="sans-serif-light"
                 android:gravity="center_horizontal"/>
 
-        <TextView
-                android:id="@+id/albumName"
-                style="@style/InfoSubText"
+        <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/artistName"
-                android:layout_marginTop="1dip"
-                android:fontFamily="sans-serif-light"
-                android:gravity="center_horizontal"/>
-
-        <TextView
-                android:id="@+id/yearName"
-                style="@style/InfoSubText"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="1dip"
-                android:fontFamily="sans-serif-light"
-                android:layout_below="@+id/albumName" android:gravity="center_horizontal"/>
+                android:layout_height="wrap_content" android:layout_below="@+id/artistName"
+                android:id="@+id/albumLayout" android:gravity="center_horizontal">
+            <TextView
+                    android:id="@+id/albumName"
+                    style="@style/InfoSubText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dip"
+                    android:fontFamily="sans-serif-light"
+                    android:layout_gravity="right" android:gravity="right"
+                    android:layout_weight="50" android:textAlignment="textStart"/>
+            <TextView
+                    android:id="@+id/yearName"
+                    style="@style/InfoSubText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dip"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="left"
+                    android:layout_gravity="left" android:layout_weight="50" android:textAlignment="textEnd"/>
+        </LinearLayout>
         <TextView
                 android:id="@+id/audioName"
                 style="@style/InfoSubText"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/yearName"
+                android:layout_below="@+id/albumLayout"
                 android:layout_marginTop="1dip"
                 android:fontFamily="sans-serif-light"
                 android:gravity="center_horizontal"/>
