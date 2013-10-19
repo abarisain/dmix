@@ -1,154 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-	android:key="preferencescreen">
-	<PreferenceCategory android:title="@string/serverSettings">
-		<!-- Connection Settings -->
-		<PreferenceScreen android:title="@string/connectionSettings"
-			android:summary="@string/connectionSettingsDescription" android:key="connectionScreen">
+                  android:key="preferencescreen">
+    <PreferenceCategory android:title="@string/serverSettings">
+        <!-- Connection Settings -->
+        <PreferenceScreen android:title="@string/connectionSettings"
+                          android:summary="@string/connectionSettingsDescription" android:key="connectionScreen">
 
-			<intent android:action="android.intent.action.MAIN"
-				android:targetPackage="com.namelessdev.mpdroid"
-				android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings" />
+            <intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="com.namelessdev.mpdroid"
+                    android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings"/>
 
-		</PreferenceScreen>
-		<!-- Outputs -->
-		<PreferenceScreen android:key="outputsScreen"
-			android:title="@string/outputs" android:summary="@string/outputsDescription">
-			<PreferenceCategory android:key="outputsCategory"
-				android:id="@+id/preferenceOutput" android:title="@string/outputs">
-			</PreferenceCategory>
-		</PreferenceScreen>
-		<!-- Other settings -->
-		<PreferenceScreen android:title="@string/updateDB"
-			android:summary="@string/updateDBDetails" android:key="updateDB">
-		</PreferenceScreen>
-		<!-- Server Information -->
-		<PreferenceScreen android:key="informationScreen"
-			android:title="@string/serverInformation" android:summary="@string/serverInformationDescription">
-			<PreferenceCategory android:key="outputs"
-				android:id="@+id/preferenceOutput" android:title="@string/serverInformation">
-				<EditTextPreference android:key="version"
-					android:title="@string/version" android:defaultValue=""
-					android:enabled="false" />
-				<EditTextPreference android:key="artists"
-					android:title="@string/artists" android:defaultValue=""
-					android:enabled="false" />
-				<EditTextPreference android:key="albums"
-					android:title="@string/albums" android:defaultValue=""
-					android:enabled="false" />
-				<EditTextPreference android:key="songs"
-					android:title="@string/songs" android:defaultValue=""
-					android:enabled="false" />
-				<EditTextPreference android:key="cacheUsage1"
-					android:title="@string/cacheUsage" android:defaultValue=""
-					android:enabled="false" />
-			</PreferenceCategory>
-		</PreferenceScreen>
+        </PreferenceScreen>
+        <!-- Outputs -->
+        <PreferenceScreen android:key="outputsScreen"
+                          android:title="@string/outputs" android:summary="@string/outputsDescription">
+            <PreferenceCategory android:key="outputsCategory"
+                                android:id="@+id/preferenceOutput" android:title="@string/outputs">
+            </PreferenceCategory>
+        </PreferenceScreen>
+        <!-- Other settings -->
+        <PreferenceScreen android:title="@string/updateDB"
+                          android:summary="@string/updateDBDetails" android:key="updateDB">
+        </PreferenceScreen>
+        <!-- Server Information -->
+        <PreferenceScreen android:key="informationScreen"
+                          android:title="@string/serverInformation"
+                          android:summary="@string/serverInformationDescription">
+            <PreferenceCategory android:key="outputs"
+                                android:id="@+id/preferenceOutput" android:title="@string/serverInformation">
+                <EditTextPreference android:key="version"
+                                    android:title="@string/version" android:defaultValue=""
+                                    android:enabled="false"/>
+                <EditTextPreference android:key="artists"
+                                    android:title="@string/artists" android:defaultValue=""
+                                    android:enabled="false"/>
+                <EditTextPreference android:key="albums"
+                                    android:title="@string/albums" android:defaultValue=""
+                                    android:enabled="false"/>
+                <EditTextPreference android:key="songs"
+                                    android:title="@string/songs" android:defaultValue=""
+                                    android:enabled="false"/>
+                <EditTextPreference android:key="cacheUsage1"
+                                    android:title="@string/cacheUsage" android:defaultValue=""
+                                    android:enabled="false"/>
+            </PreferenceCategory>
+        </PreferenceScreen>
 
-	</PreferenceCategory>
- 	<PreferenceCategory android:title="@string/librarySettings">
- 		<CheckBoxPreference android:key="albumartist"
- 			android:title="@string/albumartist" android:summary="@string/albumartistDescription"
- 			android:persistent="true" />
- 		<CheckBoxPreference android:persistent="true"
- 			android:title="@string/albumTrackSort" android:summary="@string/albumTrackSortDescription"
- 			android:key="albumTrackSort"  android:defaultValue="true" />
- 		<CheckBoxPreference android:persistent="true"
- 			android:title="@string/sortAlbumsByYear" android:summary="@string/sortAlbumsByYearDescription"
- 			android:key="sortAlbumsByYear" />
- 		<CheckBoxPreference android:persistent="true"
- 			android:title="@string/showAlbumTrackCount" android:summary="@string/showAlbumTrackCountDescription"
- 			android:key="showAlbumTrackCount" android:defaultValue="true"/>
- 	</PreferenceCategory>
- 	<PreferenceCategory android:key="category_interface" android:title="@string/interfaceSettings">
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/librarySettings">
+        <CheckBoxPreference android:key="albumartist"
+                            android:title="@string/albumartist" android:summary="@string/albumartistDescription"
+                            android:persistent="true"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/albumTrackSort" android:summary="@string/albumTrackSortDescription"
+                            android:key="albumTrackSort" android:defaultValue="true"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/sortAlbumsByYear"
+                            android:summary="@string/sortAlbumsByYearDescription"
+                            android:key="sortAlbumsByYear"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/showAlbumTrackCount"
+                            android:summary="@string/showAlbumTrackCountDescription"
+                            android:key="showAlbumTrackCount" android:defaultValue="true"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:key="category_interface" android:title="@string/interfaceSettings">
 
- 	    <PreferenceScreen android:key="libraryTabsSettings"
-			android:title="@string/libraryTabsSettings" android:summary="@string/libraryTabsSettingsDescription">
-			<intent android:action="android.intent.action.MAIN"
-				android:targetPackage="com.namelessdev.mpdroid"
-				android:targetClass="com.namelessdev.mpdroid.library.LibraryTabsSettings" />
-		</PreferenceScreen>
- 	    
-		<PreferenceScreen android:key="coverArtScreen"
-			android:title="@string/coverArtTitle" android:summary="@string/coverArtDescription">
-			<CheckBoxPreference android:persistent="true"
-				android:title="@string/enableLocalCoverCache" android:summary="@string/enableLocalCoverCacheDescription"
-				android:key="enableLocalCoverCache" android:defaultValue="true" />
-			<EditTextPreference android:key="cacheUsage2"
-				android:title="@string/cacheUsage" android:defaultValue=""
-				android:enabled="false" />
-			<PreferenceScreen android:title="@string/clearLocalCoverCache"
-				android:summary="@string/clearLocalCoverCacheDescription" android:key="clearLocalCoverCache">
-			</PreferenceScreen>
-			<CheckBoxPreference android:persistent="true"
-				android:title="@string/enableLastFM" android:summary="@string/enableLastFMDescription"
-				android:key="enableLastFM" android:defaultValue="true" />
-			<CheckBoxPreference android:persistent="true"
-				android:title="@string/enableLocalCover" android:summary="@string/enableLocalCoverDescription"
-				android:key="enableLocalCover" android:defaultValue="false" />
-			<EditTextPreference android:persistent="true"
-				android:title="@string/musicPath" android:summary="@string/musicPathDescription"
-				android:key="musicPath" android:defaultValue="" />
-			<EditTextPreference android:persistent="true"
-				android:title="@string/coverFileName" android:summary="@string/coverFileNameDescription"
-				android:key="coverFileName" android:defaultValue="folder.jpg" />
-			<CheckBoxPreference android:persistent="true"
-				android:title="@string/enableCoverOnlyOnWifi"
-				android:summary="@string/enableCoverOnlyOnWifiDescription"
-				android:key="enableCoverOnlyOnWifi" android:defaultValue="false"/>
-			<CheckBoxPreference android:persistent="true"
-				android:title="@string/enableAlbumArtLibrary" android:summary="@string/enableAlbumArtLibraryDescription"
-				android:key="enableAlbumArtLibrary" android:defaultValue="false" />
-		</PreferenceScreen>
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/enableStopButton"
-			android:key="enableStopButton" android:defaultValue="false" />
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/enableExitConfirmation"
-			android:summary="@string/enableExitConfirmationDescription"
-			android:key="enableExitConfirmation" android:defaultValue="false" />
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/enableTabletUI"
-			android:summary="@string/enableTabletUIDescription"
-			android:key="tabletUI" android:defaultValue="true" />
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/enableLightTheme"
-			android:key="lightTheme" android:defaultValue="false" />
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/enableLightNowPlayingTheme"
-			android:summary="@string/enableLightNowPlayingThemeDescription"
-			android:key="lightNowPlayingTheme" android:defaultValue="false" />
-	</PreferenceCategory>
-	
- 	<PreferenceCategory android:title="@string/behavior">
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/pauseOnPhoneStateChange"
-			android:key="pauseOnPhoneStateChange" android:defaultValue="false" 
-			android:summary="@string/pauseOnPhoneStateChangeDescription"/>
-		<CheckBoxPreference android:persistent="true"
-			android:title="@string/playOnPhoneStateChange"
-			android:key="playOnPhoneStateChange" android:defaultValue="false"
-			android:summary="@string/playOnPhoneStateChangeDescription" 
-			/>
-		
-		
-	</PreferenceCategory>
-	<!-- What's new -->
-	<PreferenceCategory android:title="@string/app_name">
-		<PreferenceScreen android:title="@string/donate" android:key="whatsNew">
-	
-			<intent android:action="android.intent.action.MAIN"
-				android:targetPackage="com.namelessdev.mpdroid" android:targetClass="com.namelessdev.mpdroid.WebViewActivity" />
-	
-		</PreferenceScreen>
-		
-		<!-- About -->
-		<PreferenceScreen android:title="@string/about"
-			android:summary="@string/aboutDescription" android:key="aboutScreen">
-	
-			<intent android:action="android.intent.action.MAIN"
-				android:targetPackage="com.namelessdev.mpdroid" android:targetClass="com.namelessdev.mpdroid.AboutActivity" />
-	
-		</PreferenceScreen>
-	</PreferenceCategory>
+        <PreferenceScreen android:key="libraryTabsSettings"
+                          android:title="@string/libraryTabsSettings"
+                          android:summary="@string/libraryTabsSettingsDescription">
+            <intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="com.namelessdev.mpdroid"
+                    android:targetClass="com.namelessdev.mpdroid.library.LibraryTabsSettings"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen android:key="coverArtScreen"
+                          android:title="@string/coverArtTitle" android:summary="@string/coverArtDescription">
+            <CheckBoxPreference android:persistent="true"
+                                android:title="@string/enableLocalCoverCache"
+                                android:summary="@string/enableLocalCoverCacheDescription"
+                                android:key="enableLocalCoverCache" android:defaultValue="true"/>
+            <EditTextPreference android:key="cacheUsage2"
+                                android:title="@string/cacheUsage" android:defaultValue=""
+                                android:enabled="false"/>
+            <PreferenceScreen android:title="@string/clearLocalCoverCache"
+                              android:summary="@string/clearLocalCoverCacheDescription"
+                              android:key="clearLocalCoverCache">
+            </PreferenceScreen>
+            <CheckBoxPreference android:persistent="true"
+                                android:title="@string/enableLastFM" android:summary="@string/enableLastFMDescription"
+                                android:key="enableLastFM" android:defaultValue="true"/>
+            <CheckBoxPreference android:persistent="true"
+                                android:title="@string/enableLocalCover"
+                                android:summary="@string/enableLocalCoverDescription"
+                                android:key="enableLocalCover" android:defaultValue="false"/>
+            <EditTextPreference android:persistent="true"
+                                android:title="@string/musicPath" android:summary="@string/musicPathDescription"
+                                android:key="musicPath" android:defaultValue=""/>
+            <EditTextPreference android:persistent="true"
+                                android:title="@string/coverFileName" android:summary="@string/coverFileNameDescription"
+                                android:key="coverFileName" android:defaultValue="folder.jpg"/>
+            <CheckBoxPreference android:persistent="true"
+                                android:title="@string/enableCoverOnlyOnWifi"
+                                android:summary="@string/enableCoverOnlyOnWifiDescription"
+                                android:key="enableCoverOnlyOnWifi" android:defaultValue="false"/>
+            <CheckBoxPreference android:persistent="true"
+                                android:title="@string/enableAlbumArtLibrary"
+                                android:summary="@string/enableAlbumArtLibraryDescription"
+                                android:key="enableAlbumArtLibrary" android:defaultValue="false"/>
+        </PreferenceScreen>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/enableStopButton"
+                            android:key="enableStopButton" android:defaultValue="false"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/enableExitConfirmation"
+                            android:summary="@string/enableExitConfirmationDescription"
+                            android:key="enableExitConfirmation" android:defaultValue="false"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/enableTabletUI"
+                            android:summary="@string/enableTabletUIDescription"
+                            android:key="tabletUI" android:defaultValue="true"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/enableLightTheme"
+                            android:key="lightTheme" android:defaultValue="false"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/enableLightNowPlayingTheme"
+                            android:summary="@string/enableLightNowPlayingThemeDescription"
+                            android:key="lightNowPlayingTheme" android:defaultValue="false"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/enableAlbumYearText"
+                            android:key="enableAlbumYearText" android:defaultValue="false"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/enableAudioText"
+                            android:key="enableAudioText" android:defaultValue="false"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/behavior">
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/pauseOnPhoneStateChange"
+                            android:key="pauseOnPhoneStateChange" android:defaultValue="false"
+                            android:summary="@string/pauseOnPhoneStateChangeDescription"/>
+        <CheckBoxPreference android:persistent="true"
+                            android:title="@string/playOnPhoneStateChange"
+                            android:key="playOnPhoneStateChange" android:defaultValue="false"
+                            android:summary="@string/playOnPhoneStateChangeDescription"
+                />
+
+
+    </PreferenceCategory>
+    <!-- What's new -->
+    <PreferenceCategory android:title="@string/app_name">
+        <PreferenceScreen android:title="@string/donate" android:key="whatsNew">
+
+            <intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="com.namelessdev.mpdroid"
+                    android:targetClass="com.namelessdev.mpdroid.WebViewActivity"/>
+
+        </PreferenceScreen>
+
+        <!-- About -->
+        <PreferenceScreen android:title="@string/about"
+                          android:summary="@string/aboutDescription" android:key="aboutScreen">
+
+            <intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="com.namelessdev.mpdroid"
+                    android:targetClass="com.namelessdev.mpdroid.AboutActivity"/>
+
+        </PreferenceScreen>
+    </PreferenceCategory>
 </PreferenceScreen>

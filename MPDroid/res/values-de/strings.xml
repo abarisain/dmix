@@ -10,6 +10,8 @@
     <string name="files">Dateien</string>
     <string name="failedToDelete">%s konnte nicht gelöscht werden</string>
     <string name="enableStopButton">Stopptaste anzeigen</string>
+    <string name="enableAlbumYearText">Anzeigen Album Jahr</string>
+    <string name="enableAudioText">Anzeigen Audio-Eigenschaften</string>
     <string name="enableLocalCover">Lokale Albencover laden</string>
     <string name="enableLocalCoverDescription">Albencover vom MPD-Server laden (Erfordert einen Webserver, siehe Wiki)</string>
     <string name="enableLastFMDescription">Albencover von Last.fm herunterladen (sended Informationen über abgespielte Titel)</string>
