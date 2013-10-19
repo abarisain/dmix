@@ -181,8 +181,11 @@
 	<string name="consumeMode">Consume mode</string>
 	<string name="donate">Donate</string>
 	<string name="stop">Stop</string>
-	
-	<string name="behavior">Phone Behavior</string>
+    <string name="enableAlbumYearText">Show album year</string>
+    <string name="enableAudioText">Show audio properties</string>
+
+
+    <string name="behavior">Phone Behavior</string>
 	<string name="pauseOnPhoneStateChange">Pause playback</string>
 	<string name="pauseOnPhoneStateChangeDescription">Pause playback when in a call</string>
 	<string name="playOnPhoneStateChange">Resume playback</string>
