@@ -35,7 +35,8 @@
 	<string name="addSong">Add song</string>
 	<string name="removeSong">Remove song</string>
 	<string name="removeSongs">Remove songs</string>
-	<string name="removeCountSongs">Removed %s songs</string>
+    <string name="cropSongs">Crop</string>
+    <string name="removeCountSongs">Removed %s songs</string>
 	<string name="clear">Clear</string>
 	<string name="mainMenu">Main Menu</string>
 	<string name="playlistCleared">Playlist cleared</string>
