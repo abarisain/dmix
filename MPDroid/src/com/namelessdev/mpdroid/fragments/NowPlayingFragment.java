@@ -592,9 +592,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
                 artist = artist == null ? "" : artist;
                 title = title == null ? "" : title;
-                title = trackNumber == null || trackNumber == "0" || trackNumber == "" ? title : title + " - " + trackNumber;
+                //title = trackNumber == null || trackNumber == "0" || trackNumber == "" ? title : title + " - " + trackNumber;
                 album = album == null ? "" : album;
-                date = date != null && date.length() > 1 ? " - " + date : "";
+                date = date != null && date.length() > 1 && !date.startsWith("-") ? " - " + date : "";
 
 
                 artistNameText.setText(artist);
@@ -754,10 +754,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             if (split.length > 1) {
                 String ext = split[split.length - 1];
                 if (ext.length() <= 4) {
-                    sb.append(ext + " | ");
+                    sb.append(ext.toUpperCase() + " / ");
                 }
             }
-            sb.append(status.getBitsPerSample() + " bits | " + status.getSampleRate() / 1000 + "  khz | " + status.getBitrate() + " kbps");
+            sb.append(status.getBitrate() + " kbps / " + status.getBitsPerSample() + " bits / " + status.getSampleRate() / 1000 + "  khz");
             audioNameText.setText(sb.toString());
         }
     }
