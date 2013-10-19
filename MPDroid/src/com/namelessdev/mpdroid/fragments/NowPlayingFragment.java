@@ -184,7 +184,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         albumNameText = (TextView) view.findViewById(R.id.albumName);
         songNameText = (TextView) view.findViewById(R.id.songName);
         audioNameText = (TextView) view.findViewById(R.id.audioName);
+        applyViewVisibility(settings, audioNameText, "enableAudioText");
         yearNameText = (TextView) view.findViewById(R.id.yearName);
+        applyViewVisibility(settings, yearNameText, "enableAlbumYearText");
         artistNameText.setSelected(true);
         albumNameText.setSelected(true);
         songNameText.setSelected(true);
@@ -229,7 +231,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         stopButton = (ImageButton) view.findViewById(R.id.stop);
         stopButton.setOnClickListener(buttonEventHandler);
         stopButton.setOnLongClickListener(buttonEventHandler);
-        applyStopButtonVisibility(settings);
+        applyViewVisibility(settings, stopButton, "enableStopButton");
 
         if (null != shuffleButton) {
             shuffleButton.setOnClickListener(buttonEventHandler);
@@ -553,7 +555,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 String path = null;
                 String filename = null;
                 String date = null;
-                String trackNumber = null;
 
                 int songMax = 0;
                 boolean noSong = actSong == null || status.getPlaylistLength() == 0;
@@ -574,7 +575,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     path = actSong.getPath();
                     filename = actSong.getFilename();
                     songMax = (int) actSong.getTime();
-                    trackNumber = "0";
                     date = "";
 
                 } else {
@@ -587,12 +587,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     path = actSong.getPath();
                     filename = actSong.getFilename();
                     songMax = (int) actSong.getTime();
-                    trackNumber = Integer.toString(actSong.getTrack());
                 }
 
                 artist = artist == null ? "" : artist;
                 title = title == null ? "" : title;
-                //title = trackNumber == null || trackNumber == "0" || trackNumber == "" ? title : title + " - " + trackNumber;
                 album = album == null ? "" : album;
                 date = date != null && date.length() > 1 && !date.startsWith("-") ? " - " + date : "";
 
@@ -685,16 +683,21 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 || key.equals(CoverAsyncHelper.PREFERENCE_LOCALSERVER)) {
             oCoverAsyncHelper.setCoverRetrieversFromPreferences();
         } else if (key.equals("enableStopButton")) {
-            applyStopButtonVisibility(sharedPreferences);
+            applyViewVisibility(sharedPreferences, stopButton, key);
+        } else if (key.equals("enableAlbumYearText")) {
+            applyViewVisibility(sharedPreferences, yearNameText, key);
+        } else if (key.equals("enableAudioText")) {
+            applyViewVisibility(sharedPreferences, audioNameText, key);
         }
     }
 
-    private void applyStopButtonVisibility(SharedPreferences sharedPreferences) {
-        if (stopButton == null) {
+    private void applyViewVisibility(SharedPreferences sharedPreferences, View view, String property) {
+        if (view == null) {
             return;
         }
-        stopButton.setVisibility(sharedPreferences.getBoolean("enableStopButton", false) ? View.VISIBLE : View.GONE);
+        view.setVisibility(sharedPreferences.getBoolean(property, false) ? View.VISIBLE : View.GONE);
     }
+
 
     @Override
     public void trackPositionChanged(MPDStatus status) {

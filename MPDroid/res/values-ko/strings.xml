@@ -177,6 +177,8 @@
 	<string name="streamDetails">스트림 세부 사항:</string>
 	<string name="genreAdded">장르 %s 추가됨</string>
 	<string name="enableStopButton">정지 단추 보임</string>
+    <string name="enableAlbumYearText">앨범 연도 표</string>
+    <string name="enableAudioText">오디오 속성 표시</string>
 	<string name="singleMode">단일 모드</string>
 	<string name="consumeMode">소비 모드</string>
 	<string name="donate">기부</string>
