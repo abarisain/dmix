@@ -78,7 +78,7 @@
                     android:layout_marginTop="1dip"
                     android:fontFamily="sans-serif-light"
                     android:layout_gravity="right" android:gravity="right"
-                    android:layout_weight="50" android:textAlignment="textStart"/>
+                    android:layout_weight="50" android:textAlignment="textStart" android:maxLines="1"/>
             <TextView
                     android:id="@+id/yearName"
                     style="@style/InfoSubText"
@@ -87,7 +87,8 @@
                     android:layout_marginTop="1dip"
                     android:fontFamily="sans-serif-light"
                     android:gravity="left"
-                    android:layout_gravity="left" android:layout_weight="50" android:textAlignment="textEnd"/>
+                    android:layout_gravity="left" android:layout_weight="50" android:textAlignment="textEnd"
+                    android:maxLines="1"/>
         </LinearLayout>
         <TextView
                 android:id="@+id/audioName"
