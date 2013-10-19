@@ -197,7 +197,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public String getFilename() {
         int pos = fullpath.lastIndexOf("/");
-        if (pos == -1) {
+        if (pos == -1 || pos == fullpath.length() - 1) {
             return fullpath;
         } else {
             return fullpath.substring(pos + 1);
@@ -377,7 +377,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     /**
      * Defines total number of tracks from this music's album when available.
      *
-     * @param str total number of tracks from this music's album when available.
+     * @param total total number of tracks from this music's album when available.
      */
     public void setTotalTracks(int total) {
         totalTracks = total;
@@ -386,7 +386,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     /**
      * Defines track number.
      *
-     * @param str track number.
+     * @param num track number.
      */
     public void setTrack(int num) {
         track = num;
@@ -455,8 +455,8 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return a string representation of the object.
      * @see java.lang.Object#toString()
      */
-	/*
-	 * public String toString() { return track + " - " + album + " - " + artist + " - " + title + " (" + fullpath + ")"; }
+    /*
+     * public String toString() { return track + " - " + album + " - " + artist + " - " + title + " (" + fullpath + ")"; }
 	 */
     @Override
     public String mainText() {
