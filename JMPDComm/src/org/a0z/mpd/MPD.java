@@ -1,20 +1,14 @@
 package org.a0z.mpd;
 
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
+import android.content.Context;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.content.Context;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.*;
 
 /**
  * MPD Server controller.
@@ -1203,11 +1197,13 @@ public class MPD {
 	public List<Album> getAlbums(Artist artist, boolean trackCountNeeded) throws MPDServerException {
 		List<String> albumNames = null;
 		List<Album> albums = null;
+        final Artist unknownArtist = new UnknownArtist();
 
 		if(artist != null) {
 			albumNames = listAlbums(artist.getName(), useAlbumArtist);
 		}else{
 			albumNames = listAlbums(false);
+            artist =  unknownArtist;
 		}
 
 		if (null!=albumNames && !albumNames.isEmpty()) {
@@ -1220,7 +1216,7 @@ public class MPD {
 					long songCount = 0;
 					long duration = 0;
 					long year = 0;
-					if (null != artist && ((MPD.showAlbumTrackCount() && trackCountNeeded) || MPD.sortAlbumsByYear())) {
+					if (unknownArtist != artist && ((MPD.showAlbumTrackCount() && trackCountNeeded) || MPD.sortAlbumsByYear())) {
 						try {
 							Long[] albumDetails = getAlbumDetails(artist.getName(), album, MPD.useAlbumArtist());
 							if (null!=albumDetails && 3==albumDetails.length) {
@@ -1231,7 +1227,7 @@ public class MPD {
 						} catch (MPDServerException e) {
 						}
 					}
-					albums.add(new Album(album, songCount, duration, year));
+					albums.add(new Album(album, songCount, duration, year, artist.getName()));
 				}
 			}
 		}

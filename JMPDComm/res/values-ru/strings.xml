@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="jmpdcomm_unknown_album">Неизвестный альбом</string>
-    
+    <string name="jmpdcomm_unknown_artist">неизвестный художник</string>
 </resources>
