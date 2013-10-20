@@ -1,26 +1,5 @@
 package com.namelessdev.mpdroid.helpers;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -34,13 +13,28 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.cover.LastFMCover;
 import com.namelessdev.mpdroid.cover.LocalCover;
 import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Item;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -259,7 +253,7 @@ public class CoverAsyncHelper extends Handler {
 				return true;
 			try {
 				// load songs for this album
-				final List<? extends Item> songs = app.oMPDAsyncHelper.oMPD.getSongs(null, new Album(info.sAlbum));
+				final List<? extends Item> songs = app.oMPDAsyncHelper.oMPD.getSongs(null, new Album(info.sAlbum, info.sArtist));
 
 				if (songs.size() > 0) {
 					Music song = (Music) songs.get(0);

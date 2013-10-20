@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/menu_delete"
-        android:icon="@drawable/ic_action_delete"
-        android:showAsAction="always"
-        android:title="@string/removeSongs">
+            android:id="@+id/menu_crop"
+            android:icon="@drawable/ic_action_crop"
+            android:showAsAction="always"
+            android:title="@string/cropSongs">
+    </item>
+    <item
+            android:id="@+id/menu_delete"
+            android:icon="@drawable/ic_action_delete"
+            android:showAsAction="always"
+            android:title="@string/removeSongs">
     </item>
 
 </menu>

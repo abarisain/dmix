@@ -6,7 +6,7 @@ import android.os.Parcelable;
 public class UnknownAlbum extends Album {
 
 	public UnknownAlbum() {
-		super(MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album));
+		super(MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album), MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_artist));
 	}
 
 	protected UnknownAlbum(Parcel in) {

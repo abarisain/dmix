@@ -40,7 +40,7 @@ public class PlaylistsFragment extends BrowseFragment {
 	@Override
 	protected void asyncUpdate() {
 		try {
-			items = app.oMPDAsyncHelper.oMPD.getPlaylists();
+			items = app.oMPDAsyncHelper.oMPD.getPlaylists(true);
 		} catch (MPDServerException e) {
 		}
 	}

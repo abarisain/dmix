@@ -176,6 +176,8 @@
 	<string name="streamDetails">Детали потока:</string>
 	<string name="genreAdded">Жанр %s добавлен</string>
 	<string name="enableStopButton">Показывать кнопку "Стоп"</string>
+    <string name="enableAlbumYearText">Показать альбом года</string>
+    <string name="enableAudioText">Показать свойства звука</string>
 	<string name="singleMode">Одиночный режим</string>
 	<string name="consumeMode">Убирать из очереди после воспроизведения</string>
 	<string name="donate">Пожертвовать</string>
