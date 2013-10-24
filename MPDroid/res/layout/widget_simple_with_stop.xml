@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2009 The Android Open Source Project
+<!--
+     Copyright (C) 2009 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,69 +15,78 @@
      limitations under the License.
 -->
 
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="60dp"
-	android:layout_marginLeft="5dip"
-	android:layout_marginRight="5dip"
-	android:orientation="horizontal"
-	android:background="@drawable/appwidget_dark_bg_clickable">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_marginLeft="5dip"
+    android:layout_marginRight="5dip"
+    android:background="@drawable/appwidget_dark_bg_clickable"
+    android:orientation="horizontal" >
 
     <ImageButton
-		android:id="@+id/control_app"
-		android:layout_width="0dip"
-		android:layout_weight="1"
-		android:layout_height="match_parent"
-		android:src="@drawable/icon"
-		android:background="@drawable/appwidget_button_left"
-		android:scaleType="center" />	
-    
+        android:id="@+id/control_app"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/appwidget_button_left"
+        android:scaleType="center"
+        android:src="@drawable/icon" />
+
     <ImageView
-		android:layout_width="1dip"
-		android:layout_height="match_parent"
-		android:background="@drawable/appwidget_divider" />
-    
-	<ImageButton
-		android:id="@+id/control_prev"
-		android:layout_width="0dip"
-		android:layout_weight="1"
-		android:layout_height="match_parent"
-		android:src="@drawable/ic_appwidget_music_prev"
-		android:background="@drawable/appwidget_button_center"
-		android:scaleType="center" />
-	
-	<ImageView
-		android:layout_width="1dip"
-		android:layout_height="match_parent"
-		android:background="@drawable/appwidget_divider" />
+        android:layout_width="1dip"
+        android:layout_height="match_parent"
+        android:background="@drawable/appwidget_divider" />
 
-	<ImageButton
-		android:id="@+id/control_play"
-		android:layout_width="0dip"
-		android:layout_weight="1"
-		android:layout_height="match_parent"
-		android:src="@drawable/ic_appwidget_music_pause"
-		android:background="@drawable/appwidget_button_center"
-		android:scaleType="center" />
-
-	<ImageView
-		android:layout_width="1dip"
-		android:layout_height="match_parent"
-		android:background="@drawable/appwidget_divider" />
-
-    <ImageButton android:id="@+id/control_stop" android:layout_width="0dip" android:layout_weight="1"
-                 android:layout_height="match_parent" android:src="@drawable/ic_media_stop"
-                 android:background="@drawable/appwidget_button_center" android:scaleType="center"/>
-    <ImageView android:layout_width="1dip" android:layout_height="match_parent"
-               android:background="@drawable/appwidget_divider" android:id="@+id/imageView"/>
     <ImageButton
-		android:id="@+id/control_next"
-		android:layout_width="0dip"
-		android:layout_weight="1"
-		android:layout_height="match_parent"
-		android:src="@drawable/ic_appwidget_music_next"
-		android:background="@drawable/appwidget_button_right"
-		android:scaleType="center" />
+        android:id="@+id/control_prev"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/appwidget_button_center"
+        android:scaleType="center"
+        android:src="@drawable/ic_appwidget_music_prev" />
+
+    <ImageView
+        android:layout_width="1dip"
+        android:layout_height="match_parent"
+        android:background="@drawable/appwidget_divider" />
+
+    <ImageButton
+        android:id="@+id/control_play"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/appwidget_button_center"
+        android:scaleType="center"
+        android:src="@drawable/ic_appwidget_music_pause" />
+
+    <ImageView
+        android:layout_width="1dip"
+        android:layout_height="match_parent"
+        android:background="@drawable/appwidget_divider" />
+
+    <ImageButton
+        android:id="@+id/control_stop"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/appwidget_button_center"
+        android:scaleType="center"
+        android:src="@drawable/ic_appwidget_music_stop" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="1dip"
+        android:layout_height="match_parent"
+        android:background="@drawable/appwidget_divider" />
+
+    <ImageButton
+        android:id="@+id/control_next"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/appwidget_button_right"
+        android:scaleType="center"
+        android:src="@drawable/ic_appwidget_music_next" />
 
 </LinearLayout>
