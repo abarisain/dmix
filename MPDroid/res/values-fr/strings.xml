@@ -31,6 +31,7 @@
 	<string name="addArtist">Ajouter l\'artiste</string>
 	<string name="removeSong">Enlever la chanson</string>
 	<string name="removeSongs">Enlever les chansons</string>
+	<string name="cropSongs">Rogner</string>
 	<string name="removeCountSongs">%s chansons enlevées</string>
 	<string name="mainMenu">Menu Principal</string>
 	<string name="playlistCleared">Playlist vidée</string>
