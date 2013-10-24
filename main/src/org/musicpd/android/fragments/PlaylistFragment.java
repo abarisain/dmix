@@ -12,6 +12,7 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -274,22 +275,27 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			final int finalListPlayingID = listPlayingID;
 
 			try {
-				getActivity().runOnUiThread(new Runnable() {
+				final Activity activity = getActivity();
+				activity.runOnUiThread(new Runnable() {
 					public void run() {
-						SimpleAdapter songs = new QueueAdapter(getActivity(), songlist, R.layout.playlist_queue_item, new String[] {
+						try {
+							SimpleAdapter songs = new QueueAdapter(activity, songlist, R.layout.playlist_queue_item, new String[] {
 								"play",
 								"title", "artist" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2 });
 
-						setListAdapter(songs);
-						if (actionMode != null)
-							actionMode.finish();
+							setListAdapter(songs);
+							if (actionMode != null)
+								actionMode.finish();
 
-						// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
-						// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
-						// other
-						// stuff.
-						if (finalListPlayingID > 0)
-							setSelection(finalListPlayingID);
+							// Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
+							// Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
+							// other
+							// stuff.
+							if (finalListPlayingID > 0)
+								setSelection(finalListPlayingID);
+						} catch (Exception e) {
+							Log.w(e);
+						}
 					}
 				});
 			} catch (Exception e) {
