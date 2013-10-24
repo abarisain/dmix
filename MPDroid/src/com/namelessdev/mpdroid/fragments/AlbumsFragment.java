@@ -85,7 +85,7 @@ public class AlbumsFragment extends BrowseFragment {
 	@Override
 	protected void add(Item item, boolean replace, boolean play) {
 		try {
-			app.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
+			app.oMPDAsyncHelper.oMPD.add(artist, (Album) item, replace, play);
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
 		} catch (MPDServerException e) {
 			e.printStackTrace();

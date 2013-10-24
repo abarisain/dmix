@@ -1323,8 +1323,8 @@ public class MPD {
 		add(artist, false, false);
 	}
 
-	public void add(Album album) throws MPDServerException {
-		add(album, false, false);
+	public void add(Artist artist, Album album) throws MPDServerException {
+		add(artist, album, false, false);
 	}
 
 	public void add(Music music) throws MPDServerException {
@@ -1337,10 +1337,6 @@ public class MPD {
 
 	public void add(Artist artist, boolean replace, boolean play) throws MPDServerException {
 		add(artist, null, replace, play);
-	}
-
-	public void add(Album album, boolean replace, boolean play) throws MPDServerException {
-		add(null, album, replace, play);
 	}
 
 	public void add(final Music music, boolean replace, boolean play) throws MPDServerException {
