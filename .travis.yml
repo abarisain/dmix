@@ -8,9 +8,9 @@ before_install:
   - export PATH="${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools"
   - sudo apt-get update -qq
   - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
-  - export TOOLS=$(android list sdk --no-ui | grep "Android SDK Platform-tools" | cut -d"-" -f1)
-  - env
-  - echo yes |android -s update sdk --filter $TOOLS,build-tools-18.1.0,android-18,extra-android-support,sysimg-18 --no-ui --force
+  - export TOOLS=$(android list sdk --no-ui > listing; for i in 'Android SDK Platform-tools' 'Android SDK Build-tools' 'SDK Platform Android' 'Android Support Library' 'System Image'; do grep "$i" listing |head -1; done|cut -f1 -d-|tr -d \ |paste -sd,)
+  - echo Updating $TOOLS
+  - echo yes |android -s update sdk --filter $TOOLS --no-ui --force
   - wget http://www.scala-lang.org/files/archive/scala-$TRAVIS_SCALA_VERSION.tgz -O - |tar zx
   - export SCALA_PATH="${PWD}/scala-$TRAVIS_SCALA_VERSION"
   - echo git clone --depth 1 https://github.com/imsizon/ant-android-scala.git
