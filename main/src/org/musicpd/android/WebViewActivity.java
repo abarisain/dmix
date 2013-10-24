@@ -19,7 +19,7 @@ public class WebViewActivity extends SherlockActivity {
 			webview.loadUrl(url);
 		} else {
 			// Defaut on the what's new page
-			webview.loadUrl("http://nlss.fr/mupeace/donate.html");
+			webview.loadUrl("http://nlss.fr/mpdroid/donate.html");
 		}
 	}
 }
