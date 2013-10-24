@@ -1,5 +1,13 @@
 package com.namelessdev.mpdroid;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,19 +21,13 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
 	public static final int MAIN = 0;
@@ -310,7 +312,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 	public void updateFromItems() {
 		if (arrayResults != null) {
 			list.setAdapter(new SeparatedListAdapter(this,
-					R.layout.simple_list_item_1,
+					R.layout.search_list_item,
 					new SearchResultDataBinder(),
 					arrayResults));
 			try {

@@ -1,36 +1,44 @@
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.view.View;
-import android.widget.TextView;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
+import java.util.List;
+
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Music;
 
-import java.util.List;
+import android.content.Context;
+import android.view.View;
+import android.widget.TextView;
+
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 
 public class SearchResultDataBinder implements SeparatedListDataBinder {
 
     public static final String SEPARATOR = " - ";
 
     public void onDataBind(Context context, View targetView, List<Object> items, Object item, int position) {
-        final TextView text1 = (TextView) targetView.findViewById(R.id.text1);
-        String formattedResult = "";
+		final TextView text1 = (TextView) targetView.findViewById(R.id.line1);
+		final TextView text2 = (TextView) targetView.findViewById(R.id.line2);
+		String formattedResult1 = "";
+		String formattedResult2 = null;
 
         if (item instanceof Music) {
             Music music;
             music = (Music) item;
-            formattedResult = join(music.getTitle(), music.getAlbum(), music.getArtist());
+			formattedResult1 = music.getTitle();
+			formattedResult2 = join(music.getAlbum(), music.getArtist());
         } else if (item instanceof Artist) {
-            formattedResult = (((Artist) item).getName());
+			formattedResult1 = (((Artist) item).getName());
         } else if (item instanceof Album) {
             Album album;
             album = (Album) item;
-            formattedResult = join(album.getName(), album.getArtist());
+			formattedResult1 = album.getName();
+			formattedResult2 = album.getArtist();
         }
-        text1.setText(formattedResult);
+		text1.setText(formattedResult1);
+		text2.setVisibility(formattedResult2 != null ? View.VISIBLE : View.GONE);
+		text2.setText(formattedResult2);
     }
 
     /**
