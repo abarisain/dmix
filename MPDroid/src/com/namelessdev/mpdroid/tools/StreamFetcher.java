@@ -145,8 +145,18 @@ public class StreamFetcher {
     // Add stream name to fragment part of URL sent to MPD. This way, when the
     // playqueue listing is received back from MPD, the name can be determined.
     private static String addName(String url, String name) {
+    	if (null==name || name.isEmpty()) {
+    		return url;
+    	}
     	String fixed=name.replace(" # ", " ");
     	fixed=fixed.replace("#", "");
+    	try {
+    		String path = new URL(url).getPath();
+    		if (null==path || path.isEmpty()) {
+    			return url+"/#"+fixed;
+    		}
+    	} catch (MalformedURLException e) {
+    	}
     	return url+"#"+fixed;
     }
 
