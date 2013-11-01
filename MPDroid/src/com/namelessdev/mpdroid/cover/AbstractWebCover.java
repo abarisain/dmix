@@ -29,7 +29,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         try {
             httpPost.setEntity(new StringEntity(request));
         } catch (UnsupportedEncodingException e) {
-            Log.e(AbstractWebCover.class.toString(), "Cannot build the HTTP POST : " + e);
+            Log.e(AbstractWebCover.class.getName(), "Cannot build the HTTP POST : " + e);
             return "";
         }
         return executeRequest(httpPost);
@@ -60,11 +60,11 @@ public abstract class AbstractWebCover implements ICoverRetriever {
                     builder.append(line);
                 }
             } else {
-                Log.e(AbstractWebCover.class.toString(), "Failed to download cover : HTTP status code : " + statusCode);
+                Log.e(AbstractWebCover.class.getName(), "Failed to download cover : HTTP status code : " + statusCode);
 
             }
         } catch (Exception e) {
-            Log.e(AbstractWebCover.class.toString(), "Failed to download cover :" + e);
+            Log.e(AbstractWebCover.class.getName(), "Failed to download cover :" + e);
         } finally {
             {
 
