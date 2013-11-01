@@ -7,6 +7,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+
 /**
  * Fetch cover from Spotify
  */
@@ -26,7 +28,7 @@ public class SpotifyCover extends AbstractWebCover {
             for (String albumId : albumIds) {
                 coverResponse = executeGetRequest("https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/" + albumId);
                 coverUrl = extractImageUrl(coverResponse);
-                if (coverUrl != null && coverUrl.length() > 0) {
+                if (!isNullOrEmpty(coverUrl)) {
                     coverUrl = coverUrl.replace("/cover/", "/640/");
                     return new String[]{coverUrl};
                 }
