@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+
 /**
  * Download Covers Asynchronous with Messages
  *
@@ -48,13 +50,19 @@ public class CoverAsyncHelper extends Handler {
     public static final int EVENT_COVERDOWNLOADED = 1;
     public static final int EVENT_COVERNOTFOUND = 2;
     public static final int MAX_SIZE = 0;
-
     public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
     public static final String PREFERENCE_LASTFM = "enableLastFM";
     public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
 
-	private static final boolean DEBUG = false;
+    private static final Message COVER_NOT_FOUND_MESSAGE;
+
+    static {
+        COVER_NOT_FOUND_MESSAGE = new Message();
+        COVER_NOT_FOUND_MESSAGE.what = EVENT_COVERNOTFOUND;
+    }
+
+    private static final boolean DEBUG = false;
 
     private MPDApplication app = null;
     private SharedPreferences settings = null;
@@ -101,12 +109,15 @@ public class CoverAsyncHelper extends Handler {
                 case DISCOGS:
                     this.coverRetrievers[i] = new DiscogsCover();
                     break;
+                case SPOTIFY:
+                    this.coverRetrievers[i] = new SpotifyCover();
+                    break;
             }
         }
     }
 
     public interface CoverDownloadListener {
-		public void onCoverDownloaded(Bitmap cover);
+        public void onCoverDownloaded(Bitmap cover);
 
         public void onCoverNotFound();
     }
@@ -136,9 +147,11 @@ public class CoverAsyncHelper extends Handler {
             if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
                 enabledRetrievers.add(CoverRetrievers.LASTFM);
                 enabledRetrievers.add(CoverRetrievers.DEEZER);
-                enabledRetrievers.add(CoverRetrievers.GRACENOTE);
+                enabledRetrievers.add(CoverRetrievers.SPOTIFY);
                 enabledRetrievers.add(CoverRetrievers.DISCOGS);
+                enabledRetrievers.add(CoverRetrievers.GRACENOTE);
                 enabledRetrievers.add(CoverRetrievers.MUSICBRAINZ);
+
             }
         }
         setCoverRetrievers(enabledRetrievers);
@@ -196,11 +209,17 @@ public class CoverAsyncHelper extends Handler {
 
     public void downloadCover(String artist, String album, String path, String filename) {
         final CoverInfo info = new CoverInfo();
-		info.sArtist = artist;
-		info.sAlbum = album;
+        info.sArtist = artist;
+        info.sAlbum = album;
         info.sPath = path;
         info.sFilename = filename;
-        threadPool.execute(new CoverAsyncWorker(info));
+
+        if (isNullOrEmpty(album)) {
+            handleMessage(COVER_NOT_FOUND_MESSAGE);
+        } else {
+            threadPool.execute(new CoverAsyncWorker(info));
+        }
+
     }
 
     public void handleMessage(Message msg) {
@@ -420,7 +439,8 @@ public class CoverAsyncHelper extends Handler {
         GRACENOTE,
         DEEZER,
         MUSICBRAINZ,
-        DISCOGS;
+        DISCOGS,
+        SPOTIFY;
     }
 
 }
