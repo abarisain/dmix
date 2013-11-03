@@ -41,7 +41,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         OnSharedPreferenceChangeListener, OnMenuItemClickListener {
 
     public static final String PREFS_NAME = "mpdroid.properties";
-
+    private static final boolean DEBUG = false;
     private static final int POPUP_ARTIST = 0;
     private static final int POPUP_ALBUM = 1;
     private static final int POPUP_FOLDER = 2;
@@ -579,6 +579,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
                 } else {
                     currentSong = actSong;
+                    if(DEBUG)
                     Log.d("MPDroid", "We did find an artist");
                     artist = actSong.getArtist();
                     title = actSong.getTitle();

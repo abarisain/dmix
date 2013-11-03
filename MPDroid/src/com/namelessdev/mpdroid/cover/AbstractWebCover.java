@@ -20,6 +20,7 @@ import java.text.Normalizer;
 public abstract class AbstractWebCover implements ICoverRetriever {
 
     private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
+    private final static boolean DEBUG = false;
 
     protected AndroidHttpClient client = null;
 
@@ -29,7 +30,8 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         try {
             prepareRequest();
             httpPost = new HttpPost(url);
-            Log.d(getName(), "Http request : " + request);
+            if (DEBUG)
+                Log.d(getName(), "Http request : " + request);
             httpPost.setEntity(new StringEntity(request));
             return executeRequest(httpPost);
         } catch (UnsupportedEncodingException e) {
@@ -80,8 +82,8 @@ public abstract class AbstractWebCover implements ICoverRetriever {
                 request.abort();
             }
         }
-
-        Log.d(getName(), "Http response : " + builder);
+        if (DEBUG)
+            Log.d(getName(), "Http response : " + builder);
         return builder.toString();
     }
 
@@ -97,7 +99,8 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         HttpGet httpGet = null;
         prepareRequest();
         request = request.replace(" ", "%20");
-        Log.d(getName(), "Http request : " + request);
+        if (DEBUG)
+            Log.d(getName(), "Http request : " + request);
         httpGet = new HttpGet(request);
         return executeRequest(httpGet);
     }

@@ -1,5 +1,9 @@
 package org.a0z.mpd;
 
+import android.util.Log;
+import org.a0z.mpd.exception.MPDConnectionException;
+import org.a0z.mpd.exception.MPDServerException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,18 +15,14 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.a0z.mpd.exception.MPDConnectionException;
-import org.a0z.mpd.exception.MPDServerException;
-
-import android.util.Log;
-
 /**
  * Class representing a connection to MPD Server.
  * 
  * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDConnection {
-	private static final int CONNECTION_TIMEOUT = 10000;
+    private static final boolean DEBUG = false;
+    private static final int CONNECTION_TIMEOUT = 10000;
 	
 	private static final String MPD_RESPONSE_ERR = "ACK";
 	private static final String MPD_RESPONSE_OK = "OK";
@@ -39,7 +39,7 @@ public class MPDConnection {
 	private int[] mpdVersion;
 	private StringBuffer commandQueue;
 	private int readWriteTimeout;
-	
+
 	
 	MPDConnection(InetAddress server, int port) throws MPDServerException{
 	    	this(server, port, 0);
@@ -155,6 +155,7 @@ public class MPDConnection {
 		}
 		outBuf.append("\n");
 		final String outString = outBuf.toString();
+        if (DEBUG)
 		Log.d("JMPDComm", "Mpd command : " + (outString.startsWith("password ") ? "password **censored**" : outString));
 		return outString;
 	}
