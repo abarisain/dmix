@@ -89,7 +89,7 @@ public class CoverAsyncHelper extends Handler {
     public static ExecutorService threadPool;
 
     static {
-        threadPool = Executors.newCachedThreadPool();
+		threadPool = Executors.newFixedThreadPool(3);
     }
 
     private AndroidHttpClient httpClient = null;
