@@ -108,7 +108,6 @@
 	<string name="streamPauseBattery">Для збереження батареї, припинити потік, якщо він не використовується</string>
 	<string name="aboutText1">MPDroid є програмним забеспеченням з відкритим кодом. Завітайте до http://github.com/abarisain/dmix для його отримання!</string>
 	<string name="aboutText2">MPDroid - це форк PMix (http://code.google.com/p/pmix/). Подяка їм!</string>
-	<string name="aboutLastFM">Подяки last.fm за надання обкладинок до альбомів</string>
 	<string name="search">Пошук</string>
 	<string name="search_label">MPDroid</string>
 	<string name="search_hint">Пошук…</string>
@@ -136,8 +135,6 @@
 	<string name="sortAlbumsByYearDescription">Сортувати альбоми за роком</string>
 	<string name="showAlbumTrackCount">Кількість треків в альбомі</string>
 	<string name="showAlbumTrackCountDescription">Показувати номер трека в альбомі</string>
-	<string name="enableLastFM">Завантажити обкладинку альбома</string>
-	<string name="enableLastFMDescription">Отримати обкладинку альбома використовуючи last.fm (відіслати їм інфо вашої пісні)</string>
 	<string name="enableLocalCover">Використовувати локальну обкладмнку альбома</string>
 	<string name="enableLocalCoverDescription">Отримати обкладинку альбома з сервера MPD (потребує веб-сервео, читайте wiki!)</string>
 	<string name="musicPath">Шлях до музики</string>

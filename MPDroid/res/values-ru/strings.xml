@@ -108,7 +108,6 @@
 	<string name="streamPauseBattery">Для сохранения заряда батареи, останавливайте потоковое воспроизведение если не используете его</string>
 	<string name="aboutText1">MPDroid является свободным ПО. Вы можете получить исходный код по адресу http://github.com/abarisain/dmix !</string>
 	<string name="aboutText2">MPDroid является форком PMix (http://code.google.com/p/pmix/). Спасибо им!\nЗамечания по переводу можно присылать по адресу kzudov.esp@gmail.com</string>
-	<string name="aboutLastFM">Спасибо last.fm за предоставление обложек альбомов!</string>
 	<string name="search">Поиск</string>
 	<string name="search_label">MPDroid</string>
 	<string name="search_hint">Поиск…</string>
@@ -136,8 +135,6 @@
 	<string name="sortAlbumsByYearDescription">Упорядочить альбомы по году</string>
 	<string name="showAlbumTrackCount">Счёт записей в альбоме</string>
 	<string name="showAlbumTrackCountDescription">Показывать количество записей в альбоме</string>
-	<string name="enableLastFM">Загружать обложки</string>
-	<string name="enableLastFMDescription">Получать обложки используя last.fm (отправлять им информацию о записях)</string>
 	<string name="enableLocalCover">Загружать локальные обложки</string>
 	<string name="enableLocalCoverDescription">Получать обложки с сервера на котором запущен MPD (требуется вебсервер, смотрите вики!)</string>
 	<string name="musicPath">Путь к музыке</string>

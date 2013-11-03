@@ -99,7 +99,6 @@
     <string name="songAdded">Titel \&quot;%s\&quot; hinzugefügt</string>
     <string name="about">Über</string>
     <string name="aboutIcon">Original App-Icon von Asher (http://kyo-tux.deviantart.com/) and brsev (http://brsev.deviantart.com/), bearbeitet für MPDroid.</string>
-    <string name="aboutLastFM">Danke an Last.fm für die Bereitstellung der Albencover</string>
     <string name="aboutText1">MPDroid ist Open Source. Quelltext unter http://github.com/abarisain/dmix</string>
     <string name="aboutText2">MPDroid ist ein Fork von PMix\n (http://code.google.com/p/pmix/). Thanks to them !</string>
     <string name="addAndPlay">Hinzufügen und abspielen</string>

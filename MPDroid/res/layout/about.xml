@@ -15,14 +15,6 @@
 	<TextView android:layout_width="fill_parent" android:padding="10px"
 	android:layout_height="wrap_content" android:singleLine="true"  android:gravity="center" 
 	android:text="@string/aboutIcon"/>
-	
-	<TextView android:layout_width="fill_parent" android:padding="10px"
-	android:layout_height="wrap_content" android:singleLine="true"  android:gravity="center" 
-	android:text="@string/aboutLastFM"/>	
-		
-	<ImageView android:id="@+id/ImageView01" android:layout_width="wrap_content" 
-				android:layout_height="wrap_content" android:src="@drawable/lastfm_red" 
-				android:gravity="center" />
 
 
 </LinearLayout>

@@ -109,7 +109,6 @@
 	<string name="streamPauseBattery">배터리 절약을 위하여 사용 중이 아닌 스트리밍을 정지합니다</string>
 	<string name="aboutText1">MPDroid는 오픈 소스 소프트웨어로 소스코드는 http://github.com/abarisain/dmix를 방문하면 됩니다.</string>
 	<string name="aboutText2">MPDroid는 PMix (http://code.google.com/p/pmix/) 에서 나왔습니다. 감사합니다!</string>
-	<string name="aboutLastFM">음반표지를 제공해주신 last.fm에 감사합니다</string>
 	<string name="search">찾기</string>
 	<string name="search_label">MPDroid</string>
 	<string name="search_hint">찾는 중…</string>
