@@ -11,7 +11,7 @@
     <!-- Cover art cache -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="18"/>
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19"/>
 
     <application android:icon="@drawable/icon"
                  android:allowBackup="true"
