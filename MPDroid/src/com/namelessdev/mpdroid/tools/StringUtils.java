@@ -7,4 +7,8 @@ public class StringUtils {
         return s == null || s.length() == 0;
     }
 
+    public static String trim(String text) {
+        return text == null ? text : text.trim();
+    }
+
 }

@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
+import android.net.http.AndroidHttpClient;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -24,12 +25,12 @@ import org.a0z.mpd.exception.MPDServerException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
-import java.io.*;
-import java.net.HttpURLConnection;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -38,6 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.trim;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -46,6 +48,7 @@ import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
  * @version $Id: $
  */
 public class CoverAsyncHelper extends Handler {
+    private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
     public static final int EVENT_DOWNLOADCOVER = 0;
     public static final int EVENT_COVERDOWNLOADED = 1;
     public static final int EVENT_COVERNOTFOUND = 2;
@@ -79,7 +82,7 @@ public class CoverAsyncHelper extends Handler {
         threadPool = Executors.newCachedThreadPool();
     }
 
-    private HttpClient httpClient = null;
+    private AndroidHttpClient httpClient = null;
 
     public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
         if (whichCoverRetrievers == null) {
@@ -345,43 +348,58 @@ public class CoverAsyncHelper extends Handler {
         }
     }
 
-    private Bitmap[] download(String url) {
-        if (httpClient == null) {
-            httpClient = new DefaultHttpClient();
+    private void closeHttpClient() {
+        if (httpClient != null) {
+            httpClient.close();
         }
-        HttpGet httpGet;
-        int responseCode;
-        StatusLine statusLine;
+        httpClient = null;
+    }
+
+    private Bitmap[] download(String url) {
+
         HttpResponse response;
-        BufferedInputStream bis = null;
+        StatusLine statusLine;
+        int statusCode;
+        HttpEntity entity;
+        InputStream content;
+        BufferedInputStream bis;
         ByteArrayOutputStream baos;
-        HttpEntity entity = null;
-        InputStream content = null;
+        HttpGet httpGet = null;
+        byte[] buffer;
+        int len;
+        InputStream is;
 
         try {
+            url = trim(url);
+            if (isNullOrEmpty(url)) {
+                return null;
+            }
+
+            if (httpClient == null) {
+                httpClient = AndroidHttpClient.newInstance(USER_AGENT);
+            }
+
             // Download Cover File...
             url = url.replace(" ", "%20");
             httpGet = new HttpGet(url);
             response = httpClient.execute(httpGet);
             statusLine = response.getStatusLine();
-            responseCode = statusLine.getStatusCode();
-
+            statusCode = statusLine.getStatusCode();
             entity = response.getEntity();
             content = entity.getContent();
             // Status Code 307 (temporary redirect) is needed for musicbrainz archive cover
-            if (responseCode != HttpURLConnection.HTTP_OK && responseCode != 307) {
-                Log.w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : " + responseCode + ", " + url);
+            if (statusCode != 200 && statusCode != 307 && statusCode != 302) {
+                Log.w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : " + statusCode + ", " + url);
                 return null;
             }
             bis = new BufferedInputStream(content, 8192);
             baos = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int len;
+            buffer = new byte[1024];
             while ((len = bis.read(buffer)) > -1) {
                 baos.write(buffer, 0, len);
             }
             baos.flush();
-            InputStream is = new ByteArrayInputStream(baos.toByteArray());
+            is = new ByteArrayInputStream(baos.toByteArray());
 
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
@@ -408,29 +426,19 @@ public class CoverAsyncHelper extends Handler {
                 is.reset();
                 bmp = BitmapFactory.decodeStream(is, null, o);
             }
-
-
             return new Bitmap[]{bmp, fullBmp};
 
         } catch (Exception e) {
+            Log.e(CoverAsyncHelper.class.getSimpleName(), "Failed to download cover :" + e);
             return null;
         } finally {
-            if (entity != null) {
-                try {
-                    entity.consumeContent();
-                } catch (IOException e) {
-                    //Nothing to do
-                }
+            if (httpGet != null && !httpGet.isAborted()) {
+                httpGet.abort();
             }
-            if (content != null) {
-                try {
-                    content.close();
-                } catch (IOException e) {
-                    //Nothing to do
-                }
-            }
+
         }
     }
+
 
     public enum CoverRetrievers {
         CACHE,
@@ -441,6 +449,12 @@ public class CoverAsyncHelper extends Handler {
         MUSICBRAINZ,
         DISCOGS,
         SPOTIFY;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        closeHttpClient();
+        super.finalize();
     }
 
 }
