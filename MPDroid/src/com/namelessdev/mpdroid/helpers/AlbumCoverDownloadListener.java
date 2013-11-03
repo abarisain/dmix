@@ -61,6 +61,10 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     public void onCoverNotFound() {
         if (coverArtProgress != null)
             coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+        if (coverArt != null) {
+            // Allows to retry cover resolving for playlist items (might have been downloaded from the nowplaying fragment)
+            coverArt.setTag(null);
+        }
         freeCoverDrawable();
     }
 
@@ -71,8 +75,6 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     private void freeCoverDrawable(Drawable oldDrawable) {
         if (coverArt == null)
             return;
-        // Allows to retry cover resolving for playlist items (might have been downloaded from the nowplaying fragment)
-        coverArt.setTag(null);
         final Drawable coverDrawable = oldDrawable == null ? coverArt.getDrawable() : oldDrawable;
         if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable))
             return;
