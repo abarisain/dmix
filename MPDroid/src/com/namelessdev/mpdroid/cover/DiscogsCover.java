@@ -1,11 +1,12 @@
 package com.namelessdev.mpdroid.cover;
 
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.util.Log;
 
 /**
  * Fetch cover from Discogs
@@ -16,7 +17,7 @@ public class DiscogsCover extends AbstractWebCover {
 
         String releaseIdResponse;
         List<String> releaseIds;
-        List<String> imageUrls = new ArrayList<>();
+		List<String> imageUrls = new ArrayList<String>();
         String releaseResponse;
 
         releaseIdResponse = executeGetRequest("http://api.discogs.com/database/search?type=release&q=" + artist + " " + album + "& per_page = 10");
@@ -40,7 +41,7 @@ public class DiscogsCover extends AbstractWebCover {
         JSONArray jsonArray;
         String releaseId;
         JSONObject jsonObject;
-        List<String> releaseIds = new ArrayList<>();
+		List<String> releaseIds = new ArrayList<String>();
 
         try {
             jsonRootObject = new JSONObject(releaseIdJson);
@@ -66,7 +67,7 @@ public class DiscogsCover extends AbstractWebCover {
         JSONArray jsonArray;
         String imageUrl;
         JSONObject jsonObject;
-        List<String> imageUrls = new ArrayList<>();
+		List<String> imageUrls = new ArrayList<String>();
 
         try {
             jsonRootObject = new JSONObject(releaseJson);

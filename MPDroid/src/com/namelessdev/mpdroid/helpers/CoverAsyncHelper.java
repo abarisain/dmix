@@ -1,5 +1,29 @@
 package com.namelessdev.mpdroid.helpers;
 
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.trim;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Item;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpGet;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,32 +38,18 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.*;
+import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.cover.DeezerCover;
+import com.namelessdev.mpdroid.cover.DiscogsCover;
+import com.namelessdev.mpdroid.cover.GracenoteCover;
+import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import com.namelessdev.mpdroid.cover.LastFMCover;
+import com.namelessdev.mpdroid.cover.LocalCover;
+import com.namelessdev.mpdroid.cover.MusicBrainzCover;
+import com.namelessdev.mpdroid.cover.SpotifyCover;
 import com.namelessdev.mpdroid.tools.Tools;
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.HttpGet;
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
-import static com.namelessdev.mpdroid.tools.StringUtils.trim;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -131,7 +141,7 @@ public class CoverAsyncHelper extends Handler {
         this.app = app;
         this.settings = settings;
 
-        coverDownloadListener = new LinkedList<>();
+		coverDownloadListener = new LinkedList<CoverDownloadListener>();
         setCoverRetrieversFromPreferences();
     }
 

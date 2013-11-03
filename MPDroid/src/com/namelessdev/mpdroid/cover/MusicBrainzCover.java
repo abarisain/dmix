@@ -1,15 +1,16 @@
 package com.namelessdev.mpdroid.cover;
 
-import android.util.Log;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import android.util.Log;
 
 /**
  * Fetch cover from MusicBrainz
@@ -21,7 +22,7 @@ public class MusicBrainzCover extends AbstractWebCover {
     public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
 
         List<String> releases;
-        List<String> coverUrls = new ArrayList<>();
+		List<String> coverUrls = new ArrayList<String>();
         String covertArtResponse;
 
         releases = searchForRelease(artist, album);
@@ -54,7 +55,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private List<String> extractReleaseIds(String response) {
 
-        List<String> releaseList = new ArrayList<>();
+		List<String> releaseList = new ArrayList<String>();
 
         try {
 
@@ -97,7 +98,7 @@ public class MusicBrainzCover extends AbstractWebCover {
         JSONArray jsonArray;
         String coverUrl;
         JSONObject jsonObject;
-        List<String> coverUrls = new ArrayList<>();
+		List<String> coverUrls = new ArrayList<String>();
 
         if (covertArchiveResponse == null || covertArchiveResponse.isEmpty()) {
             return Collections.EMPTY_LIST;

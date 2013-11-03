@@ -1,13 +1,14 @@
 package com.namelessdev.mpdroid.cover;
 
-import android.util.Log;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.util.Log;
 
 /**
  * Fetch cover from Spotify
@@ -47,7 +48,7 @@ public class SpotifyCover extends AbstractWebCover {
         JSONArray jsonAlbums;
         JSONObject jsonAlbum;
         String albumId;
-        List<String> albumIds = new ArrayList<>();
+		List<String> albumIds = new ArrayList<String>();
 
         try {
             jsonRoot = new JSONObject(response);
