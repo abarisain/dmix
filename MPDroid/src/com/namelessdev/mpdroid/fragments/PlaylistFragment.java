@@ -1,5 +1,17 @@
 package com.namelessdev.mpdroid.fragments;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.a0z.mpd.MPDPlaylist;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,13 +21,26 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.util.SparseBooleanArray;
-import android.view.*;
+import android.view.ActionMode;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.*;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.SimpleAdapter;
+
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -26,13 +51,6 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverRetrievers;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
-import java.util.*;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
     private ArrayList<HashMap<String, Object>> songlist;
@@ -45,6 +63,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private String filter = null;
     private PopupMenu popupMenu;
     private Integer popupSongID;
+	private DragSortController controller;
 
     private int lastPlayingID = -1;
 
@@ -96,7 +115,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         list = (DragSortListView) view.findViewById(android.R.id.list);
         list.requestFocus();
         list.setDropListener(onDrop);
-        DragSortController controller = new DragSortController(list);
+		controller = new DragSortController(list);
         controller.setDragHandleId(R.id.icon);
         controller.setRemoveEnabled(false);
         controller.setSortEnabled(true);
@@ -113,12 +132,14 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             @Override
             public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
                 actionMode = mode;
+				controller.setSortEnabled(false);
                 return false;
             }
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
                 actionMode = null;
+				controller.setSortEnabled(true);
             }
 
             @Override
