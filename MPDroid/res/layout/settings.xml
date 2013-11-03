@@ -147,16 +147,8 @@
 
 
     </PreferenceCategory>
-    <!-- What's new -->
+
     <PreferenceCategory android:title="@string/app_name">
-        <PreferenceScreen android:title="@string/donate" android:key="whatsNew">
-
-            <intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="com.namelessdev.mpdroid"
-                    android:targetClass="com.namelessdev.mpdroid.WebViewActivity"/>
-
-        </PreferenceScreen>
-
         <!-- About -->
         <PreferenceScreen android:title="@string/about"
                           android:summary="@string/aboutDescription" android:key="aboutScreen">

@@ -160,7 +160,6 @@
     <string name="editPlaylist">Bearbeiten</string>
     <string name="editStream">Bearbeiten</string>
     <string name="edit">Ändern</string>
-    <string name="donate">Spenden</string>
     <string name="deleteStreamPrompt">Stream \&quot;%s\&quot; wirklich löschen?</string>
     <string name="nowPlaying">Du hörst</string>
     <string name="cancel">Abbrechen</string>

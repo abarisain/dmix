@@ -177,7 +177,6 @@
 	<string name="enableStopButton">Show stop button</string>
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
-	<string name="donate">Donate</string>
 	<string name="stop">Stop</string>
     <string name="enableAlbumYearText">Show album year</string>
     <string name="enableAudioText">Show audio properties</string>

@@ -177,7 +177,6 @@
 	<string name="enableStopButton">정지 단추 보임</string>
 	<string name="singleMode">단일 모드</string>
 	<string name="consumeMode">소비 모드</string>
-	<string name="donate">기부</string>
 	<string name="stop">정지</string>
 	<string name="enableAlbumYearText">음반 연도 보기</string>
 	<string name="enableAudioText">오디오속성 보기</string>
