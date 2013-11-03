@@ -9,6 +9,7 @@ import android.app.ActionBar.OnNavigationListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -25,11 +26,12 @@ import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
 public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNavigationListener,
 		ILibraryFragmentActivity,
-		ILibraryTabActivity {
+		ILibraryTabActivity, OnBackStackChangedListener {
 
 	private static final String FRAGMENT_TAG_LIBRARY = "library";
 
 	LibraryFragment libraryFragment;
+	FragmentManager fragmentManager;
 
 	ActionBar actionBar;
 	ArrayList<String> mTabList;
@@ -42,7 +44,7 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 
 		app = (MPDApplication) getApplicationContext();
 
-		final FragmentManager fm = getSupportFragmentManager();
+		fragmentManager = getSupportFragmentManager();
 
 		// Get the list of the currently visible tabs
 		mTabList = LibraryTabsUtil.getCurrentLibraryTabs(this.getApplicationContext());
@@ -50,9 +52,10 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 		// Set up the action bar.
 		actionBar = getActionBar();
 		// Will set the action bar to it's List style.
-		final int fmStackCount = fm.getBackStackEntryCount();
+		fragmentManager.addOnBackStackChangedListener(this);
+		final int fmStackCount = fragmentManager.getBackStackEntryCount();
 		if (fmStackCount > 0) {
-			refreshActionBarNavigation(false, fm.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
+			refreshActionBarNavigation(false, fragmentManager.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
 		} else {
 			refreshActionBarNavigation(true, null);
 		}
@@ -68,7 +71,7 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 		actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
-		libraryFragment = (LibraryFragment) fm.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
+		libraryFragment = (LibraryFragment) fragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
 		if (libraryFragment == null) {
 			libraryFragment = new LibraryFragment();
 			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -107,7 +110,12 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 				this.onSearchRequested();
 				return true;
 			case android.R.id.home:
-				finish();
+				final int fmStackCount = fragmentManager.getBackStackEntryCount();
+				if (fmStackCount > 0) {
+					fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+				} else {
+					finish();
+				}
 				return true;
 		}
 		return false;
@@ -145,18 +153,6 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 		ft.addToBackStack(label);
 		ft.setBreadCrumbTitle(title);
 		ft.commit();
-	}
-
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		final FragmentManager supportFM = getSupportFragmentManager();
-		final int fmStackCount = supportFM.getBackStackEntryCount();
-		if (fmStackCount > 0) {
-			refreshActionBarNavigation(false, supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
-		} else {
-			refreshActionBarNavigation(true, null);
-		}
 	}
 
 	@Override
@@ -234,5 +230,15 @@ public class LibraryTabActivity extends MPDroidFragmentActivity implements OnNav
 				return true;
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+
+	@Override
+	public void onBackStackChanged() {
+		final int fmStackCount = fragmentManager.getBackStackEntryCount();
+		if (fmStackCount > 0) {
+			refreshActionBarNavigation(false, fragmentManager.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
+		} else {
+			refreshActionBarNavigation(true, null);
+		}
 	}
 }
