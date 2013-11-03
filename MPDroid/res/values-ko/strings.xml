@@ -35,6 +35,7 @@
 	<string name="addSong">곡 추가</string>
 	<string name="removeSong">한 곡 지우기</string>
 	<string name="removeSongs">여러 곡 지우기</string>
+	<string name="cropSongs">잘라내기</string>
 	<string name="removeCountSongs">%s 곡이 지워짐</string>
 	<string name="clear">지우기</string>
 	<string name="mainMenu">주 메뉴</string>
@@ -177,12 +178,13 @@
 	<string name="streamDetails">스트림 세부 사항:</string>
 	<string name="genreAdded">장르 %s 추가됨</string>
 	<string name="enableStopButton">정지 단추 보임</string>
-    <string name="enableAlbumYearText">앨범 연도 표</string>
-    <string name="enableAudioText">오디오 속성 표시</string>
 	<string name="singleMode">단일 모드</string>
 	<string name="consumeMode">소비 모드</string>
 	<string name="donate">기부</string>
 	<string name="stop">정지</string>
+	<string name="enableAlbumYearText">음반 연도 보기</string>
+	<string name="enableAudioText">오디오속성 보기</string>
+
 
 	<string name="behavior">전화 받기</string>
 	<string name="pauseOnPhoneStateChange">연주 잠시 멈춤</string>
@@ -201,30 +203,30 @@
 	<string name="enableLocalCoverCacheDescription">음반표지를 빨리 찾기 위하여 내려받은 표지를 장치에 저장합니다</string>
 	<string name="clearLocalCoverCache">음반표지 캐시 지우기</string>
 	<string name="clearLocalCoverCacheDescription">음반표지 캐시의 저장 공간을 비웁니다</string>
-    <string name="clearLocalCoverCachePrompt">음반표지 캐시를 모두 지웁니까?</string>
+	<string name="clearLocalCoverCachePrompt">음반표지 캐시를 모두 지웁니까?</string>
 
-	<string name="enableAlbumArtLibrary">음반표지를 라이브러리에 표시</string>
+	<string name="enableAlbumArtLibrary">음반표지를 라이브러리에 보기</string>
 	<string name="enableAlbumArtLibraryDescription">큰 음반표지를 라이브러리에 타일형태로 보여줍니다. 이 기능은 실험적입니다! 느려지거나 실패할 수 있습니다. (음반표지 캐시 필요)</string>
-    <string name="albumGridWifiUnavailable">무선랜이 연결되지 않아, 새로운 음반표지를 읽을 수 없습니다</string>
+	<string name="albumGridWifiUnavailable">무선랜이 연결되지 않아, 새로운 음반표지를 읽을 수 없습니다</string>
 
-    <string name="goToAlbum">음반으로 가기</string>
-    <string name="goToArtist">연주자로 가기</string>
-    <string name="goToFolder">폴더로 가기</string>
-    <string name="goToStream">스트림으로 가기</string>
+	<string name="goToAlbum">음반으로 가기</string>
+	<string name="goToArtist">연주자로 가기</string>
+	<string name="goToFolder">폴더로 가기</string>
+	<string name="goToStream">스트림으로 가기</string>
     
-    <string name="actionSongSelected">한 곡이 선택됨</string>
-    <string name="actionSongsSelected">%s 곡이 선택됨</string>
-    <string name="searchQueue">연주순서 찾기…</string>
-    <string name="enableCoverOnlyOnWifi">와이파이로만 내려받기</string>
-    <string name="enableCoverOnlyOnWifiDescription">이동 통신으로 음반표지를 내려받지 않습니다 (요금 절약)</string>
+	<string name="actionSongSelected">한 곡이 선택됨</string>
+	<string name="actionSongsSelected">%s 곡이 선택됨</string>
+	<string name="searchQueue">연주순서 찾기…</string>
+	<string name="enableCoverOnlyOnWifi">와이파이로만 내려받기</string>
+	<string name="enableCoverOnlyOnWifiDescription">이동 통신으로 음반표지를 내려받지 않습니다 (요금 절약)</string>
 	<string name="enableExitConfirmation">나가기 전에 확인</string>
-    <string name="enableExitConfirmationDescription">나가려면 두 번 누릅니다</string>
-    <string name="enableLightTheme">밝은 테마</string>
-    <string name="enableLightNowPlayingTheme">"지금 연주 중"에 밝은 테마</string>
-    <string name="enableLightNowPlayingThemeDescription">바뀐 것을 보려면 앱을 재시작해야 합니다</string>
-    <string name="share">공유</string>
-    <string name="sharePrefix">지금 연주 중 :</string>
-    <string name="enableTabletUI">태블릿 UI 사용</string>
-    <string name="enableTabletUIDescription">바뀐 것을 보려면 앱을 재시작해야 합니다</string>
+	<string name="enableExitConfirmationDescription">나가려면 두 번 누릅니다</string>
+	<string name="enableLightTheme">밝은 테마</string>
+	<string name="enableLightNowPlayingTheme">"지금 연주 중"에 밝은 테마</string>
+	<string name="enableLightNowPlayingThemeDescription">바꾸려면 앱을 다시 시작해야 합니다</string>
+	<string name="share">공유</string>
+	<string name="sharePrefix">지금 연주 중 :</string>
+	<string name="enableTabletUI">태블릿 UI 사용</string>
+	<string name="enableTabletUIDescription">바꾸려면 앱을 다시 시작해야 합니다</string>
 
 </resources>
