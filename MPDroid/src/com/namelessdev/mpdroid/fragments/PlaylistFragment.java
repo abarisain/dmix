@@ -634,6 +634,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             menuButton.setTag(item.get("songid"));
             if (enabledRetrievers != null) {
                 final ImageView albumCover = (ImageView) view.findViewById(R.id.cover);
+                //Do not download cover if already done for this song ID (getview called a lot of times with the first playlist song)
+                if (albumCover.getTag() == null || !albumCover.getTag().equals(item.get("songid"))) {
+                    albumCover.setTag(item.get("songid"));
                 final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
                 coverHelper.setCoverRetrievers(enabledRetrievers);
                 final int height = albumCover.getHeight();
@@ -649,6 +652,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 coverHelper.addCoverDownloadListener(acd);
                 coverHelper.downloadCover((String) item.get("_artist"), (String) item.get("_album"), null, null);
+                }
             }
             return view;
         }
