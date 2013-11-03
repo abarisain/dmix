@@ -137,8 +137,6 @@
 	<string name="sortAlbumsByYearDescription">음반을 연도로 정리합니다</string>
 	<string name="showAlbumTrackCount">음반 곡 수</string>
 	<string name="showAlbumTrackCountDescription">음반의 곡 수를 보여줍니다</string>
-	<string name="enableLastFM">음반표지 내려받기</string>
-	<string name="enableLastFMDescription">last.fm에서 음반표지를 내려받습니다 (사용자의 음악 정보를 보냅니다)</string>
 	<string name="enableLocalCover">로컬 음반표지 내려받기</string>
 	<string name="enableLocalCoverDescription">MPD 서버에서 음반표지를 내려받습니다 (웹서버가 필요하며, 위키를 보시기 바랍니다!)</string>
 	<string name="musicPath">음악 경로</string>

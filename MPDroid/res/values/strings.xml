@@ -137,8 +137,6 @@
 	<string name="sortAlbumsByYearDescription">Sort albums by year</string>
 	<string name="showAlbumTrackCount">Album track count</string>
 	<string name="showAlbumTrackCountDescription">Show number of tracks on album</string>
-	<string name="enableLastFM">Download cover art</string>
-	<string name="enableLastFMDescription">Get cover art using last.fm (sends them your song information)</string>
 	<string name="enableLocalCover">Download local cover art</string>
 	<string name="enableLocalCoverDescription">Get cover art from the server running MPD (requires a webserver, read the wiki!)</string>
 	<string name="musicPath">Path to music</string>
@@ -228,5 +226,7 @@
     <string name="sharePrefix">Now Playing :</string>
     <string name="enableTabletUI">Use tablet UI</string>
     <string name="enableTabletUIDescription">Restart the application to see the changes</string>
+    <string name="enableInternetCover">Download cover art</string>
+	<string name="enableInternetCoverDescription">Get cover art using various internet services (sends them your song information)</string>
 
 </resources>

@@ -14,8 +14,6 @@
     <string name="enableAudioText">Anzeigen Audio-Eigenschaften</string>
     <string name="enableLocalCover">Lokale Albencover laden</string>
     <string name="enableLocalCoverDescription">Albencover vom MPD-Server laden (Erfordert einen Webserver, siehe Wiki)</string>
-    <string name="enableLastFMDescription">Albencover von Last.fm herunterladen (sended Informationen über abgespielte Titel)</string>
-    <string name="enableLastFM">Last.fm Albencover laden</string>
     <string name="albums">Alben</string>
     <string name="albumTrackSort">Titelnummer</string>
     <string name="albumTrackSortDescription">Sortiere Titel nach Titelnummer</string>

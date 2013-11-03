@@ -130,8 +130,6 @@
 	<string name="sortAlbumsByYearDescription">Trier les albums par année</string>
 	<string name="showAlbumTrackCount">Numéros de chansons</string>
 	<string name="showAlbumTrackCountDescription">Afficher le numéros des chansons d\'un album</string>
-	<string name="enableLastFM">Télécharger les pochettes</string>
-	<string name="enableLastFMDescription">Obtenir les pochettes via Last.FM (leur envoie les informations sur la chanson courante)</string>
 	<string name="enableLocalCover">Télécharger les pochettes locales</string>
 	<string name="enableLocalCoverDescription">Obtenir les pochettes depuis le serveur hébergant MPD (requiert un serveur web, lisez le wiki)</string>
 	<string name="musicPath">Chemin vers la musique</string>
@@ -203,6 +201,8 @@
     <string name="sharePrefix">Now Playing :</string>
 	<string name="enableTabletUI">Utiliser l\'interface pour tablette</string>
     <string name="enableTabletUIDescription">Redémarrer l\'application pour voir les changements</string>
+    <string name="enableInternetCover">Télécharger les pochettes</string>
+	<string name="enableInternetCoverDescription">Obtenir les pochettes via divers services (leur envoie les informations sur la chanson courante)</string>
     
 	<string name="enableAlbumArtLibrary">Pochettes d\'album dans la biliothèque</string>
 	<string name="enableAlbumArtLibraryDescription">Utiliser des larges pochettes pour la liste d\'albums dans la bibliothèque. Cette fonctionnalité est expérimentale ! Vous serez peut-être victime de lag et/ou plantages. (Nécessite le cache de pochettes)</string>

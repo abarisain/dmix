@@ -87,7 +87,7 @@
                               android:key="clearLocalCoverCache">
             </PreferenceScreen>
             <CheckBoxPreference android:persistent="true"
-                                android:title="@string/enableLastFM" android:summary="@string/enableLastFMDescription"
+                                android:title="@string/enableInternetCover" android:summary="@string/enableInternetCoverDescription"
                                 android:key="enableLastFM" android:defaultValue="true"/>
             <CheckBoxPreference android:persistent="true"
                                 android:title="@string/enableLocalCover"
