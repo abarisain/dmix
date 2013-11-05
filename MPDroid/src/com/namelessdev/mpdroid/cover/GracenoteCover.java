@@ -29,7 +29,10 @@ public class GracenoteCover extends AbstractWebCover {
             if (userId == null) {
                 userId = register();
                 if (sharedPreferences != null && userId != null) {
-                    sharedPreferences.edit().putString(USER_ID, userId);
+                    SharedPreferences.Editor editor;
+                    editor = sharedPreferences.edit();
+                    editor.putString(USER_ID, userId);
+                    editor.commit();
                 }
             }
         } catch (Exception e) {

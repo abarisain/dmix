@@ -372,6 +372,8 @@ public class CoverAsyncHelper extends Handler {
             url = new URL(textUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.setUseCaches(true);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
             statusCode = connection.getResponseCode();
             inputStream = connection.getInputStream();
             if (statusCode != 200) {

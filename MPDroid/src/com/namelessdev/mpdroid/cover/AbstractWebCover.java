@@ -10,6 +10,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.params.HttpConnectionParams;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -92,6 +93,8 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
         if (client == null) {
             client = AndroidHttpClient.newInstance(USER_AGENT);
+            HttpConnectionParams.setConnectionTimeout(client.getParams(), 5000);
+            HttpConnectionParams.setSoTimeout(client.getParams(), 5000);
         }
     }
 
