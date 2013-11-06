@@ -3,10 +3,9 @@ package com.namelessdev.mpdroid.helpers;
 import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 import static com.namelessdev.mpdroid.tools.StringUtils.trim;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -19,10 +18,6 @@ import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.HttpGet;
 
 import android.app.Activity;
 import android.content.Context;
@@ -32,7 +27,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
-import android.net.http.AndroidHttpClient;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -89,10 +83,8 @@ public class CoverAsyncHelper extends Handler {
     public static ExecutorService threadPool;
 
     static {
-		threadPool = Executors.newFixedThreadPool(3);
+        threadPool = Executors.newFixedThreadPool(3);
     }
-
-    private AndroidHttpClient httpClient = null;
 
     public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
         if (whichCoverRetrievers == null) {
@@ -141,7 +133,7 @@ public class CoverAsyncHelper extends Handler {
         this.app = app;
         this.settings = settings;
 
-		coverDownloadListener = new LinkedList<CoverDownloadListener>();
+        coverDownloadListener = new LinkedList<CoverDownloadListener>();
         setCoverRetrieversFromPreferences();
     }
 
@@ -358,51 +350,37 @@ public class CoverAsyncHelper extends Handler {
         }
     }
 
-    private void closeHttpClient() {
-        if (httpClient != null) {
-            httpClient.close();
-        }
-        httpClient = null;
-    }
+    private Bitmap[] download(String textUrl) {
 
-    private Bitmap[] download(String url) {
-
-        HttpResponse response;
-        StatusLine statusLine;
+        URL url;
+        HttpURLConnection connection = null;
+        InputStream inputStream = null;
         int statusCode;
-        HttpEntity entity;
-        InputStream content;
         BufferedInputStream bis;
         ByteArrayOutputStream baos;
-        HttpGet httpGet = null;
         byte[] buffer;
         int len;
         InputStream is;
 
         try {
-            url = trim(url);
-            if (isNullOrEmpty(url)) {
+            textUrl = trim(textUrl);
+            if (isNullOrEmpty(textUrl)) {
                 return null;
             }
-
-            if (httpClient == null) {
-                httpClient = AndroidHttpClient.newInstance(USER_AGENT);
-            }
-
             // Download Cover File...
-            url = url.replace(" ", "%20");
-            httpGet = new HttpGet(url);
-            response = httpClient.execute(httpGet);
-            statusLine = response.getStatusLine();
-            statusCode = statusLine.getStatusCode();
-            entity = response.getEntity();
-            content = entity.getContent();
-            // Status Code 307 (temporary redirect) is needed for musicbrainz archive cover
-            if (statusCode != 200 && statusCode != 307 && statusCode != 302) {
-                Log.w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : " + statusCode + ", " + url);
+            textUrl = textUrl.replace(" ", "%20");
+            url = new URL(textUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setUseCaches(true);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            statusCode = connection.getResponseCode();
+            inputStream = connection.getInputStream();
+            if (statusCode != 200) {
+                Log.w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : " + statusCode + ", " + textUrl);
                 return null;
             }
-            bis = new BufferedInputStream(content, 8192);
+            bis = new BufferedInputStream(inputStream, 8192);
             baos = new ByteArrayOutputStream();
             buffer = new byte[1024];
             while ((len = bis.read(buffer)) > -1) {
@@ -442,8 +420,15 @@ public class CoverAsyncHelper extends Handler {
             Log.e(CoverAsyncHelper.class.getSimpleName(), "Failed to download cover :" + e);
             return null;
         } finally {
-            if (httpGet != null && !httpGet.isAborted()) {
-                httpGet.abort();
+            if (connection != null) {
+                connection.disconnect();
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    //Nothing to do
+                }
             }
 
         }
@@ -460,11 +445,4 @@ public class CoverAsyncHelper extends Handler {
         DISCOGS,
         SPOTIFY;
     }
-
-    @Override
-    protected void finalize() throws Throwable {
-        closeHttpClient();
-        super.finalize();
-    }
-
 }

@@ -10,6 +10,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.params.HttpConnectionParams;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -21,6 +22,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
     private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
     private final static boolean DEBUG = false;
+    private static final String[] DISC_REFERENCES = {"disc", "cd"};
 
     protected AndroidHttpClient client = null;
 
@@ -91,6 +93,8 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
         if (client == null) {
             client = AndroidHttpClient.newInstance(USER_AGENT);
+            HttpConnectionParams.setConnectionTimeout(client.getParams(), 5000);
+            HttpConnectionParams.setSoTimeout(client.getParams(), 5000);
         }
     }
 
@@ -98,6 +102,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     protected String executeGetRequest(String request) {
         HttpGet httpGet = null;
         prepareRequest();
+        request = removeDiscReference(request);
         request = request.replace(" ", "%20");
         if (DEBUG)
             Log.d(getName(), "Http request : " + request);
@@ -121,6 +126,14 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
     public boolean isCoverLocal() {
         return false;
+    }
+    //Remove disc references from albums (like CD1, disc02 ...)
+    protected String removeDiscReference(String album) {
+        String cleanedAlbum = album;
+        for (String discReference : DISC_REFERENCES) {
+            cleanedAlbum = cleanedAlbum.replaceAll(discReference.toLowerCase() + "\\s*\\d+", " ");
+        }
+        return cleanedAlbum;
     }
 
     @Override
