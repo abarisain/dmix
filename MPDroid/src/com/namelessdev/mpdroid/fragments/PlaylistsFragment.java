@@ -49,7 +49,10 @@ public class PlaylistsFragment extends BrowseFragment {
 	protected void add(Item item, boolean replace, boolean play) {
 		try {
 			app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
+            if (isAdded()) {
 			Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+            }
+
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
@@ -114,7 +117,9 @@ public class PlaylistsFragment extends BrowseFragment {
 				String playlist=items.get(itemIndex).getName();
 				try {
 					app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
-					Tools.notifyUser(String.format(getResources().getString(R.string.playlistDeleted), playlist), getActivity());
+                    if (isAdded()) {
+                        Tools.notifyUser(String.format(getResources().getString(R.string.playlistDeleted), playlist), getActivity());
+                    }
 					items.remove(itemIndex);
 				} catch (MPDServerException e) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

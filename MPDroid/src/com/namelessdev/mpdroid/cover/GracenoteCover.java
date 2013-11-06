@@ -39,7 +39,12 @@ public class GracenoteCover extends AbstractWebCover {
             Log.e(GracenoteCover.class.getName(), "Gracenote initialisation failure : " + e.getMessage());
             this.userId = null;
             if (sharedPreferences != null) {
-                sharedPreferences.edit().remove(USER_ID);
+                if (sharedPreferences != null && userId != null) {
+                    SharedPreferences.Editor editor;
+                    editor = sharedPreferences.edit();
+                    editor.remove(USER_ID);
+                    editor.commit();
+                }
             }
         }
 
