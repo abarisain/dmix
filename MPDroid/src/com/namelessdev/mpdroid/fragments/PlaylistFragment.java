@@ -214,8 +214,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private void refreshListColorCacheHint() {
         if (app == null || list == null)
             return;
-        if ((getActivity() instanceof MainMenuActivity && app.isLightNowPlayingThemeSelected()) ||
-                (!(getActivity() instanceof MainMenuActivity) && app.isLightThemeSelected())) {
+        if ((activity instanceof MainMenuActivity && app.isLightNowPlayingThemeSelected()) ||
+                (!(activity instanceof MainMenuActivity) && app.isLightThemeSelected())) {
             list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
         } else {
             list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
@@ -304,7 +304,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
            activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    SimpleAdapter songs = new QueueAdapter(getActivity(), songlist, R.layout.playlist_queue_item, new String[]{
+                    SimpleAdapter songs = new QueueAdapter(activity, songlist, R.layout.playlist_queue_item, new String[]{
                             "play",
                             "title", "artist"}, new int[]{R.id.picture, android.R.id.text1, android.R.id.text2});
 
@@ -379,12 +379,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 }
                 return true;
             case R.id.PLM_EditPL:
-                i = new Intent(getActivity(), PlaylistEditActivity.class);
+                i = new Intent(activity, PlaylistEditActivity.class);
                 startActivity(i);
                 return true;
             case R.id.PLM_Save:
-                final EditText input = new EditText(getActivity());
-                new AlertDialog.Builder(getActivity())
+                final EditText input = new EditText(activity);
+                new AlertDialog.Builder(activity)
                         .setTitle(R.string.playlistName)
                         .setMessage(R.string.newPlaylistPrompt)
                         .setView(input)
@@ -520,7 +520,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         @Override
         public void onClick(View v) {
             popupSongID = (Integer) v.getTag();
-            popupMenu = new PopupMenu(getActivity(), v);
+            popupMenu = new PopupMenu(activity, v);
             popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistcnxmenu, popupMenu.getMenu());
             popupMenu.setOnMenuItemClickListener(PlaylistFragment.this);
             popupMenu.show();
@@ -629,7 +629,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     final int height = albumCover.getHeight();
                     // If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
                     coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
-                    final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(getActivity(), albumCover, lightTheme);
+                    final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(activity, albumCover, lightTheme);
                     final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) albumCover
                             .getTag(R.id.AlbumCoverDownloadListener);
                     if (oldAcd != null) {
