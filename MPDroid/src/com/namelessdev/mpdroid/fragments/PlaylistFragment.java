@@ -617,7 +617,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             if (enabledRetrievers != null) {
                 final ImageView albumCover = (ImageView) view.findViewById(R.id.cover);
                 //Do not download cover if already done for this song ID (getview called a lot of times with the first playlist song)
-                if (albumCover.getTag() == null || !albumCover.getTag().equals(item.get("title"))) {
+                if (albumCover.getTag() == null || !albumCover.getTag().equals(item.get("_artist") + (String) item.get("_album"))) {
                     final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
                     coverHelper.setCoverRetrievers(enabledRetrievers);
                     final int height = albumCover.getHeight();
@@ -632,7 +632,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
                     albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                     coverHelper.addCoverDownloadListener(acd);
-                    albumCover.setTag(item.get("title"));
+                    albumCover.setTag(item.get("_artist") + (String) item.get("_album"));
                     coverHelper.downloadCover((String) item.get("_artist"), (String) item.get("_album"), null, null);
                 }
             }

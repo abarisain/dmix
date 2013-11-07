@@ -612,6 +612,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
                     // coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+                    coverArt.setTag(artist+album);
                     oCoverAsyncHelper.downloadCover(artist, album, path, filename);
                     lastArtist = artist;
                     lastAlbum = album;

@@ -1,11 +1,5 @@
 package com.namelessdev.mpdroid.fragments;
 
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -23,12 +17,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener {
 
@@ -270,7 +268,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 					coverArtListener.onCoverNotFound();
 				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-					coverHelper.downloadCover(artist, album, actSong.getPath(), actSong.getFilename());
+                    coverArt.setTag(artist+album);
+                    coverHelper.downloadCover(artist, album, actSong.getPath(), actSong.getFilename());
 					lastArtist = artist;
 					lastAlbum = album;
 				}
