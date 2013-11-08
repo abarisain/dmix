@@ -1,13 +1,13 @@
 package org.a0z.mpd;
 
+import org.a0z.mpd.event.AbstractStatusChangeListener;
+import org.a0z.mpd.exception.MPDClientException;
+import org.a0z.mpd.exception.MPDServerException;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.a0z.mpd.event.AbstractStatusChangeListener;
-import org.a0z.mpd.exception.MPDClientException;
-import org.a0z.mpd.exception.MPDServerException;
 
 /**
  * MPD Playlist controller.
@@ -226,7 +226,9 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 			newPlaylist.add(null);
 		
 		for( Music song : changes ) {
+            if (newPlaylist.size() > song.getPos()) {
 			newPlaylist.set(song.getPos(), song);
+            }
 		}
 
 		this.list.clear();
