@@ -611,6 +611,10 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view = super.getView(position, convertView, parent);
+            final Map<String, ?> item = (Map<String, ?>) getItem(position);
+            String viewTag =  (String) item.get("title");
+            if (view.getTag() == null || !view.getTag().equals(viewTag)) {
+                view.setTag(viewTag);
             view.findViewById(R.id.icon).setVisibility(filter == null ? View.VISIBLE : View.GONE);
             final View menuButton = view.findViewById(R.id.menu);
             if (convertView == null) {
@@ -619,7 +623,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     view.findViewById(R.id.cover).setVisibility(View.GONE);
             }
 
-            final Map<String, ?> item = (Map<String, ?>) getItem(position);
             menuButton.setTag(item.get("songid"));
             if (enabledRetrievers != null) {
                 final ImageView albumCover = (ImageView) view.findViewById(R.id.cover);
@@ -641,8 +644,10 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     albumCover.setTag(item.get("_artist") + (String) item.get("_album"));
                     coverHelper.downloadCover((String) item.get("_artist"), (String) item.get("_album"), null, null);
             }
+            }
             return view;
         }
+
     }
 
 }
