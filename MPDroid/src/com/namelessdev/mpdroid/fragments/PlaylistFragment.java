@@ -316,7 +316,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     // Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
                     // other
                     // stuff.
-                    if (finalListPlayingID > 0)
+                    if (finalListPlayingID > 0 && getView() != null)
                         setSelection(finalListPlayingID);
                 }
             });
