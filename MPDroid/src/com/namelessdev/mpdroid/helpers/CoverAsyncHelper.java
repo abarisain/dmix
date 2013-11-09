@@ -1,24 +1,5 @@
 package com.namelessdev.mpdroid.helpers;
 
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
-import static com.namelessdev.mpdroid.tools.StringUtils.trim;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -32,18 +13,27 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.cover.DeezerCover;
-import com.namelessdev.mpdroid.cover.DiscogsCover;
-import com.namelessdev.mpdroid.cover.GracenoteCover;
-import com.namelessdev.mpdroid.cover.ICoverRetriever;
-import com.namelessdev.mpdroid.cover.LastFMCover;
-import com.namelessdev.mpdroid.cover.LocalCover;
-import com.namelessdev.mpdroid.cover.MusicBrainzCover;
-import com.namelessdev.mpdroid.cover.SpotifyCover;
+import com.namelessdev.mpdroid.cover.*;
 import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Item;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.trim;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -122,7 +112,7 @@ public class CoverAsyncHelper extends Handler {
     }
 
     public interface CoverDownloadListener {
-        public void onCoverDownloaded(Bitmap cover);
+        public void onCoverDownloaded(CoverInfo cover);
 
         public void onCoverNotFound();
     }
@@ -231,7 +221,7 @@ public class CoverAsyncHelper extends Handler {
         switch (msg.what) {
             case EVENT_COVERDOWNLOADED:
                 for (CoverDownloadListener listener : coverDownloadListener)
-                    listener.onCoverDownloaded((Bitmap) msg.obj);
+                    listener.onCoverDownloaded((CoverInfo) msg.obj);
                 break;
 
             case EVENT_COVERNOTFOUND:
@@ -336,7 +326,8 @@ public class CoverAsyncHelper extends Handler {
                                 }
                             }
                         }
-                        CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, covers[0]).sendToTarget();
+                        info.sBitmap = covers[0];
+                        CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, info).sendToTarget();
                         break;
                     }
                 }

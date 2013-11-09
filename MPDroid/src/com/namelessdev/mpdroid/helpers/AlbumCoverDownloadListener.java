@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -39,22 +40,20 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         freeCoverDrawable();
     }
 
-    public void onCoverDownloaded(Bitmap cover) {
-        if (coverArtProgress != null)
-            coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-        if (coverArt == null)
+    public void onCoverDownloaded(CoverInfo cover) {
+        if (cover == null || coverArt == null)
             return;
         try {
-            if (cover != null) {
+
+            if (coverArt.getTag() == null || coverArt.getTag().equals(cover.sArtist + cover.sAlbum)) {
+                if (coverArtProgress != null) {
+                    coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+                }
                 freeCoverDrawable(coverArt.getDrawable());
-                coverArt.setImageDrawable(new CoverBitmapDrawable(context.getResources(), cover));
-            } else {
-                // Should not be happening, but happened.
-                onCoverNotFound();
+                coverArt.setImageDrawable(new CoverBitmapDrawable(context.getResources(), cover.sBitmap));
             }
         } catch (Exception e) {
-            //Probably rotated, ignore
-            e.printStackTrace();
+            Log.w(AlbumCoverDownloadListener.class.getSimpleName(), e);
         }
     }
 

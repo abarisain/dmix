@@ -1,31 +1,11 @@
 package com.namelessdev.mpdroid.fragments;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.PopupMenu;
+import android.widget.*;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -33,6 +13,8 @@ import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
+import org.a0z.mpd.*;
+import org.a0z.mpd.exception.MPDServerException;
 
 public class SongsFragment extends BrowseFragment {
 
@@ -276,7 +258,8 @@ public class SongsFragment extends BrowseFragment {
 					artistName = song.getArtist();
 				}
 				coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-				coverHelper.downloadCover(artistName, album.getName(), path, filename);
+                coverArt.setTag(artistName+album.getName());
+                coverHelper.downloadCover(artistName, album.getName(), path, filename);
 			} else {
 				coverArtListener.onCoverNotFound();
 			}

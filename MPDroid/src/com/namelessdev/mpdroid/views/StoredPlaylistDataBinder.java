@@ -1,17 +1,11 @@
 package com.namelessdev.mpdroid.views;
 
-import java.util.List;
-
-import org.a0z.mpd.Item;
-import org.a0z.mpd.Music;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -19,6 +13,10 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.PlaylistViewHolder;
+import org.a0z.mpd.Item;
+import org.a0z.mpd.Music;
+
+import java.util.List;
 
 public class StoredPlaylistDataBinder extends BaseDataBinder {
 
@@ -76,8 +74,8 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 				oldAcd.detach();
 			holder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
 			coverHelper.addCoverDownloadListener(acd);
-
-			loadArtwork(coverHelper, artist, album);
+            holder.cover.setTag(artist + album);
+            loadArtwork(coverHelper, artist, album);
 		}
 	}
 
