@@ -78,10 +78,10 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     }
 
     public void downloadCover(String artist, String album, String path, String filename) {
-       downloadCover(artist, album, path, filename, true);
+        downloadCover(artist, album, path, filename, false);
     }
 
-    public void downloadCover(String artist, String album, String path, String filename, boolean insertFirst) {
+    public void downloadCover(String artist, String album, String path, String filename, boolean priority) {
         final CoverInfo info = new CoverInfo();
         info.setArtist(artist);
         info.setAlbum(album);
@@ -89,11 +89,12 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         info.setFilename(filename);
         info.setCoverMaxSize(coverMaxSize);
         info.setCachedCoverMaxSize(cachedCoverMaxSize);
+        info.setPriority(priority);
 
         if (isNullOrEmpty(album)) {
             handleMessage(COVER_NOT_FOUND_MESSAGE);
         } else {
-            CoverManager.getInstance(app, settings).addCoverRequest(info, this, insertFirst);
+            CoverManager.getInstance(app, settings).addCoverRequest(info, this);
         }
 
     }
@@ -107,7 +108,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
             case EVENT_COVERNOTFOUND:
                 for (CoverDownloadListener listener : coverDownloadListener)
-                    listener.onCoverNotFound((CoverInfo)msg.obj);
+                    listener.onCoverNotFound((CoverInfo) msg.obj);
                 break;
             default:
                 break;
@@ -124,8 +125,8 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND, cover).sendToTarget();
     }
     public void setCoverRetrieversFromPreferences() {
-        CoverManager.getInstance(app,settings).setCoverRetrieversFromPreferences();
+        CoverManager.getInstance(app, settings).setCoverRetrieversFromPreferences();
     }
 
 
-    }
+}

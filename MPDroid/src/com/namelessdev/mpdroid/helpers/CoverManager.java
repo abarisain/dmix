@@ -39,6 +39,7 @@ public class CoverManager {
     public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
     private static final boolean DEBUG = false;
+    public static final int MAX_REQUESTS = 50;
     private MPDApplication app = null;
     private SharedPreferences settings = null;
     private static CoverManager instance = null;
@@ -46,6 +47,7 @@ public class CoverManager {
     private List<CoverInfo> runningRequests = Collections.synchronizedList(new ArrayList<CoverInfo>());
     private ExecutorService requestExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService coverFetchExecutor = Executors.newFixedThreadPool(2);
+    private ExecutorService priorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService cacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService createBitmapExecutor = cacheCoverFetchExecutor;
     private MultiMap<CoverInfo, CoverDownloadListener> helpersByCoverInfo = new MultiMap<CoverInfo, CoverDownloadListener>();
@@ -160,13 +162,9 @@ public class CoverManager {
         }
     }
 
-    public void addCoverRequest(CoverInfo coverInfo, CoverDownloadListener listener, boolean insertFirst) {
+    public void addCoverRequest(CoverInfo coverInfo, CoverDownloadListener listener) {
         this.helpersByCoverInfo.put(coverInfo, listener);
-        if (insertFirst) {
-            this.requests.addFirst(coverInfo);
-        } else {
-            this.requests.addLast(coverInfo);
-        }
+        this.requests.add(coverInfo);
     }
 
     private class RequestProcessorTask implements Runnable {
@@ -193,9 +191,21 @@ public class CoverManager {
                             }
                         case CACHE_COVER_FETCH:
                             if (coverInfo.getCoverBytes() == null || coverInfo.getCoverBytes().length == 0) {
-                                coverInfo.setState(WEB_COVER_FETCH);
-                                coverFetchExecutor.submit(new FetchCoverTask(coverInfo));
-                                break;
+                                if (runningRequests.size() < MAX_REQUESTS) {
+                                    coverInfo.setState(WEB_COVER_FETCH);
+                                    if (coverInfo.isPriority()) {
+                                        priorityCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
+                                    } else {
+                                        coverFetchExecutor.submit(new FetchCoverTask(coverInfo));
+                                    }
+                                    break;
+                                } else {
+                                    if (DEBUG) {
+                                        Log.e(CoverManager.class.getSimpleName(), "Too many requests, giving up this one : " + coverInfo.getAlbum());
+                                    }
+                                    notifyListeners(false, coverInfo);
+                                    break;
+                                }
                             } else {
                                 coverInfo.setState(CREATE_BITMAP);
                                 createBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
@@ -261,6 +271,16 @@ public class CoverManager {
         }
         runningRequests.remove(coverInfo);
         helpersByCoverInfo.remove(coverInfo);
+
+        logQueues();
+    }
+
+    private void logQueues() {
+        if (DEBUG) {
+            Log.d(CoverManager.class.getSimpleName(), "requests queue size : " + requests.size());
+            Log.d(CoverManager.class.getSimpleName(), "running request queue size : " + runningRequests.size());
+            Log.d(CoverManager.class.getSimpleName(), "helpersByCoverInfo map size : " + helpersByCoverInfo.size());
+        }
     }
 
     private class FetchCoverTask implements Runnable
@@ -306,7 +326,7 @@ public class CoverManager {
                                 coverBytes = getCoverBytes(coverUrls, coverInfo);
                                 if (coverBytes != null && coverBytes.length > 0) {
                                     coverInfo.setCoverBytes(coverBytes);
-                                    requests.addFirst(coverInfo);
+                                    requests.addLast(coverInfo);
                                     return;
                                 } else {
                                     if (DEBUG)
@@ -327,7 +347,7 @@ public class CoverManager {
                 }
 
             }
-            requests.addFirst(coverInfo);
+            requests.addLast(coverInfo);
         }
 
 
@@ -405,7 +425,7 @@ public class CoverManager {
                 }
             }
 
-            requests.addFirst(coverInfo);
+            requests.addLast(coverInfo);
         }
     }
 

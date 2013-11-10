@@ -14,12 +14,21 @@ public class CoverInfo {
     private String filename;
     private Bitmap[] bitmap;
     private byte[] coverBytes;
+    private boolean priority;
     public static final int MAX_SIZE = 0;
     private int coverMaxSize = MAX_SIZE;
     private int cachedCoverMaxSize = MAX_SIZE;
     private ICoverRetriever coverRetriever;
 
     public CoverInfo() {
+    }
+
+    public boolean isPriority() {
+        return priority;
+    }
+
+    public void setPriority(boolean priority) {
+        this.priority = priority;
     }
 
     public CoverInfo(String artist, String album) {
