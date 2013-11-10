@@ -23,9 +23,7 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
+import com.namelessdev.mpdroid.helpers.*;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.*;
@@ -618,14 +616,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     lastAlbum = album;
                     trackTime.setText(timeToString(0));
                     trackTotalTime.setText(timeToString(0));
-                    coverArtListener.onCoverNotFound();
+                    coverArtListener.onCoverNotFound(new CoverInfo(artist,album));
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
                     // coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
                     int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
                     coverArt.setTag(artist+album);
-                    oCoverAsyncHelper.downloadCover(artist, album, path, filename);
+                    oCoverAsyncHelper.downloadCover(artist, album, path, filename, true);
                     lastArtist = artist;
                     lastAlbum = album;
                 }
@@ -693,8 +691,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(CoverAsyncHelper.PREFERENCE_CACHE) || key.equals(CoverAsyncHelper.PREFERENCE_LASTFM)
-                || key.equals(CoverAsyncHelper.PREFERENCE_LOCALSERVER)) {
+        if (key.equals(CoverManager.PREFERENCE_CACHE) || key.equals(CoverManager.PREFERENCE_LASTFM)
+                || key.equals(CoverManager.PREFERENCE_LOCALSERVER)) {
             oCoverAsyncHelper.setCoverRetrieversFromPreferences();
         } else if (key.equals("enableStopButton")) {
             applyViewVisibility(sharedPreferences, stopButton, key);

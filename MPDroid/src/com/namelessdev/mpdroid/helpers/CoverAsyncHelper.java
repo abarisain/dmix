@@ -1,39 +1,16 @@
 package com.namelessdev.mpdroid.helpers;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.NetworkInfo.State;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.*;
-import com.namelessdev.mpdroid.tools.Tools;
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
-import static com.namelessdev.mpdroid.tools.StringUtils.trim;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -41,16 +18,10 @@ import static com.namelessdev.mpdroid.tools.StringUtils.trim;
  * @author Stefan Agner
  * @version $Id: $
  */
-public class CoverAsyncHelper extends Handler {
-    private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
-    public static final int EVENT_DOWNLOADCOVER = 0;
+public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     public static final int EVENT_COVERDOWNLOADED = 1;
     public static final int EVENT_COVERNOTFOUND = 2;
     public static final int MAX_SIZE = 0;
-    public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
-    public static final String PREFERENCE_LASTFM = "enableLastFM";
-    public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
-    public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
 
     private static final Message COVER_NOT_FOUND_MESSAGE;
 
@@ -59,63 +30,11 @@ public class CoverAsyncHelper extends Handler {
         COVER_NOT_FOUND_MESSAGE.what = EVENT_COVERNOTFOUND;
     }
 
-    private static final boolean DEBUG = false;
-
     private MPDApplication app = null;
     private SharedPreferences settings = null;
 
     private int coverMaxSize = MAX_SIZE;
     private int cachedCoverMaxSize = MAX_SIZE;
-    private boolean cacheWritable = true;
-
-    private ICoverRetriever[] coverRetrievers = null;
-
-    public static ExecutorService threadPool;
-
-    static {
-        threadPool = Executors.newFixedThreadPool(3);
-    }
-
-    public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
-        if (whichCoverRetrievers == null) {
-            coverRetrievers = new ICoverRetriever[0];
-        }
-        coverRetrievers = new ICoverRetriever[whichCoverRetrievers.size()];
-        for (int i = 0; i < whichCoverRetrievers.size(); i++) {
-            switch (whichCoverRetrievers.get(i)) {
-                case CACHE:
-                    this.coverRetrievers[i] = new CachedCover(app);
-                    break;
-                case LASTFM:
-                    this.coverRetrievers[i] = new LastFMCover();
-                    break;
-                case LOCAL:
-                    this.coverRetrievers[i] = new LocalCover(this.app, this.settings);
-                    break;
-                case GRACENOTE:
-                    this.coverRetrievers[i] = new GracenoteCover(this.settings);
-                    break;
-                case DEEZER:
-                    this.coverRetrievers[i] = new DeezerCover();
-                    break;
-                case MUSICBRAINZ:
-                    this.coverRetrievers[i] = new MusicBrainzCover();
-                    break;
-                case DISCOGS:
-                    this.coverRetrievers[i] = new DiscogsCover();
-                    break;
-                case SPOTIFY:
-                    this.coverRetrievers[i] = new SpotifyCover();
-                    break;
-            }
-        }
-    }
-
-    public interface CoverDownloadListener {
-        public void onCoverDownloaded(CoverInfo cover);
-
-        public void onCoverNotFound();
-    }
 
     private Collection<CoverDownloadListener> coverDownloadListener;
 
@@ -124,46 +43,6 @@ public class CoverAsyncHelper extends Handler {
         this.settings = settings;
 
         coverDownloadListener = new LinkedList<CoverDownloadListener>();
-        setCoverRetrieversFromPreferences();
-    }
-
-    public void setCoverRetrieversFromPreferences() {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-        final List<CoverRetrievers> enabledRetrievers = new ArrayList<CoverRetrievers>();
-        // There is a cover provider order, respect it.
-        // Cache -> MPD Server -> LastFM
-        if (settings.getBoolean(PREFERENCE_CACHE, true)) {
-            enabledRetrievers.add(CoverRetrievers.CACHE);
-        }
-        if (!(settings.getBoolean(PREFERENCE_ONLY_WIFI, false)) | (isWifi())) {
-            if (settings.getBoolean(PREFERENCE_LOCALSERVER, false)) {
-                enabledRetrievers.add(CoverRetrievers.LOCAL);
-            }
-            if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
-                enabledRetrievers.add(CoverRetrievers.LASTFM);
-                enabledRetrievers.add(CoverRetrievers.DEEZER);
-                enabledRetrievers.add(CoverRetrievers.SPOTIFY);
-                enabledRetrievers.add(CoverRetrievers.DISCOGS);
-                enabledRetrievers.add(CoverRetrievers.GRACENOTE);
-                enabledRetrievers.add(CoverRetrievers.MUSICBRAINZ);
-
-            }
-        }
-        setCoverRetrievers(enabledRetrievers);
-    }
-
-    /**
-     * Checks if device connected or connecting to wifi network
-     */
-    public boolean isWifi() {
-        ConnectivityManager conMan = (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
-        // Get status of wifi connection
-        State wifi = conMan.getNetworkInfo(1).getState();
-        if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public void setCoverMaxSizeFromScreen(Activity activity) {
@@ -190,10 +69,6 @@ public class CoverAsyncHelper extends Handler {
         cachedCoverMaxSize = size;
     }
 
-    public void setCacheWritable(boolean writable) {
-        cacheWritable = writable;
-    }
-
     public void addCoverDownloadListener(CoverDownloadListener listener) {
         coverDownloadListener.add(listener);
     }
@@ -203,16 +78,22 @@ public class CoverAsyncHelper extends Handler {
     }
 
     public void downloadCover(String artist, String album, String path, String filename) {
+       downloadCover(artist, album, path, filename, true);
+    }
+
+    public void downloadCover(String artist, String album, String path, String filename, boolean insertFirst) {
         final CoverInfo info = new CoverInfo();
-        info.sArtist = artist;
-        info.sAlbum = album;
-        info.sPath = path;
-        info.sFilename = filename;
+        info.setArtist(artist);
+        info.setAlbum(album);
+        info.setPath(path);
+        info.setFilename(filename);
+        info.setCoverMaxSize(coverMaxSize);
+        info.setCachedCoverMaxSize(cachedCoverMaxSize);
 
         if (isNullOrEmpty(album)) {
             handleMessage(COVER_NOT_FOUND_MESSAGE);
         } else {
-            threadPool.execute(new CoverAsyncWorker(info));
+            CoverManager.getInstance(app, settings).addCoverRequest(info, this, insertFirst);
         }
 
     }
@@ -226,214 +107,25 @@ public class CoverAsyncHelper extends Handler {
 
             case EVENT_COVERNOTFOUND:
                 for (CoverDownloadListener listener : coverDownloadListener)
-                    listener.onCoverNotFound();
+                    listener.onCoverNotFound((CoverInfo)msg.obj);
                 break;
             default:
                 break;
         }
     }
 
-    private class CoverAsyncWorker implements Runnable {
-        CoverInfo info;
-
-        public CoverAsyncWorker(CoverInfo info) {
-            this.info = info;
-        }
-
-        public Bitmap[] getBitmapForRetriever(ICoverRetriever retriever) {
-            String[] urls = null;
-            try {
-                // Get URL to the Cover...
-                urls = retriever.getCoverUrl(info.sArtist, info.sAlbum, info.sPath, info.sFilename);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-                return null;
-            }
-
-            if (urls == null || urls.length == 0) {
-                return null;
-            }
-
-            Bitmap[] downloadedCovers = null;
-            for (String url : urls) {
-                if (url == null)
-                    continue;
-                if (DEBUG)
-                    Log.i(MPDApplication.TAG, "Downloading cover art at url : " + url);
-                if (retriever.isCoverLocal()) {
-                    int maxSize = coverMaxSize;
-                    if (cachedCoverMaxSize != MAX_SIZE) {
-                        maxSize = cachedCoverMaxSize;
-                    }
-                    if (maxSize == MAX_SIZE) {
-                        downloadedCovers = new Bitmap[]{BitmapFactory.decodeFile(url)};
-                    } else {
-                        downloadedCovers = new Bitmap[]{Tools.decodeSampledBitmapFromPath(url, maxSize, maxSize, false)};
-                    }
-                } else {
-                    downloadedCovers = download(url);
-                }
-
-                if (downloadedCovers != null) {
-                    break;
-                }
-            }
-            return downloadedCovers;
-        }
-
-        public boolean fillEmptyArtist() {
-            if (info.sArtist != null)
-                return true;
-            try {
-                // load songs for this album
-                final List<? extends Item> songs = app.oMPDAsyncHelper.oMPD.getSongs(null, new Album(info.sAlbum, info.sArtist));
-
-                if (songs.size() > 0) {
-                    Music song = (Music) songs.get(0);
-                    info.sFilename = song.getFilename();
-                    info.sPath = song.getPath();
-                    info.sArtist = MPD.useAlbumArtist() ? song.getAlbumArtist() : song.getArtist();
-                    return true;
-                }
-            } catch (MPDServerException e) {
-                // MPD error, bail on loading artwork
-            }
-            return false;
-        }
-
-        public void run() {
-            Bitmap[] covers = null;
-            if (fillEmptyArtist()) {
-                for (ICoverRetriever coverRetriever : coverRetrievers) {
-                    covers = getBitmapForRetriever(coverRetriever);
-                    if (covers != null && covers[0] != null) {
-                        if (DEBUG)
-                            Log.i(MPDApplication.TAG, "Found cover art using retriever : " + coverRetriever.getName());
-                        // if cover is not read from cache and saving is enabled
-                        if (cacheWritable && !(coverRetriever instanceof CachedCover)) {
-                            // Save this cover into cache, if it is enabled.
-                            for (ICoverRetriever coverRetriever1 : coverRetrievers) {
-                                if (coverRetriever1 instanceof CachedCover) {
-                                    if (DEBUG)
-                                        Log.i(MPDApplication.TAG, "Saving cover art to cache");
-                                    // Save the fullsize bitmap
-                                    ((CachedCover) coverRetriever1).save(info.sArtist, info.sAlbum, covers[1]);
-                                    // Release the cover immediately if not used
-                                    if (covers[0] != covers[1]) {
-                                        covers[1].recycle();
-                                        covers[1] = null;
-                                    }
-                                }
-                            }
-                        }
-                        info.sBitmap = covers[0];
-                        CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, info).sendToTarget();
-                        break;
-                    }
-                }
-            }
-
-            if (covers == null) {
-                if (DEBUG)
-                    Log.i(MPDApplication.TAG, "No cover art found");
-                CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND).sendToTarget();
-            }
-        }
+    @Override
+    public void onCoverDownloaded(CoverInfo cover) {
+        CoverAsyncHelper.this.obtainMessage(EVENT_COVERDOWNLOADED, cover).sendToTarget();
     }
 
-    private Bitmap[] download(String textUrl) {
-
-        URL url;
-        HttpURLConnection connection = null;
-        InputStream inputStream = null;
-        int statusCode;
-        BufferedInputStream bis;
-        ByteArrayOutputStream baos;
-        byte[] buffer;
-        int len;
-        InputStream is;
-
-        try {
-            textUrl = trim(textUrl);
-            if (isNullOrEmpty(textUrl)) {
-                return null;
-            }
-            // Download Cover File...
-            textUrl = textUrl.replace(" ", "%20");
-            url = new URL(textUrl);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setUseCaches(true);
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
-            statusCode = connection.getResponseCode();
-            inputStream = connection.getInputStream();
-            if (statusCode != 200) {
-                Log.w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : " + statusCode + ", " + textUrl);
-                return null;
-            }
-            bis = new BufferedInputStream(inputStream, 8192);
-            baos = new ByteArrayOutputStream();
-            buffer = new byte[1024];
-            while ((len = bis.read(buffer)) > -1) {
-                baos.write(buffer, 0, len);
-            }
-            baos.flush();
-            is = new ByteArrayInputStream(baos.toByteArray());
-
-            BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(is, null, o);
-
-            int scale = 1;
-            if (coverMaxSize != MAX_SIZE || o.outHeight > coverMaxSize || o.outWidth > coverMaxSize) {
-                scale = (int) Math.pow(2, (int) Math.round(Math.log(coverMaxSize /
-                        (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
-            }
-
-            is.reset();
-            o.inSampleSize = 1;
-            o.inJustDecodeBounds = false;
-            Bitmap fullBmp = BitmapFactory.decodeStream(is, null, o);
-            Bitmap bmp = null;
-            if (scale == 1) {
-                // This can cause some problem (a bitmap being freed will free both references)
-                // But the only use is to save it in the cache so it's okay.
-                bmp = fullBmp;
-            } else {
-                o.inSampleSize = scale;
-                o.inJustDecodeBounds = false;
-                is.reset();
-                bmp = BitmapFactory.decodeStream(is, null, o);
-            }
-            return new Bitmap[]{bmp, fullBmp};
-
-        } catch (Exception e) {
-            Log.e(CoverAsyncHelper.class.getSimpleName(), "Failed to download cover :" + e);
-            return null;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    //Nothing to do
-                }
-            }
-
-        }
+    @Override
+    public void onCoverNotFound(CoverInfo cover) {
+        CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND, cover).sendToTarget();
+    }
+    public void setCoverRetrieversFromPreferences() {
+        CoverManager.getInstance(app,settings).setCoverRetrieversFromPreferences();
     }
 
 
-    public enum CoverRetrievers {
-        CACHE,
-        LASTFM,
-        LOCAL,
-        GRACENOTE,
-        DEEZER,
-        MUSICBRAINZ,
-        DISCOGS,
-        SPOTIFY;
     }
-}

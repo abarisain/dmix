@@ -11,6 +11,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 import org.a0z.mpd.*;
@@ -261,7 +262,7 @@ public class SongsFragment extends BrowseFragment {
                 coverArt.setTag(artistName+album.getName());
                 coverHelper.downloadCover(artistName, album.getName(), path, filename);
 			} else {
-				coverArtListener.onCoverNotFound();
+				coverArtListener.onCoverNotFound(new CoverInfo(artistName,album.getName()));
 			}
 		}
 
