@@ -136,6 +136,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        this.activity = null;
+
+    }
+
+    @Override
     public void onDestroyView() {
         coverArt.setImageResource(R.drawable.no_cover_art);
         coverArtListener.freeCoverDrawable();
