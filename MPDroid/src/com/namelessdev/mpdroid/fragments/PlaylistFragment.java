@@ -230,7 +230,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         update(true);
     }
 
-    protected void update(boolean forcePlayingIDRefresh) {
+    protected  synchronized  void update(boolean forcePlayingIDRefresh) {
         try {
             if (updating) {
                 return;
