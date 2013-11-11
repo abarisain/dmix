@@ -10,10 +10,10 @@ public class CoverInfo {
     private STATE state = STATE.NEW;
     private String artist = "";
     private String album = "";
-    private String path;
-    private String filename;
-    private Bitmap[] bitmap;
-    private byte[] coverBytes;
+    private String path = "";
+    private String filename = "";
+    private Bitmap[] bitmap = new Bitmap[0];
+    private byte[] coverBytes = new byte[0];
     private boolean priority;
     public static final int MAX_SIZE = 0;
     private int coverMaxSize = MAX_SIZE;
@@ -121,6 +121,24 @@ public class CoverInfo {
         result = 31 * result + coverMaxSize;
         result = 31 * result + cachedCoverMaxSize;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "CoverInfo{" +
+                "state=" + state +
+                ", artist='" + artist + '\'' +
+                ", album='" + album + '\'' +
+                ", path='" + path + '\'' +
+                ", filename='" + filename + '\'' +
+                ", bitmap=" + bitmap == null ? "0" : bitmap.length +
+                ", coverBytes=" + coverBytes == null ? "0" : coverBytes.length +
+                ", priority=" + priority +
+                ", coverMaxSize=" + coverMaxSize +
+                ", cachedCoverMaxSize=" + cachedCoverMaxSize +
+                ", coverRetriever=" + coverRetriever==null ? "NONE":coverRetriever +
+                ", listener=" + listener==null ? "NONE":listener +
+                "}";
     }
 
     public String getArtist() {

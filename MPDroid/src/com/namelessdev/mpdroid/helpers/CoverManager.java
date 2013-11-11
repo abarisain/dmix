@@ -11,6 +11,7 @@ import android.util.Log;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.*;
 import com.namelessdev.mpdroid.tools.MultiMap;
+import com.namelessdev.mpdroid.tools.StringUtils;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import java.io.BufferedInputStream;
@@ -179,16 +180,27 @@ public class CoverManager {
                 try {
                     coverInfo = requests.take();
 
+                    if (coverInfo == null || coverInfo.getListener() == null) {
+                        return;
+                    }
+
                     switch (coverInfo.getState()) {
                         case NEW:
                             helpersByCoverInfo.put(coverInfo, coverInfo.getListener());
                             if (runningRequests.contains(coverInfo)) {
                                 break;
                             } else {
-                                runningRequests.add(coverInfo);
-                                coverInfo.setState(CACHE_COVER_FETCH);
-                                cacheCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
+
+                                if (StringUtils.isNullOrEmpty(coverInfo.getArtist()) || StringUtils.isNullOrEmpty(coverInfo.getAlbum())) {
+                                    Log.w(CoverManager.class.getSimpleName(), "Incomplete cover request : missing artist or album, giving up :" + coverInfo);
+                                    notifyListeners(false, coverInfo);
+                                } else {
+                                    runningRequests.add(coverInfo);
+                                    coverInfo.setState(CACHE_COVER_FETCH);
+                                    cacheCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
+                                }
                                 break;
+
                             }
                         case CACHE_COVER_FETCH:
                             if (coverInfo.getCoverBytes() == null || coverInfo.getCoverBytes().length == 0) {
@@ -230,6 +242,10 @@ public class CoverManager {
                                 notifyListeners(false, coverInfo);
                             }
                             break;
+                        default:
+                            Log.e(CoverManager.class.getSimpleName(), "Unknown request : " + coverInfo);
+                            notifyListeners(false, coverInfo);
+                            break;
                     }
 
 
@@ -254,38 +270,46 @@ public class CoverManager {
     }
 
     private void notifyListeners(boolean found, CoverInfo coverInfo) {
-        if (DEBUG)
-            Log.d(CoverManager.class.getSimpleName(), "End of cover lookup for " + coverInfo.getAlbum() + ", did we find it ? " + found);
-        if (helpersByCoverInfo.containsKey(coverInfo)) {
-            Iterator<CoverDownloadListener> listenerIterator = helpersByCoverInfo.get(coverInfo).iterator();
-            while (listenerIterator.hasNext()) {
-                CoverDownloadListener listener = listenerIterator.next();
 
-                if (found) {
-                    listener.onCoverDownloaded(coverInfo);
+        try {
+            if (DEBUG)
+                Log.d(CoverManager.class.getSimpleName(), "End of cover lookup for " + coverInfo.getAlbum() + ", did we find it ? " + found);
+            if (helpersByCoverInfo.containsKey(coverInfo)) {
+                Iterator<CoverDownloadListener> listenerIterator = helpersByCoverInfo.get(coverInfo).iterator();
+                while (listenerIterator.hasNext()) {
+                    CoverDownloadListener listener = listenerIterator.next();
 
-                } else {
-                    listener.onCoverNotFound(coverInfo);
-                }
+                    if (found) {
+                        listener.onCoverDownloaded(coverInfo);
 
-                if (listenerIterator.hasNext()) {
-                    // Do a copy for the other listeners (not to share bitmaps between views because of the recycling)
-                    coverInfo = new CoverInfo(coverInfo);
-                    Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(coverInfo.getBitmap()[0].getConfig(), coverInfo.getBitmap()[0].isMutable() ? true : false);
-                    coverInfo.setBitmap(new Bitmap[]{copyBitmap});
+                    } else {
+                        listener.onCoverNotFound(coverInfo);
+                    }
+
+                    if (listenerIterator.hasNext()) {
+                        // Do a copy for the other listeners (not to share bitmaps between views because of the recycling)
+                        coverInfo = new CoverInfo(coverInfo);
+                        if (coverInfo.getBitmap() != null && coverInfo.getBitmap().length > 0) {
+                            Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(coverInfo.getBitmap()[0].getConfig(), coverInfo.getBitmap()[0].isMutable() ? true : false);
+                            coverInfo.setBitmap(new Bitmap[]{copyBitmap});
+                        }
+                    }
                 }
             }
+        } finally {
+            runningRequests.remove(coverInfo);
+            helpersByCoverInfo.remove(coverInfo);
+            logQueues();
         }
-        runningRequests.remove(coverInfo);
-        helpersByCoverInfo.remove(coverInfo);
-
-        logQueues();
     }
 
     private void logQueues() {
         if (DEBUG) {
             Log.d(CoverManager.class.getSimpleName(), "requests queue size : " + requests.size());
             Log.d(CoverManager.class.getSimpleName(), "running request queue size : " + runningRequests.size());
+            for (CoverInfo coverInfo : runningRequests) {
+                Log.d(CoverManager.class.getSimpleName(), "Running request : " + coverInfo.toString());
+            }
             Log.d(CoverManager.class.getSimpleName(), "helpersByCoverInfo map size : " + helpersByCoverInfo.size());
         }
     }

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -37,6 +38,7 @@ import java.util.*;
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
     private ArrayList<HashMap<String, Object>> songlist;
     private List<Music> musics;
+    private boolean updating = false;
 
     private MPDApplication app;
     private DragSortListView list;
@@ -227,6 +229,10 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     protected void update(boolean forcePlayingIDRefresh) {
         try {
+            if (updating) {
+                return;
+            }
+            updating = true;
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
             songlist = new ArrayList<HashMap<String, Object>>();
             musics = playlist.getMusicList();
@@ -321,6 +327,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             });
 
         } catch (MPDServerException e) {
+            Log.e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
+        } finally {
+            updating = false;
         }
 
     }
