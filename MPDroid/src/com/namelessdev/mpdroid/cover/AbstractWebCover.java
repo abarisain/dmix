@@ -24,7 +24,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     private final static boolean DEBUG = false;
     private static final String[] DISC_REFERENCES = {"disc", "cd"};
 
-    protected AndroidHttpClient client = null;
+    protected AndroidHttpClient client = prepareRequest();
 
     protected String executePostRequest(String url, String request) {
         HttpPost httpPost = null;
@@ -39,7 +39,13 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         } catch (UnsupportedEncodingException e) {
             Log.e(getName(), "Cannot build the HTTP POST : " + e);
             return "";
+        } finally {
+            if (request != null && !httpPost.isAborted()) {
+                httpPost.abort();
+            }
         }
+
+
     }
 
     private void closeHttpClient() {
@@ -79,35 +85,38 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             }
         } catch (Exception e) {
             Log.e(getName(), "Failed to download cover :" + e);
-        } finally {
-            if (request != null && !request.isAborted()) {
-                request.abort();
-            }
         }
         if (DEBUG)
             Log.d(getName(), "Http response : " + builder);
         return builder.toString();
     }
 
-    protected void prepareRequest() {
+    protected AndroidHttpClient prepareRequest() {
 
         if (client == null) {
             client = AndroidHttpClient.newInstance(USER_AGENT);
             HttpConnectionParams.setConnectionTimeout(client.getParams(), 5000);
             HttpConnectionParams.setSoTimeout(client.getParams(), 5000);
         }
+        return client;
     }
 
 
     protected String executeGetRequest(String request) {
         HttpGet httpGet = null;
-        prepareRequest();
-        request = removeDiscReference(request);
-        request = request.replace(" ", "%20");
-        if (DEBUG)
-            Log.d(getName(), "Http request : " + request);
-        httpGet = new HttpGet(request);
-        return executeRequest(httpGet);
+        try {
+            prepareRequest();
+            request = removeDiscReference(request);
+            request = request.replace(" ", "%20");
+            if (DEBUG)
+                Log.d(getName(), "Http request : " + request);
+            httpGet = new HttpGet(request);
+            return executeRequest(httpGet);
+        } finally {
+            if (request != null && !httpGet.isAborted()) {
+                httpGet.abort();
+            }
+        }
     }
 
     protected String cleanGetRequest(String text) {
@@ -127,6 +136,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     public boolean isCoverLocal() {
         return false;
     }
+
     //Remove disc references from albums (like CD1, disc02 ...)
     protected String removeDiscReference(String album) {
         String cleanedAlbum = album;

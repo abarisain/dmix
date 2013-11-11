@@ -1,18 +1,17 @@
 package com.namelessdev.mpdroid.views;
 
-import java.util.List;
-
-import org.a0z.mpd.Item;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.View;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+import org.a0z.mpd.Item;
+
+import java.util.List;
 
 public abstract class BaseDataBinder implements ArrayIndexerDataBinder {
 
@@ -26,8 +25,8 @@ public abstract class BaseDataBinder implements ArrayIndexerDataBinder {
 		this.lightTheme = isLightTheme;
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-		enableCache = settings.getBoolean(CoverAsyncHelper.PREFERENCE_CACHE, true);
-		onlyDownloadOnWifi = settings.getBoolean(CoverAsyncHelper.PREFERENCE_ONLY_WIFI, false);
+		enableCache = settings.getBoolean(CoverManager.PREFERENCE_CACHE, true);
+		onlyDownloadOnWifi = settings.getBoolean(CoverManager.PREFERENCE_ONLY_WIFI, false);
 	}
 
 	@Override

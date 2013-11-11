@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper.CoverDownloadListener;
 
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
     Context context;
@@ -41,30 +40,42 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     }
 
     public void onCoverDownloaded(CoverInfo cover) {
-        if (cover == null || coverArt == null)
+        if (cover == null || coverArt == null || cover.getBitmap() == null)
             return;
         try {
 
-            if (coverArt.getTag() == null || coverArt.getTag().equals(cover.sArtist + cover.sAlbum)) {
+            if (coverArt.getTag() == null || coverArt.getTag().equals(cover.getArtist() + cover.getAlbum())) {
                 if (coverArtProgress != null) {
                     coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
                 }
                 freeCoverDrawable(coverArt.getDrawable());
-                coverArt.setImageDrawable(new CoverBitmapDrawable(context.getResources(), cover.sBitmap));
+                coverArt.setImageDrawable(new CoverBitmapDrawable(context.getResources(), cover.getBitmap()[0]));
+                cover.setBitmap(null);
             }
         } catch (Exception e) {
             Log.w(AlbumCoverDownloadListener.class.getSimpleName(), e);
         }
     }
 
-    public void onCoverNotFound() {
-        if (coverArtProgress != null)
-            coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-        if (coverArt != null) {
-            // Allows to retry cover resolving for playlist items (might have been downloaded from the nowplaying fragment)
-            coverArt.setTag(null);
+    public void onCoverNotFound(CoverInfo cover) {
+
+        if (cover == null || coverArt == null)
+            return;
+
+        if (coverArt.getTag() == null || coverArt.getTag().equals(cover.getArtist() + cover.getAlbum())) {
+
+            cover.setBitmap(null);
+
+            if (coverArt.getTag() == null || coverArt.getTag().equals(cover.getArtist() + cover.getAlbum())) {
+                if (coverArtProgress != null)
+                    coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+                if (coverArt != null) {
+                    // Allows to retry cover resolving for playlist items (might have been downloaded from the nowplaying fragment)
+                    coverArt.setTag(null);
+                }
+                freeCoverDrawable();
+            }
         }
-        freeCoverDrawable();
     }
 
     public void freeCoverDrawable() {
@@ -89,8 +100,9 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 
         coverDrawable.setCallback(null);
         final Bitmap coverBitmap = ((BitmapDrawable) coverDrawable).getBitmap();
-        if (coverBitmap != null)
+        if (coverBitmap != null) {
             coverBitmap.recycle();
+        }
     }
 
     public void detach() {

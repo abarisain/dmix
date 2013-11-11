@@ -1,13 +1,13 @@
 package com.namelessdev.mpdroid.tools;
 
-import java.security.MessageDigest;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
+
+import java.security.MessageDigest;
 
 public final class Tools {
 	public static Object[] toObjectArray(Object... args) {
@@ -109,6 +109,28 @@ public final class Tools {
 			return bitmap;
 		}
 	}
+
+    public static Bitmap decodeSampledBitmapFromBytes(byte[] bytes, int reqWidth, int reqHeight, boolean resizePerfectlty) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        if (resizePerfectlty) {
+            final Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, reqWidth, reqHeight, true);
+            bitmap.recycle();
+            return scaledBitmap;
+        } else {
+            return bitmap;
+        }
+    }
 
 	public static float convertDpToPixel(float dp, Context context) {
 		Resources resources = context.getResources();
