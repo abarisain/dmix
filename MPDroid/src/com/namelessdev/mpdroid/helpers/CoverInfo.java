@@ -19,8 +19,31 @@ public class CoverInfo {
     private int coverMaxSize = MAX_SIZE;
     private int cachedCoverMaxSize = MAX_SIZE;
     private ICoverRetriever coverRetriever;
+    private CoverDownloadListener listener;
+
+    public CoverInfo(CoverInfo coverInfo) {
+        this.state = coverInfo.state;
+        this.artist = coverInfo.artist;
+        this.album = coverInfo.album;
+        this.path = coverInfo.path;
+        this.filename = coverInfo.filename;
+        this.bitmap = coverInfo.bitmap;
+        this.coverBytes = coverInfo.coverBytes;
+        this.priority = coverInfo.priority;
+        this.coverMaxSize = coverInfo.coverMaxSize;
+        this.cachedCoverMaxSize = coverInfo.cachedCoverMaxSize;
+        this.coverRetriever = coverInfo.coverRetriever;
+    }
 
     public CoverInfo() {
+    }
+
+    public CoverDownloadListener getListener() {
+        return listener;
+    }
+
+    public void setListener(CoverDownloadListener listener) {
+        this.listener = listener;
     }
 
     public boolean isPriority() {

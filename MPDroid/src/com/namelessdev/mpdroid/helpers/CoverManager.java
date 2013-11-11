@@ -21,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
@@ -162,8 +163,7 @@ public class CoverManager {
         }
     }
 
-    public void addCoverRequest(CoverInfo coverInfo, CoverDownloadListener listener) {
-        this.helpersByCoverInfo.put(coverInfo, listener);
+    public void addCoverRequest(CoverInfo coverInfo) {
         this.requests.add(coverInfo);
     }
 
@@ -181,6 +181,7 @@ public class CoverManager {
 
                     switch (coverInfo.getState()) {
                         case NEW:
+                            helpersByCoverInfo.put(coverInfo, coverInfo.getListener());
                             if (runningRequests.contains(coverInfo)) {
                                 break;
                             } else {
@@ -200,9 +201,7 @@ public class CoverManager {
                                     }
                                     break;
                                 } else {
-                                    if (DEBUG) {
-                                        Log.e(CoverManager.class.getSimpleName(), "Too many requests, giving up this one : " + coverInfo.getAlbum());
-                                    }
+                                    Log.w(CoverManager.class.getSimpleName(), "Too many requests, giving up this one : " + coverInfo.getAlbum());
                                     notifyListeners(false, coverInfo);
                                     break;
                                 }
@@ -258,14 +257,22 @@ public class CoverManager {
         if (DEBUG)
             Log.d(CoverManager.class.getSimpleName(), "End of cover lookup for " + coverInfo.getAlbum() + ", did we find it ? " + found);
         if (helpersByCoverInfo.containsKey(coverInfo)) {
-            for (CoverDownloadListener listener : helpersByCoverInfo.get(coverInfo)) {
+            Iterator<CoverDownloadListener> listenerIterator = helpersByCoverInfo.get(coverInfo).iterator();
+            while (listenerIterator.hasNext()) {
+                CoverDownloadListener listener = listenerIterator.next();
+
                 if (found) {
                     listener.onCoverDownloaded(coverInfo);
-                    //Bitmap newBitmap = coverInfo.getBitmap()[0].copy(coverInfo.getBitmap()[0].getConfig(), coverInfo.getBitmap()[0].isMutable() ? true : false);
-                    //coverInfo.setBitmap(new Bitmap[]{newBitmap});
 
                 } else {
                     listener.onCoverNotFound(coverInfo);
+                }
+
+                if (listenerIterator.hasNext()) {
+                    // Do a copy for the other listeners (not to share bitmaps between views because of the recycling)
+                    coverInfo = new CoverInfo(coverInfo);
+                    Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(coverInfo.getBitmap()[0].getConfig(), coverInfo.getBitmap()[0].isMutable() ? true : false);
+                    coverInfo.setBitmap(new Bitmap[]{copyBitmap});
                 }
             }
         }

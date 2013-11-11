@@ -90,11 +90,12 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         info.setCoverMaxSize(coverMaxSize);
         info.setCachedCoverMaxSize(cachedCoverMaxSize);
         info.setPriority(priority);
+        info.setListener(this);
 
         if (isNullOrEmpty(album)) {
             handleMessage(COVER_NOT_FOUND_MESSAGE);
         } else {
-            CoverManager.getInstance(app, settings).addCoverRequest(info, this);
+            CoverManager.getInstance(app, settings).addCoverRequest(info);
         }
 
     }
