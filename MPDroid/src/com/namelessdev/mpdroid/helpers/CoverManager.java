@@ -54,6 +54,7 @@ public class CoverManager {
     private ExecutorService createBitmapExecutor = cacheCoverFetchExecutor;
     private MultiMap<CoverInfo, CoverDownloadListener> helpersByCoverInfo = new MultiMap<CoverInfo, CoverDownloadListener>();
     private ICoverRetriever[] coverRetrievers = null;
+    private boolean active = true;
 
     public synchronized static CoverManager getInstance(MPDApplication app, SharedPreferences settings) {
         if (instance == null) {
@@ -175,7 +176,7 @@ public class CoverManager {
 
             CoverInfo coverInfo;
 
-            while (true) {
+            while (active) {
 
                 try {
                     coverInfo = requests.take();
@@ -442,7 +443,9 @@ public class CoverManager {
                 coverInfo.setBitmap(bitmaps);
                 coverInfo.setCoverBytes(null);
 
-                if (coverInfo.getCoverRetriever() != getCacheRetriever()) {
+                ICoverRetriever cacheRetriever;
+                cacheRetriever = getCacheRetriever();
+                if (cacheRetriever != null && coverInfo.getCoverRetriever() != cacheRetriever) {
                     if (DEBUG)
                         Log.i(MPDApplication.TAG, "Saving cover art to cache");
                     // Save the fullsize bitmap
@@ -566,5 +569,28 @@ public class CoverManager {
             }
 
         }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        stopExecutors();
+        instance = null;
+        super.finalize();
+    }
+
+    private void stopExecutors() {
+        try {
+            Log.i(CoverManager.class.getSimpleName(), "Shutting down cover executors");
+            active = false;
+            this.priorityCoverFetchExecutor.shutdown();
+            this.requestExecutor.shutdown();
+            this.createBitmapExecutor.shutdown();
+            this.coverFetchExecutor.shutdown();
+            this.cacheCoverFetchExecutor.shutdown();
+        } catch (Exception ex) {
+            Log.e(CoverAsyncHelper.class.getSimpleName(), "Failed to shutdown cover executors :" + ex);
+        }
+
+
     }
 }

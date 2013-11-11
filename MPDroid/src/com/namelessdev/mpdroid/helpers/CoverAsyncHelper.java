@@ -92,7 +92,8 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         info.setPriority(priority);
         info.setListener(this);
 
-        if (isNullOrEmpty(album)) {
+        if (isNullOrEmpty(album) || isNullOrEmpty(artist)) {
+            COVER_NOT_FOUND_MESSAGE.obj = info;
             handleMessage(COVER_NOT_FOUND_MESSAGE);
         } else {
             CoverManager.getInstance(app, settings).addCoverRequest(info);
