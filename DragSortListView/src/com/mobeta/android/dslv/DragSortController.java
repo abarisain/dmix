@@ -1,11 +1,7 @@
 package com.mobeta.android.dslv;
 
 import android.graphics.Point;
-import android.view.GestureDetector;
-import android.view.HapticFeedbackConstants;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewConfiguration;
+import android.view.*;
 import android.widget.AdapterView;
 
 /**
@@ -377,6 +373,10 @@ public class DragSortController extends SimpleFloatViewManager implements View.O
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+        if (e1 == null || e2 == null) {
+           return false;
+        }
 
         final int x1 = (int) e1.getX();
         final int y1 = (int) e1.getY();
