@@ -37,7 +37,6 @@ import java.util.*;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
     private ArrayList<HashMap<String, Object>> songlist;
-    private List<Music> musics;
     private boolean updating = false;
 
     private MPDApplication app;
@@ -57,6 +56,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     public static final int MANAGER = 3;
     public static final int SAVE = 4;
     public static final int EDIT = 2;
+    private static final String PREFERENCE_ALBUM_LIBRARY = "enableAlbumArtLibrary";
+    private boolean cacheOnly;
 
     public PlaylistFragment() {
         super();
@@ -69,6 +70,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         this.activity = getActivity();
         app = (MPDApplication) activity.getApplication();
         refreshListColorCacheHint();
+        cacheOnly = !PreferenceManager.getDefaultSharedPreferences(activity).getBoolean(PREFERENCE_ALBUM_LIBRARY, false);
+
     }
 
     @Override
@@ -235,7 +238,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             updating = true;
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
             songlist = new ArrayList<HashMap<String, Object>>();
-            musics = playlist.getMusicList();
+            List<Music> musics = playlist.getMusicList();
             if (lastPlayingID == -1 || forcePlayingIDRefresh)
                 lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
             // The position in the songlist of the currently played song
@@ -639,7 +642,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 coverHelper.addCoverDownloadListener(acd);
                 albumCover.setTag(item.get("_artist") + (String) item.get("_album"));
-                coverHelper.downloadCover((String) item.get("_artist"), (String) item.get("_album"), null, null);
+                coverHelper.downloadCover((String) item.get("_artist"), (String) item.get("_album"), null, null, false, cacheOnly);
             }
             return view;
         }

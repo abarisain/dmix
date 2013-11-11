@@ -78,10 +78,10 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     }
 
     public void downloadCover(String artist, String album, String path, String filename) {
-        downloadCover(artist, album, path, filename, false);
+        downloadCover(artist, album, path, filename, false, false);
     }
 
-    public void downloadCover(String artist, String album, String path, String filename, boolean priority) {
+    public void downloadCover(String artist, String album, String path, String filename, boolean priority, boolean cacheOnly) {
         final CoverInfo info = new CoverInfo();
         info.setArtist(artist);
         info.setAlbum(album);
@@ -91,6 +91,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         info.setCachedCoverMaxSize(cachedCoverMaxSize);
         info.setPriority(priority);
         info.setListener(this);
+        info.setCacheOnly(cacheOnly);
 
         if (isNullOrEmpty(album) || isNullOrEmpty(artist)) {
             COVER_NOT_FOUND_MESSAGE.obj = info;

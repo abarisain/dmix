@@ -623,7 +623,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     coverArt.setImageResource(noCoverDrawable);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
                     coverArt.setTag(artist+album);
-                    oCoverAsyncHelper.downloadCover(artist, album, path, filename, true);
+                    oCoverAsyncHelper.downloadCover(artist, album, path, filename, true, false);
                     lastArtist = artist;
                     lastAlbum = album;
                 }
