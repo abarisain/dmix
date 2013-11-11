@@ -98,6 +98,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private Timer posTimer = null;
     private TimerTask posTimerTask = null;
     private MPDApplication app;
+    private Activity activity;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -112,11 +113,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        app = (MPDApplication) getActivity().getApplication();
+        app = (MPDApplication) activity.getApplication();
         handler = new Handler();
         setHasOptionsMenu(false);
-        getActivity().setTitle(getResources().getString(R.string.nowPlaying));
-        getActivity().registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+        activity.setTitle(activity.getResources().getString(R.string.nowPlaying));
+        activity.registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
     }
 
     @Override
@@ -130,6 +131,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        this.activity = activity;
+
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        this.activity = null;
+
     }
 
     @Override
@@ -175,7 +185,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(app.isTabletUiEnabled() ? R.layout.main_fragment_tablet : R.layout.main_fragment, container, false);
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
         settings.registerOnSharedPreferenceChangeListener(this);
 
         streamingMode = app.getApplicationState().streamingMode;
@@ -201,9 +211,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         trackTime = (TextView) view.findViewById(R.id.trackTime);
         trackTotalTime = (TextView) view.findViewById(R.id.trackTotalTime);
 
-        Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
+        Animation fadeIn = AnimationUtils.loadAnimation(activity, android.R.anim.fade_in);
         fadeIn.setDuration(ANIMATION_DURATION_MSEC);
-        Animation fadeOut = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out);
+        Animation fadeOut = AnimationUtils.loadAnimation(activity, android.R.anim.fade_out);
         fadeOut.setDuration(ANIMATION_DURATION_MSEC);
 
         coverArt = (ImageView) view.findViewById(R.id.albumCover);
@@ -211,10 +221,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
         // Scale cover images down to screen width
-        oCoverAsyncHelper.setCoverMaxSizeFromScreen(getActivity());
+        oCoverAsyncHelper.setCoverMaxSizeFromScreen(activity);
         oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());
 
-        coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected(), true);
+        coverArtListener = new AlbumCoverDownloadListener(activity, coverArt, coverArtProgress, app.isLightThemeSelected(), true);
         oCoverAsyncHelper.addCoverDownloadListener(coverArtListener);
 
         buttonEventHandler = new ButtonEventHandler();
@@ -242,14 +252,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         final View songInfo = view.findViewById(R.id.songInfo);
         if (songInfo != null) {
-            popupMenu = new PopupMenu(getActivity(), songInfo);
+            popupMenu = new PopupMenu(activity, songInfo);
             popupMenu.getMenu().add(Menu.NONE, POPUP_ALBUM, Menu.NONE, R.string.goToAlbum);
             popupMenu.getMenu().add(Menu.NONE, POPUP_ARTIST, Menu.NONE, R.string.goToArtist);
             popupMenu.getMenu().add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
             popupMenu.getMenu().add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
             popupMenu.setOnMenuItemClickListener(NowPlayingFragment.this);
 
-            popupMenuStream = new PopupMenu(getActivity(), songInfo);
+            popupMenuStream = new PopupMenu(activity, songInfo);
             popupMenuStream.getMenu().add(Menu.NONE, POPUP_STREAM, Menu.NONE, R.string.goToStream);
             popupMenuStream.getMenu().add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
             popupMenuStream.setOnMenuItemClickListener(NowPlayingFragment.this);
@@ -336,7 +346,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         });
 
-        songNameText.setText(getResources().getString(R.string.notConnected));
+        songNameText.setText(activity.getResources().getString(R.string.notConnected));
         Log.i(MPDApplication.TAG, "Initialization succeeded");
 
         return view;
@@ -360,11 +370,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                             }
                         }
                     }).start();
-                    if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+                    if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
                         i.setAction("com.namelessdev.mpdroid.DIE");
-                        getActivity().startService(i);
-                        ((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode = false;
+                        activity.startService(i);
+                        ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
                     }
                     break;
                 case R.id.next:
@@ -378,10 +388,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                             }
                         }
                     }).start();
-                    if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+                    if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
                         i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-                        getActivity().startService(i);
+                        activity.startService(i);
                     }
                     break;
                 case R.id.prev:
@@ -396,10 +406,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         }
                     }).start();
 
-                    if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+                    if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
                         i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-                        getActivity().startService(i);
+                        activity.startService(i);
                     }
                     break;
                 case R.id.playpause:
@@ -449,10 +459,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         // Implements the ability to stop playing (may be useful for streams)
                         mpd.stop();
                         Intent i;
-                        if (((MPDApplication) getActivity().getApplication()).getApplicationState().streamingMode) {
+                        if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                             i = new Intent(app, StreamingService.class);
                             i.setAction("com.namelessdev.mpdroid.STOP_STREAMING");
-                            getActivity().startService(i);
+                            activity.startService(i);
                         }
                         break;
                     default:
@@ -560,7 +570,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 boolean noSong = actSong == null || status.getPlaylistLength() == 0;
                 if (noSong) {
                     currentSong = null;
-                    title = getResources().getString(R.string.noSongInfo);
+                    title = activity.getResources().getString(R.string.noSongInfo);
                 } else if (actSong.isStream()) {
                     currentSong = actSong;
                     Log.d("MPDroid", "Playing a stream");
@@ -630,11 +640,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     public void checkConnected() {
-        connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
+        connected = ((MPDApplication) activity.getApplication()).oMPDAsyncHelper.oMPD.isConnected();
         if (connected) {
-            songNameText.setText(getResources().getString(R.string.noSongInfo));
+            songNameText.setText(activity.getResources().getString(R.string.noSongInfo));
         } else {
-            songNameText.setText(getResources().getString(R.string.notConnected));
+            songNameText.setText(activity.getResources().getString(R.string.notConnected));
         }
         return;
     }
@@ -655,9 +665,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void onDestroy() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
         settings.unregisterOnSharedPreferenceChangeListener(this);
-        getActivity().unregisterReceiver(MPDConnectionHandler.getInstance());
+        activity.unregisterReceiver(MPDConnectionHandler.getInstance());
         super.onDestroy();
     }
 
@@ -725,7 +735,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void updateStatus(MPDStatus status) {
-        if (getActivity() == null)
+        if (activity == null)
             return;
         if (status == null) {
             status = app.getApplicationState().currentMpdStatus;
@@ -744,11 +754,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
                 startPosTimer(status.getElapsedTime());
                 ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-                button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
+                button.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_media_pause));
             } else {
                 stopPosTimer();
                 ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-                button.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
+                button.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_media_play));
             }
         }
         setShuffleButton(status.isRandom());
@@ -803,7 +813,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void setShuffleButton(boolean on) {
         if (null != shuffleButton && shuffleCurrent != on) {
             int[] attrs = new int[]{on ? R.attr.shuffleEnabled : R.attr.shuffleDisabled};
-            final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
+            final TypedArray ta = activity.obtainStyledAttributes(attrs);
             final Drawable drawableFromTheme = ta.getDrawable(0);
             shuffleButton.setImageDrawable(drawableFromTheme);
             shuffleButton.invalidate();
@@ -814,7 +824,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void setRepeatButton(boolean on) {
         if (null != repeatButton && repeatCurrent != on) {
             int[] attrs = new int[]{on ? R.attr.repeatEnabled : R.attr.repeatDisabled};
-            final TypedArray ta = getActivity().obtainStyledAttributes(attrs);
+            final TypedArray ta = activity.obtainStyledAttributes(attrs);
             final Drawable drawableFromTheme = ta.getDrawable(0);
             repeatButton.setImageDrawable(drawableFromTheme);
             repeatButton.invalidate();
@@ -827,14 +837,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         Intent intent;
         switch (item.getItemId()) {
             case POPUP_ARTIST:
-                intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+                intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("artist", new Artist(
                         (MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
                                 : currentSong.getArtist(), 0));
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ALBUM:
-                intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+                intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("artist", new Artist(
                         (MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
                                 : currentSong.getArtist(), 0));
@@ -846,12 +856,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 if (path == null) {
                     break;
                 }
-                intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+                intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("folder", currentSong.getParent());
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_STREAM:
-                intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+                intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("streams", true);
                 startActivityForResult(intent, -1);
                 break;
