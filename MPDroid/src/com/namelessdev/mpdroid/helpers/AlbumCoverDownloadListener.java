@@ -62,17 +62,19 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         if (cover == null || coverArt == null)
             return;
 
-
-        cover.setBitmap(null);
-
         if (coverArt.getTag() == null || coverArt.getTag().equals(cover.getArtist() + cover.getAlbum())) {
-            if (coverArtProgress != null)
-                coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-            if (coverArt != null) {
-                // Allows to retry cover resolving for playlist items (might have been downloaded from the nowplaying fragment)
-                coverArt.setTag(null);
+
+            cover.setBitmap(null);
+
+            if (coverArt.getTag() == null || coverArt.getTag().equals(cover.getArtist() + cover.getAlbum())) {
+                if (coverArtProgress != null)
+                    coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+                if (coverArt != null) {
+                    // Allows to retry cover resolving for playlist items (might have been downloaded from the nowplaying fragment)
+                    coverArt.setTag(null);
+                }
+                freeCoverDrawable();
             }
-            freeCoverDrawable();
         }
     }
 
