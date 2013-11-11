@@ -37,8 +37,6 @@ import java.util.*;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
     private ArrayList<HashMap<String, Object>> songlist;
-    private boolean updating = false;
-
     private MPDApplication app;
     private DragSortListView list;
     private ActionMode actionMode;
@@ -232,10 +230,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     protected  synchronized  void update(boolean forcePlayingIDRefresh) {
         try {
-            if (updating) {
-                return;
-            }
-            updating = true;
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
             songlist = new ArrayList<HashMap<String, Object>>();
             List<Music> musics = playlist.getMusicList();
@@ -331,10 +325,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
         } catch (MPDServerException e) {
             Log.e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
-        } finally {
-            updating = false;
         }
-
     }
 
     @Override
