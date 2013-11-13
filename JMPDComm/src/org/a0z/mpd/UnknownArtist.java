@@ -4,7 +4,9 @@ import android.os.Parcel;
 
 public class UnknownArtist extends Artist {
 
-    public UnknownArtist() {
+    public static final UnknownArtist instance = new UnknownArtist();
+
+    private UnknownArtist() {
         super(MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_artist), 0);
     }
 

@@ -4,8 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class UnknownAlbum extends Album {
+    public static final UnknownAlbum instance = new UnknownAlbum();
 
-	public UnknownAlbum() {
+    private UnknownAlbum() {
 		super(MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album), MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_artist));
 	}
 
