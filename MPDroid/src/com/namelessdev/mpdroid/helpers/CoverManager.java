@@ -1,18 +1,10 @@
 package com.namelessdev.mpdroid.helpers;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.*;
-import com.namelessdev.mpdroid.tools.MultiMap;
-import com.namelessdev.mpdroid.tools.StringUtils;
-import com.namelessdev.mpdroid.tools.Tools;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CREATE_BITMAP;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.trim;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,9 +21,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.*;
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
-import static com.namelessdev.mpdroid.tools.StringUtils.trim;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.cover.DeezerCover;
+import com.namelessdev.mpdroid.cover.DiscogsCover;
+import com.namelessdev.mpdroid.cover.GracenoteCover;
+import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import com.namelessdev.mpdroid.cover.LastFMCover;
+import com.namelessdev.mpdroid.cover.LocalCover;
+import com.namelessdev.mpdroid.cover.MusicBrainzCover;
+import com.namelessdev.mpdroid.cover.SpotifyCover;
+import com.namelessdev.mpdroid.tools.MultiMap;
+import com.namelessdev.mpdroid.tools.StringUtils;
+import com.namelessdev.mpdroid.tools.Tools;
 
 /**
  */
@@ -45,7 +56,7 @@ public class CoverManager {
     private MPDApplication app = null;
     private SharedPreferences settings = null;
     private static CoverManager instance = null;
-    private BlockingDeque<CoverInfo> requests = new LinkedBlockingDeque<>();
+	private BlockingDeque<CoverInfo> requests = new LinkedBlockingDeque<CoverInfo>();
     private List<CoverInfo> runningRequests = Collections.synchronizedList(new ArrayList<CoverInfo>());
     private ExecutorService requestExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService coverFetchExecutor = Executors.newFixedThreadPool(2);
