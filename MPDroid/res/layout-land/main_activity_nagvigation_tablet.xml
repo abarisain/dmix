@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <!-- The main content view -->
+
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <LinearLayout
+            android:id="@+id/nowplaying_dual_pane"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            tools:context=".MainMenuActivity" >
+
+            <fragment
+                android:id="@+id/nowplaying_fragment"
+                android:name="com.namelessdev.mpdroid.fragments.NowPlayingFragment"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="40" />
+
+            <fragment
+                android:id="@+id/playlist_fragment"
+                android:name="com.namelessdev.mpdroid.fragments.PlaylistFragment"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="60"
+                tools:layout="@layout/playlist_activity" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/library_root_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" >
+        </FrameLayout>
+    </FrameLayout>
+    <!-- The navigation drawer -->
+
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#111"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp" />
+
+</android.support.v4.widget.DrawerLayout>
