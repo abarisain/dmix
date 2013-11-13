@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.cover;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.tools.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -60,6 +61,11 @@ public class LocalCover implements ICoverRetriever {
     }
 
     public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
+
+        if (StringUtils.isNullOrEmpty(path)) {
+            return new String[0];
+        }
+
         String lfilename;
         // load URL parts from settings
         String musicPath = settings.getString("musicPath", "music/");
