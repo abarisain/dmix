@@ -37,7 +37,6 @@ import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
-import com.namelessdev.mpdroid.library.LibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -293,11 +292,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		item.setIcon(checked ? R.drawable.btn_check_buttonless_on : R.drawable.btn_check_buttonless_off);
 	}
 
-	private void openLibrary() {
-		final Intent i = new Intent(this, LibraryTabActivity.class);
-		startActivity(i);
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
@@ -312,9 +306,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		switch (item.getItemId()) {
 			case R.id.menu_search:
 				this.onSearchRequested();
-				return true;
-			case R.id.GMM_LibTab:
-				openLibrary();
 				return true;
 			case R.id.GMM_Settings:
 				i = new Intent(this, SettingsActivity.class);

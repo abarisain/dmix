@@ -2,12 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/GMM_LibTab"
-        android:icon="@drawable/ic_action_library"
-        android:showAsAction="ifRoom"
-        android:title="@string/libraryTabActivity" android:orderInCategory="2">
-    </item>
-    <item
         android:id="@+id/menu_search"
         android:icon="@drawable/ic_action_search"
         android:showAsAction="ifRoom"

@@ -61,11 +61,6 @@
         <activity android:name=".AboutActivity" android:label="@string/about"/>
         <activity android:name=".WarningActivity" android:label="@string/warningTitle"
                   android:theme="@style/AppTheme.Dialog"/>
-        <activity android:name=".library.LibraryTabActivity" android:label="@string/libraryTabActivity"
-                  android:windowSoftInputMode="adjustNothing">
-            <meta-data android:name="android.app.default_searchable"
-                       android:value=".SearchActivity"/>
-        </activity>
 
         <service android:enabled="true" android:name="StreamingService"/>
         <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">

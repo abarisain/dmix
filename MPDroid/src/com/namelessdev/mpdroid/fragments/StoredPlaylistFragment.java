@@ -17,7 +17,6 @@ import android.widget.ListAdapter;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
-import com.namelessdev.mpdroid.library.LibraryTabActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.StoredPlaylistDataBinder;
@@ -108,9 +107,6 @@ public class StoredPlaylistFragment extends BrowseFragment {
 				i.putExtra("playlist", playlistName);
 				startActivity(i);
 				return true;
-			case R.id.GMM_LibTab:
-				i = new Intent(getActivity(), LibraryTabActivity.class);
-				startActivity(i);
 			default:
 				return false;
 		}
