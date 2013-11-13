@@ -7,31 +7,36 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
-import com.namelessdev.mpdroid.fragments.PlaylistFragment;
 import com.namelessdev.mpdroid.library.LibraryTabActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener {
+public class MainMenuActivity extends MPDroidFragmentActivity {
 
+	public static enum DisplayMode {
+		MODE_NOWPLAYING,
+		MODE_QUEUE,
+		MODE_LIBRARY
+	}
+	
 	public static final int PLAYLIST = 1;
 
 	public static final int ARTISTS = 2;
@@ -43,82 +48,91 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	public static final int LIBRARY = 7;
 
 	public static final int CONNECT = 8;
-	
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
-     * sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which will
-     * keep every loaded fragment in memory. If this becomes too memory intensive, it may be best
-     * to switch to a {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    SectionsPagerAdapter mSectionsPagerAdapter;
 
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    ViewPager mViewPager;	
-    private int backPressExitCount;
-    private Handler exitCounterReset;
+	private int backPressExitCount;
+	private Handler exitCounterReset;
 	private boolean isDualPaneMode;
 	private MPDApplication app;
+	private View nowPlayingFragment;
+	private View nowPlayingDualPane;
+	private View libraryRootFrame;
+	private View playlistFragment;
+
+	private String[] mDrawerItems;
+	private DrawerLayout mDrawerLayout;
+	private ListView mDrawerList;
+	private ActionBarDrawerToggle mDrawerToggle;
+	
+	private DisplayMode currentDisplayMode;
 
 	@SuppressLint("NewApi")
 	@TargetApi(11)
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		app = (MPDApplication) getApplication();
-		setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_tablet : R.layout.main_activity);
-        
-		isDualPaneMode = (findViewById(R.id.playlist_fragment) != null);
 
-        exitCounterReset = new Handler();
-        
+		setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet : R.layout.main_activity_nagvigation);
+
+		nowPlayingFragment = findViewById(R.id.nowplaying_fragment);
+		nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
+		libraryRootFrame = findViewById(R.id.root_frame);
+		playlistFragment = findViewById(R.id.playlist_fragment);
+
+		isDualPaneMode = (nowPlayingDualPane != null);
+		switchMode(DisplayMode.MODE_NOWPLAYING);
+
+		exitCounterReset = new Handler();
+
 		if (android.os.Build.VERSION.SDK_INT >= 9) {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 			StrictMode.setThreadPolicy(policy);
 		}
 
-        // Create the adapter that will return a fragment for each of the three primary sections
-        // of the app.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the action bar.
+		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
-		if (!isDualPaneMode) {
-			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-			actionBar.setDisplayShowTitleEnabled(false);
-			actionBar.setDisplayShowHomeEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setHomeButtonEnabled(true);
+
+		String[] mDrawerItems = null;
+		if (isDualPaneMode) {
+			mDrawerItems = new String[] { getString(R.string.libraryTabActivity), getString(R.string.nowPlaying) };
 		} else {
-			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-			actionBar.setDisplayShowTitleEnabled(true);
-			actionBar.setDisplayShowHomeEnabled(true);
-			setTitle(R.string.nowPlaying);
+			mDrawerItems = new String[] { getString(R.string.libraryTabActivity), getString(R.string.nowPlaying),
+					getString(R.string.playQueue) };
 		}
-        
-		ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(actionBar.getThemedContext(),
-				android.R.layout.simple_spinner_item);
-        actionBarAdapter.add(getString(R.string.nowPlaying));
-        actionBarAdapter.add(getString(R.string.playQueue));
-        
-		actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        actionBar.setListNavigationCallbacks(actionBarAdapter, this);
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-		if (android.os.Build.VERSION.SDK_INT >= 9)
-			mViewPager.setOverScrollMode(View.OVER_SCROLL_NEVER);
+		mDrawerToggle = new ActionBarDrawerToggle(
+				this, /* host Activity */
+				mDrawerLayout, /* DrawerLayout object */
+				app.isLightThemeSelected() ? R.drawable.ic_drawer_light : R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
+				R.string.drawer_open, /* "open drawer" description */
+				R.string.drawer_close /* "close drawer" description */
+				) {
 
-        // When swiping between different sections, select the corresponding tab.
-        // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-        // Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
-    }
+					/** Called when a drawer has settled in a completely closed state. */
+					public void onDrawerClosed(View view) {
+						refreshActionBarTitle();
+					}
+
+					/** Called when a drawer has settled in a completely open state. */
+					public void onDrawerOpened(View drawerView) {
+						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+						actionBar.setTitle(R.string.app_name);
+					}
+				};
+
+		// Set the drawer toggle as the DrawerListener
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+		// Set the adapter for the list view
+		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+				R.layout.drawer_list_item, mDrawerItems));
+		// Set the list's click listener
+		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+	}
 
 	@Override
 	public void onStart() {
@@ -130,7 +144,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	@Override
 	public void onStop() {
 		super.onStop();
-		
+
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		app.unsetActivity(this);
 	}
@@ -141,8 +155,22 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		backPressExitCount = 0;
 	}
 
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		// Sync the toggle state after onRestoreInstanceState has occurred.
+		mDrawerToggle.syncState();
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
+
 	/**
-	 * Called when Back button is pressed, displays message to user indicating the if back button is pressed again the application will exit. We keep a count of how many time back
+	 * Called when Back button is pressed, displays message to user indicating the if back button is pressed again the application will
+	 * exit. We keep a count of how many time back
 	 * button is pressed within 5 seconds. If the count is greater than 1 then call system.exit(0)
 	 * 
 	 * Starts a post delay handler to reset the back press count to zero after 5 seconds
@@ -164,57 +192,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 			}, 5000);
 		} else {
 			/*
-			 * Nasty force quit, should shutdown everything nicely but there just too many async tasks maybe I'll correctly implement app.terminateApplication();
+			 * Nasty force quit, should shutdown everything nicely but there just too many async tasks maybe I'll correctly implement
+			 * app.terminateApplication();
 			 */
 			System.exit(0);
 		}
 		return;
 	}
-	
-	@Override
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		mViewPager.setCurrentItem(itemPosition);
-		return true;
-	}
-	
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one of the primary
-     * sections of the app.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            Fragment fragment = null;
-            switch (i) {
-				case 0:
-					fragment = new NowPlayingFragment();
-					break;
-				case 1:
-					fragment = new PlaylistFragment();
-					break;
-            }
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-			return isDualPaneMode ? 1 : 2;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0: return getString(R.string.nowPlaying);
-                case 1: return getString(R.string.playQueue);
-            }
-            return null;
-        }
-    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -222,10 +206,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		getMenuInflater().inflate(R.menu.mpd_mainmenu, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		//Reminder : never disable buttons that are shown as actionbar actions here
+		// Reminder : never disable buttons that are shown as actionbar actions here
 		super.onPrepareOptionsMenu(menu);
 		MPDApplication app = (MPDApplication) this.getApplication();
 		MPD mpd = app.oMPDAsyncHelper.oMPD;
@@ -257,9 +241,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		final Intent i = new Intent(this, LibraryTabActivity.class);
 		startActivity(i);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
 
 		Intent i = null;
 		final MPDApplication app = (MPDApplication) this.getApplication();
@@ -322,35 +309,35 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		}
 
 	}
-	
+
 	@Override
 	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
 		final MPDApplication app = (MPDApplication) getApplicationContext();
 		switch (event.getKeyCode()) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						app.oMPDAsyncHelper.oMPD.next();
-					} catch (MPDServerException e) {
-						e.printStackTrace();
+			case KeyEvent.KEYCODE_VOLUME_UP:
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							app.oMPDAsyncHelper.oMPD.next();
+						} catch (MPDServerException e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			}).start();
-			return true;
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						app.oMPDAsyncHelper.oMPD.previous();
-					} catch (MPDServerException e) {
-						e.printStackTrace();
+				}).start();
+				return true;
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							app.oMPDAsyncHelper.oMPD.previous();
+						} catch (MPDServerException e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			}).start();
-			return true;
+				}).start();
+				return true;
 		}
 		return super.onKeyLongPress(keyCode, event);
 	}
@@ -368,24 +355,96 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	@Override
 	public boolean onKeyUp(int keyCode, final KeyEvent event) {
 		switch (event.getKeyCode()) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			if (event.isTracking() && !event.isCanceled() && !app.getApplicationState().streamingMode) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							app.oMPDAsyncHelper.oMPD.adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
-									: -NowPlayingFragment.VOLUME_STEP);
-						} catch (MPDServerException e) {
-							e.printStackTrace();
+			case KeyEvent.KEYCODE_VOLUME_UP:
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+				if (event.isTracking() && !event.isCanceled() && !app.getApplicationState().streamingMode) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								app.oMPDAsyncHelper.oMPD
+										.adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
+												: -NowPlayingFragment.VOLUME_STEP);
+							} catch (MPDServerException e) {
+								e.printStackTrace();
+							}
 						}
-					}
-				}).start();
-			}
-			return true;
+					}).start();
+				}
+				return true;
 		}
 		return super.onKeyUp(keyCode, event);
 	}
-    
+
+	private void refreshActionBarTitle()
+	{
+		final ActionBar actionBar = getActionBar();
+		switch (currentDisplayMode)
+		{
+			case MODE_NOWPLAYING:
+				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+				setTitle(R.string.nowPlaying);
+				break;
+			case MODE_QUEUE:
+				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+				setTitle(R.string.playQueue);
+				break;
+			case MODE_LIBRARY:
+				break;
+		}
+	}
+
+	private class DrawerItemClickListener implements ListView.OnItemClickListener {
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			mDrawerList.setItemChecked(position, true);
+			final DisplayMode newMode;
+			switch (position) {
+				default:
+				case 0:
+					newMode = DisplayMode.MODE_LIBRARY;
+					break;
+				case 1:
+					newMode = DisplayMode.MODE_NOWPLAYING;
+					break;
+				case 2:
+					newMode = DisplayMode.MODE_QUEUE;
+					break;
+			}
+			switchMode(newMode);
+		}
+	}
+
+	/** Swaps fragments in the main content view */
+	private void switchMode(DisplayMode newMode) {
+		currentDisplayMode = newMode;
+		switch (currentDisplayMode)
+		{
+			case MODE_NOWPLAYING:
+				if (isDualPaneMode) {
+					nowPlayingDualPane.setVisibility(View.VISIBLE);
+				} else {
+					nowPlayingFragment.setVisibility(View.VISIBLE);
+					playlistFragment.setVisibility(View.GONE);
+				}
+				libraryRootFrame.setVisibility(View.GONE);
+				break;
+			case MODE_QUEUE:
+				// No need to check for dual panel mode since the menu item won't even appear
+				nowPlayingFragment.setVisibility(View.GONE);
+				playlistFragment.setVisibility(View.VISIBLE);
+				libraryRootFrame.setVisibility(View.GONE);
+				break;
+			case MODE_LIBRARY:
+				if (isDualPaneMode) {
+					nowPlayingDualPane.setVisibility(View.GONE);
+				} else {
+					nowPlayingFragment.setVisibility(View.GONE);
+					playlistFragment.setVisibility(View.GONE);
+				}
+				libraryRootFrame.setVisibility(View.VISIBLE);
+				break;
+		}
+		refreshActionBarTitle();
+	}
 }
