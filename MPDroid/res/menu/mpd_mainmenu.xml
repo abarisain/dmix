@@ -26,12 +26,6 @@
         android:checkable="true" >
     </item>
     <item
-        android:id="@+id/GMM_Outputs"
-        android:icon="@drawable/ic_action_output"
-        android:showAsAction="ifRoom"
-        android:title="@string/outputs" android:orderInCategory="3" >
-    </item>
-    <item
         android:id="@+id/GMM_Volume"
         android:icon="@drawable/ic_action_volume"
 		android:showAsAction="ifRoom" android:visible="false"

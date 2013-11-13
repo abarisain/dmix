@@ -1,6 +1,7 @@
 package com.namelessdev.mpdroid;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
@@ -49,6 +50,28 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		MODE_LIBRARY
 	}
 
+	public static class DrawerItem {
+		public static enum Action {
+			ACTION_NOWPLAYING,
+			ACTION_QUEUE,
+			ACTION_LIBRARY,
+			ACTION_OUTPUTS
+		}
+
+		public Action action;
+		public String label;
+
+		public DrawerItem(String label, Action action) {
+			this.label = label;
+			this.action = action;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+	}
+
 	public static final int PLAYLIST = 1;
 
 	public static final int ARTISTS = 2;
@@ -72,7 +95,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	private View libraryRootFrame;
 	private View playlistFragment;
 
-	private String[] mDrawerItems;
+	private List<DrawerItem> mDrawerItems;
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -110,13 +133,14 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
 
-		String[] mDrawerItems = null;
-		if (isDualPaneMode) {
-			mDrawerItems = new String[] { getString(R.string.libraryTabActivity), getString(R.string.nowPlaying) };
-		} else {
-			mDrawerItems = new String[] { getString(R.string.libraryTabActivity), getString(R.string.nowPlaying),
-					getString(R.string.playQueue) };
+		mDrawerItems = new ArrayList<DrawerItem>();
+		mDrawerItems.add(new DrawerItem(getString(R.string.nowPlaying), DrawerItem.Action.ACTION_NOWPLAYING));
+		if (!isDualPaneMode) {
+			mDrawerItems.add(new DrawerItem(getString(R.string.playQueue), DrawerItem.Action.ACTION_QUEUE));
 		}
+		mDrawerItems.add(new DrawerItem(getString(R.string.libraryTabActivity), DrawerItem.Action.ACTION_LIBRARY));
+		mDrawerItems.add(new DrawerItem(getString(R.string.outputs), DrawerItem.Action.ACTION_OUTPUTS));
+
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
@@ -145,7 +169,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 		// Set the adapter for the list view
-		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+		mDrawerList.setAdapter(new ArrayAdapter<DrawerItem>(this,
 				R.layout.drawer_list_item, mDrawerItems));
 		mDrawerList.setItemChecked(1, true);
 		// Set the list's click listener
@@ -307,11 +331,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 				return true;
 			case R.id.GMM_Settings:
 				i = new Intent(this, SettingsActivity.class);
-				startActivityForResult(i, SETTINGS);
-				return true;
-			case R.id.GMM_Outputs:
-				i = new Intent(this, SettingsActivity.class);
-				i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
 				startActivityForResult(i, SETTINGS);
 				return true;
 			case CONNECT:
@@ -500,11 +519,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			mDrawerList.setItemChecked(position, true);
 			mDrawerLayout.closeDrawer(mDrawerList);
-			final DisplayMode newMode;
-			switch (position) {
+
+			switch (((DrawerItem) parent.getItemAtPosition(position)).action) {
 				default:
-				case 0:
-					newMode = DisplayMode.MODE_LIBRARY;
+				case ACTION_LIBRARY:
+					switchMode(DisplayMode.MODE_LIBRARY);
 					// If we are already on the library, pop the whole stack. Acts like an "up" button
 					if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
 						final int fmStackCount = fragmentManager.getBackStackEntryCount();
@@ -513,14 +532,18 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 						}
 					}
 					break;
-				case 1:
-					newMode = DisplayMode.MODE_NOWPLAYING;
+				case ACTION_NOWPLAYING:
+					switchMode(DisplayMode.MODE_NOWPLAYING);
 					break;
-				case 2:
-					newMode = DisplayMode.MODE_QUEUE;
+				case ACTION_QUEUE:
+					switchMode(DisplayMode.MODE_QUEUE);
+					break;
+				case ACTION_OUTPUTS:
+					final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
+					i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
+					startActivityForResult(i, SETTINGS);
 					break;
 			}
-			switchMode(newMode);
 		}
 	}
 
