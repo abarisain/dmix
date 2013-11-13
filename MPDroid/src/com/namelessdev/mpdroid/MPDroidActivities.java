@@ -17,8 +17,7 @@ public class MPDroidActivities {
 		protected void onCreate(Bundle arg0) {
 			super.onCreate(arg0);
 			final MPDApplication app = (MPDApplication) getApplication();
-			if ((this instanceof MainMenuActivity && app.isLightNowPlayingThemeSelected()) ||
-					(!(this instanceof MainMenuActivity) && app.isLightThemeSelected())) {
+			if (app.isLightThemeSelected()) {
 				setTheme(R.style.AppTheme_Light);
 			}
 		}

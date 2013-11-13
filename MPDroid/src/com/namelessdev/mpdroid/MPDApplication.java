@@ -277,8 +277,4 @@ public class MPDApplication extends Application implements ConnectionListener {
 	public boolean isLightThemeSelected() {
 		return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lightTheme", false);
 	}
-
-	public boolean isLightNowPlayingThemeSelected() {
-		return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lightNowPlayingTheme", false);
-	}
 }

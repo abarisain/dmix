@@ -123,10 +123,6 @@
                             android:title="@string/enableLightTheme"
                             android:key="lightTheme" android:defaultValue="false"/>
         <CheckBoxPreference android:persistent="true"
-                            android:title="@string/enableLightNowPlayingTheme"
-                            android:summary="@string/enableLightNowPlayingThemeDescription"
-                            android:key="lightNowPlayingTheme" android:defaultValue="false"/>
-        <CheckBoxPreference android:persistent="true"
                             android:title="@string/enableAlbumYearText"
                             android:key="enableAlbumYearText" android:defaultValue="false"/>
         <CheckBoxPreference android:persistent="true"
