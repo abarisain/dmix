@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid;
 
+import java.util.ArrayList;
+
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
@@ -7,6 +9,7 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -15,6 +18,10 @@ import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -25,18 +32,24 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
+import com.namelessdev.mpdroid.fragments.BrowseFragment;
+import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.library.LibraryTabActivity;
+import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
 
-public class MainMenuActivity extends MPDroidFragmentActivity {
+public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener, ILibraryFragmentActivity,
+		ILibraryTabActivity, OnBackStackChangedListener {
 
 	public static enum DisplayMode {
 		MODE_NOWPLAYING,
 		MODE_QUEUE,
 		MODE_LIBRARY
 	}
-	
+
 	public static final int PLAYLIST = 1;
 
 	public static final int ARTISTS = 2;
@@ -48,6 +61,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity {
 	public static final int LIBRARY = 7;
 
 	public static final int CONNECT = 8;
+
+	private static final String FRAGMENT_TAG_LIBRARY = "library";
 
 	private int backPressExitCount;
 	private Handler exitCounterReset;
@@ -62,7 +77,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity {
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
-	
+
+	private LibraryFragment libraryFragment;
+	private FragmentManager fragmentManager;
+	private ArrayList<String> mTabList;
+
 	private DisplayMode currentDisplayMode;
 
 	@SuppressLint("NewApi")
@@ -76,7 +95,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity {
 
 		nowPlayingFragment = findViewById(R.id.nowplaying_fragment);
 		nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
-		libraryRootFrame = findViewById(R.id.root_frame);
+		libraryRootFrame = findViewById(R.id.library_root_frame);
 		playlistFragment = findViewById(R.id.playlist_fragment);
 
 		isDualPaneMode = (nowPlayingDualPane != null);
@@ -120,6 +139,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity {
 					/** Called when a drawer has settled in a completely open state. */
 					public void onDrawerOpened(View drawerView) {
 						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+						actionBar.setDisplayShowTitleEnabled(true);
 						actionBar.setTitle(R.string.app_name);
 					}
 				};
@@ -130,8 +150,36 @@ public class MainMenuActivity extends MPDroidFragmentActivity {
 		// Set the adapter for the list view
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
 				R.layout.drawer_list_item, mDrawerItems));
+		mDrawerList.setItemChecked(1, true);
 		// Set the list's click listener
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+		/*
+		 * Setup the library tab
+		 */
+		fragmentManager = getSupportFragmentManager();
+		fragmentManager.addOnBackStackChangedListener(this);
+
+		// Get the list of the currently visible tabs
+		mTabList = LibraryTabsUtil.getCurrentLibraryTabs(this.getApplicationContext());
+
+		ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(actionBar.getThemedContext(),
+				android.R.layout.simple_spinner_item);
+		for (int i = 0; i < mTabList.size(); i++) {
+			actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(i))));
+		}
+
+		actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		actionBar.setListNavigationCallbacks(actionBarAdapter, this);
+
+		libraryFragment = (LibraryFragment) fragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
+		if (libraryFragment == null) {
+			libraryFragment = new LibraryFragment();
+			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			ft.replace(R.id.library_root_frame, libraryFragment, FRAGMENT_TAG_LIBRARY);
+			ft.commit();
+		}
 	}
 
 	@Override
@@ -179,6 +227,14 @@ public class MainMenuActivity extends MPDroidFragmentActivity {
 	 */
 	@Override
 	public void onBackPressed() {
+		if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
+			final int fmStackCount = fragmentManager.getBackStackEntryCount();
+			if (fmStackCount > 0) {
+				super.onBackPressed();
+				return;
+			}
+		}
+
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		final boolean exitConfirmationRequired = settings.getBoolean("enableExitConfirmation", false);
 		if (exitConfirmationRequired && backPressExitCount < 1) {
@@ -376,20 +432,76 @@ public class MainMenuActivity extends MPDroidFragmentActivity {
 		return super.onKeyUp(keyCode, event);
 	}
 
+	/**
+	 * Library methods
+	 */
+
+	@Override
+	public void onBackStackChanged() {
+		refreshActionBarTitle();
+	}
+
+	@Override
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		libraryFragment.setCurrentItem(itemPosition, true);
+		return true;
+	}
+
+	@Override
+	public void pushLibraryFragment(Fragment fragment, String label) {
+		String title = "";
+		if (fragment instanceof BrowseFragment) {
+			title = ((BrowseFragment) fragment).getTitle();
+		} else {
+			title = fragment.toString();
+		}
+		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		ft.replace(R.id.library_root_frame, fragment);
+		ft.addToBackStack(label);
+		ft.setBreadCrumbTitle(title);
+		ft.commit();
+	}
+
+	@Override
+	public ArrayList<String> getTabList() {
+		return mTabList;
+	}
+
+	@Override
+	public void pageChanged(int position) {
+		final ActionBar actionBar = getActionBar();
+		if (currentDisplayMode == DisplayMode.MODE_LIBRARY && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST)
+			actionBar.setSelectedNavigationItem(position);
+	}
+
+	/**
+	 * Navigation Drawer helpers
+	 */
+
 	private void refreshActionBarTitle()
 	{
 		final ActionBar actionBar = getActionBar();
+		actionBar.setDisplayShowTitleEnabled(true);
 		switch (currentDisplayMode)
 		{
 			case MODE_NOWPLAYING:
 				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-				setTitle(R.string.nowPlaying);
+				actionBar.setTitle(R.string.nowPlaying);
 				break;
 			case MODE_QUEUE:
 				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-				setTitle(R.string.playQueue);
+				actionBar.setTitle(R.string.playQueue);
 				break;
 			case MODE_LIBRARY:
+				final int fmStackCount = fragmentManager.getBackStackEntryCount();
+				if (fmStackCount > 0) {
+					actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+					actionBar.setTitle(fragmentManager.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
+				} else {
+					actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+					actionBar.setDisplayShowTitleEnabled(false);
+				}
 				break;
 		}
 	}
@@ -398,11 +510,19 @@ public class MainMenuActivity extends MPDroidFragmentActivity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			mDrawerList.setItemChecked(position, true);
+			mDrawerLayout.closeDrawer(mDrawerList);
 			final DisplayMode newMode;
 			switch (position) {
 				default:
 				case 0:
 					newMode = DisplayMode.MODE_LIBRARY;
+					// If we are already on the library, pop the whole stack. Acts like an "up" button
+					if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
+						final int fmStackCount = fragmentManager.getBackStackEntryCount();
+						if (fmStackCount > 0) {
+							fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+						}
+					}
 					break;
 				case 1:
 					newMode = DisplayMode.MODE_NOWPLAYING;

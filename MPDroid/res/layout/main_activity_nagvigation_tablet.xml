@@ -36,7 +36,7 @@
         </LinearLayout>
 
         <FrameLayout
-            android:id="@+id/root_frame"
+            android:id="@+id/library_root_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" >
