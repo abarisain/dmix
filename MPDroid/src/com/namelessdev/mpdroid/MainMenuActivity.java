@@ -99,6 +99,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
+	private int oldDrawerPosition;
 
 	private LibraryFragment libraryFragment;
 	private FragmentManager fragmentManager;
@@ -171,7 +172,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		// Set the adapter for the list view
 		mDrawerList.setAdapter(new ArrayAdapter<DrawerItem>(this,
 				R.layout.drawer_list_item, mDrawerItems));
-		mDrawerList.setItemChecked(1, true);
+		oldDrawerPosition = 0;
+		mDrawerList.setItemChecked(oldDrawerPosition, true);
 		// Set the list's click listener
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
@@ -517,7 +519,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	private class DrawerItemClickListener implements ListView.OnItemClickListener {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			mDrawerList.setItemChecked(position, true);
 			mDrawerLayout.closeDrawer(mDrawerList);
 
 			switch (((DrawerItem) parent.getItemAtPosition(position)).action) {
@@ -539,11 +540,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 					switchMode(DisplayMode.MODE_QUEUE);
 					break;
 				case ACTION_OUTPUTS:
+					mDrawerList.setItemChecked(oldDrawerPosition, true);
 					final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
 					i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
 					startActivityForResult(i, SETTINGS);
 					break;
 			}
+			oldDrawerPosition = position;
 		}
 	}
 
