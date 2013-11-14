@@ -10,6 +10,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
@@ -59,7 +60,7 @@ public class AlbumDataBinder extends BaseDataBinder {
 		loadPlaceholder(coverHelper);
 
 		// display cover art in album listing if caching is on
-		if (this.artist != null && enableCache) {
+		if (CoverManager.isValidArtistOrAlbum(artist) && CoverManager.isValidArtistOrAlbum(album.getName()) && enableCache) {
 			// listen for new artwork to be loaded
 			final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, lightTheme);
 			final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover

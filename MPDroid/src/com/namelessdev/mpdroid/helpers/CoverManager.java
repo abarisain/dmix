@@ -1,10 +1,20 @@
 package com.namelessdev.mpdroid.helpers;
 
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CREATE_BITMAP;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
-import static com.namelessdev.mpdroid.tools.StringUtils.trim;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.cover.*;
+import com.namelessdev.mpdroid.tools.MultiMap;
+import com.namelessdev.mpdroid.tools.StringUtils;
+import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.UnknownAlbum;
+import org.a0z.mpd.UnknownArtist;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,28 +31,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
-import android.util.Log;
-
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.cover.DeezerCover;
-import com.namelessdev.mpdroid.cover.DiscogsCover;
-import com.namelessdev.mpdroid.cover.GracenoteCover;
-import com.namelessdev.mpdroid.cover.ICoverRetriever;
-import com.namelessdev.mpdroid.cover.LastFMCover;
-import com.namelessdev.mpdroid.cover.LocalCover;
-import com.namelessdev.mpdroid.cover.MusicBrainzCover;
-import com.namelessdev.mpdroid.cover.SpotifyCover;
-import com.namelessdev.mpdroid.tools.MultiMap;
-import com.namelessdev.mpdroid.tools.StringUtils;
-import com.namelessdev.mpdroid.tools.Tools;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.*;
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.trim;
 
 /**
  */
@@ -52,11 +43,11 @@ public class CoverManager {
     public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
     private static final boolean DEBUG = false;
-    public static final int MAX_REQUESTS = 50;
+    public static final int MAX_REQUESTS = 25;
     private MPDApplication app = null;
     private SharedPreferences settings = null;
     private static CoverManager instance = null;
-	private BlockingDeque<CoverInfo> requests = new LinkedBlockingDeque<CoverInfo>();
+    private BlockingDeque<CoverInfo> requests = new LinkedBlockingDeque<CoverInfo>();
     private List<CoverInfo> runningRequests = Collections.synchronizedList(new ArrayList<CoverInfo>());
     private ExecutorService requestExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService coverFetchExecutor = Executors.newFixedThreadPool(2);
@@ -177,6 +168,9 @@ public class CoverManager {
     }
 
     public void addCoverRequest(CoverInfo coverInfo) {
+        if (DEBUG) {
+            Log.d(CoverManager.class.getSimpleName(), "Looking for cover with artist=" + coverInfo.getArtist() + ", album=" + coverInfo.getAlbum());
+        }
         this.requests.add(coverInfo);
     }
 
@@ -203,8 +197,10 @@ public class CoverManager {
                                 break;
                             } else {
 
-                                if (StringUtils.isNullOrEmpty(coverInfo.getArtist()) || StringUtils.isNullOrEmpty(coverInfo.getAlbum())) {
-                                    Log.w(CoverManager.class.getSimpleName(), "Incomplete cover request : missing artist or album, giving up :" + coverInfo);
+                                if (!isValidCoverInfo(coverInfo)) {
+                                    if (DEBUG) {
+                                        Log.d(CoverManager.class.getSimpleName(), "Incomplete cover request  with artist=" + coverInfo.getArtist() + ", album=" + coverInfo.getAlbum());
+                                    }
                                     notifyListeners(false, coverInfo);
                                 } else {
                                     runningRequests.add(coverInfo);
@@ -267,6 +263,15 @@ public class CoverManager {
             }
 
         }
+    }
+
+    public static boolean isValidCoverInfo(CoverInfo coverInfo) {
+        return isValidArtistOrAlbum(coverInfo.getAlbum()) && isValidArtistOrAlbum(coverInfo.getArtist());
+    }
+
+    public static boolean isValidArtistOrAlbum(String artistOrAlbum) {
+        return !StringUtils.isNullOrEmpty(artistOrAlbum) && !artistOrAlbum.equals("-") &&
+                !artistOrAlbum.equals(UnknownArtist.instance.getName()) && !artistOrAlbum.equals(UnknownAlbum.instance.getName());
     }
 
     private boolean isLastCoverRetriever(ICoverRetriever retriever) {
@@ -359,7 +364,7 @@ public class CoverManager {
                         local = coverInfo.getState() == CACHE_COVER_FETCH && coverRetriever.isCoverLocal();
                         if (remote || local) {
                             if (DEBUG) {
-                                Log.d(CoverManager.class.getSimpleName(), "Looking for cover " + coverInfo.getAlbum() + " with " + coverRetriever.getName());
+                                Log.d(CoverManager.class.getSimpleName(), "Looking for cover " + coverInfo.getArtist() + ", " + coverInfo.getAlbum() + " with " + coverRetriever.getName());
                             }
                             coverInfo.setCoverRetriever(coverRetriever);
                             coverUrls = coverRetriever.getCoverUrl(coverInfo.getArtist(), coverInfo.getAlbum(), coverInfo.getPath(), coverInfo.getFilename());
