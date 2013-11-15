@@ -7,7 +7,7 @@ public class UnknownAlbum extends Album {
     public static final UnknownAlbum instance = new UnknownAlbum();
 
     private UnknownAlbum() {
-		super(MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album), MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_artist));
+		super(MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album), UnknownArtist.instance);
 	}
 
 	protected UnknownAlbum(Parcel in) {

@@ -1227,7 +1227,7 @@ public class MPD {
 						} catch (MPDServerException e) {
 						}
 					}
-					albums.add(new Album(album, songCount, duration, year, artist.getName()));
+					albums.add(new Album(album, songCount, duration, year, artist));
 				}
 			}
 		}

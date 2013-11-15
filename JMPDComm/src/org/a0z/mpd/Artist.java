@@ -1,9 +1,9 @@
 package org.a0z.mpd;
 
-import java.util.Locale;
-
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.util.Locale;
 
 public class Artist extends Item implements Parcelable {
 	public static String singleAlbumFormat="%1 Album";
@@ -23,6 +23,10 @@ public class Artist extends Item implements Parcelable {
 		}
 		this.albumCount=albumCount;
 	}
+
+    public Artist(String name) {
+        this(name, 0);
+    }
 
 	protected Artist(Parcel in) {
 		this.name=in.readString();
