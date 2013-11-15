@@ -1,14 +1,13 @@
 package com.namelessdev.mpdroid.cover;
 
-import java.io.File;
-import java.io.FileOutputStream;
-
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class CachedCover implements ICoverRetriever {
 
@@ -104,7 +103,7 @@ public class CachedCover implements ICoverRetriever {
 		if (cacheDir == null)
 			return null;
 		String filename;
-		if (artist == null) {
+		if (artist != null) {
 			filename = Tools.getHashFromString(artist + ";" + album) + ".jpg";
 		}else{
 			filename = Tools.getHashFromString(album) + ".jpg";
