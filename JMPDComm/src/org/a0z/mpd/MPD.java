@@ -1197,7 +1197,7 @@ public class MPD {
 	public List<Album> getAlbums(Artist artist, boolean trackCountNeeded) throws MPDServerException {
 		List<String> albumNames = null;
 		List<Album> albums = null;
-        final Artist unknownArtist = new UnknownArtist();
+        final Artist unknownArtist = UnknownArtist.instance;
 
 		if(artist != null) {
 			albumNames = listAlbums(artist.getName(), useAlbumArtist);
@@ -1211,7 +1211,7 @@ public class MPD {
 			for (String album : albumNames) {
 				if(album == "") {
 					// add a blank entry to host all songs without an album set
-					albums.add(new UnknownAlbum());
+					albums.add(UnknownAlbum.instance);
 				}else{
 					long songCount = 0;
 					long duration = 0;

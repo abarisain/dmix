@@ -22,11 +22,7 @@ public class Album extends Item implements Parcelable {
     }
 
     public Album(String name, String artist) {
-        this.name = name;
-        this.songCount = 0;
-        this.duration = 0;
-        this.year = 0;
-        this.artist = artist;
+        this (name,0,0,0,artist);
     }
 
     protected Album(Parcel in) {
