@@ -1,36 +1,31 @@
 package com.namelessdev.mpdroid.library;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.annotation.TargetApi;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidListActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.TouchInterceptor;
+import org.a0z.mpd.MPDPlaylist;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.*;
+
+import static android.util.Log.d;
+import static android.util.Log.e;
 
 public class PlaylistEditActivity extends MPDroidListActivity implements StatusChangeListener, OnClickListener {
 	private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
-	private List<Music> musics;
 	private String playlistName=null;
 	private boolean isPlayQueue=true;
 	private boolean isFirstRefresh = true;
@@ -69,20 +64,21 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 		// TODO: Preserve position!!!
 		MPDApplication app = (MPDApplication) getApplicationContext();
 		try {
-			if (isPlayQueue) {
+            List<Music> musics;
+            if (isPlayQueue) {
 				MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 				musics = playlist.getMusicList();
 			} else {
 				musics = app.oMPDAsyncHelper.oMPD.getPlaylistSongs(playlistName);
 			}
-
 			songlist = new ArrayList<HashMap<String, Object>>();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			int pos=null==getListView() ? -1 : getListView().getFirstVisiblePosition();
 			View view = null==getListView() ? null : getListView().getChildAt(0);
 			int top = null==view ? -1 : view.getTop();
 			int listPlayingId = 0;
-			for (Music m : musics) {
+            // Copy list to avoid concurrent exception
+            for (Music m : new ArrayList<Music>(musics)) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("songid", m.getSongId());
 				item.put("artist", m.getArtist());
@@ -111,7 +107,9 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 			}
 
 		} catch (MPDServerException e) {
-		}
+            d(PlaylistEditActivity.class.getSimpleName(), "Playlist update failure : " +e);
+
+        }
 
 	}
 
@@ -212,7 +210,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 				}
 				Tools.notifyUser(String.format(getResources().getString(R.string.removeCountSongs), count), this);
 			} catch (Exception e) {
-				Log.e("MPDroid", "General: " + e.toString());
+				e("MPDroid", "General: " + e.toString());
 				update();
 			}
 			break;
