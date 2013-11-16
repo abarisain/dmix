@@ -10,6 +10,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.PlaylistViewHolder;
@@ -74,7 +75,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 				oldAcd.detach();
 			holder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
 			coverHelper.addCoverDownloadListener(acd);
-            holder.cover.setTag(artist + album);
+            holder.cover.setTag(CoverManager.getCoverArtTag(artist, album));
             loadArtwork(coverHelper, artist, album);
 		}
 	}

@@ -24,6 +24,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.MPDPlaylist;
@@ -631,7 +632,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
                 albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 coverHelper.addCoverDownloadListener(acd);
-                albumCover.setTag(item.get("_artist") + (String) item.get("_album"));
+                albumCover.setTag(CoverManager.getCoverArtTag((String)item.get("_artist") , (String) item.get("_album")));
                 coverHelper.downloadCover((String) item.get("_artist"), (String) item.get("_album"), null, null, false, cacheOnly);
             }
             return view;

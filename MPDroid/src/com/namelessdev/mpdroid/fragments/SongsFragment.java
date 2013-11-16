@@ -12,6 +12,7 @@ import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 import org.a0z.mpd.*;
@@ -259,7 +260,7 @@ public class SongsFragment extends BrowseFragment {
 					artistName = song.getArtist();
 				}
 				coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                coverArt.setTag(artistName+album.getName());
+                coverArt.setTag(CoverManager.getCoverArtTag(artistName, album.getName()));
                 coverHelper.downloadCover(artistName, album.getName(), path, filename);
 			} else {
 				coverArtListener.onCoverNotFound(new CoverInfo(artistName,album.getName()));

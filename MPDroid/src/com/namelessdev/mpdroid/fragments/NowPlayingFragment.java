@@ -622,7 +622,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    coverArt.setTag(artist+album);
+                    coverArt.setTag(CoverManager.getCoverArtTag(artist,album));
                     oCoverAsyncHelper.downloadCover(artist, album, path, filename, true, false);
                     lastArtist = artist;
                     lastAlbum = album;

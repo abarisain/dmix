@@ -609,4 +609,8 @@ public class CoverManager {
 
 
     }
+
+    public static String getCoverArtTag(String artist, String album) {
+         return artist + album;
+    }
 }

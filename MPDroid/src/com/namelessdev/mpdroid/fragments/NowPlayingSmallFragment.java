@@ -23,6 +23,7 @@ import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -269,7 +270,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 					coverArtListener.onCoverNotFound(new CoverInfo(artist,album));
 				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    coverArt.setTag(artist+album);
+                    coverArt.setTag(CoverManager.getCoverArtTag(artist, album));
                     coverHelper.downloadCover(artist, album, actSong.getPath(), actSong.getFilename());
 					lastArtist = artist;
 					lastAlbum = album;
