@@ -556,7 +556,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         @Override
         protected void onPostExecute(Boolean result) {
-            if (result != null && result) {
+            if (result != null && result && activity != null) {
                 String artist = null;
                 String title = null;
                 String album = null;
@@ -622,7 +622,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    coverArt.setTag(artist+album);
+                    coverArt.setTag(CoverManager.getCoverArtTag(artist,album));
                     oCoverAsyncHelper.downloadCover(artist, album, path, filename, true, false);
                     lastArtist = artist;
                     lastAlbum = album;
@@ -846,7 +846,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 intent.putExtra("artist", new Artist(
                         (MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
                                 : currentSong.getArtist(), 0));
-                intent.putExtra("album", new Album(currentSong.getAlbum(), currentSong.getArtist()));
+                intent.putExtra("album", new Album(currentSong.getAlbum(), new Artist(currentSong.getArtist())));
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_FOLDER:

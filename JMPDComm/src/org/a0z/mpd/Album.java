@@ -11,9 +11,9 @@ public class Album extends Item implements Parcelable {
     private final long songCount;
     private final long duration;
     private final long year;
-    private String artist;
+    private Artist artist;
 
-    public Album(String name, long songCount, long duration, long year, String artist) {
+    public Album(String name, long songCount, long duration, long year, Artist artist) {
         this.name = name;
         this.songCount = songCount;
         this.duration = duration;
@@ -21,7 +21,7 @@ public class Album extends Item implements Parcelable {
         this.artist = artist;
     }
 
-    public Album(String name, String artist) {
+    public Album(String name, Artist artist) {
         this (name,0,0,0,artist);
     }
 
@@ -30,7 +30,7 @@ public class Album extends Item implements Parcelable {
         this.songCount = in.readLong();
         this.duration = in.readLong();
         this.year = in.readLong();
-        this.artist = in.readString();
+        this.artist = new Artist(in.readString());
     }
 
     public String getName() {
@@ -54,11 +54,11 @@ public class Album extends Item implements Parcelable {
         return name;
     }
 
-    public String getArtist() {
+    public Artist getArtist() {
         return artist;
     }
 
-    public void setArtist(String artist) {
+    public void setArtist(Artist artist) {
         this.artist = artist;
     }
 
@@ -99,7 +99,7 @@ public class Album extends Item implements Parcelable {
         dest.writeLong(this.songCount);
         dest.writeLong(this.duration);
         dest.writeLong(this.year);
-        dest.writeString(this.artist);
+        dest.writeString(this.artist.getName());
     }
 
     public static final Parcelable.Creator<Album> CREATOR =

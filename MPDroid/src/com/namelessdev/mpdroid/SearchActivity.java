@@ -1,13 +1,5 @@
 package com.namelessdev.mpdroid;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,13 +13,19 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
 	public static final int MAIN = 0;
@@ -169,7 +167,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 		} else if (object instanceof Artist) {
 			add(((Artist) object), null, replace, play);
 		} else if (object instanceof Album) {
-			add(null, ((Album) object), replace, play);
+            Album album = (Album) object;
+			add(album.getArtist(), album, replace, play);
 		}
 	}
 	
@@ -283,7 +282,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 						valueFound = true;
 				}
 				if(!valueFound)
-					albumItems.add(new Album(tmpValue, music.getArtist()));
+					albumItems.add(new Album(tmpValue, new Artist(music.getArtist())));
 			}			
 		}
 		

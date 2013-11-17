@@ -1,17 +1,15 @@
 package com.namelessdev.mpdroid.views;
 
-import java.util.List;
-
+import android.content.Context;
+import android.view.View;
+import android.widget.TextView;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Music;
 
-import android.content.Context;
-import android.view.View;
-import android.widget.TextView;
-
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
+import java.util.List;
 
 public class SearchResultDataBinder implements SeparatedListDataBinder {
 
@@ -34,7 +32,7 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
             Album album;
             album = (Album) item;
 			formattedResult1 = album.getName();
-			formattedResult2 = album.getArtist();
+			formattedResult2 = album.getArtist().getName();
         }
 		text1.setText(formattedResult1);
 		text2.setVisibility(formattedResult2 != null ? View.VISIBLE : View.GONE);

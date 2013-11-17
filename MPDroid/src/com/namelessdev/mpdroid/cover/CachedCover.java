@@ -1,14 +1,14 @@
 package com.namelessdev.mpdroid.cover;
 
-import java.io.File;
-import java.io.FileOutputStream;
-
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class CachedCover implements ICoverRetriever {
 
@@ -17,7 +17,7 @@ public class CachedCover implements ICoverRetriever {
 
 	public CachedCover(MPDApplication context) {
 		if (context == null)
-			throw new RuntimeException("Conext cannot be null");
+			throw new RuntimeException("Context cannot be null");
 		application = context;
 	}
 
@@ -65,14 +65,24 @@ public class CachedCover implements ICoverRetriever {
 			Log.e(MPDApplication.TAG, "No writable external storage, not saving cover to cache");
 			return;
 		}
+        FileOutputStream out = null;
 		try {
 			new File(getAbsoluteCoverFolderPath()).mkdirs();
-			FileOutputStream out = new FileOutputStream(getAbsolutePathForSong(artist, album));
+			out = new FileOutputStream(getAbsolutePathForSong(artist, album));
 			cover.compress(Bitmap.CompressFormat.JPEG, 95, out);
 		} catch (Exception e) {
-			e.printStackTrace();
+            Log.e(MPDApplication.TAG, "Cache cover write failure : " + e);
 		}
-	}
+        finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    Log.e(MPDApplication.TAG, "Cannot close cover stream : " + e);
+                }
+            }
+        }
+    }
 
 	public void clear() {
 		final String cacheFolderPath = getAbsoluteCoverFolderPath();
@@ -104,7 +114,7 @@ public class CachedCover implements ICoverRetriever {
 		if (cacheDir == null)
 			return null;
 		String filename;
-		if (artist == null) {
+		if (artist != null) {
 			filename = Tools.getHashFromString(artist + ";" + album) + ".jpg";
 		}else{
 			filename = Tools.getHashFromString(album) + ".jpg";

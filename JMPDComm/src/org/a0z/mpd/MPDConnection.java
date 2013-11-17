@@ -151,6 +151,7 @@ public class MPDConnection {
 		for (String arg : args) {
 			if(arg == null)
 				continue;
+            arg = arg.replaceAll("\"", "\\\\\"");
 			outBuf.append(" \"" + arg + "\"");
 		}
 		outBuf.append("\n");
