@@ -269,6 +269,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 item.put("songid", m.getSongId());
                 item.put("_artist", tmpArtist);
                 item.put("_album", tmpAlbum);
+                item.put("_path", m.getPath());
+                item.put("_filename",m.getFilename());
+
                 if (m.isStream()) {
                     if (m.haveTitle()) {
                         item.put("title", tmpTitle);
@@ -610,6 +613,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             String artist = (String) item.get("_artist");
             String album = (String)item.get("_album");
             String title = (String) item.get("title");
+            String path = (String) item.get("_path");
+            String filename = (String) item.get("_filename");
+
 
             String viewTag = CoverManager.getPlaylistCoverTag(artist, album ,title);
             if (view.getTag() == null || !view.getTag().equals(viewTag)) {
@@ -637,7 +643,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 coverHelper.addCoverDownloadListener(acd);
                 albumCover.setTag(CoverManager.getCoverArtTag(artist,album));
-                coverHelper.downloadCover(artist, album, null, null, false, cacheOnly);
+                coverHelper.downloadCover(artist, album, path, filename, false, cacheOnly);
             }
             return view;
         }
