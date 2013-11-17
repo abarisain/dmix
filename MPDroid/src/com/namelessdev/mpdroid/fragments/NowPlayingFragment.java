@@ -556,7 +556,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         @Override
         protected void onPostExecute(Boolean result) {
-            if (result != null && result) {
+            if (result != null && result && activity != null) {
                 String artist = null;
                 String title = null;
                 String album = null;
