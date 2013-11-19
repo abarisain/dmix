@@ -1,21 +1,23 @@
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.view.View;
-import android.widget.TextView;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
+import java.util.List;
+
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Music;
 
-import java.util.List;
+import android.content.Context;
+import android.view.View;
+import android.widget.TextView;
+
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 
 public class SearchResultDataBinder implements SeparatedListDataBinder {
 
     public static final String SEPARATOR = " - ";
 
-    public void onDataBind(Context context, View targetView, List<Object> items, Object item, int position) {
+	public void onDataBind(Context context, View targetView, List<? extends Object> items, Object item, int position) {
 		final TextView text1 = (TextView) targetView.findViewById(R.id.line1);
 		final TextView text2 = (TextView) targetView.findViewById(R.id.line2);
 		String formattedResult1 = "";
@@ -60,7 +62,7 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
         return result.toString();
     }
 
-    public boolean isEnabled(int position, List<Object> items, Object item) {
+	public boolean isEnabled(int position, List<? extends Object> items, Object item) {
         return true;
     }
 
