@@ -8,6 +8,10 @@ import org.a0z.mpd.Artist;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.ActionBar.TabListener;
+import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,7 +36,7 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
-public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
+public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener, TabListener {
 	public static final int MAIN = 0;
 	public static final int PLAYLIST = 3;
 
@@ -57,6 +61,10 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 	protected View noResultSongsView;
 	protected ViewPager pager;
 
+	private Tab tabArtists;
+	private Tab tabAlbums;
+	private Tab tabSongs;
+
 	private int addString, addedString;
 	private String searchKeywords = "";
 
@@ -79,6 +87,33 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 		SearchResultsPagerAdapter adapter = new SearchResultsPagerAdapter();
 		pager = (ViewPager) findViewById(R.id.pager);
 		pager.setAdapter(adapter);
+		pager.setOnPageChangeListener(
+				new ViewPager.SimpleOnPageChangeListener() {
+					@Override
+					public void onPageSelected(int position) {
+						// When swiping between pages, select the
+						// corresponding tab.
+						getActionBar().setSelectedNavigationItem(position);
+					}
+				});
+
+		final ActionBar actionBar = getActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+		tabArtists = actionBar.newTab()
+				.setText(R.string.artists)
+				.setTabListener(this);
+		actionBar.addTab(tabArtists);
+
+		tabAlbums = actionBar.newTab()
+				.setText(R.string.albums)
+				.setTabListener(this);
+		actionBar.addTab(tabAlbums);
+
+		tabSongs = actionBar.newTab()
+				.setText(R.string.songs)
+				.setTabListener(this);
+		actionBar.addTab(tabSongs);
 
 		listArtists = (ListView) findViewById(R.id.list_artists);
 		listArtists.setOnItemClickListener(this);
@@ -346,6 +381,15 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 		Collections.sort(arrayArtistsResults);
 		Collections.sort(arrayAlbumsResults);
 		Collections.sort(arraySongsResults);
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				tabArtists.setText(getString(R.string.artists) + " (" + arrayArtistsResults.size() + ")");
+				tabAlbums.setText(getString(R.string.albums) + " (" + arrayAlbumsResults.size() + ")");
+				tabSongs.setText(getString(R.string.songs) + " (" + arraySongsResults.size() + ")");
+			}
+		});
 	}
 
 	/**
@@ -427,6 +471,25 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 		public void destroyItem(ViewGroup container, int position, Object object) {
 			return;
 		}
+	}
+
+	/******
+	 * ActionBar TabListener methods
+	 ******/
+
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+		return;
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		pager.setCurrentItem(tab.getPosition());
+	}
+
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		return;
 	}
 
 }
