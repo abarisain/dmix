@@ -27,7 +27,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
@@ -55,7 +54,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 	private ListView listAlbums = null;
 	private ListView listSongs = null;
 	protected View loadingView;
-	protected TextView loadingTextView;
 	protected View noResultArtistsView;
 	protected View noResultAlbumsView;
 	protected View noResultSongsView;
@@ -123,12 +121,10 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 		listSongs.setOnItemClickListener(this);
 
 		loadingView = findViewById(R.id.loadingLayout);
-		loadingTextView = (TextView) findViewById(R.id.loadingText);
 		noResultArtistsView = findViewById(R.id.noResultArtistsLayout);
 		noResultAlbumsView = findViewById(R.id.noResultAlbumsLayout);
 		noResultSongsView = findViewById(R.id.noResultSongsLayout);
 		loadingView.setVisibility(View.VISIBLE);
-		loadingTextView.setText(R.string.loading);
 
 		final Intent queryIntent = getIntent();
 		final String queryAction = queryIntent.getAction();
