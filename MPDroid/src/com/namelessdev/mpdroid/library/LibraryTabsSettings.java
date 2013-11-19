@@ -134,12 +134,12 @@ public class LibraryTabsSettings extends PreferenceActivity {
 class TabListDataBinder implements SeparatedListDataBinder {
 
 	public void onDataBind(Context context, View targetView,
-			List<Object> items, Object item, int position) {
+			List<? extends Object> items, Object item, int position) {
 		final TextView text1 = (TextView) targetView.findViewById(R.id.text1);
 		text1.setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).text));
 	}
 
-	public boolean isEnabled(int position, List<Object> items, Object item) {
+	public boolean isEnabled(int position, List<? extends Object> items, Object item) {
 		return true;
 	}
 

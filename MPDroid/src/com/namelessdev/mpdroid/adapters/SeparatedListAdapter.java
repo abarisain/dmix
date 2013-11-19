@@ -31,22 +31,23 @@ public class SeparatedListAdapter extends BaseAdapter {
 	private static final int TYPE_CONTENT = 0;
 	private static final int TYPE_SEPARATOR = 1;
 	
-	private List<Object> items; //Content
+	private List<? extends Object> items; // Content
 	private SeparatedListDataBinder binder; //The content -> view 'binding'
 	private int viewId = -1; //The view to be displayed
 	private LayoutInflater inflater;
 	private Context context;
 	private int separatorLayoutId;
 	
-	public SeparatedListAdapter(Context context, int viewId, SeparatedListDataBinder binder, List<Object> items) {
+	public SeparatedListAdapter(Context context, int viewId, SeparatedListDataBinder binder, List<? extends Object> items) {
 		init(context, viewId, R.layout.list_separator, binder, items);
 	}
 	
-	public SeparatedListAdapter(Context context, int viewId, int separatorViewId, SeparatedListDataBinder binder, List<Object> items) {
+	public SeparatedListAdapter(Context context, int viewId, int separatorViewId, SeparatedListDataBinder binder,
+			List<? extends Object> items) {
 		init(context, viewId, separatorViewId, binder, items);
 	}
 	
-	private void init(Context context, int viewId, int separatorViewId, SeparatedListDataBinder binder, List<Object> items) {
+	private void init(Context context, int viewId, int separatorViewId, SeparatedListDataBinder binder, List<? extends Object> items) {
 		this.viewId = viewId;
 		this.binder = binder;
 		this.items = items;
