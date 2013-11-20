@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.a0z.mpd.Directory;
+import org.a0z.mpd.FilesystemTreeEntry;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.PlaylistFile;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
@@ -24,6 +26,8 @@ public class FSFragment extends BrowseFragment {
 
 	private Directory currentDirectory = null;
 	private String directory = null;
+
+	private ArrayList<Item> dirItems;
 
 	public FSFragment() {
 		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPDCommand.MPD_SEARCH_FILENAME);
@@ -108,9 +112,10 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 
-		List<Item> dirItems=new ArrayList<Item>();
+		dirItems=new ArrayList<Item>();
 		dirItems.addAll(currentDirectory.getDirectories());
 		dirItems.addAll(currentDirectory.getFiles());
+		dirItems.addAll(currentDirectory.getPlaylistFiles());
 		items=dirItems;
 	}
 
@@ -119,13 +124,17 @@ public class FSFragment extends BrowseFragment {
 		// click on a file
 		if (position > currentDirectory.getDirectories().size() - 1 || currentDirectory.getDirectories().size() == 0) {
 
-			final Music music = (Music) currentDirectory.getFiles().toArray()[position - currentDirectory.getDirectories().size()];
+			final FilesystemTreeEntry item = (FilesystemTreeEntry)dirItems.get(position);
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						int songId = -1;
-						app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
+						if (item instanceof Music) {
+							app.oMPDAsyncHelper.oMPD.getPlaylist().add(item);
+						} else if (item instanceof PlaylistFile) {
+							app.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullpath());
+						}
 						if (songId > -1) {
 							app.oMPDAsyncHelper.oMPD.skipToId(songId);
 						}

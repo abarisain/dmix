@@ -18,6 +18,7 @@ import org.a0z.mpd.exception.MPDServerException;
 public final class Directory extends Item implements FilesystemTreeEntry {
 	private Map<String, Music> files;
 	private Map<String, Directory> directories;
+	private Map<String, PlaylistFile> playlists;
 	private Directory parent;
 	private String name;
 	private MPD mpd;
@@ -38,6 +39,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 		this.parent = parent;
 		this.files = new HashMap<String, Music>();
 		this.directories = new HashMap<String, Directory>();
+		this.playlists = new HashMap<String, PlaylistFile>();
 	}
 
 	/**
@@ -76,7 +78,20 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 			c.add(item);
 		return c;
 	}
+	
+	public TreeSet<PlaylistFile> getPlaylistFiles() {
+		TreeSet<PlaylistFile> c = new TreeSet<PlaylistFile>(new Comparator<PlaylistFile>() {
+			public int compare(PlaylistFile o1, PlaylistFile o2) {
+				return StringComparators.compareNatural(o1.getFullpath(), o2.getFullpath());
+			}
+		});
+		
+		for (PlaylistFile item : playlists.values())
+			c.add(item);
+		return c;
+	}
 
+	
 	/**
 	 * Gets Music object by title
 	 * 
@@ -151,6 +166,11 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 				} else {
 					Music old = files.get(music.getFilename());
 					old.update(music);
+				}
+			} else if (o instanceof PlaylistFile) {
+				PlaylistFile pl = (PlaylistFile)o;
+				if (!playlists.containsKey(pl.getName())) {
+					playlists.put(pl.getName(), pl);
 				}
 			}
 		}
