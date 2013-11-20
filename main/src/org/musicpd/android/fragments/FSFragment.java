@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.a0z.mpd.Directory;
+import org.a0z.mpd.FilesystemTreeEntry;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.PlaylistFile;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
@@ -113,35 +115,36 @@ public class FSFragment extends BrowseFragment {
 		List<Item> dirItems=new ArrayList<Item>();
 		dirItems.addAll(currentDirectory.getDirectories());
 		dirItems.addAll(currentDirectory.getFiles());
+		dirItems.addAll(currentDirectory.getPlaylistFiles());
 		items=dirItems;
 	}
 
 	@Override
 	public void onItemClick(AdapterView l, View v, int position, long id) {
-		final Item item = items.get(position);
+		final FilesystemTreeEntry item = (FilesystemTreeEntry) items.get(position);
+		final ILibraryFragmentActivity activity = (ILibraryFragmentActivity) getActivity();
 		// click on a file
-		if (Music.class.isInstance(item)) {
-
-			final Music music = (Music) item;
-			app.oMPDAsyncHelper.execAsync(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						int songId = -1;
-						app.oMPDAsyncHelper.oMPD.getPlaylist().add(music);
-						if (songId > -1) {
-							app.oMPDAsyncHelper.oMPD.skipToId(songId);
-						}
-					} catch (MPDServerException e) {
-						Log.w(e);
+		app.oMPDAsyncHelper.execAsync(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					int songId = -1;
+					if (item instanceof Music) {
+						app.oMPDAsyncHelper.oMPD.getPlaylist().add(item);
+					} else if (item instanceof PlaylistFile) {
+						app.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullpath());
+					} else if (item instanceof Directory) {
+						final String dir = item.getFullpath();
+						activity.pushLibraryFragment(new FSFragment().init(dir), "filesystem");
 					}
+					if (songId > -1) {
+						app.oMPDAsyncHelper.oMPD.skipToId(songId);
+					}
+				} catch (MPDServerException e) {
+					Log.w(e);
 				}
-			});
-		} else {
-			final String dir = ((Directory) item).getFullpath();
-			((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new FSFragment().init(dir), "filesystem");
-		}
-
+			}
+		});
 	}
 	
 	//Disable the indexer for FSFragment
