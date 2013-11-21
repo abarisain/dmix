@@ -1,5 +1,8 @@
 package org.a0z.mpd;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Represents a playlist in the database
  *
@@ -19,9 +22,9 @@ public class PlaylistFile extends Item implements FilesystemTreeEntry {
 	@Override
 	public String getName() {
 		if (fullpath != null) {
-			int index = fullpath.lastIndexOf('/');
-			if (index > 0) {
-				return fullpath.substring(index);
+			Matcher matcher = Pattern.compile("^.*/(.+)\\.(\\w+)$").matcher(fullpath);
+			if (matcher.matches()) {
+				return matcher.replaceAll("[$2] $1.$2");
 			} else {
 				return fullpath;
 			}
