@@ -26,10 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 
 import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.*;
 import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
@@ -43,14 +40,14 @@ public class CoverManager {
     public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
     private static final boolean DEBUG = false;
-    public static final int MAX_REQUESTS = 25;
+    public static final int MAX_REQUESTS = 20;
     private MPDApplication app = null;
     private SharedPreferences settings = null;
     private static CoverManager instance = null;
     private BlockingDeque<CoverInfo> requests = new LinkedBlockingDeque<CoverInfo>();
     private List<CoverInfo> runningRequests = Collections.synchronizedList(new ArrayList<CoverInfo>());
     private ExecutorService requestExecutor = Executors.newFixedThreadPool(1);
-    private ExecutorService coverFetchExecutor = Executors.newFixedThreadPool(2);
+    private ThreadPoolExecutor coverFetchExecutor = getCoverFetchExecutor();
     private ExecutorService priorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService cacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService createBitmapExecutor = cacheCoverFetchExecutor;
@@ -212,19 +209,13 @@ public class CoverManager {
                             }
                         case CACHE_COVER_FETCH:
                             if (coverInfo.getCoverBytes() == null || coverInfo.getCoverBytes().length == 0) {
-                                if (runningRequests.size() < MAX_REQUESTS) {
-                                    coverInfo.setState(WEB_COVER_FETCH);
-                                    if (coverInfo.isPriority()) {
-                                        priorityCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
-                                    } else {
-                                        coverFetchExecutor.submit(new FetchCoverTask(coverInfo));
-                                    }
-                                    break;
+                                coverInfo.setState(WEB_COVER_FETCH);
+                                if (coverInfo.isPriority()) {
+                                    priorityCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                                 } else {
-                                    Log.w(CoverManager.class.getSimpleName(), "Too many requests, giving up this one : " + coverInfo.getAlbum());
-                                    notifyListeners(false, coverInfo);
-                                    break;
+                                    coverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                                 }
+                                break;
                             } else {
                                 coverInfo.setState(CREATE_BITMAP);
                                 createBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
@@ -348,53 +339,59 @@ public class CoverManager {
             boolean canStart = true;
             byte[] coverBytes;
 
-            // If the coverretriever is defined in the coverInfo
-            // that means that a previous cover fetch failed with this retriever
-            // We just start after this retriever to try a cover.
-            if (coverInfo.getCoverRetriever() != null) {
-                canStart = false;
-            }
+            if (coverInfo.getState() != CoverInfo.STATE.WEB_COVER_FETCH || coverFetchExecutor.getQueue().size() < MAX_REQUESTS) {
 
-            for (ICoverRetriever coverRetriever : coverRetrievers) {
-                try {
+                // If the coverretriever is defined in the coverInfo
+                // that means that a previous cover fetch failed with this retriever
+                // We just start after this retriever to try a cover.
+                if (coverInfo.getCoverRetriever() != null) {
+                    canStart = false;
+                }
 
-                    if (canStart) {
+                for (ICoverRetriever coverRetriever : coverRetrievers) {
+                    try {
 
-                        remote = coverInfo.getState() == WEB_COVER_FETCH && !coverRetriever.isCoverLocal() && !coverInfo.isCacheOnly();
-                        local = coverInfo.getState() == CACHE_COVER_FETCH && coverRetriever.isCoverLocal();
-                        if (remote || local) {
-                            if (DEBUG) {
-                                Log.d(CoverManager.class.getSimpleName(), "Looking for cover " + coverInfo.getArtist() + ", " + coverInfo.getAlbum() + " with " + coverRetriever.getName());
-                            }
-                            coverInfo.setCoverRetriever(coverRetriever);
-                            coverUrls = coverRetriever.getCoverUrl(coverInfo.getArtist(), coverInfo.getAlbum(), coverInfo.getPath(), coverInfo.getFilename());
-                            if (coverUrls != null && coverUrls.length > 0) {
-                                if (DEBUG)
-                                    Log.d(CoverManager.class.getSimpleName(), "Cover found for  " + coverInfo.getAlbum() + " with " + coverRetriever.getName());
-                                coverBytes = getCoverBytes(coverUrls, coverInfo);
-                                if (coverBytes != null && coverBytes.length > 0) {
-                                    coverInfo.setCoverBytes(coverBytes);
-                                    requests.addLast(coverInfo);
-                                    return;
-                                } else {
+                        if (canStart) {
+
+                            remote = coverInfo.getState() == WEB_COVER_FETCH && !coverRetriever.isCoverLocal() && !coverInfo.isCacheOnly();
+                            local = coverInfo.getState() == CACHE_COVER_FETCH && coverRetriever.isCoverLocal();
+                            if (remote || local) {
+                                if (DEBUG) {
+                                    Log.d(CoverManager.class.getSimpleName(), "Looking for cover " + coverInfo.getArtist() + ", " + coverInfo.getAlbum() + " with " + coverRetriever.getName());
+                                }
+                                coverInfo.setCoverRetriever(coverRetriever);
+                                coverUrls = coverRetriever.getCoverUrl(coverInfo.getArtist(), coverInfo.getAlbum(), coverInfo.getPath(), coverInfo.getFilename());
+                                if (coverUrls != null && coverUrls.length > 0) {
                                     if (DEBUG)
-                                        Log.d(CoverManager.class.getSimpleName(), "The cover URL for album " + coverInfo.getAlbum() + " did not work : " + coverRetriever.getName());
+                                        Log.d(CoverManager.class.getSimpleName(), "Cover found for  " + coverInfo.getAlbum() + " with " + coverRetriever.getName());
+                                    coverBytes = getCoverBytes(coverUrls, coverInfo);
+                                    if (coverBytes != null && coverBytes.length > 0) {
+                                        coverInfo.setCoverBytes(coverBytes);
+                                        requests.addLast(coverInfo);
+                                        return;
+                                    } else {
+                                        if (DEBUG)
+                                            Log.d(CoverManager.class.getSimpleName(), "The cover URL for album " + coverInfo.getAlbum() + " did not work : " + coverRetriever.getName());
+                                    }
+
                                 }
 
                             }
-
+                        } else {
+                            if (DEBUG)
+                                Log.d(CoverManager.class.getSimpleName(), "Bypassing the retriever " + coverRetriever.getName() + " for album " + coverInfo.getAlbum() + ", already asked.");
+                            canStart = coverRetriever == coverInfo.getCoverRetriever();
                         }
-                    } else {
-                        if (DEBUG)
-                            Log.d(CoverManager.class.getSimpleName(), "Bypassing the retriever " + coverRetriever.getName() + " for album " + coverInfo.getAlbum() + ", already asked.");
-                        canStart = coverRetriever == coverInfo.getCoverRetriever();
+
+                    } catch (Exception e) {
+                        Log.e(CoverManager.class.getSimpleName(), "Fetch cover failure : " + e);
                     }
 
-                } catch (Exception e) {
-                    Log.e(CoverManager.class.getSimpleName(), "Fetch cover failure : " + e);
                 }
-
+            } else {
+                Log.w(CoverManager.class.getSimpleName(), "Too many requests, giving up this one : " + coverInfo.getAlbum());
             }
+
             requests.addLast(coverInfo);
         }
 
@@ -611,10 +608,14 @@ public class CoverManager {
     }
 
     public static String getCoverArtTag(String artist, String album) {
-         return artist + album;
+        return artist + album;
     }
 
     public static String getPlaylistCoverTag(String artist, String album, String song) {
         return artist + album + song;
+    }
+
+    private static ThreadPoolExecutor getCoverFetchExecutor() {
+        return new ThreadPoolExecutor(2, 2, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     }
 }
