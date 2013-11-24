@@ -202,7 +202,8 @@
     <string name="goToArtist">Перейти до виконавця</string>
     <string name="goToFolder">Перейти до теки</string>
     <string name="goToStream">Перейти до потоків</string>
-    
+    <string name="goToCurrent">До поточної пісні</string>
+
     <string name="actionSongSelected">Обрано 1 пісню</string>
     <string name="actionSongsSelected">Пісень обрано: %s</string>
     <string name="searchQueue">Пошук черги відтворення…</string>

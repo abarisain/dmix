@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -12,7 +13,6 @@ import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.*;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.*;
@@ -27,6 +27,7 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -34,6 +35,8 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import java.util.*;
+
+import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
     private ArrayList<HashMap<String, Object>> songlist;
@@ -216,7 +219,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private void refreshListColorCacheHint() {
         if (app == null || list == null)
             return;
-		if (app.isLightThemeSelected()) {
+        if (app.isLightThemeSelected()) {
             list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
         } else {
             list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
@@ -227,7 +230,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         update(true);
     }
 
-    protected  synchronized  void update(boolean forcePlayingIDRefresh) {
+    protected synchronized void update(boolean forcePlayingIDRefresh) {
         try {
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
             songlist = new ArrayList<HashMap<String, Object>>();
@@ -270,7 +273,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 item.put("_artist", tmpArtist);
                 item.put("_album", tmpAlbum);
                 item.put("_path", m.getPath());
-                item.put("_filename",m.getFilename());
+                item.put("_filename", m.getFilename());
 
                 if (m.isStream()) {
                     if (m.haveTitle()) {
@@ -327,7 +330,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             });
 
         } catch (MPDServerException e) {
-            Log.e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
+            e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
         }
     }
 
@@ -436,17 +439,30 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     public void scrollToNowPlaying() {
-        for (HashMap<String, Object> song : songlist) {
-            try {
-                if (((Integer) song.get("songid")).intValue() == ((MPDApplication) activity.getApplication()).oMPDAsyncHelper.oMPD
-                        .getStatus()
-                        .getSongId()) {
-                    getListView().requestFocusFromTouch();
-                    getListView().setSelection(songlist.indexOf(song));
+
+        new AsyncTask<Void, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(Void... voids) {
+                try {
+                    MPD mpd = ((MPDApplication) activity.getApplication()).oMPDAsyncHelper.oMPD;
+                    return mpd.getStatus().getSongPos();
+                } catch (MPDServerException e) {
+                    e(PlaylistFragment.class.getSimpleName(), "Cannot find the current playing song position : " + e);
                 }
-            } catch (MPDServerException e) {
+                return null;
             }
-        }
+
+            @Override
+            protected void onPostExecute(Integer songIndex) {
+                if (songIndex != null) {
+                    getListView().requestFocusFromTouch();
+                    getListView().setSelection(songIndex);
+                    getListView().clearFocus();
+                } else {
+                    Log.d(PlaylistFragment.class.getSimpleName(), "Missing list item : " + songIndex);
+                }
+            }
+        }.execute();
     }
 
     @Override
@@ -521,7 +537,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     };
 
-    private OnClickListener itemMenuButtonListener = new OnClickListener() {
+    private View.OnClickListener itemMenuButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             popupSongID = (Integer) v.getTag();
@@ -602,7 +618,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
             app = (MPDApplication) activity.getApplication();
             settings = PreferenceManager.getDefaultSharedPreferences(app);
-			lightTheme = app.isLightThemeSelected();
+            lightTheme = app.isLightThemeSelected();
         }
 
         @SuppressWarnings("unchecked")
@@ -611,13 +627,13 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             final View view = super.getView(position, convertView, parent);
             final Map<String, ?> item = (Map<String, ?>) getItem(position);
             String artist = (String) item.get("_artist");
-            String album = (String)item.get("_album");
+            String album = (String) item.get("_album");
             String title = (String) item.get("title");
             String path = (String) item.get("_path");
             String filename = (String) item.get("_filename");
 
 
-            String viewTag = CoverManager.getPlaylistCoverTag(artist, album ,title);
+            String viewTag = CoverManager.getPlaylistCoverTag(artist, album, title);
             if (view.getTag() == null || !view.getTag().equals(viewTag)) {
                 view.setTag(viewTag);
                 view.findViewById(R.id.icon).setVisibility(filter == null ? View.VISIBLE : View.GONE);
@@ -642,7 +658,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
                 albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 coverHelper.addCoverDownloadListener(acd);
-                albumCover.setTag(CoverManager.getCoverArtTag(artist,album));
+                albumCover.setTag(CoverManager.getCoverArtTag(artist, album));
                 coverHelper.downloadCover(artist, album, path, filename, false, cacheOnly);
             }
             return view;

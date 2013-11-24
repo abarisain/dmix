@@ -184,8 +184,9 @@
     <string name="goToArtist">Aller à l\'artiste</string>
     <string name="goToFolder">Aller au dossier</string>
     <string name="goToStream">Aller aux flux</string>
-    
-	<string name="actionSongSelected">1 chanson selectionnée</string>
+    <string name="goToCurrent">Aller à la chanson en cours</string>
+
+    <string name="actionSongSelected">1 chanson selectionnée</string>
     <string name="actionSongsSelected">%s chansons selectionnées</string>
     <string name="searchQueue">Rechercher dans la file …</string>
 	<string name="enableCoverOnlyOnWifi">Télécharger seulement via Wi-Fi</string>
