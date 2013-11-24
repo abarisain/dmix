@@ -15,12 +15,13 @@
  */
 package com.namelessdev.mpdroid.tools;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * A {@link Map} that supports multiple values per key.
  */
-public class MultiMap<K, V> {
+public class MultiMap<K, V> implements Serializable {
 
     private final Map<K, List<V>> mInternalMap;
 

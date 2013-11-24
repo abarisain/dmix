@@ -260,7 +260,7 @@ public class SongsFragment extends BrowseFragment {
 					artistName = song.getArtist();
 				}
 				coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                coverArt.setTag(CoverManager.getCoverArtTag(artistName, album.getName()));
+                coverArt.setTag(CoverManager.getAlbumKey(artistName, album.getName()));
                 coverHelper.downloadCover(artistName, album.getName(), path, filename);
 			} else {
 				coverArtListener.onCoverNotFound(new CoverInfo(artistName,album.getName()));
