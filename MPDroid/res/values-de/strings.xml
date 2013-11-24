@@ -199,6 +199,7 @@
     <string name="goToStream">Gehe zu Streams</string>
     <string name="goToCurrent">Gehe zum aktuellen Song</string>
     <string name="otherCover">Anderes Cover</string>
+    <string name="resetCover">Bild zurücksetzen</string>
 
     <string name="actionSongSelected">1 Titel ausgewählt</string>
     <string name="actionSongsSelected">%s Titel ausgewählt</string>

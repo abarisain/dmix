@@ -48,6 +48,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private static final int POPUP_SHARE = 4;
     private static final int POPUP_CURRENT = 5;
     private static final int POPUP_COVER_BLACKLIST = 6;
+    private static final int POPUP_COVER_SELECTIVE_CLEAN = 7;
 
     private TextView artistNameText;
     private TextView songNameText;
@@ -229,6 +230,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         final PopupMenu coverMenu = new PopupMenu(activity, coverArt);
         coverMenu.getMenu().add(Menu.NONE, POPUP_COVER_BLACKLIST, Menu.NONE, R.string.otherCover);
+        coverMenu.getMenu().add(Menu.NONE, POPUP_COVER_SELECTIVE_CLEAN, Menu.NONE, R.string.resetCover);
         coverMenu.setOnMenuItemClickListener(NowPlayingFragment.this);
         coverArt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -856,6 +858,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         Intent intent;
+        PlaylistFragment playlistFragment;
+
         switch (item.getItemId()) {
             case POPUP_ARTIST:
                 intent = new Intent(activity, SimpleLibraryActivity.class);
@@ -900,16 +904,26 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 sendIntent.putExtra(Intent.EXTRA_TEXT, shareString);
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
+                break;
 
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getArtist(), currentSong.getAlbum());
                 oCoverAsyncHelper.downloadCover(currentSong.getArtist(), currentSong.getAlbum(), currentSong.getPath(), currentSong.getPath(), true, false);
                 //Update the playlist covers
-                PlaylistFragment playlistFragment;
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
                     playlistFragment.update();
                 }
+                break;
+            case POPUP_COVER_SELECTIVE_CLEAN:
+                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getArtist(), currentSong.getAlbum());
+                oCoverAsyncHelper.downloadCover(currentSong.getArtist(), currentSong.getAlbum(), currentSong.getPath(), currentSong.getPath(), true, false);
+                //Update the playlist covers
+                playlistFragment = getPlaylistFragment();
+                if (playlistFragment != null) {
+                    playlistFragment.update();
+                }
+                break;
             default:
                 return false;
         }
