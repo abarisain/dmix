@@ -210,6 +210,7 @@
 	<string name="goToFolder">폴더로 가기</string>
 	<string name="goToStream">스트림으로 가기</string>
     <string name="goToCurrent">현재 곡으로 이동</string>
+    <string name="otherCover">기타 사진</string>
 
     <string name="actionSongSelected">한 곡이 선택됨</string>
 	<string name="actionSongsSelected">%s 곡이 선택됨</string>

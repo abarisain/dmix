@@ -75,7 +75,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 				oldAcd.detach();
 			holder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
 			coverHelper.addCoverDownloadListener(acd);
-            holder.cover.setTag(CoverManager.getCoverArtTag(artist, album));
+            holder.cover.setTag(CoverManager.getAlbumKey(artist, album));
             loadArtwork(coverHelper, artist, album);
 		}
 	}

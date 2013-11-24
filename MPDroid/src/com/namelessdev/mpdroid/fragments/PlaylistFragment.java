@@ -226,7 +226,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     }
 
-    protected void update() {
+    public void update() {
         update(true);
     }
 
@@ -633,7 +633,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             String filename = (String) item.get("_filename");
 
 
-            String viewTag = CoverManager.getPlaylistCoverTag(artist, album, title);
+            String viewTag = CoverManager.getPlaylistItemKey(artist, album, title);
             if (view.getTag() == null || !view.getTag().equals(viewTag)) {
                 view.setTag(viewTag);
                 view.findViewById(R.id.icon).setVisibility(filter == null ? View.VISIBLE : View.GONE);
@@ -658,7 +658,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
                 albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 coverHelper.addCoverDownloadListener(acd);
-                albumCover.setTag(CoverManager.getCoverArtTag(artist, album));
+                albumCover.setTag(CoverManager.getAlbumKey(artist, album));
                 coverHelper.downloadCover(artist, album, path, filename, false, cacheOnly);
             }
             return view;

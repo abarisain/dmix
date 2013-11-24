@@ -270,7 +270,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 					coverArtListener.onCoverNotFound(new CoverInfo(artist,album));
 				} else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
 					coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    coverArt.setTag(CoverManager.getCoverArtTag(artist, album));
+                    coverArt.setTag(CoverManager.getAlbumKey(artist, album));
                     coverHelper.downloadCover(artist, album, actSong.getPath(), actSong.getFilename());
 					lastArtist = artist;
 					lastAlbum = album;

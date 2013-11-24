@@ -203,6 +203,7 @@
     <string name="goToFolder">Перейти до теки</string>
     <string name="goToStream">Перейти до потоків</string>
     <string name="goToCurrent">До поточної пісні</string>
+    <string name="otherCover">інша картина</string>
 
     <string name="actionSongSelected">Обрано 1 пісню</string>
     <string name="actionSongsSelected">Пісень обрано: %s</string>

@@ -44,7 +44,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
             return;
         try {
 
-            if (coverArt.getTag() == null || coverArt.getTag().equals(CoverManager.getCoverArtTag(cover.getArtist() , cover.getAlbum()))) {
+            if (coverArt.getTag() == null || coverArt.getTag().equals(CoverManager.getAlbumKey(cover.getArtist(), cover.getAlbum()))) {
                 if (coverArtProgress != null) {
                     coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
                 }
@@ -62,11 +62,11 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         if (cover == null || coverArt == null)
             return;
 
-        if (coverArt.getTag() == null || coverArt.getTag().equals(CoverManager.getCoverArtTag(cover.getArtist() , cover.getAlbum()))) {
+        if (coverArt.getTag() == null || coverArt.getTag().equals(CoverManager.getAlbumKey(cover.getArtist(), cover.getAlbum()))) {
 
             cover.setBitmap(null);
 
-            if (coverArt.getTag() == null || coverArt.getTag().equals(CoverManager.getCoverArtTag(cover.getArtist() , cover.getAlbum()))) {
+            if (coverArt.getTag() == null || coverArt.getTag().equals(CoverManager.getAlbumKey(cover.getArtist(), cover.getAlbum()))) {
                 if (coverArtProgress != null)
                     coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
                 if (coverArt != null) {

@@ -47,6 +47,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private static final int POPUP_STREAM = 3;
     private static final int POPUP_SHARE = 4;
     private static final int POPUP_CURRENT = 5;
+    private static final int POPUP_COVER_BLACKLIST = 6;
 
     private TextView artistNameText;
     private TextView songNameText;
@@ -223,6 +224,17 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             @Override
             public void onClick(View view) {
                 scrollToNowPlaying();
+            }
+        });
+
+        final PopupMenu coverMenu = new PopupMenu(activity, coverArt);
+        coverMenu.getMenu().add(Menu.NONE, POPUP_COVER_BLACKLIST, Menu.NONE, R.string.otherCover);
+        coverMenu.setOnMenuItemClickListener(NowPlayingFragment.this);
+        coverArt.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                coverMenu.show();
+                return true;
             }
         });
 
@@ -633,7 +645,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    coverArt.setTag(CoverManager.getCoverArtTag(artist, album));
+                    coverArt.setTag(CoverManager.getAlbumKey(artist, album));
                     oCoverAsyncHelper.downloadCover(artist, album, path, filename, true, false);
                     lastArtist = artist;
                     lastAlbum = album;
@@ -888,6 +900,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 sendIntent.putExtra(Intent.EXTRA_TEXT, shareString);
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
+
+            case POPUP_COVER_BLACKLIST:
+                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getArtist(), currentSong.getAlbum());
+                oCoverAsyncHelper.downloadCover(currentSong.getArtist(), currentSong.getAlbum(), currentSong.getPath(), currentSong.getPath(), true, false);
+                //Update the playlist covers
+                PlaylistFragment playlistFragment;
+                playlistFragment = getPlaylistFragment();
+                if (playlistFragment != null) {
+                    playlistFragment.update();
+                }
             default:
                 return false;
         }
@@ -896,10 +918,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private void scrollToNowPlaying() {
         PlaylistFragment playlistFragment;
-        playlistFragment = (PlaylistFragment) activity.getSupportFragmentManager().findFragmentById(R.id.playlist_fragment);
+        playlistFragment = getPlaylistFragment();
         if (playlistFragment != null) {
             playlistFragment.scrollToNowPlaying();
         }
+    }
+
+    private PlaylistFragment getPlaylistFragment() {
+        PlaylistFragment playlistFragment;
+        playlistFragment = (PlaylistFragment) activity.getSupportFragmentManager().findFragmentById(R.id.playlist_fragment);
+        return playlistFragment;
     }
 
 }
