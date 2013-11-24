@@ -1,12 +1,5 @@
 package com.namelessdev.mpdroid;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -31,7 +24,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
@@ -40,6 +32,12 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener, ILibraryFragmentActivity,
 		ILibraryTabActivity, OnBackStackChangedListener {
@@ -551,7 +549,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	}
 
 	/** Swaps fragments in the main content view */
-	private void switchMode(DisplayMode newMode) {
+	public void switchMode(DisplayMode newMode) {
 		currentDisplayMode = newMode;
 		switch (currentDisplayMode)
 		{
@@ -565,11 +563,20 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 				libraryRootFrame.setVisibility(View.GONE);
 				break;
 			case MODE_QUEUE:
+                if (isDualPaneMode) {
+                    nowPlayingDualPane.setVisibility(View.VISIBLE);
+                } else {
+                    nowPlayingFragment.setVisibility(View.GONE);
+                    playlistFragment.setVisibility(View.VISIBLE);
+                    libraryRootFrame.setVisibility(View.GONE);
+                }
 				// No need to check for dual panel mode since the menu item won't even appear
-				nowPlayingFragment.setVisibility(View.GONE);
+				/**
+                nowPlayingFragment.setVisibility(View.GONE);
 				playlistFragment.setVisibility(View.VISIBLE);
 				libraryRootFrame.setVisibility(View.GONE);
-				break;
+				 **/
+                 break;
 			case MODE_LIBRARY:
 				if (isDualPaneMode) {
 					nowPlayingDualPane.setVisibility(View.GONE);
