@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -455,6 +456,11 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             @Override
             protected void onPostExecute(Integer songIndex) {
                 if (songIndex != null) {
+                    FragmentManager fm = getFragmentManager();
+                    fm.findFragmentById(R.id.nowplaying_fragment).getView().setVisibility(View.GONE);
+                    fm.findFragmentById(R.id.playlist_fragment).getView().setVisibility(View.VISIBLE);
+                    fm.findFragmentById(R.id.library_root_frame).getView().setVisibility(View.GONE);
+
                     getListView().requestFocusFromTouch();
                     getListView().setSelection(songIndex);
                     getListView().clearFocus();
