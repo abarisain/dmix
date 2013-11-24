@@ -369,7 +369,7 @@ public class CoverManager {
                                     if (wrongUrlsForCover == null || !wrongUrlsForCover.contains(coverUrls[0])) {
 
                                         if (DEBUG)
-                                        d(CoverManager.class.getSimpleName(), "Cover found for  " + coverInfo.getAlbum() + " with " + coverRetriever.getName() + " : " + coverUrls[0]);
+                                            d(CoverManager.class.getSimpleName(), "Cover found for  " + coverInfo.getAlbum() + " with " + coverRetriever.getName() + " : " + coverUrls[0]);
                                         coverBytes = getCoverBytes(coverUrls, coverInfo);
                                         if (coverBytes != null && coverBytes.length > 0) {
                                             if (!coverRetriever.isCoverLocal()) {
@@ -386,9 +386,9 @@ public class CoverManager {
 
                                     } else {
                                         if (DEBUG) {
-                                        Log.d(CoverManager.class.getSimpleName(), "Blacklisted cover url found for " + coverInfo.getAlbum() + " : " + coverUrls[0]);
+                                            Log.d(CoverManager.class.getSimpleName(), "Blacklisted cover url found for " + coverInfo.getAlbum() + " : " + coverUrls[0]);
                                         }
-                                     }
+                                    }
                                 }
 
                             }
@@ -622,10 +622,6 @@ public class CoverManager {
 
     }
 
-    public static String getAlbumKey(String album) {
-        return Tools.getHashFromString(album);
-    }
-
     public static String getAlbumKey(String artist, String album) {
         String albumKey;
         if (artist != null) {
@@ -665,7 +661,7 @@ public class CoverManager {
         String albumCoverKey;
         String wrongUrl;
         if (DEBUG)
-        Log.d(CoverManager.class.getSimpleName(), "Blacklisting cover for " + artist + ", " + album);
+            Log.d(CoverManager.class.getSimpleName(), "Blacklisting cover for " + artist + ", " + album);
 
 
         if (artist == null || album == null) {
@@ -786,5 +782,18 @@ public class CoverManager {
             cachedCover.clear();
         }
         initializeCoverData();
+    }
+
+    public void clear(String artist, String album) {
+
+        String albumKey = getAlbumKey(artist, album);
+        CachedCover cachedCover = getCacheRetriever();
+        if (cachedCover != null) {
+            cachedCover.delete(artist, album);
+        }
+        coverUrlMap.remove(albumKey);
+        wrongCoverUrlMap.remove(albumKey);
+        saveCovers();
+        saveWrongCovers();
     }
 }

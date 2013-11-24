@@ -198,7 +198,12 @@
     <string name="goToFolder">Gehe zum Verzeichnis</string>
     <string name="goToStream">Gehe zu Streams</string>
     <string name="goToCurrent">Gehe zum aktuellen Song</string>
+<<<<<<< HEAD
     <string name="otherCover">Anderes Cover</string>
+=======
+    <string name="otherCover">Andere Bild</string>
+    <string name="resetCover">Bild zurücksetzen</string>
+>>>>>>> Add an entry in the cover popup menu to reset image data for the current album (reset black list ...)
 
     <string name="actionSongSelected">1 Titel ausgewählt</string>
     <string name="actionSongsSelected">%s Titel ausgewählt</string>
