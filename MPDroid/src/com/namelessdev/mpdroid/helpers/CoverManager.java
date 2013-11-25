@@ -366,7 +366,7 @@ public class CoverManager {
                                     String albumKey = getAlbumKey(coverInfo.getArtist(), coverInfo.getAlbum());
                                     List<String> wrongUrlsForCover = wrongCoverUrlMap.get(albumKey);
 
-                                    if (wrongUrlsForCover == null || !wrongUrlsForCover.contains(coverUrls[0])) {
+                                    if (wrongUrlsForCover == null || !isBlacklistedCoverUrl(coverUrls[0], albumKey)) {
 
                                         if (DEBUG)
                                             d(CoverManager.class.getSimpleName(), "Cover found for  " + coverInfo.getAlbum() + " with " + coverRetriever.getName() + " : " + coverUrls[0]);
@@ -411,6 +411,20 @@ public class CoverManager {
         }
 
 
+    }
+
+    //The gracenote URLs change at every request. We match for this provider on the URL prefix only.
+    private boolean isBlacklistedCoverUrl(String url, String albumKey) {
+        if (!url.contains(GracenoteCover.URL_PREFIX)) {
+            return wrongCoverUrlMap.get(albumKey).contains(url);
+        } else {
+            for (String wrongUrl : wrongCoverUrlMap.get(albumKey)) {
+                if (wrongUrl.contains(GracenoteCover.URL_PREFIX)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
 
