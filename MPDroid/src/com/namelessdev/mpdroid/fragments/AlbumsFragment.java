@@ -29,6 +29,10 @@ public class AlbumsFragment extends BrowseFragment {
     private static final int POPUP_COVER_BLACKLIST = 5;
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
+    public AlbumsFragment() {
+        this(null);
+    }
+
     public AlbumsFragment(Artist artist) {
         super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
         isCountPossiblyDisplayed = true;
@@ -123,10 +127,12 @@ public class AlbumsFragment extends BrowseFragment {
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).markWrongCover(artistName, album);
                 refreshCover(info.targetView, artistName, album);
+                updateNowPlayingSmallFragment(artistName, album);
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).clear(artistName, album);
                 refreshCover(info.targetView, artistName, album);
+                updateNowPlayingSmallFragment(artistName, album);
                 break;
             default:
                 return super.onMenuItemClick(item);
@@ -143,5 +149,15 @@ public class AlbumsFragment extends BrowseFragment {
             }
         }
 
+    }
+
+    private void updateNowPlayingSmallFragment(String artist, String album) {
+        NowPlayingSmallFragment nowPlayingSmallFragment;
+        if (getActivity() != null) {
+            nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
+            if (nowPlayingSmallFragment != null) {
+                nowPlayingSmallFragment.updateCover(artist, album);
+            }
+        }
     }
 }

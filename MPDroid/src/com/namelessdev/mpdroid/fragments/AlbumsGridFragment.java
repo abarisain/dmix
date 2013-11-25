@@ -18,6 +18,10 @@ public class AlbumsGridFragment extends AlbumsFragment {
 		isCountPossiblyDisplayed = false;
 	}
 
+    public AlbumsGridFragment() {
+        this(null);
+    }
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.browsegrid, container, false);

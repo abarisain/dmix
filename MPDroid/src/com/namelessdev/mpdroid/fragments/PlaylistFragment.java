@@ -679,7 +679,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
         for (int i = 0; i < list.getChildCount(); i++) {
             ImageView albumCover = (ImageView) list.getChildAt(i).findViewById(R.id.cover);
-            if (albumCover.getTag().equals(albumKey)) {
+            if (null != albumCover.getTag() && albumCover.getTag().equals(albumKey)) {
                 refreshCover(albumCover, artist, album);
             }
         }
