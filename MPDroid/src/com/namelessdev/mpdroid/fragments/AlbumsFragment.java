@@ -9,10 +9,12 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
+import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
@@ -52,10 +54,10 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public String getTitle() {
         if (artist != null) {
-        return artist.getName();
+            return artist.getName();
         } else {
             return getString(R.string.albums);
-    }
+        }
     }
 
     @Override
@@ -120,16 +122,26 @@ public class AlbumsFragment extends BrowseFragment {
         switch (item.getGroupId()) {
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).markWrongCover(artistName, album);
-                UpdateList();
+                refreshCover(info.targetView, artistName, album);
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).clear(artistName, album);
-                UpdateList();
+                refreshCover(info.targetView, artistName, album);
                 break;
             default:
                 return super.onMenuItemClick(item);
         }
-
         return false;
+    }
+
+    private void refreshCover(View view, String artist, String album) {
+        if (view.getTag() instanceof AlbumViewHolder) {
+            AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
+            if (albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
+                CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper);
+                coverAsyncHelper.downloadCover(artist, album, null, null, true, false);
+            }
+        }
+
     }
 }
