@@ -7,14 +7,14 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
+import org.a0z.mpd.Artist;
 
 public class AlbumsGridFragment extends AlbumsFragment {
-	public AlbumsGridFragment() {
-		super();
+	public AlbumsGridFragment(Artist artist) {
+		super(artist);
 		isCountPossiblyDisplayed = false;
 	}
 
@@ -36,7 +36,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
 	protected ListAdapter getCustomListAdapter() {
 		if(items != null) {
 			return new ArrayIndexerAdapter(getActivity(),
-					new AlbumGridDataBinder(app, app.isLightThemeSelected()), items);
+                    new AlbumGridDataBinder(app, artist == null ? null : artist.getName(), app.isLightThemeSelected()), items);
 		}
 		return super.getCustomListAdapter();
 	}

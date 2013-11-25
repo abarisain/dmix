@@ -27,16 +27,15 @@ public class AlbumsFragment extends BrowseFragment {
     private static final int POPUP_COVER_BLACKLIST = 5;
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
-    public AlbumsFragment() {
+    public AlbumsFragment(Artist artist) {
         super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
         isCountPossiblyDisplayed = true;
+        this.artist = artist;
     }
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        if (icicle != null)
-            init((Artist) icicle.getParcelable(EXTRA_ARTIST));
     }
 
     @Override
@@ -50,18 +49,13 @@ public class AlbumsFragment extends BrowseFragment {
         super.onSaveInstanceState(outState);
     }
 
-    public AlbumsFragment init(Artist a) {
-        artist = a;
-        return this;
-    }
-
     @Override
     public String getTitle() {
         if (artist != null) {
-            return artist.getName();
+        return artist.getName();
         } else {
             return getString(R.string.albums);
-        }
+    }
     }
 
     @Override
