@@ -663,6 +663,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 }
 
                 albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+                albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
                 coverHelper.addCoverDownloadListener(acd);
                 albumCover.setTag(CoverManager.getAlbumKey(artist, album));
                 coverHelper.downloadCover(artist, album, path, filename, false, cacheOnly);
@@ -670,6 +671,25 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             return view;
         }
 
+    }
+
+    public void updateCover(String artist, String album) {
+
+        String albumKey = CoverManager.getAlbumKey(artist, album);
+
+        for (int i = 0; i < list.getChildCount(); i++) {
+            ImageView albumCover = (ImageView) list.getChildAt(i).findViewById(R.id.cover);
+            if (albumCover.getTag().equals(albumKey)) {
+                refreshCover(albumCover, artist, album);
+            }
+        }
+    }
+
+    private void refreshCover(View albumCover, String artist, String album) {
+        if (albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
+            CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumCover.getTag(R.id.CoverAsyncHelper);
+            coverAsyncHelper.downloadCover(artist, album, null, null, true, false);
+        }
     }
 
 }
