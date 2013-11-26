@@ -249,6 +249,11 @@ public class CoverManager {
                     }
 
 
+                    if (requests.isEmpty()) {
+                        saveCovers();
+                        saveWrongCovers();
+                    }
+
                 } catch (Exception e) {
                     e(CoverManager.class.getSimpleName(), "Cover request processing failure : " + e);
                 }
@@ -374,7 +379,6 @@ public class CoverManager {
                                         if (coverBytes != null && coverBytes.length > 0) {
                                             if (!coverRetriever.isCoverLocal()) {
                                                 coverUrlMap.put(albumKey, coverUrls[0]);
-                                                saveCovers();
                                             }
                                             coverInfo.setCoverBytes(coverBytes);
                                             requests.addLast(coverInfo);
@@ -692,14 +696,12 @@ public class CoverManager {
                 Log.d(CoverManager.class.getSimpleName(), "Cover URL to be blacklisted  " + wrongUrl);
 
             wrongCoverUrlMap.put(albumCoverKey, wrongUrl);
-            saveWrongCovers();
 
             cacheCoverRetriever = getCacheRetriever();
             if (cacheCoverRetriever != null) {
                 if (DEBUG)
                     Log.d(CoverManager.class.getSimpleName(), "Removing blacklisted cover from cache : ");
                 coverUrlMap.remove(albumCoverKey);
-                saveCovers();
                 cacheCoverRetriever.delete(artist, album);
             }
         } else {
@@ -807,7 +809,5 @@ public class CoverManager {
         }
         coverUrlMap.remove(albumKey);
         wrongCoverUrlMap.remove(albumKey);
-        saveCovers();
-        saveWrongCovers();
     }
 }
