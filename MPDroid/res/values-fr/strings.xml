@@ -115,8 +115,9 @@
 	<string name="playNext">Jouer après</string>
 	<string name="moveFirst">Déplacer en première position</string>
 	<string name="moveLast">Déplacer en dernière position</string>
-	<string name="removeFromPlaylist">Supprimer de la playlist</string>
-	<string name="manage">Gérer</string>
+	<string name="removeFromPlaylist">Supprimer de la liste</string>
+    <string name="removeAlbumFromPlaylist">Supprimer l\'album de la liste</string>
+    <string name="manage">Gérer</string>
 	<string name="save">Sauvegarder</string>
 	<string name="clear">Vider</string>
 	<string name="streamError">Erreur de streaming, flux illisible</string>

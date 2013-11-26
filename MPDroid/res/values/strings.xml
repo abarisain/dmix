@@ -124,6 +124,7 @@
 	<string name="moveFirst">Move to first</string>
 	<string name="moveLast">Move to last</string>
 	<string name="removeFromPlaylist">Remove from playlist</string>
+	<string name="removeAlbumFromPlaylist">Remove album from playlist</string>
 	<string name="manage">Manage</string>
 	<string name="save">Save</string>
 	<string name="sc_LibTab">L</string>
@@ -192,7 +193,7 @@
 	<string name="libraryTabsSettingsDescription">Select which tabs are visible and how they are ordered</string>
 	<string name="visibleTabs">Visible Tabs</string>
 	<string name="hiddenTabs">Hidden Tabs</string>
-	
+
 	<string name="coverArtTitle">Cover art settings</string>
 	<string name="coverArtDescription">Change how cover art is downloaded and stored</string>
 	<string name="enableLocalCoverCache">Cache cover art</string>
@@ -204,7 +205,7 @@
 	<string name="enableAlbumArtLibrary">Album cover art listing in library</string>
 	<string name="enableAlbumArtLibraryDescription">Use large cover art tiles for the albums listing in the library. This feature is experimental! You may experience lag and/or crashes. (Requires cache cover art)</string>
     <string name="albumGridWifiUnavailable">Wi-Fi unavailable, so no new artwork will be retrieved</string>
-    
+
     <string name="goToAlbum">Go to album</string>
     <string name="goToArtist">Go to artist</string>
     <string name="goToFolder">Go to folder</string>

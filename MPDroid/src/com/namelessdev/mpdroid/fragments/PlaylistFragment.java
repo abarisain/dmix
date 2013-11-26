@@ -51,6 +51,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private Integer popupSongID;
     private DragSortController controller;
     private FragmentActivity activity;
+    private static final boolean DEBUG = false;
 
     private int lastPlayingID = -1;
 
@@ -602,6 +603,19 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             case R.id.PLCX_removeFromPlaylist:
                 try {
                     app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(popupSongID);
+                    if (isAdded()) {
+                        Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), activity);
+                    }
+                } catch (MPDServerException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                return true;
+            case R.id.PLCX_removeAlbumFromPlaylist:
+                try {
+                    if (DEBUG)
+                        Log.d(PlaylistFragment.class.getSimpleName(), "Remove Album " + popupSongID);
+                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeAlbumById(popupSongID);
                     if (isAdded()) {
                         Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), activity);
                     }
