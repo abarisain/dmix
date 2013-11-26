@@ -333,8 +333,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
             // Have artist & album, remove matching:
             int num=0;
-            for (Music song : songs)
-                if (song.getAlbum().equals(album)) {
+            for (Music song : songs){
+                if (song.getAlbum() != null && song.getAlbum().equals(album)) {
                     if (usingAlbumArtist && song.getAlbumArtist().equals(artist) ||
                         !usingAlbumArtist && song.getArtist().equals(artist)) {
                         int id = song.getSongId();
@@ -342,6 +342,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                         list.removeById(id);
                         num++;
                     }
+                }
                 }
         if (DEBUG)
             Log.d("MPD", "Removed "+num + " songs");
