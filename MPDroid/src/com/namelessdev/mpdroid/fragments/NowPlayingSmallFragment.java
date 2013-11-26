@@ -24,6 +24,7 @@ import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -271,7 +272,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
                     coverArt.setTag(CoverManager.getAlbumKey(artist, album));
-                    coverHelper.downloadCover(artist, album, actSong.getPath(), actSong.getFilename());
+                    coverHelper.downloadCover(actSong);
                     lastArtist = artist;
                     lastAlbum = album;
                 }
@@ -306,10 +307,12 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     public void libraryStateChanged(boolean updating) {
     }
 
-    public void updateCover(String artist, String album) {
-        String albumkey = CoverManager.getAlbumKey(artist, album);
-        if (null != coverArt.getTag() && coverArt.getTag().equals(albumkey)) {
-            coverHelper.downloadCover(artist, album, null, null);
+    public void updateCover(Music song) {
+	String artist = song.getAlbumArtist();
+	if (isNullOrEmpty(artist)) artist = song.getArtist();
+        String albumKey = CoverManager.getAlbumKey(artist, song.getAlbum());
+        if (null != coverArt.getTag() && coverArt.getTag().equals(albumKey)) {
+            coverHelper.downloadCover(song);
         }
     }
 

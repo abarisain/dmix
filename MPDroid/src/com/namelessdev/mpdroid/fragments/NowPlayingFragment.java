@@ -648,7 +648,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     coverArt.setImageResource(noCoverDrawable);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
                     coverArt.setTag(CoverManager.getAlbumKey(artist, album));
-                    oCoverAsyncHelper.downloadCover(artist, album, path, filename, true, false);
+                    oCoverAsyncHelper.downloadCover(actSong, true, false);
                     lastArtist = artist;
                     lastAlbum = album;
                 }
@@ -908,20 +908,20 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getArtist(), currentSong.getAlbum());
-                oCoverAsyncHelper.downloadCover(currentSong.getArtist(), currentSong.getAlbum(), currentSong.getPath(), currentSong.getPath(), true, false);
+                oCoverAsyncHelper.downloadCover(currentSong, true, false);
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
-                    playlistFragment.updateCover(currentSong.getArtist(), currentSong.getAlbum());
+                    playlistFragment.updateCover(currentSong);
                 }
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getArtist(), currentSong.getAlbum());
-                oCoverAsyncHelper.downloadCover(currentSong.getArtist(), currentSong.getAlbum(), currentSong.getPath(), currentSong.getPath(), true, false);
+                oCoverAsyncHelper.downloadCover(currentSong, true, false);
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
-                    playlistFragment.updateCover(currentSong.getArtist(), currentSong.getAlbum());
+                    playlistFragment.updateCover(currentSong);
                 }
                 break;
             default:
