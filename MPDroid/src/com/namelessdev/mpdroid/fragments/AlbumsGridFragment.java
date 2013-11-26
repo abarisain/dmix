@@ -32,7 +32,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
 		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
 		noResultView = view.findViewById(R.id.noResultLayout);
 		loadingTextView.setText(getLoadingText());
-		
+
 		return view;
 	}
 
