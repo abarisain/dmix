@@ -19,8 +19,8 @@ import java.util.List;
 public class AlbumGridDataBinder extends AlbumDataBinder {
     SharedPreferences settings;
 
-    public AlbumGridDataBinder(MPDApplication app, boolean isLightTheme) {
-        super(app, null, isLightTheme);
+    public AlbumGridDataBinder(MPDApplication app, String artist, boolean isLightTheme) {
+        super(app, artist, isLightTheme);
         settings = PreferenceManager.getDefaultSharedPreferences(app);
     }
 
@@ -45,6 +45,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         if (oldAcd != null)
             oldAcd.detach();
         holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+        holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
         coverHelper.addCoverDownloadListener(acd);
 
         loadPlaceholder(coverHelper);

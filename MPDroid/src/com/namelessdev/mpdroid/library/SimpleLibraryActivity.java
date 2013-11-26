@@ -1,9 +1,5 @@
 package com.namelessdev.mpdroid.library;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,18 +8,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.MenuItem;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.fragments.AlbumsFragment;
-import com.namelessdev.mpdroid.fragments.AlbumsGridFragment;
-import com.namelessdev.mpdroid.fragments.BrowseFragment;
-import com.namelessdev.mpdroid.fragments.FSFragment;
-import com.namelessdev.mpdroid.fragments.LibraryFragment;
-import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
-import com.namelessdev.mpdroid.fragments.SongsFragment;
-import com.namelessdev.mpdroid.fragments.StreamsFragment;
+import com.namelessdev.mpdroid.fragments.*;
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.exception.MPDServerException;
 
 public class SimpleLibraryActivity extends MPDroidFragmentActivity implements ILibraryFragmentActivity {
 
@@ -53,11 +44,11 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 					AlbumsFragment af;
 					final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplication());
 					if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, false)) {
-						af = new AlbumsGridFragment();
+						af = new AlbumsGridFragment((Artist) targetElement);
 					} else {
-						af = new AlbumsFragment();
+						af = new AlbumsFragment((Artist) targetElement);
 					}
-					rootFragment = af.init((Artist) targetElement);
+					rootFragment = af;
 				} else if (targetElement instanceof Album) {
 					rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST), (Album) targetElement);
 				} else if (targetElement instanceof String) {

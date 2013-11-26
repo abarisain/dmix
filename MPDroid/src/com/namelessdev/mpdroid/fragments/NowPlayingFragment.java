@@ -912,7 +912,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
-                    playlistFragment.update();
+                    playlistFragment.updateCover(currentSong.getArtist(), currentSong.getAlbum());
                 }
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
@@ -921,7 +921,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
-                    playlistFragment.update();
+                    playlistFragment.updateCover(currentSong.getArtist(), currentSong.getAlbum());
                 }
                 break;
             default:

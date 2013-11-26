@@ -11,7 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
@@ -83,9 +82,9 @@ public class LibraryFragment extends Fragment {
 				// display either normal album listing, or album artwork grid
 				final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(((Activity) activity).getApplication());
 				if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, false)) {
-					fragment = new AlbumsGridFragment().init(null);
+					fragment = new AlbumsGridFragment(null);
 				}else{
-					fragment = new AlbumsFragment().init(null);
+					fragment = new AlbumsFragment(null);
 				}
 			} else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS)) {
 				fragment = new PlaylistsFragment();

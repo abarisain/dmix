@@ -14,6 +14,7 @@ public class GracenoteCover extends AbstractWebCover {
     private static final String API_URL = "https://" + CLIENT_ID + ".web.cddbp.net/webapi/xml/1.0/";
     private SharedPreferences sharedPreferences;
     private String userId;
+    public static final String URL_PREFIX = "web.content.cddbp.net";
 
     public GracenoteCover(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
