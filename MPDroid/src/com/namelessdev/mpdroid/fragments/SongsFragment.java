@@ -22,6 +22,8 @@ public class SongsFragment extends BrowseFragment {
 
 	private static final String EXTRA_ARTIST = "artist";
 	private static final String EXTRA_ALBUM = "album";
+    private static final int POPUP_COVER_BLACKLIST = 5;
+    private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
 	Album album = null;
 	Artist artist = null;
@@ -35,8 +37,9 @@ public class SongsFragment extends BrowseFragment {
 	CoverAsyncHelper coverHelper;
 	ImageButton albumMenu;
 	PopupMenu popupMenu;
+    private PopupMenu coverPopupMenu;
 
-	public SongsFragment() {
+    public SongsFragment() {
 		super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
 	}
 
@@ -81,7 +84,7 @@ public class SongsFragment extends BrowseFragment {
 		return R.string.loadingSongs;
 	}
 
-	@Override
+        @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(R.layout.songs, container, false);
 		list = (ListView) view.findViewById(R.id.list);
@@ -171,7 +174,38 @@ public class SongsFragment extends BrowseFragment {
 			}
 		});
 
-		return view;
+        coverPopupMenu = new PopupMenu(getActivity(), coverArt);
+        coverPopupMenu.getMenu().add(POPUP_COVER_BLACKLIST, POPUP_COVER_BLACKLIST, 0, R.string.otherCover);
+        coverPopupMenu.getMenu().add(POPUP_COVER_SELECTIVE_CLEAN, POPUP_COVER_SELECTIVE_CLEAN, 0, R.string.resetCover);
+        coverPopupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getGroupId()) {
+                    case POPUP_COVER_BLACKLIST:
+                        CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).markWrongCover(artist.getName(), album.getName());
+                        updateCover(artist.getName(), album.getName());
+                        updateNowPlayingSmallFragment(artist.getName(), album.getName());
+                        break;
+                    case POPUP_COVER_SELECTIVE_CLEAN:
+                        CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).clear(artist.getName(), album.getName());
+                        updateCover(artist.getName(), album.getName());
+                        updateNowPlayingSmallFragment(artist.getName(), album.getName());
+                        break;
+                }
+                return true;
+            }
+        });
+
+        coverArt.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                coverPopupMenu.show();
+                return false;
+            }
+        });
+
+        return view;
 	}
 
 	@Override
@@ -348,5 +382,22 @@ public class SongsFragment extends BrowseFragment {
 	protected boolean forceEmptyView() {
 		return true;
 	}
+
+    public void updateCover(String artist, String album) {
+        String albumKey = CoverManager.getAlbumKey(artist, album);
+        if (coverArt != null && null != coverArt.getTag() && coverArt.getTag().equals(albumKey)) {
+            coverHelper.downloadCover(null, artist, album, null, null);
+        }
+    }
+
+    private void updateNowPlayingSmallFragment(String artist, String album) {
+        NowPlayingSmallFragment nowPlayingSmallFragment;
+        if (getActivity() != null) {
+            nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
+            if (nowPlayingSmallFragment != null) {
+                nowPlayingSmallFragment.updateCover(artist, album);
+            }
+        }
+    }
 
 }
