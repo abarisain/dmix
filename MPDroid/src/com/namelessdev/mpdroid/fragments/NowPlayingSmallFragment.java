@@ -308,10 +308,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     public void updateCover(String artist, String album) {
-	// String artist = song.getAlbumArtist();
-	// if (isNullOrEmpty(artist)) artist = song.getArtist();
         String albumKey = CoverManager.getAlbumKey(artist, album);
-        if (null != coverArt.getTag() && coverArt.getTag().equals(albumKey)) {
+        if (coverArt != null && null != coverArt.getTag() && coverArt.getTag().equals(albumKey)) {
             coverHelper.downloadCover(null, artist, album, null, null);
         }
     }
