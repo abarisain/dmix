@@ -69,14 +69,14 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 		if (artist != null && album != null && enableCache) {
 			// listen for new artwork to be loaded
 			final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.cover, lightTheme);
-			final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.cover
+                        final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.cover
 					.getTag(R.id.AlbumCoverDownloadListener);
 			if (oldAcd != null)
 				oldAcd.detach();
 			holder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
 			coverHelper.addCoverDownloadListener(acd);
-            holder.cover.setTag(CoverManager.getAlbumKey(artist, album));
-            loadArtwork(coverHelper, null, artist, album);
+			holder.cover.setTag(CoverManager.getAlbumKey(artist, album));
+			loadArtwork(coverHelper, null, artist, album);
 		}
 	}
 
