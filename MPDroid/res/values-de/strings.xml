@@ -173,6 +173,7 @@
     <string name="moveFirst">Zum Anfang springen</string>
     <string name="moveLast">Zum Ende springen</string>
     <string name="removeFromPlaylist">Von der Wiedergabeliste entfernen</string>
+    <string name="removeAlbumFromPlaylist">Album entfernen</string>
     <string name="removeCountSongs">%s Titel entfernt</string>
     <string name="manage">Verwalten</string>
     <string name="musicPath">Musikverzeichnis</string>

@@ -610,6 +610,18 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     e.printStackTrace();
                 }
                 return true;
+            case R.id.PLCX_removeAlbumFromPlaylist:
+                try {
+                    Log.d(PlaylistFragment.class.getSimpleName(), "Remove Album " + popupSongID);
+                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeAlbumById(popupSongID);
+                    if (isAdded()) {
+                        Tools.notifyUser(getResources().getString(R.string.deletedSongFromPlaylist), activity);
+                    }
+                } catch (MPDServerException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                return true;
             default:
                 return true;
         }
