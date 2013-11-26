@@ -31,12 +31,12 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 		final Music music = (Music) item;
 		String artist = music.getArtist();
 		String album = music.getAlbum();
-		
+
 		if (Tools.isStringEmptyOrNull(artist))
 			artist = null;
 		if (Tools.isStringEmptyOrNull(album))
 			album = null;
-		
+
 		String info = "";
 		if (artist != null || album != null) {
 			if(artist == null) {
@@ -47,7 +47,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 				info = artist + " - " + album;
 			}
 		}
-		
+
 		holder.name.setText(music.getTitle());
 		if (!Tools.isStringEmptyOrNull(info)) {
 			holder.info.setVisibility(View.VISIBLE);
@@ -64,7 +64,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 		coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
 
 		loadPlaceholder(coverHelper);
-		
+
 		// display cover art in album listing if caching is on
 		if (artist != null && album != null && enableCache) {
 			// listen for new artwork to be loaded
@@ -76,7 +76,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 			holder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
 			coverHelper.addCoverDownloadListener(acd);
             holder.cover.setTag(CoverManager.getAlbumKey(artist, album));
-            loadArtwork(coverHelper, artist, album);
+            loadArtwork(coverHelper, null, artist, album);
 		}
 	}
 

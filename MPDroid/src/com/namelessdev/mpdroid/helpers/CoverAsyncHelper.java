@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import com.namelessdev.mpdroid.MPDApplication;
+import org.a0z.mpd.*;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -77,12 +79,22 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         coverDownloadListener.remove(listener);
     }
 
-    public void downloadCover(String artist, String album, String path, String filename) {
-        downloadCover(artist, album, path, filename, false, false);
+    public void downloadCover(Music song) {
+	downloadCover(song, false, false);
+    }
+    public void downloadCover(Music song, boolean priority, boolean cacheOnly) {
+        downloadCover(song.getAlbumArtist(), song.getArtist(),
+		      song.getAlbum(), song.getPath(), song.getFilename(),
+		      priority, cacheOnly);
     }
 
-    public void downloadCover(String artist, String album, String path, String filename, boolean priority, boolean cacheOnly) {
+    public void downloadCover(String albumartist, String artist, String album, String path, String filename) {
+        downloadCover(albumartist, artist, album, path, filename, false, false);
+    }
+
+    public void downloadCover(String albumartist, String artist, String album, String path, String filename, boolean priority, boolean cacheOnly) {
         final CoverInfo info = new CoverInfo();
+	if (!isNullOrEmpty(albumartist)) artist = albumartist;
         info.setArtist(artist);
         info.setAlbum(album);
         info.setPath(path);

@@ -73,7 +73,7 @@ public class AlbumDataBinder extends BaseDataBinder {
             holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
             coverHelper.addCoverDownloadListener(acd);
             holder.albumCover.setTag(CoverManager.getAlbumKey(artist, album.getName()));
-            loadArtwork(coverHelper, artist, album.getName());
+            loadArtwork(coverHelper, null, artist, album.getName());
 		}
 	}
 

@@ -50,8 +50,8 @@ public abstract class BaseDataBinder implements ArrayIndexerDataBinder {
 		coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVERNOTFOUND).sendToTarget();
 	}
 
-	protected void loadArtwork(CoverAsyncHelper coverHelper, String artist, String album) {
-		coverHelper.downloadCover(artist, album, null, null);
+    protected void loadArtwork(CoverAsyncHelper coverHelper, String albumartist, String artist, String album) {
+		coverHelper.downloadCover(albumartist, artist, album, null, null);
 	}
 
 }

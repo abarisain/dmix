@@ -28,6 +28,7 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
@@ -272,6 +273,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 HashMap<String, Object> item = new HashMap<String, Object>();
                 item.put("songid", m.getSongId());
                 item.put("_artist", tmpArtist);
+                item.put("_albumartist", tmpAlbumArtist);
                 item.put("_album", tmpAlbum);
                 item.put("_path", m.getPath());
                 item.put("_filename", m.getFilename());
@@ -632,6 +634,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view = super.getView(position, convertView, parent);
             final Map<String, ?> item = (Map<String, ?>) getItem(position);
+            String albumartist = (String) item.get("_albumartist");
             String artist = (String) item.get("_artist");
             String album = (String) item.get("_album");
             String title = (String) item.get("title");
@@ -666,29 +669,30 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
                 coverHelper.addCoverDownloadListener(acd);
                 albumCover.setTag(CoverManager.getAlbumKey(artist, album));
-                coverHelper.downloadCover(artist, album, path, filename, false, cacheOnly);
+                coverHelper.downloadCover(albumartist, artist, album, path, filename, false, cacheOnly);
             }
             return view;
         }
 
     }
 
-    public void updateCover(String artist, String album) {
-
-        String albumKey = CoverManager.getAlbumKey(artist, album);
+    public void updateCover(Music song) {
+	String artist = song.getAlbumArtist();
+	if (isNullOrEmpty(artist)) artist = song.getArtist();
+        String albumKey = CoverManager.getAlbumKey(artist, song.getAlbum());
 
         for (int i = 0; i < list.getChildCount(); i++) {
             ImageView albumCover = (ImageView) list.getChildAt(i).findViewById(R.id.cover);
             if (null != albumCover.getTag() && albumCover.getTag().equals(albumKey)) {
-                refreshCover(albumCover, artist, album);
+                refreshCover(albumCover, song);
             }
         }
     }
 
-    private void refreshCover(View albumCover, String artist, String album) {
+    private void refreshCover(View albumCover, Music song) {
         if (albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
             CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumCover.getTag(R.id.CoverAsyncHelper);
-            coverAsyncHelper.downloadCover(artist, album, null, null, true, false);
+            coverAsyncHelper.downloadCover(song, true, false);
         }
     }
 
