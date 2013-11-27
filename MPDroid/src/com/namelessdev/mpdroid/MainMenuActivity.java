@@ -202,14 +202,16 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		}
 
         // Setup the pager
-        nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
-        nowPlayingPager.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        refreshActionBarTitle();
-                    }
-                });
+        if (nowPlayingPager != null) {
+            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
+            nowPlayingPager.setOnPageChangeListener(
+                    new ViewPager.SimpleOnPageChangeListener() {
+                        @Override
+                        public void onPageSelected(int position) {
+                            refreshActionBarTitle();
+                        }
+                    });
+        }
 	}
 
 	@Override
