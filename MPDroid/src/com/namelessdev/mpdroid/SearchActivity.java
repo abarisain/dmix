@@ -1,5 +1,13 @@
 package com.namelessdev.mpdroid;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
@@ -10,25 +18,23 @@ import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.*;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener, TabListener {
     public static final int MAIN = 0;
@@ -45,6 +51,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     private ArrayList<Music> arraySongsResults;
 
     protected int iJobID = -1;
+    private View listArtistsFrame = null;
+    private View listAlbumsFrame = null;
+    private View listSongsFrame = null;
     private ListView listArtists = null;
     private ListView listAlbums = null;
     private ListView listSongs = null;
@@ -108,17 +117,22 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 .setTabListener(this);
         actionBar.addTab(tabSongs);
 
-        listArtists = (ListView) findViewById(R.id.list_artists);
+        listArtistsFrame = findViewById(R.id.list_artists_frame);
+        noResultArtistsView = listArtistsFrame.findViewById(R.id.no_result);
+        listArtists = (ListView) listArtistsFrame.findViewById(android.R.id.list);
         listArtists.setOnItemClickListener(this);
-        listAlbums = (ListView) findViewById(R.id.list_albums);
+
+        listAlbumsFrame = findViewById(R.id.list_albums_frame);
+        noResultAlbumsView = listAlbumsFrame.findViewById(R.id.no_result);
+        listAlbums = (ListView) listAlbumsFrame.findViewById(android.R.id.list);
         listAlbums.setOnItemClickListener(this);
-        listSongs = (ListView) findViewById(R.id.list_songs);
+
+        listSongsFrame = findViewById(R.id.list_songs_frame);
+        noResultSongsView = listSongsFrame.findViewById(R.id.no_result);
+        listSongs = (ListView) listSongsFrame.findViewById(android.R.id.list);
         listSongs.setOnItemClickListener(this);
 
         loadingView = findViewById(R.id.loadingLayout);
-        noResultArtistsView = findViewById(R.id.noResultArtistsLayout);
-        noResultAlbumsView = findViewById(R.id.noResultAlbumsLayout);
-        noResultSongsView = findViewById(R.id.noResultSongsLayout);
         loadingView.setVisibility(View.VISIBLE);
 
         final Intent queryIntent = getIntent();
@@ -442,13 +456,13 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             int resId = 0;
             switch (position) {
                 case 0:
-                    resId = R.id.list_artists;
+                    resId = R.id.list_artists_frame;
                     break;
                 case 1:
-                    resId = R.id.list_albums;
+                    resId = R.id.list_albums_frame;
                     break;
                 case 2:
-                    resId = R.id.list_songs;
+                    resId = R.id.list_songs_frame;
                     break;
             }
             return findViewById(resId);

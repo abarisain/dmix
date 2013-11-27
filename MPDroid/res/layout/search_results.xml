@@ -1,31 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:layout_height="fill_parent" >
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
 
-        <ListView
-            android:id="@+id/list_artists"
+        <FrameLayout
+            android:id="@+id/list_artists_frame"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:fastScrollEnabled="true" />
+            android:layout_height="fill_parent" >
 
-        <ListView
-            android:id="@+id/list_albums"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:fastScrollEnabled="true" />
+            <ListView
+                android:id="@android:id/list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:fastScrollEnabled="true" />
 
-        <ListView
-            android:id="@+id/list_songs"
+            <TextView
+                android:id="@+id/no_result"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_result"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/list_albums_frame"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:fastScrollEnabled="true" />
+            android:layout_height="fill_parent" >
+
+            <ListView
+                android:id="@android:id/list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:fastScrollEnabled="true" />
+
+            <TextView
+                android:id="@+id/no_result"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_result"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/list_songs_frame"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <ListView
+                android:id="@android:id/list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:fastScrollEnabled="true" />
+
+            <TextView
+                android:id="@+id/no_result"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_result"
+                android:visibility="gone" />
+        </FrameLayout>
     </android.support.v4.view.ViewPager>
 
     <RelativeLayout
@@ -40,48 +82,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/noResultArtistsLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:visibility="gone" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/no_result" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/noResultAlbumsLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:visibility="gone" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/no_result" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/noResultSongsLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:visibility="gone" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/no_result" />
     </RelativeLayout>
 
 </FrameLayout>
