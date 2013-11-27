@@ -416,6 +416,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 listArtists.setEmptyView(noResultArtistsView);
                 loadingView.setVisibility(View.GONE);
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         if (arrayAlbumsResults != null) {
@@ -427,6 +428,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 listAlbums.setEmptyView(noResultAlbumsView);
                 loadingView.setVisibility(View.GONE);
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         if (arraySongsResults != null) {
@@ -438,6 +440,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 listSongs.setEmptyView(noResultSongsView);
                 loadingView.setVisibility(View.GONE);
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -453,19 +456,22 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         public Object instantiateItem(View collection, int position) {
 
-            int resId = 0;
+            View v;
             switch (position) {
+                default:
                 case 0:
-                    resId = R.id.list_artists_frame;
+                    v = listArtistsFrame;
                     break;
                 case 1:
-                    resId = R.id.list_albums_frame;
+                    v = listAlbumsFrame;
                     break;
                 case 2:
-                    resId = R.id.list_songs_frame;
+                    v = listSongsFrame;
                     break;
             }
-            return findViewById(resId);
+            if (v.getParent() == null)
+                pager.addView(v);
+            return v;
         }
 
         @Override
@@ -480,7 +486,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            return;
+            container.removeView((View) object);
         }
     }
 
