@@ -127,7 +127,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         list.requestFocus();
         list.setDropListener(onDrop);
         controller = new DragSortController(list);
-        controller.setDragHandleId(R.id.icon);
+        controller.setDragHandleId(R.id.cover);
         controller.setRemoveEnabled(false);
         controller.setSortEnabled(true);
         controller.setDragInitMode(1);
