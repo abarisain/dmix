@@ -534,7 +534,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 			switch (((DrawerItem) parent.getItemAtPosition(position)).action) {
 				default:
 				case ACTION_LIBRARY:
-					switchMode(DisplayMode.MODE_LIBRARY);
 					// If we are already on the library, pop the whole stack. Acts like an "up" button
 					if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
 						final int fmStackCount = fragmentManager.getBackStackEntryCount();
@@ -542,6 +541,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 							fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 						}
 					}
+                    switchMode(DisplayMode.MODE_LIBRARY);
 					break;
 				case ACTION_NOWPLAYING:
 					switchMode(DisplayMode.MODE_NOWPLAYING);
