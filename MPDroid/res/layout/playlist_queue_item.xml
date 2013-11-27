@@ -15,8 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:paddingLeft="8dip"
-        android:paddingRight="8dip"
+        android:paddingLeft="4dip"
         android:scaleType="center"
         android:src="?attr/listItemHandle" />
 
@@ -25,6 +24,7 @@
         android:layout_width="46dip"
         android:layout_height="46dip"
         android:layout_gravity="center"
+        android:layout_marginLeft="4dip"
         android:layout_marginRight="4dip"
         android:src="?attr/noCoverArtIcon" />
 
