@@ -328,24 +328,25 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                     album = song.getAlbum();
                     break;
                 }
-        if (DEBUG)
-            Log.d("MPD", "Remove album "+album + " of "+artist);
+            if (artist == null || album == null)
+                return;
+            if (DEBUG)
+                Log.d("MPD", "Remove album "+album + " of "+artist);
 
             // Have artist & album, remove matching:
             int num=0;
-            for (Music song : songs){
-                if (song.getAlbum() != null && song.getAlbum().equals(album)) {
-                    if (usingAlbumArtist && song.getAlbumArtist().equals(artist) ||
-                        !usingAlbumArtist && song.getArtist().equals(artist)) {
+            for (Music song : songs)
+                if (album.equals(song.getAlbum())) {
+                    if (usingAlbumArtist && artist.equals(song.getAlbumArtist()) ||
+                        !usingAlbumArtist && artist.equals(song.getArtist())) {
                         int id = song.getSongId();
                         this.mpd.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
                         list.removeById(id);
                         num++;
                     }
                 }
-                }
-        if (DEBUG)
-            Log.d("MPD", "Removed "+num + " songs");
+            if (DEBUG)
+                Log.d("MPD", "Removed "+num + " songs");
             this.mpd.getMpdConnection().sendCommandQueue();
 	}
 
