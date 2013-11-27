@@ -12,19 +12,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <fragment
-            android:id="@+id/nowplaying_fragment"
-            android:name="com.namelessdev.mpdroid.fragments.NowPlayingFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
 
-        <fragment
-            android:id="@+id/playlist_fragment"
-            android:name="com.namelessdev.mpdroid.fragments.PlaylistFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:layout="@layout/playlist_activity" />
+            <fragment
+                android:id="@+id/nowplaying_fragment"
+                android:name="com.namelessdev.mpdroid.fragments.NowPlayingFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <fragment
+                android:id="@+id/playlist_fragment"
+                android:name="com.namelessdev.mpdroid.fragments.PlaylistFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                tools:layout="@layout/playlist_activity" />
+        </android.support.v4.view.ViewPager>
 
         <FrameLayout
             android:id="@+id/library_root_frame"

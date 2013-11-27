@@ -1,5 +1,12 @@
 package com.namelessdev.mpdroid;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -16,14 +23,18 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
@@ -32,26 +43,19 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener, ILibraryFragmentActivity,
 		ILibraryTabActivity, OnBackStackChangedListener {
 
 	public static enum DisplayMode {
 		MODE_NOWPLAYING,
-		MODE_QUEUE,
+        MODE_QUEUE,
 		MODE_LIBRARY
 	}
 
 	public static class DrawerItem {
 		public static enum Action {
 			ACTION_NOWPLAYING,
-			ACTION_QUEUE,
 			ACTION_LIBRARY,
 			ACTION_OUTPUTS
 		}
@@ -88,10 +92,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	private Handler exitCounterReset;
 	private boolean isDualPaneMode;
 	private MPDApplication app;
-	private View nowPlayingFragment;
 	private View nowPlayingDualPane;
-	private View libraryRootFrame;
-	private View playlistFragment;
+    private ViewPager nowPlayingPager;
+    private View libraryRootFrame;
 
 	private List<DrawerItem> mDrawerItems;
 	private DrawerLayout mDrawerLayout;
@@ -114,10 +117,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
 		setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet : R.layout.main_activity_nagvigation);
 
-		nowPlayingFragment = findViewById(R.id.nowplaying_fragment);
 		nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
-		libraryRootFrame = findViewById(R.id.library_root_frame);
-		playlistFragment = findViewById(R.id.playlist_fragment);
+        nowPlayingPager = (ViewPager) findViewById(R.id.pager);
+        libraryRootFrame = findViewById(R.id.library_root_frame);
 
 		isDualPaneMode = (nowPlayingDualPane != null);
 		switchMode(DisplayMode.MODE_NOWPLAYING);
@@ -134,9 +136,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
 		mDrawerItems = new ArrayList<DrawerItem>();
 		mDrawerItems.add(new DrawerItem(getString(R.string.nowPlaying), DrawerItem.Action.ACTION_NOWPLAYING));
-		if (!isDualPaneMode) {
-			mDrawerItems.add(new DrawerItem(getString(R.string.playQueue), DrawerItem.Action.ACTION_QUEUE));
-		}
 		mDrawerItems.add(new DrawerItem(getString(R.string.libraryTabActivity), DrawerItem.Action.ACTION_LIBRARY));
 		mDrawerItems.add(new DrawerItem(getString(R.string.outputs), DrawerItem.Action.ACTION_OUTPUTS));
 
@@ -201,6 +200,16 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 			ft.replace(R.id.library_root_frame, libraryFragment, FRAGMENT_TAG_LIBRARY);
 			ft.commit();
 		}
+
+        // Setup the pager
+        nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
+        nowPlayingPager.setOnPageChangeListener(
+                new ViewPager.SimpleOnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        refreshActionBarTitle();
+                    }
+                });
 	}
 
 	@Override
@@ -493,13 +502,14 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		actionBar.setDisplayShowTitleEnabled(true);
 		switch (currentDisplayMode)
 		{
+            case MODE_QUEUE:
 			case MODE_NOWPLAYING:
-				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-				actionBar.setTitle(R.string.nowPlaying);
-				break;
-			case MODE_QUEUE:
-				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-				actionBar.setTitle(R.string.playQueue);
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+                if (nowPlayingPager != null && nowPlayingPager.getCurrentItem() > 0) {
+                    actionBar.setTitle(R.string.playQueue);
+                } else {
+                    actionBar.setTitle(R.string.nowPlaying);
+                }
 				break;
 			case MODE_LIBRARY:
 				final int fmStackCount = fragmentManager.getBackStackEntryCount();
@@ -534,9 +544,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 				case ACTION_NOWPLAYING:
 					switchMode(DisplayMode.MODE_NOWPLAYING);
 					break;
-				case ACTION_QUEUE:
-					switchMode(DisplayMode.MODE_QUEUE);
-					break;
 				case ACTION_OUTPUTS:
 					mDrawerList.setItemChecked(oldDrawerPosition, true);
 					final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
@@ -553,40 +560,63 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		currentDisplayMode = newMode;
 		switch (currentDisplayMode)
 		{
+            case MODE_QUEUE:
 			case MODE_NOWPLAYING:
 				if (isDualPaneMode) {
 					nowPlayingDualPane.setVisibility(View.VISIBLE);
 				} else {
-					nowPlayingFragment.setVisibility(View.VISIBLE);
-					playlistFragment.setVisibility(View.GONE);
+                    nowPlayingPager.setVisibility(View.VISIBLE);
+                    if (currentDisplayMode == DisplayMode.MODE_NOWPLAYING) {
+                        nowPlayingPager.setCurrentItem(0, true);
+                    } else {
+                        nowPlayingPager.setCurrentItem(1, true);
+                    }
 				}
 				libraryRootFrame.setVisibility(View.GONE);
+                // Force MODE_NOWPLAYING even if MODE_QUEUE was asked
+                currentDisplayMode = DisplayMode.MODE_NOWPLAYING;
 				break;
-			case MODE_QUEUE:
-                if (isDualPaneMode) {
-                    nowPlayingDualPane.setVisibility(View.VISIBLE);
-                } else {
-                    nowPlayingFragment.setVisibility(View.GONE);
-                    playlistFragment.setVisibility(View.VISIBLE);
-                    libraryRootFrame.setVisibility(View.GONE);
-                }
-				// No need to check for dual panel mode since the menu item won't even appear
-				/**
-                nowPlayingFragment.setVisibility(View.GONE);
-				playlistFragment.setVisibility(View.VISIBLE);
-				libraryRootFrame.setVisibility(View.GONE);
-				 **/
-                 break;
 			case MODE_LIBRARY:
 				if (isDualPaneMode) {
 					nowPlayingDualPane.setVisibility(View.GONE);
 				} else {
-					nowPlayingFragment.setVisibility(View.GONE);
-					playlistFragment.setVisibility(View.GONE);
+                    nowPlayingPager.setVisibility(View.GONE);
 				}
 				libraryRootFrame.setVisibility(View.VISIBLE);
 				break;
 		}
 		refreshActionBarTitle();
 	}
+
+    class MainMenuPagerAdapter extends PagerAdapter {
+
+        public Object instantiateItem(View collection, int position) {
+
+            int resId = 0;
+            switch (position) {
+                case 0:
+                    resId = R.id.nowplaying_fragment;
+                    break;
+                case 1:
+                    resId = R.id.playlist_fragment;
+                    break;
+            }
+            return findViewById(resId);
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public boolean isViewFromObject(View arg0, Object arg1) {
+            return arg0 == ((View) arg1);
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            return;
+        }
+    }
 }
