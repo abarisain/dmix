@@ -69,6 +69,8 @@
         android:layout_above="@+id/list_separator_layout"
         android:layout_alignParentRight="true"
         android:background="?android:attr/actionBarItemBackground"
+        android:paddingLeft="20dip"
+        android:paddingTop="20dip"
         android:src="?attr/menuButton" />
 
 </RelativeLayout>
