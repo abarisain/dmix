@@ -658,11 +658,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    if ("".equals(albumartist))
-                        coverArt.setTag(CoverManager.getAlbumKey(artist, album));
-                    else
-                        coverArt.setTag(CoverManager.getAlbumKey(albumartist, album));
-                    oCoverAsyncHelper.downloadCover(actSong, true, false);
+                    coverArt.setTag(CoverManager.getAlbumKey(artist, album));
+                    oCoverAsyncHelper.downloadCover(actSong, true);
                     lastArtist = artist;
                     lastAlbum = album;
                 }
@@ -922,7 +919,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getArtist(), currentSong.getAlbum());
-                oCoverAsyncHelper.downloadCover(currentSong, true, false);
+                oCoverAsyncHelper.downloadCover(currentSong, true);
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
@@ -931,7 +928,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getArtist(), currentSong.getAlbum());
-                oCoverAsyncHelper.downloadCover(currentSong, true, false);
+                oCoverAsyncHelper.downloadCover(currentSong, true);
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
