@@ -145,7 +145,7 @@ public class AlbumsFragment extends BrowseFragment {
             AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
             if (albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
                 CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper);
-                coverAsyncHelper.downloadCover(null, artist, album, null, null, true, false); // albumartist=null, force to use this artist
+                coverAsyncHelper.downloadCover(null, artist, album, null, null, true); // albumartist=null, force to use this artist
             }
         }
 

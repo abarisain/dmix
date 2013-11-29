@@ -359,7 +359,7 @@ public class CoverManager {
 
                         if (canStart) {
 
-                            remote = coverInfo.getState() == WEB_COVER_FETCH && !coverRetriever.isCoverLocal() && !coverInfo.isCacheOnly();
+                            remote = coverInfo.getState() == WEB_COVER_FETCH && !coverRetriever.isCoverLocal();
                             local = coverInfo.getState() == CACHE_COVER_FETCH && coverRetriever.isCoverLocal();
                             if (remote || local) {
                                 if (DEBUG) {
