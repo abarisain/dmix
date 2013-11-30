@@ -1,5 +1,6 @@
 package com.namelessdev.mpdroid.fragments;
 
+import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.Directory;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
@@ -181,6 +182,10 @@ public class PlaylistMusic {
 
     public void setAlbumartist(String albumartist) {
         this.music.setAlbumartist(albumartist);
+    }
+
+    public AlbumInfo getAlbumInfo() {
+        return music.getAlbumInfo();
     }
 
 

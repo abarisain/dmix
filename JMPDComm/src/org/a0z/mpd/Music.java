@@ -142,7 +142,6 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
 
-
     public static List<Music> getMusicFromList(List<String> response, boolean sort) {
         ArrayList<Music> result = new ArrayList<Music>();
         LinkedList<String> lineCache = new LinkedList<String>();
@@ -561,5 +560,9 @@ public class Music extends Item implements FilesystemTreeEntry {
         public int compare(Music o1, Music o2) {
             return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());
         }
+    }
+
+    public AlbumInfo getAlbumInfo() {
+        return new AlbumInfo(getAlbumArtist(), getAlbum(), getPath(), getFilename());
     }
 }

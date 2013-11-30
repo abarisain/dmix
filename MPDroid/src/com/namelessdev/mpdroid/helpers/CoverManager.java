@@ -13,6 +13,7 @@ import com.namelessdev.mpdroid.cover.*;
 import com.namelessdev.mpdroid.tools.MultiMap;
 import com.namelessdev.mpdroid.tools.StringUtils;
 import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.UnknownAlbum;
 import org.a0z.mpd.UnknownArtist;
 
@@ -34,7 +35,7 @@ public class CoverManager {
     public static final String PREFERENCE_LASTFM = "enableLastFM";
     public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     public static final int MAX_REQUESTS = 20;
     private static final String FOLDER_SUFFIX = "/covers/";
     public static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";
@@ -366,19 +367,18 @@ public class CoverManager {
                                     d(CoverManager.class.getSimpleName(), "Looking for cover " + coverInfo.getArtist() + ", " + coverInfo.getAlbum() + " with " + coverRetriever.getName());
                                 }
                                 coverInfo.setCoverRetriever(coverRetriever);
-                                coverUrls = coverRetriever.getCoverUrl(coverInfo.getArtist(), coverInfo.getAlbum(), coverInfo.getPath(), coverInfo.getFilename());
+                                coverUrls = coverRetriever.getCoverUrl(coverInfo);
                                 if (coverUrls != null && coverUrls.length > 0) {
-                                    String albumKey = getAlbumKey(coverInfo.getArtist(), coverInfo.getAlbum());
-                                    List<String> wrongUrlsForCover = wrongCoverUrlMap.get(albumKey);
+                                    List<String> wrongUrlsForCover = wrongCoverUrlMap.get(coverInfo.getKey());
 
-                                    if (wrongUrlsForCover == null || !isBlacklistedCoverUrl(coverUrls[0], albumKey)) {
+                                    if (wrongUrlsForCover == null || !isBlacklistedCoverUrl(coverUrls[0], coverInfo.getKey())) {
 
                                         if (DEBUG)
                                             d(CoverManager.class.getSimpleName(), "Cover found for  " + coverInfo.getAlbum() + " with " + coverRetriever.getName() + " : " + coverUrls[0]);
                                         coverBytes = getCoverBytes(coverUrls, coverInfo);
                                         if (coverBytes != null && coverBytes.length > 0) {
                                             if (!coverRetriever.isCoverLocal()) {
-                                                coverUrlMap.put(albumKey, coverUrls[0]);
+                                                coverUrlMap.put(coverInfo.getKey(), coverUrls[0]);
                                             }
                                             coverInfo.setCoverBytes(coverBytes);
                                             requests.addLast(coverInfo);
@@ -495,7 +495,7 @@ public class CoverManager {
                     if (DEBUG)
                         i(MPDApplication.TAG, "Saving cover art to cache");
                     // Save the fullsize bitmap
-                    ((CachedCover) getCacheRetriever()).save(coverInfo.getArtist(), coverInfo.getAlbum(), fullBmp);
+                    ((CachedCover) getCacheRetriever()).save(coverInfo, fullBmp);
 
                     // Release the cover immediately if not used
                     if (bitmaps[0] != bitmaps[1]) {
@@ -640,24 +640,8 @@ public class CoverManager {
 
     }
 
-    public static String getAlbumKey(String artist, String album) {
-        String albumKey;
-        if (artist != null) {
-            albumKey = Tools.getHashFromString(artist + ";" + album);
-        } else {
-            albumKey = Tools.getHashFromString(album);
-        }
-        return albumKey;
-    }
-
-    public static String getCoverFileName(String artist, String album) {
-        String filename;
-        filename = getAlbumKey(artist, album) + ".jpg";
-        return filename;
-    }
-
-    public static String getPlaylistItemKey(String artist, String album, String song) {
-        return artist + album + song;
+    public static String getCoverFileName(AlbumInfo albumInfo) {
+        return albumInfo.getKey() + ".jpg";
     }
 
     private static ThreadPoolExecutor getCoverFetchExecutor() {
@@ -673,39 +657,37 @@ public class CoverManager {
         coverUrlMap = loadCovers();
     }
 
-    public void markWrongCover(String artist, String album) {
+    public void markWrongCover(AlbumInfo albumInfo) {
 
         CachedCover cacheCoverRetriever;
         String albumCoverKey;
         String wrongUrl;
         if (DEBUG)
-            Log.d(CoverManager.class.getSimpleName(), "Blacklisting cover for " + artist + ", " + album);
+            Log.d(CoverManager.class.getSimpleName(), "Blacklisting cover for " + albumInfo);
 
 
-        if (artist == null || album == null) {
-            Log.w(CoverManager.class.getSimpleName(), "Cannot blacklist cover, missing artist or album : " + artist + ", " + album);
+        if (!albumInfo.isValid()) {
+            Log.w(CoverManager.class.getSimpleName(), "Cannot blacklist cover, missing artist or album : " + albumInfo);
             return;
         }
 
-        albumCoverKey = getAlbumKey(artist, album);
-
-        wrongUrl = coverUrlMap.get(albumCoverKey);
+        wrongUrl = coverUrlMap.get(albumInfo.getKey());
         // Do not blacklist cover if from local storage (url starts with /...)
         if (wrongUrl != null && !wrongUrl.startsWith("/")) {
             if (DEBUG)
                 Log.d(CoverManager.class.getSimpleName(), "Cover URL to be blacklisted  " + wrongUrl);
 
-            wrongCoverUrlMap.put(albumCoverKey, wrongUrl);
+            wrongCoverUrlMap.put(albumInfo.getKey(), wrongUrl);
 
             cacheCoverRetriever = getCacheRetriever();
             if (cacheCoverRetriever != null) {
                 if (DEBUG)
                     Log.d(CoverManager.class.getSimpleName(), "Removing blacklisted cover from cache : ");
-                coverUrlMap.remove(albumCoverKey);
-                cacheCoverRetriever.delete(artist, album);
+                coverUrlMap.remove(albumInfo.getKey());
+                cacheCoverRetriever.delete(albumInfo);
             }
         } else {
-            Log.w(CoverManager.class.getSimpleName(), "Cannot blacklist the cover for album : " + album + " because no cover URL has been recorded for it");
+            Log.w(CoverManager.class.getSimpleName(), "Cannot blacklist the cover for album : " + albumInfo + " because no cover URL has been recorded for it");
 
         }
     }
@@ -800,14 +782,13 @@ public class CoverManager {
         initializeCoverData();
     }
 
-    public void clear(String artist, String album) {
+    public void clear(AlbumInfo albumInfo) {
 
-        String albumKey = getAlbumKey(artist, album);
         CachedCover cachedCover = getCacheRetriever();
         if (cachedCover != null) {
-            cachedCover.delete(artist, album);
+            cachedCover.delete(albumInfo);
         }
-        coverUrlMap.remove(albumKey);
-        wrongCoverUrlMap.remove(albumKey);
+        coverUrlMap.remove(albumInfo);
+        wrongCoverUrlMap.remove(albumInfo.getKey());
     }
 }

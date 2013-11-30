@@ -22,7 +22,7 @@ public class Album extends Item implements Parcelable {
     }
 
     public Album(String name, Artist artist) {
-        this (name,0,0,0,artist);
+        this(name, 0, 0, 0, artist);
     }
 
     protected Album(Parcel in) {
@@ -112,5 +112,9 @@ public class Album extends Item implements Parcelable {
                     return new Album[size];
                 }
             };
+
+    public AlbumInfo getAlbumInfo() {
+        return new AlbumInfo(getArtist().getName(), getName());
+    }
 
 }

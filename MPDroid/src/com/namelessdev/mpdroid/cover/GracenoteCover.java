@@ -2,6 +2,7 @@ package com.namelessdev.mpdroid.cover;
 
 import android.content.SharedPreferences;
 import android.util.Log;
+import org.a0z.mpd.AlbumInfo;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -51,11 +52,12 @@ public class GracenoteCover extends AbstractWebCover {
 
     }
 
-    public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
+    @Override
+    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
         String coverUrl;
 
-        artist = cleanGetRequest(artist);
-        album = cleanGetRequest(album);
+        String artist = cleanGetRequest(albumInfo.getArtist());
+        String album = cleanGetRequest(albumInfo.getAlbum());
 
 
         if (userId == null) {

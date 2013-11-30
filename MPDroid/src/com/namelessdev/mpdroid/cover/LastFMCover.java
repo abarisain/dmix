@@ -1,6 +1,7 @@
 package com.namelessdev.mpdroid.cover;
 
 import android.util.Log;
+import org.a0z.mpd.AlbumInfo;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -15,7 +16,7 @@ public class LastFMCover extends AbstractWebCover {
     private static final String URL = "http://ws.audioscrobbler.com/2.0/";
 
     @Override
-    public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
+    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
 
         String response;
         String request;
@@ -26,7 +27,7 @@ public class LastFMCover extends AbstractWebCover {
         int eventType;
 
         try {
-            request = URL + "?method=album.getInfo&artist=" + artist + "&album=" + album + "&api_key=" + KEY;
+            request = URL + "?method=album.getInfo&artist=" + albumInfo.getArtist() + "&album=" + albumInfo.getAlbum() + "&api_key=" + KEY;
             response = executeGetRequest(request);
 
             factory = XmlPullParserFactory.newInstance();

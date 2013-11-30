@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.StringUtils;
+import org.a0z.mpd.AlbumInfo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -60,9 +61,10 @@ public class LocalCover implements ICoverRetriever {
         }
     }
 
-    public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
+    @Override
+    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
 
-        if (StringUtils.isNullOrEmpty(path)) {
+        if (StringUtils.isNullOrEmpty(albumInfo.getPath())) {
             return new String[0];
         }
 
@@ -83,11 +85,11 @@ public class LocalCover implements ICoverRetriever {
 
                         if (baseFilename == null || (baseFilename.startsWith("%") && !baseFilename.equals(PLACEHOLDER_FILENAME)))
                             continue;
-                        if (baseFilename.equals(PLACEHOLDER_FILENAME) && filename != null) {
-                            final int dotIndex = filename.lastIndexOf('.');
+                        if (baseFilename.equals(PLACEHOLDER_FILENAME) && albumInfo.getFilename() != null) {
+                            final int dotIndex = albumInfo.getFilename().lastIndexOf('.');
                             if (dotIndex == -1)
                                 continue;
-                            baseFilename = filename.substring(0, dotIndex);
+                            baseFilename = albumInfo.getFilename().substring(0, dotIndex);
                         }
 
                         // Add file extension except for the filename coming from settings
@@ -97,7 +99,7 @@ public class LocalCover implements ICoverRetriever {
                             lfilename = baseFilename;
                         }
 
-                        url = buildCoverUrl(serverName, musicPath, path, lfilename);
+                        url = buildCoverUrl(serverName, musicPath, albumInfo.getPath(), lfilename);
 
                         if (!urls.contains(url))
                             urls.add(url);
