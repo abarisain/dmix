@@ -2,6 +2,8 @@ package org.a0z.mpd;
 
 import java.util.*;
 
+import static org.a0z.mpd.StringsUtils.isNullOrEmpty;
+
 /**
  * Class representing a file/music entry in playlist.
  *
@@ -199,7 +201,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return album artist name.
      */
     public String getAlbumArtist() {
-        return !StringUtils.isNullOrEmpty(albumartist) ? albumartist : artist;
+        return !isNullOrEmpty(albumartist) ? albumartist : artist;
     }
 
     /**
@@ -281,7 +283,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return title.
      */
     public String getTitle() {
-        if (title == null || title.length() == 0) {
+        if (isNullOrEmpty(title)) {
             return getFilename();
         } else {
             return title;
@@ -295,7 +297,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public String getName() {
         if (name == null || name.length() == 0) {
-            return getStreamName() == null || getStreamName().length() == 0 ? getFilename() : getStreamName();
+            return isNullOrEmpty(getStreamName()) ? getFilename() : getStreamName();
         } else {
             return name;
         }
