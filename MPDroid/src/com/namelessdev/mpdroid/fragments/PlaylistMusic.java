@@ -5,6 +5,9 @@ import org.a0z.mpd.Directory;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 
+import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+
 public class PlaylistMusic {
 
     public PlaylistMusic(Music music) {
@@ -186,6 +189,32 @@ public class PlaylistMusic {
 
     public AlbumInfo getAlbumInfo() {
         return music.getAlbumInfo();
+    }
+
+    public String getPlayListMainLine() {
+        String line;
+        if (music.isStream()) {
+            line = music.getName().replace("." + getExtension(music.getName()),"");
+        } else {
+            line = music.getTitle();
+        }
+        return line;
+    }
+
+    public String getPlaylistSubLine() {
+        if (music.isStream()) {
+            return music.getFullpath();
+        } else {
+            StringBuffer line = new StringBuffer();
+            if (!isNullOrEmpty(getArtist())) {
+                line.append(getArtist());
+                line.append(" - ");
+            }
+            if (!isNullOrEmpty(getAlbum())) {
+                line.append(getAlbum());
+            }
+            return line.toString();
+        }
     }
 
 

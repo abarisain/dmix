@@ -24,7 +24,10 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
-import com.namelessdev.mpdroid.helpers.*;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import org.a0z.mpd.*;
 import org.a0z.mpd.event.StatusChangeListener;
@@ -34,6 +37,9 @@ import org.a0z.mpd.exception.MPDServerException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
+import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener,
         OnSharedPreferenceChangeListener, OnMenuItemClickListener {
@@ -651,14 +657,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     lastAlbum = album;
                     trackTime.setText(timeToString(0));
                     trackTotalTime.setText(timeToString(0));
-                    coverArtListener.onCoverNotFound(new CoverInfo(artist, album));
+                    downloadCover(new AlbumInfo(artist, album));
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
                     // coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
                     int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
-                    coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    coverArt.setTag(actSong.getAlbumInfo().getKey());
-                    oCoverAsyncHelper.downloadCover(actSong.getAlbumInfo(), true);
+                    downloadCover(actSong.getAlbumInfo());
                     lastArtist = artist;
                     lastAlbum = album;
                 }
@@ -668,8 +672,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 albumNameText.setText("");
                 progressBarTrack.setMax(0);
                 yearNameText.setText("");
+                audioNameText.setText("");
             }
         }
+    }
+
+    private void downloadCover(AlbumInfo albumInfo) {
+        coverArt.setTag(albumInfo.getKey());
+        coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+        oCoverAsyncHelper.downloadCover(albumInfo, true);
     }
 
     public void checkConnected() {
@@ -800,13 +811,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         //Update audio properties
         if (audioNameText != null && currentSong != null) {
             StringBuffer sb = new StringBuffer();
-            String[] split = currentSong.getFullpath().split("\\.");
-            if (split.length > 1) {
-                String ext = split[split.length - 1];
-                if (ext.length() <= 4) {
-                    sb.append(ext.toUpperCase() + " / ");
-                }
+            String extension = getExtension(currentSong.getFullpath());
+
+            if (!isNullOrEmpty(extension)) {
+                sb.append(extension.toUpperCase() + " / ");
             }
+
             sb.append(status.getBitrate() + " kbps / " + status.getBitsPerSample() + " bits / " + status.getSampleRate() / 1000 + "  khz");
             audioNameText.setText(sb.toString());
         }
@@ -914,7 +924,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getAlbumInfo());
-                oCoverAsyncHelper.downloadCover(currentSong.getAlbumInfo(), true);
+                downloadCover(currentSong.getAlbumInfo());
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
@@ -923,8 +933,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getAlbumInfo());
-                oCoverAsyncHelper.downloadCover(currentSong.getAlbumInfo(), true);
-                //Update the playlist covers
+                downloadCover(currentSong.getAlbumInfo());                //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
                     playlistFragment.updateCover(currentSong);

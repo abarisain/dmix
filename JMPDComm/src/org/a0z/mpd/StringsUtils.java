@@ -1,7 +1,7 @@
-package com.namelessdev.mpdroid.tools;
+package org.a0z.mpd;
 
 
-public class StringUtils {
+public class StringsUtils {
 
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.length() == 0;

@@ -89,6 +89,6 @@ public class AlbumInfo {
     }
 
     public boolean isValid() {
-        return !StringUtils.isNullOrEmpty(artist) && !StringUtils.isNullOrEmpty(album);
+        return !StringsUtils.isNullOrEmpty(artist) && !StringsUtils.isNullOrEmpty(album);
     }
 }

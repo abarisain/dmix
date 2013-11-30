@@ -635,8 +635,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
             PlaylistMusic music = (PlaylistMusic) getItem(position);
 
-            viewHolder.artist.setText(music.getArtist() + " - " + music.getAlbum());
-            viewHolder.title.setText(music.getTitle());
+            viewHolder.artist.setText(music.getPlaylistSubLine());
+            viewHolder.title.setText(music.getPlayListMainLine());
             viewHolder.icon.setVisibility(filter == null ? View.VISIBLE : View.GONE);
             viewHolder.menuButton.setTag(music.getSongId());
             viewHolder.cover.setTag(music.getAlbumInfo().getKey());
