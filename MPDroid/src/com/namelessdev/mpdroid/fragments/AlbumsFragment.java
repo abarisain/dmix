@@ -2,11 +2,10 @@ package com.namelessdev.mpdroid.fragments;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.ContextMenu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
+import android.widget.ProgressBar;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -22,6 +21,7 @@ public class AlbumsFragment extends BrowseFragment {
     private static final String EXTRA_ARTIST = "artist";
     protected Artist artist = null;
     protected boolean isCountPossiblyDisplayed;
+    protected ProgressBar coverArtProgress;
 
     private static final int POPUP_COVER_BLACKLIST = 5;
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
@@ -105,6 +105,14 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+        return view;
+
+    }
+
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         android.view.MenuItem otherCoverItem = menu.add(POPUP_COVER_BLACKLIST, POPUP_COVER_BLACKLIST, 0, R.string.otherCover);
@@ -141,6 +149,7 @@ public class AlbumsFragment extends BrowseFragment {
             AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
             if (albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
                 CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper);
+                albumViewHolder.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
                 coverAsyncHelper.downloadCover(album, true); // albumartist=null, force to use this artist
             }
         }

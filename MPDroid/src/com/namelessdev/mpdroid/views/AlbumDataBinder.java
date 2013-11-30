@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
@@ -62,7 +63,7 @@ public class AlbumDataBinder extends BaseDataBinder {
         // display cover art in album listing if caching is on
         if (CoverManager.isValidArtistOrAlbum(artist) && CoverManager.isValidArtistOrAlbum(album.getName()) && enableCache) {
             // listen for new artwork to be loaded
-            final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, lightTheme);
+            final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, holder.coverArtProgress, lightTheme, false);
             final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
                     .getTag(R.id.AlbumCoverDownloadListener);
             if (oldAcd != null) {
@@ -73,6 +74,7 @@ public class AlbumDataBinder extends BaseDataBinder {
             holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
             coverHelper.addCoverDownloadListener(acd);
             holder.albumCover.setTag(album.getAlbumInfo().getKey());
+            holder.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
             loadArtwork(coverHelper, album.getAlbumInfo());
         }
     }
@@ -99,6 +101,7 @@ public class AlbumDataBinder extends BaseDataBinder {
         viewHolder.albumName = (TextView) targetView.findViewById(R.id.album_name);
         viewHolder.albumInfo = (TextView) targetView.findViewById(R.id.album_info);
         viewHolder.albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
+        viewHolder.coverArtProgress = (ProgressBar) targetView.findViewById(R.id.albumCoverProgress);
         return viewHolder;
     }
 }
