@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -32,6 +33,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
         loadingTextView = (TextView) view.findViewById(R.id.loadingText);
         noResultView = view.findViewById(R.id.noResultLayout);
         loadingTextView.setText(getLoadingText());
+        coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
 
         return view;
     }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.widget.ProgressBar;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -40,7 +41,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         holder.albumName.setText(album.getName());
 
         // listen for new artwork to be loaded
-        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, lightTheme);
+        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, holder.coverArtProgress, lightTheme, false);
         final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover.getTag(R.id.AlbumCoverDownloadListener);
         if (oldAcd != null)
             oldAcd.detach();
@@ -53,6 +54,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         // Can't get artwork for missing album name
         if (CoverManager.isValidArtistOrAlbum(album.getArtist().getName()) && CoverManager.isValidArtistOrAlbum(album.getName()) && enableCache) {
             holder.albumCover.setTag(album.getAlbumInfo().getKey());
+            holder.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
             loadArtwork(coverHelper, album.getAlbumInfo());
         }
     }

@@ -326,6 +326,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     public void updateCover(AlbumInfo albumInfo) {
         if (coverArt != null && null != coverArt.getTag() && coverArt.getTag().equals(albumInfo.getKey())) {
+            coverArtProgress.setVisibility(ProgressBar.VISIBLE);
             coverHelper.downloadCover(albumInfo);
         }
     }
