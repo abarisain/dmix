@@ -1,5 +1,7 @@
 package org.a0z.mpd;
 
+import static android.text.TextUtils.isEmpty;
+
 public class AlbumInfo {
 
     protected String artist = "";
@@ -89,6 +91,6 @@ public class AlbumInfo {
     }
 
     public boolean isValid() {
-        return !StringsUtils.isNullOrEmpty(artist) && !StringsUtils.isNullOrEmpty(album);
+        return !isEmpty(artist) && !isEmpty(album);
     }
 }

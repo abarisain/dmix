@@ -38,8 +38,8 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.text.TextUtils.isEmpty;
 import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener,
         OnSharedPreferenceChangeListener, OnMenuItemClickListener {
@@ -813,11 +813,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             StringBuffer sb = new StringBuffer();
             String extension = getExtension(currentSong.getFullpath());
 
-            if (!isNullOrEmpty(extension)) {
-                sb.append(extension.toUpperCase() + " / ");
+            if (!isEmpty(extension)) {
+                sb.append(extension.toUpperCase() + " | ");
             }
 
-            sb.append(status.getBitrate() + " kbps / " + status.getBitsPerSample() + " bits / " + status.getSampleRate() / 1000 + "  khz");
+            sb.append(status.getBitrate() + " kbps | " + status.getBitsPerSample() + " bits | " + status.getSampleRate() / 1000 + "  khz");
             audioNameText.setText(sb.toString());
         }
     }

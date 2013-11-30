@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.util.Log.e;
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
     private ArrayList<PlaylistMusic> songlist;
@@ -648,8 +647,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     public void updateCover(Music song) {
-        String artist = song.getAlbumArtist();
-        if (isNullOrEmpty(artist)) artist = song.getArtist();
 
         for (int i = 0; i < list.getChildCount(); i++) {
             ImageView albumCover = (ImageView) list.getChildAt(i).findViewById(R.id.cover);

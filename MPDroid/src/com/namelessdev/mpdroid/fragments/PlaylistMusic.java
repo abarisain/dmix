@@ -5,8 +5,12 @@ import org.a0z.mpd.Directory;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.text.TextUtils.isEmpty;
+import static android.text.TextUtils.join;
 import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 
 public class PlaylistMusic {
 
@@ -194,7 +198,7 @@ public class PlaylistMusic {
     public String getPlayListMainLine() {
         String line;
         if (music.isStream()) {
-            line = music.getName().replace("." + getExtension(music.getName()),"");
+            line = music.getName().replace("." + getExtension(music.getName()), "");
         } else {
             line = music.getTitle();
         }
@@ -205,15 +209,14 @@ public class PlaylistMusic {
         if (music.isStream()) {
             return music.getFullpath();
         } else {
-            StringBuffer line = new StringBuffer();
-            if (!isNullOrEmpty(getArtist())) {
-                line.append(getArtist());
-                line.append(" - ");
+            List<String> sublineTexts = new ArrayList<String>();
+            if (!isEmpty(getArtist())) {
+                sublineTexts.add(getArtist());
             }
-            if (!isNullOrEmpty(getAlbum())) {
-                line.append(getAlbum());
+            if (!isEmpty(getAlbum())) {
+                sublineTexts.add(getAlbum());
             }
-            return line.toString();
+            return join(" - ", sublineTexts);
         }
     }
 

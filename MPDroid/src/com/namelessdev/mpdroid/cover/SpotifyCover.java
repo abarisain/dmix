@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import static android.text.TextUtils.isEmpty;
 
 /**
  * Fetch cover from Spotify
@@ -29,7 +29,7 @@ public class SpotifyCover extends AbstractWebCover {
             for (String albumId : albumIds) {
                 coverResponse = executeGetRequest("https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/" + albumId);
                 coverUrl = extractImageUrl(coverResponse);
-                if (!isNullOrEmpty(coverUrl)) {
+                if (!isEmpty(coverUrl)) {
                     coverUrl = coverUrl.replace("/cover/", "/640/");
                     return new String[]{coverUrl};
                 }

@@ -3,13 +3,14 @@ package com.namelessdev.mpdroid.cover;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.tools.StringUtils;
 import org.a0z.mpd.AlbumInfo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.text.TextUtils.isEmpty;
 
 
 public class LocalCover implements ICoverRetriever {
@@ -64,7 +65,7 @@ public class LocalCover implements ICoverRetriever {
     @Override
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
 
-        if (StringUtils.isNullOrEmpty(albumInfo.getPath())) {
+        if (isEmpty(albumInfo.getPath())) {
             return new String[0];
         }
 
