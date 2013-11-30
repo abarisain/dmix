@@ -3,10 +3,6 @@ package org.a0z.mpd;
 
 public class StringsUtils {
 
-    public static boolean isNullOrEmpty(String s) {
-        return s == null || s.length() == 0;
-    }
-
     public static String trim(String text) {
         return text == null ? text : text.trim();
     }

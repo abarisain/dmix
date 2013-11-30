@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static android.text.TextUtils.isEmpty;
 import static android.util.Log.*;
 import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.*;
 
@@ -266,7 +267,7 @@ public class CoverManager {
     }
 
     public static boolean isValidArtistOrAlbum(String artistOrAlbum) {
-        return !StringUtils.isNullOrEmpty(artistOrAlbum) && !artistOrAlbum.equals("-") &&
+        return !isEmpty(artistOrAlbum) && !artistOrAlbum.equals("-") &&
                 !artistOrAlbum.equals(UnknownArtist.instance.getName()) && !artistOrAlbum.equals(UnknownAlbum.instance.getName());
     }
 
@@ -573,7 +574,7 @@ public class CoverManager {
 
         try {
             textUrl = StringUtils.trim(textUrl);
-            if (StringUtils.isNullOrEmpty(textUrl)) {
+            if (isEmpty(textUrl)) {
                 return null;
             }
             // Download Cover File...
