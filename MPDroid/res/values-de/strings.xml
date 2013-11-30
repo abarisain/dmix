@@ -11,6 +11,7 @@
     <string name="failedToDelete">%s konnte nicht gelöscht werden</string>
     <string name="enableStopButton">Stopptaste anzeigen</string>
     <string name="enableAlbumYearText">Album-Jahr anzeigen</string>
+    <string name="showAlbumArtist">Albumkünstler anzeigen</string>
     <string name="enableAudioText">Audio-Eigenschaften anzeigen</string>
     <string name="enableLocalCover">Lokale Albencover laden</string>
     <string name="enableLocalCoverDescription">Albencover vom MPD-Server laden (Erfordert einen Webserver, siehe Wiki)</string>

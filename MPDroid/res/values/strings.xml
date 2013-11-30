@@ -180,6 +180,7 @@
 	<string name="consumeMode">Consume mode</string>
 	<string name="stop">Stop</string>
     <string name="enableAlbumYearText">Show album year</string>
+    <string name="showAlbumArtist">Show album artist</string>
     <string name="enableAudioText">Show audio properties</string>
 
 

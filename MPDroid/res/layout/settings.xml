@@ -126,6 +126,9 @@
                             android:title="@string/enableAlbumYearText"
                             android:key="enableAlbumYearText" android:defaultValue="false"/>
         <CheckBoxPreference android:persistent="true"
+                            android:title="@string/showAlbumArtist"
+                            android:key="showAlbumArtist" android:defaultValue="true"/>
+        <CheckBoxPreference android:persistent="true"
                             android:title="@string/enableAudioText"
                             android:key="enableAudioText" android:defaultValue="false"/>
     </PreferenceCategory>

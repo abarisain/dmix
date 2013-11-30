@@ -51,6 +51,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 7;
 
     private TextView artistNameText;
+    private boolean showAlbumArtist;
     private TextView songNameText;
     private TextView albumNameText;
     private TextView audioNameText;
@@ -155,6 +156,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void onResume() {
         super.onResume();
         // Annoyingly this seems to be run when the app starts the first time to.
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+        showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
+
         // Just to make sure that we do actually get an update.
         try {
             updateTrackInfo();
@@ -631,8 +635,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 album = album == null ? "" : album;
                 date = date != null && date.length() > 1 && !date.startsWith("-") ? " - " + date : "";
 
-
-                if ("".equals(albumartist) || artist.equals(albumartist))
+                if (!showAlbumArtist || "".equals(albumartist) || artist.equals(albumartist))
                     artistNameText.setText(artist);
                 else if ("".equals(artist))
                     artistNameText.setText(albumartist);
