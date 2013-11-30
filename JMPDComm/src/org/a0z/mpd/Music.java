@@ -120,6 +120,9 @@ public class Music extends Item implements FilesystemTreeEntry {
         }
     }
 
+    public Music() {
+    }
+
     private String getStreamName() {
         if (null != fullpath && !fullpath.isEmpty()) {
             int pos = fullpath.indexOf("#");
@@ -129,6 +132,16 @@ public class Music extends Item implements FilesystemTreeEntry {
         }
         return null;
     }
+
+    public String getAlbumartist() {
+        return albumartist;
+    }
+
+    public void setAlbumartist(String albumartist) {
+        this.albumartist = albumartist;
+    }
+
+
 
     public static List<Music> getMusicFromList(List<String> response, boolean sort) {
         ArrayList<Music> result = new ArrayList<Music>();
@@ -187,7 +200,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return album artist name.
      */
     public String getAlbumArtist() {
-        return albumartist;
+        return !StringUtils.isNullOrEmpty(albumartist) ? albumartist : artist;
     }
 
     /**
