@@ -15,10 +15,7 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.*;
 import org.a0z.mpd.exception.MPDServerException;
 
 public class AlbumsFragment extends BrowseFragment {
@@ -119,20 +116,19 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        String album = items.get((int) info.id).getName();
-        String artistName = artist.getName();
+        Album album = (Album) items.get((int) info.id);
 
 
         switch (item.getGroupId()) {
             case POPUP_COVER_BLACKLIST:
-                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).markWrongCover(artistName, album);
-                refreshCover(info.targetView, artistName, album);
-                updateNowPlayingSmallFragment(artistName, album);
+                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).markWrongCover(album.getAlbumInfo());
+                refreshCover(info.targetView, album.getAlbumInfo());
+                updateNowPlayingSmallFragment(album.getAlbumInfo());
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
-                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).clear(artistName, album);
-                refreshCover(info.targetView, artistName, album);
-                updateNowPlayingSmallFragment(artistName, album);
+                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).clear(album.getAlbumInfo());
+                refreshCover(info.targetView, album.getAlbumInfo());
+                updateNowPlayingSmallFragment(album.getAlbumInfo());
                 break;
             default:
                 return super.onMenuItemClick(item);
@@ -140,23 +136,23 @@ public class AlbumsFragment extends BrowseFragment {
         return false;
     }
 
-    private void refreshCover(View view, String artist, String album) {
+    private void refreshCover(View view, AlbumInfo album) {
         if (view.getTag() instanceof AlbumViewHolder) {
             AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
             if (albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
                 CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper);
-                coverAsyncHelper.downloadCover(null, artist, album, null, null, true); // albumartist=null, force to use this artist
+                coverAsyncHelper.downloadCover(album, true); // albumartist=null, force to use this artist
             }
         }
 
     }
 
-    private void updateNowPlayingSmallFragment(String artist, String album) {
+    private void updateNowPlayingSmallFragment(AlbumInfo albumInfo) {
         NowPlayingSmallFragment nowPlayingSmallFragment;
         if (getActivity() != null) {
             nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
             if (nowPlayingSmallFragment != null) {
-                nowPlayingSmallFragment.updateCover(artist, album);
+                nowPlayingSmallFragment.updateCover(albumInfo);
             }
         }
     }

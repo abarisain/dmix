@@ -2,16 +2,13 @@ package com.namelessdev.mpdroid.helpers;
 
 import android.graphics.Bitmap;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import org.a0z.mpd.AlbumInfo;
 
-public class CoverInfo {
+public class CoverInfo extends AlbumInfo {
     public enum STATE {NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP}
 
     ;
     private STATE state = STATE.NEW;
-    private String artist = "";
-    private String album = "";
-    private String path = "";
-    private String filename = "";
     private Bitmap[] bitmap = new Bitmap[0];
     private byte[] coverBytes = new byte[0];
     private boolean priority;
@@ -22,6 +19,7 @@ public class CoverInfo {
     private CoverDownloadListener listener;
 
     public CoverInfo(CoverInfo coverInfo) {
+        super();
         this.state = coverInfo.state;
         this.artist = coverInfo.artist;
         this.album = coverInfo.album;
@@ -35,7 +33,16 @@ public class CoverInfo {
         this.coverRetriever = coverInfo.coverRetriever;
     }
 
+    public CoverInfo(AlbumInfo albumInfo) {
+        super();
+        this.artist = albumInfo.getArtist();
+        this.album = albumInfo.getAlbum();
+        this.path = albumInfo.getPath();
+        this.filename = albumInfo.getFilename();
+    }
+
     public CoverInfo() {
+        super();
     }
 
     public CoverDownloadListener getListener() {
@@ -123,7 +130,7 @@ public class CoverInfo {
 
     @Override
     public String toString() {
-        return "CoverInfo{state=" + state + ", artist=" + artist == null ? "" : artist + ", album=" + album == null ? "" : album + " priority=" + priority+ "}";
+        return "CoverInfo{state=" + state + ", artist=" + artist == null ? "" : artist + ", album=" + album == null ? "" : album + " priority=" + priority + "}";
     }
 
     public String getArtist() {

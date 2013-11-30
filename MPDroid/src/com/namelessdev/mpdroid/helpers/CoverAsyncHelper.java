@@ -6,12 +6,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import com.namelessdev.mpdroid.MPDApplication;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.AlbumInfo;
 
 import java.util.Collection;
 import java.util.LinkedList;
-
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -78,32 +76,18 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         coverDownloadListener.remove(listener);
     }
 
-    public void downloadCover(Music song) {
-	downloadCover(song, false);
-    }
-    public void downloadCover(Music song, boolean priority) {
-        downloadCover(song.getAlbumArtist(), song.getArtist(),
-                song.getAlbum(), song.getPath(), song.getFilename(),
-                priority);
+    public void downloadCover(AlbumInfo albumInfo) {
+        downloadCover(albumInfo, false);
     }
 
-    public void downloadCover(String albumartist, String artist, String album, String path, String filename) {
-        downloadCover(albumartist, artist, album, path, filename, false);
-    }
-
-    public void downloadCover(String albumartist, String artist, String album, String path, String filename, boolean priority) {
-        final CoverInfo info = new CoverInfo();
-	if (!isNullOrEmpty(albumartist)) artist = albumartist;
-        info.setArtist(artist);
-        info.setAlbum(album);
-        info.setPath(path);
-        info.setFilename(filename);
+    public void downloadCover(AlbumInfo albumInfo, boolean priority) {
+        final CoverInfo info = new CoverInfo(albumInfo);
         info.setCoverMaxSize(coverMaxSize);
         info.setCachedCoverMaxSize(cachedCoverMaxSize);
         info.setPriority(priority);
         info.setListener(this);
 
-        if (isNullOrEmpty(album) || isNullOrEmpty(artist)) {
+        if (!albumInfo.isValid()) {
             COVER_NOT_FOUND_MESSAGE.obj = info;
             handleMessage(COVER_NOT_FOUND_MESSAGE);
         } else {
@@ -137,6 +121,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     public void onCoverNotFound(CoverInfo cover) {
         CoverAsyncHelper.this.obtainMessage(EVENT_COVERNOTFOUND, cover).sendToTarget();
     }
+
     public void setCoverRetrieversFromPreferences() {
         CoverManager.getInstance(app, settings).setCoverRetrieversFromPreferences();
     }

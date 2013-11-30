@@ -26,7 +26,6 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
 import com.namelessdev.mpdroid.helpers.*;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
-import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.*;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
@@ -647,8 +646,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    coverArt.setTag(CoverManager.getAlbumKey(artist, album));
-                    oCoverAsyncHelper.downloadCover(actSong, true);
+                    coverArt.setTag(actSong.getAlbumInfo().getKey());
+                    oCoverAsyncHelper.downloadCover(actSong.getAlbumInfo(), true);
                     lastArtist = artist;
                     lastAlbum = album;
                 }
@@ -863,17 +862,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         switch (item.getItemId()) {
             case POPUP_ARTIST:
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", new Artist(
-                        (MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
-                                : currentSong.getArtist(), 0));
+                intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ALBUM:
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", new Artist(
-                        (MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
-                                : currentSong.getArtist(), 0));
-                intent.putExtra("album", new Album(currentSong.getAlbum(), new Artist(currentSong.getArtist())));
+                intent.putExtra("artist", new Artist(currentSong.getAlbumartist(), 0));
+                intent.putExtra("album", new Album(currentSong.getAlbum(), new Artist(currentSong.getAlbumartist())));
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_FOLDER:
@@ -907,8 +902,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
 
             case POPUP_COVER_BLACKLIST:
-                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getArtist(), currentSong.getAlbum());
-                oCoverAsyncHelper.downloadCover(currentSong, true);
+                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getAlbumInfo());
+                oCoverAsyncHelper.downloadCover(currentSong.getAlbumInfo(), true);
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
@@ -916,8 +911,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 }
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
-                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getArtist(), currentSong.getAlbum());
-                oCoverAsyncHelper.downloadCover(currentSong, true);
+                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getAlbumInfo());
+                oCoverAsyncHelper.downloadCover(currentSong.getAlbumInfo(), true);
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {

@@ -1,16 +1,16 @@
 package com.namelessdev.mpdroid.cover;
 
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import android.util.Log;
+import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.util.Log;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Fetch cover from MusicBrainz
@@ -19,13 +19,14 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private static final String COVER_ART_ARCHIVE_URL = "http://coverartarchive.org/release/";
 
-    public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
+    @Override
+    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
 
         List<String> releases;
-		List<String> coverUrls = new ArrayList<String>();
+        List<String> coverUrls = new ArrayList<String>();
         String covertArtResponse;
 
-        releases = searchForRelease(artist, album);
+        releases = searchForRelease(albumInfo);
         for (String release : releases) {
             covertArtResponse = getCoverArtArchiveResponse(release);
             if (!covertArtResponse.isEmpty()) {
@@ -40,12 +41,12 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     }
 
-    private List<String> searchForRelease(String artist, String album) {
+    private List<String> searchForRelease(AlbumInfo albumInfo) {
 
         String response;
 
-        artist = cleanGetRequest(artist);
-        album = cleanGetRequest(album);
+        String artist = cleanGetRequest(albumInfo.getArtist());
+        String album = cleanGetRequest(albumInfo.getAlbum());
 
         String url = "http://musicbrainz.org/ws/2/release/?query=" + artist + " " + album + "&type=release&limit=5";
         url = url.replace("!", "");
@@ -55,7 +56,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private List<String> extractReleaseIds(String response) {
 
-		List<String> releaseList = new ArrayList<String>();
+        List<String> releaseList = new ArrayList<String>();
 
         try {
 
@@ -98,7 +99,7 @@ public class MusicBrainzCover extends AbstractWebCover {
         JSONArray jsonArray;
         String coverUrl;
         JSONObject jsonObject;
-		List<String> coverUrls = new ArrayList<String>();
+        List<String> coverUrls = new ArrayList<String>();
 
         if (covertArchiveResponse == null || covertArchiveResponse.isEmpty()) {
             return Collections.EMPTY_LIST;

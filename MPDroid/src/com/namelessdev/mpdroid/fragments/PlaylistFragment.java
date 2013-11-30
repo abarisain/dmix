@@ -25,7 +25,6 @@ import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
@@ -641,8 +640,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             viewHolder.title.setText(music.getTitle());
             viewHolder.icon.setVisibility(filter == null ? View.VISIBLE : View.GONE);
             viewHolder.menuButton.setTag(music.getSongId());
-            viewHolder.cover.setTag(CoverManager.getAlbumKey(music.getAlbumArtist(), music.getAlbum()));
-            viewHolder.coverHelper.downloadCover(music.getMusic(), false);
+            viewHolder.cover.setTag(music.getAlbumInfo().getKey());
+            viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
             viewHolder.play.setImageResource(music.getPlay());
             return convertView;
         }
@@ -652,11 +651,10 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     public void updateCover(Music song) {
         String artist = song.getAlbumArtist();
         if (isNullOrEmpty(artist)) artist = song.getArtist();
-        String albumKey = CoverManager.getAlbumKey(artist, song.getAlbum());
 
         for (int i = 0; i < list.getChildCount(); i++) {
             ImageView albumCover = (ImageView) list.getChildAt(i).findViewById(R.id.cover);
-            if (null != albumCover.getTag() && albumCover.getTag().equals(albumKey)) {
+            if (null != albumCover.getTag() && albumCover.getTag().equals(song.getAlbumInfo().getKey())) {
                 refreshCover(albumCover, song);
             }
         }
@@ -665,7 +663,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private void refreshCover(View albumCover, Music song) {
         if (albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
             CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumCover.getTag(R.id.CoverAsyncHelper);
-            coverAsyncHelper.downloadCover(song, true);
+            coverAsyncHelper.downloadCover(song.getAlbumInfo(), true);
         }
     }
 
