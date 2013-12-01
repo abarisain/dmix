@@ -265,11 +265,11 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                         if (!showAlbumArtist ||
                             albumartist == null || "".equals(albumartist) ||
                             artist.equals(albumartist))
-                            artistlabel = ""+artist;
+                            artistlabel = "" + artist;
                         else if ("".equals(artist))
-                            artistlabel = ""+albumartist;
+                            artistlabel = "" + albumartist;
                         else {
-                            artistlabel = albumartist + "/" + artist;
+                            artistlabel = albumartist + " / " + artist;
                             artist = albumartist;
                         }
                         title = actSong.getTitle();
