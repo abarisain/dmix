@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,6 +48,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     private ImageButton buttonNext;
     private String lastArtist = "";
     private String lastAlbum = "";
+    private boolean showAlbumArtist;
 
     @Override
     public void onAttach(Activity activity) {
@@ -83,7 +85,10 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
         coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected(), false);
 
-        coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
+
+        coverHelper = new CoverAsyncHelper(app, settings);
         coverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = coverArt.getViewTreeObserver();
         vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -237,7 +242,9 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         @Override
         protected void onPostExecute(Boolean result) {
             if (result != null && result) {
+                String albumartist = null;
                 String artist = null;
+                String artistlabel = null;
                 String title = null;
                 String album = null;
                 boolean noSong = actSong == null || status.getPlaylistLength() == 0;
@@ -253,7 +260,18 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                             artist = "";
                         }
                     } else {
+                        albumartist = actSong.getAlbumArtist();
                         artist = actSong.getArtist();
+                        if (!showAlbumArtist ||
+                            albumartist == null || "".equals(albumartist) ||
+                            artist.equals(albumartist))
+                            artistlabel = ""+artist;
+                        else if ("".equals(artist))
+                            artistlabel = ""+albumartist;
+                        else {
+                            artistlabel = albumartist + "/" + artist;
+                            artist = albumartist;
+                        }
                         title = actSong.getTitle();
                         album = actSong.getAlbum();
                     }
@@ -263,7 +281,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 title = title == null ? "" : title;
                 album = album == null ? "" : album;
 
-                songArtist.setText(artist);
+                songArtist.setText(artistlabel);
                 songTitle.setText(title);
                 if (noSong || actSong.isStream()) {
                     lastArtist = artist;
