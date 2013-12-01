@@ -1,6 +1,7 @@
 package org.a0z.mpd;
 
 import static android.text.TextUtils.isEmpty;
+import static org.a0z.mpd.StringsUtils.getHashFromString;
 
 public class AlbumInfo {
 
@@ -87,7 +88,13 @@ public class AlbumInfo {
     }
 
     public String getKey() {
-        return artist+"-"+album;
+        String key;
+        if (!isEmpty(artist)) {
+            key = getHashFromString(artist + album);
+        } else {
+            key = getHashFromString(album);
+        }
+        return key;
     }
 
     public boolean isValid() {
