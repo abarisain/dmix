@@ -183,12 +183,12 @@ public class PlaylistMusic {
         return music.getMedia();
     }
 
-    public String getAlbumartist() {
-        return music.getAlbumartist();
+    public String getAlbumArtistOrArtist() {
+        return music.getAlbumArtistOrArtist();
     }
 
-    public void setAlbumartist(String albumartist) {
-        this.music.setAlbumartist(albumartist);
+    public void setAlbumArtist(String albumartist) {
+        this.music.setAlbumArtist(albumartist);
     }
 
     public AlbumInfo getAlbumInfo() {
