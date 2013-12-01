@@ -87,7 +87,7 @@ public class AlbumInfo {
     }
 
     public String getKey() {
-        return artist+album;
+        return artist+"-"+album;
     }
 
     public boolean isValid() {
