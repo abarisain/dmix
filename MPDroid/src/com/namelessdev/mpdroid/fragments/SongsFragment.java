@@ -263,24 +263,6 @@ public class SongsFragment extends BrowseFragment {
     public void updateFromItems() {
         super.updateFromItems();
         if (items != null) {
-            Music song;
-            String lastArtist = null;
-            for (Item item : items) {
-                song = (Music) item;
-                if (lastArtist == null) {
-                    lastArtist = song.getArtist();
-                    continue;
-                }
-            }
-            if (lastArtist == null) {
-                for (Item item : items) {
-                    song = (Music) item;
-                    if (lastArtist == null) {
-                        lastArtist = song.getArtist();
-                        continue;
-                    }
-                }
-            }
             String artistName = getArtistForTrackList();
             headerArtist.setText(artistName);
             headerInfo.setText(getHeaderInfoString());
@@ -288,7 +270,7 @@ public class SongsFragment extends BrowseFragment {
                 String filename = null;
                 String path = null;
                 if (items.size() > 0) {
-                    song = (Music) items.get(0);
+                    Music song = (Music) items.get(0);
                     filename = song.getFilename();
                     path = song.getPath();
                     artistName = song.getArtist();
