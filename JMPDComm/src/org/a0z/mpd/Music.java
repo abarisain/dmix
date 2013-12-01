@@ -138,11 +138,11 @@ public class Music extends Item implements FilesystemTreeEntry {
         return null;
     }
 
-    public String getAlbumartist() {
+    public String getAlbumArtistOrArtist() {
         return isEmpty(albumartist) ? artist : albumartist;
     }
 
-    public void setAlbumartist(String albumartist) {
+    public void setAlbumArtist(String albumartist) {
         this.albumartist = albumartist;
     }
 
@@ -581,6 +581,6 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public AlbumInfo getAlbumInfo() {
-        return new AlbumInfo(getFilteredAlbumArtist(), getAlbum(), getPath(), getFilename());
+        return new AlbumInfo(getAlbumArtistOrArtist(), getAlbum(), getPath(), getFilename());
     }
 }
