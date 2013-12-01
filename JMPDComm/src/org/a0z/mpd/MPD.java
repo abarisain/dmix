@@ -1301,7 +1301,7 @@ public class MPD {
     }
 
     public List<Artist> getArtists(Genre genre) throws MPDServerException {
-        return getArtists(MPD.useAlbumArtist());
+        return getArtists(genre, MPD.useAlbumArtist());
     }
     public List<Artist> getArtists(Genre genre, boolean useAlbumArtist) throws MPDServerException {
         List<String> artistNames = useAlbumArtist ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
