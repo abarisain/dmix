@@ -1,21 +1,5 @@
 package com.namelessdev.mpdroid.fragments;
 
-import static android.util.Log.e;
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,25 +12,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.view.ActionMode;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.PopupMenu;
+import android.widget.*;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
-import android.widget.SimpleAdapter;
-
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -54,12 +25,24 @@ import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDPlaylist;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
-    private ArrayList<HashMap<String, Object>> songlist;
+    private ArrayList<PlaylistMusic> songlist;
     private MPDApplication app;
     private DragSortListView list;
     private ActionMode actionMode;
@@ -176,7 +159,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         positions = new int[list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
                             if (checkedItems.get(i)) {
-                                positions[j] = ((Integer) ((HashMap<String, Object>) adapter.getItem(i)).get("songid")).intValue();
+                                positions[j] = ((PlaylistMusic) adapter.getItem(i)).getSongId();
                                 j++;
                             }
                         }
@@ -198,7 +181,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         positions = new int[list.getCount() - list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
                             if (!checkedItems.get(i)) {
-                                positions[j] = ((Integer) ((HashMap<String, Object>) adapter.getItem(i)).get("songid")).intValue();
+                                positions[j] = ((PlaylistMusic) adapter.getItem(i)).getSongId();
                                 j++;
                             }
                         }
@@ -254,102 +237,57 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     protected synchronized void update(boolean forcePlayingIDRefresh) {
         try {
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
-            songlist = new ArrayList<HashMap<String, Object>>();
+            final ArrayList<PlaylistMusic> newSonglist = new ArrayList<PlaylistMusic>();
             List<Music> musics = playlist.getMusicList();
             if (lastPlayingID == -1 || forcePlayingIDRefresh)
                 lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
             // The position in the songlist of the currently played song
             int listPlayingID = -1;
-            String tmpArtist = null;
-            String tmpAlbum = null;
-            String tmpAlbumArtist = null;
-            String tmpTitle = null;
             // Copy list to avoid concurrent exception
             for (Music m : new ArrayList<Music>(musics)) {
                 if (m == null) {
                     continue;
                 }
-                tmpArtist = m.getArtist();
-                tmpAlbum = m.getAlbum();
-                tmpAlbumArtist = m.getAlbumArtist();
-                tmpTitle = m.getTitle();
+
+                PlaylistMusic item = new PlaylistMusic(m);
+
                 if (filter != null) {
-                    if (tmpArtist == null)
-                        tmpArtist = "";
-                    if (tmpAlbum == null)
-                        tmpAlbum = "";
-                    if (tmpAlbumArtist == null)
-                        tmpAlbumArtist = "";
-                    if (tmpTitle == null)
-                        tmpTitle = "";
-                    if (!tmpArtist.toLowerCase(Locale.getDefault()).contains(filter) &&
-                            !tmpAlbum.toLowerCase(Locale.getDefault()).contains(filter) &&
-                            !tmpAlbumArtist.toLowerCase(Locale.getDefault()).contains(filter) &&
-                            !tmpTitle.toLowerCase(Locale.getDefault()).contains(filter)) {
+                    if (!item.getAlbumArtist().toLowerCase(Locale.getDefault()).contains(filter) &&
+                            !item.getAlbum().toLowerCase(Locale.getDefault()).contains(filter) &&
+                            !item.getTitle().toLowerCase(Locale.getDefault()).contains(filter)) {
                         continue;
                     }
                 }
-                HashMap<String, Object> item = new HashMap<String, Object>();
-                item.put("songid", m.getSongId());
-                item.put("_artist", tmpArtist);
-                item.put("_albumartist", tmpAlbumArtist);
-                item.put("_album", tmpAlbum);
-                item.put("_path", m.getPath());
-                item.put("_filename", m.getFilename());
 
-                if (m.isStream()) {
-                    if (m.haveTitle()) {
-                        item.put("title", tmpTitle);
-                        if (Tools.isStringEmptyOrNull(m.getName())) {
-                            item.put("artist", tmpArtist);
-                        } else if (Tools.isStringEmptyOrNull(tmpArtist)) {
-                            item.put("artist", m.getName());
-                        } else {
-                            item.put("artist", tmpArtist + " - " + m.getName());
-                        }
-                    } else {
-                        item.put("title", m.getName());
-                    }
-                } else {
-                    if (Tools.isStringEmptyOrNull(tmpAlbum)) {
-                        item.put("artist", tmpArtist);
-                    } else {
-                        item.put("artist", tmpArtist + " - " + tmpAlbum);
-                    }
-                    item.put("title", tmpTitle);
-                }
-
-                if (m.getSongId() == lastPlayingID) {
-                    item.put("play", android.R.drawable.ic_media_play);
+                if (item.getSongId() == lastPlayingID) {
+                    item.setPlay(android.R.drawable.ic_media_play);
                     // Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
                     // it
-                    listPlayingID = songlist.size() - 1;
+                    listPlayingID = newSonglist.size() - 1;
                 } else {
-                    item.put("play", 0);
+                    item.setPlay(0);
                 }
-                songlist.add(item);
+                newSonglist.add(item);
+
+                final int finalListPlayingID = listPlayingID;
+
+                activity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        ArrayAdapter songs = new QueueAdapter(activity, newSonglist, R.layout.playlist_queue_item);
+                        setListAdapter(songs);
+                        songlist = newSonglist;
+                        if (actionMode != null)
+                            actionMode.finish();
+
+                        // Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
+                        // Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
+                        // other
+                        // stuff.
+                        if (finalListPlayingID > 0 && getView() != null)
+                            setSelection(finalListPlayingID);
+                    }
+                });
             }
-
-            final int finalListPlayingID = listPlayingID;
-
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    SimpleAdapter songs = new QueueAdapter(activity, songlist, R.layout.playlist_queue_item, new String[]{
-                            "play",
-                            "title", "artist"}, new int[]{R.id.picture, android.R.id.text1, android.R.id.text2});
-
-                    setListAdapter(songs);
-                    if (actionMode != null)
-                        actionMode.finish();
-
-                    // Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
-                    // Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
-                    // other
-                    // stuff.
-                    if (finalListPlayingID > 0 && getView() != null)
-                        setSelection(finalListPlayingID);
-                }
-            });
 
         } catch (MPDServerException e) {
             e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
@@ -402,7 +340,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     if (isAdded()) {
                         Tools.notifyUser(getResources().getString(R.string.playlistCleared), activity);
                     }
-                    ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+                    ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
                 } catch (MPDServerException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -452,7 +390,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         MPDApplication app = (MPDApplication) activity.getApplication(); // Play selected Song
 
         @SuppressWarnings("unchecked")
-        final Integer song = (Integer) ((HashMap<String, Object>) l.getAdapter().getItem(position)).get("songid");
+        final Integer song = ((PlaylistMusic) l.getAdapter().getItem(position)).getSongId();
         try {
             app.oMPDAsyncHelper.oMPD.skipToId(song);
         } catch (MPDServerException e) {
@@ -507,14 +445,14 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         // Mark running track...
-        for (HashMap<String, Object> song : songlist) {
-            if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId())
-                song.put("play", android.R.drawable.ic_media_play);
+        for (PlaylistMusic song : songlist) {
+            if ((song.getSongId()) == mpdStatus.getSongId())
+                song.setPlay(android.R.drawable.ic_media_play);
             else
-                song.put("play", 0);
+                song.setPlay(0);
 
         }
-        final SimpleAdapter adapter = (SimpleAdapter) getListAdapter();
+        final ArrayAdapter adapter = (ArrayAdapter) getListAdapter();
         if (adapter != null)
             adapter.notifyDataSetChanged();
 
@@ -555,8 +493,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             if (from == to || filter != null) {
                 return;
             }
-            HashMap<String, Object> itemFrom = songlist.get(from);
-            Integer songID = (Integer) itemFrom.get("songid");
+            PlaylistMusic itemFrom = songlist.get(from);
+            Integer songID = itemFrom.getSongId();
             try {
                 app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
             } catch (MPDServerException e) {
@@ -647,14 +585,14 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     }
 
-    private class QueueAdapter extends SimpleAdapter {
+    private class QueueAdapter extends ArrayAdapter {
 
         private MPDApplication app;
         private SharedPreferences settings;
         private boolean lightTheme;
 
-        public QueueAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
-            super(context, data, resource, from, to);
+        public QueueAdapter(Context context, List<?> data, int resource) {
+            super(context, resource, data);
 
             app = (MPDApplication) activity.getApplication();
             settings = PreferenceManager.getDefaultSharedPreferences(app);
@@ -664,60 +602,56 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         @SuppressWarnings("unchecked")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            final View view = super.getView(position, convertView, parent);
-            final Map<String, ?> item = (Map<String, ?>) getItem(position);
-            String albumartist = (String) item.get("_albumartist");
-            String artist = (String) item.get("_artist");
-            String album = (String) item.get("_album");
-            String title = (String) item.get("title");
-            String path = (String) item.get("_path");
-            String filename = (String) item.get("_filename");
 
-            String coverartist = albumartist;
-            if (coverartist == null || "".equals(coverartist))
-                coverartist = artist;
-            String viewTag = CoverManager.getPlaylistItemKey(coverartist, album, title);
-            if (view.getTag() == null || !view.getTag().equals(viewTag)) {
-                view.setTag(viewTag);
-                view.findViewById(R.id.icon).setVisibility(filter == null ? View.VISIBLE : View.GONE);
-                final View menuButton = view.findViewById(R.id.menu);
-                if (convertView == null) {
-                    menuButton.setOnClickListener(itemMenuButtonListener);
-                }
-
-                menuButton.setTag(item.get("songid"));
-                final ImageView albumCover = (ImageView) view.findViewById(R.id.cover);
-                //Do not download cover if already done for this song ID (getview called a lot of times with the first playlist song)
-                final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
-                final int height = albumCover.getHeight();
+            PlayQueueViewHolder viewHolder;
+            if (convertView == null) {
+                viewHolder = new PlayQueueViewHolder();
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlist_queue_item, null);
+                viewHolder.artist = (TextView) convertView.findViewById(android.R.id.text2);
+                viewHolder.title = (TextView) convertView.findViewById(android.R.id.text1);
+                viewHolder.play = (ImageView) convertView.findViewById(R.id.picture);
+                viewHolder.cover = (ImageView) convertView.findViewById(R.id.cover);
+                viewHolder.coverHelper = new CoverAsyncHelper(app, settings);
+                final int height = viewHolder.cover.getHeight();
                 // If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
-                coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
-                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(activity, albumCover, lightTheme);
-                final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) albumCover
+                viewHolder.coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
+                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(activity, viewHolder.cover, lightTheme);
+                final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) viewHolder.cover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {
                     oldAcd.detach();
                 }
+                viewHolder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
+                viewHolder.cover.setTag(R.id.CoverAsyncHelper, viewHolder.coverHelper);
+                viewHolder.coverHelper.addCoverDownloadListener(acd);
 
-                albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-                albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
-                coverHelper.addCoverDownloadListener(acd);
-                albumCover.setTag(CoverManager.getAlbumKey(coverartist, album));
-                coverHelper.downloadCover(albumartist, artist, album, path, filename, false, cacheOnly);
+                viewHolder.menuButton = convertView.findViewById(R.id.menu);
+                viewHolder.menuButton.setOnClickListener(itemMenuButtonListener);
+                viewHolder.icon = convertView.findViewById(R.id.icon);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (PlayQueueViewHolder) convertView.getTag();
             }
-            return view;
+
+            PlaylistMusic music = (PlaylistMusic) getItem(position);
+
+            viewHolder.artist.setText(music.getPlaylistSubLine());
+            viewHolder.title.setText(music.getPlayListMainLine());
+            viewHolder.icon.setVisibility(filter == null ? View.VISIBLE : View.GONE);
+            viewHolder.menuButton.setTag(music.getSongId());
+            viewHolder.cover.setTag(music.getAlbumInfo().getKey());
+            viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
+            viewHolder.play.setImageResource(music.getPlay());
+            return convertView;
         }
 
     }
 
     public void updateCover(Music song) {
-	String artist = song.getAlbumArtist();
-	if (isNullOrEmpty(artist)) artist = song.getArtist();
-        String albumKey = CoverManager.getAlbumKey(artist, song.getAlbum());
 
         for (int i = 0; i < list.getChildCount(); i++) {
             ImageView albumCover = (ImageView) list.getChildAt(i).findViewById(R.id.cover);
-            if (null != albumCover.getTag() && albumCover.getTag().equals(albumKey)) {
+            if (null != albumCover.getTag() && albumCover.getTag().equals(song.getAlbumInfo().getKey())) {
                 refreshCover(albumCover, song);
             }
         }
@@ -726,7 +660,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private void refreshCover(View albumCover, Music song) {
         if (albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
             CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumCover.getTag(R.id.CoverAsyncHelper);
-            coverAsyncHelper.downloadCover(song, true, false);
+            coverAsyncHelper.downloadCover(song.getAlbumInfo(), true);
         }
     }
 

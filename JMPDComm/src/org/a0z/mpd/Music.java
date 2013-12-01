@@ -120,6 +120,9 @@ public class Music extends Item implements FilesystemTreeEntry {
         }
     }
 
+    public Music() {
+    }
+
     private String getStreamName() {
         if (null != fullpath && !fullpath.isEmpty()) {
             int pos = fullpath.indexOf("#");
@@ -129,6 +132,15 @@ public class Music extends Item implements FilesystemTreeEntry {
         }
         return null;
     }
+
+    public String getAlbumartist() {
+        return isEmpty(albumartist) ? artist : albumartist;
+    }
+
+    public void setAlbumartist(String albumartist) {
+        this.albumartist = albumartist;
+    }
+
 
     public static List<Music> getMusicFromList(List<String> response, boolean sort) {
         ArrayList<Music> result = new ArrayList<Music>();
@@ -187,7 +199,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return album artist name.
      */
     public String getAlbumArtist() {
-        return albumartist;
+        return !isEmpty(albumartist) ? albumartist : artist;
     }
 
     /**
@@ -269,7 +281,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return title.
      */
     public String getTitle() {
-        if (title == null || title.length() == 0) {
+        if (isEmpty(title)) {
             return getFilename();
         } else {
             return title;
@@ -283,7 +295,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public String getName() {
         if (name == null || name.length() == 0) {
-            return getStreamName() == null || getStreamName().length() == 0 ? getFilename() : getStreamName();
+            return isEmpty(getStreamName()) ? getFilename() : getStreamName();
         } else {
             return name;
         }
@@ -548,5 +560,9 @@ public class Music extends Item implements FilesystemTreeEntry {
         public int compare(Music o1, Music o2) {
             return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());
         }
+    }
+
+    public AlbumInfo getAlbumInfo() {
+        return new AlbumInfo(getAlbumArtist(), getAlbum(), getPath(), getFilename());
     }
 }

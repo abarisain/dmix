@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.cover;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import com.namelessdev.mpdroid.MPDApplication;
+import org.a0z.mpd.AlbumInfo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,11 +25,11 @@ public class CachedCover implements ICoverRetriever {
     }
 
     @Override
-    public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
+    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
         final String storageState = Environment.getExternalStorageState();
         // If there is no external storage available, don't bother
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState) || Environment.MEDIA_MOUNTED.equals(storageState)) {
-            final String url = getAbsolutePathForSong(artist, album);
+            final String url = getAbsolutePathForSong(albumInfo);
             if (new File(url).exists())
                 return new String[]{url};
         }
@@ -61,7 +62,7 @@ public class CachedCover implements ICoverRetriever {
         return size;
     }
 
-    public void save(String artist, String album, Bitmap cover) {
+    public void save(AlbumInfo albumInfo, Bitmap cover) {
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             // External storage is not there or read only, don't do anything
             e(MPDApplication.TAG, "No writable external storage, not saving cover to cache");
@@ -70,7 +71,7 @@ public class CachedCover implements ICoverRetriever {
         FileOutputStream out = null;
         try {
             new File(getAbsoluteCoverFolderPath()).mkdirs();
-            out = new FileOutputStream(getAbsolutePathForSong(artist, album));
+            out = new FileOutputStream(getAbsolutePathForSong(albumInfo));
             cover.compress(Bitmap.CompressFormat.JPEG, 95, out);
         } catch (Exception e) {
             e(MPDApplication.TAG, "Cache cover write failure : " + e);
@@ -103,8 +104,8 @@ public class CachedCover implements ICoverRetriever {
         }
     }
 
-    public void delete(String artist, String album) {
-        d(CachedCover.class.getSimpleName(), "Deleting cover for : " + artist + ", " + album);
+    public void delete(AlbumInfo albumInfo) {
+        d(CachedCover.class.getSimpleName(), "Deleting cover for : " + albumInfo);
 
         final String cacheFolderPath = getAbsoluteCoverFolderPath();
         if (cacheFolderPath == null)
@@ -118,7 +119,7 @@ public class CachedCover implements ICoverRetriever {
             for (File f : files) {
                 // No need to take care of subfolders, there won't be any.
                 // (Or at least any that MPDroid cares about)
-                if (getCoverFileName(artist, album).equals(f.getName())) {
+                if (getCoverFileName(albumInfo).equals(f.getName())) {
                     d(CachedCover.class.getSimpleName(), "Deleting cover : " + f.getName());
                     f.delete();
                 }
@@ -133,11 +134,11 @@ public class CachedCover implements ICoverRetriever {
         return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
     }
 
-    public String getAbsolutePathForSong(String artist, String album) {
+    public String getAbsolutePathForSong(AlbumInfo albumInfo) {
         final File cacheDir = application.getExternalCacheDir();
         if (cacheDir == null)
             return null;
-        return getAbsoluteCoverFolderPath() + getCoverFileName(artist, album);
+        return getAbsoluteCoverFolderPath() + getCoverFileName(albumInfo);
     }
 
 

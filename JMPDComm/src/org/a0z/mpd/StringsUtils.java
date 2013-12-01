@@ -1,7 +1,7 @@
-package com.namelessdev.mpdroid.tools;
+package org.a0z.mpd;
 
 
-public class StringUtils {
+public class StringsUtils {
 
     public static String trim(String text) {
         return text == null ? text : text.trim();

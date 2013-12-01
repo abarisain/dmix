@@ -24,8 +24,7 @@ import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
-import com.namelessdev.mpdroid.helpers.CoverManager;
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -289,8 +288,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                     coverArtListener.onCoverNotFound(new CoverInfo(artist, album));
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
                     coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    coverArt.setTag(CoverManager.getAlbumKey(artist, album));
-                    coverHelper.downloadCover(actSong);
+                    coverArt.setTag(actSong.getAlbumInfo().getKey());
+                    coverHelper.downloadCover(actSong.getAlbumInfo());
                     lastArtist = artist;
                     lastAlbum = album;
                 }
@@ -325,10 +324,10 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     public void libraryStateChanged(boolean updating) {
     }
 
-    public void updateCover(String artist, String album) {
-        String albumKey = CoverManager.getAlbumKey(artist, album);
-        if (coverArt != null && null != coverArt.getTag() && coverArt.getTag().equals(albumKey)) {
-            coverHelper.downloadCover(null, artist, album, null, null);
+    public void updateCover(AlbumInfo albumInfo) {
+        if (coverArt != null && null != coverArt.getTag() && coverArt.getTag().equals(albumInfo.getKey())) {
+            coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+            coverHelper.downloadCover(albumInfo);
         }
     }
 

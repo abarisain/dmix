@@ -1,14 +1,14 @@
 package com.namelessdev.mpdroid.cover;
 
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
+import android.util.Log;
+import org.a0z.mpd.AlbumInfo;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import android.util.Log;
+import static android.text.TextUtils.isEmpty;
 
 /**
  * Fetch cover from Spotify
@@ -16,7 +16,7 @@ import android.util.Log;
 public class SpotifyCover extends AbstractWebCover {
 
     @Override
-    public String[] getCoverUrl(String artist, String album, String path, String filename) throws Exception {
+    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
 
         String albumResponse;
         List<String> albumIds;
@@ -24,12 +24,12 @@ public class SpotifyCover extends AbstractWebCover {
         String coverUrl;
 
         try {
-            albumResponse = executeGetRequest("http://ws.spotify.com/search/1/album.json?q=" + artist + " " + album);
+            albumResponse = executeGetRequest("http://ws.spotify.com/search/1/album.json?q=" + albumInfo.getArtist() + " " + albumInfo.getAlbum());
             albumIds = extractAlbumIds(albumResponse);
             for (String albumId : albumIds) {
                 coverResponse = executeGetRequest("https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/" + albumId);
                 coverUrl = extractImageUrl(coverResponse);
-                if (!isNullOrEmpty(coverUrl)) {
+                if (!isEmpty(coverUrl)) {
                     coverUrl = coverUrl.replace("/cover/", "/640/");
                     return new String[]{coverUrl};
                 }
@@ -48,7 +48,7 @@ public class SpotifyCover extends AbstractWebCover {
         JSONArray jsonAlbums;
         JSONObject jsonAlbum;
         String albumId;
-		List<String> albumIds = new ArrayList<String>();
+        List<String> albumIds = new ArrayList<String>();
 
         try {
             jsonRoot = new JSONObject(response);

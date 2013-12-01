@@ -1,26 +1,18 @@
 package com.namelessdev.mpdroid.fragments;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.a0z.mpd.Directory;
-import org.a0z.mpd.FilesystemTreeEntry;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.PlaylistFile;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
-import android.util.Log;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.*;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FSFragment extends BrowseFragment {
 	private static final String EXTRA_DIRECTORY = "directory";

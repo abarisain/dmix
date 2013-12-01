@@ -24,9 +24,11 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
-import com.namelessdev.mpdroid.helpers.*;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
-import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.*;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
@@ -35,6 +37,9 @@ import org.a0z.mpd.exception.MPDServerException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static android.text.TextUtils.isEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener,
         OnSharedPreferenceChangeListener, OnMenuItemClickListener {
@@ -185,6 +190,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 }
             }
         }).start();
+
+        // Update the cover on resume (when you update the current cover from the library activity)
+        // Do not show the progress since most of the time the cover has not changed.
+        if (currentSong != null) {
+            downloadCover(currentSong.getAlbumInfo(), false);
+        }
     }
 
     @Override
@@ -652,17 +663,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     lastAlbum = album;
                     trackTime.setText(timeToString(0));
                     trackTotalTime.setText(timeToString(0));
-                    coverArtListener.onCoverNotFound(new CoverInfo(artist, album));
+                    downloadCover(new AlbumInfo(artist, album));
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
                     // coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
                     int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
-                    coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                    if ("".equals(albumartist))
-                        coverArt.setTag(CoverManager.getAlbumKey(artist, album));
-                    else
-                        coverArt.setTag(CoverManager.getAlbumKey(albumartist, album));
-                    oCoverAsyncHelper.downloadCover(actSong, true, false);
+                    downloadCover(actSong.getAlbumInfo());
                     lastArtist = artist;
                     lastAlbum = album;
                 }
@@ -672,8 +678,21 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 albumNameText.setText("");
                 progressBarTrack.setMax(0);
                 yearNameText.setText("");
+                audioNameText.setText("");
             }
         }
+    }
+
+    private void downloadCover(AlbumInfo albumInfo) {
+        downloadCover(albumInfo, true);
+    }
+
+    private void downloadCover(AlbumInfo albumInfo, boolean showProgress) {
+        coverArt.setTag(albumInfo.getKey());
+        if (showProgress) {
+            coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+        }
+        oCoverAsyncHelper.downloadCover(albumInfo, true);
     }
 
     public void checkConnected() {
@@ -804,14 +823,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         //Update audio properties
         if (audioNameText != null && currentSong != null) {
             StringBuffer sb = new StringBuffer();
-            String[] split = currentSong.getFullpath().split("\\.");
-            if (split.length > 1) {
-                String ext = split[split.length - 1];
-                if (ext.length() <= 4) {
-                    sb.append(ext.toUpperCase() + " / ");
-                }
+            String extension = getExtension(currentSong.getFullpath());
+
+            if (!isEmpty(extension)) {
+                sb.append(extension.toUpperCase() + " | ");
             }
-            sb.append(status.getBitrate() + " kbps / " + status.getBitsPerSample() + " bits / " + status.getSampleRate() / 1000 + "  khz");
+
+            sb.append(status.getBitrate() + " kbps | " + status.getBitsPerSample() + " bits | " + status.getSampleRate() / 1000 + "  khz");
             audioNameText.setText(sb.toString());
         }
     }
@@ -877,17 +895,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         switch (item.getItemId()) {
             case POPUP_ARTIST:
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", new Artist(
-                        (MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
-                                : currentSong.getArtist(), 0));
+                intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ALBUM:
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", new Artist(
-                        (MPD.useAlbumArtist() && !Tools.isStringEmptyOrNull(currentSong.getAlbumArtist())) ? currentSong.getAlbumArtist()
-                                : currentSong.getArtist(), 0));
-                intent.putExtra("album", new Album(currentSong.getAlbum(), new Artist(currentSong.getArtist())));
+                intent.putExtra("artist", new Artist(currentSong.getAlbumartist(), 0));
+                intent.putExtra("album", new Album(currentSong.getAlbum(), new Artist(currentSong.getAlbumartist())));
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_FOLDER:
@@ -921,8 +935,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
 
             case POPUP_COVER_BLACKLIST:
-                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getArtist(), currentSong.getAlbum());
-                oCoverAsyncHelper.downloadCover(currentSong, true, false);
+                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getAlbumInfo());
+                downloadCover(currentSong.getAlbumInfo());
                 //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
@@ -930,9 +944,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 }
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
-                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getArtist(), currentSong.getAlbum());
-                oCoverAsyncHelper.downloadCover(currentSong, true, false);
-                //Update the playlist covers
+                CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getAlbumInfo());
+                downloadCover(currentSong.getAlbumInfo());                //Update the playlist covers
                 playlistFragment = getPlaylistFragment();
                 if (playlistFragment != null) {
                     playlistFragment.updateCover(currentSong);
