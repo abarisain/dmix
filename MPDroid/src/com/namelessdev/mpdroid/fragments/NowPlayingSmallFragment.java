@@ -1,12 +1,12 @@
 package com.namelessdev.mpdroid.fragments;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +25,6 @@ import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-import static com.namelessdev.mpdroid.tools.StringUtils.isNullOrEmpty;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -264,8 +263,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                         artist = actSong.getArtist();
                         if (!showAlbumArtist ||
                             albumartist == null || "".equals(albumartist) ||
-                            artist.equals(albumartist))
-                            artistlabel = "" + artist;
+                            artist.contains(albumartist))
+                            artistlabel = ""+artist;
                         else if ("".equals(artist))
                             artistlabel = "" + albumartist;
                         else {
