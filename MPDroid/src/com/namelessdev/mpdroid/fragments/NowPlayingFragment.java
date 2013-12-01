@@ -250,7 +250,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         coverArt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                coverMenu.show();
+                if (currentSong != null) {
+                    coverMenu.show();
+                }
                 return true;
             }
         });
@@ -646,7 +648,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 album = album == null ? "" : album;
                 date = date != null && date.length() > 1 && !date.startsWith("-") ? " - " + date : "";
                 if (!showAlbumArtist || "".equals(albumartist) ||
-                    artist.toLowerCase().contains(albumartist.toLowerCase()))
+                        artist.toLowerCase().contains(albumartist.toLowerCase()))
                     artistNameText.setText(artist);
                 else if ("".equals(artist))
                     artistNameText.setText(albumartist);
