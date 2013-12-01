@@ -640,7 +640,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 else if ("".equals(artist))
                     artistNameText.setText(albumartist);
                 else
-                    artistNameText.setText(albumartist + "/" + artist);
+                    artistNameText.setText(albumartist + " / " + artist);
                 songNameText.setText(title);
                 albumNameText.setText(album);
                 progressBarTrack.setMax(songMax);
