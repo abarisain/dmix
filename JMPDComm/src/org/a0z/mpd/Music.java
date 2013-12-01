@@ -134,7 +134,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public String getAlbumartist() {
-        return albumartist;
+        return isEmpty(albumartist) ? artist : albumartist;
     }
 
     public void setAlbumartist(String albumartist) {
