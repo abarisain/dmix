@@ -444,17 +444,19 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        // Mark running track...
-        for (PlaylistMusic song : songlist) {
-            int newPlay;
-            if ((song.getSongId()) == mpdStatus.getSongId()) {
-                newPlay = android.R.drawable.ic_media_play;
-            } else {
-                newPlay = 0;
-            }
-            if (song.getCurrentSongIconRefID() != newPlay) {
-                song.setCurrentSongIconRefID(newPlay);
-                refreshPlaylistItemView(song.getSongId());
+        if (songlist != null) {
+            // Mark running track...
+            for (PlaylistMusic song : songlist) {
+                int newPlay;
+                if ((song.getSongId()) == mpdStatus.getSongId()) {
+                    newPlay = android.R.drawable.ic_media_play;
+                } else {
+                    newPlay = 0;
+                }
+                if (song.getCurrentSongIconRefID() != newPlay) {
+                    song.setCurrentSongIconRefID(newPlay);
+                    refreshPlaylistItemView(song.getSongId());
+                }
             }
         }
     }
