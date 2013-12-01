@@ -18,15 +18,15 @@ public class PlaylistMusic {
         this.music = music;
     }
 
-    private int play;
+    private int currentSongIconRefID;
     private boolean marked;
 
-    public int getPlay() {
-        return play;
+    public int getCurrentSongIconRefID() {
+        return currentSongIconRefID;
     }
 
-    public void setPlay(int play) {
-        this.play = play;
+    public void setCurrentSongIconRefID(int currentSongIconRefID) {
+        this.currentSongIconRefID = currentSongIconRefID;
     }
 
     public boolean isMarked() {

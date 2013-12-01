@@ -260,12 +260,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 }
 
                 if (item.getSongId() == lastPlayingID) {
-                    item.setPlay(android.R.drawable.ic_media_play);
+                    item.setCurrentSongIconRefID(android.R.drawable.ic_media_play);
                     // Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
                     // it
                     listPlayingID = newSonglist.size() - 1;
                 } else {
-                    item.setPlay(0);
+                    item.setCurrentSongIconRefID(0);
                 }
                 newSonglist.add(item);
 
@@ -452,8 +452,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             } else {
                 newPlay = 0;
             }
-            if (song.getPlay() != newPlay) {
-                song.setPlay(newPlay);
+            if (song.getCurrentSongIconRefID() != newPlay) {
+                song.setCurrentSongIconRefID(newPlay);
                 refreshPlaylistItemView(song.getSongId());
             }
         }
@@ -639,7 +639,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             viewHolder.title.setText(music.getPlayListMainLine());
             viewHolder.icon.setVisibility(filter == null ? View.VISIBLE : View.GONE);
             viewHolder.menuButton.setTag(music.getSongId());
-            viewHolder.play.setImageResource(music.getPlay());
+            viewHolder.play.setImageResource(music.getCurrentSongIconRefID());
 
             if (viewHolder.cover.getTag() == null || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
                 viewHolder.cover.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
