@@ -446,16 +446,17 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         // Mark running track...
         for (PlaylistMusic song : songlist) {
-            if ((song.getSongId()) == mpdStatus.getSongId())
-                song.setPlay(android.R.drawable.ic_media_play);
-            else
-                song.setPlay(0);
-
+            int newPlay;
+            if ((song.getSongId()) == mpdStatus.getSongId()) {
+                newPlay = android.R.drawable.ic_media_play;
+            } else {
+                newPlay = 0;
+            }
+            if (song.getPlay() != newPlay) {
+                song.setPlay(newPlay);
+                refreshPlaylistItemView(song.getSongId());
+            }
         }
-        final ArrayAdapter adapter = (ArrayAdapter) getListAdapter();
-        if (adapter != null)
-            adapter.notifyDataSetChanged();
-
     }
 
     @Override
@@ -638,12 +639,40 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             viewHolder.title.setText(music.getPlayListMainLine());
             viewHolder.icon.setVisibility(filter == null ? View.VISIBLE : View.GONE);
             viewHolder.menuButton.setTag(music.getSongId());
-            viewHolder.cover.setTag(music.getAlbumInfo().getKey());
-            viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
             viewHolder.play.setImageResource(music.getPlay());
+
+            if (viewHolder.cover.getTag() == null || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
+                viewHolder.cover.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
+                viewHolder.cover.setTag(music.getAlbumInfo().getKey());
+                viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
+            }
             return convertView;
         }
 
+
+    }
+
+    private void refreshPlaylistItemView(final int songId) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                int start = list.getFirstVisiblePosition();
+                for (int i = start, j = list.getLastVisiblePosition(); i <= j; i++) {
+                    PlaylistMusic playlistMusic = (PlaylistMusic) list.getAdapter().getItem(i);
+                    if (playlistMusic.getSongId() == songId) {
+                        View view = list.getChildAt(i - start);
+                        list.getAdapter().getView(i, view, list);
+                        break;
+                    }
+
+                }
+            }
+        }.execute();
     }
 
     public void updateCover(Music song) {
@@ -662,5 +691,4 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             coverAsyncHelper.downloadCover(song.getAlbumInfo(), true);
         }
     }
-
 }
