@@ -190,6 +190,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 }
             }
         }).start();
+
+        // Update the cover on resume (when you update the current cover from the library activity)
+        // Do not show the progress since most of the time the cover has not changed.
+        if (currentSong != null) {
+            downloadCover(currentSong.getAlbumInfo(), false);
+        }
     }
 
     @Override
@@ -678,8 +684,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void downloadCover(AlbumInfo albumInfo) {
+        downloadCover(albumInfo, true);
+    }
+
+    private void downloadCover(AlbumInfo albumInfo, boolean showProgress) {
         coverArt.setTag(albumInfo.getKey());
-        coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+        if (showProgress) {
+            coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+        }
         oCoverAsyncHelper.downloadCover(albumInfo, true);
     }
 
