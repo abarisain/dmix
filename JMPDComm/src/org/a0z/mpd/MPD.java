@@ -1209,11 +1209,13 @@ public class MPD {
 
     public List<Album> getAlbums(Artist artist,
                                  boolean trackCountNeeded) throws MPDServerException {
-        // with albumartist:
-        List<Album> aalbums = getAlbums(artist, true, trackCountNeeded);
+        List<Album> aalbums = getAlbums(artist, true,  trackCountNeeded); // albumartist
+        List<Album> albums  = getAlbums(artist, false, trackCountNeeded); // artist
         if (aalbums == null || aalbums.size() == 0) {
-            // with artist:
-            return  getAlbums(artist, false, trackCountNeeded);
+            return albums;
+        }
+        if (albums != null && albums.size() > 0) {
+            aalbums.addAll(albums);
         }
         return aalbums;
     }
