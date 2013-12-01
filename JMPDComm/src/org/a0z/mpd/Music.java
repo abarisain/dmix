@@ -199,12 +199,21 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Retrieves album artist name.
+     * Retrieves album artist name but discard names like various ...
+     *
+     * @return album artist name.
+     */
+    public String getFilteredAlbumArtist() {
+        return isValidArtist(albumartist) ? albumartist : artist;
+    }
+
+    /**
+     * Retrieves the original album artist name.
      *
      * @return album artist name.
      */
     public String getAlbumArtist() {
-        return isValidArtist(albumartist) ? albumartist : artist;
+        return !isEmpty(albumartist) ? albumartist : artist;
     }
 
     public static boolean isValidArtist(String artist) {
@@ -572,6 +581,6 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public AlbumInfo getAlbumInfo() {
-        return new AlbumInfo(getAlbumArtist(), getAlbum(), getPath(), getFilename());
+        return new AlbumInfo(getFilteredAlbumArtist(), getAlbum(), getPath(), getFilename());
     }
 }
