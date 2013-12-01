@@ -634,8 +634,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 title = title == null ? "" : title;
                 album = album == null ? "" : album;
                 date = date != null && date.length() > 1 && !date.startsWith("-") ? " - " + date : "";
-
-                if (!showAlbumArtist || "".equals(albumartist) || artist.contains(albumartist))
+                if (!showAlbumArtist || "".equals(albumartist) ||
+                    artist.toLowerCase().contains(albumartist.toLowerCase()))
                     artistNameText.setText(artist);
                 else if ("".equals(artist))
                     artistNameText.setText(albumartist);
