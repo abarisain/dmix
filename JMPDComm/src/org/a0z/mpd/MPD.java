@@ -1207,14 +1207,27 @@ public class MPD {
         return getAlbums(artist, true);
     }
 
-    public List<Album> getAlbums(Artist artist, boolean trackCountNeeded) throws MPDServerException {
+    public List<Album> getAlbums(Artist artist,
+                                 boolean trackCountNeeded) throws MPDServerException {
+        // with albumartist:
+        List<Album> aalbums = getAlbums(artist, true, trackCountNeeded);
+        if (aalbums == null || aalbums.size() == 0) {
+            // with artist:
+            return  getAlbums(artist, false, trackCountNeeded);
+        }
+        return aalbums;
+    }
+
+    public List<Album> getAlbums(Artist artist,
+                                 boolean useAlbumArtist,
+                                 boolean trackCountNeeded) throws MPDServerException {
         List<String> albumNames = null;
         List<Album> albums = null;
         final Artist unknownArtist = UnknownArtist.instance;
 
-        if(artist != null) {
+        if (artist != null) {
             albumNames = listAlbums(artist.getName(), useAlbumArtist);
-        }else{
+        } else {
             albumNames = listAlbums(false);
             artist =  unknownArtist;
         }
@@ -1222,16 +1235,16 @@ public class MPD {
         if (null!=albumNames && !albumNames.isEmpty()) {
             albums=new ArrayList<Album>();
             for (String album : albumNames) {
-                if(album == "") {
+                if (album == "") {
                     // add a blank entry to host all songs without an album set
                     albums.add(UnknownAlbum.instance);
-                }else{
+                } else {
                     long songCount = 0;
                     long duration = 0;
                     long year = 0;
                     if (unknownArtist != artist && ((MPD.showAlbumTrackCount() && trackCountNeeded) || MPD.sortAlbumsByYear())) {
                         try {
-                            Long[] albumDetails = getAlbumDetails(artist.getName(), album, MPD.useAlbumArtist());
+                            Long[] albumDetails = getAlbumDetails(artist.getName(), album, useAlbumArtist);
                             if (null!=albumDetails && 3==albumDetails.length) {
                                 songCount=albumDetails[0];
                                 duration=albumDetails[1];
@@ -1267,7 +1280,10 @@ public class MPD {
     }
 
     public List<Artist> getArtists() throws MPDServerException {
-        List<String> artistNames=MPD.useAlbumArtist() ? listAlbumArtists() : listArtists(true);
+        return getArtists(MPD.useAlbumArtist());
+    }
+    public List<Artist> getArtists(boolean useAlbumArtist) throws MPDServerException {
+        List<String> artistNames= useAlbumArtist ? listAlbumArtists() : listArtists(true);
         List<Artist> artists = null;
 
         if (null!=artistNames && !artistNames.isEmpty()) {
@@ -1283,7 +1299,10 @@ public class MPD {
     }
 
     public List<Artist> getArtists(Genre genre) throws MPDServerException {
-        List<String> artistNames = MPD.useAlbumArtist() ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
+        return getArtists(MPD.useAlbumArtist());
+    }
+    public List<Artist> getArtists(Genre genre, boolean useAlbumArtist) throws MPDServerException {
+        List<String> artistNames = useAlbumArtist ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
         List<Artist> artists = null;
 
         if (null != artistNames && !artistNames.isEmpty()) {
