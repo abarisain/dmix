@@ -6,6 +6,7 @@ import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.util.Log;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -263,36 +264,10 @@ public class SongsFragment extends BrowseFragment {
     public void updateFromItems() {
         super.updateFromItems();
         if (items != null) {
-            Music song;
-            String lastArtist = null;
-            for (Item item : items) {
-                song = (Music) item;
-                if (lastArtist == null) {
-                    lastArtist = song.getArtist();
-                    continue;
-                }
-            }
-            if (lastArtist == null) {
-                for (Item item : items) {
-                    song = (Music) item;
-                    if (lastArtist == null) {
-                        lastArtist = song.getArtist();
-                        continue;
-                    }
-                }
-            }
             String artistName = getArtistForTrackList();
             headerArtist.setText(artistName);
             headerInfo.setText(getHeaderInfoString());
             if (coverHelper != null) {
-                String filename = null;
-                String path = null;
-                if (items.size() > 0) {
-                    song = (Music) items.get(0);
-                    filename = song.getFilename();
-                    path = song.getPath();
-                    artistName = song.getArtist();
-                }
                 coverArtProgress.setVisibility(ProgressBar.VISIBLE);
                 coverArt.setTag(album.getAlbumInfo().getKey());
                 coverHelper.downloadCover(album.getAlbumInfo());

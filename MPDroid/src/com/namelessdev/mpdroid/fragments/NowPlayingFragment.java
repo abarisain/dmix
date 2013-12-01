@@ -902,8 +902,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
             case POPUP_ALBUM:
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
-                intent.putExtra("album", new Album(currentSong.getAlbum(), new Artist(currentSong.getArtist())));
+                String artist = currentSong.getAlbumArtistOrArtist();
+                intent.putExtra("artist", new Artist(artist, 0));
+                intent.putExtra("album", new Album(currentSong.getAlbum(), new Artist(artist)));
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_FOLDER:
