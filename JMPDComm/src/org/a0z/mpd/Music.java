@@ -19,6 +19,11 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public static final int FILE = 0;
 
+    // excluded artist names : in lower case
+    private static final List<String> ARTIST_BLACK_LIST = Arrays.asList("various artists", "various artist");
+    // Hack to discard some album artist names very long listing a long list of people and not useful to fetch covers ...
+    public static final int MAX_ARTIST_NAME_LENGHT = 40;
+
     private String album;
 
     private String artist = null;
@@ -199,7 +204,11 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return album artist name.
      */
     public String getAlbumArtist() {
-        return !isEmpty(albumartist) ? albumartist : artist;
+        return isValidArtist(albumartist) ? albumartist : artist;
+    }
+
+    public static boolean isValidArtist(String artist) {
+        return !isEmpty(artist) && !ARTIST_BLACK_LIST.contains(artist.toLowerCase()) && artist.length() < MAX_ARTIST_NAME_LENGHT;
     }
 
     /**
