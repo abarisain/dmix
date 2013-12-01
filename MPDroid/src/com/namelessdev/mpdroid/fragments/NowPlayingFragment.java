@@ -56,6 +56,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 7;
 
     private TextView artistNameText;
+    private boolean showAlbumArtist;
     private TextView songNameText;
     private TextView albumNameText;
     private TextView audioNameText;
@@ -160,6 +161,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void onResume() {
         super.onResume();
         // Annoyingly this seems to be run when the app starts the first time to.
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+        showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
+
         // Just to make sure that we do actually get an update.
         try {
             updateTrackInfo();
@@ -593,6 +597,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         @Override
         protected void onPostExecute(Boolean result) {
             if (result != null && result && activity != null) {
+                String albumartist = null;
                 String artist = null;
                 String title = null;
                 String album = null;
@@ -625,6 +630,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     currentSong = actSong;
                     if (DEBUG)
                         Log.d("MPDroid", "We did find an artist");
+                    albumartist = actSong.getAlbumArtist();
                     artist = actSong.getArtist();
                     title = actSong.getTitle();
                     album = actSong.getAlbum();
@@ -634,13 +640,18 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     songMax = (int) actSong.getTime();
                 }
 
+                albumartist = albumartist == null ? "" : albumartist;
                 artist = artist == null ? "" : artist;
                 title = title == null ? "" : title;
                 album = album == null ? "" : album;
                 date = date != null && date.length() > 1 && !date.startsWith("-") ? " - " + date : "";
 
-
-                artistNameText.setText(artist);
+                if (!showAlbumArtist || "".equals(albumartist) || artist.equals(albumartist))
+                    artistNameText.setText(artist);
+                else if ("".equals(artist))
+                    artistNameText.setText(albumartist);
+                else
+                    artistNameText.setText(albumartist + " / " + artist);
                 songNameText.setText(title);
                 albumNameText.setText(album);
                 progressBarTrack.setMax(songMax);

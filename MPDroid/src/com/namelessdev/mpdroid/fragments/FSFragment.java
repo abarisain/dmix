@@ -1,33 +1,25 @@
 package com.namelessdev.mpdroid.fragments;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.a0z.mpd.Directory;
-import org.a0z.mpd.FilesystemTreeEntry;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.PlaylistFile;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.*;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FSFragment extends BrowseFragment {
 	private static final String EXTRA_DIRECTORY = "directory";
 
 	private Directory currentDirectory = null;
 	private String directory = null;
-
-	private ArrayList<Item> dirItems;
+        private int numSubdirs = 0; // number of subdirectories including ".."
 
 	public FSFragment() {
 		super(R.string.addDirectory, R.string.addedDirectoryToPlaylist, MPDCommand.MPD_SEARCH_FILENAME);
@@ -48,7 +40,7 @@ public class FSFragment extends BrowseFragment {
 			return directory;
 		}
 	}
-	
+
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		outState.putString(EXTRA_DIRECTORY, directory);
@@ -59,7 +51,7 @@ public class FSFragment extends BrowseFragment {
 		directory = path;
 		return this;
 	}
-	
+
 	@Override
 	protected void add(Item item, boolean replace, boolean play) {
 		try {
@@ -77,7 +69,7 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	protected void add(Item item, String playlist) {
 		try {
@@ -101,7 +93,7 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	protected void asyncUpdate() {
 		if (directory != null) {
@@ -116,22 +108,31 @@ public class FSFragment extends BrowseFragment {
 			e.printStackTrace();
 		}
 
-		dirItems=new ArrayList<Item>();
-		dirItems.addAll(currentDirectory.getDirectories());
-		dirItems.addAll(currentDirectory.getFiles());
+		ArrayList<Item> newItems = new ArrayList<Item>();
+                // add parent directory:
+                if (!"".equals(currentDirectory.getFullpath())) {
+                    Directory parent = new Directory(currentDirectory.getParent());
+                    if (parent != null) {
+                        parent.setName("..");
+                        newItems.add(parent);
+                    }
+                }
+		newItems.addAll(currentDirectory.getDirectories());
+                numSubdirs = newItems.size(); // stors number if subdirs
+		newItems.addAll(currentDirectory.getFiles());
 		//Do not show playlists for root directory
 		if (directory != null) {
-			dirItems.addAll(currentDirectory.getPlaylistFiles());
+			newItems.addAll(currentDirectory.getPlaylistFiles());
 		}
-		items=dirItems;
+		items=newItems;
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		// click on a file
-		if (position > currentDirectory.getDirectories().size() - 1 || currentDirectory.getDirectories().size() == 0) {
+            // click on a file, not dir
+            if (position > numSubdirs - 1 || numSubdirs == 0) {
 
-			final FilesystemTreeEntry item = (FilesystemTreeEntry)dirItems.get(position);
+			final FilesystemTreeEntry item = (FilesystemTreeEntry)items.get(position);
 			app.oMPDAsyncHelper.execAsync(new Runnable() {
 				@Override
 				public void run() {
@@ -151,12 +152,12 @@ public class FSFragment extends BrowseFragment {
 				}
 			});
 		} else {
-			final String dir = ((Directory) currentDirectory.getDirectories().toArray()[position]).getFullpath();
+			final String dir = ((Directory) items.toArray()[position]).getFullpath();
 			((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new FSFragment().init(dir), "filesystem");
 		}
 
 	}
-	
+
 	//Disable the indexer for FSFragment
 	@SuppressWarnings("unchecked")
 	protected ListAdapter getCustomListAdapter() {
