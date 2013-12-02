@@ -6,6 +6,7 @@ import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -65,6 +66,7 @@ public class ConnectionSettings extends PreferenceActivity {
 	private void createDynamicSettings(String keyPrefix, PreferenceCategory toCategory) {
 
 		EditTextPreference prefHost = new EditTextPreference(this);
+		prefHost.getEditText().setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_URI);
 		prefHost.setDialogTitle(R.string.host);
 		prefHost.setTitle(R.string.host);
 		prefHost.setSummary(R.string.hostDescription);
@@ -73,6 +75,7 @@ public class ConnectionSettings extends PreferenceActivity {
 		toCategory.addPreference(prefHost);
 
 		EditTextPreference prefPort = new EditTextPreference(this);
+		prefPort.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
 		prefPort.setDialogTitle(R.string.port);
 		prefPort.setTitle(R.string.port);
 		prefPort.setSummary(R.string.portDescription);
@@ -81,6 +84,7 @@ public class ConnectionSettings extends PreferenceActivity {
 		toCategory.addPreference(prefPort);
 
 		EditTextPreference prefPassword = new EditTextPreference(this);
+		prefPassword.getEditText().setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);
 		prefPassword.setDialogTitle(R.string.password);
 		prefPassword.setTitle(R.string.password);
 		prefPassword.setSummary(R.string.passwordDescription);
@@ -89,6 +93,7 @@ public class ConnectionSettings extends PreferenceActivity {
 		toCategory.addPreference(prefPassword);
 
 		EditTextPreference prefHostStreaming = new EditTextPreference(this);
+		prefHostStreaming.getEditText().setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_URI);
 		prefHostStreaming.setDialogTitle(R.string.hostStreaming);
 		prefHostStreaming.setTitle(R.string.hostStreaming);
 		prefHostStreaming.setSummary(R.string.hostStreamingDescription);
@@ -98,6 +103,7 @@ public class ConnectionSettings extends PreferenceActivity {
 
 		// Meh.
 		EditTextPreference prefStreamingPort = new EditTextPreference(this);
+		prefStreamingPort.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
 		prefStreamingPort.setDialogTitle(R.string.portStreaming);
 		prefStreamingPort.setTitle(R.string.portStreaming);
 		prefStreamingPort.setSummary(R.string.portStreamingDescription);
@@ -106,6 +112,7 @@ public class ConnectionSettings extends PreferenceActivity {
 		toCategory.addPreference(prefStreamingPort);
 
 		EditTextPreference suffixStreamingPort = new EditTextPreference(this);
+		suffixStreamingPort.getEditText().setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 		suffixStreamingPort.setDialogTitle(R.string.suffixStreaming);
 		suffixStreamingPort.setTitle(R.string.suffixStreaming);
 		suffixStreamingPort.setSummary(R.string.suffixStreamingDescription);
