@@ -2,6 +2,7 @@ package org.a0z.mpd;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class Album extends Item implements Parcelable {
     public static String singleTrackFormat = "%1 Track (%2)";
@@ -78,10 +79,16 @@ public class Album extends Item implements Parcelable {
 
     @Override
     public int compareTo(Item o) {
-        if (MPD.sortAlbumsByYear() && (o instanceof Album)) {
+        if (o instanceof Album) {
             Album oa = (Album) o;
-            if (year != oa.year) {
-                return year < oa.year ? -1 : 1;
+            if (MPD.sortAlbumsByYear()) {
+                if (year != oa.year) {
+                    return year < oa.year ? -1 : 1;
+                }
+            }
+            int comp = super.compareTo(o);
+            if (comp == 0) { // same album name, check artist
+                comp = artist.compareTo(oa.artist);
             }
         }
         return super.compareTo(o);
