@@ -53,16 +53,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private DragSortController controller;
     private FragmentActivity activity;
     private static final boolean DEBUG = false;
-
     private int lastPlayingID = -1;
-
-    public static final int MAIN = 0;
-    public static final int CLEAR = 1;
-    public static final int MANAGER = 3;
-    public static final int SAVE = 4;
-    public static final int EDIT = 2;
-    private static final String PREFERENCE_ALBUM_LIBRARY = "enableAlbumArtLibrary";
-    private boolean cacheOnly;
 
     public PlaylistFragment() {
         super();
@@ -75,8 +66,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         this.activity = getActivity();
         app = (MPDApplication) activity.getApplication();
         refreshListColorCacheHint();
-        cacheOnly = !PreferenceManager.getDefaultSharedPreferences(activity).getBoolean(PREFERENCE_ALBUM_LIBRARY, false);
-
     }
 
     @Override

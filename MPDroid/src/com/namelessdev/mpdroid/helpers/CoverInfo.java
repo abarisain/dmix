@@ -5,8 +5,7 @@ import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import org.a0z.mpd.AlbumInfo;
 
 public class CoverInfo extends AlbumInfo {
-    public enum STATE {NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP}
-
+    public enum STATE {NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND}
     ;
     private STATE state = STATE.NEW;
     private Bitmap[] bitmap = new Bitmap[0];

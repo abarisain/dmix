@@ -6,7 +6,6 @@ import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.util.Log;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -268,7 +267,6 @@ public class SongsFragment extends BrowseFragment {
             headerArtist.setText(artistName);
             headerInfo.setText(getHeaderInfoString());
             if (coverHelper != null) {
-                coverArtProgress.setVisibility(ProgressBar.VISIBLE);
                 coverArt.setTag(album.getAlbumInfo().getKey());
                 coverHelper.downloadCover(album.getAlbumInfo());
             } else {
@@ -360,7 +358,6 @@ public class SongsFragment extends BrowseFragment {
 
     public void updateCover(AlbumInfo albumInfo) {
         if (coverArt != null && null != coverArt.getTag() && coverArt.getTag().equals(albumInfo.getKey())) {
-            coverArtProgress.setVisibility(ProgressBar.VISIBLE);
             coverHelper.downloadCover(albumInfo);
         }
     }
