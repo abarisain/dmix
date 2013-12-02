@@ -27,7 +27,7 @@ public class SongsFragment extends BrowseFragment {
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
     Album album = null;
-    Artist artist = null;
+    //Artist artist = null;
     TextView headerArtist;
     TextView headerInfo;
 
@@ -48,11 +48,10 @@ public class SongsFragment extends BrowseFragment {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         if (icicle != null)
-            init((Artist) icicle.getParcelable(EXTRA_ARTIST), (Album) icicle.getParcelable(EXTRA_ALBUM));
+            init((Album) icicle.getParcelable(EXTRA_ALBUM));
     }
 
-    public SongsFragment init(Artist ar, Album al) {
-        artist = ar;
+    public SongsFragment init(Album al) {
         album = al;
         return this;
     }
@@ -157,7 +156,7 @@ public class SongsFragment extends BrowseFragment {
                                 break;
                         }
                         try {
-                            app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
+                            app.oMPDAsyncHelper.oMPD.add(album, replace, play);
                             Tools.notifyUser(String.format(getResources().getString(R.string.albumAdded), album), getActivity());
                         } catch (MPDServerException e) {
                             e.printStackTrace();
@@ -212,7 +211,7 @@ public class SongsFragment extends BrowseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(EXTRA_ALBUM, album);
-        outState.putParcelable(EXTRA_ARTIST, artist);
+        //outState.putParcelable(EXTRA_ARTIST, artist);
         super.onSaveInstanceState(outState);
     }
 
@@ -254,7 +253,7 @@ public class SongsFragment extends BrowseFragment {
         try {
             if (getActivity() == null)
                 return;
-            items = app.oMPDAsyncHelper.oMPD.getSongs(artist, album);
+            items = app.oMPDAsyncHelper.oMPD.getSongs(album);
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
@@ -272,7 +271,8 @@ public class SongsFragment extends BrowseFragment {
                 coverArt.setTag(album.getAlbumInfo().getKey());
                 coverHelper.downloadCover(album.getAlbumInfo());
             } else {
-                coverArtListener.onCoverNotFound(new CoverInfo(artistName, album.getName()));
+                //                coverArtListener.onCoverNotFound(new CoverInfo(artistName, album.getName()));
+                coverArtListener.onCoverNotFound(new CoverInfo(album.getAlbumInfo()));
             }
         }
 

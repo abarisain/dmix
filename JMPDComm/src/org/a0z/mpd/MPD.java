@@ -1156,16 +1156,54 @@ public class MPD {
         mpdConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
     }
 
-    public List<Music> getSongs(Artist artist, Album album) throws MPDServerException {
-        List<Music> aasongs = getSongs(artist, album, true); // album artist
+    public List<Music> getSongs(Album album) throws MPDServerException {
+        List<Music> aasongs = getSongs(album, true); // album artist
         if (aasongs == null || aasongs.size() == 0)
-            return  getSongs(artist, album, false); // artist
+            return  getSongs(album, false); // artist
         else
             return aasongs;
     }
 
-    public List<Music> getSongs(Artist artist, Album album, boolean useAlbumArtist) throws MPDServerException {
-        boolean haveArtist = (null != artist);
+    public List<Music> getSongs(Artist artist) throws MPDServerException {
+        String[] search = new String[2];
+        // try as album artist
+        search[0] = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+        search[1] = artist.getName();
+        List<Music> songs = find(search);
+        if (null == songs) {
+            // none found -> use artist search
+            search[0] = MPDCommand.MPD_FIND_ARTIST;
+            songs = find(search);
+        }
+        if (null != songs) {
+            Collections.sort(songs);
+        }
+        return songs;
+    }
+
+    public List<Music> getSongs(Album album, boolean useAlbumArtist) throws MPDServerException {
+        Artist artist = album.getArtist();
+        boolean haveArtist = (null != album.getArtist());
+        String[] search = new String[2];
+        search[0] = MPDCommand.MPD_FIND_ALBUM;
+        search[1] = album.getName();
+        List<Music> songs=find(search);
+        if(album instanceof UnknownAlbum) {
+            // filter out any songs with which have the album tag set
+            Iterator<Music> iter = songs.iterator();
+            while (iter.hasNext()) {
+                if (iter.next().getAlbum() != null) iter.remove();
+            }
+        }
+        if (null!=songs) {
+            Collections.sort(songs);
+        }
+        return songs;
+    }
+
+    public List<Music> getSongsOld(Artist Artist, Album album, boolean useAlbumArtist) throws MPDServerException {
+        Artist artist = album.getArtist();
+        boolean haveArtist = (null != album.getArtist());
         boolean haveAlbum = (null != album) && !(album instanceof UnknownAlbum);
         String[] search = null;
 
@@ -1360,26 +1398,14 @@ public class MPD {
         getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName, Integer.toString(pos));
     }
 
-    public void addToPlaylist(String playlistName, Collection<Music> c) throws MPDServerException {
-        if (null==c || c.size()<1) {
-            return;
-        }
-        for (Music m : c) {
-            getMpdConnection().queueCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullpath());
-        }
-        getMpdConnection().sendCommandQueue();
-    }
 
-    public void addToPlaylist(String playlistName, FilesystemTreeEntry entry) throws MPDServerException {
-        getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, entry.getFullpath());
-    }
 
     public void add(Artist artist) throws MPDServerException {
         add(artist, false, false);
     }
 
-    public void add(Artist artist, Album album) throws MPDServerException {
-        add(artist, album, false, false);
+    public void add(Album album) throws MPDServerException {
+        add(album, false, false);
     }
 
     public void add(Music music) throws MPDServerException {
@@ -1390,8 +1416,9 @@ public class MPD {
         add(playlist, false, false);
     }
 
-    public void add(Artist artist, boolean replace, boolean play) throws MPDServerException {
-        add(artist, null, replace, play);
+    public void add(Artist artist,
+                    boolean replace, boolean play) throws MPDServerException {
+        add(artist, replace, play);
     }
 
     public void add(final FilesystemTreeEntry music, boolean replace, boolean play) throws MPDServerException {
@@ -1413,12 +1440,12 @@ public class MPD {
         add(r, replace, play);
     }
 
-    public void add(final Artist artist, final Album album, boolean replace, boolean play) throws MPDServerException {
+    public void add(final Album album, boolean replace, boolean play) throws MPDServerException {
         final Runnable r = new Runnable() {
                 @Override
                     public void run() {
                     try {
-                        final ArrayList<Music> songs = new ArrayList<Music>(getSongs(artist, album));
+                        final ArrayList<Music> songs = new ArrayList<Music>(getSongs(album));
                         getPlaylist().addAll(songs);
                     } catch (MPDServerException e) {
                         e.printStackTrace();
@@ -1511,22 +1538,37 @@ public class MPD {
         }
     }
 
+    public void addToPlaylist(String playlistName, Collection<Music> c) throws MPDServerException {
+        if (null==c || c.size()<1) {
+            return;
+        }
+        for (Music m : c) {
+            getMpdConnection().queueCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullpath());
+        }
+        getMpdConnection().sendCommandQueue();
+    }
+
+    public void addToPlaylist(String playlistName, FilesystemTreeEntry entry) throws MPDServerException {
+        getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, entry.getFullpath());
+    }
+
     public void addToPlaylist(String playlistName, Artist artist) throws MPDServerException {
-        addToPlaylist(playlistName, artist, null);
+        addToPlaylist(playlistName, new ArrayList<Music>(getSongs(artist)));
     }
 
     public void addToPlaylist(String playlistName, Album album) throws MPDServerException {
-        addToPlaylist(playlistName, null, album);
+        addToPlaylist(playlistName, new ArrayList<Music>(getSongs(album)));
     }
 
-    public void addToPlaylist(String playlistName, Artist artist, Album album) throws MPDServerException {
-        addToPlaylist(playlistName, new ArrayList<Music>(getSongs(artist, album)));
-    }
+    // public void addToPlaylist(String playlistName, Artist artist, Album album) throws MPDServerException {
+    // 	addToPlaylist(playlistName, new ArrayList<Music>(getSongs(artist, album)));
+    // }
 
     public void addToPlaylist(String playlistName, Music music) throws MPDServerException {
         final ArrayList<Music> songs = new ArrayList<Music>();
         songs.add(music);
         addToPlaylist(playlistName, songs);
     }
+
 
 }
