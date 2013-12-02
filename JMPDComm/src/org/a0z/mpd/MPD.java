@@ -1207,17 +1207,35 @@ public class MPD {
         return getAlbums(artist, true);
     }
 
+    public static <T extends Item> List<T> getMerged(List<T> list1,
+                                                     List<T> list2) {
+        if (list2 == null || list2.size() == 0) {
+            return list1;
+        }
+        if (list1 == null || list1.size() == 0) {
+            return list2;
+        }
+        for (T i2 : list2) {
+            boolean haveItem = false;
+            for (T i1 : list1) {
+                if (i1.getName().equals(i2.getName())) {
+                    haveItem = true;
+                }
+            }
+            if (!haveItem) {
+                list1.add(i2);
+            }
+        }
+        return list1;
+    }
+
     public List<Album> getAlbums(Artist artist,
                                  boolean trackCountNeeded) throws MPDServerException {
         List<Album> aalbums = getAlbums(artist, true,  trackCountNeeded); // albumartist
         List<Album> albums  = getAlbums(artist, false, trackCountNeeded); // artist
-        if (aalbums == null || aalbums.size() == 0) {
-            return albums;
-        }
-        if (albums != null && albums.size() > 0) {
-            aalbums.addAll(albums);
-        }
-        return aalbums;
+        List<Album> result  = (List<Album>)getMerged(aalbums, albums);
+        Collections.sort(result);
+        return result;
     }
 
     public List<Album> getAlbums(Artist artist,
