@@ -1324,8 +1324,13 @@ public class MPD {
     }
 
     public List<Artist> getArtists(Genre genre) throws MPDServerException {
-        return getArtists(genre, MPD.useAlbumArtist());
+        List<Artist> aartists = getArtists(genre, true); // albumartist
+        List<Artist> artists  = getArtists(genre, false); // artist
+        List<Artist> all = (List<Artist>)getMerged(aartists, artists);
+        Collections.sort(all);
+        return all;
     }
+
     public List<Artist> getArtists(Genre genre, boolean useAlbumArtist) throws MPDServerException {
         List<String> artistNames = useAlbumArtist ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
         List<Artist> artists = null;
