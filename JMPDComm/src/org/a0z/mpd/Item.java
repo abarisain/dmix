@@ -14,7 +14,7 @@ public abstract class Item implements Comparable<Item> {
 
 	@Override
     public int compareTo(Item o) {
-		return getName().compareToIgnoreCase(o.getName());
+            return getName().compareToIgnoreCase(o.getName());
 	}
 
 	@Override

@@ -94,6 +94,17 @@ public class Album extends Item implements Parcelable {
         return super.compareTo(o);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Album) {
+            Album a = (Album) o;
+            return (year == a.year && duration == a.duration &&
+                    songCount == a.songCount &&
+                    name.equals(a.name) && artist.equals(a.artist));
+        }
+        return false;
+    }
+
 
     @Override
     public int describeContents() {

@@ -1210,8 +1210,9 @@ public class MPD {
         for (T i2 : list2) {
             boolean haveItem = false;
             for (T i1 : list1) {
-                if (i1.getName().equals(i2.getName())) {
+                if (i1.equals(i2)) {
                     haveItem = true;
+                    break;
                 }
             }
             if (!haveItem) {
