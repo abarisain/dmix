@@ -56,8 +56,6 @@
 	<string name="randomDescription">Дозволити/заборонити змішування</string>
 	<string name="repeat">Повтопення</string>
 	<string name="repeatDescription">Дозволити/заборонити повторення</string>
-	<string name="albumartist">Виконавець альбому</string>
-	<string name="albumartistDescription">Використовувати тег Виконавець альбому у вкладці Виконавці</string>
 	<string name="albumTrackSort">Сортування за альбомом</string>
 	<string name="albumTrackSortDescription">Сортувати треки за номером в альбомі</string>
 	<string name="version">Версія</string>

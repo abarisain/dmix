@@ -56,8 +56,6 @@
 	<string name="randomDescription">Вкл/Выкл случайный режим</string>
 	<string name="repeat">Повтор</string>
 	<string name="repeatDescription">Вкл/Выкл повтор</string>
-	<string name="albumartist">Исполнители</string>
-	<string name="albumartistDescription">Использовать метку "Исполнитель" на вкладке Исполнители</string>
 	<string name="albumTrackSort">Упорядочивать по номеру</string>
 	<string name="albumTrackSortDescription">Упорядочивать Альбомы по номерам записей</string>
 	<string name="version">Версия</string>

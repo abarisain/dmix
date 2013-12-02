@@ -1,6 +1,7 @@
 package org.a0z.mpd;
 
 import android.content.Context;
+import android.util.Log;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -23,7 +24,6 @@ public class MPD {
     private MPDPlaylist playlist;
     private Directory rootDirectory;
 
-    static private boolean useAlbumArtist = false;
     static private boolean sortByTrackNumber = true;
     static private boolean sortAlbumsByYear = false;
     static private boolean showArtistAlbumCount = false;
@@ -37,10 +37,6 @@ public class MPD {
 
     static public void setApplicationContext(Context context) {
         applicationContext = context;
-    }
-
-    static public boolean useAlbumArtist() {
-        return useAlbumArtist;
     }
 
     static public boolean sortAlbumsByYear() {
@@ -57,10 +53,6 @@ public class MPD {
 
     static public boolean showAlbumTrackCount() {
         return showAlbumTrackCount;
-    }
-
-    static public void setUseAlbumArtist(boolean v) {
-        useAlbumArtist=v;
     }
 
     static public void setSortByTrackNumber(boolean v) {
