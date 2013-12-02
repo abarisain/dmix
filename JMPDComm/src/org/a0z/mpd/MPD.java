@@ -1265,7 +1265,8 @@ public class MPD {
         List<Album> aalbums = getAlbums(artist, true,  trackCountNeeded); // albumartist
         List<Album> albums  = getAlbums(artist, false, trackCountNeeded); // artist
         List<Album> result  = (List<Album>)getMerged(aalbums, albums);
-        Collections.sort(result);
+        if (result != null)
+            Collections.sort(result);
         return result;
     }
 
@@ -1334,7 +1335,9 @@ public class MPD {
         List<Artist> aartists = getArtists(true);
         List<Artist> artists  = getArtists(false);
         List<Artist> all = (List<Artist>)getMerged(aartists, artists);
-        Collections.sort(all);
+        if (null != all) {
+            Collections.sort(all);
+        }
         return all;
     }
 
@@ -1358,7 +1361,9 @@ public class MPD {
         List<Artist> aartists = getArtists(genre, true); // albumartist
         List<Artist> artists  = getArtists(genre, false); // artist
         List<Artist> all = (List<Artist>)getMerged(aartists, artists);
-        Collections.sort(all);
+        if (null != all) {
+            Collections.sort(all);
+        }
         return all;
     }
 
