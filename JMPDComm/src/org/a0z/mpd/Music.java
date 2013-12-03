@@ -210,10 +210,10 @@ public class Music extends Item implements FilesystemTreeEntry {
     /**
      * Retrieves the original album artist name.
      *
-     * @return album artist name.
+     * @return album artist name or null if it is not set.
      */
     public String getAlbumArtist() {
-        return !isEmpty(albumartist) ? albumartist : artist;
+        return albumartist;
     }
 
     public static boolean isValidArtist(String artist) {

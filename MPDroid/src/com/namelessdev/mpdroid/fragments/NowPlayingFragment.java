@@ -47,13 +47,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public static final String PREFS_NAME = "mpdroid.properties";
     private static final boolean DEBUG = false;
     private static final int POPUP_ARTIST = 0;
-    private static final int POPUP_ALBUM = 1;
-    private static final int POPUP_FOLDER = 2;
-    private static final int POPUP_STREAM = 3;
-    private static final int POPUP_SHARE = 4;
-    private static final int POPUP_CURRENT = 5;
-    private static final int POPUP_COVER_BLACKLIST = 6;
-    private static final int POPUP_COVER_SELECTIVE_CLEAN = 7;
+    private static final int POPUP_ALBUMARTIST = 1;
+    private static final int POPUP_ALBUM = 2;
+    private static final int POPUP_FOLDER = 3;
+    private static final int POPUP_STREAM = 4;
+    private static final int POPUP_SHARE = 5;
+    private static final int POPUP_CURRENT = 6;
+    private static final int POPUP_COVER_BLACKLIST = 7;
+    private static final int POPUP_COVER_SELECTIVE_CLEAN = 8;
 
     private TextView artistNameText;
     private boolean showAlbumArtist;
@@ -293,6 +294,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             popupMenu = new PopupMenu(activity, songInfo);
             popupMenu.getMenu().add(Menu.NONE, POPUP_ALBUM, Menu.NONE, R.string.goToAlbum);
             popupMenu.getMenu().add(Menu.NONE, POPUP_ARTIST, Menu.NONE, R.string.goToArtist);
+            popupMenu.getMenu().add(Menu.NONE, POPUP_ALBUMARTIST, Menu.NONE, R.string.goToAlbumArtist);
             popupMenu.getMenu().add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
             popupMenu.getMenu().add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
             popupMenu.getMenu().add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
@@ -833,6 +835,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             sb.append(status.getBitrate() + " kbps | " + status.getBitsPerSample() + " bits | " + status.getSampleRate() / 1000 + "  khz");
             audioNameText.setText(sb.toString());
+
+        }
+        // Update Menu
+        if (currentSong != null) {
+            if (currentSong.getAlbumArtist() != null) {
+                popupMenu.getMenu().findItem(POPUP_ALBUMARTIST).setVisible(true);
+            } else {
+                popupMenu.getMenu().findItem(POPUP_ALBUMARTIST).setVisible(false);
+            }
         }
     }
 
@@ -897,10 +908,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         switch (item.getItemId()) {
             case POPUP_ARTIST:
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                Artist[] artists= new Artist[2];
-                artists[0] = new Artist(currentSong.getAlbumArtistOrArtist(), 0);
-                artists[1] = new Artist(currentSong.getArtist(), 0);
-                intent.putExtra("artists", artists);
+                intent.putExtra("artist", new Artist(currentSong.getArtist(), 0));
+                startActivityForResult(intent, -1);
+                break;
+            case POPUP_ALBUMARTIST:
+                intent = new Intent(activity, SimpleLibraryActivity.class);
+                intent.putExtra("artist", new Artist(currentSong.getAlbumArtist(), 0));
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ALBUM:
