@@ -82,9 +82,9 @@ public class LibraryFragment extends Fragment {
 				// display either normal album listing, or album artwork grid
 				final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(((Activity) activity).getApplication());
 				if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, false)) {
-					fragment = new AlbumsGridFragment(null);
+                                    fragment = new AlbumsGridFragment();
 				}else{
-					fragment = new AlbumsFragment(null);
+                                    fragment = new AlbumsFragment();
 				}
 			} else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS)) {
 				fragment = new PlaylistsFragment();
