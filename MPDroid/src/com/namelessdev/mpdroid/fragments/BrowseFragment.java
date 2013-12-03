@@ -119,6 +119,11 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 		noResultView = null;
 		super.onDestroyView();
 	}
+    @Override
+    public void onResume() {
+        setActivityTitle(getTitle());
+        super.onResume();
+    }
 
 	/*
 	 * Override this to display a custom activity title
