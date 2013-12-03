@@ -72,7 +72,9 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.now_playing_small_fragment, container, false);
         songTitle = (TextView) view.findViewById(R.id.song_title);
+        songTitle.setSelected(true);
         songArtist = (TextView) view.findViewById(R.id.song_artist);
+        songArtist.setSelected(true);
         buttonPrev = (ImageButton) view.findViewById(R.id.prev);
         buttonPlayPause = (ImageButton) view.findViewById(R.id.playpause);
         buttonNext = (ImageButton) view.findViewById(R.id.next);
