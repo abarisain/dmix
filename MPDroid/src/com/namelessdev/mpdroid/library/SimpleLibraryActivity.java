@@ -28,7 +28,6 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 	@Override
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
-                Log.d("BUNDLE ", ""+arg0);
 		setContentView(R.layout.library_tabs);
 		Object targetElement = null;
 		Fragment rootFragment = null;
