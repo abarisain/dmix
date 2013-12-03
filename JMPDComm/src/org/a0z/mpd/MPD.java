@@ -1233,9 +1233,6 @@ public class MPD {
         return songs;
     }
 
-    public List<Album> getAlbums(Artist artist) throws MPDServerException {
-        return getAlbums(artist, true);
-    }
 
     public static <T extends Item> List<T> getMerged(List<T> list1,
                                                      List<T> list2) {
@@ -1260,6 +1257,10 @@ public class MPD {
         return list1;
     }
 
+    public List<Album> getAlbums(Artist artist) throws MPDServerException {
+        return getAlbums(artist, true);
+    }
+
     public List<Album> getAlbums(Artist artist,
                                  boolean trackCountNeeded) throws MPDServerException {
         List<Album> aalbums = getAlbums(artist, true,  trackCountNeeded); // albumartist
@@ -1268,6 +1269,14 @@ public class MPD {
         if (result != null)
             Collections.sort(result);
         return result;
+    }
+
+    public List<Album> getAlbums(Artist[] artists, boolean trackCountNeeded) throws MPDServerException {
+        List<Album> albums = null;
+        for (Artist artist : artists) {
+            albums = getMerged(albums, getAlbums(artist, trackCountNeeded));
+        }
+        return albums;
     }
 
     public List<Album> getAlbums(Artist artist,

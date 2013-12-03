@@ -19,7 +19,8 @@ import org.a0z.mpd.exception.MPDServerException;
 
 public class AlbumsFragment extends BrowseFragment {
     private static final String EXTRA_ARTIST = "artist";
-    protected Artist artist = null;
+    private static final String EXTRA_ARTISTS = "artists";
+    protected Artist[] artists = null;
     protected boolean isCountPossiblyDisplayed;
     protected ProgressBar coverArtProgress;
 
@@ -27,13 +28,20 @@ public class AlbumsFragment extends BrowseFragment {
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
     public AlbumsFragment() {
-        this(null);
+        this((Artist)null);
     }
 
     public AlbumsFragment(Artist artist) {
         super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
+        this.artists = new Artist[1];
+        this.artists[0] = artist;
         isCountPossiblyDisplayed = true;
-        this.artist = artist;
+    }
+
+    public AlbumsFragment(Artist[] artists) {
+        super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
+        isCountPossiblyDisplayed = true;
+        this.artists = artists;
     }
 
     @Override
@@ -48,14 +56,14 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(EXTRA_ARTIST, artist);
+        outState.putParcelableArray(EXTRA_ARTISTS, artists);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public String getTitle() {
-        if (artist != null) {
-            return artist.getName();
+        if (artists != null) {
+            return artists[0].getName();
         } else {
             return getString(R.string.albums);
         }
@@ -70,8 +78,12 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected ListAdapter getCustomListAdapter() {
         if (items != null) {
-            return new ArrayIndexerAdapter(getActivity(),
-                    new AlbumDataBinder(app, artist == null ? null : artist.getName(), app.isLightThemeSelected()), items);
+            String artistname = null;
+            if (artists != null && artists.length > 0 && artists[0] != null) {
+                artistname = artists[0].getName();
+            }
+            return new ArrayIndexerAdapter
+                (getActivity(), new AlbumDataBinder(app, artistname, app.isLightThemeSelected()), items);
         }
         return super.getCustomListAdapter();
     }
@@ -79,7 +91,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         try {
-            items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountPossiblyDisplayed);
+            items = app.oMPDAsyncHelper.oMPD.getAlbums(artists, isCountPossiblyDisplayed);
         } catch (MPDServerException e) {
         }
     }
@@ -150,7 +162,7 @@ public class AlbumsFragment extends BrowseFragment {
             if (albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
                 CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper);
                 albumViewHolder.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-                coverAsyncHelper.downloadCover(album, true); // albumartist=null, force to use this artist
+                coverAsyncHelper.downloadCover(album, true);
             }
         }
 

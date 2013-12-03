@@ -18,9 +18,13 @@ public class AlbumsGridFragment extends AlbumsFragment {
         super(artist);
         isCountPossiblyDisplayed = false;
     }
+    public AlbumsGridFragment(Artist[] artists) {
+        super(artists);
+        isCountPossiblyDisplayed = false;
+    }
 
     public AlbumsGridFragment() {
-        this(null);
+        this((Artist)null);
     }
 
     @Override
@@ -42,7 +46,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
     protected ListAdapter getCustomListAdapter() {
         if (items != null) {
             return new ArrayIndexerAdapter(getActivity(),
-                    new AlbumGridDataBinder(app, artist == null ? null : artist.getName(), app.isLightThemeSelected()), items);
+                    new AlbumGridDataBinder(app, artists == null ? null : artists[0].getName(), app.isLightThemeSelected()), items);
         }
         return super.getCustomListAdapter();
     }
