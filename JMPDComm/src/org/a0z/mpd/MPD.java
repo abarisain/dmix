@@ -1183,10 +1183,14 @@ public class MPD {
 
     public List<Music> getSongs(Album album, boolean useAlbumArtist) throws MPDServerException {
         Artist artist = album.getArtist();
-        boolean haveArtist = (null != album.getArtist());
-        String[] search = new String[2];
+        boolean haveArtist = (null != album.getArtist()) && !(album.getArtist() instanceof UnknownArtist);
+        String[] search = new String[haveArtist ? 4 : 2];
         search[0] = MPDCommand.MPD_FIND_ALBUM;
         search[1] = album.getName();
+        if (haveArtist) {
+            search[2] = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_FIND_ARTIST;
+            search[3] = artist.getName();
+        }
         List<Music> songs=find(search);
         if(album instanceof UnknownAlbum) {
             // filter out any songs with which have the album tag set
