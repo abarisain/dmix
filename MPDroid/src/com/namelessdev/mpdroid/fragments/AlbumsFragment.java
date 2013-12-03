@@ -63,7 +63,11 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public String getTitle() {
         if (artists != null) {
-            return artists[0].getName();
+            String t = artists[0].getName();
+            for (int i = 1; i < artists.length; i++) {
+                t += ("/"+artists[i].getName());
+            }
+            return t;
         } else {
             return getString(R.string.albums);
         }
