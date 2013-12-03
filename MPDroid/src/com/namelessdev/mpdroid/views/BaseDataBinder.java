@@ -48,7 +48,7 @@ public abstract class BaseDataBinder implements ArrayIndexerDataBinder {
     public abstract int getLayoutId();
 
     protected void loadPlaceholder(CoverAsyncHelper coverHelper) {
-        coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVERNOTFOUND).sendToTarget();
+        coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
     }
 
     protected void loadArtwork(CoverAsyncHelper coverHelper, AlbumInfo albumInfo) {

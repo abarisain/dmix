@@ -192,6 +192,7 @@ public class CoverManager {
                         case NEW:
                             helpersByCoverInfo.put(coverInfo, coverInfo.getListener());
                             if (runningRequests.contains(coverInfo)) {
+                                notifyListeners(getExistingRequest(coverInfo));
                                 break;
                             } else {
 
@@ -199,7 +200,8 @@ public class CoverManager {
                                     if (DEBUG) {
                                         d(CoverManager.class.getSimpleName(), "Incomplete cover request  with artist=" + coverInfo.getArtist() + ", album=" + coverInfo.getAlbum());
                                     }
-                                    notifyListeners(false, coverInfo);
+                                    coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
+                                    notifyListeners(coverInfo);
                                 } else {
                                     runningRequests.add(coverInfo);
                                     coverInfo.setState(CACHE_COVER_FETCH);
@@ -211,6 +213,7 @@ public class CoverManager {
                         case CACHE_COVER_FETCH:
                             if (coverInfo.getCoverBytes() == null || coverInfo.getCoverBytes().length == 0) {
                                 coverInfo.setState(WEB_COVER_FETCH);
+                                notifyListeners(coverInfo);
                                 if (coverInfo.isPriority()) {
                                     priorityCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                                 } else {
@@ -225,31 +228,36 @@ public class CoverManager {
                         case WEB_COVER_FETCH:
                             if (coverInfo.getCoverBytes() != null && coverInfo.getCoverBytes().length > 0) {
                                 coverInfo.setState(CREATE_BITMAP);
+                                notifyListeners(coverInfo);
                                 createBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
                                 break;
                             } else {
-                                notifyListeners(false, coverInfo);
+                                coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
+                                notifyListeners(coverInfo);
                                 break;
                             }
                         case CREATE_BITMAP:
                             if (coverInfo.getBitmap() != null) {
-                                notifyListeners(true, coverInfo);
+                                coverInfo.setState(CoverInfo.STATE.COVER_FOUND);
+                                notifyListeners(coverInfo);
                             } else if (isLastCoverRetriever(coverInfo.getCoverRetriever())) {
                                 if (DEBUG)
                                     d(CoverManager.class.getSimpleName(), "The cover has not been downloaded correctly for album " + coverInfo.getAlbum() + " with this retriever : " + coverInfo.getCoverRetriever() + ", trying the next ones ...");
                                 coverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                             } else {
-                                notifyListeners(false, coverInfo);
+                                coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
+                                notifyListeners(coverInfo);
                             }
                             break;
                         default:
                             e(CoverManager.class.getSimpleName(), "Unknown request : " + coverInfo);
-                            notifyListeners(false, coverInfo);
+                            coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
+                            notifyListeners(coverInfo);
                             break;
                     }
 
 
-                    if (requests.isEmpty()) {
+                    if (runningRequests.isEmpty()) {
                         saveCovers();
                         saveWrongCovers();
                     }
@@ -260,6 +268,10 @@ public class CoverManager {
             }
 
         }
+    }
+
+    private CoverInfo getExistingRequest(CoverInfo coverInfo) {
+        return runningRequests.get(runningRequests.indexOf(coverInfo));
     }
 
     public static boolean isValidCoverInfo(CoverInfo coverInfo) {
@@ -283,38 +295,46 @@ public class CoverManager {
         return true;
     }
 
-    private void notifyListeners(boolean found, CoverInfo coverInfo) {
+    private void notifyListeners(CoverInfo coverInfo) {
 
-        try {
-            if (DEBUG)
-                d(CoverManager.class.getSimpleName(), "End of cover lookup for " + coverInfo.getAlbum() + ", did we find it ? " + found);
-            if (helpersByCoverInfo.containsKey(coverInfo)) {
-                Iterator<CoverDownloadListener> listenerIterator = helpersByCoverInfo.get(coverInfo).iterator();
-                while (listenerIterator.hasNext()) {
-                    CoverDownloadListener listener = listenerIterator.next();
+        if (helpersByCoverInfo.containsKey(coverInfo)) {
+            Iterator<CoverDownloadListener> listenerIterator = helpersByCoverInfo.get(coverInfo).iterator();
+            while (listenerIterator.hasNext()) {
+                CoverDownloadListener listener = listenerIterator.next();
 
-                    if (found) {
+                switch (coverInfo.getState()) {
+                    case COVER_FOUND:
+                        removeRequest(coverInfo);
+                        if (DEBUG)
+                            d(CoverManager.class.getSimpleName(), "Cover found for " + coverInfo.getAlbum());
                         listener.onCoverDownloaded(coverInfo);
-
-                    } else {
-                        listener.onCoverNotFound(coverInfo);
-                    }
-
-                    if (listenerIterator.hasNext()) {
                         // Do a copy for the other listeners (not to share bitmaps between views because of the recycling)
-                        coverInfo = new CoverInfo(coverInfo);
-                        if (coverInfo.getBitmap() != null && coverInfo.getBitmap().length > 0) {
+                        if (listenerIterator.hasNext()) {
+                            coverInfo = new CoverInfo(coverInfo);
                             Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(coverInfo.getBitmap()[0].getConfig(), coverInfo.getBitmap()[0].isMutable() ? true : false);
                             coverInfo.setBitmap(new Bitmap[]{copyBitmap});
                         }
-                    }
+                        break;
+                    case COVER_NOT_FOUND:
+                        removeRequest(coverInfo);
+                        if (DEBUG)
+                            d(CoverManager.class.getSimpleName(), "Cover not found for " + coverInfo.getAlbum());
+                        listener.onCoverNotFound(coverInfo);
+                        break;
+                    case WEB_COVER_FETCH:
+                        listener.onCoverDownloadStarted(coverInfo);
+                        break;
+                    default:
+                        break;
                 }
             }
-        } finally {
-            runningRequests.remove(coverInfo);
-            helpersByCoverInfo.remove(coverInfo);
-            logQueues();
         }
+    }
+
+    private void removeRequest(CoverInfo coverInfo) {
+        runningRequests.remove(coverInfo);
+        helpersByCoverInfo.remove(coverInfo);
+        logQueues();
     }
 
     private void logQueues() {
@@ -506,6 +526,7 @@ public class CoverManager {
 
             requests.addLast(coverInfo);
         }
+
     }
 
 
@@ -700,14 +721,14 @@ public class CoverManager {
             objectInputStream = new ObjectInputStream(new FileInputStream(file));
             wrongCovers = (MultiMap<String, String>) objectInputStream.readObject();
         } catch (Exception e) {
-            e(CoverManager.class.getSimpleName(), "Cannot load wrong covers : " + e);
+            e(CoverManager.class.getSimpleName(), "Cannot load cover blacklist : " + e);
             wrongCovers = new MultiMap<String, String>();
         } finally {
             if (objectInputStream != null) {
                 try {
                     objectInputStream.close();
                 } catch (IOException e) {
-                    Log.e(CoverManager.class.getSimpleName(), "Cannot close wrong cover file : " + e);
+                    Log.e(CoverManager.class.getSimpleName(), "Cannot close cover blacklist : " + e);
 
                 }
             }
@@ -725,14 +746,14 @@ public class CoverManager {
             objectInputStream = new ObjectInputStream(new FileInputStream(file));
             wrongCovers = (Map<String, String>) objectInputStream.readObject();
         } catch (Exception e) {
-            e(CoverManager.class.getSimpleName(), "Cannot load wrong covers : " + e);
+            e(CoverManager.class.getSimpleName(), "Cannot load cover history file: " + e);
             wrongCovers = new HashMap<String, String>();
         } finally {
             if (objectInputStream != null) {
                 try {
                     objectInputStream.close();
                 } catch (IOException e) {
-                    Log.e(CoverManager.class.getSimpleName(), "Cannot close wrong cover file : " + e);
+                    Log.e(CoverManager.class.getSimpleName(), "Cannot close cover history file : " + e);
 
                 }
             }

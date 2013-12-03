@@ -80,7 +80,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
                     builder.append(line);
                 }
             } else {
-                Log.e(getName(), "Failed to download cover : HTTP status code : " + statusCode);
+                Log.w(getName(), "Failed to download cover : HTTP status code : " + statusCode);
 
             }
         } catch (Exception e) {
