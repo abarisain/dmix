@@ -190,9 +190,13 @@ public class CoverManager {
 
                     switch (coverInfo.getState()) {
                         case NEW:
+                            // Do not create a new request if a similar one already exists
+                            // Just register the new cover listener and update the request priority.
                             helpersByCoverInfo.put(coverInfo, coverInfo.getListener());
                             if (runningRequests.contains(coverInfo)) {
-                                notifyListeners(getExistingRequest(coverInfo));
+                                CoverInfo existingRequest = getExistingRequest(coverInfo);
+                                existingRequest.setPriority(existingRequest.isPriority() || coverInfo.isPriority());
+                                notifyListeners(existingRequest);
                                 break;
                             } else {
 
