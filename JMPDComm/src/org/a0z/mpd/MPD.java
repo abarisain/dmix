@@ -1252,9 +1252,20 @@ public class MPD {
         return songs;
     }
 
+    public static <T extends Item> List<T> getUniq(List<T> list) {
+        List<T> uniq = new ArrayList<T>();
+        T lastItem = null;
+        for (T item : list) {
+            if (lastItem == null || !item.getName().equals(lastItem.getName())) {
+                uniq.add(item);
+                lastItem = item;
+            }
+        }
+        return uniq;
+    }
 
     public static <T extends Item> List<T> getMerged(List<T> list1,
-                                                                  List<T> list2) {
+                                                     List<T> list2) {
         if (list2 == null || list2.size() == 0) {
             return list1;
         }
@@ -1367,7 +1378,7 @@ public class MPD {
         if (null!=albums) {
             Collections.sort(albums);
         }
-        return albums;
+        return getUniq(albums);
     }
 
     public List<Genre> getGenres() throws MPDServerException {
