@@ -141,25 +141,26 @@ public class MPDConnection {
         commandQueue.add(command);
     }
 
-    static List< ArrayList<String> > separatedQueueResults(List<String> lines) {
-        List< ArrayList<String> > result = new ArrayList< ArrayList<String> >();
+    static List< String[] > separatedQueueResults(List<String> lines) {
+        List< String[] > result = new ArrayList< String[] >();
         ArrayList<String> lineCache = new ArrayList<String>();
+
         for (String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
                 if (lineCache.size() != 0) {
-                    result.add(lineCache);
+                    result.add((String[])lineCache.toArray(new String[0]));
                     lineCache.clear();
                 }
-            }
-            lineCache.add(line);
+            } else
+                lineCache.add(line);
         }
         if (lineCache.size() != 0) {
-            result.add(lineCache);
+            result.add((String[])lineCache.toArray(new String[0]));
         }
         return result;
     }
 
-    synchronized List< ArrayList<String> > sendCommandQueueSeparated() throws MPDServerException {
+    synchronized List< String[] > sendCommandQueueSeparated() throws MPDServerException {
         return separatedQueueResults(sendCommandQueue(true));
     }
 

@@ -8,9 +8,9 @@ public class Album extends Item implements Parcelable {
     public static String multipleTracksFormat = "%1 Tracks (%2)";
 
     private final String name;
-    private final long songCount;
-    private final long duration;
-    private final long year;
+    private long songCount;
+    private long duration;
+    private long year;
     private Artist artist;
 
     public Album(String name, long songCount, long duration, long year, Artist artist) {
@@ -41,12 +41,24 @@ public class Album extends Item implements Parcelable {
         return songCount;
     }
 
+    public void setSongCount(long sc) {
+        songCount = sc;
+    }
+
     public long getYear() {
         return year;
     }
 
+    public void setYear(long y) {
+        year = y;
+    }
+
     public long getDuration() {
         return duration;
+    }
+
+    public void setDuration(long d) {
+        duration = d;
     }
 
     @Override
