@@ -173,7 +173,6 @@ public class MPDConnection {
             commandstr += command.toString();
         }
         commandstr += MPD_CMD_END_BULK + "\n";
-        Log.d("COMMANDQUEUE: ", commandQueue.toString());
         commandQueue = new ArrayList<MPDCommand>();
         return sendRawCommand(commandstr);
     }

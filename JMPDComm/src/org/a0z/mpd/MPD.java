@@ -1213,7 +1213,7 @@ public class MPD {
         List<T> uniq = new ArrayList<T>();
         T lastItem = null;
         for (T item : list) {
-            if (lastItem == null || !item.getName().equals(lastItem.getName())) {
+            if (!item.isSameOnList(lastItem)) {
                 uniq.add(item);
                 lastItem = item;
             }
