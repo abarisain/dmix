@@ -1181,6 +1181,18 @@ public class MPD {
         return songs;
     }
 
+    public String getAlbumArtist(Album album) {
+        List<Music> songs = null;
+        try {
+            songs = getSongs(album, false);
+        } catch (MPDServerException e) {
+            return null;
+        }
+        if (songs == null || songs.size() ==0 )
+            return null;
+        return ((Music)songs.get(0)).getAlbumArtist();
+    }
+
     public List<Music> getSongs(Album album, boolean useAlbumArtist) throws MPDServerException {
         Artist artist = album.getArtist();
         boolean haveArtist = (null != album.getArtist()) && !(album.getArtist() instanceof UnknownArtist);
@@ -1269,6 +1281,14 @@ public class MPD {
                                  boolean trackCountNeeded) throws MPDServerException {
         List<Album> aalbums = getAlbums(artist, true,  trackCountNeeded); // albumartist
         List<Album> albums  = getAlbums(artist, false, trackCountNeeded); // artist
+        if (null != albums) {
+            for (Album a : albums) { // check artist albums for albumartist
+                String aartist = getAlbumArtist(a);
+                if (null != aartist) {
+                    a.setArtist(new Artist(aartist));
+                }
+            }
+        }
         List<Album> result  = (List<Album>)getMerged(aalbums, albums);
         if (result != null)
             Collections.sort(result);
