@@ -686,6 +686,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void downloadCover(AlbumInfo albumInfo) {
+        coverArt.setTag(albumInfo.getKey());
         oCoverAsyncHelper.downloadCover(albumInfo, true);
     }
 

@@ -267,6 +267,7 @@ public class SongsFragment extends BrowseFragment {
             headerArtist.setText(artistName);
             headerInfo.setText(getHeaderInfoString());
             if (coverHelper != null) {
+                coverArt.setTag(album.getAlbumInfo().getKey());
                 coverHelper.downloadCover(album.getAlbumInfo());
             } else {
                 coverArtListener.onCoverNotFound(new CoverInfo(artistName, album.getName()));
