@@ -117,6 +117,14 @@ public class Album extends Item implements Parcelable {
         return false;
     }
 
+    public boolean isSameOnList(Item o) {
+        if (null == o) {
+            return false;
+        }
+        Album a = (Album)o;
+        return (name.equals(a.getName()) &&
+                artist.isSameOnList(a.getArtist()));
+    }
 
     @Override
     public int describeContents() {
