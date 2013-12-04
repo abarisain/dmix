@@ -1,7 +1,10 @@
 package org.a0z.mpd;
 
+import android.util.Log;
+
 public class MPDCommand {
-    
+    private static final boolean DEBUG = false;
+
 	public static final int MIN_VOLUME = 0;
 	public static final int MAX_VOLUME = 100;
 
@@ -39,7 +42,7 @@ public class MPDCommand {
 	public static final String MPD_CMD_PLAYLIST_ADD = "playlistadd";
 	public static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
 	public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
-	
+
 	public static final String MPD_CMD_IDLE="idle";
 	// deprecated commands
 	public static final String MPD_CMD_VOLUME = "volume";
@@ -51,17 +54,40 @@ public class MPDCommand {
 
 	public static final String MPD_FIND_ALBUM = "album";
 	public static final String MPD_FIND_ARTIST = "artist";
-	
+
 	public static final String MPD_SEARCH_ALBUM = "album";
 	public static final String MPD_SEARCH_ARTIST = "artist";
 	public static final String MPD_SEARCH_FILENAME = "filename";
 	public static final String MPD_SEARCH_TITLE = "title";
 	public static final String MPD_SEARCH_GENRE = "genre";
-	
+
 	public static final String MPD_TAG_ALBUM = "album";
 	public static final String MPD_TAG_ARTIST = "artist";
 	public static final String MPD_TAG_ALBUM_ARTIST = "albumartist";
 	public static final String MPD_TAG_GENRE = "genre";
 
+    String command = null;
+    String[] args = null;
+
+    public MPDCommand(String _command, String... _args) {
+        this.command = _command;
+        this.args = _args;
+    }
+
+    public String toString() {
+        StringBuffer outBuf = new StringBuffer();
+        outBuf.append(command);
+        for (String arg : args) {
+            if(arg == null)
+                continue;
+            arg = arg.replaceAll("\"", "\\\\\"");
+            outBuf.append(" \"" + arg + "\"");
+        }
+        outBuf.append("\n");
+        final String outString = outBuf.toString();
+        if (DEBUG)
+            Log.d("JMPDComm", "Mpd command : " + (outString.startsWith("password ") ? "password **censored**" : outString));
+        return outString;
+    }
 
 }
