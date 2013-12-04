@@ -96,6 +96,8 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 		list = (ListView) view.findViewById(R.id.list);
 		registerForContextMenu(list);
 		list.setOnItemClickListener(this);
+		if (android.os.Build.VERSION.SDK_INT == 19)
+			list.setFastScrollAlwaysVisible(true);
 		loadingView = view.findViewById(R.id.loadingLayout);
 		loadingTextView = (TextView) view.findViewById(R.id.loadingText);
 		noResultView = view.findViewById(R.id.noResultLayout);
