@@ -14,8 +14,6 @@ import com.namelessdev.mpdroid.tools.MultiMap;
 import com.namelessdev.mpdroid.tools.StringUtils;
 import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.UnknownAlbum;
-import org.a0z.mpd.UnknownArtist;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -200,7 +198,7 @@ public class CoverManager {
                                 break;
                             } else {
 
-                                if (!isValidCoverInfo(coverInfo)) {
+                                if (!coverInfo.isValid()) {
                                     if (DEBUG) {
                                         d(CoverManager.class.getSimpleName(), "Incomplete cover request  with artist=" + coverInfo.getArtist() + ", album=" + coverInfo.getAlbum());
                                     }
@@ -276,15 +274,6 @@ public class CoverManager {
 
     private CoverInfo getExistingRequest(CoverInfo coverInfo) {
         return runningRequests.get(runningRequests.indexOf(coverInfo));
-    }
-
-    public static boolean isValidCoverInfo(CoverInfo coverInfo) {
-        return isValidArtistOrAlbum(coverInfo.getAlbum()) && isValidArtistOrAlbum(coverInfo.getArtist());
-    }
-
-    public static boolean isValidArtistOrAlbum(String artistOrAlbum) {
-        return !isEmpty(artistOrAlbum) && !artistOrAlbum.equals("-") &&
-                !artistOrAlbum.equals(UnknownArtist.instance.getName()) && !artistOrAlbum.equals(UnknownAlbum.instance.getName());
     }
 
     private boolean isLastCoverRetriever(ICoverRetriever retriever) {

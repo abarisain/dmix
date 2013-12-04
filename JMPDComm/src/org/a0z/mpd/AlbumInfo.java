@@ -88,16 +88,11 @@ public class AlbumInfo {
     }
 
     public String getKey() {
-        String key;
-        if (!isEmpty(artist)) {
-            key = getHashFromString(artist + album);
-        } else {
-            key = getHashFromString(album);
-        }
-        return key;
+        return !isEmpty(artist) ? getHashFromString(artist + album) : getHashFromString(album);
     }
 
     public boolean isValid() {
-        return !isEmpty(artist) && !isEmpty(album);
+        return !isEmpty(artist) && !isEmpty(album) &&
+                !artist.equals(UnknownArtist.instance.getName()) && !album.equals(UnknownAlbum.instance.getName());
     }
 }
