@@ -1,17 +1,19 @@
 package com.namelessdev.mpdroid.fragments;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.view.View;
-import android.widget.AdapterView;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
-import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Genre;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.AdapterView;
+
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.tools.Tools;
 
 public class ArtistsFragment extends BrowseFragment {
 	private Genre genre = null;
@@ -43,7 +45,7 @@ public class ArtistsFragment extends BrowseFragment {
 	public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
 		AlbumsFragment af;
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication());
-		if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, false)) {
+        if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
 			af = new AlbumsGridFragment((Artist) items.get(position));
 		} else {
 			af = new AlbumsFragment((Artist) items.get(position));

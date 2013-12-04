@@ -54,7 +54,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 				if (targetElement instanceof Artist) {
 					AlbumsFragment af;
 					final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplication());
-					if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, false)) {
+                    if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
 						af = new AlbumsGridFragment((Artist) targetElement);
 					} else {
 						af = new AlbumsFragment((Artist) targetElement);

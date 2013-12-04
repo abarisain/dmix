@@ -106,7 +106,7 @@
             <CheckBoxPreference android:persistent="true"
                                 android:title="@string/enableAlbumArtLibrary"
                                 android:summary="@string/enableAlbumArtLibraryDescription"
-                                android:key="enableAlbumArtLibrary" android:defaultValue="false"/>
+                                android:key="enableAlbumArtLibrary" android:defaultValue="true"/>
         </PreferenceScreen>
         <CheckBoxPreference android:persistent="true"
                             android:title="@string/enableStopButton"
