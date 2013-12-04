@@ -112,7 +112,6 @@ public class CoverInfo extends AlbumInfo {
 
         CoverInfo coverInfo = (CoverInfo) o;
 
-        if (priority != coverInfo.priority) return false;
         if (album != null ? !album.equals(coverInfo.album) : coverInfo.album != null) return false;
         if (artist != null ? !artist.equals(coverInfo.artist) : coverInfo.artist != null) return false;
 
@@ -123,7 +122,6 @@ public class CoverInfo extends AlbumInfo {
     public int hashCode() {
         int result = artist != null ? artist.hashCode() : 0;
         result = 31 * result + (album != null ? album.hashCode() : 0);
-        result = 31 * result + (priority ? 1 : 0);
         return result;
     }
 
