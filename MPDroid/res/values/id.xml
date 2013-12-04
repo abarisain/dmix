@@ -2,4 +2,5 @@
 <resources>
     <item type="id" name="AlbumCoverDownloadListener"/>
     <item type="id" name="CoverAsyncHelper"/>
+    <item type="id" name="ForceCoverRefresh"/>
 </resources>

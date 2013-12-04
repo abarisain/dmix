@@ -632,7 +632,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             viewHolder.menuButton.setTag(music.getSongId());
             viewHolder.play.setImageResource(music.getCurrentSongIconRefID());
 
-            if (viewHolder.cover.getTag() == null || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
+            if (viewHolder.cover.getTag(R.id.ForceCoverRefresh) != null || viewHolder.cover.getTag() == null || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
+                viewHolder.cover.setTag(R.id.ForceCoverRefresh, null);
                 viewHolder.cover.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
                 viewHolder.cover.setTag(music.getAlbumInfo().getKey());
                 viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
@@ -679,6 +680,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private void refreshCover(View albumCover, Music song) {
         if (albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
             CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumCover.getTag(R.id.CoverAsyncHelper);
+            // Place a tag to force the cover refresh during the next getView()
+            albumCover.setTag(R.id.ForceCoverRefresh, true);
             coverAsyncHelper.downloadCover(song.getAlbumInfo(), true);
         }
     }
