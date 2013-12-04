@@ -81,6 +81,13 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         }
     }
 
+    @Override
+    public void onCoverRequestRegistered(CoverInfo cover) {
+        if (coverArt != null) {
+            coverArt.setTag(cover.getKey());
+        }
+    }
+
     public void freeCoverDrawable() {
         freeCoverDrawable(null);
     }

@@ -634,7 +634,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
             if (viewHolder.cover.getTag() == null || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
                 viewHolder.cover.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
-                viewHolder.cover.setTag(music.getAlbumInfo().getKey());
                 viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
             }
             return convertView;

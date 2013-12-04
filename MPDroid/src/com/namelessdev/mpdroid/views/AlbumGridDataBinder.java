@@ -51,7 +51,6 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 
         // Can't get artwork for missing album name
         if (album.getAlbumInfo().isValid() && enableCache) {
-            holder.albumCover.setTag(album.getAlbumInfo().getKey());
             loadArtwork(coverHelper, album.getAlbumInfo());
         }
     }

@@ -191,6 +191,8 @@ public class CoverManager {
                             // Do not create a new request if a similar one already exists
                             // Just register the new cover listener and update the request priority.
                             helpersByCoverInfo.put(coverInfo, coverInfo.getListener());
+                            //Notify cover listener about the request registration for them to tag the cover view with the album key.
+                            coverInfo.getListener().onCoverRequestRegistered(coverInfo);
                             if (runningRequests.contains(coverInfo)) {
                                 CoverInfo existingRequest = getExistingRequest(coverInfo);
                                 existingRequest.setPriority(existingRequest.isPriority() || coverInfo.isPriority());

@@ -8,4 +8,7 @@ public interface CoverDownloadListener {
 
     public void onCoverDownloadStarted(CoverInfo cover);
 
+    public void onCoverRequestRegistered(CoverInfo cover);
+
+
 }

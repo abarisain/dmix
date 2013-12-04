@@ -21,6 +21,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     public static final int EVENT_COVER_DOWNLOADED = 1;
     public static final int EVENT_COVER_NOT_FOUND = 2;
     public static final int EVENT_COVER_DOWNLOAD_STARTED = 3;
+    public static final int EVENT_COVER_REQUEST_REGISTERED = 4;
     public static final int MAX_SIZE = 0;
 
     private static final Message COVER_NOT_FOUND_MESSAGE;
@@ -112,6 +113,10 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
                 for (CoverDownloadListener listener : coverDownloadListener)
                     listener.onCoverDownloadStarted((CoverInfo) msg.obj);
                 break;
+            case EVENT_COVER_REQUEST_REGISTERED:
+                for (CoverDownloadListener listener : coverDownloadListener)
+                    listener.onCoverRequestRegistered((CoverInfo) msg.obj);
+                break;
             default:
                 break;
         }
@@ -130,6 +135,11 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     @Override
     public void onCoverDownloadStarted(CoverInfo cover) {
         CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, cover).sendToTarget();
+    }
+
+    @Override
+    public void onCoverRequestRegistered(CoverInfo cover) {
+        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_REQUEST_REGISTERED, cover).sendToTarget();
     }
 
     public void setCoverRetrieversFromPreferences() {
