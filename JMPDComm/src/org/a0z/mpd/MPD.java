@@ -302,17 +302,10 @@ public class MPD {
         return Music.getMusicFromList(mpdConnection.sendCommand(searchCommand, args), sort);
     }
 
-    /**
-     * Retrieves a database directory listing of the base of the
-     * database directory path.
-     *
-     * @return a <code>Collection</code> of <code>Music</code> and
-     * <code>Directory</code> representing directory entries.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
-     * @see Music
-     * @see Directory
-     */
+     /**
+       * Retrieves a database directory listing of the base of the
+       * database directory path.
+       */
     public List<FilesystemTreeEntry> getDir() throws MPDServerException {
         return getDir(null);
     }
@@ -573,6 +566,7 @@ public class MPD {
         return result;
     }
 
+//<<<<<<< HEAD
     public int getAlbumCount(Artist artist, boolean useAlbumArtistTag) throws MPDServerException {
         return listAlbums(artist.getName(), useAlbumArtistTag).size();
     }
@@ -1607,6 +1601,5 @@ public class MPD {
         songs.add(music);
         addToPlaylist(playlistName, songs);
     }
-
 
 }
