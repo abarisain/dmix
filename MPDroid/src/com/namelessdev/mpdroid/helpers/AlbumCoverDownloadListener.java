@@ -67,10 +67,6 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         cover.setBitmap(null);
         if (coverArtProgress != null)
             coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-        if (coverArt != null) {
-            // Allows to retry cover resolving for playlist items (might have been downloaded from the nowplaying fragment)
-            coverArt.setTag(null);
-        }
         freeCoverDrawable();
     }
 

@@ -1,23 +1,33 @@
 package com.namelessdev.mpdroid.library;
 
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.fragments.*;
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.exception.MPDServerException;
+import com.namelessdev.mpdroid.fragments.AlbumsFragment;
+import com.namelessdev.mpdroid.fragments.AlbumsGridFragment;
+import com.namelessdev.mpdroid.fragments.BrowseFragment;
+import com.namelessdev.mpdroid.fragments.FSFragment;
+import com.namelessdev.mpdroid.fragments.LibraryFragment;
+import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
+import com.namelessdev.mpdroid.fragments.SongsFragment;
+import com.namelessdev.mpdroid.fragments.StreamsFragment;
 
-public class SimpleLibraryActivity extends MPDroidFragmentActivity implements ILibraryFragmentActivity {
+public class SimpleLibraryActivity extends MPDroidFragmentActivity implements ILibraryFragmentActivity, OnBackStackChangedListener {
 
 	public final String EXTRA_ALBUM = "album";
 	public final String EXTRA_ARTIST = "artist";
@@ -25,15 +35,17 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 	public final String EXTRA_STREAM = "streams";
 	public final String EXTRA_FOLDER = "folder";
 
+    private Fragment rootFragment;
+
 	@Override
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		setContentView(R.layout.library_tabs);
 		Object targetElement = null;
-		Fragment rootFragment = null;
 		if (getIntent().getBooleanExtra("streams", false)) {
 			rootFragment = new StreamsFragment();
 		} else {
+<<<<<<< HEAD
                     targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
                     if (targetElement == null) {
                         targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
@@ -78,6 +90,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 			if (rootFragment instanceof BrowseFragment)
 				setTitle(((BrowseFragment) rootFragment).getTitle());
 			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            getSupportFragmentManager().addOnBackStackChangedListener(this);
 			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 			ft.replace(R.id.root_frame, rootFragment);
 			ft.commit();
@@ -172,16 +185,6 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 	}
 
 	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		final FragmentManager supportFM = getSupportFragmentManager();
-		final int fmStackCount = supportFM.getBackStackEntryCount();
-		if (fmStackCount > 0) {
-			setTitle(supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
-		}
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -190,4 +193,19 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 		}
 		return false;
 	}
+
+    @Override
+    public void onBackStackChanged() {
+        final FragmentManager supportFM = getSupportFragmentManager();
+        final int fmStackCount = supportFM.getBackStackEntryCount();
+        if (fmStackCount > 0) {
+            setTitle(supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
+        } else {
+            if (rootFragment instanceof BrowseFragment) {
+                setTitle(((BrowseFragment) rootFragment).getTitle());
+            } else {
+                setTitle(rootFragment.toString());
+            }
+        }
+    }
 }

@@ -11,7 +11,6 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
@@ -53,28 +52,36 @@ public class AlbumDataBinder extends BaseDataBinder {
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-        final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
-        final int height = holder.albumCover.getHeight();
-        // If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
-        coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
+        if (artist == null) {
+            holder.albumCover.setVisibility(View.GONE);
+            holder.coverArtProgress.setVisibility(View.GONE);
+        } else {
+            holder.albumCover.setVisibility(View.VISIBLE);
+            holder.coverArtProgress.setVisibility(View.VISIBLE);
+            final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
+            final int height = holder.albumCover.getHeight();
+            // If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
+            coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
 
-        loadPlaceholder(coverHelper);
+            loadPlaceholder(coverHelper);
 
-        // display cover art in album listing if caching is on
-        if (CoverManager.isValidArtistOrAlbum(artist) && CoverManager.isValidArtistOrAlbum(album.getName()) && enableCache) {
-            // listen for new artwork to be loaded
-            final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, holder.coverArtProgress, lightTheme, false);
-            final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
-                    .getTag(R.id.AlbumCoverDownloadListener);
-            if (oldAcd != null) {
-                oldAcd.detach();
+            // display cover art in album listing if caching is on
+            if (album.getAlbumInfo().isValid() && enableCache) {
+                // listen for new artwork to be loaded
+                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, holder.coverArtProgress,
+                        lightTheme, false);
+                final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
+                        .getTag(R.id.AlbumCoverDownloadListener);
+                if (oldAcd != null) {
+                    oldAcd.detach();
+                }
+
+                holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+                holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
+                coverHelper.addCoverDownloadListener(acd);
+                holder.albumCover.setTag(album.getAlbumInfo().getKey());
+                loadArtwork(coverHelper, album.getAlbumInfo());
             }
-
-            holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-            holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
-            coverHelper.addCoverDownloadListener(acd);
-            holder.albumCover.setTag(album.getAlbumInfo().getKey());
-            loadArtwork(coverHelper, album.getAlbumInfo());
         }
     }
 

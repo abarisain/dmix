@@ -9,6 +9,7 @@ public class AlbumInfo {
     protected String album = "";
     protected String path = "";
     protected String filename = "";
+    private static final String INVALID_ALBUM_KEY = "INVALID_ALBUM_KEY";
 
     public AlbumInfo() {
     }
@@ -88,16 +89,11 @@ public class AlbumInfo {
     }
 
     public String getKey() {
-        String key;
-        if (!isEmpty(artist)) {
-            key = getHashFromString(artist + album);
-        } else {
-            key = getHashFromString(album);
-        }
-        return key;
+        return isValid() ? getHashFromString(artist + album) : INVALID_ALBUM_KEY;
     }
 
     public boolean isValid() {
-        return !isEmpty(artist) && !isEmpty(album);
+        return !isEmpty(artist) && !isEmpty(album) &&
+                !artist.equals(UnknownArtist.instance.getName()) && !album.equals(UnknownAlbum.instance.getName());
     }
 }

@@ -8,7 +8,6 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
@@ -51,7 +50,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         loadPlaceholder(coverHelper);
 
         // Can't get artwork for missing album name
-        if (CoverManager.isValidArtistOrAlbum(album.getArtist().getName()) && CoverManager.isValidArtistOrAlbum(album.getName()) && enableCache) {
+        if (album.getAlbumInfo().isValid() && enableCache) {
             holder.albumCover.setTag(album.getAlbumInfo().getKey());
             loadArtwork(coverHelper, album.getAlbumInfo());
         }
