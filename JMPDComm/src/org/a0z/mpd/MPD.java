@@ -596,21 +596,23 @@ public class MPD {
      *            if an error occur while contacting server.
      * @return <code>FileStorage</code> with all songs and directories.
      */
-    /*public Directory listAllFiles(String dir) throws MPDServerException {
+    /*
+    public Directory listAllFiles(String dir) throws MPDServerException {
       if(!isConnected())
-      throw new MPDServerException("MPD Connection is not established");
+          throw new MPDServerException("MPD Connection is not established");
 
       List<String> list = mpdConnection.sendCommand(MPD_CMD_LISTALL, dir);
 
       for (String line : list) {
-      if (line.startsWith("directory: ")) {
-      rootDirectory.makeDirectory(line.substring("directory: ".length()));
-      } else if (line.startsWith("file: ")) {
-      rootDirectory.addFile(new Music(line.substring("file: ".length())));
-      }
+          if (line.startsWith("directory: ")) {
+              rootDirectory.makeDirectory(line.substring("directory: ".length()));
+          } else if (line.startsWith("file: ")) {
+              rootDirectory.addFile(new Music(line.substring("file: ".length())));
+          }
       }
       return rootDirectory;
-      }*/
+      }
+    */
 
     /**
      * List all genre names from database.
@@ -1171,7 +1173,7 @@ public class MPD {
         String[] search = new String[2];
         // try as album artist
         search[0] = MPDCommand.MPD_TAG_ALBUM_ARTIST;
-        search[1] = artist.getName();
+        search[1] = (artist instanceof UnknownArtist) ? "" : artist.getName();
         List<Music> songs = find(search);
         if (null == songs) {
             // none found -> use artist search
@@ -1184,30 +1186,58 @@ public class MPD {
         return songs;
     }
 
-    public String getAlbumArtist(Album album) {
-        List<Music> songs = null;
+    /*
+     * get all AlbumArtists of all given albums as a list of arrays
+     */
+    public List< String[] > getAlbumArtists(List<Album> albums) {
+        List< String[] > albumssongs = null;
         try {
-            songs = getSongs(album, false);
+            for (Album album : albums) {
+                mpdConnection.queueCommand(getSongsCommand(album, false));
+            }
+            albumssongs = mpdConnection.sendCommandQueueSeparated();
         } catch (MPDServerException e) {
-            return null;
         }
-        if (songs == null || songs.size() ==0 )
+        List< String[] > allalbumartists = new ArrayList<String[]>();
+        if (albumssongs == null || albumssongs.size() ==0 )
             return null;
-        return ((Music)songs.get(0)).getAlbumArtist();
+        for (String[] songs : albumssongs) { // go through albums
+            String lastAA = null;
+            List<String> albumartists = new ArrayList<String>();
+            for (String line : songs) {
+                if (line.startsWith("AlbumArtist: ")) {
+                    String songAA = line.substring("AlbumArtist: ".length());
+                    if (null != songAA && !songAA.equals(lastAA)) {
+                        albumartists.add(songAA);
+                        lastAA = songAA;
+                    }
+                }
+            }
+            for (String aa : albumartists) {
+                Log.d("ALBUMARTIST ", aa);
+            }
+            allalbumartists.add(albumartists.toArray(new String[0]));
+        }
+        return allalbumartists;
     }
 
-    public List<Music> getSongs(Album album, boolean useAlbumArtist) throws MPDServerException {
+    public MPDCommand getSongsCommand(Album album, boolean useAlbumArtist) throws MPDServerException {
         Artist artist = album.getArtist();
         boolean haveArtist = (null != album.getArtist()) && !(album.getArtist() instanceof UnknownArtist);
         String[] search = new String[haveArtist ? 4 : 2];
         search[0] = MPDCommand.MPD_FIND_ALBUM;
-        search[1] = album.getName();
+        search[1] = (album instanceof UnknownAlbum) ? "" : album.getName();
         if (haveArtist) {
             search[2] = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_FIND_ARTIST;
             search[3] = artist.getName();
         }
-        List<Music> songs=find(search);
-        if(album instanceof UnknownAlbum) {
+        return new MPDCommand(MPDCommand.MPD_CMD_FIND, search);
+    }
+
+    public List<Music> getSongs(Album album, boolean useAlbumArtist) throws MPDServerException {
+        List<Music> songs =
+            Music.getMusicFromList( mpdConnection.sendCommand(getSongsCommand(album, useAlbumArtist)), true);
+        if (album instanceof UnknownAlbum) {
             // filter out any songs with which have the album tag set
             Iterator<Music> iter = songs.iterator();
             while (iter.hasNext()) {
@@ -1220,37 +1250,37 @@ public class MPD {
         return songs;
     }
 
-    public List<Music> getSongsOld(Artist Artist, Album album, boolean useAlbumArtist) throws MPDServerException {
-        Artist artist = album.getArtist();
-        boolean haveArtist = (null != album.getArtist());
-        boolean haveAlbum = (null != album) && !(album instanceof UnknownAlbum);
-        String[] search = null;
+    // public List<Music> getSongsOld(Artist Artist, Album album, boolean useAlbumArtist) throws MPDServerException {
+    //     Artist artist = album.getArtist();
+    //     boolean haveArtist = (null != album.getArtist());
+    //     boolean haveAlbum = (null != album) && !(album instanceof UnknownAlbum);
+    //     String[] search = null;
 
-        int pos=0;
-        if (haveAlbum || haveArtist) {
-            search=new String[haveAlbum && haveArtist ? 4 : 2];
-            if (haveArtist) {
-                search[pos++] = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_FIND_ARTIST;
-                search[pos++]=artist.getName();
-            }
-            if (haveAlbum) {
-                search[pos++]=MPDCommand.MPD_FIND_ALBUM;
-                search[pos++]=album.getName();
-            }
-        }
-        List<Music> songs=find(search);
-        if(album instanceof UnknownAlbum) {
-            // filter out any songs with which have the album tag set
-            Iterator<Music> iter = songs.iterator();
-            while (iter.hasNext()) {
-                if (iter.next().getAlbum() != null) iter.remove();
-            }
-        }
-        if (null!=songs) {
-            Collections.sort(songs);
-        }
-        return songs;
-    }
+    //     int pos=0;
+    //     if (haveAlbum || haveArtist) {
+    //         search=new String[haveAlbum && haveArtist ? 4 : 2];
+    //         if (haveArtist) {
+    //             search[pos++] = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_FIND_ARTIST;
+    //             search[pos++]=artist.getName();
+    //         }
+    //         if (haveAlbum) {
+    //             search[pos++]=MPDCommand.MPD_FIND_ALBUM;
+    //             search[pos++]=album.getName();
+    //         }
+    //     }
+    //     List<Music> songs=find(search);
+    //     if(album instanceof UnknownAlbum) {
+    //         // filter out any songs with which have the album tag set
+    //         Iterator<Music> iter = songs.iterator();
+    //         while (iter.hasNext()) {
+    //             if (iter.next().getAlbum() != null) iter.remove();
+    //         }
+    //     }
+    //     if (null!=songs) {
+    //         Collections.sort(songs);
+    //     }
+    //     return songs;
+    // }
 
     public static <T extends Item> List<T> getUniq(List<T> list) {
         List<T> uniq = new ArrayList<T>();
@@ -1264,6 +1294,7 @@ public class MPD {
         return uniq;
     }
 
+    //  TODO: merge faster if you know both lists are sorted
     public static <T extends Item> List<T> getMerged(List<T> list1,
                                                      List<T> list2) {
         if (list2 == null || list2.size() == 0) {
@@ -1293,15 +1324,38 @@ public class MPD {
 
     public List<Album> getAlbums(Artist artist,
                                  boolean trackCountNeeded) throws MPDServerException {
-        List<Album> aalbums = null;//getAlbums(artist, true,  trackCountNeeded); // albumartist
+        List<Album> aalbums = getAlbums(artist, true,  trackCountNeeded); // albumartist
         List<Album> albums  = getAlbums(artist, false, trackCountNeeded); // artist
-        if (null != albums) {
-            for (Album a : albums) { // check artist albums for albumartist
-                String aartist = getAlbumArtist(a);
-                if (null != aartist) {
-                    a.setArtist(new Artist(aartist));
+
+        // check "albums" for albumartists:
+        List <String[]> aartists = getAlbumArtists(albums);
+        if (null != aartists && null != albums &&
+            aartists.size() == albums.size()) {
+            List<Album> newAlbums = new ArrayList<Album>();
+            for (int i = 0; i < albums.size(); i++) {
+                // albumartists of album i:
+                String[] aar =  (String[])aartists.get(i);
+                if (null != aar && aar.length > 0) {
+                    if (aar.length > 1) {
+                        Log.d("MORE THAN ", "ONE ALBUM: " + aar.length);
+                        // split album!
+                        Album oldAlbum = (Album)albums.get(i);
+                        albums.remove(i);
+                        i--;
+                        for (String aartist : aar) {
+                            Album newAlbum = new Album(oldAlbum);
+                            newAlbum.setArtist(new Artist(aartist));
+                            newAlbums.add(newAlbum);
+                            Log.d("MORE THAN ", "ADDED ALBUM: " + aartist);
+                        }
+                    } else {
+                        Log.d("ONE ALBARTIST ", " " + aar[0]);
+                        ((Album)albums.get(i)).setArtist(new Artist(aar[0]));
+                    }
                 }
             }
+            Log.d("ADDED ", "ALBUMS " + newAlbums.size());
+            albums.addAll(newAlbums);
         }
         List<Album> result  = (List<Album>)getMerged(aalbums, albums);
         if (result != null)
@@ -1330,7 +1384,7 @@ public class MPD {
                 for (String alb : albumNames) {
                     if("".equals(alb)) {
                         // add a blank entry to host all songs without an album set
-                        albums.add(UnknownAlbum.instance);
+                        albums.add(new UnknownAlbum(artist));
                     } else {
                         albums.add(new Album(alb, 0, 0, 0, artist));
                     }
@@ -1358,10 +1412,9 @@ public class MPD {
             for (Artist art : allartists) {
                 MPDCommand comm = listAlbumsCommand(art.getName(), useAlbumArtist);
                 mpdConnection.queueCommand(comm);
-                Log.d("QUEUECOMMAND ", comm.toString());
             }
             List < String[] > artistsalbums = mpdConnection.sendCommandQueueSeparated();
-            Log.d("GETALBUMS ", "got "+artistsalbums.size() + " of " + allartists.size());
+            //Log.d("MPDroid.GETALBUMS ", "got "+artistsalbums.size() + " of " + allartists.size());
             if (artistsalbums.size() == allartists.size()) {
                 for (int i = 0; i < artistsalbums.size(); i++){
                     Artist art = (Artist)allartists.get(i);
@@ -1378,7 +1431,8 @@ public class MPD {
         if (null!=albums) {
             Collections.sort(albums);
         }
-        return getUniq(albums);
+        //return getUniq(albums);
+        return albums;
     }
 
     public List<Genre> getGenres() throws MPDServerException {
