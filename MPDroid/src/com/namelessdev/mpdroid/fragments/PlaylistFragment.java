@@ -241,9 +241,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 PlaylistMusic item = new PlaylistMusic(m);
 
                 if (filter != null) {
-                    if (!item.getAlbumArtist().toLowerCase(Locale.getDefault()).contains(filter) &&
-                            !item.getAlbum().toLowerCase(Locale.getDefault()).contains(filter) &&
-                            !item.getTitle().toLowerCase(Locale.getDefault()).contains(filter)) {
+                    if (!(item.getAlbumArtist() != null ? item.getAlbumArtist() : "").toLowerCase(Locale.getDefault()).contains(filter) &&
+                            !(item.getAlbum() != null ? item.getAlbum() : "").toLowerCase(Locale.getDefault()).contains(filter) &&
+                            !(item.getTitle() != null ? item.getTitle() : "").toLowerCase(Locale.getDefault()).contains(filter)) {
                         continue;
                     }
                 }
@@ -444,7 +444,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 }
                 if (song.getCurrentSongIconRefID() != newPlay) {
                     song.setCurrentSongIconRefID(newPlay);
-                    refreshPlaylistItemView(song.getSongId());
+                    refreshPlaylistItemView(song);
                 }
             }
         }
@@ -632,7 +632,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             viewHolder.menuButton.setTag(music.getSongId());
             viewHolder.play.setImageResource(music.getCurrentSongIconRefID());
 
-            if (viewHolder.cover.getTag() == null || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
+            if (music.isForceCoverRefresh() || viewHolder.cover.getTag() == null || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
+                music.setForceCoverRefresh(false);
                 viewHolder.cover.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
                 viewHolder.cover.setTag(music.getAlbumInfo().getKey());
                 viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
@@ -643,7 +644,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     }
 
-    private void refreshPlaylistItemView(final int songId) {
+    private void refreshPlaylistItemView(final PlaylistMusic... playlistSongs) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -655,12 +656,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 int start = list.getFirstVisiblePosition();
                 for (int i = start, j = list.getLastVisiblePosition(); i <= j; i++) {
                     PlaylistMusic playlistMusic = (PlaylistMusic) list.getAdapter().getItem(i);
-                    if (playlistMusic.getSongId() == songId) {
-                        View view = list.getChildAt(i - start);
-                        list.getAdapter().getView(i, view, list);
-                        break;
+                    for (PlaylistMusic song : playlistSongs) {
+                        if (playlistMusic.getSongId() == song.getSongId()) {
+                            View view = list.getChildAt(i - start);
+                            list.getAdapter().getView(i, view, list);
+                        }
                     }
-
                 }
             }
         }.execute();
@@ -668,18 +669,14 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     public void updateCover(Music song) {
 
-        for (int i = 0; i < list.getChildCount(); i++) {
-            ImageView albumCover = (ImageView) list.getChildAt(i).findViewById(R.id.cover);
-            if (null != albumCover.getTag() && albumCover.getTag().equals(song.getAlbumInfo().getKey())) {
-                refreshCover(albumCover, song);
+        List<PlaylistMusic> musicsToBeUpdated = new ArrayList<PlaylistMusic>();
+
+        for (PlaylistMusic playlistMusic : songlist) {
+            if (playlistMusic.getAlbumInfo().equals(song.getAlbumInfo())) {
+                playlistMusic.setForceCoverRefresh(true);
+                musicsToBeUpdated.add(playlistMusic);
             }
         }
-    }
-
-    private void refreshCover(View albumCover, Music song) {
-        if (albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
-            CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumCover.getTag(R.id.CoverAsyncHelper);
-            coverAsyncHelper.downloadCover(song.getAlbumInfo(), true);
-        }
+        refreshPlaylistItemView(musicsToBeUpdated.toArray(new PlaylistMusic[musicsToBeUpdated.size()]));
     }
 }

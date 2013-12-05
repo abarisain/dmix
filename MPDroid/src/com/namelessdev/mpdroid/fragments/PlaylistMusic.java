@@ -20,6 +20,15 @@ public class PlaylistMusic {
 
     private int currentSongIconRefID;
     private boolean marked;
+    private boolean forceCoverRefresh = false;
+
+    public boolean isForceCoverRefresh() {
+        return forceCoverRefresh;
+    }
+
+    public void setForceCoverRefresh(boolean forceCoverRefresh) {
+        this.forceCoverRefresh = forceCoverRefresh;
+    }
 
     public int getCurrentSongIconRefID() {
         return currentSongIconRefID;
