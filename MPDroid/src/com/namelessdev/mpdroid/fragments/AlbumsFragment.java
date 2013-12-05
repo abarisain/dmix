@@ -142,7 +142,6 @@ public class AlbumsFragment extends BrowseFragment {
         final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         Album album = (Album) items.get((int) info.id);
 
-
         switch (item.getGroupId()) {
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).markWrongCover(album.getAlbumInfo());
