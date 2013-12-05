@@ -28,6 +28,12 @@ public class Artist extends Item implements Parcelable {
         this(name, 0);
     }
 
+    public Artist(Artist a) {
+        this.name = a.name;
+        this.albumCount = a.albumCount;
+        this.sort = a.sort;
+    }
+
 	protected Artist(Parcel in) {
 		this.name=in.readString();
 		this.sort=in.readString();

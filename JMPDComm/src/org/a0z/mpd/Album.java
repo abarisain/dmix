@@ -26,6 +26,10 @@ public class Album extends Item implements Parcelable {
         this(name, 0, 0, 0, artist);
     }
 
+    public Album(Album a) {
+        this(a.name, a.songCount, a.duration, a.year, new Artist(a.artist.getName()));
+    }
+
     protected Album(Parcel in) {
         this.name = in.readString();
         this.songCount = in.readLong();

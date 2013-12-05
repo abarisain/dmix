@@ -7,8 +7,13 @@ public class UnknownAlbum extends Album {
     public static final UnknownAlbum instance = new UnknownAlbum();
 
     private UnknownAlbum() {
-		super(MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album), UnknownArtist.instance);
-	}
+        this(UnknownArtist.instance);
+    }
+
+    public UnknownAlbum(Artist artist) {
+        super(MPD.getApplicationContext().getString
+              (R.string.jmpdcomm_unknown_album), artist);
+    }
 
 	protected UnknownAlbum(Parcel in) {
 		super(in);
@@ -24,7 +29,7 @@ public class UnknownAlbum extends Album {
             public UnknownAlbum createFromParcel(Parcel in) {
                 return new UnknownAlbum(in);
             }
- 
+
             public UnknownAlbum[] newArray(int size) {
                 return new UnknownAlbum[size];
             }
