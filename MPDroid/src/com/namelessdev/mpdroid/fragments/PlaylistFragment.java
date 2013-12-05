@@ -28,10 +28,7 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.*;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -615,7 +612,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 viewHolder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 viewHolder.cover.setTag(R.id.CoverAsyncHelper, viewHolder.coverHelper);
                 viewHolder.coverHelper.addCoverDownloadListener(acd);
-
                 viewHolder.menuButton = convertView.findViewById(R.id.menu);
                 viewHolder.menuButton.setOnClickListener(itemMenuButtonListener);
                 viewHolder.icon = convertView.findViewById(R.id.icon);
@@ -633,15 +629,15 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             viewHolder.play.setImageResource(music.getCurrentSongIconRefID());
 
             if (music.isForceCoverRefresh() || viewHolder.cover.getTag() == null || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
+                if (!music.isForceCoverRefresh()) {
+                    viewHolder.cover.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
+                }
                 music.setForceCoverRefresh(false);
-                viewHolder.cover.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
                 viewHolder.cover.setTag(music.getAlbumInfo().getKey());
                 viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
             }
             return convertView;
         }
-
-
     }
 
     private void refreshPlaylistItemView(final PlaylistMusic... playlistSongs) {
@@ -667,12 +663,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }.execute();
     }
 
-    public void updateCover(Music song) {
+    public void updateCover(AlbumInfo albumInfo) {
 
         List<PlaylistMusic> musicsToBeUpdated = new ArrayList<PlaylistMusic>();
 
         for (PlaylistMusic playlistMusic : songlist) {
-            if (playlistMusic.getAlbumInfo().equals(song.getAlbumInfo())) {
+            if (playlistMusic.getAlbumInfo().equals(albumInfo)) {
                 playlistMusic.setForceCoverRefresh(true);
                 musicsToBeUpdated.add(playlistMusic);
             }

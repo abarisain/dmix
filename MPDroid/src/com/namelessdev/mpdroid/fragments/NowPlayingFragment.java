@@ -192,7 +192,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }).start();
 
         // Update the cover on resume (when you update the current cover from the library activity)
-        // Do not show the progress since most of the time the cover has not changed.
         if (currentSong != null) {
             downloadCover(currentSong.getAlbumInfo());
         }
@@ -885,7 +884,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         Intent intent;
-        PlaylistFragment playlistFragment;
 
         switch (item.getItemId()) {
             case POPUP_ARTIST:
@@ -933,24 +931,25 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo());
-                //Update the playlist covers
-                playlistFragment = getPlaylistFragment();
-                if (playlistFragment != null) {
-                    playlistFragment.updateCover(currentSong);
-                }
+                updatePlaylistCovers(currentSong.getAlbumInfo());
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo());                //Update the playlist covers
-                playlistFragment = getPlaylistFragment();
-                if (playlistFragment != null) {
-                    playlistFragment.updateCover(currentSong);
-                }
+                updatePlaylistCovers(currentSong.getAlbumInfo());
                 break;
             default:
                 return false;
         }
         return true;
+    }
+
+    private void updatePlaylistCovers(AlbumInfo albumInfo) {
+        PlaylistFragment playlistFragment;
+        playlistFragment = getPlaylistFragment();
+        if (playlistFragment != null) {
+            playlistFragment.updateCover(albumInfo);
+        }
     }
 
     private void scrollToNowPlaying() {
