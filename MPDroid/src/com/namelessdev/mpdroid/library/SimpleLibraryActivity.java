@@ -45,7 +45,6 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 		if (getIntent().getBooleanExtra("streams", false)) {
 			rootFragment = new StreamsFragment();
 		} else {
-<<<<<<< HEAD
                     targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
                     if (targetElement == null) {
                         targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
