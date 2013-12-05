@@ -126,7 +126,8 @@ public class MPDConnection {
 
 
     synchronized List<String> sendCommand(MPDCommand command) throws MPDServerException {
-        return sendRawCommand(command.toString());
+        String commandstr = command.toString();
+        return sendRawCommand(commandstr);
     }
 
     synchronized List<String> sendCommand(String command, String... args) throws MPDServerException {
@@ -141,25 +142,26 @@ public class MPDConnection {
         commandQueue.add(command);
     }
 
-    static List< ArrayList<String> > separatedQueueResults(List<String> lines) {
-        List< ArrayList<String> > result = new ArrayList< ArrayList<String> >();
+    static synchronized List< String[] > separatedQueueResults(List<String> lines) {
+        List< String[] > result = new ArrayList< String[] >();
         ArrayList<String> lineCache = new ArrayList<String>();
+
         for (String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
                 if (lineCache.size() != 0) {
-                    result.add(lineCache);
+                    result.add((String[])lineCache.toArray(new String[0]));
                     lineCache.clear();
                 }
-            }
-            lineCache.add(line);
+            } else
+                lineCache.add(line);
         }
         if (lineCache.size() != 0) {
-            result.add(lineCache);
+            result.add((String[])lineCache.toArray(new String[0]));
         }
         return result;
     }
 
-    synchronized List< ArrayList<String> > sendCommandQueueSeparated() throws MPDServerException {
+    synchronized List< String[] > sendCommandQueueSeparated() throws MPDServerException {
         return separatedQueueResults(sendCommandQueue(true));
     }
 
@@ -172,12 +174,14 @@ public class MPDConnection {
             commandstr += command.toString();
         }
         commandstr += MPD_CMD_END_BULK + "\n";
-        Log.d("COMMANDQUEUE: ", commandQueue.toString());
         commandQueue = new ArrayList<MPDCommand>();
         return sendRawCommand(commandstr);
     }
 
     public synchronized List<String> sendRawCommand(String command) throws MPDServerException {
+        for ( String line : command.split("\n") ) {
+            Log.d( "RAW_COMMAND: ", line );
+        }
         if (!isConnected())
             throw new MPDServerException("No connection to server");
         return syncedWriteRead(command);
