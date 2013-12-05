@@ -241,9 +241,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 PlaylistMusic item = new PlaylistMusic(m);
 
                 if (filter != null) {
-                    if (!item.getAlbumArtist().toLowerCase(Locale.getDefault()).contains(filter) &&
-                            !item.getAlbum().toLowerCase(Locale.getDefault()).contains(filter) &&
-                            !item.getTitle().toLowerCase(Locale.getDefault()).contains(filter)) {
+                    if (!(item.getAlbumArtist() != null ? item.getAlbumArtist() : "").toLowerCase(Locale.getDefault()).contains(filter) &&
+                            !(item.getAlbum() != null ? item.getAlbum() : "").toLowerCase(Locale.getDefault()).contains(filter) &&
+                            !(item.getTitle() != null ? item.getTitle() : "").toLowerCase(Locale.getDefault()).contains(filter)) {
                         continue;
                     }
                 }
