@@ -1,6 +1,7 @@
 package org.a0z.mpd;
 
 import android.content.Context;
+import android.util.Log;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -124,7 +125,7 @@ public class MPD {
      *
      * @return <code>MPDConnection</code>.
      */
-    MPDConnection getMpdConnection() {
+    public MPDConnection getMpdConnection() {
         return this.mpdConnection;
     }
 
@@ -342,7 +343,9 @@ public class MPD {
         LinkedList<String> lineCache = new LinkedList<String>();
         LinkedList<FilesystemTreeEntry> result = new LinkedList<FilesystemTreeEntry>();
         for (String line : resonse) {
-            // file-elements are the only ones using fileCache, therefore if something new begins and the cache contains data, its music
+            // file-elements are the only ones using fileCache,
+            // therefore if something new begins and the cache
+            // contains data, its music
             if ((line.startsWith("file: ") || line.startsWith("directory: ") || line.startsWith("playlist: ")) && lineCache.size() > 0) {
                 result.add(new Music(lineCache));
                 lineCache.clear();
@@ -485,6 +488,17 @@ public class MPD {
         return listAlbums(artist, useAlbumArtist, true);
     }
 
+    /*
+     *  get raw command String for listAlbums
+     */
+    public MPDCommand listAlbumsCommand(String artist, boolean useAlbumArtist) {
+        if (useAlbumArtist) {
+            return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, MPDCommand.MPD_TAG_ALBUM_ARTIST, artist);
+        } else {
+            return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
+        }
+    }
+
     /**
      * List all albums from a given artist.
      *
@@ -504,11 +518,10 @@ public class MPD {
 
         boolean foundSongWithoutAlbum = false;
 
-        List<String> response;
-        if (useAlbumArtist)
-            response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, MPDCommand.MPD_TAG_ALBUM_ARTIST, artist);
-        else
-            response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
+        List<String> response =
+            mpdConnection.sendCommand
+            (listAlbumsCommand(artist, useAlbumArtist));
+
         ArrayList<String> result = new ArrayList<String>();
         for (String line : response) {
             String name = line.substring("Album: ".length());
@@ -596,21 +609,23 @@ public class MPD {
      *            if an error occur while contacting server.
      * @return <code>FileStorage</code> with all songs and directories.
      */
-    /*public Directory listAllFiles(String dir) throws MPDServerException {
+    /*
+    public Directory listAllFiles(String dir) throws MPDServerException {
       if(!isConnected())
-      throw new MPDServerException("MPD Connection is not established");
+          throw new MPDServerException("MPD Connection is not established");
 
       List<String> list = mpdConnection.sendCommand(MPD_CMD_LISTALL, dir);
 
       for (String line : list) {
-      if (line.startsWith("directory: ")) {
-      rootDirectory.makeDirectory(line.substring("directory: ".length()));
-      } else if (line.startsWith("file: ")) {
-      rootDirectory.addFile(new Music(line.substring("file: ".length())));
-      }
+          if (line.startsWith("directory: ")) {
+              rootDirectory.makeDirectory(line.substring("directory: ".length()));
+          } else if (line.startsWith("file: ")) {
+              rootDirectory.addFile(new Music(line.substring("file: ".length())));
+          }
       }
       return rootDirectory;
-      }*/
+      }
+    */
 
     /**
      * List all genre names from database.

@@ -27,6 +27,8 @@ public class MPDConnection {
     private static final String MPD_RESPONSE_ERR = "ACK";
     private static final String MPD_RESPONSE_OK = "OK";
     private static final String MPD_CMD_START_BULK = "command_list_begin";
+    private static final String MPD_CMD_START_BULK_OK = "command_list_ok_begin";
+    private static final String MPD_CMD_BULK_SEP = "list_OK";
     private static final String MPD_CMD_END_BULK = "command_list_end";
 
     private InetAddress hostAddress;
@@ -37,7 +39,7 @@ public class MPDConnection {
     private OutputStreamWriter outputStream;
 
     private int[] mpdVersion;
-    private StringBuffer commandQueue;
+    private List<MPDCommand> commandQueue;
     private int readWriteTimeout;
 
 
@@ -48,7 +50,7 @@ public class MPDConnection {
         this.readWriteTimeout = readWriteTimeout;
         hostPort = port;
         hostAddress = server;
-        commandQueue = new StringBuffer();
+        commandQueue = new ArrayList<MPDCommand>();
 
         // connect right away and setup streams
         try {
@@ -122,22 +124,71 @@ public class MPDConnection {
         return mpdVersion;
     }
 
-
-    synchronized List<String> sendCommand(String command, String... args) throws MPDServerException {
-        return sendRawCommand(commandToString(command, args));
+    public InetAddress getHostAddress() {
+        return hostAddress;
     }
 
-    synchronized void queueCommand(String command, String ... args) {
-        commandQueue.append(commandToString(command, args));
+    public int getHostPort() {
+        return hostPort;
+    }
+
+    synchronized List<String> sendCommand(MPDCommand command) throws MPDServerException {
+        String commandstr = command.toString();
+        return sendRawCommand(commandstr);
+    }
+
+    synchronized List<String> sendCommand(String command, String... args) throws MPDServerException {
+        return sendCommand(new MPDCommand(command, args));
+    }
+
+    synchronized void queueCommand(String command, String... args) {
+        queueCommand(new MPDCommand(command, args));
+    }
+
+    synchronized void queueCommand(MPDCommand command) {
+        commandQueue.add(command);
+    }
+
+    static synchronized List< String[] > separatedQueueResults(List<String> lines) {
+        List< String[] > result = new ArrayList< String[] >();
+        ArrayList<String> lineCache = new ArrayList<String>();
+
+        for (String line : lines) {
+            if (line.equals(MPD_CMD_BULK_SEP)) { // new part
+                if (lineCache.size() != 0) {
+                    result.add((String[])lineCache.toArray(new String[0]));
+                    lineCache.clear();
+                }
+            } else
+                lineCache.add(line);
+        }
+        if (lineCache.size() != 0) {
+            result.add((String[])lineCache.toArray(new String[0]));
+        }
+        return result;
+    }
+
+    synchronized List< String[] > sendCommandQueueSeparated() throws MPDServerException {
+        return separatedQueueResults(sendCommandQueue(true));
     }
 
     synchronized List<String> sendCommandQueue() throws MPDServerException {
-        String command = MPD_CMD_START_BULK + "\n" + commandQueue.toString() + MPD_CMD_END_BULK + "\n";
-        commandQueue = new StringBuffer();
-        return sendRawCommand(command);
+        return sendCommandQueue(false);
+    }
+    synchronized List<String> sendCommandQueue(boolean withSeparator) throws MPDServerException {
+        String commandstr = (withSeparator ? MPD_CMD_START_BULK_OK : MPD_CMD_START_BULK) + "\n";
+        for (MPDCommand command : commandQueue) {
+            commandstr += command.toString();
+        }
+        commandstr += MPD_CMD_END_BULK + "\n";
+        commandQueue = new ArrayList<MPDCommand>();
+        return sendRawCommand(commandstr);
     }
 
-    private synchronized List<String> sendRawCommand(String command) throws MPDServerException {
+    public synchronized List<String> sendRawCommand(String command) throws MPDServerException {
+        // for ( String line : command.split("\n") ) {
+        //     Log.d( "RAW_COMMAND: ", line );
+        // }
         if (!isConnected())
             throw new MPDServerException("No connection to server");
         return syncedWriteRead(command);
@@ -145,26 +196,14 @@ public class MPDConnection {
 
 
 
-    private static String commandToString(String command, String[] args) {
-        StringBuffer outBuf = new StringBuffer();
-        outBuf.append(command);
-        for (String arg : args) {
-            if(arg == null)
-                continue;
-            arg = arg.replaceAll("\"", "\\\\\"");
-            outBuf.append(" \"" + arg + "\"");
-        }
-        outBuf.append("\n");
-        final String outString = outBuf.toString();
-        if (DEBUG)
-            Log.d("JMPDComm", "Mpd command : " + (outString.startsWith("password ") ? "password **censored**" : outString));
-        return outString;
+    List<String> sendAsyncCommand(MPDCommand command)
+        throws MPDServerException {
+	return syncedWriteAsyncRead(command.toString());
     }
-
 
     List<String> sendAsyncCommand(String command, String... args)
         throws MPDServerException {
-	return syncedWriteAsyncRead(commandToString(command, args));
+	return sendAsyncCommand(new MPDCommand(command, args));
     }
 
     private synchronized void writeToServer(String command) throws IOException {
