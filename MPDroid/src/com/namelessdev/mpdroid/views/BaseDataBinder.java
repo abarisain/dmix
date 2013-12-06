@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.View;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
+import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
@@ -14,7 +14,7 @@ import org.a0z.mpd.Item;
 
 import java.util.List;
 
-public abstract class BaseDataBinder implements ArrayIndexerDataBinder {
+public abstract class BaseDataBinder implements ArrayDataBinder {
 
     MPDApplication app = null;
     boolean lightTheme = false;

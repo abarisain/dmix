@@ -19,7 +19,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
 
     HashMap<String, Integer> alphaIndexer;
     String[] sections;
-    ArrayIndexerDataBinder dataBinder = null;
+    ArrayDataBinder dataBinder = null;
     LayoutInflater inflater;
     List<Item> items;
     Context context;
@@ -32,7 +32,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
     }
 
     @SuppressWarnings("unchecked")
-    public ArrayIndexerAdapter(Context context, ArrayIndexerDataBinder dataBinder, List<? extends Item> items) {
+    public ArrayIndexerAdapter(Context context, ArrayDataBinder dataBinder, List<? extends Item> items) {
         super(context, 0, (List<Item>) items);
         this.dataBinder = dataBinder;
         init(context, items);
@@ -88,11 +88,11 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
         keyList.toArray(sections);
     }
 
-    public ArrayIndexerDataBinder getDataBinder() {
+    public ArrayDataBinder getDataBinder() {
         return dataBinder;
     }
 
-    public void setDataBinder(ArrayIndexerDataBinder dataBinder) {
+    public void setDataBinder(ArrayDataBinder dataBinder) {
         this.dataBinder = dataBinder;
     }
 

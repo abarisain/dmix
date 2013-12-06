@@ -9,7 +9,7 @@ import android.view.View;
 
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 
-public interface ArrayIndexerDataBinder {
+public interface ArrayDataBinder {
 	public View onLayoutInflation(Context context, View targetView, List<? extends Item> items);
 	public void onDataBind(Context context, View targetView, AbstractViewHolder viewHolder, List<? extends Item> items, Object item, int position);
 	public AbstractViewHolder findInnerViews(View targetView);

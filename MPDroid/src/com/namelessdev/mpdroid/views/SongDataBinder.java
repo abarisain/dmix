@@ -10,11 +10,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.ArrayIndexerDataBinder;
+import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.SongViewHolder;
 
-public class SongDataBinder implements ArrayIndexerDataBinder {
+public class SongDataBinder implements ArrayDataBinder {
 
 	boolean showArtist;
 	
