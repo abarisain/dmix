@@ -74,12 +74,18 @@ public class Artist extends Item implements Parcelable {
     	return (o instanceof Artist) && ((Artist)o).name.equals(name);
     }
 
+    public boolean isSameOnList(Item o) {
+        if (null == o) {
+            return false;
+        }
+        return (name.equals(((Artist)o).getName()));
+    }
 
 	@Override
 	public int describeContents() {
 		return 0;
 	}
- 
+
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(this.name);
@@ -92,7 +98,7 @@ public class Artist extends Item implements Parcelable {
             public Artist createFromParcel(Parcel in) {
                 return new Artist(in);
             }
- 
+
             public Artist[] newArray(int size) {
                 return new Artist[size];
             }
