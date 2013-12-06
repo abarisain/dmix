@@ -234,4 +234,6 @@
 	<string name="drawer_open">Show drawer</string>
 	<string name="drawer_close">Close drawer</string>
 
+	<string name="nowPlayingSettingsTitle">Now Playing settings</string>
+	
 </resources>

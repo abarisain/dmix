@@ -210,4 +210,6 @@
 	<string name="enableAlbumArtLibrary">Pochettes d\'album dans la biliothèque</string>
 	<string name="enableAlbumArtLibraryDescription">Utiliser des larges pochettes pour la liste d\'albums dans la bibliothèque. Cette fonctionnalité est expérimentale ! Vous serez peut-être victime de lag et/ou plantages. (Nécessite le cache de pochettes)</string>
 	<string name="albumGridWifiUnavailable">Wi-Fi non disponible, aucune pochette ne sera téléchargée</string>
+	
+	<string name="nowPlayingSettingsTitle">Paramètres de la vue \'En Cours\'</string>
 </resources>
