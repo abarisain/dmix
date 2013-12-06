@@ -16,9 +16,9 @@ MPDroid works on **all** devices from 4.0.3 (API 15) to 4.3+
 
 #### Libraries used
 
-DragSortListView - Really nice and widly used TouchInterceptor replacement
+DragSortListView - Really nice and widly used TouchInterceptor replacement  
 JmDNS - For bonjour integration. Still WIP (and may even be finished one day), allows local MPD servers to be discovered without finding their IP  
-JMPDComm - The core MPD interface lib. Heavily modified.
+JMPDComm - The core MPD interface lib. Heavily modified.  
 LastFM-java - Last.FM cover art support
 
 ## Known issues
@@ -82,7 +82,11 @@ Andrew Blackburn - Various stuff, suggestions and layout work
 
 [Matt Black](https://github.com/mafrosis) - Also worked on ant building. Reported a log of bugs/improvement suggestions. We may not agree on everything but it's been useful !
 
-Craig Drummond - Helped me integrate new features while cleaning up old internal code that I did not really wanted to change. Lots of new interface code and feedback on my experimentations while reworking the whole interface.
+Craig Drummond - Helped me integrate new features while cleaning up old internal code that I did not really wanted to change. Lots of new interface code and feedback on my experimentations while reworking the whole interface.  
+
+[jcnoir](https://github.com/jcnoir) - Contributor. Reworked cover art support, and many other improvements.  
+
+[hurzl](https://github.com/hurzl) - MPD Backend improvement, various tweaks and bugfixes.
 
 Other patch submitters : Jörg Thalheim, Florian Weile, Daniel Schoepe, John Bäckstrand, ...
 
