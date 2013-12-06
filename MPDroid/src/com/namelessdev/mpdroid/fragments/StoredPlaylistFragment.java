@@ -16,7 +16,7 @@ import android.widget.ListAdapter;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.StoredPlaylistDataBinder;
@@ -149,7 +149,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
 	@Override
 	protected ListAdapter getCustomListAdapter() {
 		if (items != null) {
-			return new ArrayIndexerAdapter(getActivity(),
+            return new ArrayAdapter(getActivity(),
 					new StoredPlaylistDataBinder(app, app.isLightThemeSelected()), items);
 		}
 		return super.getCustomListAdapter();
