@@ -2,15 +2,16 @@ package org.a0z.mpd;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class Album extends Item implements Parcelable {
     public static String singleTrackFormat = "%1 Track (%2)";
     public static String multipleTracksFormat = "%1 Tracks (%2)";
 
     private final String name;
-    private final long songCount;
-    private final long duration;
-    private final long year;
+    private long songCount;
+    private long duration;
+    private long year;
     private Artist artist;
 
     public Album(String name, long songCount, long duration, long year, Artist artist) {
@@ -23,6 +24,10 @@ public class Album extends Item implements Parcelable {
 
     public Album(String name, Artist artist) {
         this(name, 0, 0, 0, artist);
+    }
+
+    public Album(Album a) {
+        this(a.name, a.songCount, a.duration, a.year, new Artist(a.artist.getName()));
     }
 
     protected Album(Parcel in) {
@@ -41,12 +46,24 @@ public class Album extends Item implements Parcelable {
         return songCount;
     }
 
+    public void setSongCount(long sc) {
+        songCount = sc;
+    }
+
     public long getYear() {
         return year;
     }
 
+    public void setYear(long y) {
+        year = y;
+    }
+
     public long getDuration() {
         return duration;
+    }
+
+    public void setDuration(long d) {
+        duration = d;
     }
 
     @Override
@@ -78,15 +95,40 @@ public class Album extends Item implements Parcelable {
 
     @Override
     public int compareTo(Item o) {
-        if (MPD.sortAlbumsByYear() && (o instanceof Album)) {
+        if (o instanceof Album) {
             Album oa = (Album) o;
-            if (year != oa.year) {
-                return year < oa.year ? -1 : 1;
+            if (MPD.sortAlbumsByYear()) {
+                if (year != oa.year) {
+                    return year < oa.year ? -1 : 1;
+                }
+            }
+            int comp = super.compareTo(o);
+            if (comp == 0) { // same album name, check artist
+                comp = artist.compareTo(oa.artist);
             }
         }
         return super.compareTo(o);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Album) {
+            Album a = (Album) o;
+            return (year == a.year && duration == a.duration &&
+                    songCount == a.songCount &&
+                    name.equals(a.name) && artist.equals(a.artist));
+        }
+        return false;
+    }
+
+    public boolean isSameOnList(Item o) {
+        if (null == o) {
+            return false;
+        }
+        Album a = (Album)o;
+        return (name.equals(a.getName()) &&
+                artist.isSameOnList(a.getArtist()));
+    }
 
     @Override
     public int describeContents() {
