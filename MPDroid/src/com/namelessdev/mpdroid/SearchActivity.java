@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.a0z.mpd.Album;
+import org.a0z.mpd.UnknownAlbum;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
@@ -234,7 +235,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         if (object instanceof Music) {
             add((Music) object, replace, play);
         } else if (object instanceof Artist) {
-            add(((Artist) object), replace, play);
+            add(new UnknownAlbum((Artist) object), replace, play);
         } else if (object instanceof Album) {
             Album album = (Album) object;
             add(album, replace, play);
