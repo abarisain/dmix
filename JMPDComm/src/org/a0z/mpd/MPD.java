@@ -1336,6 +1336,11 @@ public class MPD {
     }
 
     public List<Album> getAlbums(Artist artist, boolean trackCountNeeded) throws MPDServerException {
+        return getMerged(getAlbums(artist, true,  trackCountNeeded),
+                         getAlbums(artist, false, trackCountNeeded));
+    }
+
+    public List<Album> getAlbums(Artist artist, boolean useAlbumArtist, boolean trackCountNeeded) throws MPDServerException {
         List<String> albumNames = null;
         List<Album> albums = null;
         final Artist unknownArtist = UnknownArtist.instance;
