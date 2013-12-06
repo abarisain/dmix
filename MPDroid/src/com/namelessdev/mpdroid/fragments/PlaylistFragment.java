@@ -26,6 +26,9 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.models.AbstractPlaylistMusic;
+import com.namelessdev.mpdroid.models.PlaylistSong;
+import com.namelessdev.mpdroid.models.PlaylistStream;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
 import org.a0z.mpd.*;
@@ -39,7 +42,7 @@ import java.util.Locale;
 import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
-    private ArrayList<PlaylistMusic> songlist;
+    private ArrayList<AbstractPlaylistMusic> songlist;
     private MPDApplication app;
     private DragSortListView list;
     private ActionMode actionMode;
@@ -145,7 +148,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         positions = new int[list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
                             if (checkedItems.get(i)) {
-                                positions[j] = ((PlaylistMusic) adapter.getItem(i)).getSongId();
+                                positions[j] = ((AbstractPlaylistMusic) adapter.getItem(i)).getSongId();
                                 j++;
                             }
                         }
@@ -167,7 +170,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         positions = new int[list.getCount() - list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
                             if (!checkedItems.get(i)) {
-                                positions[j] = ((PlaylistMusic) adapter.getItem(i)).getSongId();
+                                positions[j] = ((AbstractPlaylistMusic) adapter.getItem(i)).getSongId();
                                 j++;
                             }
                         }
@@ -223,7 +226,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     protected synchronized void update(boolean forcePlayingIDRefresh) {
         try {
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
-            final ArrayList<PlaylistMusic> newSonglist = new ArrayList<PlaylistMusic>();
+            final ArrayList<AbstractPlaylistMusic> newSonglist = new ArrayList<AbstractPlaylistMusic>();
             List<Music> musics = playlist.getMusicList();
             if (lastPlayingID == -1 || forcePlayingIDRefresh)
                 lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
@@ -235,7 +238,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     continue;
                 }
 
-                PlaylistMusic item = new PlaylistMusic(m);
+                AbstractPlaylistMusic item = m.isStream() ? new PlaylistStream(m) : new PlaylistSong(m);
 
                 if (filter != null) {
                     if (!(item.getAlbumArtist() != null ? item.getAlbumArtist() : "").toLowerCase(Locale.getDefault()).contains(filter) &&
@@ -376,7 +379,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         MPDApplication app = (MPDApplication) activity.getApplication(); // Play selected Song
 
         @SuppressWarnings("unchecked")
-        final Integer song = ((PlaylistMusic) l.getAdapter().getItem(position)).getSongId();
+        final Integer song = ((AbstractPlaylistMusic) l.getAdapter().getItem(position)).getSongId();
         try {
             app.oMPDAsyncHelper.oMPD.skipToId(song);
         } catch (MPDServerException e) {
@@ -432,7 +435,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         if (songlist != null) {
             // Mark running track...
-            for (PlaylistMusic song : songlist) {
+            for (AbstractPlaylistMusic song : songlist) {
                 int newPlay;
                 if ((song.getSongId()) == mpdStatus.getSongId()) {
                     newPlay = android.R.drawable.ic_media_play;
@@ -482,7 +485,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             if (from == to || filter != null) {
                 return;
             }
-            PlaylistMusic itemFrom = songlist.get(from);
+            AbstractPlaylistMusic itemFrom = songlist.get(from);
             Integer songID = itemFrom.getSongId();
             try {
                 app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
@@ -620,7 +623,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 viewHolder = (PlayQueueViewHolder) convertView.getTag();
             }
 
-            PlaylistMusic music = (PlaylistMusic) getItem(position);
+            AbstractPlaylistMusic music = (AbstractPlaylistMusic) getItem(position);
 
             viewHolder.artist.setText(music.getPlaylistSubLine());
             viewHolder.title.setText(music.getPlayListMainLine());
@@ -640,7 +643,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     }
 
-    private void refreshPlaylistItemView(final PlaylistMusic... playlistSongs) {
+    private void refreshPlaylistItemView(final AbstractPlaylistMusic... playlistSongs) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -651,8 +654,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             protected void onPostExecute(Void result) {
                 int start = list.getFirstVisiblePosition();
                 for (int i = start, j = list.getLastVisiblePosition(); i <= j; i++) {
-                    PlaylistMusic playlistMusic = (PlaylistMusic) list.getAdapter().getItem(i);
-                    for (PlaylistMusic song : playlistSongs) {
+                    AbstractPlaylistMusic playlistMusic = (AbstractPlaylistMusic) list.getAdapter().getItem(i);
+                    for (AbstractPlaylistMusic song : playlistSongs) {
                         if (playlistMusic.getSongId() == song.getSongId()) {
                             View view = list.getChildAt(i - start);
                             list.getAdapter().getView(i, view, list);
@@ -665,14 +668,14 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     public void updateCover(AlbumInfo albumInfo) {
 
-        List<PlaylistMusic> musicsToBeUpdated = new ArrayList<PlaylistMusic>();
+        List<AbstractPlaylistMusic> musicsToBeUpdated = new ArrayList<AbstractPlaylistMusic>();
 
-        for (PlaylistMusic playlistMusic : songlist) {
+        for (AbstractPlaylistMusic playlistMusic : songlist) {
             if (playlistMusic.getAlbumInfo().equals(albumInfo)) {
                 playlistMusic.setForceCoverRefresh(true);
                 musicsToBeUpdated.add(playlistMusic);
             }
         }
-        refreshPlaylistItemView(musicsToBeUpdated.toArray(new PlaylistMusic[musicsToBeUpdated.size()]));
+        refreshPlaylistItemView(musicsToBeUpdated.toArray(new AbstractPlaylistMusic[musicsToBeUpdated.size()]));
     }
 }

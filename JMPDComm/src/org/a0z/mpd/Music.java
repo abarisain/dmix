@@ -329,7 +329,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return stream's name.
      */
     public String getName() {
-        if (name == null || name.length() == 0) {
+        if (isEmpty(name)) {
             return isEmpty(getStreamName()) ? getFilename() : getStreamName();
         } else {
             return name;
