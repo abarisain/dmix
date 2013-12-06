@@ -1,51 +1,40 @@
 package com.namelessdev.mpdroid.adapters;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.SectionIndexer;
-import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import org.a0z.mpd.Item;
 
-import java.util.*;
+import android.content.Context;
+import android.widget.SectionIndexer;
 
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
 //Thanks qlimax !
 
-public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIndexer {
-    private static final int TYPE_DEFAULT = 0;
+public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer {
 
     HashMap<String, Integer> alphaIndexer;
     String[] sections;
     ArrayDataBinder dataBinder = null;
-    LayoutInflater inflater;
-    List<Item> items;
     Context context;
 
     @SuppressWarnings("unchecked")
     public ArrayIndexerAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
         super(context, textViewResourceId, (List<Item>) items);
-        dataBinder = null;
-        init(context, items);
     }
 
     @SuppressWarnings("unchecked")
     public ArrayIndexerAdapter(Context context, ArrayDataBinder dataBinder, List<? extends Item> items) {
-        super(context, 0, (List<Item>) items);
-        this.dataBinder = dataBinder;
-        init(context, items);
+        super(context, dataBinder, (List<Item>) items);
     }
 
-    @SuppressWarnings("unchecked")
-    private void init(Context context, List<? extends Item> items) {
-        if (!(items instanceof ArrayList<?>))
-            throw new RuntimeException("Items must be contained in an ArrayList<Item>");
-
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.context = context;
-        this.items = (List<Item>) items;
+    @Override
+    protected void init(Context context, List<? extends Item> items) {
+        super.init(context, items);
 
         // here is the tricky stuff
         alphaIndexer = new HashMap<String, Integer>();
@@ -88,14 +77,6 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
         keyList.toArray(sections);
     }
 
-    public ArrayDataBinder getDataBinder() {
-        return dataBinder;
-    }
-
-    public void setDataBinder(ArrayDataBinder dataBinder) {
-        this.dataBinder = dataBinder;
-    }
-
     @Override
     public int getPositionForSection(int section) {
         String letter = sections[section >= sections.length ? sections.length - 1 : section];
@@ -122,47 +103,6 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
     @Override
     public Object[] getSections() {
         return sections;
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        return 1;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return TYPE_DEFAULT;
-    }
-
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (dataBinder == null) {
-            return super.getView(position, convertView, parent);
-        }
-
-        // cache all inner view references with ViewHolder pattern
-        AbstractViewHolder holder;
-
-        if (convertView == null) {
-            convertView = inflater.inflate(dataBinder.getLayoutId(), parent, false);
-            convertView = dataBinder.onLayoutInflation(context, convertView, items);
-
-            // use the databinder to look up all references to inner views
-            holder = dataBinder.findInnerViews(convertView);
-            convertView.setTag(holder);
-        } else {
-            holder = (AbstractViewHolder) convertView.getTag();
-        }
-
-        dataBinder.onDataBind(context, convertView, holder, items, items.get(position), position);
-        return convertView;
-    }
-
-    @Override
-    public boolean isEnabled(int position) {
-        if (dataBinder == null) {
-            return super.isEnabled(position);
-        }
-        return dataBinder.isEnabled(position, items, getItem(position));
     }
 
 }
