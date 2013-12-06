@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
+import android.util.Log;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -38,7 +39,7 @@ public class AlbumsFragment extends BrowseFragment {
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
     public AlbumsFragment() {
-        this(null);
+        this((Artist)null);
     }
 
     @SuppressLint("ValidFragment")
@@ -82,7 +83,7 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
-        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init(artist, (Album) items.get(position)),
+        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init((Album) items.get(position)),
                 "songs");
     }
 
@@ -106,7 +107,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void add(Item item, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add(artist, (Album) item, replace, play);
+            app.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
             Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
         } catch (MPDServerException e) {
             e.printStackTrace();
@@ -116,7 +117,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void add(Item item, String playlist) {
         try {
-            app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, artist, ((Album) item));
+            app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ((Album) item));
             Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
         } catch (MPDServerException e) {
             e.printStackTrace();

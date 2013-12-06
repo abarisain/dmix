@@ -209,6 +209,7 @@
 
     <string name="goToAlbum">Go to album</string>
     <string name="goToArtist">Go to artist</string>
+    <string name="goToAlbumArtist">Go to album artist</string>
     <string name="goToFolder">Go to folder</string>
     <string name="goToStream">Go to streams</string>
     <string name="goToCurrent">Go to current song</string>

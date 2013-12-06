@@ -181,9 +181,10 @@
 	<string name="clearLocalCoverCache">Vider le cache</string>
 	<string name="clearLocalCoverCacheDescription">Libère l\'espace utilisé par le cache de pochettes</string>
 	<string name="clearLocalCoverCachePrompt">Supprimer le cache de pochettes ?</string>
-	
+
 	<string name="goToAlbum">Aller à l\'album</string>
     <string name="goToArtist">Aller à l\'artiste</string>
+    <string name="goToAlbumArtist">Aller à l\'artiste de l\'album</string>
     <string name="goToFolder">Aller au dossier</string>
     <string name="goToStream">Aller aux flux</string>
     <string name="goToCurrent">Aller à la chanson en cours</string>
