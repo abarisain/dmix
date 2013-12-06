@@ -51,7 +51,7 @@
 	<string name="randomDescription">Activer/Désactiver random</string>
 	<string name="repeat">Répeter</string>
 	<string name="repeatDescription">Activer/Désactiver répetition</string>
-	<string name="albumartist">Album Artiste</string>
+	<string name="albumartist">Artiste de l\'album</string>
 	<string name="albumartistDescription">Utiliser le tag Album Artiste dans la vue Artistes</string>
 	<string name="albumTrackSort">Tri d\'album par numéro</string>
 	<string name="albumTrackSortDescription">Trier les albums par numéro de piste</string>
@@ -128,8 +128,8 @@
 	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
 	<string name="sortAlbumsByYear">Année de l\'album</string>
 	<string name="sortAlbumsByYearDescription">Trier les albums par année</string>
-	<string name="showAlbumTrackCount">Numéros de chansons</string>
-	<string name="showAlbumTrackCountDescription">Afficher le numéros des chansons d\'un album</string>
+	<string name="showAlbumTrackCount">Nombre de chansons</string>
+	<string name="showAlbumTrackCountDescription">Afficher le nombre de chansons d\'un album</string>
 	<string name="enableLocalCover">Télécharger les pochettes locales</string>
 	<string name="enableLocalCoverDescription">Obtenir les pochettes depuis le serveur hébergant MPD (requiert un serveur web, lisez le wiki)</string>
 	<string name="musicPath">Chemin vers la musique</string>
