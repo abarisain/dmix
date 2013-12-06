@@ -33,51 +33,58 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 	public final String EXTRA_STREAM = "streams";
 	public final String EXTRA_FOLDER = "folder";
 
-    private Fragment rootFragment;
+
 
 	@Override
-	protected void onCreate(Bundle arg0) {
-		super.onCreate(arg0);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 		setContentView(R.layout.library_tabs);
 		Object targetElement = null;
-		if (getIntent().getBooleanExtra("streams", false)) {
-			rootFragment = new StreamsFragment();
-		} else {
-			targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
-			if (targetElement == null)
-				targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
-			if (targetElement == null)
-				targetElement = getIntent().getStringExtra(EXTRA_FOLDER);
-			if (targetElement == null) {
-				throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
-			} else {
-				if (targetElement instanceof Artist) {
-					AlbumsFragment af;
-					final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplication());
-                    if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-						af = new AlbumsGridFragment((Artist) targetElement);
-					} else {
-						af = new AlbumsFragment((Artist) targetElement);
-					}
-					rootFragment = af;
-				} else if (targetElement instanceof Album) {
-					rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST), (Album) targetElement);
-				} else if (targetElement instanceof String) {
-					rootFragment = new FSFragment().init((String) targetElement);
-				}
-			}
-		}
-		if (rootFragment != null) {
-			if (rootFragment instanceof BrowseFragment)
-				setTitle(((BrowseFragment) rootFragment).getTitle());
-			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            getSupportFragmentManager().addOnBackStackChangedListener(this);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-			ft.replace(R.id.root_frame, rootFragment);
-			ft.commit();
-		} else {
-			throw new RuntimeException("Error : SimpleLibraryActivity root fragment is null");
-		}
+        if (savedInstanceState == null) {
+            Fragment rootFragment = null;
+            if (getIntent().getBooleanExtra("streams", false)) {
+                rootFragment = new StreamsFragment();
+            } else {
+                targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
+                if (targetElement == null)
+                    targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
+                if (targetElement == null)
+                    targetElement = getIntent().getStringExtra(EXTRA_FOLDER);
+                if (targetElement == null) {
+                    throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
+                } else {
+                    if (targetElement instanceof Artist) {
+                        AlbumsFragment af;
+                        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplication());
+                        if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
+                            af = new AlbumsGridFragment((Artist) targetElement);
+                        } else {
+                            af = new AlbumsFragment((Artist) targetElement);
+                        }
+                        rootFragment = af;
+                    } else if (targetElement instanceof Album) {
+                        rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST),
+                                (Album) targetElement);
+                    } else if (targetElement instanceof String) {
+                        rootFragment = new FSFragment().init((String) targetElement);
+                    }
+                }
+            }
+            if (rootFragment != null) {
+                if (rootFragment instanceof BrowseFragment)
+                    setTitle(((BrowseFragment) rootFragment).getTitle());
+                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                ft.replace(R.id.root_frame, rootFragment);
+                ft.commit();
+            } else {
+                throw new RuntimeException("Error : SimpleLibraryActivity root fragment is null");
+            }
+        } else {
+            refreshTitleFromCurrentFragment();
+        }
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
 	}
 
 	@Override
@@ -177,15 +184,20 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 
     @Override
     public void onBackStackChanged() {
+        refreshTitleFromCurrentFragment();
+    }
+
+    private void refreshTitleFromCurrentFragment() {
         final FragmentManager supportFM = getSupportFragmentManager();
         final int fmStackCount = supportFM.getBackStackEntryCount();
         if (fmStackCount > 0) {
             setTitle(supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
         } else {
-            if (rootFragment instanceof BrowseFragment) {
-                setTitle(((BrowseFragment) rootFragment).getTitle());
+            final Fragment displayedFragment = getSupportFragmentManager().findFragmentById(R.id.root_frame);
+            if (displayedFragment instanceof BrowseFragment) {
+                setTitle(((BrowseFragment) displayedFragment).getTitle());
             } else {
-                setTitle(rootFragment.toString());
+                setTitle(displayedFragment.toString());
             }
         }
     }

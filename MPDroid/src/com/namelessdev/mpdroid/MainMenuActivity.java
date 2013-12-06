@@ -87,6 +87,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	public static final int CONNECT = 8;
 
 	private static final String FRAGMENT_TAG_LIBRARY = "library";
+    private static final String EXTRA_DISPLAY_MODE = "displaymode";
 
 	private int backPressExitCount;
 	private Handler exitCounterReset;
@@ -212,6 +213,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         }
                     });
         }
+
+        if (savedInstanceState != null)
+            switchMode((DisplayMode) savedInstanceState.getSerializable(EXTRA_DISPLAY_MODE));
 	}
 
 	@Override
@@ -234,6 +238,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		super.onResume();
 		backPressExitCount = 0;
 	}
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(EXTRA_DISPLAY_MODE, currentDisplayMode);
+        super.onSaveInstanceState(outState);
+    }
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
