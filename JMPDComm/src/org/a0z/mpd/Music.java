@@ -53,6 +53,23 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private String name;
 
+    protected Music(String album, String artist, String albumartist, String fullpath, int disc, long date, long time, Directory parent, String title, int totalTracks, int track, int songId, int pos, String name) {
+        this.album = album;
+        this.artist = artist;
+        this.albumartist = albumartist;
+        this.fullpath = fullpath;
+        this.disc = disc;
+        this.date = date;
+        this.time = time;
+        this.parent = parent;
+        this.title = title;
+        this.totalTracks = totalTracks;
+        this.track = track;
+        this.songId = songId;
+        this.pos = pos;
+        this.name = name;
+    }
+
     /**
      * Constructs a new Music.
      *
@@ -366,6 +383,15 @@ public class Music extends Item implements FilesystemTreeEntry {
         } else {
             return fullpath.substring(0, pos);
         }
+    }
+
+    /**
+     * Retrieves file's parent directory
+     *
+     * @return file's parent directory
+     */
+    public Directory getParentDirectory() {
+        return parent;
     }
 
     /**
