@@ -57,8 +57,6 @@
 	<string name="randomDescription">Enable/Disable random</string>
 	<string name="repeat">Repeat</string>
 	<string name="repeatDescription">Enable/Disable repeat</string>
-	<string name="albumartist">Album Artist</string>
-	<string name="albumartistDescription">Use Album Artist tag in Artists view</string>
 	<string name="albumTrackSort">Album Sort Track</string>
 	<string name="albumTrackSortDescription">Sort Album by track number</string>
 	<string name="version">Version</string>
@@ -209,6 +207,7 @@
 
     <string name="goToAlbum">Go to album</string>
     <string name="goToArtist">Go to artist</string>
+    <string name="goToAlbumArtist">Go to album artist</string>
     <string name="goToFolder">Go to folder</string>
     <string name="goToStream">Go to streams</string>
     <string name="goToCurrent">Go to current song</string>

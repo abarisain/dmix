@@ -75,8 +75,6 @@
     <string name="showAlbumTrackCount">Titelanzahl anzeigen</string>
     <string name="showAlbumTrackCountDescription">Zeige Titelanzahl der Alben</string>
     <string name="repeatDescription">Aktiviere/Deaktiviere Endlosschleife</string>
-    <string name="albumartist">Albumkünstler</string>
-    <string name="albumartistDescription">Benutze Albumkünstler-Tag in der Ansicht Künstler</string>
     <string name="version">Version</string>
     <string name="whatsNew">Neue Funktionen</string>
     <string name="updateDB">Datenbank aktualisieren</string>
@@ -197,6 +195,7 @@
 
     <string name="goToAlbum">Gehe zum Album</string>
     <string name="goToArtist">Gehe zum Künstler</string>
+    <string name="goToAlbumArtist">Gehe zum Albumkünstler</string>
     <string name="goToFolder">Gehe zum Verzeichnis</string>
     <string name="goToStream">Gehe zu Streams</string>
     <string name="goToCurrent">Gehe zum aktuellen Song</string>

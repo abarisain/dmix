@@ -52,7 +52,7 @@ public class AlbumDataBinder extends BaseDataBinder {
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-        if (artist == null) {
+        if (false && artist == null) {
             holder.albumCover.setVisibility(View.GONE);
             holder.coverArtProgress.setVisibility(View.GONE);
         } else {

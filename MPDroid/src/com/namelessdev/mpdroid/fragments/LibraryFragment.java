@@ -1,6 +1,8 @@
 package com.namelessdev.mpdroid.fragments;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,7 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
@@ -78,8 +79,13 @@ public class LibraryFragment extends Fragment {
 			if (tab.equals(LibraryTabsUtil.TAB_ARTISTS)) {
 				fragment = new ArtistsFragment().init(null);
 			} else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
-                // Always display the album list
-                fragment = new AlbumsFragment(null);
+				// display either normal album listing, or album artwork grid
+				final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(((Activity) activity).getApplication());
+				if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, false)) {
+                                    fragment = new AlbumsGridFragment();
+				}else{
+                                    fragment = new AlbumsFragment();
+				}
 			} else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS)) {
 				fragment = new PlaylistsFragment();
 			} else if (tab.equals(LibraryTabsUtil.TAB_STREAMS)) {

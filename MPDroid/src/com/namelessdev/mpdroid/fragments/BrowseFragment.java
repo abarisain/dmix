@@ -35,7 +35,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 	public static final int ADD_TO_PLAYLIST = 3;
 
 	protected List<? extends Item> items = null;
-	
+
 	protected MPDApplication app = null;
 	protected View loadingView;
 	protected TextView loadingTextView;
@@ -104,7 +104,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 		loadingTextView.setText(getLoadingText());
 		return view;
 	}
-	
+
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
@@ -170,16 +170,16 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 		addAndReplacePlayItem.setOnMenuItemClickListener(this);
 		android.view.MenuItem addAndPlayItem = menu.add(ADDNPLAY, ADDNPLAY, 0, R.string.addAndPlay);
 		addAndPlayItem.setOnMenuItemClickListener(this);
-		
+
 		if (R.string.addPlaylist!=irAdd && R.string.addStream!=irAdd) {
 			int id=0;
 			SubMenu playlistMenu=menu.addSubMenu(R.string.addToPlaylist);
 			android.view.MenuItem item=playlistMenu.add(ADD_TO_PLAYLIST, id++, (int)info.id, R.string.newPlaylist);
 			item.setOnMenuItemClickListener(this);
-			
+
 			try {
 				List<Item> playlists=((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.getPlaylists();
-				
+
 				if (null!=playlists) {
 					for (Item pl : playlists) {
 						item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id, pl.getName());
@@ -296,12 +296,12 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 	protected ListAdapter getCustomListAdapter() {
 		return new ArrayIndexerAdapter(getActivity(), R.layout.simple_list_item_1, items);
 	}
-	
+
 	//Override if you want setEmptyView to be called on the list even if you have a header
 	protected boolean forceEmptyView() {
 		return false;
 	}
-	
+
 	@Override
 	public void asyncExecSucceeded(int jobID) {
 		if (iJobID == jobID) {

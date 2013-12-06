@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 
@@ -30,6 +31,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 
 	public final String EXTRA_ALBUM = "album";
 	public final String EXTRA_ARTIST = "artist";
+	public final String EXTRA_ARTISTS = "artists";
 	public final String EXTRA_STREAM = "streams";
 	public final String EXTRA_FOLDER = "folder";
 
@@ -43,29 +45,45 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 		if (getIntent().getBooleanExtra("streams", false)) {
 			rootFragment = new StreamsFragment();
 		} else {
-			targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
-			if (targetElement == null)
-				targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
-			if (targetElement == null)
-				targetElement = getIntent().getStringExtra(EXTRA_FOLDER);
-			if (targetElement == null) {
-				throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
-			} else {
-				if (targetElement instanceof Artist) {
-					AlbumsFragment af;
-					final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplication());
-                    if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-						af = new AlbumsGridFragment((Artist) targetElement);
-					} else {
-						af = new AlbumsFragment((Artist) targetElement);
-					}
-					rootFragment = af;
-				} else if (targetElement instanceof Album) {
-					rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST), (Album) targetElement);
-				} else if (targetElement instanceof String) {
-					rootFragment = new FSFragment().init((String) targetElement);
-				}
-			}
+                    targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
+                    if (targetElement == null) {
+                        targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
+                    }
+                    if (targetElement == null) {
+                        targetElement = getIntent().getParcelableArrayExtra(EXTRA_ARTISTS); // array
+                    }
+                    if (targetElement == null) {
+                        targetElement = getIntent().getStringExtra(EXTRA_FOLDER);
+                    }
+                    if (targetElement == null) {
+                        throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
+                    } else {
+                        Artist[] artists = null;
+                        if (targetElement instanceof Artist) { // make array
+                            artists = new Artist[1];
+                            artists[0] = (Artist)targetElement;
+                        } else if (targetElement.getClass().isArray()) {
+                            int numa = ((Object[])targetElement).length;
+                            artists = new Artist[numa];
+                            for (int i = 0; i< numa; i++) {
+                                artists[i] = (Artist)((Object[])targetElement)[i];
+                            }
+                        }
+                        if (artists != null) { // have artists array
+                            AlbumsFragment af;
+                            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplication());
+                            if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, false)) {
+                                af = new AlbumsGridFragment(artists);
+                            } else {
+                                af = new AlbumsFragment(artists);
+                            }
+                            rootFragment = af;
+                        } else if (targetElement instanceof Album) {
+                            rootFragment = new SongsFragment().init((Album) targetElement);
+                        } else if (targetElement instanceof String) {
+                            rootFragment = new FSFragment().init((String) targetElement);
+                        }
+                    }
 		}
 		if (rootFragment != null) {
 			if (rootFragment instanceof BrowseFragment)
