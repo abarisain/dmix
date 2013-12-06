@@ -1236,7 +1236,7 @@ public class MPD {
 
     public MPDCommand getSongsCommand(Album album, boolean useAlbumArtist) throws MPDServerException {
         Artist artist = album.getArtist();
-        boolean haveArtist = (null != album.getArtist()) && !(album.getArtist() instanceof UnknownArtist);
+        boolean haveArtist = (null != artist) && !(artist instanceof UnknownArtist);
         String[] search = new String[haveArtist ? 4 : 2];
         search[0] = MPDCommand.MPD_FIND_ALBUM;
         search[1] = (album instanceof UnknownAlbum) ? "" : album.getName();
