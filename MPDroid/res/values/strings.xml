@@ -212,7 +212,7 @@
     <string name="goToFolder">Go to folder</string>
     <string name="goToStream">Go to streams</string>
     <string name="goToCurrent">Go to current song</string>
-    <string name="otherCover">Other image</string>
+    <string name="otherCover">Download another image</string>
     <string name="resetCover">Reset image</string>
 
     <string name="actionSongSelected">1 song selected</string>

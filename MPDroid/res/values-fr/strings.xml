@@ -160,6 +160,7 @@
 	<string name="defaultLibraryScreenDescription">Onglet qui s\'affichera lors de l\'ouverture de la bibliothèque</string>
 	<string name="stop">Stop</string>
 	<string name="enableAlbumYearText">Afficher l\'année de l\'album</string>
+	<string name="showAlbumArtist">Afficher l\'artiste de l\'album</string>
     <string name="enableAudioText">Afficher les informations d\'encodage</string>
 	
 	<string name="behavior">Comportement du téléphone</string>
@@ -186,7 +187,7 @@
     <string name="goToFolder">Aller au dossier</string>
     <string name="goToStream">Aller aux flux</string>
     <string name="goToCurrent">Aller à la chanson en cours</string>
-    <string name="otherCover">Autre image</string>
+    <string name="otherCover">Télécharger une autre image</string>
     <string name="resetCover">Réinitialiser l\'image</string>
 
     <string name="actionSongSelected">1 chanson selectionnée</string>
