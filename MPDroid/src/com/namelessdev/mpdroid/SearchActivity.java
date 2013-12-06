@@ -237,8 +237,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         } else if (object instanceof Artist) {
             add(new UnknownAlbum((Artist) object), replace, play);
         } else if (object instanceof Album) {
-            Album album = (Album) object;
-            add(album, replace, play);
+            add((Album) object, replace, play);
         }
     }
 
