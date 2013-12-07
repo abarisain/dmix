@@ -265,6 +265,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         ArrayAdapter songs = new QueueAdapter(activity, newSonglist, R.layout.playlist_queue_item);
                         setListAdapter(songs);
                         songlist = newSonglist;
+                        songs.notifyDataSetChanged();
                         if (actionMode != null)
                             actionMode.finish();
 
