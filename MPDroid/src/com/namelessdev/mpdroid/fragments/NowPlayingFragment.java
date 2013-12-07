@@ -632,7 +632,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     if (DEBUG)
                         Log.d("MPDroid", "We did find an artist");
                     albumartist = actSong.getAlbumArtist();
-                    artist = showAlbumArtist ? actSong.getAlbumArtistOrArtist() : actSong.getArtist();
+                    artist = actSong.getArtist();
                     title = actSong.getTitle();
                     album = actSong.getAlbum();
                     date = Long.toString(actSong.getDate());
