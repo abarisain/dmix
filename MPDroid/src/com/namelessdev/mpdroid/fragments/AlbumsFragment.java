@@ -1,24 +1,12 @@
 package com.namelessdev.mpdroid.fragments;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.ContextMenu;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -27,6 +15,8 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
+import org.a0z.mpd.*;
+import org.a0z.mpd.exception.MPDServerException;
 
 public class AlbumsFragment extends BrowseFragment {
     private static final String EXTRA_ARTIST = "artist";
@@ -168,10 +158,9 @@ public class AlbumsFragment extends BrowseFragment {
             AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
             if (albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
                 CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper);
-                coverAsyncHelper.downloadCover(album, true); // albumartist=null, force to use this artist
+                coverAsyncHelper.downloadCover(album, true);
             }
         }
-
     }
 
     private void updateNowPlayingSmallFragment(AlbumInfo albumInfo) {

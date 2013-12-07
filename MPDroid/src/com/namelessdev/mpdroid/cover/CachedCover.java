@@ -105,8 +105,6 @@ public class CachedCover implements ICoverRetriever {
     }
 
     public void delete(AlbumInfo albumInfo) {
-        d(CachedCover.class.getSimpleName(), "Deleting cover for : " + albumInfo);
-
         final String cacheFolderPath = getAbsoluteCoverFolderPath();
         if (cacheFolderPath == null)
             return;

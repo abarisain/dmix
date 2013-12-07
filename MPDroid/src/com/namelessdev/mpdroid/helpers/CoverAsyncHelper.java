@@ -87,6 +87,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         info.setCachedCoverMaxSize(cachedCoverMaxSize);
         info.setPriority(priority);
         info.setListener(this);
+        tagListenerCovers(albumInfo);
 
         if (!albumInfo.isValid()) {
             COVER_NOT_FOUND_MESSAGE.obj = info;
@@ -95,6 +96,12 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
             CoverManager.getInstance(app, settings).addCoverRequest(info);
         }
 
+    }
+
+    private void tagListenerCovers(AlbumInfo albumInfo) {
+        for (CoverDownloadListener listener : coverDownloadListener) {
+            listener.tagAlbumCover(albumInfo);
+        }
     }
 
     public void handleMessage(Message msg) {
@@ -130,6 +137,11 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     @Override
     public void onCoverDownloadStarted(CoverInfo cover) {
         CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, cover).sendToTarget();
+    }
+
+    @Override
+    public void tagAlbumCover(AlbumInfo albumInfo) {
+        //Nothing to do
     }
 
     public void setCoverRetrieversFromPreferences() {

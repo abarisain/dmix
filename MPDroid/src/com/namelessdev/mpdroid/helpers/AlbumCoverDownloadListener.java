@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
+import org.a0z.mpd.AlbumInfo;
 
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
     Context context;
@@ -74,6 +75,13 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     public void onCoverDownloadStarted(CoverInfo cover) {
         if (coverArtProgress != null) {
             this.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+        }
+    }
+
+    @Override
+    public void tagAlbumCover(AlbumInfo albumInfo) {
+        if (coverArt != null && albumInfo != null) {
+            coverArt.setTag(albumInfo.getKey());
         }
     }
 
