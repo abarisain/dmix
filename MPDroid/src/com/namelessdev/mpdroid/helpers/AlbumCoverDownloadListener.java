@@ -73,6 +73,9 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 
     @Override
     public void onCoverDownloadStarted(CoverInfo cover) {
+        if (!isMatchingCover(cover)) {
+            return;
+        }
         if (coverArtProgress != null) {
             this.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
         }
