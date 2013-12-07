@@ -263,14 +263,15 @@ public class SongsFragment extends BrowseFragment {
     public void updateFromItems() {
         super.updateFromItems();
         if (items != null) {
-            String artistName = getArtistForTrackList();
-            headerArtist.setText(artistName);
+            AlbumInfo fixedAlbumInfo;
+            fixedAlbumInfo = getFixedAlbumInfo();
+            headerArtist.setText(fixedAlbumInfo.getArtist());
             headerInfo.setText(getHeaderInfoString());
             if (coverHelper != null) {
-                coverArt.setTag(album.getAlbumInfo().getKey());
-                coverHelper.downloadCover(album.getAlbumInfo(), true);
+                coverArt.setTag(fixedAlbumInfo.getKey());
+                coverHelper.downloadCover(fixedAlbumInfo, true);
             } else {
-                coverArtListener.onCoverNotFound(new CoverInfo(artistName, album.getName()));
+                coverArtListener.onCoverNotFound(new CoverInfo(fixedAlbumInfo));
             }
         }
 
@@ -285,10 +286,10 @@ public class SongsFragment extends BrowseFragment {
             for (Item item : items) {
                 song = (Music) item;
                 if (lastArtist == null) {
-                    lastArtist = song.getArtist();
+                    lastArtist = song.getAlbumArtistOrArtist();
                     continue;
                 }
-                if (!lastArtist.equalsIgnoreCase(song.getArtist())) {
+                if (!lastArtist.equalsIgnoreCase(song.getAlbumArtistOrArtist())) {
                     differentArtists = true;
                     break;
                 }
@@ -298,40 +299,27 @@ public class SongsFragment extends BrowseFragment {
         return super.getCustomListAdapter();
     }
 
-    private String getArtistForTrackList() {
+    private AlbumInfo getFixedAlbumInfo() {
         Music song;
-        String lastArtist = null;
+        AlbumInfo albumInfo = null;
         boolean differentArtists = false;
+
         for (Item item : items) {
             song = (Music) item;
-            if (lastArtist == null) {
-                lastArtist = song.getAlbumArtist();
+            if (albumInfo == null) {
+                albumInfo = song.getAlbumInfo();
                 continue;
             }
-            if (!lastArtist.equalsIgnoreCase(song.getAlbumArtist())) {
+            if (!albumInfo.getArtist().equalsIgnoreCase(song.getAlbumArtistOrArtist())) {
                 differentArtists = true;
                 break;
             }
         }
-        if (differentArtists || lastArtist == null || lastArtist.equals("")) {
-            differentArtists = false;
-            for (Item item : items) {
-                song = (Music) item;
-                if (lastArtist == null) {
-                    lastArtist = song.getArtist();
-                    continue;
-                }
-                if (!lastArtist.equalsIgnoreCase(song.getArtist())) {
-                    differentArtists = true;
-                    break;
-                }
-            }
-            if (differentArtists || lastArtist == null || lastArtist.equals("")) {
-                return getString(R.string.variousArtists);
-            }
-            return lastArtist;
+
+        if (differentArtists || albumInfo == null || !albumInfo.isValid()) {
+            return new AlbumInfo(getString(R.string.variousArtists), album.getName());
         }
-        return lastArtist;
+        return albumInfo;
     }
 
     private String getTotalTimeForTrackList() {
