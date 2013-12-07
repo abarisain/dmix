@@ -223,7 +223,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         update(true);
     }
 
-    protected synchronized void update(boolean forcePlayingIDRefresh) {
+    protected void update(boolean forcePlayingIDRefresh) {
         try {
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
             final ArrayList<AbstractPlaylistMusic> newSonglist = new ArrayList<AbstractPlaylistMusic>();
