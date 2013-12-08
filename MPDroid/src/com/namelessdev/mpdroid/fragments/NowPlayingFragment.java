@@ -107,6 +107,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private TimerTask posTimerTask = null;
     private MPDApplication app;
     private FragmentActivity activity;
+    private PopupMenu coverMenu;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -242,14 +243,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         });
 
-        final PopupMenu coverMenu = new PopupMenu(activity, coverArt);
+        coverMenu = new PopupMenu(activity, coverArt);
         coverMenu.getMenu().add(Menu.NONE, POPUP_COVER_BLACKLIST, Menu.NONE, R.string.otherCover);
         coverMenu.getMenu().add(Menu.NONE, POPUP_COVER_SELECTIVE_CLEAN, Menu.NONE, R.string.resetCover);
         coverMenu.setOnMenuItemClickListener(NowPlayingFragment.this);
         coverArt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (currentSong != null && currentSong.getAlbumInfo().isValid()) {
+                if (currentSong != null) {
                     coverMenu.show();
                 }
                 return true;
@@ -308,10 +309,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 public void onClick(View v) {
                     if (currentSong == null)
                         return;
-
-                    // Enable / Disable menu items that need artist and album defined.
-                    popupMenu.getMenu().findItem(POPUP_ALBUM).setVisible(!isEmpty(currentSong.getAlbum()));
-                    popupMenu.getMenu().findItem(POPUP_ARTIST).setVisible(!isEmpty(currentSong.getAlbumArtistOrArtist()));
 
                     if (currentSong.isStream()) {
                         popupMenuStream.show();
@@ -828,6 +825,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             sb.append(status.getBitrate() + " kbps | " + status.getBitsPerSample() + " bits | " + status.getSampleRate() / 1000 + "  khz");
             audioNameText.setText(sb.toString());
+        }
+
+        //Update the popup menus
+        if (currentSong != null) {
+            coverMenu.getMenu().setGroupVisible(Menu.NONE, currentSong.getAlbumInfo().isValid());
+            // Enable / Disable menu items that need artist and album defined.
+            popupMenu.getMenu().findItem(POPUP_ALBUM).setVisible(!isEmpty(currentSong.getAlbum()));
+            popupMenu.getMenu().findItem(POPUP_ARTIST).setVisible(!isEmpty(currentSong.getAlbumArtistOrArtist()));
         }
     }
 
