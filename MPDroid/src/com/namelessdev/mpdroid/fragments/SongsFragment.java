@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -110,10 +109,6 @@ public class SongsFragment extends BrowseFragment {
         list = (ListView) view.findViewById(R.id.list);
         registerForContextMenu(list);
         list.setOnItemClickListener(this);
-        // Override the fastscroll behaviour inherited from BrowseFragment
-        list.setFastScrollAlwaysVisible(false);
-        list.setFastScrollEnabled(false);
-        list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
 
         loadingView = view.findViewById(R.id.loadingLayout);
         loadingTextView = (TextView) view.findViewById(R.id.loadingText);

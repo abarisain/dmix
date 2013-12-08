@@ -33,6 +33,8 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 
 public abstract class BrowseFragment extends Fragment implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
 
+    private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 50;
+
     protected int iJobID = -1;
 
     public static final int MAIN = 0;
@@ -119,6 +121,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         if (items != null) {
             list.setAdapter(getCustomListAdapter());
         }
+        refreshFastScrollStyle();
     }
 
     @Override
@@ -305,7 +308,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         } catch (Exception e) {
         }
         loadingView.setVisibility(View.GONE);
-
+        refreshFastScrollStyle();
     }
 
     protected ListAdapter getCustomListAdapter() {
@@ -330,6 +333,39 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
             list.setSelection(-1);
         } catch (Exception e) {
             // What if the list is empty or some other bug ? I don't want any crashes because of that
+        }
+    }
+
+    /**
+     * Should return the minimum number of songs in the queue before the fastscroll thumb is shown
+     */
+    protected int getMinimumItemsCountBeforeFastscroll() {
+        return MIN_ITEMS_BEFORE_FASTSCROLL;
+    }
+    
+    /**
+     * This method is used for the fastcroll visibility decision.<br/>
+     * Don't override this if you want to change the fastscroll style,
+     * override {@link #refreshFastScrollStyle(boolean)} instead.
+     */
+    protected void refreshFastScrollStyle() {
+        refreshFastScrollStyle(items != null && items.size() >= MIN_ITEMS_BEFORE_FASTSCROLL);
+    }
+    
+    /**
+     * Override this for custom fastscroll style
+     * @param shouldShowFastScroll If the fastscroll should be shown or not
+     */
+    protected void refreshFastScrollStyle(boolean shouldShowFastScroll) {
+        if (shouldShowFastScroll) {
+            // No need to enable FastScroll, this setter enables it.
+            list.setFastScrollAlwaysVisible(true);
+            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
+        } else {
+            list.setFastScrollAlwaysVisible(false);
+            list.setFastScrollEnabled(false);
+            // Default Android value
+            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
         }
     }
 

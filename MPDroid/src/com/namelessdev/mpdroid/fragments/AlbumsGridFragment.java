@@ -18,7 +18,6 @@ import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
 
 public class AlbumsGridFragment extends AlbumsFragment {
 
-    // Minimum number of songs in the queue before the fastscroll thumb is shown
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 6;
 
     public AlbumsGridFragment(Artist artist) {
@@ -46,12 +45,6 @@ public class AlbumsGridFragment extends AlbumsFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        refreshFastScrollStyle();
-    }
-
-    @Override
     protected ListAdapter getCustomListAdapter() {
         if (items != null) {
             return new ArrayAdapter(getActivity(),
@@ -61,13 +54,13 @@ public class AlbumsGridFragment extends AlbumsFragment {
     }
 
     @Override
-    public void updateFromItems() {
-        super.updateFromItems();
-        refreshFastScrollStyle();
+    protected int getMinimumItemsCountBeforeFastscroll() {
+        return MIN_ITEMS_BEFORE_FASTSCROLL;
     }
 
-    private void refreshFastScrollStyle() {
-        if (items != null && items.size() >= MIN_ITEMS_BEFORE_FASTSCROLL) {
+    @Override
+    protected void refreshFastScrollStyle(boolean shouldShowFastScroll) {
+        if (shouldShowFastScroll) {
             // No need to enable FastScroll, this setter enables it.
             list.setFastScrollAlwaysVisible(true);
             list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
