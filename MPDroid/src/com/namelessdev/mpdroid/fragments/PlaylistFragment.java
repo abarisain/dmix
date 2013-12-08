@@ -1,5 +1,19 @@
 package com.namelessdev.mpdroid.fragments;
 
+import static android.util.Log.e;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDPlaylist;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,12 +26,27 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.view.*;
+import android.view.ActionMode;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.TextView;
+
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -31,17 +60,12 @@ import com.namelessdev.mpdroid.models.PlaylistSong;
 import com.namelessdev.mpdroid.models.PlaylistStream;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
-import org.a0z.mpd.*;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
+    
+    // Minimum number of songs in the queue before the fastscroll thumb is shown
+    private static final int MIN_SONGS_BEFORE_FASTSCROLL = 50;
+    
     private ArrayList<AbstractPlaylistMusic> songlist;
     private MPDApplication app;
     private DragSortListView list;
@@ -263,10 +287,21 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
                 activity.runOnUiThread(new Runnable() {
                     public void run() {
-                        ArrayAdapter songs = new QueueAdapter(activity, newSonglist, R.layout.playlist_queue_item);
+                        final ArrayAdapter songs = new QueueAdapter(activity, newSonglist, R.layout.playlist_queue_item);
                         setListAdapter(songs);
                         songlist = newSonglist;
                         songs.notifyDataSetChanged();
+                        if (newSonglist.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
+                            //No need to enable FastScroll, this setter enables it.
+                            list.setFastScrollAlwaysVisible(true);
+                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
+                        } else {
+                            list.setFastScrollAlwaysVisible(false);
+                            list.setFastScrollEnabled(false);
+                            // Default Android value
+                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
+                        }
+                        
                         if (actionMode != null)
                             actionMode.finish();
 
