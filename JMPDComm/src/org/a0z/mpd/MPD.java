@@ -1,7 +1,6 @@
 package org.a0z.mpd;
 
 import android.content.Context;
-import android.util.Log;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -1304,20 +1303,19 @@ public class MPD {
     }
 
     void fixAlbumArtists(List<Album> albums) {
-        List<String[]> albumartists = null;
+        List<String[]> albumartists;
         try {
             albumartists = listArtists(albums,true);
         } catch (MPDServerException e) {
             return;
         }
         if (albumartists == null || albumartists.size() != albums.size()) {
-            //            Log.d("ALBUMARTISTS", "ERROR " + albumartists.size()  + " != " +albums.size());
             return;
         }
         int i = 0;
         List<Album> splitalbums = new ArrayList<Album>();
         for (Album a : albums) {
-            String[] aartists = (String[])albumartists.get(i);
+            String[] aartists = albumartists.get(i);
             if (aartists.length > 0) {
                 a.setArtist(new Artist(aartists[0]));  // fix this album
                 if (aartists.length > 1) { // it's more than one album, insert
