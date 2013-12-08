@@ -26,6 +26,7 @@ public class MPD {
     private MPDStatus mpdStatus;
     private MPDPlaylist playlist;
     private Directory rootDirectory;
+    private String pwd = null;
 
     static private boolean useAlbumArtist = false;
     static private boolean sortByTrackNumber = true;
@@ -181,6 +182,9 @@ public class MPD {
                 try {
                     w(MPD.class.getSimpleName(), "Try to restore mpd idle connection, attempt " +retryCount);
                     connect(connection.getHostAddress(), connection.getHostPort());
+                    if (pwd != null) {
+                        password(pwd);
+                    }
                     success = true;
                     w(MPD.class.getSimpleName(), "mpd idle connection has been restored");
                 } catch (MPDServerException e) {
@@ -912,6 +916,7 @@ public class MPD {
      *            if an error occur while contacting server.
      */
     public void password(String password) throws MPDServerException {
+        this.pwd = password;
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 
