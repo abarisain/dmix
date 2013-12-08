@@ -1,5 +1,7 @@
 package com.namelessdev.mpdroid.fragments;
 
+import org.a0z.mpd.Artist;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +10,10 @@ import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
-import org.a0z.mpd.Artist;
 
 public class AlbumsGridFragment extends AlbumsFragment {
     public AlbumsGridFragment(Artist artist) {
@@ -41,7 +43,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
     @Override
     protected ListAdapter getCustomListAdapter() {
         if (items != null) {
-            return new ArrayIndexerAdapter(getActivity(),
+            return new ArrayAdapter(getActivity(),
                     new AlbumGridDataBinder(app, artist == null ? null : artist.getName(), app.isLightThemeSelected()), items);
         }
         return super.getCustomListAdapter();
