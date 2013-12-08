@@ -349,7 +349,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
      * override {@link #refreshFastScrollStyle(boolean)} instead.
      */
     protected void refreshFastScrollStyle() {
-        refreshFastScrollStyle(items != null && items.size() >= MIN_ITEMS_BEFORE_FASTSCROLL);
+        refreshFastScrollStyle(items != null && items.size() >= getMinimumItemsCountBeforeFastscroll());
     }
     
     /**
