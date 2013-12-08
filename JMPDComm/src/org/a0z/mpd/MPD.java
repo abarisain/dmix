@@ -156,7 +156,7 @@ public class MPD {
             w(MPD.class.getSimpleName(), "Wait for server change failure : " + ex);
         }
         if (restoreIdleConnection(mpdIdleConnection)) {
-            return Collections.EMPTY_LIST;
+            return Arrays.asList("changed: playlist");
         }
         else {
             throw new MPDConnectionException("IDLE connection lost");
