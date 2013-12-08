@@ -61,15 +61,25 @@ public class AlbumsGridFragment extends AlbumsFragment {
     @Override
     protected void refreshFastScrollStyle(boolean shouldShowFastScroll) {
         // Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.
+        // It is also very important post-KitKat because it needs the opposite order or it won't show the FastScroll
         if (shouldShowFastScroll) {
-            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-            // No need to enable FastScroll, this setter enables it.
-            list.setFastScrollAlwaysVisible(true);
+            if (android.os.Build.VERSION.SDK_INT >= 19) {
+                // No need to enable FastScroll, this setter enables it.
+                list.setFastScrollAlwaysVisible(true);
+                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
+            } else {
+                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
+                list.setFastScrollAlwaysVisible(true);
+            }
         } else {
-            // Matches the XML style
-            list.setScrollBarStyle(AbsListView.SCROLLBARS_OUTSIDE_OVERLAY);
-            list.setFastScrollAlwaysVisible(false);
-            list.setFastScrollEnabled(false);
+            if (android.os.Build.VERSION.SDK_INT >= 19) {
+                list.setFastScrollAlwaysVisible(false);
+                // Matches the XML style
+                list.setScrollBarStyle(AbsListView.SCROLLBARS_OUTSIDE_OVERLAY);
+            } else {
+                list.setScrollBarStyle(AbsListView.SCROLLBARS_OUTSIDE_OVERLAY);
+                list.setFastScrollAlwaysVisible(false);
+            }
         }
     }
 }

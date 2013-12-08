@@ -354,21 +354,31 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     
     /**
      * Override this for custom fastscroll style
-     * Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.
+     * Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.<br/>
+     * It is also very important post-KitKat because it needs the opposite order or it won't show the FastScroll
      * 
      * @param shouldShowFastScroll
      *            If the fastscroll should be shown or not
      */
     protected void refreshFastScrollStyle(boolean shouldShowFastScroll) {
         if (shouldShowFastScroll) {
-            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-            // No need to enable FastScroll, this setter enables it.
-            list.setFastScrollAlwaysVisible(true);
+            if (android.os.Build.VERSION.SDK_INT >= 19) {
+                // No need to enable FastScroll, this setter enables it.
+                list.setFastScrollAlwaysVisible(true);
+                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
+            } else {
+                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
+                list.setFastScrollAlwaysVisible(true);
+            }
         } else {
-            // Default Android value
-            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-            list.setFastScrollAlwaysVisible(false);
-            list.setFastScrollEnabled(false);
+            if (android.os.Build.VERSION.SDK_INT >= 19) {
+                list.setFastScrollAlwaysVisible(false);
+                // Default Android value
+                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
+            } else {
+                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
+                list.setFastScrollAlwaysVisible(false);
+            }
         }
     }
 
