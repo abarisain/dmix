@@ -1,5 +1,10 @@
 package com.namelessdev.mpdroid.fragments;
 
+import java.util.List;
+
+import org.a0z.mpd.Item;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -7,19 +12,24 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.*;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.widget.*;
+import android.view.SubMenu;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.exception.MPDServerException;
-
-import java.util.List;
 
 public abstract class BrowseFragment extends Fragment implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
 
@@ -96,8 +106,6 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         list = (ListView) view.findViewById(R.id.list);
         registerForContextMenu(list);
         list.setOnItemClickListener(this);
-        if (android.os.Build.VERSION.SDK_INT == 19)
-            list.setFastScrollAlwaysVisible(true);
         loadingView = view.findViewById(R.id.loadingLayout);
         loadingTextView = (TextView) view.findViewById(R.id.loadingText);
         noResultView = view.findViewById(R.id.noResultLayout);

@@ -8,7 +8,9 @@
         android:id="@+id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:fastScrollEnabled="true" />
+        android:fastScrollAlwaysVisible="true"
+        android:fastScrollEnabled="true"
+        android:scrollbarStyle="insideInset" />
 
     <RelativeLayout
         android:id="@+id/loadingLayout"
