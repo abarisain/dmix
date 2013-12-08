@@ -79,7 +79,7 @@ public class LibraryFragment extends Fragment {
 				fragment = new ArtistsFragment().init(null);
 			} else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
                 // Always display the album list
-                fragment = new AlbumsGridFragment(null);
+                fragment = new AlbumsFragment(null);
 			} else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS)) {
 				fragment = new PlaylistsFragment();
 			} else if (tab.equals(LibraryTabsUtil.TAB_STREAMS)) {
