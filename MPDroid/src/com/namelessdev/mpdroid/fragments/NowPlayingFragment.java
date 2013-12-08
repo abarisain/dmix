@@ -249,7 +249,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         coverArt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (currentSong != null) {
+                if (currentSong != null && currentSong.getAlbumInfo().isValid()) {
                     coverMenu.show();
                 }
                 return true;
@@ -308,6 +308,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 public void onClick(View v) {
                     if (currentSong == null)
                         return;
+
+                    // Enable / Disable menu items that need artist and album defined.
+                    popupMenu.getMenu().findItem(POPUP_ALBUM).setVisible(!isEmpty(currentSong.getAlbum()));
+                    popupMenu.getMenu().findItem(POPUP_ARTIST).setVisible(!isEmpty(currentSong.getAlbumArtistOrArtist()));
 
                     if (currentSong.isStream()) {
                         popupMenuStream.show();
