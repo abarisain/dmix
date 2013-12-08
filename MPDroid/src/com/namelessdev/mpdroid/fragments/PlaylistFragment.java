@@ -291,17 +291,18 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         setListAdapter(songs);
                         songlist = newSonglist;
                         songs.notifyDataSetChanged();
+                        // Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.
                         if (newSonglist.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
-                            //No need to enable FastScroll, this setter enables it.
-                            list.setFastScrollAlwaysVisible(true);
                             list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
+                            // No need to enable FastScroll, this setter enables it.
+                            list.setFastScrollAlwaysVisible(true);
                         } else {
-                            list.setFastScrollAlwaysVisible(false);
-                            list.setFastScrollEnabled(false);
                             // Default Android value
                             list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
+                            list.setFastScrollAlwaysVisible(false);
+                            list.setFastScrollEnabled(false);
                         }
-                        
+
                         if (actionMode != null)
                             actionMode.finish();
 

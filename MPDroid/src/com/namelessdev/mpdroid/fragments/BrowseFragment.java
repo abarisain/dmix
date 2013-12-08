@@ -354,18 +354,21 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     
     /**
      * Override this for custom fastscroll style
-     * @param shouldShowFastScroll If the fastscroll should be shown or not
+     * Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.
+     * 
+     * @param shouldShowFastScroll
+     *            If the fastscroll should be shown or not
      */
     protected void refreshFastScrollStyle(boolean shouldShowFastScroll) {
         if (shouldShowFastScroll) {
+            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
             // No need to enable FastScroll, this setter enables it.
             list.setFastScrollAlwaysVisible(true);
-            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
         } else {
-            list.setFastScrollAlwaysVisible(false);
-            list.setFastScrollEnabled(false);
             // Default Android value
             list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
+            list.setFastScrollAlwaysVisible(false);
+            list.setFastScrollEnabled(false);
         }
     }
 
