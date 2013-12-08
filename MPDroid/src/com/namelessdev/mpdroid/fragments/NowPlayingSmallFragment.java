@@ -281,6 +281,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 artist = artist == null ? "" : artist;
                 title = title == null ? "" : title;
                 album = album == null ? "" : album;
+                artistlabel = artistlabel.equals("null") ? "" : artistlabel;
 
                 songArtist.setText(artistlabel);
                 songTitle.setText(title);
