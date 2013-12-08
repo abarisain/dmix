@@ -257,8 +257,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     item.setCurrentSongIconRefID(0);
                 }
                 newSonglist.add(item);
+            }
 
-                final int finalListPlayingID = listPlayingID;
+            final int finalListPlayingID = listPlayingID;
 
                 activity.runOnUiThread(new Runnable() {
                     public void run() {
@@ -277,7 +278,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                             setSelection(finalListPlayingID);
                     }
                 });
-            }
 
         } catch (MPDServerException e) {
             e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
