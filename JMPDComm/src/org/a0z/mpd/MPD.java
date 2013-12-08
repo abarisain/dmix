@@ -10,6 +10,8 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.*;
 
+import static android.util.Log.w;
+
 /**
  * MPD Server controller.
  *
@@ -17,6 +19,7 @@ import java.util.*;
  */
 public class MPD {
 
+    public static final int IDLE_CONNECT_MAX_RETRY = 6;
     private MPDConnection mpdConnection;
     private MPDConnection mpdIdleConnection;
     private MPDStatus mpdStatus;
@@ -140,19 +143,58 @@ public class MPD {
      */
     public List<String> waitForChanges() throws MPDServerException {
 
-        while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
-            List<String> data = mpdIdleConnection
-                .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
-            if (data.isEmpty()) {
-                continue;
+        try {
+            while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
+                List<String> data = mpdIdleConnection
+                        .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
+                if (data.isEmpty()) {
+                    continue;
+                }
+                return data;
             }
-            return data;
+        } catch (Exception ex) {
+            w(MPD.class.getSimpleName(), "Wait for server change failure : " + ex);
         }
-        throw new MPDConnectionException("IDLE connection lost");
+        if (restoreIdleConnection(mpdIdleConnection)) {
+            return Collections.EMPTY_LIST;
+        }
+        else {
+            throw new MPDConnectionException("IDLE connection lost");
+        }
     }
 
     public boolean isMpdConnectionNull() {
         return (this.mpdConnection == null);
+    }
+
+    private boolean restoreIdleConnection(MPDConnection connection) {
+        if (connection == null || connection.getHostPort() == 0 || connection.getHostAddress() == null) {
+            w(MPD.class.getSimpleName(), "Cannot try to restore mpd idle connection without port and address");
+            return false;
+        } else {
+
+            boolean success = false;
+            int retryCount = 0;
+
+            while (!success && retryCount < IDLE_CONNECT_MAX_RETRY) {
+                try {
+                    w(MPD.class.getSimpleName(), "Try to restore mpd idle connection, attempt " +retryCount);
+                    connect(connection.getHostAddress(), connection.getHostPort());
+                    success = true;
+                    w(MPD.class.getSimpleName(), "mpd idle connection has been restored");
+                } catch (MPDServerException e) {
+                    w(MPD.class.getSimpleName(), "Cannot restore mpd idle connection on attempt " + retryCount + " -> " + e.getMessage());
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e1) {
+                        //Nothing to do
+                    }
+                }
+                retryCount++;
+            }
+
+            return success;
+        }
     }
 
     /**
