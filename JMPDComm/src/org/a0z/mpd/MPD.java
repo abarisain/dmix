@@ -1,6 +1,7 @@
 package org.a0z.mpd;
 
 import android.content.Context;
+import android.util.Log;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -459,12 +460,28 @@ public class MPD {
      *            if an error occur while contacting server.
      */
     public MPDStatus getStatus() throws MPDServerException {
-        if(!isConnected())
-            throw new MPDServerException("MPD Connection is not established");
 
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
-        mpdStatus.updateStatus(response);
-        return mpdStatus;
+        boolean success = false;
+        int retryCounter = 0;
+
+        while (!success && retryCounter < IDLE_CONNECT_MAX_RETRY) {
+            try {
+                if (!isConnected())
+                    throw new MPDServerException("MPD Connection is not established");
+                List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
+                mpdStatus.updateStatus(response);
+                success = true;
+            } catch (Exception ex) {
+                Log.w(MPD.class.getSimpleName(), "MPD get status failure : " + ex);
+                restoreIdleConnection(mpdConnection);
+                retryCounter++;
+            }
+        }
+        if (success) {
+            return mpdStatus;
+        } else {
+            throw new MPDServerException("Cannot retrieve MPD status : ");
+        }
     }
 
     /**
