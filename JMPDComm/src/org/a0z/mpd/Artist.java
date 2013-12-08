@@ -45,8 +45,8 @@ public class Artist extends Item implements Parcelable {
 	}
 
 	public String sort() {
-		return null==sort ? name : sort;
-	}
+        return null == sort ? name == null ? "" : name : sort;
+    }
 
 	@Override
 	public String subText() {
