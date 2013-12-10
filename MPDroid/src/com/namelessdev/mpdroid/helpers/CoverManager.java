@@ -52,6 +52,7 @@ public class CoverManager {
     private boolean active = true;
     private MultiMap<String, String> wrongCoverUrlMap = null;
     private Map<String, String> coverUrlMap = null;
+    private List<String> notFoundAlbumKeys;
 
     public synchronized static CoverManager getInstance(MPDApplication app, SharedPreferences settings) {
         if (instance == null) {
@@ -198,9 +199,9 @@ public class CoverManager {
                                 break;
                             } else {
 
-                                if (!coverInfo.isValid()) {
+                                if (!coverInfo.isValid() || notFoundAlbumKeys.contains(coverInfo.getKey())) {
                                     if (DEBUG) {
-                                        d(CoverManager.class.getSimpleName(), "Incomplete cover request  with artist=" + coverInfo.getArtist() + ", album=" + coverInfo.getAlbum());
+                                        d(CoverManager.class.getSimpleName(), "Incomplete cover request or already not found cover with artist=" + coverInfo.getArtist() + ", album=" + coverInfo.getAlbum());
                                     }
                                     coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
                                     notifyListeners(coverInfo);
@@ -309,6 +310,9 @@ public class CoverManager {
                         }
                         break;
                     case COVER_NOT_FOUND:
+                        if (!coverInfo.isRequestGivenUp()) {
+                            notFoundAlbumKeys.add(coverInfo.getKey());
+                        }
                         removeRequest(coverInfo);
                         if (DEBUG)
                             d(CoverManager.class.getSimpleName(), "Cover not found for " + coverInfo.getAlbum());
@@ -420,6 +424,7 @@ public class CoverManager {
 
                 }
             } else {
+                coverInfo.setRequestGivenUp(true);
                 w(CoverManager.class.getSimpleName(), "Too many requests, giving up this one : " + coverInfo.getAlbum());
             }
 
@@ -668,6 +673,7 @@ public class CoverManager {
     private void initializeCoverData() {
         wrongCoverUrlMap = loadWrongCovers();
         coverUrlMap = loadCovers();
+        notFoundAlbumKeys = new ArrayList<String>();
     }
 
     public void markWrongCover(AlbumInfo albumInfo) {
@@ -803,5 +809,6 @@ public class CoverManager {
         }
         coverUrlMap.remove(albumInfo);
         wrongCoverUrlMap.remove(albumInfo.getKey());
+        notFoundAlbumKeys.remove(albumInfo.getKey());
     }
 }

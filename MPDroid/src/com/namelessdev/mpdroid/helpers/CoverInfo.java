@@ -6,6 +6,7 @@ import org.a0z.mpd.AlbumInfo;
 
 public class CoverInfo extends AlbumInfo {
     public enum STATE {NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND}
+
     ;
     private STATE state = STATE.NEW;
     private Bitmap[] bitmap = new Bitmap[0];
@@ -16,6 +17,7 @@ public class CoverInfo extends AlbumInfo {
     private int cachedCoverMaxSize = MAX_SIZE;
     private ICoverRetriever coverRetriever;
     private CoverDownloadListener listener;
+    private boolean requestGivenUp = false;
 
     public CoverInfo(CoverInfo coverInfo) {
         super();
@@ -30,6 +32,8 @@ public class CoverInfo extends AlbumInfo {
         this.coverMaxSize = coverInfo.coverMaxSize;
         this.cachedCoverMaxSize = coverInfo.cachedCoverMaxSize;
         this.coverRetriever = coverInfo.coverRetriever;
+        this.listener = coverInfo.getListener();
+        this.requestGivenUp = coverInfo.requestGivenUp;
     }
 
     public CoverInfo(AlbumInfo albumInfo) {
@@ -42,6 +46,10 @@ public class CoverInfo extends AlbumInfo {
 
     public CoverInfo() {
         super();
+    }
+
+    public void setRequestGivenUp(boolean requestGivenUp) {
+        this.requestGivenUp = requestGivenUp;
     }
 
     public CoverDownloadListener getListener() {
@@ -63,6 +71,10 @@ public class CoverInfo extends AlbumInfo {
     public CoverInfo(String artist, String album) {
         this.artist = artist;
         this.album = album;
+    }
+
+    public boolean isRequestGivenUp() {
+        return requestGivenUp;
     }
 
     public ICoverRetriever getCoverRetriever() {
