@@ -52,7 +52,7 @@ public class CoverManager {
     private boolean active = true;
     private MultiMap<String, String> wrongCoverUrlMap = null;
     private Map<String, String> coverUrlMap = null;
-    private List<String> notFoundAlbumKeys;
+    private Set<String> notFoundAlbumKeys;
 
     public synchronized static CoverManager getInstance(MPDApplication app, SharedPreferences settings) {
         if (instance == null) {
@@ -673,7 +673,7 @@ public class CoverManager {
     private void initializeCoverData() {
         wrongCoverUrlMap = loadWrongCovers();
         coverUrlMap = loadCovers();
-        notFoundAlbumKeys = new ArrayList<String>();
+        notFoundAlbumKeys = new HashSet<String>();
     }
 
     public void markWrongCover(AlbumInfo albumInfo) {
