@@ -78,6 +78,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private FragmentActivity activity;
     private static final boolean DEBUG = false;
     private int lastPlayingID = -1;
+    private boolean lightTheme = false;
 
     public PlaylistFragment() {
         super();
@@ -89,6 +90,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         super.onActivityCreated(savedInstanceState);
         this.activity = getActivity();
         app = (MPDApplication) activity.getApplication();
+        lightTheme = app.isLightThemeSelected();
         refreshListColorCacheHint();
     }
 
@@ -273,7 +275,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 }
 
                 if (item.getSongId() == lastPlayingID) {
-                    item.setCurrentSongIconRefID(android.R.drawable.ic_media_play);
+                    item.setCurrentSongIconRefID(lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play);
                     // Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
                     // it
                     listPlayingID = newSonglist.size() - 1;
@@ -486,7 +488,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             for (AbstractPlaylistMusic song : songlist) {
                 int newPlay;
                 if ((song.getSongId()) == mpdStatus.getSongId()) {
-                    newPlay = android.R.drawable.ic_media_play;
+                    newPlay = lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play;
                 } else {
                     newPlay = 0;
                 }
