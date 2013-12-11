@@ -1,5 +1,22 @@
 package com.namelessdev.mpdroid.fragments;
 
+import static android.text.TextUtils.isEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.a0z.mpd.Album;
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,12 +32,23 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
@@ -29,17 +57,6 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
-import org.a0z.mpd.*;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDServerException;
-
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static android.text.TextUtils.isEmpty;
-import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener,
         OnSharedPreferenceChangeListener, OnMenuItemClickListener {
@@ -108,6 +125,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private MPDApplication app;
     private FragmentActivity activity;
     private PopupMenu coverMenu;
+    private boolean lightTheme;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -123,6 +141,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         app = (MPDApplication) activity.getApplication();
+        lightTheme = app.isLightThemeSelected();
         handler = new Handler();
         setHasOptionsMenu(false);
         activity.setTitle(activity.getResources().getString(R.string.nowPlaying));
@@ -668,7 +687,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     downloadCover(new AlbumInfo(artist, album));
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
                     // coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
-                    int noCoverDrawable = app.isLightThemeSelected() ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
+                    int noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
                     coverArt.setImageResource(noCoverDrawable);
                     downloadCover(actSong.getAlbumInfo());
                     lastArtist = artist;
@@ -804,11 +823,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
                 startPosTimer(status.getElapsedTime());
                 ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-                button.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_media_pause));
+                button.setImageDrawable(activity.getResources().getDrawable(
+                        lightTheme ? R.drawable.ic_media_pause_light : R.drawable.ic_media_pause));
             } else {
                 stopPosTimer();
                 ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-                button.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_media_play));
+                button.setImageDrawable(activity.getResources().getDrawable(
+                        lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play));
             }
         }
         setShuffleButton(status.isRandom());

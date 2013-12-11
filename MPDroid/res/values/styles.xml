@@ -35,6 +35,11 @@
         <item name="repeatEnabled">@drawable/ic_media_repeat_on</item>
         <item name="shuffleDisabled">@drawable/ic_media_shuffle</item>
         <item name="shuffleEnabled">@drawable/ic_media_shuffle_on</item>
+        <item name="playIcon">@drawable/ic_media_play</item>
+        <item name="pauseIcon">@drawable/ic_media_pause</item>
+        <item name="stopIcon">@drawable/ic_media_stop</item>
+        <item name="prevIcon">@drawable/ic_media_previous</item>
+        <item name="nextIcon">@drawable/ic_media_next</item>
         <item name="volumeIcon">@drawable/ic_action_volume</item>
         <item name="cardBackground">@drawable/card_dark</item>
     </style>
@@ -51,6 +56,11 @@
         <item name="repeatEnabled">@drawable/ic_media_repeat_on_light</item>
         <item name="shuffleDisabled">@drawable/ic_media_shuffle_light</item>
         <item name="shuffleEnabled">@drawable/ic_media_shuffle_on_light</item>
+        <item name="playIcon">@drawable/ic_media_play_light</item>
+        <item name="pauseIcon">@drawable/ic_media_pause_light</item>
+        <item name="stopIcon">@drawable/ic_media_stop_light</item>
+        <item name="prevIcon">@drawable/ic_media_previous_light</item>
+        <item name="nextIcon">@drawable/ic_media_next_light</item>
         <item name="volumeIcon">@drawable/ic_action_volume_light</item>
         <item name="cardBackground">@drawable/card_light</item>
     </style>

@@ -166,7 +166,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_media_previous" />
+            android:src="?attr/prevIcon" />
 
         <ImageButton
             android:id="@+id/playpause"
@@ -174,7 +174,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_media_play" />
+            android:src="?attr/playIcon" />
 
         <ImageButton
             android:id="@+id/stop"
@@ -182,7 +182,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_media_stop" />
+            android:src="?attr/stopIcon" />
 
         <ImageButton
             android:id="@+id/next"
@@ -190,7 +190,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_media_next" />
+            android:src="?attr/nextIcon" />
 
         <ImageButton
             android:id="@+id/repeat"
