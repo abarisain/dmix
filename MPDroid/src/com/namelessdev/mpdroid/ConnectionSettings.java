@@ -35,6 +35,7 @@ public class ConnectionSettings extends PreferenceActivity {
 		} else {
 			// Default settings
 			createDynamicSettings("", mMasterCategory);
+            mMasterCategory.setTitle(R.string.defaultSettings);
 
 		}
 	}
