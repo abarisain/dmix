@@ -11,6 +11,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -27,6 +28,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +36,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
@@ -96,6 +99,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	private View nowPlayingDualPane;
     private ViewPager nowPlayingPager;
     private View libraryRootFrame;
+    private TextView titleView;
 
 	private List<DrawerItem> mDrawerItems;
 	private DrawerLayout mDrawerLayout;
@@ -118,6 +122,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
 		setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet : R.layout.main_activity_nagvigation);
 
+		LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		titleView = (TextView) inflator.inflate(R.layout.actionbar_title, null);
+		titleView.setFocusable(true);
+		titleView.setFocusableInTouchMode(true);
+		titleView.setSelected(true);
+		titleView.requestFocus();
+		
 		nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
         nowPlayingPager = (ViewPager) findViewById(R.id.pager);
         libraryRootFrame = findViewById(R.id.library_root_frame);
@@ -134,6 +145,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 		final ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
+		actionBar.setCustomView(titleView);
+		actionBar.setDisplayShowTitleEnabled(false);
+		actionBar.setDisplayShowCustomEnabled(true);
 
 		mDrawerItems = new ArrayList<DrawerItem>();
 		mDrawerItems.add(new DrawerItem(getString(R.string.nowPlaying), DrawerItem.Action.ACTION_NOWPLAYING));
@@ -159,8 +173,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 					/** Called when a drawer has settled in a completely open state. */
 					public void onDrawerOpened(View drawerView) {
 						actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-						actionBar.setDisplayShowTitleEnabled(true);
-						actionBar.setTitle(R.string.app_name);
+						actionBar.setDisplayShowCustomEnabled(true);
+						titleView.setText(R.string.app_name);
 					}
 				};
 
@@ -509,26 +523,26 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	private void refreshActionBarTitle()
 	{
 		final ActionBar actionBar = getActionBar();
-		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowCustomEnabled(true);
 		switch (currentDisplayMode)
 		{
             case MODE_QUEUE:
 			case MODE_NOWPLAYING:
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
                 if (nowPlayingPager != null && nowPlayingPager.getCurrentItem() > 0) {
-                    actionBar.setTitle(R.string.playQueue);
+                    titleView.setText(R.string.playQueue);
                 } else {
-                    actionBar.setTitle(R.string.nowPlaying);
+                    titleView.setText(R.string.nowPlaying);
                 }
 				break;
 			case MODE_LIBRARY:
 				final int fmStackCount = fragmentManager.getBackStackEntryCount();
 				if (fmStackCount > 0) {
 					actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-					actionBar.setTitle(fragmentManager.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
+					titleView.setText(fragmentManager.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
 				} else {
 					actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-					actionBar.setDisplayShowTitleEnabled(false);
+					actionBar.setDisplayShowCustomEnabled(false);
 				}
 				break;
 		}
