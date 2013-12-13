@@ -68,7 +68,7 @@ public class SettingsActivity extends PreferenceActivity implements
 		 */
 
         if (!getResources().getBoolean(R.bool.isTablet)) {
-            final PreferenceCategory interfaceCategory = (PreferenceCategory) findPreference("category_interface");
+            final PreferenceScreen interfaceCategory = (PreferenceScreen) findPreference("nowPlayingScreen");
             interfaceCategory.removePreference(findPreference("tabletUI"));
         }
 
