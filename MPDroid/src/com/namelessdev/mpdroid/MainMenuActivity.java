@@ -122,8 +122,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
 		setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet : R.layout.main_activity_nagvigation);
 
-		LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		titleView = (TextView) inflator.inflate(R.layout.actionbar_title, null);
+		LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		titleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
 		titleView.setFocusable(true);
 		titleView.setFocusableInTouchMode(true);
 		titleView.setSelected(true);
