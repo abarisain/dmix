@@ -67,16 +67,16 @@
     <ImageButton
         android:id="@+id/prev"
         style="@style/PlayerSmallButton"
-        android:src="@drawable/ic_media_previous" />
+        android:src="?attr/prevIcon" />
 
     <ImageButton
         android:id="@+id/playpause"
         style="@style/PlayerSmallButton"
-        android:src="@drawable/ic_media_play" />
+        android:src="?attr/playIcon" />
 
     <ImageButton
         android:id="@+id/next"
         style="@style/PlayerSmallButton"
-        android:src="@drawable/ic_media_next" />
+        android:src="?attr/nextIcon" />
 
 </LinearLayout>

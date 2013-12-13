@@ -48,11 +48,13 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     private String lastArtist = "";
     private String lastAlbum = "";
     private boolean showAlbumArtist;
+    private boolean lightTheme;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         app = (MPDApplication) activity.getApplication();
+        lightTheme = app.isLightThemeSelected();
     }
 
     @Override
@@ -108,7 +110,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     public void onDestroyView() {
         if (coverArt != null) {
             final Drawable oldDrawable = coverArt.getDrawable();
-            coverArt.setImageResource(R.drawable.no_cover_art);
+            coverArt.setImageResource(lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art);
             if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
                 final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
                 if (oldBitmap != null)
@@ -189,9 +191,9 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         app.getApplicationState().currentMpdStatus = status;
         if (status.getState() != null && buttonPlayPause != null) {
             if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
-                buttonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_pause));
+                buttonPlayPause.setImageDrawable(getResources().getDrawable(lightTheme ? R.drawable.ic_media_pause_light : R.drawable.ic_media_pause));
             } else {
-                buttonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
+                buttonPlayPause.setImageDrawable(getResources().getDrawable(lightTheme ? R.drawable.ic_media_play_light :R.drawable.ic_media_play));
             }
         }
     }
