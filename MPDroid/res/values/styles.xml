@@ -12,9 +12,10 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
- -->
+  limitations under the License.
+-->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+
     <style name="ActionBar" parent="@android:style/Widget.Holo.ActionBar" />
 
     <style name="ActionBar.Dark" parent="@style/ActionBar">
@@ -42,7 +43,7 @@
         <item name="volumeIcon">@drawable/ic_action_volume</item>
         <item name="cardBackground">@drawable/card_dark</item>
     </style>
-    
+
     <style name="AppTheme.Light" parent="@android:style/Theme.Holo.Light.DarkActionBar">
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
         <item name="android:seekBarStyle">@style/SeekBar</item>
@@ -63,58 +64,55 @@
         <item name="volumeIcon">@drawable/ic_action_volume_light</item>
         <item name="cardBackground">@drawable/card_light</item>
     </style>
-    
-    <style name="AppTheme.ActionBar" parent="AppTheme">
-    </style>
-    
+
+    <style name="AppTheme.ActionBar" parent="AppTheme"></style>
+
     <style name="AppTheme.NowPlaying" parent="AppTheme">
-		<item name="android:windowBackground">@color/nowplaying_background</item> 
-		<item name="android:colorBackgroundCacheHint">@color/nowplaying_background</item>
-		<item name="android:actionBarStyle">@style/ActionBar.Dark</item>
+        <item name="android:windowBackground">@color/nowplaying_background</item>
+        <item name="android:colorBackgroundCacheHint">@color/nowplaying_background</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Dark</item>
     </style>
-    
-    <style name="AppTheme.NowPlaying.Light" parent="AppTheme.Light">
-    </style>
-    
+
+    <style name="AppTheme.NowPlaying.Light" parent="AppTheme.Light"></style>
+
     <style name="AppTheme.NowPlaying.SmallSeekBars" parent="AppTheme.NowPlaying">
         <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
-    
+
     <style name="AppTheme.NowPlaying.Light.SmallSeekBars" parent="AppTheme.NowPlaying.Light">
         <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
-    
+
     <style name="AppTheme.Dialog" parent="@android:style/Theme.Holo.Dialog" />
-    
+
     <style name="SeekBar" parent="android:Widget.SeekBar">
-		<item name="android:indeterminateOnly">false</item>
-		<item name="android:progressDrawable">@drawable/scrubber_progress_horizontal_holo_dark
-		</item>
-		<item name="android:indeterminateDrawable">@drawable/scrubber_progress_horizontal_holo_dark
-		</item>
-		<item name="android:minHeight">13dip</item>
-		<item name="android:maxHeight">13dip</item>
-		<item name="android:thumb">@drawable/scrubber_control_selector_holo</item>
-		<item name="android:thumbOffset">8dip</item>
-		<item name="android:focusable">true</item>
-		<item name="android:paddingLeft">16dip</item>
-		<item name="android:paddingRight">16dip</item>
-	</style>
-    
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/scrubber_progress_horizontal_holo_dark</item>
+        <item name="android:indeterminateDrawable">@drawable/scrubber_progress_horizontal_holo_dark</item>
+        <item name="android:minHeight">13dip</item>
+        <item name="android:maxHeight">13dip</item>
+        <item name="android:thumb">@drawable/scrubber_control_selector_holo</item>
+        <item name="android:thumbOffset">8dip</item>
+        <item name="android:focusable">true</item>
+        <item name="android:paddingLeft">16dip</item>
+        <item name="android:paddingRight">16dip</item>
+    </style>
+
     <style name="PlayerButton" parent="android:Widget.Holo.ImageButton">
         <item name="android:background">?android:attr/actionBarItemBackground</item>
         <item name="android:minHeight">@dimen/playerbutton_height</item>
     </style>
-    
+
     <style name="PlayerSmallButton" parent="android:Widget.Holo.ImageButton">
         <item name="android:background">?android:attr/actionBarItemBackground</item>
         <item name="android:layout_height">@dimen/playerbutton_small_height</item>
         <item name="android:layout_width">@dimen/playerbutton_small_width</item>
     </style>
-    
+
     <style name="InfoSubText" parent="android:Widget.TextView">
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">@color/info_sub_text_color</item>
         <item name="android:textColorHighlight">@android:color/white</item>
     </style>
+
 </resources>
