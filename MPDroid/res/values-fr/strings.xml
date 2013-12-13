@@ -212,4 +212,5 @@
 	<string name="albumGridWifiUnavailable">Wi-Fi non disponible, aucune pochette ne sera téléchargée</string>
 	
 	<string name="nowPlayingSettingsTitle">Paramètres de la vue \'En Cours\'</string>
+	<string name="enableSmallSeekbars">Utiliser des barres d\'avancement fines</string>
 </resources>

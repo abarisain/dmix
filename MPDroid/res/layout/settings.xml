@@ -196,6 +196,12 @@
             android:key="nowPlayingScreen"
             android:title="@string/nowPlayingSettingsTitle" >
 
+          	<CheckBoxPreference
+                android:defaultValue="true"
+                android:key="smallSeekbars"
+                android:persistent="true"
+                android:title="@string/enableSmallSeekbars" />
+            
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="enableStopButton"

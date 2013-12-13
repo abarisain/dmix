@@ -235,5 +235,6 @@
 	<string name="drawer_close">Close drawer</string>
 
 	<string name="nowPlayingSettingsTitle">Now Playing settings</string>
+	<string name="enableSmallSeekbars">Use small seekbars</string>
 	
 </resources>
