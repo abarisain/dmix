@@ -25,7 +25,6 @@
         <item name="android:windowBackground">@color/nowplaying_background</item>
         <item name="android:actionBarStyle">@style/ActionBar.Dark</item>
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
-        <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art</item>
         <item name="menuButton">@drawable/spinner_default_holo_dark</item>
         <item name="listItemHandle">@drawable/ic_mp_move</item>
@@ -72,6 +71,17 @@
 		<item name="android:windowBackground">@color/nowplaying_background</item> 
 		<item name="android:colorBackgroundCacheHint">@color/nowplaying_background</item>
 		<item name="android:actionBarStyle">@style/ActionBar.Dark</item>
+    </style>
+    
+    <style name="AppTheme.NowPlaying.Light" parent="AppTheme.Light">
+    </style>
+    
+    <style name="AppTheme.NowPlaying.SmallSeekBars" parent="AppTheme.NowPlaying">
+        <item name="android:seekBarStyle">@style/SeekBar</item>
+    </style>
+    
+    <style name="AppTheme.NowPlaying.Light.SmallSeekBars" parent="AppTheme.NowPlaying.Light">
+        <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
     
     <style name="AppTheme.Dialog" parent="@android:style/Theme.Holo.Dialog" />
