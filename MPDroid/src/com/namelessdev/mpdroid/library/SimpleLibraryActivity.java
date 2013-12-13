@@ -4,6 +4,8 @@ import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.app.ActionBar;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,7 +14,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
@@ -33,12 +37,25 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
 	public final String EXTRA_STREAM = "streams";
 	public final String EXTRA_FOLDER = "folder";
 
-
+	private TextView titleView;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 		setContentView(R.layout.library_tabs);
+		
+	    LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	    titleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
+	    titleView.setFocusable(true);
+	    titleView.setFocusableInTouchMode(true);
+	    titleView.setSelected(true);
+	    titleView.requestFocus();
+	    
+	    final ActionBar actionBar = getActionBar();
+	    actionBar.setCustomView(titleView);
+	    actionBar.setDisplayShowTitleEnabled(false);
+	    actionBar.setDisplayShowCustomEnabled(true);
+		
 		Object targetElement = null;
         if (savedInstanceState == null) {
             Fragment rootFragment = null;
@@ -87,6 +104,18 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 	}
 
+	@Override
+	public void setTitle(CharSequence title) {
+	    super.setTitle(title);
+	    titleView.setText(title);
+	}
+	
+	@Override
+	public void setTitle(int titleId) {
+	    super.setTitle(titleId);
+	    titleView.setText(getString(titleId));
+	}
+	
 	@Override
 	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
 		final MPDApplication app = (MPDApplication) getApplicationContext();
