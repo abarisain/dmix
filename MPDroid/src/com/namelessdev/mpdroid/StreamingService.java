@@ -468,8 +468,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
                         stopForeground(true);
                         Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
                         setMusicInfo(actSong);
-                        RemoteViews views = new RemoteViews(getPackageName(), R.layout.statusbar);
-                        views.setImageViewResource(R.id.icon, R.drawable.stat_notify_musicplayer);
                         Notification status = null;
                         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                                 .setSmallIcon(Build.VERSION.SDK_INT >= 9 ? R.drawable.icon_bw : R.drawable.icon)

@@ -330,9 +330,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 	}
 
 	private void setMenuChecked(MenuItem item, boolean checked) {
-		// Set the icon to a checkbox so 2.x users also get one
 		item.setChecked(checked);
-		item.setIcon(checked ? R.drawable.btn_check_buttonless_on : R.drawable.btn_check_buttonless_off);
 	}
 
 	@Override

@@ -9,19 +9,16 @@
 	</item>
     <item
         android:id="@+id/GMM_Stream"
-        android:icon="@drawable/btn_check_buttonless_off"
         android:title="@string/stream" android:orderInCategory="5"
         android:checkable="true" >
     </item>
     <item
         android:id="@+id/GMM_Single"
-        android:icon="@drawable/btn_check_buttonless_off"
         android:title="@string/singleMode" android:orderInCategory="6"
         android:checkable="true" >
     </item>
     <item
         android:id="@+id/GMM_Consume"
-        android:icon="@drawable/btn_check_buttonless_off"
         android:title="@string/consumeMode" android:orderInCategory="7"
         android:checkable="true" >
     </item>
