@@ -233,6 +233,11 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     protected void update(boolean forcePlayingIDRefresh) {
         try {
+            // Save the scroll bar position to restore it after update
+            final int firstVisibleElementIndex = list.getFirstVisiblePosition();
+            View firstVisibleItem = list.getChildAt(0);
+            final int firstVisiblePosition = (firstVisibleItem != null) ? firstVisibleItem.getTop() : 0;
+
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
             final ArrayList<AbstractPlaylistMusic> newSonglist = new ArrayList<AbstractPlaylistMusic>();
             List<Music> musics = playlist.getMusicList();
@@ -301,12 +306,18 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     if (actionMode != null)
                         actionMode.finish();
 
-                    // Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
-                    // Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
-                    // other
-                    // stuff.
-                    if (finalListPlayingID > 0 && getView() != null)
-                        setSelection(finalListPlayingID);
+                    //Restore the scroll bar position
+                    if (firstVisibleElementIndex != 0 && firstVisiblePosition != 0) {
+                        list.setSelectionFromTop(firstVisibleElementIndex, firstVisiblePosition);
+                    } else {
+                        // Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
+                        // Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
+                        // other
+                        // stuff.
+                        if (finalListPlayingID > 0 && getView() != null) {
+                            setSelection(finalListPlayingID);
+                        }
+                    }
                 }
             });
 
