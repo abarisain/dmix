@@ -391,11 +391,10 @@ public class MPDConnection {
                     // Do not fail when the IDLE response has not been read (to improve connection failure robustness)
                     // Just send the "changed playlist" result to force the MPD status to be refreshed.
                 } catch (MPDNoResponseException ex0) {
+                    handleConnectionFailure(result, ex0);
                     if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
                         w(MpdCallable.class.getSimpleName(), "No response for IDLE command, tolerate it but force MPD status refresh");
                         result.setResult(Arrays.asList("changed: playlist"));
-                    } else {
-                        handleConnectionFailure(result, ex0);
                     }
                 } catch (MPDServerException ex1) {
                     handleConnectionFailure(result, ex1);
