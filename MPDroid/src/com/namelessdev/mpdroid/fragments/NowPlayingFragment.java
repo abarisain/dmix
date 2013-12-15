@@ -1,22 +1,5 @@
 package com.namelessdev.mpdroid.fragments;
 
-import static android.text.TextUtils.isEmpty;
-import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
-
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.a0z.mpd.Album;
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,23 +15,12 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.PopupMenu;
+import android.widget.*;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.ProgressBar;
-import android.widget.SeekBar;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
@@ -57,6 +29,17 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+import org.a0z.mpd.*;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static android.text.TextUtils.isEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener, TrackPositionListener,
         OnSharedPreferenceChangeListener, OnMenuItemClickListener {
@@ -550,6 +533,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             Date now = new Date();
             ellapsed = start + ((now.getTime() - date.getTime()) / 1000);
             progressBarTrack.setProgress((int) ellapsed);
+            ellapsed = ellapsed > lastSongTime ? lastSongTime : ellapsed;
             handler.post(new Runnable() {
                 @Override
                 public void run() {
