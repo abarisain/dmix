@@ -913,11 +913,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
             case POPUP_FOLDER:
                 final String path = currentSong.getFullpath();
-                if (path == null) {
+                final String parent = currentSong.getParent();
+                if (path == null || parent == null) {
                     break;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("folder", currentSong.getParent());
+                intent.putExtra("folder", parent);
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_CURRENT:
