@@ -1,19 +1,5 @@
 package com.namelessdev.mpdroid.fragments;
 
-import static android.util.Log.e;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,27 +12,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.view.ActionMode;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
+import android.widget.*;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
-import android.widget.TextView;
-
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -60,12 +31,21 @@ import com.namelessdev.mpdroid.models.PlaylistSong;
 import com.namelessdev.mpdroid.models.PlaylistStream;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
+import org.a0z.mpd.*;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
-    
+
     // Minimum number of songs in the queue before the fastscroll thumb is shown
     private static final int MIN_SONGS_BEFORE_FASTSCROLL = 50;
-    
+
     private ArrayList<AbstractPlaylistMusic> songlist;
     private MPDApplication app;
     private DragSortListView list;
@@ -287,46 +267,46 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
             final int finalListPlayingID = listPlayingID;
 
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        final ArrayAdapter songs = new QueueAdapter(activity, newSonglist, R.layout.playlist_queue_item);
-                        setListAdapter(songs);
-                        songlist = newSonglist;
-                        songs.notifyDataSetChanged();
-                        // Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.
-                        // It is also very important post-KitKat because it needs the opposite order or it won't show the FastScroll
-                        // This is so stupid I don't even .... argh
-                        if (newSonglist.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
-                            if (android.os.Build.VERSION.SDK_INT >= 19) {
-                                // No need to enable FastScroll, this setter enables it.
-                                list.setFastScrollAlwaysVisible(true);
-                                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-                            } else {
-                                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-                                list.setFastScrollAlwaysVisible(true);
-                            }
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    final ArrayAdapter songs = new QueueAdapter(activity, newSonglist, R.layout.playlist_queue_item);
+                    setListAdapter(songs);
+                    songlist = newSonglist;
+                    songs.notifyDataSetChanged();
+                    // Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.
+                    // It is also very important post-KitKat because it needs the opposite order or it won't show the FastScroll
+                    // This is so stupid I don't even .... argh
+                    if (newSonglist.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
+                        if (android.os.Build.VERSION.SDK_INT >= 19) {
+                            // No need to enable FastScroll, this setter enables it.
+                            list.setFastScrollAlwaysVisible(true);
+                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
                         } else {
-                            if (android.os.Build.VERSION.SDK_INT >= 19) {
-                                list.setFastScrollAlwaysVisible(false);
-                                // Default Android value
-                                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-                            } else {
-                                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-                                list.setFastScrollAlwaysVisible(false);
-                            }
+                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
+                            list.setFastScrollAlwaysVisible(true);
                         }
-
-                        if (actionMode != null)
-                            actionMode.finish();
-
-                        // Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
-                        // Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
-                        // other
-                        // stuff.
-                        if (finalListPlayingID > 0 && getView() != null)
-                            setSelection(finalListPlayingID);
+                    } else {
+                        if (android.os.Build.VERSION.SDK_INT >= 19) {
+                            list.setFastScrollAlwaysVisible(false);
+                            // Default Android value
+                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
+                        } else {
+                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
+                            list.setFastScrollAlwaysVisible(false);
+                        }
                     }
-                });
+
+                    if (actionMode != null)
+                        actionMode.finish();
+
+                    // Only scroll if there is a valid song to scroll to. 0 is a valid song but does not require scroll anyway.
+                    // Also, only scroll if it's the first update. You don't want your playlist to scroll itself while you are looking at
+                    // other
+                    // stuff.
+                    if (finalListPlayingID > 0 && getView() != null)
+                        setSelection(finalListPlayingID);
+                }
+            });
 
         } catch (MPDServerException e) {
             e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
@@ -424,17 +404,21 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
+    public void onListItemClick(final ListView l, View v, final int position, long id) {
 
-        MPDApplication app = (MPDApplication) activity.getApplication(); // Play selected Song
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MPDApplication app = (MPDApplication) activity.getApplication(); // Play selected Song
 
-        @SuppressWarnings("unchecked")
-        final Integer song = ((AbstractPlaylistMusic) l.getAdapter().getItem(position)).getSongId();
-        try {
-            app.oMPDAsyncHelper.oMPD.skipToId(song);
-        } catch (MPDServerException e) {
-        }
-
+                @SuppressWarnings("unchecked")
+                final Integer song = ((AbstractPlaylistMusic) l.getAdapter().getItem(position)).getSongId();
+                try {
+                    app.oMPDAsyncHelper.oMPD.skipToId(song);
+                } catch (MPDServerException e) {
+                }
+            }
+        }).start();
     }
 
     public void scrollToNowPlaying() {
