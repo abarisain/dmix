@@ -352,7 +352,11 @@ public class MPDConnection {
         MPDCommandResult result;
 
         try {
-            result = executor.submit(new MpdCallable(command)).get(10, TimeUnit.SECONDS);
+            if (command.command.equals(MPDCommand.MPD_CMD_IDLE)) {
+                result = executor.submit(new MpdCallable(command)).get();
+            } else {
+                result = executor.submit(new MpdCallable(command)).get(5, TimeUnit.SECONDS);
+            }
         } catch (Exception e) {
             throw new MPDServerException(e);
         }
