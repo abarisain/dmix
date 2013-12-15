@@ -26,6 +26,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.models.AbstractPlaylistMusic;
 import com.namelessdev.mpdroid.models.PlaylistSong;
 import com.namelessdev.mpdroid.models.PlaylistStream;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static android.text.TextUtils.isEmpty;
 import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener, OnMenuItemClickListener {
@@ -541,6 +543,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public boolean onMenuItemClick(android.view.MenuItem item) {
+        Intent intent;
+        AbstractPlaylistMusic music;
+
         switch (item.getItemId()) {
             case R.id.PLCX_SkipToHere:
                 // skip to selected Song
@@ -606,9 +611,49 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     e.printStackTrace();
                 }
                 return true;
+            case R.id.PLCX_goToArtist:
+                music = getPLaylistItemSong(popupSongID);
+                if (music == null || isEmpty(music.getArtist())) {
+                    return true;
+                }
+                intent = new Intent(activity, SimpleLibraryActivity.class);
+                intent.putExtra("artist", new Artist(MPD.useAlbumArtist() ? music.getAlbumArtistOrArtist() : music.getArtist(), 0));
+                startActivityForResult(intent, -1);
+                return true;
+            case R.id.PLCX_goToAlbum:
+                music = getPLaylistItemSong(popupSongID);
+                if (music == null || isEmpty(music.getArtist()) || isEmpty(music.getAlbum())) {
+                    return true;
+                }
+                intent = new Intent(activity, SimpleLibraryActivity.class);
+                String artist = music.getAlbumArtistOrArtist();
+                intent.putExtra("artist", new Artist(artist, 0));
+                intent.putExtra("album", new Album(music.getAlbum(), new Artist(artist)));
+                startActivityForResult(intent, -1);
+                return true;
+            case R.id.PLCX_goToFolder:
+                music = getPLaylistItemSong(popupSongID);
+                if (music == null || isEmpty(music.getFullpath())) {
+                    return true;
+                }
+                intent = new Intent(activity, SimpleLibraryActivity.class);
+                intent.putExtra("folder", music.getParent());
+                startActivityForResult(intent, -1);
+                return true;
             default:
                 return true;
         }
+    }
+
+    private AbstractPlaylistMusic getPLaylistItemSong(int songID) {
+        AbstractPlaylistMusic song = null;
+        for (AbstractPlaylistMusic music : songlist) {
+            if (music.getSongId() == songID) {
+                song = music;
+                break;
+            }
+        }
+        return song;
     }
 
     private class QueueAdapter extends ArrayAdapter {

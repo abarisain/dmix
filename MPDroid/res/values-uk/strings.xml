@@ -120,7 +120,8 @@
 	<string name="cancel">Відміна</string>
 	<string name="skipToHere">Пропустит до цього місця</string>
 	<string name="playNext">Відтворити наступний</string>
-	<string name="moveFirst">Перейти до першого</string>
+    <string name="go_to">перейти до ...</string>
+    <string name="moveFirst">Перейти до першого</string>
 	<string name="moveLast">Перейти до останнього</string>
 	<string name="removeFromPlaylist">Видалити з плейлиста</string>
 	<string name="manage">Впорядкувати</string>

@@ -7,4 +7,11 @@
 <item android:id="@+id/PLCX_moveLast" android:title="@string/moveLast"></item>
 <item android:id="@+id/PLCX_removeFromPlaylist" android:title="@string/removeFromPlaylist"></item>
 <item android:id="@+id/PLCX_removeAlbumFromPlaylist" android:title="@string/removeAlbumFromPlaylist"></item>
+<item android:id="@+id/PLCX_goto"   android:title="@string/go_to">
+    <menu>
+        <item android:id="@+id/PLCX_goToAlbum"  android:title="@string/goToAlbum"/>
+        <item android:id="@+id/PLCX_goToArtist" android:title="@string/goToArtist"/>
+        <item android:id="@+id/PLCX_goToFolder" android:title="@string/goToFolder"/>
+    </menu>
+</item>
 </menu>

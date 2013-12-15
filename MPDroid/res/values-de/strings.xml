@@ -169,6 +169,7 @@
     <string name="sortAlbumsByYearDescription">Sortiere Alben nach Erscheinungsjahr</string>
     <string name="singleMode">Einzelmodus</string>
     <string name="playNext">Nächstes Stück</string>
+    <string name="go_to">Gehen Sie zu ...</string>
     <string name="playOnPhoneStateChange">Wiedergabe fortsetzen</string>
     <string name="playOnPhoneStateChangeDescription">Wiedergabe fortsetzen, wenn Anruf beendet</string>
     <string name="moveFirst">Zum Anfang springen</string>
