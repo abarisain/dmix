@@ -623,7 +623,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 }
                 return true;
             case R.id.PLCX_goToArtist:
-                music = getPLaylistItemSong(popupSongID);
+                music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getArtist())) {
                     return true;
                 }
@@ -632,7 +632,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 startActivityForResult(intent, -1);
                 return true;
             case R.id.PLCX_goToAlbum:
-                music = getPLaylistItemSong(popupSongID);
+                music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getArtist()) || isEmpty(music.getAlbum())) {
                     return true;
                 }
@@ -643,7 +643,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 startActivityForResult(intent, -1);
                 return true;
             case R.id.PLCX_goToFolder:
-                music = getPLaylistItemSong(popupSongID);
+                music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getFullpath())) {
                     return true;
                 }
@@ -656,7 +656,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     }
 
-    private AbstractPlaylistMusic getPLaylistItemSong(int songID) {
+    private AbstractPlaylistMusic getPlaylistItemSong(int songID) {
         AbstractPlaylistMusic song = null;
         for (AbstractPlaylistMusic music : songlist) {
             if (music.getSongId() == songID) {
