@@ -918,7 +918,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     break;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("folder", currentSong.getParent());
+                intent.putExtra("folder", parent);
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_CURRENT:
