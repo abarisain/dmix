@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static android.util.Log.e;
 import static android.util.Log.w;
@@ -351,7 +352,7 @@ public class MPDConnection {
         MPDCommandResult result;
 
         try {
-            result = executor.submit(new MpdCallable(command)).get();
+            result = executor.submit(new MpdCallable(command)).get(10, TimeUnit.SECONDS);
         } catch (Exception e) {
             throw new MPDServerException(e);
         }
