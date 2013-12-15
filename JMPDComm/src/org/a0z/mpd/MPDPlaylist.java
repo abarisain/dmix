@@ -1,5 +1,6 @@
 package org.a0z.mpd;
 
+import android.util.Log;
 import org.a0z.mpd.event.AbstractStatusChangeListener;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -8,7 +9,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import android.util.Log;
 
 /**
  * MPD Playlist controller.
@@ -228,7 +228,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 			newPlaylist.add(null);
 
 		for( Music song : changes ) {
-            if (newPlaylist.size() > song.getPos()) {
+            if (newPlaylist.size() > song.getPos() && song.getPos() > -1) {
 			newPlaylist.set(song.getPos(), song);
             }
 		}
