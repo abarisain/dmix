@@ -19,6 +19,8 @@ public class MPD {
 
     private MPDConnection mpdConnection;
     private MPDConnection mpdIdleConnection;
+    private MPDConnection mpdStatusConnection;
+
     private MPDStatus mpdStatus;
     private MPDPlaylist playlist;
     private Directory rootDirectory;
@@ -200,6 +202,7 @@ public class MPD {
     public final void connect(InetAddress server, int port) throws MPDServerException {
         this.mpdConnection = new MPDConnection(server, port);
         this.mpdIdleConnection = new MPDConnection(server, port, 1000);
+        this.mpdStatusConnection = new MPDConnection(server, port, 1000);
     }
 
     /**
@@ -246,6 +249,15 @@ public class MPD {
         if (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
             try {
                 mpdIdleConnection.disconnect();
+            } catch (MPDServerException e) {
+                ex = (ex != null) ? ex : e;// Always keep non null first
+                // exception
+            }
+        }
+
+        if (mpdStatusConnection != null && mpdStatusConnection.isConnected()) {
+            try {
+                mpdStatusConnection.disconnect();
             } catch (MPDServerException e) {
                 ex = (ex != null) ? ex : e;// Always keep non null first
                 // exception
@@ -394,11 +406,23 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatus getStatus() throws MPDServerException {
-        if (!isConnected())
-            throw new MPDServerException("MPD Connection is not established");
+        return  getStatus(false);
+    }
 
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
-        mpdStatus.updateStatus(response);
+    /**
+     * Retrieves status of the connected server.
+     *
+     * @return status of the connected server.
+     * @throws MPDServerException if an error occur while contacting server.
+     */
+    public MPDStatus getStatus(boolean forceRefresh) throws MPDServerException {
+        if (forceRefresh || mpdStatus == null) {
+            if (!isConnected()){
+                throw new MPDServerException("MPD Connection is not established");
+            }
+            List<String> response = mpdStatusConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
+            mpdStatus.updateStatus(response);
+        }
         return mpdStatus;
     }
 
@@ -418,7 +442,7 @@ public class MPD {
      * @return true when connected and false when not connected
      */
     public boolean isConnected() {
-        return mpdConnection != null && mpdConnection.isConnected() && mpdIdleConnection != null && mpdIdleConnection.isConnected();
+        return mpdConnection != null && mpdConnection.isConnected() && mpdIdleConnection != null && mpdIdleConnection.isConnected() && mpdStatusConnection !=null && mpdStatusConnection.isConnected();
     }
 
 
@@ -808,6 +832,8 @@ public class MPD {
 
         mpdConnection.password(password);
         mpdIdleConnection.password(password);
+        mpdStatusConnection.password(password);
+
     }
 
     /**
