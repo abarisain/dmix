@@ -1,5 +1,6 @@
 package org.a0z.mpd;
 
+import android.util.Log;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -379,43 +380,48 @@ public class MPDConnection {
 
         @Override
         public MPDCommandResult call() throws Exception {
+            try {
+                Log.d(MpdCallable.class.getSimpleName(), "MPD task start : " + command);
 
-            int effectiveMaxRetry = MPDCommand.isRetryable(command) ? MAX_REQUEST_RETRY : 1;
-            MPDCommandResult result = new MPDCommandResult();
+                int effectiveMaxRetry = MPDCommand.isRetryable(command) ? MAX_REQUEST_RETRY : 1;
+                MPDCommandResult result = new MPDCommandResult();
 
-            while (result.getResult() == null && retry < effectiveMaxRetry && !cancelled) {
-                try {
-                    if (!isConnected()) {
-                        innerConnect();
+                while (result.getResult() == null && retry < effectiveMaxRetry && !cancelled) {
+                    try {
+                        if (!isConnected()) {
+                            innerConnect();
+                        }
+                        if (isSynchronous()) {
+                            result.setResult(innerSyncedWriteRead(this));
+                        } else {
+                            result.setResult(innerSyncedWriteAsyncRead(this));
+                        }
+                        // Do not fail when the IDLE response has not been read (to improve connection failure robustness)
+                        // Just send the "changed playlist" result to force the MPD status to be refreshed.
+                    } catch (MPDNoResponseException ex0) {
+                        handleConnectionFailure(result, ex0);
+                        if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
+                            w(MpdCallable.class.getSimpleName(), "No response for IDLE command, tolerate it but force MPD status refresh");
+                            result.setResult(Arrays.asList("changed: playlist"));
+                        }
+                    } catch (MPDServerException ex1) {
+                        handleConnectionFailure(result, ex1);
                     }
-                    if (isSynchronous()) {
-                        result.setResult(innerSyncedWriteRead(this));
-                    } else {
-                        result.setResult(innerSyncedWriteAsyncRead(this));
-                    }
-                    // Do not fail when the IDLE response has not been read (to improve connection failure robustness)
-                    // Just send the "changed playlist" result to force the MPD status to be refreshed.
-                } catch (MPDNoResponseException ex0) {
-                    handleConnectionFailure(result, ex0);
-                    if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
-                        w(MpdCallable.class.getSimpleName(), "No response for IDLE command, tolerate it but force MPD status refresh");
-                        result.setResult(Arrays.asList("changed: playlist"));
-                    }
-                } catch (MPDServerException ex1) {
-                    handleConnectionFailure(result, ex1);
+                    retry++;
                 }
-                retry++;
-            }
 
-            if (result.getResult() != null) {
-            } else {
-                if (cancelled) {
-                    result.setLastexception(new MPDConnectionException("MPD request has been cancelled for disconnection"));
+                if (result.getResult() != null) {
+                } else {
+                    if (cancelled) {
+                        result.setLastexception(new MPDConnectionException("MPD request has been cancelled for disconnection"));
+                    }
+                    e(MpdCallable.class.getSimpleName(), "MPD command " + command + " failed after " + retry + " attempts : " + result.getLastexception().getMessage());
                 }
-                e(MpdCallable.class.getSimpleName(), "MPD command " + command + " failed after " + retry + " attempts : " + result.getLastexception().getMessage());
-            }
 
-            return result;
+                return result;
+            } finally {
+                Log.d(MpdCallable.class.getSimpleName(), "MPD task end : " + command);
+            }
         }
     }
 
