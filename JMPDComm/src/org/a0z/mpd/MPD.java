@@ -369,7 +369,7 @@ public class MPD {
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 
-        int[] version = mpdConnection.getMpdVersion();
+        int[] version = mpdIdleConnection.getMpdVersion();
 
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < version.length; i++) {
