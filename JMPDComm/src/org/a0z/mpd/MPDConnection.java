@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static android.util.Log.e;
 import static android.util.Log.w;
@@ -29,7 +28,7 @@ import static android.util.Log.w;
  *
  * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
-public class MPDConnection {
+public abstract class MPDConnection {
     private static final boolean DEBUG = false;
     private static final int CONNECTION_TIMEOUT = 10000;
 
@@ -43,7 +42,6 @@ public class MPDConnection {
     private InetAddress hostAddress;
     private int hostPort;
 
-    private Socket sock;
     private InputStreamReader inputStream;
     private OutputStreamWriter outputStream;
 
@@ -51,7 +49,7 @@ public class MPDConnection {
     private List<MPDCommand> commandQueue;
     private int readWriteTimeout;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(1);
+    private ExecutorService executor;
 
     private boolean cancelled = false;
 
@@ -61,20 +59,26 @@ public class MPDConnection {
     private String password = null;
 
     MPDConnection(InetAddress server, int port) throws MPDServerException {
-        this(server, port, 0);
+        this(server, port, 0, 1);
     }
 
-    MPDConnection(InetAddress server, int port, int readWriteTimeout) throws MPDServerException {
+    protected abstract Socket getSocket();
+
+    protected abstract void setSocket(Socket socket);
+
+
+    MPDConnection(InetAddress server, int port, int readWriteTimeout, int maxConnections) throws MPDServerException {
         this.readWriteTimeout = readWriteTimeout;
         hostPort = port;
         hostAddress = server;
         commandQueue = new ArrayList<MPDCommand>();
 
-        // connect right away and setup streams
-        mpdVersion = this.connect();
+        executor = Executors.newFixedThreadPool(maxConnections);
+
+
     }
 
-    final private int[] connect() throws MPDServerException {
+    final protected int[] connect() throws MPDServerException {
 
         int[] result = null;
         int retry = 0;
@@ -97,6 +101,7 @@ public class MPDConnection {
         }
 
         if (result != null) {
+            mpdVersion = result;
             return result;
         } else {
             if (lastException == null) {
@@ -109,7 +114,7 @@ public class MPDConnection {
 
     final private int[] innerConnect() throws MPDServerException {
 
-        if (sock != null) { //Always release existing socket if any before creating a new one
+        if (getSocket() != null) { //Always release existing socket if any before creating a new one
             try {
                 innerDisconnect();
             } catch (MPDServerException e) {
@@ -117,10 +122,10 @@ public class MPDConnection {
             }
         }
         try {
-            sock = new Socket();
-            sock.setSoTimeout(readWriteTimeout);
-            sock.connect(new InetSocketAddress(hostAddress, hostPort), CONNECTION_TIMEOUT);
-            BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()), 1024);
+            setSocket(new Socket());
+            getSocket().setSoTimeout(readWriteTimeout);
+            getSocket().connect(new InetSocketAddress(hostAddress, hostPort), CONNECTION_TIMEOUT);
+            BufferedReader in = new BufferedReader(new InputStreamReader(getSocket().getInputStream()), 1024);
             String line = in.readLine();
 
             if (line == null) {
@@ -134,11 +139,11 @@ public class MPDConnection {
 
                 // Use UTF-8 when needed
                 if (result[0] > 0 || result[1] >= 10) {
-                    outputStream = new OutputStreamWriter(sock.getOutputStream(), "UTF-8");
-                    inputStream = new InputStreamReader(sock.getInputStream(), "UTF-8");
+                    outputStream = new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8");
+                    inputStream = new InputStreamReader(getSocket().getInputStream(), "UTF-8");
                 } else {
-                    outputStream = new OutputStreamWriter(sock.getOutputStream());
-                    inputStream = new InputStreamReader(sock.getInputStream());
+                    outputStream = new OutputStreamWriter(getSocket().getOutputStream());
+                    inputStream = new InputStreamReader(getSocket().getInputStream());
                 }
 
                 if (password != null) {
@@ -166,15 +171,15 @@ public class MPDConnection {
     void innerDisconnect() throws MPDServerException {
         if (isConnected())
             try {
-                sock.close();
-                sock = null;
+                getSocket().close();
+                setSocket(null);
             } catch (IOException e) {
                 throw new MPDConnectionException(e.getMessage(), e);
             }
     }
 
-    boolean isConnected() {
-        return (sock != null && sock.isConnected() && !sock.isClosed());
+    public boolean isConnected() {
+        return (getSocket() != null && getSocket().isConnected() && !getSocket().isClosed());
     }
 
     int[] getMpdVersion() {
@@ -243,11 +248,6 @@ public class MPDConnection {
     }
 
     public List<String> sendRawCommand(MPDCommand command) throws MPDServerException {
-        // for ( String line : command.split("\n") ) {
-        //     Log.d( "RAW_COMMAND: ", line );
-        // }
-        if (!isConnected())
-            throw new MPDServerException("No connection to server");
         return syncedWriteRead(command);
     }
 
@@ -353,11 +353,7 @@ public class MPDConnection {
         MPDCommandResult result;
 
         try {
-            if (command.command.equals(MPDCommand.MPD_CMD_IDLE)) {
-                result = executor.submit(new MpdCallable(command)).get();
-            } else {
-                result = executor.submit(new MpdCallable(command)).get(5, TimeUnit.SECONDS);
-            }
+            result = executor.submit(new MpdCallable(command)).get();
         } catch (Exception e) {
             throw new MPDServerException(e);
         }

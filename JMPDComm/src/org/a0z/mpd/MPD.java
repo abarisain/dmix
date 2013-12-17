@@ -21,6 +21,7 @@ public class MPD {
     private MPDConnection mpdIdleConnection;
     private MPDConnection mpdStatusConnection;
 
+
     private MPDStatus mpdStatus;
     private MPDPlaylist playlist;
     private Directory rootDirectory;
@@ -200,9 +201,9 @@ public class MPD {
      * @param port   server port
      */
     public final void connect(InetAddress server, int port) throws MPDServerException {
-        this.mpdConnection = new MPDConnection(server, port);
-        this.mpdIdleConnection = new MPDConnection(server, port, 1000);
-        this.mpdStatusConnection = new MPDConnection(server, port, 1000);
+        this.mpdConnection = new MPDConnectionData(server, port);
+        this.mpdIdleConnection = new MPDConnectionIdle(server, port, 1000, 6);
+        this.mpdStatusConnection = new MPDConnectionIdle(server, port, 1000, 1);
     }
 
     /**
@@ -416,9 +417,9 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatus getStatus(boolean forceRefresh) throws MPDServerException {
-        if (forceRefresh || mpdStatus == null) {
+        if (forceRefresh || mpdStatus == null || mpdStatus.getState() == null) {
             if (!isConnected()){
-                throw new MPDServerException("MPD Connection is not established");
+                throw new MPDConnectionException("MPD Connection is not established");
             }
             List<String> response = mpdStatusConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
             mpdStatus.updateStatus(response);
@@ -442,7 +443,7 @@ public class MPD {
      * @return true when connected and false when not connected
      */
     public boolean isConnected() {
-        return mpdConnection != null && mpdConnection.isConnected() && mpdIdleConnection != null && mpdIdleConnection.isConnected() && mpdStatusConnection !=null && mpdStatusConnection.isConnected();
+        return mpdIdleConnection != null && mpdIdleConnection.isConnected() && mpdStatusConnection != null && mpdStatusConnection.isConnected();
     }
 
 
