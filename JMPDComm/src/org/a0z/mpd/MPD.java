@@ -443,7 +443,7 @@ public class MPD {
      * @return true when connected and false when not connected
      */
     public boolean isConnected() {
-        return mpdIdleConnection != null && mpdIdleConnection.isConnected() && mpdStatusConnection != null && mpdStatusConnection.isConnected();
+        return mpdIdleConnection != null && mpdIdleConnection.isConnected();
     }
 
 
