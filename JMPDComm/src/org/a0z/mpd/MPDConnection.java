@@ -164,7 +164,7 @@ public abstract class MPDConnection {
 
     void disconnect() throws MPDServerException {
         this.cancelled = true;
-        executor.shutdown();
+        //executor.shutdown();
         innerDisconnect();
     }
 
