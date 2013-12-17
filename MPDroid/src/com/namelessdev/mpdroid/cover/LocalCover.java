@@ -53,13 +53,7 @@ public class LocalCover implements ICoverRetriever {
             b.appendPath(fileName);
         }
         Uri uri = b.build();
-        String decodedUrl;
-        try {
-            decodedUrl = URLDecoder.decode(uri.toString(), "UTF-8");
-            return decodedUrl;
-        } catch (UnsupportedEncodingException e) {
-            return uri.toString();
-        }
+        return uri.toString();
     }
 
     @Override
