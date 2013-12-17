@@ -533,7 +533,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             Date now = new Date();
             ellapsed = start + ((now.getTime() - date.getTime()) / 1000);
             progressBarTrack.setProgress((int) ellapsed);
-            ellapsed = ellapsed > lastSongTime ? lastSongTime : ellapsed;
+            if (currentSong != null && ! currentSong.isStream()) {
+                ellapsed = ellapsed > lastSongTime ? lastSongTime : ellapsed;
+            }
             handler.post(new Runnable() {
                 @Override
                 public void run() {
