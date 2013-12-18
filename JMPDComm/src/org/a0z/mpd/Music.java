@@ -1,6 +1,11 @@
 package org.a0z.mpd;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class representing a file/music entry in playlist.
@@ -377,6 +382,9 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return file's parent directory
      */
     public String getParent() {
+        if (fullpath == null) {
+            return null;
+        }
         int pos = fullpath.lastIndexOf("/");
         if (pos == -1) {
             return null;
