@@ -84,31 +84,31 @@ public abstract class MPDConnection {
         int retry = 0;
         MPDServerException lastException = null;
 
-        while (result == null && retry < MAX_CONNECT_RETRY && !cancelled) {
-            try {
-                result = innerConnect();
-            } catch (MPDServerException e1) {
-                lastException = e1;
+            while (result == null && retry < MAX_CONNECT_RETRY && !cancelled) {
                 try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    //Nothing to do
+                    result = innerConnect();
+                } catch (MPDServerException e1) {
+                    lastException = e1;
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        //Nothing to do
+                    }
+                } catch (Exception e2) {
+                    lastException = new MPDServerException(e2);
                 }
-            } catch (Exception e2) {
-                lastException = new MPDServerException(e2);
+                retry++;
             }
-            retry++;
-        }
 
-        if (result != null) {
-            mpdVersion = result;
-            return result;
-        } else {
-            if (lastException == null) {
-                lastException = new MPDServerException("Connection request cancelled");
+            if (result != null) {
+                mpdVersion = result;
+                return result;
+            } else {
+                if (lastException == null) {
+                    lastException = new MPDServerException("Connection request cancelled");
+                }
+                throw new MPDServerException(lastException);
             }
-            throw new MPDServerException(lastException);
-        }
     }
 
 
@@ -169,7 +169,7 @@ public abstract class MPDConnection {
     }
 
     void innerDisconnect() throws MPDServerException {
-        if (isConnected())
+        if (innerIsConnected())
             try {
                 getSocket().close();
                 setSocket(null);
@@ -179,6 +179,10 @@ public abstract class MPDConnection {
     }
 
     public boolean isConnected() {
+        return !cancelled;
+    }
+
+    public boolean innerIsConnected() {
         return (getSocket() != null && getSocket().isConnected() && !getSocket().isClosed());
     }
 
@@ -384,7 +388,7 @@ public abstract class MPDConnection {
 
                 while (result.getResult() == null && retry < effectiveMaxRetry && !cancelled) {
                     try {
-                        if (!isConnected()) {
+                        if (!innerIsConnected()) {
                             innerConnect();
                         }
                         if (isSynchronous()) {
