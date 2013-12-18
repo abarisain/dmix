@@ -142,7 +142,7 @@
 	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
 	<string name="deleteServer">Supprimer ce serveur</string>
 	<string name="no_result">Aucun résultat</string>
-	<string name="backpressToQuit">Apuuyez encore une fois sur retour pour quitter</string>
+	<string name="backpressToQuit">Appuyez encore une fois sur retour pour quitter</string>
 	<string name="playQueue">File d\'attente</string>
 	<string name="variousArtists">Artistes variés</string>
 	<string name="tracksInfoHeader">%1$s Chanson, %2$s</string>
