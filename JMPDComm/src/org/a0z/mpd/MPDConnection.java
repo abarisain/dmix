@@ -13,9 +13,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -84,31 +82,31 @@ public abstract class MPDConnection {
         int retry = 0;
         MPDServerException lastException = null;
 
-            while (result == null && retry < MAX_CONNECT_RETRY && !cancelled) {
+        while (result == null && retry < MAX_CONNECT_RETRY && !cancelled) {
+            try {
+                result = innerConnect();
+            } catch (MPDServerException e1) {
+                lastException = e1;
                 try {
-                    result = innerConnect();
-                } catch (MPDServerException e1) {
-                    lastException = e1;
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        //Nothing to do
-                    }
-                } catch (Exception e2) {
-                    lastException = new MPDServerException(e2);
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    //Nothing to do
                 }
-                retry++;
+            } catch (Exception e2) {
+                lastException = new MPDServerException(e2);
             }
+            retry++;
+        }
 
-            if (result != null) {
-                mpdVersion = result;
-                return result;
-            } else {
-                if (lastException == null) {
-                    lastException = new MPDServerException("Connection request cancelled");
-                }
-                throw new MPDServerException(lastException);
+        if (result != null) {
+            mpdVersion = result;
+            return result;
+        } else {
+            if (lastException == null) {
+                lastException = new MPDServerException("Connection request cancelled");
             }
+            throw new MPDServerException(lastException);
+        }
     }
 
 
@@ -373,15 +371,24 @@ public abstract class MPDConnection {
     class MpdCallable extends MPDCommand implements Callable<MPDCommandResult> {
 
         private int retry = 0;
+        private long startTime = new Date().getTime();
 
         public MpdCallable(MPDCommand mpdCommand) {
             super(mpdCommand.command, mpdCommand.args, mpdCommand.isSynchronous());
+            Log.d(MpdCallable.class.getSimpleName(), "MPD task added : " + this);
+
         }
 
         @Override
         public MPDCommandResult call() throws Exception {
             try {
-                Log.d(MpdCallable.class.getSimpleName(), "MPD task start : " + command);
+                Log.d(MpdCallable.class.getSimpleName(), "MPD task start : " + this);
+
+                Random r = new Random();
+                int Low = 0;
+                int High = 5;
+                int R = r.nextInt(High - Low) + Low;
+                Thread.sleep(1000 * R);
 
                 int effectiveMaxRetry = MPDCommand.isRetryable(command) ? MAX_REQUEST_RETRY : 1;
                 MPDCommandResult result = new MPDCommandResult();
@@ -420,7 +427,7 @@ public abstract class MPDConnection {
 
                 return result;
             } finally {
-                Log.d(MpdCallable.class.getSimpleName(), "MPD task end : " + command);
+                Log.d(MpdCallable.class.getSimpleName(), "MPD task end : " + this + " (" + (new Date().getTime() - startTime) / 1000 + "\")");
             }
         }
     }

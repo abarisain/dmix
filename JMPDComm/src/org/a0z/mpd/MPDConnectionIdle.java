@@ -14,8 +14,8 @@ public class MPDConnectionIdle extends MPDConnection {
 
     private Socket socket;
 
-    MPDConnectionIdle(InetAddress server, int port, int readWriteTimeout, int maxConnections) throws MPDServerException {
-        super(server, port, readWriteTimeout, maxConnections);
+    MPDConnectionIdle(InetAddress server, int port) throws MPDServerException {
+        super(server, port);
         // connect right away and setup streams
         this.connect();
     }
