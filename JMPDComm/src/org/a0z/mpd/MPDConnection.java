@@ -365,7 +365,13 @@ public abstract class MPDConnection {
         MPDCommandResult result;
 
         try {
+            // Bypass thread pool queue if the thread already comes from the pool
+            // to avoid deadlock
+            if (Thread.currentThread().getName().startsWith("pool")) {
+                result = new MpdCallable(command).call();
+            } else {
                 result = executor.submit(new MpdCallable(command)).get();
+            }
         } catch (Exception e) {
             throw new MPDServerException(e);
         }
