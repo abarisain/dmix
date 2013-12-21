@@ -547,6 +547,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             popupSongID = (Integer) v.getTag();
             popupMenu = new PopupMenu(activity, v);
             popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistcnxmenu, popupMenu.getMenu());
+            if (getPlaylistItemSong(popupSongID).isStream()) {
+                popupMenu.getMenu().findItem(R.id.PLCX_goto).setVisible(false);
+            }
             popupMenu.setOnMenuItemClickListener(PlaylistFragment.this);
             popupMenu.show();
         }
