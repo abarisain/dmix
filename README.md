@@ -7,11 +7,10 @@ You can browse your library, control the current song and playlist, manage your 
 What's not to like ? 
 
 ![Now Playing/library Screenshot](https://raw.github.com/abarisain/dmix/master/Screenshots/readme.png)  
-Note : Screenshots are from an old version and will be updated
 
 #### Compatibility
 
-MPDroid works on **all** devices from 4.0.3 (API 15) to 4.3+
+MPDroid works on **all** devices from 4.0.3 (API 15) to 4.4+
 
 
 #### Libraries used
