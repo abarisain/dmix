@@ -15,7 +15,7 @@ public class MPDConnectionData extends MPDConnection {
     private ThreadLocal<Socket> socket = new ThreadLocal<Socket>();
 
     MPDConnectionData(InetAddress server, int port, int maxConnection) throws MPDServerException {
-        super(server, port,1000, maxConnection);
+        super(server, port,5000, maxConnection);
     }
 
     @Override

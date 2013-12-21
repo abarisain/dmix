@@ -201,7 +201,7 @@ public class MPD {
      * @param port   server port
      */
     public final void connect(InetAddress server, int port) throws MPDServerException {
-        this.mpdConnection = new MPDConnectionData(server, port, 3);
+        this.mpdConnection = new MPDConnectionData(server, port, 5);
         this.mpdIdleConnection = new MPDConnectionIdle(server, port);
         this.mpdStatusConnection = new MPDConnectionIdle(server, port);
     }

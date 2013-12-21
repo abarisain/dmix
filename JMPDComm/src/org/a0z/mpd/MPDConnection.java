@@ -375,20 +375,20 @@ public abstract class MPDConnection {
 
         public MpdCallable(MPDCommand mpdCommand) {
             super(mpdCommand.command, mpdCommand.args, mpdCommand.isSynchronous());
-            Log.d(MpdCallable.class.getSimpleName(), "MPD task added : " + this);
+            Log.d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() +" MPD task added : " + this);
 
         }
 
         @Override
         public MPDCommandResult call() throws Exception {
             try {
-                Log.d(MpdCallable.class.getSimpleName(), "MPD task start : " + this);
+                Log.d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() +" : MPD task start : " + this);
 
                 Random r = new Random();
                 int Low = 0;
                 int High = 5;
                 int R = r.nextInt(High - Low) + Low;
-                Thread.sleep(1000 * R);
+                //Thread.sleep(1000 * R);
 
                 int effectiveMaxRetry = MPDCommand.isRetryable(command) ? MAX_REQUEST_RETRY : 1;
                 MPDCommandResult result = new MPDCommandResult();
@@ -427,7 +427,7 @@ public abstract class MPDConnection {
 
                 return result;
             } finally {
-                Log.d(MpdCallable.class.getSimpleName(), "MPD task end : " + this + " (" + (new Date().getTime() - startTime) / 1000 + "\")");
+                Log.d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() +" MPD task end : " + this + " (" + (new Date().getTime() - startTime) / 1000 + "\")");
             }
         }
     }
