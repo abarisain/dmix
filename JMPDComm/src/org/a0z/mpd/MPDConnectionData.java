@@ -2,6 +2,8 @@ package org.a0z.mpd;
 
 import org.a0z.mpd.exception.MPDServerException;
 
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -13,9 +15,32 @@ import java.net.Socket;
 public class MPDConnectionData extends MPDConnection {
 
     private ThreadLocal<Socket> socket = new ThreadLocal<Socket>();
+    private ThreadLocal<InputStreamReader> inputstream = new ThreadLocal<InputStreamReader>();
+    private ThreadLocal<OutputStreamWriter> outputstream = new ThreadLocal<OutputStreamWriter>();
+
 
     MPDConnectionData(InetAddress server, int port, int maxConnection, String password) throws MPDServerException {
-        super(server, port,5000, maxConnection, password);
+        super(server, port, 5000, maxConnection, password);
+    }
+
+    @Override
+    public OutputStreamWriter getOutputStream() {
+        return this.outputstream.get();
+    }
+
+    @Override
+    public void setOutputStream(OutputStreamWriter outputStream) {
+        this.outputstream.set(outputStream);
+    }
+
+    @Override
+    public InputStreamReader getInputStream() {
+        return this.inputstream.get();
+    }
+
+    @Override
+    public void setInputStream(InputStreamReader inputStream) {
+        this.inputstream.set(inputStream);
     }
 
     @Override
