@@ -1,6 +1,5 @@
 package org.a0z.mpd;
 
-import android.util.Log;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -18,9 +17,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static android.util.Log.d;
-import static android.util.Log.e;
-import static android.util.Log.w;
+import static android.util.Log.*;
 
 /**
  * Class representing a connection to MPD Server.
@@ -37,6 +34,7 @@ public abstract class MPDConnection {
     private static final String MPD_CMD_START_BULK_OK = "command_list_ok_begin";
     private static final String MPD_CMD_BULK_SEP = "list_OK";
     private static final String MPD_CMD_END_BULK = "command_list_end";
+    public static final String POOL_THREAD_NAME_PREFIX = "pool";
 
     private InetAddress hostAddress;
     private int hostPort;
@@ -57,8 +55,8 @@ public abstract class MPDConnection {
 
     private String password = null;
 
-    MPDConnection(InetAddress server, int port) throws MPDServerException {
-        this(server, port, 0, 1);
+    MPDConnection(InetAddress server, int port, String password) throws MPDServerException {
+        this(server, port, 0, 1, password);
     }
 
     protected abstract Socket getSocket();
@@ -66,15 +64,13 @@ public abstract class MPDConnection {
     protected abstract void setSocket(Socket socket);
 
 
-    MPDConnection(InetAddress server, int port, int readWriteTimeout, int maxConnections) throws MPDServerException {
+    MPDConnection(InetAddress server, int port, int readWriteTimeout, int maxConnections, String password) throws MPDServerException {
         this.readWriteTimeout = readWriteTimeout;
         hostPort = port;
         hostAddress = server;
         commandQueue = new ArrayList<MPDCommand>();
-
         executor = Executors.newFixedThreadPool(maxConnections);
-
-
+        this.password = password;
     }
 
     final protected int[] connect() throws MPDServerException {
@@ -114,57 +110,56 @@ public abstract class MPDConnection {
     final private int[] innerConnect() throws MPDServerException {
 
         try {
-        d(MPDConnection.class.getSimpleName(), Thread.currentThread().getName() +"Connection start");
+            d(MPDConnection.class.getSimpleName(), Thread.currentThread().getName() + "Connection start");
 
-        if (getSocket() != null) { //Always release existing socket if any before creating a new one
+            if (getSocket() != null) { //Always release existing socket if any before creating a new one
+                try {
+                    innerDisconnect();
+                } catch (MPDServerException e) {
+                    //ok, don't care about any exception here
+                }
+            }
             try {
-                innerDisconnect();
-            } catch (MPDServerException e) {
-                //ok, don't care about any exception here
-            }
-        }
-        try {
-            setSocket(new Socket());
-            getSocket().setSoTimeout(readWriteTimeout);
-            getSocket().connect(new InetSocketAddress(hostAddress, hostPort), CONNECTION_TIMEOUT);
-            BufferedReader in = new BufferedReader(new InputStreamReader(getSocket().getInputStream()), 1024);
-            String line = in.readLine();
+                setSocket(new Socket());
+                getSocket().setSoTimeout(readWriteTimeout);
+                getSocket().connect(new InetSocketAddress(hostAddress, hostPort), CONNECTION_TIMEOUT);
+                BufferedReader in = new BufferedReader(new InputStreamReader(getSocket().getInputStream()), 1024);
+                String line = in.readLine();
 
-            if (line == null) {
-                throw new MPDServerException("No response from server");
-            } else if (line.startsWith(MPD_RESPONSE_OK)) {
-                String[] tmp = line.substring((MPD_RESPONSE_OK + " MPD ").length(), line.length()).split("\\.");
-                int[] result = new int[tmp.length];
+                if (line == null) {
+                    throw new MPDServerException("No response from server");
+                } else if (line.startsWith(MPD_RESPONSE_OK)) {
+                    String[] tmp = line.substring((MPD_RESPONSE_OK + " MPD ").length(), line.length()).split("\\.");
+                    int[] result = new int[tmp.length];
 
-                for (int i = 0; i < tmp.length; i++)
-                    result[i] = Integer.parseInt(tmp[i]);
+                    for (int i = 0; i < tmp.length; i++)
+                        result[i] = Integer.parseInt(tmp[i]);
 
-                // Use UTF-8 when needed
-                if (result[0] > 0 || result[1] >= 10) {
-                    outputStream = new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8");
-                    inputStream = new InputStreamReader(getSocket().getInputStream(), "UTF-8");
+                    // Use UTF-8 when needed
+                    if (result[0] > 0 || result[1] >= 10) {
+                        outputStream = new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8");
+                        inputStream = new InputStreamReader(getSocket().getInputStream(), "UTF-8");
+                    } else {
+                        outputStream = new OutputStreamWriter(getSocket().getOutputStream());
+                        inputStream = new InputStreamReader(getSocket().getInputStream());
+                    }
+
+                    if (password != null) {
+                        password(password);
+                    }
+                    return result;
+                } else if (line.startsWith(MPD_RESPONSE_ERR)) {
+                    throw new MPDServerException("Server error: " + line.substring(MPD_RESPONSE_ERR.length()));
                 } else {
-                    outputStream = new OutputStreamWriter(getSocket().getOutputStream());
-                    inputStream = new InputStreamReader(getSocket().getInputStream());
+                    throw new MPDServerException("Bogus response from server");
                 }
 
-                if (password != null) {
-                    password(password);
-                }
-                return result;
-            } else if (line.startsWith(MPD_RESPONSE_ERR)) {
-                throw new MPDServerException("Server error: " + line.substring(MPD_RESPONSE_ERR.length()));
-            } else {
-                throw new MPDServerException("Bogus response from server");
+
+            } catch (IOException e) {
+                throw new MPDConnectionException(e);
             }
-
-
-        } catch (IOException e) {
-            throw new MPDConnectionException(e);
-        }
-        }
-        finally {
-            d(MPDConnection.class.getSimpleName(), Thread.currentThread().getName() +"Connection end with success : " +innerIsConnected());
+        } finally {
+            d(MPDConnection.class.getSimpleName(), Thread.currentThread().getName() + "Connection end with success : " + innerIsConnected());
         }
     }
 
@@ -287,9 +282,16 @@ public abstract class MPDConnection {
             dataReaded = true;
             if (line.startsWith(MPD_RESPONSE_OK))
                 break;
-            if (line.startsWith(MPD_RESPONSE_ERR))
-                throw new MPDServerException("Server error: "
-                        + line.substring(MPD_RESPONSE_ERR.length()));
+            if (line.startsWith(MPD_RESPONSE_ERR)) {
+
+                if (line.contains("permission")) {
+                    throw new MPDConnectionException("MPD Permission failure : "
+                            + line.substring(MPD_RESPONSE_ERR.length()));
+                } else {
+                    throw new MPDServerException("Server error: "
+                            + line.substring(MPD_RESPONSE_ERR.length()));
+                }
+            }
             result.add(line);
         }
         if (!dataReaded) {
@@ -363,7 +365,7 @@ public abstract class MPDConnection {
         MPDCommandResult result;
 
         try {
-            result = executor.submit(new MpdCallable(command)).get();
+                result = executor.submit(new MpdCallable(command)).get();
         } catch (Exception e) {
             throw new MPDServerException(e);
         }
@@ -481,7 +483,7 @@ public abstract class MPDConnection {
      * @param password password.
      * @throws MPDServerException if an error occur while contacting server.
      */
-    public void password(String password) throws MPDServerException {
+    protected void password(String password) throws MPDServerException {
         this.password = password;
         sendCommand(MPDCommand.MPD_CMD_PASSWORD, password);
     }

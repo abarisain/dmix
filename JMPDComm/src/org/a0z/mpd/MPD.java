@@ -99,9 +99,9 @@ public class MPD {
      * @throws MPDServerException   if an error occur while contacting server
      * @throws UnknownHostException
      */
-    public MPD(String server, int port) throws MPDServerException, UnknownHostException {
+    public MPD(String server, int port, String password) throws MPDServerException, UnknownHostException {
         this();
-        connect(server, port);
+        connect(server, port, password);
     }
 
     /**
@@ -111,9 +111,9 @@ public class MPD {
      * @param port   server port
      * @throws MPDServerException if an error occur while contacting server
      */
-    public MPD(InetAddress server, int port) throws MPDServerException {
+    public MPD(InetAddress server, int port, String password) throws MPDServerException {
         this();
-        connect(server, port);
+        connect(server, port, password);
     }
 
     /**
@@ -189,9 +189,9 @@ public class MPD {
      * @throws MPDServerException   if an error occur while contacting server
      * @throws UnknownHostException
      */
-    public final void connect(String server, int port) throws MPDServerException, UnknownHostException {
+    public final void connect(String server, int port, String password) throws MPDServerException, UnknownHostException {
         InetAddress adress = InetAddress.getByName(server);
-        connect(adress, port);
+        connect(adress, port, password);
     }
 
     /**
@@ -200,10 +200,10 @@ public class MPD {
      * @param server server address or host name
      * @param port   server port
      */
-    public final void connect(InetAddress server, int port) throws MPDServerException {
-        this.mpdConnection = new MPDConnectionData(server, port, 5);
-        this.mpdIdleConnection = new MPDConnectionIdle(server, port);
-        this.mpdStatusConnection = new MPDConnectionIdle(server, port);
+    public final void connect(InetAddress server, int port, String password) throws MPDServerException {
+        this.mpdConnection = new MPDConnectionData(server, port, 5, password);
+        this.mpdIdleConnection = new MPDConnectionIdle(server, port, password);
+        this.mpdStatusConnection = new MPDConnectionIdle(server, port, password);
     }
 
     /**
@@ -213,7 +213,7 @@ public class MPD {
      * @throws MPDServerException   if an error occur while contacting server
      * @throws UnknownHostException
      */
-    public final void connect(String server) throws MPDServerException, UnknownHostException {
+    public final void connect(String server, String password) throws MPDServerException, UnknownHostException {
         int port = MPDCommand.DEFAULT_MPD_PORT;
         String host = null;
         if (server.indexOf(':') != -1) {
@@ -222,7 +222,7 @@ public class MPD {
         } else {
             host = server;
         }
-        connect(host, port);
+        connect(host, port, password);
     }
 
     /**
@@ -407,7 +407,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatus getStatus() throws MPDServerException {
-        return  getStatus(false);
+        return getStatus(false);
     }
 
     /**
@@ -418,7 +418,7 @@ public class MPD {
      */
     public MPDStatus getStatus(boolean forceRefresh) throws MPDServerException {
         if (forceRefresh || mpdStatus == null || mpdStatus.getState() == null) {
-            if (!isConnected()){
+            if (!isConnected()) {
                 throw new MPDConnectionException("MPD Connection is not established");
             }
             List<String> response = mpdStatusConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
@@ -819,22 +819,6 @@ public class MPD {
             throw new MPDServerException("MPD Connection is not established");
 
         mpdConnection.sendCommand(MPDCommand.MPD_CMD_NEXT);
-    }
-
-    /**
-     * Authenticate using password.
-     *
-     * @param password password.
-     * @throws MPDServerException if an error occur while contacting server.
-     */
-    public void password(String password) throws MPDServerException {
-        if (!isConnected())
-            throw new MPDServerException("MPD Connection is not established");
-
-        mpdConnection.password(password);
-        mpdIdleConnection.password(password);
-        mpdStatusConnection.password(password);
-
     }
 
     /**

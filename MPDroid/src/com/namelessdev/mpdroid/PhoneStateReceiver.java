@@ -83,10 +83,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 								// MPD connection has to be done synchronously
 								MPDConnectionInfo conInfo = (MPDConnectionInfo) oMPDAsyncHelper
 										.getConnectionSettings();
-								mpd.connect(conInfo.sServer, conInfo.iPort);
-
-								if (conInfo.sPassword != null)
-									mpd.password(conInfo.sPassword);
+								mpd.connect(conInfo.sServer, conInfo.iPort, conInfo.sPassword);
 
 								if (mpd.isConnected()) {
 									Log.d(MPDApplication.TAG, "Connected");

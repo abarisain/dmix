@@ -14,8 +14,8 @@ public class MPDConnectionIdle extends MPDConnection {
 
     private Socket socket;
 
-    MPDConnectionIdle(InetAddress server, int port) throws MPDServerException {
-        super(server, port);
+    MPDConnectionIdle(InetAddress server, int port, String password) throws MPDServerException {
+        super(server, port, password);
         // connect right away and setup streams
         this.connect();
     }
