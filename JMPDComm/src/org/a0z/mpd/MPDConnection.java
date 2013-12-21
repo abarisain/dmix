@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static android.util.Log.d;
 import static android.util.Log.e;
 import static android.util.Log.w;
 
@@ -112,6 +113,9 @@ public abstract class MPDConnection {
 
     final private int[] innerConnect() throws MPDServerException {
 
+        try {
+        d(MPDConnection.class.getSimpleName(), Thread.currentThread().getName() +"Connection start");
+
         if (getSocket() != null) { //Always release existing socket if any before creating a new one
             try {
                 innerDisconnect();
@@ -157,6 +161,10 @@ public abstract class MPDConnection {
 
         } catch (IOException e) {
             throw new MPDConnectionException(e);
+        }
+        }
+        finally {
+            d(MPDConnection.class.getSimpleName(), Thread.currentThread().getName() +"Connection end with success : " +innerIsConnected());
         }
     }
 
@@ -375,14 +383,14 @@ public abstract class MPDConnection {
 
         public MpdCallable(MPDCommand mpdCommand) {
             super(mpdCommand.command, mpdCommand.args, mpdCommand.isSynchronous());
-            Log.d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() +" MPD task added : " + this);
+            d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() + " MPD task added : " + this);
 
         }
 
         @Override
         public MPDCommandResult call() throws Exception {
             try {
-                Log.d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() +" : MPD task start : " + this);
+                d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() + " : MPD task start : " + this);
 
                 Random r = new Random();
                 int Low = 0;
@@ -427,7 +435,7 @@ public abstract class MPDConnection {
 
                 return result;
             } finally {
-                Log.d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() +" MPD task end : " + this + " (" + (new Date().getTime() - startTime) / 1000 + "\")");
+                d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() + " MPD task end : " + this + " (" + (new Date().getTime() - startTime) / 1000 + "\")");
             }
         }
     }
