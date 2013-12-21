@@ -558,13 +558,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         AbstractPlaylistMusic music;
 
         switch (item.getItemId()) {
-            case R.id.PLCX_SkipToHere:
-                // skip to selected Song
-                try {
-                    app.oMPDAsyncHelper.oMPD.skipToId(popupSongID);
-                } catch (MPDServerException e) {
-                }
-                return true;
             case R.id.PLCX_playNext:
                 try { // Move song to next in playlist
                     MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
