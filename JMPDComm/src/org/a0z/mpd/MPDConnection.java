@@ -1,5 +1,6 @@
 package org.a0z.mpd;
 
+import android.util.Log;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -58,13 +59,13 @@ public abstract class MPDConnection {
         this(server, port, readWriteTimeout, 1, password);
     }
 
-    public abstract OutputStreamWriter getOutputStream();
+    protected abstract OutputStreamWriter getOutputStream();
 
-    public abstract void setOutputStream(OutputStreamWriter outputStream);
+    protected abstract void setOutputStream(OutputStreamWriter outputStream);
 
-    public abstract InputStreamReader getInputStream();
+    protected abstract InputStreamReader getInputStream();
 
-    public abstract void setInputStream(InputStreamReader inputStream);
+    protected abstract void setInputStream(InputStreamReader inputStream);
 
     protected abstract Socket getSocket();
 
@@ -349,7 +350,7 @@ public abstract class MPDConnection {
                 result = readFromServer();
                 dataReaded = true;
             } catch (SocketTimeoutException e) {
-
+                Log.w(MPDConnection.class.getSimpleName(), "Socket timeout while reading server response : " + e);
             } catch (IOException e) {
                 throw new MPDConnectionException(e);
             }

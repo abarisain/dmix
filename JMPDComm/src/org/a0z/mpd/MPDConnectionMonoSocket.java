@@ -12,13 +12,13 @@ import java.net.Socket;
  *
  * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
-public class MPDConnectionIdle extends MPDConnection {
+public class MPDConnectionMonoSocket extends MPDConnection {
 
     private Socket socket;
     private InputStreamReader inputStream;
     private OutputStreamWriter outputStream;
 
-    MPDConnectionIdle(InetAddress server, int port, String password, int readWriteTimeout) throws MPDServerException {
+    MPDConnectionMonoSocket(InetAddress server, int port, String password, int readWriteTimeout) throws MPDServerException {
         super(server, port, password, readWriteTimeout);
         // connect right away and setup streams
         this.connect();
