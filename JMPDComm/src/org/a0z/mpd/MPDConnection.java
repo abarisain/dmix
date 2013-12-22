@@ -52,8 +52,8 @@ public abstract class MPDConnection {
 
     private String password = null;
 
-    MPDConnection(InetAddress server, int port, String password) throws MPDServerException {
-        this(server, port, 0, 1, password);
+    MPDConnection(InetAddress server, int port, String password, int readWriteTimeout) throws MPDServerException {
+        this(server, port, readWriteTimeout, 1, password);
     }
 
     public abstract OutputStreamWriter getOutputStream();

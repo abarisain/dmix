@@ -19,8 +19,8 @@ public class MPDConnectionData extends MPDConnection {
     private ThreadLocal<OutputStreamWriter> outputstream = new ThreadLocal<OutputStreamWriter>();
 
 
-    MPDConnectionData(InetAddress server, int port, int maxConnection, String password) throws MPDServerException {
-        super(server, port, 5000, maxConnection, password);
+    MPDConnectionData(InetAddress server, int port, int maxConnection, String password, int readWriteTimeout) throws MPDServerException {
+        super(server, port, readWriteTimeout, maxConnection, password);
     }
 
     @Override

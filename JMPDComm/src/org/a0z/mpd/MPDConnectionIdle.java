@@ -18,8 +18,8 @@ public class MPDConnectionIdle extends MPDConnection {
     private InputStreamReader inputStream;
     private OutputStreamWriter outputStream;
 
-    MPDConnectionIdle(InetAddress server, int port, String password) throws MPDServerException {
-        super(server, port, password);
+    MPDConnectionIdle(InetAddress server, int port, String password, int readWriteTimeout) throws MPDServerException {
+        super(server, port, password, readWriteTimeout);
         // connect right away and setup streams
         this.connect();
     }
