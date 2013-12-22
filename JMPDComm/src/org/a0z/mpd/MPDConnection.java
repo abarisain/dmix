@@ -132,20 +132,19 @@ public class MPDConnection {
         return hostPort;
     }
 
-    synchronized List<String> sendCommand(MPDCommand command) throws MPDServerException {
-        String commandstr = command.toString();
-        return sendRawCommand(commandstr);
+    public synchronized List<String> sendCommand(MPDCommand command) throws MPDServerException {
+        return sendRawCommand(command.toString());
     }
 
-    synchronized List<String> sendCommand(String command, String... args) throws MPDServerException {
+    public synchronized List<String> sendCommand(String command, String... args) throws MPDServerException {
         return sendCommand(new MPDCommand(command, args));
     }
 
-    synchronized void queueCommand(String command, String... args) {
+    public synchronized void queueCommand(String command, String... args) {
         queueCommand(new MPDCommand(command, args));
     }
 
-    synchronized void queueCommand(MPDCommand command) {
+    public synchronized void queueCommand(MPDCommand command) {
         commandQueue.add(command);
     }
 
@@ -168,11 +167,11 @@ public class MPDConnection {
         return result;
     }
 
-    synchronized List< String[] > sendCommandQueueSeparated() throws MPDServerException {
+    public synchronized List<String[]> sendCommandQueueSeparated() throws MPDServerException {
         return separatedQueueResults(sendCommandQueue(true));
     }
 
-    synchronized List<String> sendCommandQueue() throws MPDServerException {
+    public synchronized List<String> sendCommandQueue() throws MPDServerException {
         return sendCommandQueue(false);
     }
     synchronized List<String> sendCommandQueue(boolean withSeparator) throws MPDServerException {
