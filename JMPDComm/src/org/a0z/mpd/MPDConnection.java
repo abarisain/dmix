@@ -267,9 +267,11 @@ public abstract class MPDConnection {
         return sendAsyncCommand(new MPDCommand(command, args));
     }
 
-    private void writeToServer(String command) throws IOException {
-        getOutputStream().write(command);
+    private void writeToServer(MPDCommand command) throws IOException {
+        getOutputStream().write(command.toString());
         getOutputStream().flush();
+        d(MPDConnection.class.getSimpleName(), "Command " + command.command + " sent to server");
+        command.setSentToServer(true);
     }
 
     private ArrayList<String> readFromServer() throws MPDServerException, IOException {
@@ -311,7 +313,7 @@ public abstract class MPDConnection {
 
         // send command
         try {
-            writeToServer(command.toString());
+            writeToServer(command);
         } catch (IOException e1) {
             throw new MPDConnectionException(e1);
         }
@@ -342,7 +344,7 @@ public abstract class MPDConnection {
             throws MPDServerException {
         ArrayList<String> result = new ArrayList<String>();
         try {
-            writeToServer(command.toString());
+            writeToServer(command);
         } catch (IOException e) {
             throw new MPDConnectionException(e);
         }
@@ -399,17 +401,16 @@ public abstract class MPDConnection {
         public MPDCommandResult call() throws Exception {
             try {
                 d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() + " : MPD task start : " + this);
-
+                boolean retryable = true;
                 Random r = new Random();
                 int Low = 0;
                 int High = 5;
                 int R = r.nextInt(High - Low) + Low;
                 //Thread.sleep(1000 * R);
 
-                int effectiveMaxRetry = MPDCommand.isRetryable(command) ? MAX_REQUEST_RETRY : 1;
                 MPDCommandResult result = new MPDCommandResult();
 
-                while (result.getResult() == null && retry < effectiveMaxRetry && !cancelled) {
+                while (result.getResult() == null && retry < MAX_REQUEST_RETRY && !cancelled && retryable) {
                     try {
                         if (!innerIsConnected()) {
                             innerConnect();
@@ -422,6 +423,7 @@ public abstract class MPDConnection {
                         // Do not fail when the IDLE response has not been read (to improve connection failure robustness)
                         // Just send the "changed playlist" result to force the MPD status to be refreshed.
                     } catch (MPDNoResponseException ex0) {
+                        this.setSentToServer(false);
                         handleConnectionFailure(result, ex0);
                         if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
                             w(MpdCallable.class.getSimpleName(), "No response for IDLE command, tolerate it but force MPD status refresh");
@@ -430,6 +432,9 @@ public abstract class MPDConnection {
                     } catch (MPDServerException ex1) {
                         handleConnectionFailure(result, ex1);
                     }
+                    retryable = isRetryable(command) || !this.isSentToServer();
+                    d(MpdCallable.class.getSimpleName(), command + " : isRetryable=" + retryable);
+
                     retry++;
                 }
 

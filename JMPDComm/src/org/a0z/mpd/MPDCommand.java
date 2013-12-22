@@ -49,7 +49,7 @@ public class MPDCommand {
     public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
 
     public static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,MPD_CMD_PREV,MPD_CMD_PLAYLIST_ADD,MPD_CMD_PLAYLIST_MOVE,MPD_CMD_PLAYLIST_DEL) ;
-
+    private boolean sentToServer = false;
     public static final String MPD_CMD_IDLE="idle";
     // deprecated commands
     public static final String MPD_CMD_VOLUME = "volume";
@@ -115,5 +115,13 @@ public class MPDCommand {
 
     public static boolean isRetryable(String command) {
         return !NON_RETRYABLE_COMMANDS.contains(command);
+    }
+
+    public boolean isSentToServer() {
+        return sentToServer;
+    }
+
+    public void setSentToServer(boolean sentToServer) {
+        this.sentToServer = sentToServer;
     }
 }
