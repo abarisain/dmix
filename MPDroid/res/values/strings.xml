@@ -101,8 +101,8 @@
 	<string name="buffering">Buffering …</string>
 	<string name="portStreaming">Streaming port</string>
 	<string name="portStreamingDescription">MPD Streaming port (Default: 8000)</string>
-	<string name="suffixStreaming">Streaming url suffix</string>
-	<string name="suffixStreamingDescription">Suffix to append to stream url (ex. mpd.mp3)</string>
+	<string name="suffixStreaming">Streaming URL suffix</string>
+	<string name="suffixStreamingDescription">Suffix to append to stream URL (ex. mpd.mp3)</string>
 	<string name="streamStopped">Streaming stopped</string>
 	<string name="streamError">Streaming error, stream not playable</string>
 	<string name="streamPaused">Streaming paused</string>
@@ -131,7 +131,7 @@
 	<string name="sc_LibTab">L</string>
 	<string name="updateDB">Update</string>
 	<string name="updateDBDetails">Refresh MPD\'s database</string>
-	<string name="streamingManualURL">Use a specific URL for streaming (icecast)</string>
+	<string name="streamingManualURL">Use a specific URL for streaming (Icecast)</string>
 	<string name="configurationName">Configuration Name</string>
 	<string name="streamingURLDescription">Stream URL (with http://)</string>
 	<string name="sortAlbumsByYear">Album year</string>
@@ -139,11 +139,11 @@
 	<string name="showAlbumTrackCount">Album track count</string>
 	<string name="showAlbumTrackCountDescription">Show number of tracks on album</string>
 	<string name="enableLocalCover">Download local cover art</string>
-	<string name="enableLocalCoverDescription">Get cover art from the server running MPD (requires a webserver, read the wiki!)</string>
+	<string name="enableLocalCoverDescription">Get cover art from the server running MPD (requires a web server, read the wiki!)</string>
 	<string name="musicPath">Path to music</string>
-	<string name="musicPathDescription">Path to your music directory on the MPD server ie, files/mp3 (music/ for vortexbox users)</string>
+	<string name="musicPathDescription">Path to your music directory on the MPD server IE, files/mp3 (music/ for vortexbox users)</string>
 	<string name="coverFileName">Cover filename</string>
-	<string name="coverFileNameDescription">Standard filename for your album artwork ie, folder.jpg (cover.jpg for vortexbox users)</string>
+	<string name="coverFileNameDescription">Standard filename for your album artwork IE, folder.jpg (cover.jpg for vortexbox users)</string>
 	<string name="cacheUsage">Cache usage</string>
 	<string name="whatsNew">What\'s new ?</string>
 	<string name="whatsNewDescription">See changelog (opens external webpage)</string>
