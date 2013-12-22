@@ -21,6 +21,13 @@ public class AlbumInfo {
         this.filename = filename;
     }
 
+    public AlbumInfo(AlbumInfo a) {
+        this.artist = a.artist;
+        this.album = a.album;
+        this.path = a.path;
+        this.filename = a.filename;
+    }
+
     public AlbumInfo(String artist, String album) {
         this.artist = artist;
         this.album = album;
