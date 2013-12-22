@@ -6,13 +6,13 @@
  */
 package org.a0z.mpd;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Monitors MPD Server and sends events on status changes.
@@ -113,7 +113,7 @@ public class MPDStatusMonitor extends Thread {
 						mpd.getStatistics();
 					}
 					if (statusChanged) {
-						MPDStatus status = mpd.getStatus();
+						MPDStatus status = mpd.getStatus(true);
 
 						// playlist
 						if (connectionStateChanged || (oldPlaylistVersion != status.getPlaylistVersion() && status.getPlaylistVersion() != -1)) {

@@ -1,13 +1,5 @@
 package com.namelessdev.mpdroid;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,14 +12,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
-
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.tools.NetworkHelper;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static android.util.Log.w;
 
 public class MPDApplication extends Application implements ConnectionListener {
 
@@ -103,37 +102,30 @@ public class MPDApplication extends Application implements ConnectionListener {
 			currentActivity = (Activity) activity;
 		
 		connectionLocks.add(activity);
-		checkMonitorNeeded();
 		checkConnectionNeeded();
 		cancelDisconnectSheduler();
 	}
 
 	public void unsetActivity(Object activity) {
 		connectionLocks.remove(activity);
-		checkMonitorNeeded();
 		checkConnectionNeeded();
 		
 		if (currentActivity == activity)
 			currentActivity = null;
 	}
 
-	private void checkMonitorNeeded() {
-		if (connectionLocks.size() > 0) {
-			if (!oMPDAsyncHelper.isMonitorAlive())
-				oMPDAsyncHelper.startMonitor();
-		} else {
-			oMPDAsyncHelper.stopMonitor();
-		}
-	}
-
-	private void checkConnectionNeeded() {
-		if (connectionLocks.size() > 0) {
-			if (!oMPDAsyncHelper.oMPD.isConnected() && (currentActivity == null || !currentActivity.getClass().equals(WifiConnectionSettings.class)))
-				connect();
-		} else {
-			disconnect();
-		}
-	}
+    private void checkConnectionNeeded() {
+        if (connectionLocks.size() > 0) {
+            if (!oMPDAsyncHelper.isMonitorAlive()) {
+                oMPDAsyncHelper.startMonitor();
+            }
+            if (!oMPDAsyncHelper.oMPD.isConnected() && (currentActivity == null || !currentActivity.getClass().equals(WifiConnectionSettings.class))) {
+                connect();
+            }
+        } else {
+            disconnect();
+        }
+    }
 
 	public void connect() {
 		if(!settingsHelper.updateSettings()) {
@@ -164,7 +156,8 @@ public class MPDApplication extends Application implements ConnectionListener {
 		disconnectSheduler.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				Log.w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
+				w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
+                oMPDAsyncHelper.stopMonitor();
 				oMPDAsyncHelper.disconnect();
 			}
 		}, DISCONNECT_TIMER);
@@ -212,10 +205,17 @@ public class MPDApplication extends Application implements ConnectionListener {
 		oMPDAsyncHelper.connect();
 	}
 
-	public void connectionFailed(String message) {
+	public synchronized void connectionFailed(String message) {
+
+        if (ad != null && !(ad instanceof ProgressDialog) && ad.isShowing()) {
+            return;
+        }
+
 		// dismiss possible dialog
 		dismissAlertDialog();
 		
+        oMPDAsyncHelper.disconnect();
+
 		if (currentActivity == null)
 			return;
 		
@@ -223,6 +223,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 			// are we in the settings activity?
 			if (currentActivity.getClass() == SettingsActivity.class) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+				builder.setCancelable(false);
 				builder.setMessage(String.format(getResources().getString(R.string.connectionFailedMessageSetting), message));
 				builder.setPositiveButton("OK", new OnClickListener() {
 					public void onClick(DialogInterface arg0, int arg1) {
@@ -233,7 +234,8 @@ public class MPDApplication extends Application implements ConnectionListener {
 				AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
 				builder.setTitle(getResources().getString(R.string.connectionFailed));
 				builder.setMessage(String.format(getResources().getString(R.string.connectionFailedMessage), message));
-				
+                builder.setCancelable(false);
+
 				DialogClickListener oDialogClickListener = new DialogClickListener();
 				builder.setNegativeButton(getResources().getString(R.string.quit), oDialogClickListener);
 				builder.setNeutralButton(getResources().getString(R.string.settings), oDialogClickListener);
@@ -248,7 +250,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 
 	}
 
-	public void connectionSucceeded(String message) {
+	public synchronized void connectionSucceeded(String message) {
 		dismissAlertDialog();
 		// checkMonitorNeeded();
 	}

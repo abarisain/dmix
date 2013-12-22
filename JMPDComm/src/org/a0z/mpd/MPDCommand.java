@@ -2,6 +2,9 @@ package org.a0z.mpd;
 
 import android.util.Log;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class MPDCommand {
     private static final boolean DEBUG = false;
 
@@ -45,6 +48,8 @@ public class MPDCommand {
     public static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
     public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
 
+    public static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,MPD_CMD_PREV,MPD_CMD_PLAYLIST_ADD,MPD_CMD_PLAYLIST_MOVE,MPD_CMD_PLAYLIST_DEL) ;
+    private boolean sentToServer = false;
     public static final String MPD_CMD_IDLE="idle";
     // deprecated commands
     public static final String MPD_CMD_VOLUME = "volume";
@@ -71,6 +76,12 @@ public class MPDCommand {
     String command = null;
     String[] args = null;
 
+    private boolean synchronous = true;
+
+    public void setSynchronous(boolean synchronous) {
+        this.synchronous = synchronous;
+    }
+
     public MPDCommand(String _command, String... _args) {
         this.command = _command;
         this.args = _args;
@@ -92,4 +103,25 @@ public class MPDCommand {
         return outString;
     }
 
+    public boolean isSynchronous() {
+        return synchronous;
+    }
+
+    public MPDCommand(String command, String[] args, boolean synchronous) {
+        this.command = command;
+        this.args = args;
+        this.synchronous = synchronous;
+    }
+
+    public static boolean isRetryable(String command) {
+        return !NON_RETRYABLE_COMMANDS.contains(command);
+    }
+
+    public boolean isSentToServer() {
+        return sentToServer;
+    }
+
+    public void setSentToServer(boolean sentToServer) {
+        this.sentToServer = sentToServer;
+    }
 }

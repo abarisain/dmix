@@ -1,7 +1,6 @@
 package org.a0z.mpd;
 
 import android.content.Context;
-import android.util.Log;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -11,8 +10,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.*;
 
-import static android.util.Log.w;
-
 /**
  * MPD Server controller.
  *
@@ -20,13 +17,14 @@ import static android.util.Log.w;
  */
 public class MPD {
 
-    public static final int IDLE_CONNECT_MAX_RETRY = 6;
     protected MPDConnection mpdConnection;
     protected MPDConnection mpdIdleConnection;
+    protected MPDConnection mpdStatusConnection;
+
+
     protected MPDStatus mpdStatus;
     protected MPDPlaylist playlist;
     protected Directory rootDirectory;
-    protected String pwd = null;
 
     static protected boolean useAlbumArtist = false;
     static protected boolean sortByTrackNumber = true;
@@ -96,32 +94,26 @@ public class MPD {
     /**
      * Constructs a new MPD server controller.
      *
-     * @param server
-     *           server address or host name
-     * @param port
-     *           server port
-     * @throws MPDServerException
-     *            if an error occur while contacting server
+     * @param server server address or host name
+     * @param port   server port
+     * @throws MPDServerException   if an error occur while contacting server
      * @throws UnknownHostException
      */
-    public MPD(String server, int port) throws MPDServerException, UnknownHostException {
+    public MPD(String server, int port, String password) throws MPDServerException, UnknownHostException {
         this();
-        connect(server, port);
+        connect(server, port, password);
     }
 
     /**
      * Constructs a new MPD server controller.
      *
-     * @param server
-     *           server address or host name
-     * @param port
-     *           server port
-     * @throws MPDServerException
-     *            if an error occur while contacting server
+     * @param server server address or host name
+     * @param port   server port
+     * @throws MPDServerException if an error occur while contacting server
      */
-    public MPD(InetAddress server, int port) throws MPDServerException {
+    public MPD(InetAddress server, int port, String password) throws MPDServerException {
         this();
-        connect(server, port);
+        connect(server, port, password);
     }
 
     /**
@@ -145,7 +137,6 @@ public class MPD {
      */
     public List<String> waitForChanges() throws MPDServerException {
 
-        try {
             while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
                 List<String> data = mpdIdleConnection
                         .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
@@ -154,61 +145,18 @@ public class MPD {
                 }
                 return data;
             }
-        } catch (Exception ex) {
-            w(MPD.class.getSimpleName(), "Wait for server change failure : " + ex);
-        }
-        if (restoreIdleConnection(mpdIdleConnection)) {
-            return Arrays.asList("changed: playlist");
-        }
-        else {
             throw new MPDConnectionException("IDLE connection lost");
         }
-    }
 
     public boolean isMpdConnectionNull() {
         return (this.mpdConnection == null);
     }
 
-    private boolean restoreIdleConnection(MPDConnection connection) {
-        if (connection == null || connection.getHostPort() == 0 || connection.getHostAddress() == null) {
-            w(MPD.class.getSimpleName(), "Cannot try to restore mpd idle connection without port and address");
-            return false;
-        } else {
-
-            boolean success = false;
-            int retryCount = 0;
-
-            while (!success && retryCount < IDLE_CONNECT_MAX_RETRY) {
-                try {
-                    w(MPD.class.getSimpleName(), "Try to restore mpd idle connection, attempt " +retryCount);
-                    connect(connection.getHostAddress(), connection.getHostPort());
-                    if (pwd != null) {
-                        password(pwd);
-                    }
-                    success = true;
-                    w(MPD.class.getSimpleName(), "mpd idle connection has been restored");
-                } catch (MPDServerException e) {
-                    w(MPD.class.getSimpleName(), "Cannot restore mpd idle connection on attempt " + retryCount + " -> " + e.getMessage());
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e1) {
-                        //Nothing to do
-                    }
-                }
-                retryCount++;
-            }
-
-            return success;
-        }
-    }
-
     /**
      * Increases or decreases volume by <code>modifier</code> amount.
      *
-     * @param modifier
-     *           volume adjustment
-     * @throws MPDServerException
-     *            if an error occur while contacting server
+     * @param modifier volume adjustment
+     * @throws MPDServerException if an error occur while contacting server
      */
     public void adjustVolume(int modifier) throws MPDServerException {
         if (!isConnected())
@@ -224,8 +172,7 @@ public class MPD {
     /**
      * Clears error message.
      *
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public void clearError() throws MPDServerException {
         if (!isConnected())
@@ -237,42 +184,36 @@ public class MPD {
     /**
      * Connects to a MPD server.
      *
-     * @param server
-     *           server address or host name
-     * @param port
-     *           server port
-     * @throws MPDServerException
-     *            if an error occur while contacting server
+     * @param server server address or host name
+     * @param port   server port
+     * @throws MPDServerException   if an error occur while contacting server
      * @throws UnknownHostException
      */
-    public final void connect(String server, int port) throws MPDServerException, UnknownHostException {
+    public final void connect(String server, int port, String password) throws MPDServerException, UnknownHostException {
         InetAddress adress = InetAddress.getByName(server);
-        connect(adress, port);
+        connect(adress, port, password);
     }
 
     /**
      * Connects to a MPD server.
      *
-     * @param server
-     *           server address or host name
-     * @param port
-     *           server port
+     * @param server server address or host name
+     * @param port   server port
      */
-    public final void connect(InetAddress server, int port) throws MPDServerException {
-        this.mpdConnection = new MPDConnection(server, port);
-        this.mpdIdleConnection = new MPDConnection(server, port, 1000);
+    public final void connect(InetAddress server, int port, String password) throws MPDServerException {
+        this.mpdConnection = new MPDConnectionData(server, port, 5, password, 5000);
+        this.mpdIdleConnection = new MPDConnectionIdle(server, port, password, 0);
+        this.mpdStatusConnection = new MPDConnectionIdle(server, port, password, 10000);
     }
 
     /**
      * Connects to a MPD server.
      *
-     * @param server
-     *           server address or host name and port (server:port)
-     * @throws MPDServerException
-     *            if an error occur while contacting server
+     * @param server server address or host name and port (server:port)
+     * @throws MPDServerException   if an error occur while contacting server
      * @throws UnknownHostException
      */
-    public final void connect(String server) throws MPDServerException, UnknownHostException {
+    public final void connect(String server, String password) throws MPDServerException, UnknownHostException {
         int port = MPDCommand.DEFAULT_MPD_PORT;
         String host = null;
         if (server.indexOf(':') != -1) {
@@ -281,14 +222,13 @@ public class MPD {
         } else {
             host = server;
         }
-        connect(host, port);
+        connect(host, port, password);
     }
 
     /**
      * Disconnects from server.
      *
-     * @throws MPDServerException
-     *            if an error occur while closing connection
+     * @throws MPDServerException if an error occur while closing connection
      */
     public void disconnect() throws MPDServerException {
         MPDServerException ex = null;
@@ -316,26 +256,33 @@ public class MPD {
             }
         }
 
+        if (mpdStatusConnection != null && mpdStatusConnection.isConnected()) {
+            try {
+                mpdStatusConnection.disconnect();
+            } catch (MPDServerException e) {
+                ex = (ex != null) ? ex : e;// Always keep non null first
+                // exception
+            }
+        }
+
         if (ex != null) {
-            throw ex;
+            //throw ex;
         }
     }
 
     /**
      * Similar to <code>search</code>,<code>find</code> looks for exact matches in the MPD database.
      *
-     * @param type
-     *           type of search. Should be one of the following constants: MPD_FIND_ARTIST, MPD_FIND_ALBUM
-     * @param string
-     *           case-insensitive locator string. Anything that exactly matches <code>string</code> will be returned in the results.
+     * @param type   type of search. Should be one of the following constants: MPD_FIND_ARTIST, MPD_FIND_ALBUM
+     * @param string case-insensitive locator string. Anything that exactly matches <code>string</code> will be returned in the results.
      * @return a Collection of <code>Music</code>
-     * @throws MPDServerException
-     *            if an error occur while contacting server
+     * @throws MPDServerException if an error occur while contacting server
      * @see org.a0z.mpd.Music
      */
     public List<Music> find(String type, String string) throws MPDServerException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, type, string);
     }
+
     public List<Music> find(String[] args) throws MPDServerException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, args, true);
     }
@@ -361,8 +308,7 @@ public class MPD {
      * Retrieves a database directory listing of the base of the database directory path.
      *
      * @return a <code>Collection</code> of <code>Music</code> and <code>Directory</code> representing directory entries.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      * @see Music
      * @see Directory
      */
@@ -375,8 +321,7 @@ public class MPD {
      *
      * @param path Directory to be listed.
      * @return a <code>Collection</code> of <code>Music</code> and <code>Directory</code> representing directory entries.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      * @see Music
      * @see Directory
      */
@@ -424,7 +369,7 @@ public class MPD {
         if(!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 
-        int[] version = mpdConnection.getMpdVersion();
+        int[] version = mpdIdleConnection.getMpdVersion();
 
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < version.length; i++) {
@@ -448,8 +393,7 @@ public class MPD {
      * Retrieves statistics for the connected server.
      *
      * @return statistics for the connected server.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatistics getStatistics() throws MPDServerException {
         List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
@@ -460,40 +404,34 @@ public class MPD {
      * Retrieves status of the connected server.
      *
      * @return status of the connected server.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatus getStatus() throws MPDServerException {
-
-        boolean success = false;
-        int retryCounter = 0;
-
-        while (!success && retryCounter < IDLE_CONNECT_MAX_RETRY) {
-            try {
-                if (!isConnected())
-                    throw new MPDServerException("MPD Connection is not established");
-                List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
-                mpdStatus.updateStatus(response);
-                success = true;
-            } catch (Exception ex) {
-                Log.w(MPD.class.getSimpleName(), "MPD get status failure : " + ex);
-                restoreIdleConnection(mpdConnection);
-                retryCounter++;
-            }
-        }
-        if (success) {
-            return mpdStatus;
-        } else {
-            throw new MPDServerException("Cannot retrieve MPD status : ");
-        }
+        return getStatus(false);
     }
+
+    /**
+     * Retrieves status of the connected server.
+     *
+     * @return status of the connected server.
+     * @throws MPDServerException if an error occur while contacting server.
+     */
+    public MPDStatus getStatus(boolean forceRefresh) throws MPDServerException {
+        if (forceRefresh || mpdStatus == null || mpdStatus.getState() == null) {
+            if (!isConnected()) {
+                throw new MPDConnectionException("MPD Connection is not established");
+            }
+            List<String> response = mpdStatusConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
+            mpdStatus.updateStatus(response);
+        }
+        return mpdStatus;
+            }
 
     /**
      * Retrieves current volume.
      *
      * @return current volume.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public int getVolume() throws MPDServerException {
         return this.getStatus().getVolume();
@@ -505,9 +443,7 @@ public class MPD {
      * @return true when connected and false when not connected
      */
     public boolean isConnected() {
-        if (mpdConnection == null)
-            return false;
-        return mpdConnection.isConnected() ;
+        return mpdIdleConnection != null && mpdStatusConnection != null && mpdConnection != null && mpdIdleConnection.isConnected();
     }
 
 
@@ -515,8 +451,7 @@ public class MPD {
      * List all albums from database.
      *
      * @return <code>Collection</code> with all album names from database.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbums() throws MPDServerException {
         return listAlbums(null, false, false);
@@ -525,11 +460,9 @@ public class MPD {
     /**
      * List all albums from database.
      *
-     * @param useAlbumArtist
-     * 			 use AlbumArtist instead of Artist
+     * @param useAlbumArtist use AlbumArtist instead of Artist
      * @return <code>Collection</code> with all album names from database.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbums(boolean useAlbumArtist) throws MPDServerException {
         return listAlbums(null, useAlbumArtist, false);
@@ -538,13 +471,10 @@ public class MPD {
     /**
      * List all albums from a given artist, including an entry for songs with no album tag.
      *
-     * @param artist
-     *           artist to list albums
-     * @param useAlbumArtist
-     * 			 use AlbumArtist instead of Artist
+     * @param artist         artist to list albums
+     * @param useAlbumArtist use AlbumArtist instead of Artist
      * @return <code>Collection</code> with all album names from database.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbums(String artist, boolean useAlbumArtist) throws MPDServerException {
         return listAlbums(artist, useAlbumArtist, true);
@@ -564,15 +494,11 @@ public class MPD {
     /**
      * List all albums from a given artist.
      *
-     * @param artist
-     *           artist to list albums
-     * @param useAlbumArtist
-     * 			 use AlbumArtist instead of Artist
-     * @param includeUnknownAlbum
-     * 			 include an entry for songs with no album tag
+     * @param artist              artist to list albums
+     * @param useAlbumArtist      use AlbumArtist instead of Artist
+     * @param includeUnknownAlbum include an entry for songs with no album tag
      * @return <code>Collection</code> with all album names from the given artist present in database.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbums(String artist, boolean useAlbumArtist, boolean includeUnknownAlbum) throws MPDServerException {
         if(!isConnected())
@@ -693,7 +619,6 @@ public class MPD {
      * List all genre names from database.
      *
      * @return artist names from database.
-     *
      * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listGenres() throws MPDServerException {
@@ -703,11 +628,9 @@ public class MPD {
     /**
      * List all genre names from database.
      *
-     * @param sortInsensitive
-     *            boolean for insensitive sort when true
+     * @param sortInsensitive boolean for insensitive sort when true
      * @return artist names from database.
-     * @throws MPDServerException
-     *             if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listGenres(boolean sortInsensitive) throws MPDServerException {
         if (!isConnected())
@@ -767,8 +690,7 @@ public class MPD {
      * List all artist names from database.
      *
      * @return artist names from database.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listArtists() throws MPDServerException {
         return listArtists(true);
@@ -777,11 +699,9 @@ public class MPD {
     /**
      * List all artist names from database.
      *
-     * @param sortInsensitive
-     *           boolean for insensitive sort when true
+     * @param sortInsensitive boolean for insensitive sort when true
      * @return artist names from database.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listArtists(boolean sortInsensitive) throws MPDServerException {
         if(!isConnected())
@@ -807,8 +727,7 @@ public class MPD {
      * List all artist names from database.
      *
      * @return artist names from database.
-     * @throws MPDServerException
-     *             if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listArtists(String genre) throws MPDServerException {
         return listArtists(genre, true);
@@ -817,11 +736,9 @@ public class MPD {
     /**
      * List all artist names from database.
      *
-     * @param sortInsensitive
-     *            boolean for insensitive sort when true
+     * @param sortInsensitive boolean for insensitive sort when true
      * @return artist names from database.
-     * @throws MPDServerException
-     *             if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listArtists(String genre, boolean sortInsensitive) throws MPDServerException {
         if (!isConnected())
@@ -847,8 +764,7 @@ public class MPD {
      * List all album artist names from database.
      *
      * @return album artist names from database.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbumArtists() throws MPDServerException {
         if(!isConnected())
@@ -872,8 +788,7 @@ public class MPD {
      * List all album artist names from database.
      *
      * @return album artist names from database.
-     * @throws MPDServerException
-     *             if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbumArtists(Genre genre) throws MPDServerException {
         if (!isConnected())
@@ -897,31 +812,13 @@ public class MPD {
     /**
      * Jumps to next playlist track.
      *
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     public void next() throws MPDServerException {
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 
         mpdConnection.sendCommand(MPDCommand.MPD_CMD_NEXT);
-    }
-
-    /**
-     * Authenticate using password.
-     *
-     * @param password
-     *           password.
-     * @throws MPDServerException
-     *            if an error occur while contacting server.
-     */
-    public void password(String password) throws MPDServerException {
-        this.pwd = password;
-        if (!isConnected())
-            throw new MPDServerException("MPD Connection is not established");
-
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PASSWORD, password);
-        mpdIdleConnection.sendCommand(MPDCommand.MPD_CMD_PASSWORD, password);
     }
 
     /**
