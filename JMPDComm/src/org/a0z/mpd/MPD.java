@@ -1379,6 +1379,10 @@ public class MPD {
         add(artist, false, false);
     }
 
+    public void add(Album album) throws MPDServerException {
+        add(album.getArtist(), album, false, false);
+    }
+
     public void add(Artist artist, Album album) throws MPDServerException {
         add(artist, album, false, false);
     }
@@ -1412,6 +1416,10 @@ public class MPD {
                 }
             };
         add(r, replace, play);
+    }
+
+    public void add(final Album album, boolean replace, boolean play) throws MPDServerException {
+        add(album.getArtist(), album, replace, play);
     }
 
     public void add(final Artist artist, final Album album, boolean replace, boolean play) throws MPDServerException {
