@@ -1533,7 +1533,7 @@ public class MPD {
     }
 
     public void addToPlaylist(String playlistName, Album album) throws MPDServerException {
-        addToPlaylist(playlistName, null, album);
+        addToPlaylist(playlistName, album.getArtist(), album);
     }
 
     public void addToPlaylist(String playlistName, Artist artist, Album album) throws MPDServerException {
