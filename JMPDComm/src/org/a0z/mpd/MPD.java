@@ -21,20 +21,20 @@ import static android.util.Log.w;
 public class MPD {
 
     public static final int IDLE_CONNECT_MAX_RETRY = 6;
-    private MPDConnection mpdConnection;
-    private MPDConnection mpdIdleConnection;
-    private MPDStatus mpdStatus;
-    private MPDPlaylist playlist;
-    private Directory rootDirectory;
-    private String pwd = null;
+    protected MPDConnection mpdConnection;
+    protected MPDConnection mpdIdleConnection;
+    protected MPDStatus mpdStatus;
+    protected MPDPlaylist playlist;
+    protected Directory rootDirectory;
+    protected String pwd = null;
 
-    static private boolean useAlbumArtist = false;
-    static private boolean sortByTrackNumber = true;
-    static private boolean sortAlbumsByYear = false;
-    static private boolean showArtistAlbumCount = false;
-    static private boolean showAlbumTrackCount = true;
+    static protected boolean useAlbumArtist = false;
+    static protected boolean sortByTrackNumber = true;
+    static protected boolean sortAlbumsByYear = false;
+    static protected boolean showArtistAlbumCount = false;
+    static protected boolean showAlbumTrackCount = true;
 
-    static private Context applicationContext = null;
+    static protected Context applicationContext = null;
 
     static public Context getApplicationContext() {
         return applicationContext;
@@ -342,7 +342,7 @@ public class MPD {
 
     // Returns a pattern where all punctuation characters are escaped.
 
-    private List<Music> genericSearch(String searchCommand, String type, String strToFind) throws MPDServerException {
+    protected List<Music> genericSearch(String searchCommand, String type, String strToFind) throws MPDServerException {
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 
@@ -350,7 +350,7 @@ public class MPD {
         return Music.getMusicFromList(response, true);
     }
 
-    private List<Music> genericSearch(String searchCommand, String args[], boolean sort) throws MPDServerException {
+    protected List<Music> genericSearch(String searchCommand, String args[], boolean sort) throws MPDServerException {
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 

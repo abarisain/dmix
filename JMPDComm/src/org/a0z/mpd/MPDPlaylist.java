@@ -16,20 +16,20 @@ import java.util.List;
  * @version $Id: MPDPlaylist.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPDPlaylist extends AbstractStatusChangeListener {
-	private static final String MPD_CMD_PLAYLIST_ADD = "add";
-	private static final String MPD_CMD_PLAYLIST_CLEAR = "clear";
-	private static final String MPD_CMD_PLAYLIST_DELETE = "rm";
-	private static final String MPD_CMD_PLAYLIST_LIST = "playlistid";
-	private static final String MPD_CMD_PLAYLIST_CHANGES = "plchanges";
-	private static final String MPD_CMD_PLAYLIST_LOAD = "load";
-	private static final String MPD_CMD_PLAYLIST_MOVE = "move";
-	private static final String MPD_CMD_PLAYLIST_MOVE_ID = "moveid";
-	private static final String MPD_CMD_PLAYLIST_REMOVE = "delete";
-	private static final String MPD_CMD_PLAYLIST_REMOVE_ID = "deleteid";
-	private static final String MPD_CMD_PLAYLIST_SAVE = "save";
-	private static final String MPD_CMD_PLAYLIST_SHUFFLE = "shuffle";
-	private static final String MPD_CMD_PLAYLIST_SWAP = "swap";
-	private static final String MPD_CMD_PLAYLIST_SWAP_ID = "swapid";
+	public static final String MPD_CMD_PLAYLIST_ADD = "add";
+	public static final String MPD_CMD_PLAYLIST_CLEAR = "clear";
+	public static final String MPD_CMD_PLAYLIST_DELETE = "rm";
+	public static final String MPD_CMD_PLAYLIST_LIST = "playlistid";
+	public static final String MPD_CMD_PLAYLIST_CHANGES = "plchanges";
+	public static final String MPD_CMD_PLAYLIST_LOAD = "load";
+	public static final String MPD_CMD_PLAYLIST_MOVE = "move";
+	public static final String MPD_CMD_PLAYLIST_MOVE_ID = "moveid";
+	public static final String MPD_CMD_PLAYLIST_REMOVE = "delete";
+	public static final String MPD_CMD_PLAYLIST_REMOVE_ID = "deleteid";
+	public static final String MPD_CMD_PLAYLIST_SAVE = "save";
+	public static final String MPD_CMD_PLAYLIST_SHUFFLE = "shuffle";
+	public static final String MPD_CMD_PLAYLIST_SWAP = "swap";
+	public static final String MPD_CMD_PLAYLIST_SWAP_ID = "swapid";
 
 	private MPD mpd;
 	private MusicList list;
