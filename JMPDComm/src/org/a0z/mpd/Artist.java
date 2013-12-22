@@ -13,8 +13,13 @@ public class Artist extends Item implements Parcelable {
 	private final String sort;
 	//private final boolean isVa;
 	private final int albumCount;
+    private boolean isAlbumArtist;
 
-	public Artist(String name, int albumCount) {
+    public Artist(String name, int albumCount) {
+        this(name, albumCount, false);
+    }
+
+    public Artist(String name, int albumCount, boolean isAlbumArtist) {
 		this.name=name;
 		if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
 			sort=name.substring(4);
@@ -22,27 +27,42 @@ public class Artist extends Item implements Parcelable {
 			sort=null;
 		}
 		this.albumCount=albumCount;
-	}
+                this.isAlbumArtist = isAlbumArtist;
+    }
 
     public Artist(String name) {
-        this(name, 0);
+        this(name, 0, false);
+    }
+
+    public Artist(String name, boolean isAlbumArtist) {
+        this(name, 0, isAlbumArtist);
+
     }
 
     public Artist(Artist a) {
         this.name = a.name;
         this.albumCount = a.albumCount;
         this.sort = a.sort;
+        this.isAlbumArtist = a.isAlbumArtist;
     }
 
 	protected Artist(Parcel in) {
 		this.name=in.readString();
 		this.sort=in.readString();
 		this.albumCount=in.readInt();
+		this.isAlbumArtist=(in.readInt()>0);
     }
 
 	public String getName() {
 		return name;
 	}
+
+    public boolean isAlbumArtist() {
+        return isAlbumArtist;
+    }
+    public void setIsAlbumArtist(boolean aa){
+        isAlbumArtist = aa;
+    }
 
 	public String sort() {
         return null == sort ? name == null ? "" : name : sort;
@@ -97,6 +117,7 @@ public class Artist extends Item implements Parcelable {
 		dest.writeString(this.name);
 		dest.writeString(this.sort);
 		dest.writeInt(this.albumCount);
+                dest.writeInt(this.isAlbumArtist?1:0);
 	}
 
 	public static final Parcelable.Creator<Artist> CREATOR =
@@ -109,4 +130,10 @@ public class Artist extends Item implements Parcelable {
                 return new Artist[size];
             }
         };
+
+
+    public String info() {
+        return getName() + (isAlbumArtist()?" (AA)":"");
+    }
+
 }
