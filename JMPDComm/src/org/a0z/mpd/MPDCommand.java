@@ -10,11 +10,13 @@ public class MPDCommand {
 
     public static final String MPD_CMD_CLEARERROR = "clearerror";
     public static final String MPD_CMD_CLOSE = "close";
+    public static final String MPD_CMD_COUNT = "count";
     public static final String MPD_CMD_CROSSFADE = "crossfade";
     public static final String MPD_CMD_FIND = "find";
     public static final String MPD_CMD_KILL = "kill";
     public static final String MPD_CMD_LIST_TAG = "list";
     public static final String MPD_CMD_LISTALL = "listall";
+    public static final String MPD_CMD_LISTALLINFO = "listallinfo";
     public static final String MPD_CMD_LISTPLAYLISTS = "listplaylists";
     public static final String MPD_CMD_LSDIR = "lsinfo";
     public static final String MPD_CMD_NEXT = "next";
