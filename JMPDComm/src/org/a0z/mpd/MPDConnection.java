@@ -105,7 +105,7 @@ public abstract class MPDConnection {
         } else {
             if (lastException == null) {
                 lastException = new MPDServerException("Connection request cancelled");
-            }
+        }
             throw new MPDServerException(lastException);
         }
     }
@@ -199,46 +199,46 @@ public abstract class MPDConnection {
         return hostPort;
     }
 
-    List<String> sendCommand(MPDCommand command) throws MPDServerException {
+    public List<String> sendCommand(MPDCommand command) throws MPDServerException {
         return sendRawCommand(command);
     }
 
-    List<String> sendCommand(String command, String... args) throws MPDServerException {
+    public List<String> sendCommand(String command, String... args) throws MPDServerException {
         return sendCommand(new MPDCommand(command, args));
     }
 
-    void queueCommand(String command, String... args) {
+    public void queueCommand(String command, String... args) {
         queueCommand(new MPDCommand(command, args));
     }
 
-    void queueCommand(MPDCommand command) {
+    public void queueCommand(MPDCommand command) {
         commandQueue.add(command);
     }
 
-    static List<String[]> separatedQueueResults(List<String> lines) {
-        List<String[]> result = new ArrayList<String[]>();
+    static List< String[] > separatedQueueResults(List<String> lines) {
+        List< String[] > result = new ArrayList< String[] >();
         ArrayList<String> lineCache = new ArrayList<String>();
 
         for (String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
                 if (lineCache.size() != 0) {
-                    result.add((String[]) lineCache.toArray(new String[0]));
+                    result.add((String[])lineCache.toArray(new String[0]));
                     lineCache.clear();
                 }
             } else
                 lineCache.add(line);
         }
         if (lineCache.size() != 0) {
-            result.add((String[]) lineCache.toArray(new String[0]));
+            result.add((String[])lineCache.toArray(new String[0]));
         }
         return result;
     }
 
-    List<String[]> sendCommandQueueSeparated() throws MPDServerException {
+    public List<String[]> sendCommandQueueSeparated() throws MPDServerException {
         return separatedQueueResults(sendCommandQueue(true));
     }
 
-    List<String> sendCommandQueue() throws MPDServerException {
+    public List<String> sendCommandQueue() throws MPDServerException {
         return sendCommandQueue(false);
     }
 
@@ -258,8 +258,8 @@ public abstract class MPDConnection {
 
 
     List<String> sendAsyncCommand(MPDCommand command)
-            throws MPDServerException {
-        return syncedWriteAsyncRead(command);
+        throws MPDServerException {
+	return syncedWriteAsyncRead(command);
     }
 
     List<String> sendAsyncCommand(String command, String... args)

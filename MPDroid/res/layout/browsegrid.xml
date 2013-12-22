@@ -8,7 +8,7 @@
         android:id="@+id/grid"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:columnWidth="160dip"
+        android:columnWidth="150dip"
         android:gravity="center"
         android:horizontalSpacing="8dp"
         android:listSelector="#00000000"

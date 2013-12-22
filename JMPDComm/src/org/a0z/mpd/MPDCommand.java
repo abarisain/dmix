@@ -13,11 +13,13 @@ public class MPDCommand {
 
     public static final String MPD_CMD_CLEARERROR = "clearerror";
     public static final String MPD_CMD_CLOSE = "close";
+    public static final String MPD_CMD_COUNT = "count";
     public static final String MPD_CMD_CROSSFADE = "crossfade";
     public static final String MPD_CMD_FIND = "find";
     public static final String MPD_CMD_KILL = "kill";
     public static final String MPD_CMD_LIST_TAG = "list";
     public static final String MPD_CMD_LISTALL = "listall";
+    public static final String MPD_CMD_LISTALLINFO = "listallinfo";
     public static final String MPD_CMD_LISTPLAYLISTS = "listplaylists";
     public static final String MPD_CMD_LSDIR = "lsinfo";
     public static final String MPD_CMD_NEXT = "next";
@@ -48,7 +50,7 @@ public class MPDCommand {
 
     public static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,MPD_CMD_PREV,MPD_CMD_PLAYLIST_ADD,MPD_CMD_PLAYLIST_MOVE,MPD_CMD_PLAYLIST_DEL) ;
 
-    public static final String MPD_CMD_IDLE = "idle";
+    public static final String MPD_CMD_IDLE="idle";
     // deprecated commands
     public static final String MPD_CMD_VOLUME = "volume";
 
@@ -89,7 +91,7 @@ public class MPDCommand {
         StringBuffer outBuf = new StringBuffer();
         outBuf.append(command);
         for (String arg : args) {
-            if (arg == null)
+            if(arg == null)
                 continue;
             arg = arg.replaceAll("\"", "\\\\\"");
             outBuf.append(" \"" + arg + "\"");

@@ -547,6 +547,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             popupSongID = (Integer) v.getTag();
             popupMenu = new PopupMenu(activity, v);
             popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistcnxmenu, popupMenu.getMenu());
+            if (getPlaylistItemSong(popupSongID).isStream()) {
+                popupMenu.getMenu().findItem(R.id.PLCX_goto).setVisible(false);
+            }
             popupMenu.setOnMenuItemClickListener(PlaylistFragment.this);
             popupMenu.show();
         }
@@ -558,13 +561,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         AbstractPlaylistMusic music;
 
         switch (item.getItemId()) {
-            case R.id.PLCX_SkipToHere:
-                // skip to selected Song
-                try {
-                    app.oMPDAsyncHelper.oMPD.skipToId(popupSongID);
-                } catch (MPDServerException e) {
-                }
-                return true;
             case R.id.PLCX_playNext:
                 try { // Move song to next in playlist
                     MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
