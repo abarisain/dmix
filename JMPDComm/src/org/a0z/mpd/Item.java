@@ -44,7 +44,7 @@ public abstract class Item implements Comparable<Item> {
      * Sorted lists required!
      */
     public static <T extends Item> List<T> merged(List<T> aa_items,
-                                           List<T> a_items) {
+                                                  List<T> a_items) {
         int j_start = aa_items.size()-1;
         for (int i = a_items.size()-1; i >= 0; i--) {  // artists
             String a_name = a_items.get(i).getName();
