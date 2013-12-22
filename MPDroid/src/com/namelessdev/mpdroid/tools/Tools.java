@@ -8,6 +8,7 @@ import android.util.DisplayMetrics;
 import android.widget.Toast;
 
 import java.security.MessageDigest;
+import java.util.List;
 
 public final class Tools {
 	public static Object[] toObjectArray(Object... args) {
@@ -20,7 +21,7 @@ public final class Tools {
 
 	/**
 	 * Gets the hash value from the specified string.
-	 * 
+	 *
 	 * @param value
 	 *            Target string value to get hash from.
 	 * @return the hash from string.
@@ -41,7 +42,7 @@ public final class Tools {
 
 	/**
 	 * Convert byte array to hex string.
-	 * 
+	 *
 	 * @param data
 	 *            Target data array.
 	 * @return Hex string.
@@ -142,4 +143,13 @@ public final class Tools {
 	public static boolean isStringEmptyOrNull(String str) {
 		return (str == null || "".equals(str));
 	}
+
+    public static int[] toIntArray(List<Integer> list)  {
+        int[] ret = new int[list.size()];
+        int i = 0;
+        for (Integer e : list)
+            ret[i++] = e.intValue();
+        return ret;
+    }
+
 }
