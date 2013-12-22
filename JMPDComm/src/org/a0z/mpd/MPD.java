@@ -760,13 +760,16 @@ public class MPD {
         return result;
     }
 
+    public List<String> listAlbumArtists() throws MPDServerException {
+        return listAlbumArtists(true);
+    }
     /**
      * List all album artist names from database.
      *
      * @return album artist names from database.
      * @throws MPDServerException if an error occur while contacting server.
      */
-    public List<String> listAlbumArtists() throws MPDServerException {
+    public List<String> listAlbumArtists(boolean sortInsensitive) throws MPDServerException {
         if(!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 
@@ -778,19 +781,23 @@ public class MPD {
             if (name.length() > 0)
                 result.add(name);
         }
-
-        Collections.sort(result);
-
+        if (sortInsensitive)
+            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
+        else
+            Collections.sort(result);
         return result;
     }
 
+    public List<String> listAlbumArtists(Genre genre) throws MPDServerException {
+        return listAlbumArtists(genre, true);
+    }
     /**
      * List all album artist names from database.
      *
      * @return album artist names from database.
      * @throws MPDServerException if an error occur while contacting server.
      */
-    public List<String> listAlbumArtists(Genre genre) throws MPDServerException {
+    public List<String> listAlbumArtists(Genre genre, boolean sortInsensitive) throws MPDServerException {
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 
@@ -803,9 +810,10 @@ public class MPD {
             if (name.length() > 0)
                 result.add(name);
         }
-
-        Collections.sort(result);
-
+        if (sortInsensitive)
+            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
+        else
+            Collections.sort(result);
         return result;
     }
 
