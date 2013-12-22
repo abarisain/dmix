@@ -18,7 +18,6 @@ MPDroid works on **all** devices from 4.0.3 (API 15) to 4.4+
 DragSortListView - Really nice and widely used TouchInterceptor replacement.  
 JmDNS - For Bonjour integration. Still a work in progress (and may even be finished one day), allows local MPD servers to be discovered without finding their IP.  
 JMPDComm - The core MPD interface lib. Heavily modified.  
-LastFM-java - Last.FM cover art support.  
 
 ## Known issues
  - Limited multi server support (based on WLAN name)
