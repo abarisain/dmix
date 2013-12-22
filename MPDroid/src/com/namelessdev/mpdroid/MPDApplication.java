@@ -102,37 +102,30 @@ public class MPDApplication extends Application implements ConnectionListener {
 			currentActivity = (Activity) activity;
 
 		connectionLocks.add(activity);
-		checkMonitorNeeded();
 		checkConnectionNeeded();
 		cancelDisconnectSheduler();
 	}
 
 	public void unsetActivity(Object activity) {
 		connectionLocks.remove(activity);
-		checkMonitorNeeded();
 		checkConnectionNeeded();
 
 		if (currentActivity == activity)
 			currentActivity = null;
 	}
 
-	private void checkMonitorNeeded() {
-		if (connectionLocks.size() > 0) {
-			if (!oMPDAsyncHelper.isMonitorAlive())
-				oMPDAsyncHelper.startMonitor();
-		} else {
-			oMPDAsyncHelper.stopMonitor();
-		}
-	}
-
-	private void checkConnectionNeeded() {
-		if (connectionLocks.size() > 0) {
-			if (!oMPDAsyncHelper.oMPD.isConnected() && (currentActivity == null || !currentActivity.getClass().equals(WifiConnectionSettings.class)))
-				connect();
-		} else {
-			disconnect();
-		}
-	}
+    private void checkConnectionNeeded() {
+        if (connectionLocks.size() > 0) {
+            if (!oMPDAsyncHelper.isMonitorAlive()) {
+                oMPDAsyncHelper.startMonitor();
+            }
+            if (!oMPDAsyncHelper.oMPD.isConnected() && (currentActivity == null || !currentActivity.getClass().equals(WifiConnectionSettings.class))) {
+                connect();
+            }
+        } else {
+            disconnect();
+        }
+    }
 
 	public void connect() {
 		if(!settingsHelper.updateSettings()) {
@@ -164,6 +157,7 @@ public class MPDApplication extends Application implements ConnectionListener {
 			@Override
 			public void run() {
 				w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
+                oMPDAsyncHelper.stopMonitor();
 				oMPDAsyncHelper.disconnect();
 			}
 		}, DISCONNECT_TIMER);
