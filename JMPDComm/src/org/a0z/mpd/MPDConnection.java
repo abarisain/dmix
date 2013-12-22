@@ -105,7 +105,7 @@ public abstract class MPDConnection {
         } else {
             if (lastException == null) {
                 lastException = new MPDServerException("Connection request cancelled");
-        }
+            }
             throw new MPDServerException(lastException);
         }
     }
@@ -215,21 +215,21 @@ public abstract class MPDConnection {
         commandQueue.add(command);
     }
 
-    static List< String[] > separatedQueueResults(List<String> lines) {
-        List< String[] > result = new ArrayList< String[] >();
+    static List<String[]> separatedQueueResults(List<String> lines) {
+        List<String[]> result = new ArrayList<String[]>();
         ArrayList<String> lineCache = new ArrayList<String>();
 
         for (String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
                 if (lineCache.size() != 0) {
-                    result.add((String[])lineCache.toArray(new String[0]));
+                    result.add((String[]) lineCache.toArray(new String[0]));
                     lineCache.clear();
                 }
             } else
                 lineCache.add(line);
         }
         if (lineCache.size() != 0) {
-            result.add((String[])lineCache.toArray(new String[0]));
+            result.add((String[]) lineCache.toArray(new String[0]));
         }
         return result;
     }
@@ -258,8 +258,8 @@ public abstract class MPDConnection {
 
 
     List<String> sendAsyncCommand(MPDCommand command)
-        throws MPDServerException {
-	return syncedWriteAsyncRead(command);
+            throws MPDServerException {
+        return syncedWriteAsyncRead(command);
     }
 
     List<String> sendAsyncCommand(String command, String... args)
@@ -433,15 +433,14 @@ public abstract class MPDConnection {
                     retry++;
                 }
 
-                if (result.getResult() != null) {
-                } else {
+                if (result.getResult() == null) {
                     if (cancelled) {
                         result.setLastexception(new MPDConnectionException("MPD request has been cancelled for disconnection"));
                     }
                     e(MpdCallable.class.getSimpleName(), "MPD command " + command + " failed after " + retry + " attempts : " + result.getLastexception().getMessage());
+                } else {
+                    d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() + " MPD task result : " + this + " --> " + result.getResult());
                 }
-                d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() + " MPD task result : " + this + " --> " + result.getResult());
-
                 return result;
             } finally {
                 d(MpdCallable.class.getSimpleName(), Thread.currentThread().getName() + " MPD task end : " + this + " (" + (new Date().getTime() - startTime) / 1000 + "\")");
