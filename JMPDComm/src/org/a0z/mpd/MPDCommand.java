@@ -51,6 +51,8 @@ public class MPDCommand {
     public static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,MPD_CMD_PREV,MPD_CMD_PLAYLIST_ADD,MPD_CMD_PLAYLIST_MOVE,MPD_CMD_PLAYLIST_DEL) ;
     private boolean sentToServer = false;
     public static final String MPD_CMD_IDLE="idle";
+    public static final String MPD_CMD_PING = "ping";
+
     // deprecated commands
     public static final String MPD_CMD_VOLUME = "volume";
 

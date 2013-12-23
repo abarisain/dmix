@@ -1,6 +1,5 @@
 package org.a0z.mpd;
 
-import android.util.Log;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -16,12 +15,12 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static android.util.Log.e;
+import static android.util.Log.w;
 
 /**
  * Class representing a connection to MPD Server.
@@ -47,6 +46,7 @@ public abstract class MPDConnection {
     private int readWriteTimeout;
 
     private ExecutorService executor;
+    private int maxThreads;
 
     protected boolean cancelled = false;
 
@@ -76,7 +76,8 @@ public abstract class MPDConnection {
         hostPort = port;
         hostAddress = server;
         commandQueue = new ArrayList<MPDCommand>();
-        executor = Executors.newFixedThreadPool(maxConnections);
+        maxThreads = maxConnections;
+        executor = Executors.newFixedThreadPool(maxThreads);
         this.password = password;
     }
 
@@ -350,7 +351,7 @@ public abstract class MPDConnection {
                 result = readFromServer();
                 dataReaded = true;
             } catch (SocketTimeoutException e) {
-                Log.w(MPDConnection.class.getSimpleName(), "Socket timeout while reading server response : " + e);
+                w(MPDConnection.class.getSimpleName(), "Socket timeout while reading server response : " + e);
             } catch (IOException e) {
                 throw new MPDConnectionException(e);
             }
@@ -393,12 +394,6 @@ public abstract class MPDConnection {
         @Override
         public MPDCommandResult call() throws Exception {
             boolean retryable = true;
-            Random r = new Random();
-            int Low = 0;
-            int High = 5;
-            int R = r.nextInt(High - Low) + Low;
-            //Thread.sleep(1000 * R);
-
             MPDCommandResult result = new MPDCommandResult();
 
             while (result.getResult() == null && retry < MAX_REQUEST_RETRY && !cancelled && retryable) {
@@ -445,6 +440,7 @@ public abstract class MPDConnection {
                 //Nothing to do
             }
             innerConnect();
+            refreshAllConnections();
         } catch (MPDServerException e) {
             result.setLastexception(e);
         }
@@ -486,4 +482,19 @@ public abstract class MPDConnection {
         return !cancelled;
     }
 
+    private void refreshAllConnections() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < maxThreads; i++) {
+                    try {
+                        processRequest(new MPDCommand(MPDCommand.MPD_CMD_PING));
+                    } catch (MPDServerException e) {
+                        w(MPDConnection.class.getSimpleName(), "All connection refresh failure : " + e);
+                    }
+                }
+            }
+        }).start();
+    }
 }
