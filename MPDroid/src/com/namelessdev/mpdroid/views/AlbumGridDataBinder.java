@@ -18,8 +18,8 @@ import java.util.List;
 public class AlbumGridDataBinder extends AlbumDataBinder {
     SharedPreferences settings;
 
-    public AlbumGridDataBinder(MPDApplication app, String artist, boolean isLightTheme) {
-        super(app, artist, isLightTheme);
+    public AlbumGridDataBinder(MPDApplication app, boolean isLightTheme) {
+        super(app, isLightTheme);
         settings = PreferenceManager.getDefaultSharedPreferences(app);
     }
 

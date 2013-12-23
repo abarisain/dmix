@@ -14,17 +14,17 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.UnknownArtist;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 
 import java.util.List;
 
 public class AlbumDataBinder extends BaseDataBinder {
-    String artist = null;
 
-    public AlbumDataBinder(MPDApplication app, String artist, boolean isLightTheme) {
+    public AlbumDataBinder(MPDApplication app, boolean isLightTheme) {
         super(app, isLightTheme);
-        this.artist = artist;
     }
 
     public void onDataBind(final Context context, final View targetView, final AbstractViewHolder viewHolder, List<? extends Item> items,
@@ -32,6 +32,7 @@ public class AlbumDataBinder extends BaseDataBinder {
         AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
 
         final Album album = (Album) item;
+        Artist artist = album.getArtist();
         String info = "";
         final long songCount = album.getSongCount();
         if (album.getYear() > 0)
@@ -52,7 +53,7 @@ public class AlbumDataBinder extends BaseDataBinder {
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-        if (artist == null) {
+        if (artist == null || artist instanceof UnknownArtist) {
             holder.albumCover.setVisibility(View.GONE);
             holder.coverArtProgress.setVisibility(View.GONE);
         } else {
