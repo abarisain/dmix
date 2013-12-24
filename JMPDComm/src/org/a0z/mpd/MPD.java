@@ -1274,22 +1274,22 @@ public class MPD {
 
         if(artist != null) {
             albumNames = listAlbums(artist.getName(), _useAlbumArtist);
-        }else{
+        } else {
             albumNames = listAlbums(false);
-            artist =  unknownArtist;
         }
 
         if (null!=albumNames && !albumNames.isEmpty()) {
             albums=new ArrayList<Album>();
             for (String album : albumNames) {
-                if(album == "") {
+                if (album.equals("")) {
                     // add a blank entry to host all songs without an album set
                     albums.add(UnknownAlbum.instance);
-                }else{
+                } else {
                     long songCount = 0;
                     long duration = 0;
                     long year = 0;
-                    if (unknownArtist != artist && ((MPD.showAlbumTrackCount() && trackCountNeeded) || MPD.sortAlbumsByYear())) {
+                    if (null != artist && unknownArtist != artist &&
+                        ((MPD.showAlbumTrackCount() && trackCountNeeded) || MPD.sortAlbumsByYear())) {
                         try {
                             Long[] albumDetails = getAlbumDetails(artist.getName(), album, _useAlbumArtist);
                             if (null!=albumDetails && 3==albumDetails.length) {
@@ -1303,7 +1303,7 @@ public class MPD {
                     albums.add(new Album(album, songCount, duration, year, artist));
                 }
             }
-            if (!_useAlbumArtist  && artist != unknownArtist) {
+            if (null != artist && !_useAlbumArtist  && artist != unknownArtist) {
                 fixAlbumArtists(albums);
             }
         }

@@ -123,7 +123,7 @@ public class Album extends Item implements Parcelable {
                 }
             }
             int comp = super.compareTo(o);
-            if (comp == 0) { // same album name, check artist
+            if (comp == 0 && artist != null) { // same album name, check artist
                 comp = artist.compareTo(oa.artist);
             }
         }
