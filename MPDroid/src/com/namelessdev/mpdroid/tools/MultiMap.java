@@ -67,6 +67,7 @@ public class MultiMap<K, V> implements Serializable {
     }
 
     /**
+     * Check if map is empty.
      * @see {@link Map#isEmpty()}
      */
     public boolean isEmpty() {
@@ -74,7 +75,6 @@ public class MultiMap<K, V> implements Serializable {
     }
 
     /**
-     * Check if map is empty.
      */
     public Set<K> keySet() {
         return mInternalMap.keySet();
