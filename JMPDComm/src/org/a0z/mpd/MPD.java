@@ -1216,9 +1216,10 @@ public class MPD {
             return aasongs;
     }
 
-    public List<Music> getSongs(Artist artist, Album album, boolean useAlbumArtist) throws MPDServerException {
+    public String[] getSongsCommand(String artist, String album,
+                                    boolean useAlbumArtist) {
         boolean haveArtist = (null != artist);
-        boolean haveAlbum = (null != album) && !(album instanceof UnknownAlbum);
+        boolean haveAlbum = (null != album);
         String[] search = null;
 
         int pos=0;
@@ -1226,14 +1227,24 @@ public class MPD {
             search=new String[haveAlbum && haveArtist ? 4 : 2];
             if (haveArtist) {
                 search[pos++] = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_FIND_ARTIST;
-                search[pos++]=artist.getName();
+                search[pos++]=artist;
             }
             if (haveAlbum) {
                 search[pos++]=MPDCommand.MPD_FIND_ALBUM;
-                search[pos++]=album.getName();
+                search[pos++]=album;
             }
         }
-        List<Music> songs=find(search);
+        return search;
+    }
+
+    public List<Music> getSongs(Artist artist, Album album,
+                                boolean useAlbumArtist) throws MPDServerException {
+
+        String[] command = getSongsCommand
+            ((artist == null) ? null : artist.getName(),
+             (album == null || album instanceof UnknownAlbum)? null : album.getName(),
+             useAlbumArtist);
+        List<Music> songs = genericSearch(MPDCommand.MPD_CMD_FIND, command, true);
         if(album instanceof UnknownAlbum) {
             // filter out any songs with which have the album tag set
             Iterator<Music> iter = songs.iterator();
