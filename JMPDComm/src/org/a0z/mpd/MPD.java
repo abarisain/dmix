@@ -1274,22 +1274,22 @@ public class MPD {
 
         if(artist != null) {
             albumNames = listAlbums(artist.getName(), _useAlbumArtist);
-        }else{
+        } else {
             albumNames = listAlbums(false);
-            artist =  unknownArtist;
         }
 
         if (null!=albumNames && !albumNames.isEmpty()) {
             albums=new ArrayList<Album>();
             for (String album : albumNames) {
-                if(album == "") {
+                if (album.equals("")) {
                     // add a blank entry to host all songs without an album set
                     albums.add(UnknownAlbum.instance);
-                }else{
+                } else {
                     long songCount = 0;
                     long duration = 0;
                     long year = 0;
-                    if (unknownArtist != artist && ((MPD.showAlbumTrackCount() && trackCountNeeded) || MPD.sortAlbumsByYear())) {
+                    if (null != artist && unknownArtist != artist &&
+                        ((MPD.showAlbumTrackCount() && trackCountNeeded) || MPD.sortAlbumsByYear())) {
                         try {
                             Long[] albumDetails = getAlbumDetails(artist.getName(), album, _useAlbumArtist);
                             if (null!=albumDetails && 3==albumDetails.length) {
@@ -1303,7 +1303,7 @@ public class MPD {
                     albums.add(new Album(album, songCount, duration, year, artist));
                 }
             }
-            if (!_useAlbumArtist  && artist != unknownArtist) {
+            if (null != artist && !_useAlbumArtist  && artist != unknownArtist) {
                 fixAlbumArtists(albums);
             }
         }
@@ -1313,7 +1313,36 @@ public class MPD {
         return albums;
     }
 
-    void fixAlbumArtists(List<Album> albums) {
+    protected void addAlbumPaths(List<Album> albums) {
+        if (albums == null || albums.size() == 0) {
+            return;
+        }
+        List<String[]> paths;
+         for (Album a : albums) {
+            Artist artist = a.getArtist();
+            try {
+                List<Music> songs = getFirstTrack(a);
+                if (songs.size() > 0) {
+                    a.setPath(songs.get(0).getPath());
+                }
+            } catch (MPDServerException e) {
+            }
+        }
+    }
+
+    /*
+     * For all given albums, check if they have an albumartist and if
+     * yes set the albums's artist to it.
+     * If more than one albumartist is found, it's multiple albums, so
+     * split it
+     *
+     * The server call can be slow for long album lists
+     *
+     */
+    protected void fixAlbumArtists(List<Album> albums) {
+        if (albums == null || albums.size() == 0) {
+            return;
+        }
         List<String[]> albumartists;
         try {
             albumartists = listArtists(albums,true);
@@ -1323,16 +1352,16 @@ public class MPD {
         if (albumartists == null || albumartists.size() != albums.size()) {
             return;
         }
-        int i = 0;
         List<Album> splitalbums = new ArrayList<Album>();
+        int i = 0;
         for (Album a : albums) {
             String[] aartists = albumartists.get(i);
             if (aartists.length > 0) {
-                a.setArtist(new Artist(aartists[0]));  // fix this album
+                a.setArtist(new Artist(aartists[0], true));  // fix this album
                 if (aartists.length > 1) { // it's more than one album, insert
                     for (int n = 1; n < aartists.length; n++){
                         Album newalbum = new Album(a.getName(),
-                                                   new Artist(aartists[n]));
+                                                   new Artist(aartists[n], true));
                         splitalbums.add(newalbum);
                     }
                 }
@@ -1340,7 +1369,6 @@ public class MPD {
             i++;
         }
         albums.addAll(splitalbums);
-        Collections.sort(albums);
     }
 
     public List<Genre> getGenres() throws MPDServerException {
@@ -1360,13 +1388,20 @@ public class MPD {
     }
 
     public List<Artist> getArtists() throws MPDServerException {
-        List<String> artistNames=MPD.useAlbumArtist() ? listAlbumArtists() : listArtists(true);
+        return getArtists(MPD.useAlbumArtist);
+    }
+
+    public List<Artist> getArtists(boolean useAlbumArtist) throws MPDServerException {
+        List<String> artistNames = useAlbumArtist ? listAlbumArtists() : listArtists(true);
         List<Artist> artists = null;
 
         if (null!=artistNames && !artistNames.isEmpty()) {
             artists=new ArrayList<Artist>();
             for (String artist : artistNames) {
-                artists.add(new Artist(artist, MPD.showArtistAlbumCount() ? getAlbumCount(artist, useAlbumArtist) : 0));
+                artists.add(new Artist(artist,
+                                       MPD.showArtistAlbumCount() ?
+                                       getAlbumCount(artist, useAlbumArtist) : 0,
+                                       useAlbumArtist));
             }
         }
         if (null!=artists) {
@@ -1376,13 +1411,20 @@ public class MPD {
     }
 
     public List<Artist> getArtists(Genre genre) throws MPDServerException {
-        List<String> artistNames = MPD.useAlbumArtist() ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
+        return getArtists(genre, MPD.useAlbumArtist);
+    }
+
+    public List<Artist> getArtists(Genre genre, boolean useAlbumArtist) throws MPDServerException {
+        List<String> artistNames = useAlbumArtist ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
         List<Artist> artists = null;
 
         if (null != artistNames && !artistNames.isEmpty()) {
             artists = new ArrayList<Artist>();
             for (String artist : artistNames) {
-                artists.add(new Artist(artist, MPD.showArtistAlbumCount() ? getAlbumCount(artist, useAlbumArtist) : 0));
+                artists.add(new Artist(artist,
+                                       MPD.showArtistAlbumCount() ?
+                                       getAlbumCount(artist, useAlbumArtist) : 0,
+                                       useAlbumArtist));
             }
         }
         if (null != artists) {
