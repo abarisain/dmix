@@ -93,6 +93,9 @@
                        android:resource="@xml/widget_provider_simple_with_stop"></meta-data>
         </receiver>
         <service android:name=".widgets.WidgetHelperService" android:enabled="true"></service>
+        <provider android:name=".SearchRecentProvider"
+            android:exported="false"
+            android:authorities="com.namelessdev.mpdroid.recent_searches_authority" />
     </application>
 
 </manifest> 

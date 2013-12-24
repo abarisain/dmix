@@ -7,13 +7,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.*;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.provider.SearchRecentSuggestions;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;
+
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDOutput;
 import org.a0z.mpd.MPDStatus;
@@ -280,6 +283,10 @@ public class SettingsActivity extends PreferenceActivity implements
             CheckBoxPreference cPause = (CheckBoxPreference) findPreference("pauseOnPhoneStateChange");
             CheckBoxPreference c = (CheckBoxPreference) findPreference("playOnPhoneStateChange");
             c.setEnabled(cPause.isChecked());
+        } else if (preference.getKey().equals("clearSearchHistory")) {
+            final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
+            suggestions.clearHistory();
+            preference.setEnabled(false);
         }
         return false;
 

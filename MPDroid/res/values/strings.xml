@@ -237,5 +237,6 @@
 
 	<string name="nowPlayingSettingsTitle">Now Playing settings</string>
 	<string name="enableSmallSeekbars">Use small seekbars</string>
+	<string name="clearSearchHistory">Clear search history</string>
 	
 </resources>

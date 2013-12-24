@@ -15,6 +15,7 @@ import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.SearchRecentSuggestions;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -140,6 +141,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         if (Intent.ACTION_SEARCH.equals(queryAction)) {
             searchKeywords = queryIntent.getStringExtra(SearchManager.QUERY).trim();
+            final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
+            suggestions.saveRecentQuery(searchKeywords, null);
         } else {
             return; // Bye !
         }

@@ -246,6 +246,10 @@
             android:key="lightTheme"
             android:persistent="true"
             android:title="@string/enableLightTheme" />
+        
+        <PreferenceScreen
+            android:key="clearSearchHistory"
+            android:title="@string/clearSearchHistory" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/behavior" >
