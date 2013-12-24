@@ -225,6 +225,8 @@ public class SongsFragment extends BrowseFragment {
             }
         });
 
+        updateFromItems();
+        
         return view;
     }
 
@@ -282,7 +284,7 @@ public class SongsFragment extends BrowseFragment {
     @Override
     public void updateFromItems() {
         super.updateFromItems();
-        if (items != null) {
+        if (items != null && headerArtist != null && headerInfo != null) {
             AlbumInfo fixedAlbumInfo;
             fixedAlbumInfo = getFixedAlbumInfo();
             headerArtist.setText(fixedAlbumInfo.getArtist());
