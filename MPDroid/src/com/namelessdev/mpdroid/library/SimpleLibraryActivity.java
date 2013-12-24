@@ -80,8 +80,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
                         }
                         rootFragment = af;
                     } else if (targetElement instanceof Album) {
-                        rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST),
-                                (Album) targetElement);
+                        rootFragment = new SongsFragment().init((Album) targetElement);
                     } else if (targetElement instanceof String) {
                         rootFragment = new FSFragment().init((String) targetElement);
                     }

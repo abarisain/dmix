@@ -82,7 +82,7 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
-        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init(artist, (Album) items.get(position)),
+        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(new SongsFragment().init((Album) items.get(position)),
                 "songs");
     }
 
