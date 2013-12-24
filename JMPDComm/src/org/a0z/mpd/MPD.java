@@ -550,6 +550,10 @@ public class MPD {
             args[5] = "1";
             songs = search(args);
         }
+        if (null==songs || songs.isEmpty()) {
+            String[] args2 = Arrays.copyOf(args, 4); // find all tracks
+            songs = find(args2);
+        }
         return songs;
     }
 
