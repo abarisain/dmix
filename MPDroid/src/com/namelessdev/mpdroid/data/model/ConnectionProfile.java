@@ -12,6 +12,7 @@ public class ConnectionProfile {
     private String streamingSuffix;
     private String musicPath;
     private String coverFilename;
+    private Boolean useDatabaseCache;
     
     public ConnectionProfile() {
         this.id = 0l;
@@ -99,6 +100,14 @@ public class ConnectionProfile {
 
     public void setCoverFilename(String coverFilename) {
         this.coverFilename = coverFilename;
+    }
+
+    public Boolean usesDatabaseCache() {
+        return useDatabaseCache;
+    }
+
+    public void setUseDatabaseCache(Boolean useDatabaseCache) {
+        this.useDatabaseCache = useDatabaseCache;
     }
     
 }

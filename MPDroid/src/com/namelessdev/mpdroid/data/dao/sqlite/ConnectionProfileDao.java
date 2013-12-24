@@ -22,6 +22,7 @@ public class ConnectionProfileDao extends BaseDBHelper<ConnectionProfile> implem
     private static final String COL_STREAMING_SUFFIX = "streamingSuffix";
     private static final String COL_MUSIC_PATH = "musicPath";
     private static final String COL_COVER_FILENAME = "coverFilename";
+    private static final String COL_USE_DATABASE_CACHE = "useDatabaseCache";
 
     private Map<String, Integer> columnIds;
 
@@ -29,8 +30,7 @@ public class ConnectionProfileDao extends BaseDBHelper<ConnectionProfile> implem
         db.execSQL(String
                 .format("CREATE TABLE %s (%s INTEGER PRIMARY KEY, %s TEXT, %s TEXT, %s TEXT, %s TEXT, %s TEXT, %s TEXT, %s TEXT, %s TEXT, %s TEXT)",
                         TABLE_CONNECTION_PROFILE, COL_ID, COL_NAME, COL_HOSTNAME, COL_PORT, COL_PASSWORD, COL_STREAMING_HOSTNAME,
-                        COL_STREAMING_PORT,
-                        COL_STREAMING_SUFFIX, COL_MUSIC_PATH, COL_COVER_FILENAME));
+                        COL_STREAMING_PORT, COL_STREAMING_SUFFIX, COL_MUSIC_PATH, COL_COVER_FILENAME, COL_USE_DATABASE_CACHE));
     }
 
     @Override
@@ -46,6 +46,7 @@ public class ConnectionProfileDao extends BaseDBHelper<ConnectionProfile> implem
         content.put(COL_STREAMING_SUFFIX, object.getStreamingSuffix());
         content.put(COL_MUSIC_PATH, object.getMusicPath());
         content.put(COL_COVER_FILENAME, object.getCoverFilename());
+        content.put(COL_USE_DATABASE_CACHE, object.usesDatabaseCache() ? 1 : 0);
         return content;
     }
 
@@ -62,6 +63,7 @@ public class ConnectionProfileDao extends BaseDBHelper<ConnectionProfile> implem
         profile.setStreamingSuffix(cursor.getString(columnIds.get(COL_STREAMING_SUFFIX)));
         profile.setMusicPath(cursor.getString(columnIds.get(COL_MUSIC_PATH)));
         profile.setCoverFilename(cursor.getString(columnIds.get(COL_COVER_FILENAME)));
+        profile.setUseDatabaseCache(cursor.getInt(columnIds.get(COL_USE_DATABASE_CACHE)) > 0 ? true : false);
         return profile;
     }
 
@@ -78,6 +80,7 @@ public class ConnectionProfileDao extends BaseDBHelper<ConnectionProfile> implem
         columnIds.put(COL_STREAMING_SUFFIX, -1);
         columnIds.put(COL_MUSIC_PATH, -1);
         columnIds.put(COL_COVER_FILENAME, -1);
+        columnIds.put(COL_USE_DATABASE_CACHE, -1);
         fillColumnMap(cursor, columnIds);
     }
 
