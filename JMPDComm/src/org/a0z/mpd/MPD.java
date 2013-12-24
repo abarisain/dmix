@@ -550,7 +550,7 @@ public class MPD {
             args[5] = "1";
             songs = search(args);
         }
-        return find(args);
+        return songs;
     }
 
 
