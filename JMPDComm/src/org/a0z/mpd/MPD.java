@@ -684,9 +684,13 @@ public class MPD {
      *            if an error occurs while contacting server.
      */
     public List<String[]> listArtists(List<Album> albums, boolean albumArtist) throws MPDServerException {
-        if(!isConnected())
+        if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
-
+        }
+        ArrayList<String []> result = new ArrayList<String[]>();
+        if (albums == null) {
+            return result;
+        }
         for (Album a : albums) {
             mpdConnection.queueCommand
                 (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
@@ -697,7 +701,6 @@ public class MPD {
         }
         List<String[]> responses =  mpdConnection.sendCommandQueueSeparated();
 
-        ArrayList<String []> result = new ArrayList<String[]>();
         for (String[] r : responses){
             ArrayList<String> albumresult = new ArrayList<String>();
             for (String s : r) {
