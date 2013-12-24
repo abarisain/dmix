@@ -66,12 +66,12 @@ public class SongsFragment extends BrowseFragment {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         if (icicle != null)
-            init((Artist) icicle.getParcelable(EXTRA_ARTIST), (Album) icicle.getParcelable(EXTRA_ALBUM));
+            init((Album) icicle.getParcelable(EXTRA_ALBUM));
     }
 
-    public SongsFragment init(Artist ar, Album al) {
-        artist = ar;
+    public SongsFragment init(Album al) {
         album = al;
+        artist = al.getArtist();
         return this;
     }
 

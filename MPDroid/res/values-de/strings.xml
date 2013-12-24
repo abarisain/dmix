@@ -168,12 +168,12 @@
     <string name="sortAlbumsByYear">Erscheinungsjahr</string>
     <string name="sortAlbumsByYearDescription">Sortiere Alben nach Erscheinungsjahr</string>
     <string name="singleMode">Einzelmodus</string>
-    <string name="playNext">Nächstes Stück</string>
-    <string name="go_to">Gehen Sie zu ...</string>
+    <string name="playNext">Als Nächstes einordnen</string>
+    <string name="go_to">Gehe zu ...</string>
     <string name="playOnPhoneStateChange">Wiedergabe fortsetzen</string>
     <string name="playOnPhoneStateChangeDescription">Wiedergabe fortsetzen, wenn Anruf beendet</string>
-    <string name="moveFirst">Zum Anfang springen</string>
-    <string name="moveLast">Zum Ende springen</string>
+    <string name="moveFirst">An den Anfang verschieben</string>
+    <string name="moveLast">Ans Ende verschieben</string>
     <string name="removeFromPlaylist">Von der Wiedergabeliste entfernen</string>
     <string name="removeAlbumFromPlaylist">Album entfernen</string>
     <string name="removeCountSongs">%s Titel entfernt</string>
