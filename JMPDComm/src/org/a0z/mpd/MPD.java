@@ -530,6 +530,30 @@ public class MPD {
         return result;
     }
 
+
+
+    protected List<Music> getFirstTrack(Album album) throws MPDServerException {
+        Artist artist = album.getArtist();
+        String[] args = new String[6];
+        args[0] = artist.isAlbumArtist() ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_TAG_ARTIST;
+        args[1] = artist.getName();
+        args[2] = MPDCommand.MPD_TAG_ALBUM;
+        args[3] = album.getName();
+        args[4] = "track";
+        args[5] = "1";
+        List<Music> songs = find(args);
+        if (null==songs || songs.isEmpty()) {
+            args[5] = "01";
+            songs = find(args);
+        }
+        if (null==songs || songs.isEmpty()) {
+            args[5] = "1";
+            songs = search(args);
+        }
+        return find(args);
+    }
+
+
     private Long[] getAlbumDetails(String artist, String album, boolean useAlbumArtistTag) throws MPDServerException {
         if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
