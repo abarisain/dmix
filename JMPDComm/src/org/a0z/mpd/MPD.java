@@ -1388,13 +1388,20 @@ public class MPD {
     }
 
     public List<Artist> getArtists() throws MPDServerException {
-        List<String> artistNames=MPD.useAlbumArtist() ? listAlbumArtists() : listArtists(true);
+        return getArtists(MPD.useAlbumArtist);
+    }
+
+    public List<Artist> getArtists(boolean useAlbumArtist) throws MPDServerException {
+        List<String> artistNames = useAlbumArtist ? listAlbumArtists() : listArtists(true);
         List<Artist> artists = null;
 
         if (null!=artistNames && !artistNames.isEmpty()) {
             artists=new ArrayList<Artist>();
             for (String artist : artistNames) {
-                artists.add(new Artist(artist, MPD.showArtistAlbumCount() ? getAlbumCount(artist, useAlbumArtist) : 0));
+                artists.add(new Artist(artist,
+                                       MPD.showArtistAlbumCount() ?
+                                       getAlbumCount(artist, useAlbumArtist) : 0,
+                                       useAlbumArtist));
             }
         }
         if (null!=artists) {
@@ -1404,13 +1411,20 @@ public class MPD {
     }
 
     public List<Artist> getArtists(Genre genre) throws MPDServerException {
-        List<String> artistNames = MPD.useAlbumArtist() ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
+        return getArtists(genre, MPD.useAlbumArtist);
+    }
+
+    public List<Artist> getArtists(Genre genre, boolean useAlbumArtist) throws MPDServerException {
+        List<String> artistNames = useAlbumArtist ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
         List<Artist> artists = null;
 
         if (null != artistNames && !artistNames.isEmpty()) {
             artists = new ArrayList<Artist>();
             for (String artist : artistNames) {
-                artists.add(new Artist(artist, MPD.showArtistAlbumCount() ? getAlbumCount(artist, useAlbumArtist) : 0));
+                artists.add(new Artist(artist,
+                                       MPD.showArtistAlbumCount() ?
+                                       getAlbumCount(artist, useAlbumArtist) : 0,
+                                       useAlbumArtist));
             }
         }
         if (null != artists) {
