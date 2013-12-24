@@ -160,12 +160,28 @@ public class Music extends Item implements FilesystemTreeEntry {
         return null;
     }
 
+    public Artist getArtistAsArtist() {
+        return isEmpty(artist) ?
+            UnknownArtist.instance : new Artist(artist, 0, false);
+    }
+    public Artist getAlbumArtistAsArtist() {
+        return isEmpty(albumartist) ?
+            UnknownArtist.instance : new Artist(albumartist, 0, true);
+    }
+
+
     public String getAlbumArtistOrArtist() {
         return isEmpty(albumartist) ? artist : albumartist;
     }
 
     public void setAlbumArtist(String albumartist) {
         this.albumartist = albumartist;
+    }
+
+    public Album getAlbumAsAlbum() {
+        boolean is_aa = !isEmpty(albumartist);
+        Artist art = new Artist((is_aa ? albumartist : artist), is_aa);
+        return new Album(album, art);
     }
 
 

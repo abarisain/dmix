@@ -47,8 +47,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
     @Override
     protected ListAdapter getCustomListAdapter() {
         if (items != null) {
-            return new ArrayAdapter(getActivity(),
-                    new AlbumGridDataBinder(app, artist == null ? null : artist.getName(), app.isLightThemeSelected()), items);
+                return new ArrayAdapter(getActivity(), new AlbumGridDataBinder(app, app.isLightThemeSelected()), items);
         }
         return super.getCustomListAdapter();
     }
