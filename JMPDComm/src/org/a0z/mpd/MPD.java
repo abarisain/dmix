@@ -1313,7 +1313,36 @@ public class MPD {
         return albums;
     }
 
-    void fixAlbumArtists(List<Album> albums) {
+    protected void addAlbumPaths(List<Album> albums) {
+        if (albums == null || albums.size() == 0) {
+            return;
+        }
+        List<String[]> paths;
+         for (Album a : albums) {
+            Artist artist = a.getArtist();
+            try {
+                List<Music> songs = getFirstTrack(a);
+                if (songs.size() > 0) {
+                    a.setPath(songs.get(0).getPath());
+                }
+            } catch (MPDServerException e) {
+            }
+        }
+    }
+
+    /*
+     * For all given albums, check if they have an albumartist and if
+     * yes set the albums's artist to it.
+     * If more than one albumartist is found, it's multiple albums, so
+     * split it
+     *
+     * The server call can be slow for long album lists
+     *
+     */
+    protected void fixAlbumArtists(List<Album> albums) {
+        if (albums == null || albums.size() == 0) {
+            return;
+        }
         List<String[]> albumartists;
         try {
             albumartists = listArtists(albums,true);
@@ -1323,16 +1352,16 @@ public class MPD {
         if (albumartists == null || albumartists.size() != albums.size()) {
             return;
         }
-        int i = 0;
         List<Album> splitalbums = new ArrayList<Album>();
+        int i = 0;
         for (Album a : albums) {
             String[] aartists = albumartists.get(i);
             if (aartists.length > 0) {
-                a.setArtist(new Artist(aartists[0]));  // fix this album
+                a.setArtist(new Artist(aartists[0], true));  // fix this album
                 if (aartists.length > 1) { // it's more than one album, insert
                     for (int n = 1; n < aartists.length; n++){
                         Album newalbum = new Album(a.getName(),
-                                                   new Artist(aartists[n]));
+                                                   new Artist(aartists[n], true));
                         splitalbums.add(newalbum);
                     }
                 }
@@ -1340,7 +1369,6 @@ public class MPD {
             i++;
         }
         albums.addAll(splitalbums);
-        Collections.sort(albums);
     }
 
     public List<Genre> getGenres() throws MPDServerException {
