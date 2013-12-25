@@ -288,7 +288,6 @@ public class StreamsFragment extends BrowseFragment {
         }
         new AlertDialog.Builder(getActivity())
                 .setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
-                .setMessage(R.string.streamDetails)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
