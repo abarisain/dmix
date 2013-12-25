@@ -45,7 +45,7 @@
     <string name="removeSong">Titel entfernen</string>
     <string name="removeSongs">Titel entfernen</string>
     <string name="clear">Leeren</string>
-    <string name="addDirectory">Verzeichnis hinzufügen</string>
+    <string name="addDirectory">Hinzufügen</string>
     <string name="mainMenu">Hauptmenü</string>
     <string name="loadingStreams">Lade Streams…</string>
     <string name="playlistCleared">Wiedergabeliste geleert</string>
