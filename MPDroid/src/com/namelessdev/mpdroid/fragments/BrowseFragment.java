@@ -5,6 +5,9 @@ import java.util.List;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.exception.MPDServerException;
 
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -31,7 +34,8 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 
-public abstract class BrowseFragment extends Fragment implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
+public abstract class BrowseFragment extends Fragment implements OnMenuItemClickListener, AsyncExecListener, OnItemClickListener,
+        OnRefreshListener {
 
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 50;
 
@@ -53,6 +57,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     protected TextView loadingTextView;
     protected View noResultView;
     protected AbsListView list;
+    protected PullToRefreshLayout pullToRefreshLayout;
     private boolean firstUpdateDone = false;
 
     String context;
@@ -112,6 +117,8 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         loadingTextView = (TextView) view.findViewById(R.id.loadingText);
         noResultView = view.findViewById(R.id.noResultLayout);
         loadingTextView.setText(getLoadingText());
+        pullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.pullToRefresh);
+
         return view;
     }
 
@@ -122,6 +129,12 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
             list.setAdapter(getCustomListAdapter());
         }
         refreshFastScrollStyle();
+        if (pullToRefreshLayout != null) {
+            ActionBarPullToRefresh.from(getActivity())
+                    .allChildrenArePullable()
+                    .listener(this)
+                    .setup(pullToRefreshLayout);
+        }
     }
 
     @Override
@@ -259,10 +272,10 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                                     }
                                 }
                             }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            // Do nothing.
-                        }
-                    }).show();
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    // Do nothing.
+                                }
+                            }).show();
                 } else {
                     add(items.get(id), item.getTitle().toString());
                 }
@@ -315,7 +328,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         return new ArrayIndexerAdapter(getActivity(), R.layout.simple_list_item_1, items);
     }
 
-    //Override if you want setEmptyView to be called on the list even if you have a header
+    // Override if you want setEmptyView to be called on the list even if you have a header
     protected boolean forceEmptyView() {
         return false;
     }
@@ -342,7 +355,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     protected int getMinimumItemsCountBeforeFastscroll() {
         return MIN_ITEMS_BEFORE_FASTSCROLL;
     }
-    
+
     /**
      * This method is used for the fastcroll visibility decision.<br/>
      * Don't override this if you want to change the fastscroll style,
@@ -351,7 +364,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     protected void refreshFastScrollStyle() {
         refreshFastScrollStyle(items != null && items.size() >= getMinimumItemsCountBeforeFastscroll());
     }
-    
+
     /**
      * Override this for custom fastscroll style
      * Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.<br/>
@@ -382,4 +395,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         }
     }
 
+    @Override
+    public void onRefreshStarted(View view) {
+        pullToRefreshLayout.setRefreshComplete();
+        UpdateList();
+    }
 }

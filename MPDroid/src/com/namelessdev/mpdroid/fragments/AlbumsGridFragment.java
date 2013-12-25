@@ -2,6 +2,7 @@ package com.namelessdev.mpdroid.fragments;
 
 import org.a0z.mpd.Artist;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +41,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
         noResultView = view.findViewById(R.id.noResultLayout);
         loadingTextView.setText(getLoadingText());
         coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+        pullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.pullToRefresh);
 
         return view;
     }
