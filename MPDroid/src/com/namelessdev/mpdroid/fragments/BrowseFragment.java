@@ -168,6 +168,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         list.setAdapter(null);
         noResultView.setVisibility(View.GONE);
         loadingView.setVisibility(View.VISIBLE);
+        if (pullToRefreshLayout != null) {
+            pullToRefreshLayout.setEnabled(false);
+        }
 
         // Loading Artists asynchronous...
         app.oMPDAsyncHelper.addAsyncExecListener(this);
@@ -306,6 +309,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         if (getView() == null) {
             // The view has been destroyed, bail.
             return;
+        }
+        if (pullToRefreshLayout != null) {
+            pullToRefreshLayout.setEnabled(true);
         }
         if (items != null) {
             list.setAdapter(getCustomListAdapter());
