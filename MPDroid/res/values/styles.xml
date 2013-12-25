@@ -43,6 +43,7 @@
         <item name="cardBackground">@drawable/card_dark</item>
         <item name="android:windowBackground">@color/nowplaying_background</item>
         <item name="android:colorBackgroundCacheHint">@color/nowplaying_background</item>
+        <item name="android:colorBackground">@color/nowplaying_background</item>
     </style>
 
     <style name="AppTheme.Light" parent="@android:style/Theme.Holo.Light.DarkActionBar">
