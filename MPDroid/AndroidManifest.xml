@@ -152,78 +152,75 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.Hidden" >
 
-	    <!-- The following intent filters only common streaming file extensions,
-			scheme "file" is not supported until reverse streaming support is added -->
-	    <intent-filter>
-		<action android:name="android.intent.action.VIEW" />
+            <!--
+             The following intent filters only common streaming file extensions,
+			scheme "file" is not supported until reverse streaming support is added
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-		<category android:name="android.intent.category.DEFAULT" />
-		<category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-		<data android:scheme="http" />
-		<data android:scheme="https" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:mimeType="audio/*" />
+            </intent-filter>
 
-		<data android:mimeType="audio/*" />
-	    </intent-filter>
+            <!-- If not caught by the above mimeType, try to catch with a basic pattern glob -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-	    <!-- If not caught by the above mimeType, try to catch with a basic pattern glob -->
-	    <intent-filter>
-	    <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-		<category android:name="android.intent.category.DEFAULT" />
-		<category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="*" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:pathPattern=".*\\.mp3" />
+                <data android:pathPattern=".*\\.mp4" />
+                <data android:pathPattern=".*\\.m4a" />
+                <data android:pathPattern=".*\\.ogg" />
+                <data android:pathPattern=".*\\.oga" />
+                <data android:pathPattern=".*\\.wma" />
+            </intent-filter>
 
-		<data android:host="*" />
+            <!-- mimeTypes to send to the playlist processor -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-		<data android:scheme="http" />
-		<data android:scheme="https" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-		<data android:pathPattern=".*\\.mp3" />
-		<data android:pathPattern=".*\\.mp4" />
-		<data android:pathPattern=".*\\.m4a" />
-		<data android:pathPattern=".*\\.ogg" />
-		<data android:pathPattern=".*\\.oga" />
-		<data android:pathPattern=".*\\.wma" />
-	    </intent-filter>
+                <data android:scheme="file" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:mimeType="audio/x-mpegurl" />
+                <data android:mimeType="audio/mpegurl" />
+                <data android:mimeType="application/vnd.apple.mpegurl" />
+                <data android:mimeType="application/x-mpegurl" />
+                <data android:mimeType="application/xspf+xml" />
+                <data android:mimeType="audio/x-scpls" />
+                <data android:mimeType="video/x-ms-asf" />
+            </intent-filter>
 
-	    <!-- mimeTypes to send to the playlist processor -->
-	    <intent-filter>
-		<action android:name="android.intent.action.VIEW" />
+            <!-- Basic glob pattern match extensions as a last resort -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-		<category android:name="android.intent.category.DEFAULT" />
-		<category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-		<data android:scheme="file" />
-		<data android:scheme="http" />
-		<data android:scheme="https" />
-		<data android:mimeType="audio/x-mpegurl" />
-		<data android:mimeType="audio/mpegurl" />
-		<data android:mimeType="application/vnd.apple.mpegurl" />
-		<data android:mimeType="application/x-mpegurl" />
-		<data android:mimeType="application/xspf+xml" />
-		<data android:mimeType="audio/x-scpls" />
-		<data android:mimeType="video/x-ms-asf" />
-	    </intent-filter>
-
-	    <!-- Basic glob pattern match extensions as a last resort -->
-	    <intent-filter>
-		<action android:name="android.intent.action.VIEW" />
-
-		<category android:name="android.intent.category.DEFAULT" />
-		<category android:name="android.intent.category.BROWSABLE" />
-
-		<data android:scheme="file" />
-		<data android:scheme="http" />
-		<data android:scheme="https" />
-
-		<data android:host="*" />
-
-		<data android:pathPattern=".*\\.asx" />
-		<data android:pathPattern=".*\\.m3u8" />
-		<data android:pathPattern=".*\\.m3u" />
-		<data android:pathPattern=".*\\.pls" />
-		<data android:pathPattern=".*\\.xspf" />
-	     </intent-filter>
+                <data android:scheme="file" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.asx" />
+                <data android:pathPattern=".*\\.m3u8" />
+                <data android:pathPattern=".*\\.m3u" />
+                <data android:pathPattern=".*\\.pls" />
+                <data android:pathPattern=".*\\.xspf" />
+            </intent-filter>
         </activity>
     </application>
 
