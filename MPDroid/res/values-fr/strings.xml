@@ -214,4 +214,15 @@
 	<string name="enableSmallSeekbars">Barres d\'avancement fines</string>
 	<string name="clearSearchHistory">Vider l\'historique de recherche</string>
 	<string name="streamSaved">Flux enregistré</string>
+	<string name="streams">Flux</string>
+	<string name="addStream">Ajouter le flux</string>
+	<string name="editStream">Modifier le flux</string>
+	<string name="streamAdded">Flux %s ajouté</string>
+	<string name="loadingStreams">Chargement des flux…</string>
+	<string name="streamDeleted">Flux %s supprimé</string>
+	<string name="deleteStream">Supprimer le flux</string>
+	<string name="deleteStreamPrompt">Êtes vous sur de vouloir supprimer %s?</string>
+	<string name="streamName">Nom :</string>
+	<string name="streamUrl">URL :</string>
+	<string name="streamDetails">Détails du flux :</string>
 </resources>

@@ -166,7 +166,7 @@
 	<string name="newPlaylistPrompt">Enter name for new playlist:</string>
 	<string name="streams">Streams</string>
 	<string name="addStream">Add Stream</string>
-	<string name="editStream">Edit Stream</string>
+	<string name="editStream">Edit stream</string>
 	<string name="streamAdded">Stream %s added</string>
 	<string name="loadingStreams">Loading streams…</string>
 	<string name="streamDeleted">Stream %s deleted</string>
