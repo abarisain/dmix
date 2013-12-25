@@ -6,10 +6,13 @@ before_install:
   - export PATH="${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools"
   - sudo apt-get update -qq
   - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
-  - echo yes |android update sdk --filter platform-tools,build-tools-18.0.1,android-18,extra-android-support,sysimg-18 --no-ui --force > /dev/null
+  - echo yes |android update sdk --filter platform-tools,build-tools-19,android-19,extra-android-support,sysimg-19 --no-ui --force > /dev/null
 
 script:
   - cd ./MPDroid
   - echo "sdk.dir=${ANDROID_HOME}" > local.properties
+  - cp local.properties ../DragSortListView/
+  - cp local.properties ../SmoothProgressBar/
+  - cp local.properties ../PullToRefresh/
   - ant clean
   - ant debug
