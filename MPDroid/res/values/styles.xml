@@ -12,8 +12,7 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
-
+  limitations under the License.
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -104,6 +103,15 @@
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">@color/info_sub_text_color</item>
         <item name="android:textColorHighlight">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.Hidden" parent="android:Theme.Holo.Light">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowNoDisplay">true</item>
     </style>
 
 </resources>

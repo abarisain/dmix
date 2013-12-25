@@ -167,15 +167,6 @@
                 <data android:mimeType="application/x-mpegurl" />
                 <data android:mimeType="audio/x-scpls" />
                 <data android:mimeType="application/xspf+xml" />
-            </intent-filter>
-            <!-- These can be added directly to MPD, though they might not be supported -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="http" />
                 <data android:mimeType="audio/*" />
             </intent-filter>
         </activity>
