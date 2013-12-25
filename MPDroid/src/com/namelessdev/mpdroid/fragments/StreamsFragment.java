@@ -19,6 +19,7 @@ import org.xmlpull.v1.XmlSerializer;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.LocalCover;
@@ -217,7 +219,7 @@ public class StreamsFragment extends BrowseFragment {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
 			case EDIT:
-				addEdit((int) info.id);
+                addEdit((int) info.id, null);
 				break;
 			case DELETE:
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -260,24 +262,29 @@ public class StreamsFragment extends BrowseFragment {
 		}
 	}
 
-	private void addEdit() {
-		addEdit(-1);
+    public void addEdit() {
+        addEdit(-1, null);
 	}
 
-	private void addEdit(int idx) {
+    /*
+     * StreamUrlToAdd is set when coming from the browser with "android.intent.action.VIEW"
+     */
+    public void addEdit(int idx, final String streamUrlToAdd) {
 		LayoutInflater factory = LayoutInflater.from(getActivity());
 		final View view = factory.inflate(R.layout.stream_dialog, null);
+        final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
+        final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
 		final int index = idx;
 		if (index >= 0 && index < streams.size()) {
 			Stream s = streams.get(idx);
-			EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
-			EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
 			if (null != nameEdit) {
 				nameEdit.setText(s.getName());
 			}
 			if (null != urlEdit) {
 				urlEdit.setText(s.getUrl());
 			}
+        } else if (streamUrlToAdd != null && urlEdit != null) {
+            urlEdit.setText(streamUrlToAdd);
 		}
 		new AlertDialog.Builder(getActivity())
 				.setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
@@ -297,14 +304,30 @@ public class StreamsFragment extends BrowseFragment {
 							Collections.sort(streams);
 							items = streams;
 							saveStreams();
-							UpdateList();
+                            if (streamUrlToAdd == null) {
+                                UpdateList();
+                            } else {
+                                Toast.makeText(getActivity(), R.string.streamSaved, Toast.LENGTH_SHORT).show();
+                            }
 						}
+                        if (streamUrlToAdd != null) {
+                            getActivity().finish();
+                        }
 					}
 				}).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						// Do nothing.
+                        if (streamUrlToAdd != null) {
+                            getActivity().finish();
+                        }
 					}
-				}).show();
+                }).setOnCancelListener(new OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        if (streamUrlToAdd != null) {
+                            getActivity().finish();
+                        }
+                    }
+                }).show();
 	}
 
 	@Override
