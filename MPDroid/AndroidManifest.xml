@@ -1,101 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.namelessdev.mpdroid" android:versionCode="40" android:versionName="1.06">
+    package="com.namelessdev.mpdroid"
+    android:versionCode="40"
+    android:versionName="1.06" >
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Required for JmDNS to see services available on the network -->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <!-- Cover art cache -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19"/>
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
 
-    <application android:icon="@drawable/icon"
-                 android:allowBackup="true"
-                 android:label="@string/app_name"
-                 android:theme="@style/AppTheme"
-                 android:name=".MPDApplication"
-                 android:hardwareAccelerated="true" android:largeHeap="true">
-        <meta-data android:name="android.app.default_searchable"
-                   android:value=".SearchActivity"/>
+    <application
+        android:name="com.namelessdev.mpdroid.MPDApplication"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".SearchActivity" />
         <!-- android:debuggable="true" -->
-        <activity android:name=".MainMenuActivity" android:theme="@style/AppTheme"
-                  android:label="@string/app_name"
-                  android:launchMode="singleTop"
-                  android:windowSoftInputMode="adjustNothing">
+        <activity
+            android:name="com.namelessdev.mpdroid.MainMenuActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustNothing" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.namelessdev.mpdroid.PLAYBACK_VIEWER"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.namelessdev.mpdroid.PLAYBACK_VIEWER" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <meta-data android:name="android.app.default_searchable"
-                       android:value=".SearchActivity"/>
+
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchActivity" />
         </activity>
-
-        <activity android:name=".SearchActivity" android:label="@string/search">
+        <activity
+            android:name="com.namelessdev.mpdroid.SearchActivity"
+            android:label="@string/search" >
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.SEARCH" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable"/>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
-        <activity android:name=".library.PlaylistEditActivity" android:label="@string/playlist">
+        <activity
+            android:name="com.namelessdev.mpdroid.library.PlaylistEditActivity"
+            android:label="@string/playlist" >
         </activity>
-        <activity android:name=".library.SimpleLibraryActivity" android:windowSoftInputMode="adjustNothing"/>
-        <activity android:name=".SettingsActivity" android:label="@string/settings"/>
-        <activity android:name=".WifiConnectionSettings"
-                  android:label="@string/settings" android:theme="@style/AppTheme"/>
-        <activity android:name=".ConnectionSettings" android:label="@string/settings"/>
-        <activity android:name=".library.LibraryTabsSettings" android:label="@string/libraryTabsSettings"/>
+        <activity
+            android:name="com.namelessdev.mpdroid.library.SimpleLibraryActivity"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name="com.namelessdev.mpdroid.SettingsActivity"
+            android:label="@string/settings" />
+        <activity
+            android:name="com.namelessdev.mpdroid.WifiConnectionSettings"
+            android:label="@string/settings"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.namelessdev.mpdroid.ConnectionSettings"
+            android:label="@string/settings" />
+        <activity
+            android:name="com.namelessdev.mpdroid.library.LibraryTabsSettings"
+            android:label="@string/libraryTabsSettings" />
+        <activity
+            android:name="com.namelessdev.mpdroid.ServerListActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.namelessdev.mpdroid.ServerBonjourListActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.namelessdev.mpdroid.AboutActivity"
+            android:label="@string/about" />
+        <activity
+            android:name="com.namelessdev.mpdroid.WarningActivity"
+            android:label="@string/warningTitle"
+            android:theme="@style/AppTheme.Dialog" />
 
-        <activity android:name=".ServerListActivity" android:theme="@style/AppTheme"/>
-        <activity android:name=".ServerBonjourListActivity" android:theme="@style/AppTheme"/>
+        <service
+            android:name="com.namelessdev.mpdroid.StreamingService"
+            android:enabled="true" />
 
-        <activity android:name=".AboutActivity" android:label="@string/about"/>
-        <activity android:name=".WarningActivity" android:label="@string/warningTitle"
-                  android:theme="@style/AppTheme.Dialog"/>
-
-        <service android:enabled="true" android:name="StreamingService"/>
-        <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">
-            <intent-filter android:priority="500">
-                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+        <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >
+            <intent-filter android:priority="500" >
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
+        </receiver>
+        <receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" >
+                </action>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_simple" >
+            </meta-data>
+        </receiver>
+        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProviderWithStop" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" >
+                </action>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_simple_with_stop" >
+            </meta-data>
         </receiver>
 
-        <receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE"/>
-            </intent-filter>
-        </receiver>
+        <service
+            android:name="com.namelessdev.mpdroid.widgets.WidgetHelperService"
+            android:enabled="true" >
+        </service>
 
-        <receiver android:name=".widgets.SimpleWidgetProvider">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"></action>
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                       android:resource="@xml/widget_provider_simple"></meta-data>
-        </receiver>
-        <receiver android:name=".widgets.SimpleWidgetProviderWithStop">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"></action>
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                       android:resource="@xml/widget_provider_simple_with_stop"></meta-data>
-        </receiver>
-        <service android:name=".widgets.WidgetHelperService" android:enabled="true"></service>
-        <provider android:name=".SearchRecentProvider"
-            android:exported="false"
-            android:authorities="com.namelessdev.mpdroid.recent_searches_authority" />
+        <provider
+            android:name="com.namelessdev.mpdroid.SearchRecentProvider"
+            android:authorities="com.namelessdev.mpdroid.recent_searches_authority"
+            android:exported="false" />
+
+        <activity
+            android:name="com.namelessdev.mpdroid.URIHandlerActivity"
+            android:label="@string/app_name" >
+        </activity>
     </application>
 
-</manifest> 
+</manifest>
