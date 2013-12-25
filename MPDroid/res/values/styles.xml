@@ -48,7 +48,6 @@
 
     <style name="AppTheme.Light" parent="@android:style/Theme.Holo.Light.DarkActionBar">
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
-        <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
         <item name="menuButton">@drawable/spinner_default_holo_light</item>
         <item name="listItemHandle">@drawable/ic_mp_move</item>
