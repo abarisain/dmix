@@ -179,12 +179,12 @@ public class Album extends Item implements Parcelable {
             };
 
     public AlbumInfo getAlbumInfo() {
-        return new AlbumInfo(getArtist().getName(), getName(), getPath(), "");
+        return new AlbumInfo(this);
     }
 
     public String info() {
-        return getArtist().info() + " // " + getName() +
-            ("".equals(path) ? "" : " ("+getPath()+")");
+        return (artist == null ? "null" : artist.info()) + " // " + name +
+            ("".equals(path) ? "" : " ("+path+")");
     }
 
 }
