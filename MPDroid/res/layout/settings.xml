@@ -84,12 +84,6 @@
     <PreferenceCategory android:title="@string/librarySettings" >
 
         <CheckBoxPreference
-            android:key="albumartist"
-            android:persistent="true"
-            android:summary="@string/albumartistDescription"
-            android:title="@string/albumartist" />
-
-        <CheckBoxPreference
             android:defaultValue="true"
             android:key="albumTrackSort"
             android:persistent="true"

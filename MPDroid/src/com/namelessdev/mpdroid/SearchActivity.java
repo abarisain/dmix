@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
+import org.a0z.mpd.UnknownArtist;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -371,24 +372,33 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 arraySongsResults.add(music);
             }
             valueFound = false;
-            tmpValue = music.getArtist();
-            if (tmpValue != null && tmpValue.toLowerCase().contains(finalsearch)) {
-                for (Artist artistItem : arrayArtistsResults) {
-                    if (artistItem.getName().equalsIgnoreCase(tmpValue))
-                        valueFound = true;
+            Artist artist = music.getAlbumArtistAsArtist();
+            if (artist == null || artist == UnknownArtist.instance) {
+                artist = music.getArtistAsArtist();
+            }
+            if (artist != null) {
+                tmpValue = artist.getName().toLowerCase();
+                if (tmpValue.contains(finalsearch)) {
+                    for (Artist artistItem : arrayArtistsResults) {
+                        if (artistItem.getName().equalsIgnoreCase(tmpValue))
+                            valueFound = true;
+                    }
+                    if (!valueFound)
+                        arrayArtistsResults.add(artist);
                 }
-                if (!valueFound)
-                    arrayArtistsResults.add(new Artist(tmpValue));
             }
             valueFound = false;
-            tmpValue = music.getAlbum();
-            if (tmpValue != null && tmpValue.toLowerCase().contains(finalsearch)) {
-                for (Album albumItem : arrayAlbumsResults) {
-                    if (albumItem.getName().equalsIgnoreCase(tmpValue))
-                        valueFound = true;
+            Album album = music.getAlbumAsAlbum();
+            if (album != null && album.getName() != null) {
+                tmpValue = album.getName().toLowerCase();
+                if (tmpValue.contains(finalsearch)) {
+                    for (Album albumItem : arrayAlbumsResults) {
+                        if (albumItem.getName().equalsIgnoreCase(tmpValue))
+                            valueFound = true;
+                    }
+                    if (!valueFound)
+                        arrayAlbumsResults.add(album);
                 }
-                if (!valueFound)
-                    arrayAlbumsResults.add(new Album(tmpValue, new Artist(music.getArtist())));
             }
         }
 

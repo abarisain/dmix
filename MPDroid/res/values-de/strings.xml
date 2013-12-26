@@ -97,8 +97,6 @@
     <string name="passwordDescription">Passwort für den Server</string>
     <string name="showAlbumTrackCount">Titelanzahl anzeigen</string>
     <string name="showAlbumTrackCountDescription">Zeige Titelanzahl der Alben</string>
-    <string name="albumartist">Albumkünstler</string>
-    <string name="albumartistDescription">Benutze Albumkünstler-Tag in der Ansicht Künstler</string>
     <string name="version">Version</string>
     <string name="updateDB">Datenbank aktualisieren</string>
     <string name="updateDBDetails">Aktualisiere die MPD-Datenbank</string>

@@ -49,7 +49,6 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 
 		MPD.setSortByTrackNumber(settings.getBoolean("albumTrackSort", MPD.sortByTrackNumber()));
 		MPD.setSortAlbumsByYear(settings.getBoolean("sortAlbumsByYear", MPD.sortAlbumsByYear()));
-		MPD.setUseAlbumArtist(settings.getBoolean("albumartist", MPD.useAlbumArtist()));
 		MPD.setShowAlbumTrackCount(settings.getBoolean("showAlbumTrackCount", MPD.showAlbumTrackCount()));
 		// MPD.setShowArtistAlbumCount(settings.getBoolean("showArtistAlbumCount", MPD.showArtistAlbumCount()));
 
