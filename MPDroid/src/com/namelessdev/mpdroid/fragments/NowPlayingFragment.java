@@ -47,13 +47,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public static final String PREFS_NAME = "mpdroid.properties";
     private static final boolean DEBUG = false;
     private static final int POPUP_ARTIST = 0;
-    private static final int POPUP_ALBUM = 1;
-    private static final int POPUP_FOLDER = 2;
-    private static final int POPUP_STREAM = 3;
-    private static final int POPUP_SHARE = 4;
-    private static final int POPUP_CURRENT = 5;
-    private static final int POPUP_COVER_BLACKLIST = 6;
-    private static final int POPUP_COVER_SELECTIVE_CLEAN = 7;
+    private static final int POPUP_ALBUMARTIST = 1;
+    private static final int POPUP_ALBUM = 2;
+    private static final int POPUP_FOLDER = 3;
+    private static final int POPUP_STREAM = 4;
+    private static final int POPUP_SHARE = 5;
+    private static final int POPUP_CURRENT = 6;
+    private static final int POPUP_COVER_BLACKLIST = 7;
+    private static final int POPUP_COVER_SELECTIVE_CLEAN = 8;
 
     private TextView artistNameText;
     private boolean showAlbumArtist;
@@ -278,6 +279,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             popupMenu = new PopupMenu(activity, songInfo);
             popupMenu.getMenu().add(Menu.NONE, POPUP_ALBUM, Menu.NONE, R.string.goToAlbum);
             popupMenu.getMenu().add(Menu.NONE, POPUP_ARTIST, Menu.NONE, R.string.goToArtist);
+            popupMenu.getMenu().add(Menu.NONE, POPUP_ALBUMARTIST, Menu.NONE, R.string.goToAlbumArtist);
             popupMenu.getMenu().add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
             popupMenu.getMenu().add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
             popupMenu.getMenu().add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
@@ -831,7 +833,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             coverMenu.getMenu().setGroupVisible(Menu.NONE, currentSong.getAlbumInfo().isValid());
             // Enable / Disable menu items that need artist and album defined.
             popupMenu.getMenu().findItem(POPUP_ALBUM).setVisible(!isEmpty(currentSong.getAlbum()));
-            popupMenu.getMenu().findItem(POPUP_ARTIST).setVisible(!isEmpty(currentSong.getAlbumArtistOrArtist()));
+            popupMenu.getMenu().findItem(POPUP_ARTIST).setVisible(!isEmpty(currentSong.getArtist()));
+            boolean showAA = (!isEmpty(currentSong.getAlbumArtist()) &&
+                              !currentSong.getAlbumArtist().equals(currentSong.getArtist()));
+            popupMenu.getMenu().findItem(POPUP_ALBUMARTIST).setVisible(showAA);
+
         }
     }
 
@@ -896,6 +902,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             case POPUP_ARTIST:
                 intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("artist", currentSong.getArtistAsArtist());
+                startActivityForResult(intent, -1);
+                break;
+            case POPUP_ALBUMARTIST:
+                intent = new Intent(activity, SimpleLibraryActivity.class);
+                intent.putExtra("artist", currentSong.getAlbumArtistAsArtist());
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ALBUM:

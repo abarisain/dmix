@@ -200,6 +200,7 @@
 
     <string name="goToAlbum">Gehe zum Album</string>
     <string name="goToArtist">Gehe zum Künstler</string>
+    <string name="goToAlbumArtist">Gehe zum Albumkünstler</string>
     <string name="goToFolder">Gehe zum Verzeichnis</string>
     <string name="goToStream">Gehe zu Streams</string>
     <string name="goToCurrent">Gehe zum aktuellen Song</string>

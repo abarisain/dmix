@@ -10,6 +10,7 @@
     <menu>
         <item android:id="@+id/PLCX_goToAlbum"  android:title="@string/goToAlbum"/>
         <item android:id="@+id/PLCX_goToArtist" android:title="@string/goToArtist"/>
+        <item android:id="@+id/PLCX_goToAlbumArtist" android:title="@string/goToAlbumArtist"/>
         <item android:id="@+id/PLCX_goToFolder" android:title="@string/goToFolder"/>
     </menu>
 </item>
