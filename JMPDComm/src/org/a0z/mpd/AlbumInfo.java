@@ -14,6 +14,13 @@ public class AlbumInfo {
     public AlbumInfo() {
     }
 
+    public AlbumInfo(Album album) {
+        Artist a = album.getArtist();
+        this.artist = (a == null ? "" : a.getName());
+        this.album  = album.getName();
+        this.path   = album.getPath();
+    }
+
     public AlbumInfo(String artist, String album, String path, String filename) {
         this.artist = artist;
         this.album = album;

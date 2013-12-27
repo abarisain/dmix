@@ -163,8 +163,8 @@ public class Album extends Item implements Parcelable {
         dest.writeLong(this.duration);
         dest.writeLong(this.year);
         dest.writeString(this.path);
-        dest.writeString(this.artist.getName());
-        dest.writeInt(this.artist.isAlbumArtist()?1:0);
+        dest.writeString(this.artist == null ? "" : this.artist.getName());
+        dest.writeInt(this.artist == null ? 0 : this.artist.isAlbumArtist()?1:0);
     }
 
     public static final Parcelable.Creator<Album> CREATOR =
@@ -179,12 +179,12 @@ public class Album extends Item implements Parcelable {
             };
 
     public AlbumInfo getAlbumInfo() {
-        return new AlbumInfo(getArtist().getName(), getName(), getPath(), "");
+        return new AlbumInfo(this);
     }
 
     public String info() {
-        return getArtist().info() + " // " + getName() +
-            ("".equals(path) ? "" : " ("+getPath()+")");
+        return (artist == null ? "null" : artist.info()) + " // " + name +
+            ("".equals(path) ? "" : " ("+path+")");
     }
 
 }

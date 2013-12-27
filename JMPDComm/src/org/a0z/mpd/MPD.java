@@ -535,8 +535,8 @@ public class MPD {
     protected List<Music> getFirstTrack(Album album) throws MPDServerException {
         Artist artist = album.getArtist();
         String[] args = new String[6];
-        args[0] = artist.isAlbumArtist() ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_TAG_ARTIST;
-        args[1] = artist.getName();
+        args[0] = (artist == null ? "" : artist.isAlbumArtist() ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_TAG_ARTIST);
+        args[1] = (artist == null ? "" : artist.getName());
         args[2] = MPDCommand.MPD_TAG_ALBUM;
         args[3] = album.getName();
         args[4] = "track";
@@ -1406,10 +1406,9 @@ public class MPD {
 
     public List<Artist> getArtists(Genre genre, boolean useAlbumArtist) throws MPDServerException {
         List<String> artistNames = useAlbumArtist ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
-        List<Artist> artists = null;
+        List<Artist> artists = new ArrayList<Artist>();
 
         if (null != artistNames && !artistNames.isEmpty()) {
-            artists = new ArrayList<Artist>();
             for (String artist : artistNames) {
                 artists.add(new Artist(artist,
                                        MPD.showArtistAlbumCount() ?
@@ -1417,9 +1416,7 @@ public class MPD {
                                        useAlbumArtist));
             }
         }
-        if (null != artists) {
-            Collections.sort(artists);
-        }
+        Collections.sort(artists);
         return artists;
     }
 
