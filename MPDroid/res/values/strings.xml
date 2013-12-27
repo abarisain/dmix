@@ -214,6 +214,7 @@
 	<string name="clearLocalCoverCache">Clear cover art cache</string>
 	<string name="clearLocalCoverCacheDescription">Free the storage space used by the cover art cache</string>
     <string name="clearLocalCoverCachePrompt">Delete all cached cover art ?</string>
+	<string name="updatingLocalAlbumCacheNote">Updating local album cache</string>
 
 	<string name="enableAlbumArtLibrary">Album cover art listing in library</string>
 	<string name="enableAlbumArtLibraryDescription">Use large cover art tiles for the albums listing in the library. This feature is experimental! You may experience lag and/or crashes. (Requires cache cover art)</string>

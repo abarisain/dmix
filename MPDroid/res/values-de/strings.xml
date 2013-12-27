@@ -197,6 +197,7 @@
     <string name="clearLocalCoverCache">Leere Albencover-Cache</string>
     <string name="clearLocalCoverCacheDescription">Lösche alle gespeicherten Albencover von der SD-Karte</string>
     <string name="clearLocalCoverCachePrompt">Alle Albencover löschen?</string>
+    <string name="updatingLocalAlbumCacheNote">Erneuere lokalen Alben-Cache</string>
 
     <string name="goToAlbum">Gehe zum Album</string>
     <string name="goToArtist">Gehe zum Künstler</string>
