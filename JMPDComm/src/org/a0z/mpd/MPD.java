@@ -1406,10 +1406,9 @@ public class MPD {
 
     public List<Artist> getArtists(Genre genre, boolean useAlbumArtist) throws MPDServerException {
         List<String> artistNames = useAlbumArtist ? listAlbumArtists(genre) : listArtists(genre.getName(), true);
-        List<Artist> artists = null;
+        List<Artist> artists = new ArrayList<Artist>();
 
         if (null != artistNames && !artistNames.isEmpty()) {
-            artists = new ArrayList<Artist>();
             for (String artist : artistNames) {
                 artists.add(new Artist(artist,
                                        MPD.showArtistAlbumCount() ?
@@ -1417,9 +1416,7 @@ public class MPD {
                                        useAlbumArtist));
             }
         }
-        if (null != artists) {
-            Collections.sort(artists);
-        }
+        Collections.sort(artists);
         return artists;
     }
 
