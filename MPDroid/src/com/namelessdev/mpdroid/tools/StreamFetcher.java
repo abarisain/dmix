@@ -168,7 +168,10 @@ public class StreamFetcher {
     	        // If 'check' returned a http link, then see if this points to the stream
     	        // or if it points to the playlist (which would point to the stream). This
     	        // case is mainly for TuneIn links...
-    	        parsed=check(parsed);
+    	    	String secondParse=check(parsed);
+    	    	if (null!=secondParse) {
+    	    		parsed=secondParse;
+    	    	}
     	    }
     	}
     	return new URL(addName(null==parsed ? url : parsed, name));
