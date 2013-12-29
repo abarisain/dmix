@@ -331,7 +331,8 @@ public class SongsFragment extends BrowseFragment {
                 albumInfo = song.getAlbumInfo();
                 continue;
             }
-            if (!albumInfo.getArtist().equalsIgnoreCase(song.getAlbumArtistOrArtist())) {
+            String a = albumInfo.getArtist();
+            if (a != null && !a.equalsIgnoreCase(song.getAlbumArtistOrArtist())) {
                 differentArtists = true;
                 break;
             }
