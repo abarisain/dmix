@@ -1318,7 +1318,6 @@ public class MPD {
         }
         List<String[]> paths;
          for (Album a : albums) {
-            Artist artist = a.getArtist();
             try {
                 List<Music> songs = getFirstTrack(a);
                 if (songs.size() > 0) {
