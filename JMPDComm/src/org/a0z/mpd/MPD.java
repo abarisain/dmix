@@ -10,6 +10,8 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.*;
 
+import static android.text.TextUtils.isEmpty;
+
 /**
  * MPD Server controller.
  *
@@ -697,13 +699,20 @@ public class MPD {
             return result;
         }
         for (Album a : albums) {
+            // When adding album artist to existing artist check that the artist matches
+            if (!useAlbumArtist() && albumArtist && a.getArtist() != null && a.getArtist() != UnknownArtist.instance && !isEmpty(a.getArtist().getName())) {
+                mpdConnection.queueCommand
+                        (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
+                                (albumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
+                                        MPDCommand.MPD_TAG_ARTIST), MPDCommand.MPD_TAG_ALBUM, a.getName(), MPDCommand.MPD_TAG_ARTIST, a.getArtist().getName()));
+            }
+            else {
             mpdConnection.queueCommand
                 (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
                                 (albumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
-                                 MPDCommand.MPD_TAG_ARTIST),
-                                MPDCommand.MPD_TAG_ALBUM,
-                                a.getName()));
-        }
+                                 MPDCommand.MPD_TAG_ARTIST),MPDCommand.MPD_TAG_ALBUM, a.getName()));
+            }}
+
         List<String[]> responses =  mpdConnection.sendCommandQueueSeparated();
 
         for (String[] r : responses){
@@ -713,7 +722,7 @@ public class MPD {
                 if (name.length() > 0)
                     albumresult.add(name);
             }
-            result.add((String[])albumresult.toArray(new String[0]));
+            result.add(albumresult.toArray(new String[0]));
         }
         return result;
     }
