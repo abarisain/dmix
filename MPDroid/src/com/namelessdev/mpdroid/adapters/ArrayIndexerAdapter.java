@@ -58,22 +58,10 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         // array .it must contains the keys, and must (I do so...) be
         // ordered alphabetically
 
-        Set<String> keys = alphaIndexer.keySet(); // set of letters ...sets
-        // cannot be sorted...
-
-        Iterator<String> it = keys.iterator();
-        ArrayList<String> keyList = new ArrayList<String>(); // list can be
-        // sorted
-
-        while (it.hasNext()) {
-            String key = it.next();
-            keyList.add(key);
-        }
-
+        ArrayList<String> keyList = new ArrayList<String>(alphaIndexer.keySet()); // list can be sorted
         Collections.sort(keyList);
 
-        sections = new String[keyList.size()]; // simple conversion to an
-        // array of object
+        sections = new String[keyList.size()]; // simple conversion to an array of object
         keyList.toArray(sections);
     }
 
