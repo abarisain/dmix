@@ -595,14 +595,13 @@ public class MPD {
                 } else if (line.startsWith("playtime: ")) {
                     a.setDuration(Long.parseLong(line.substring("playtime: ".length())));
                 }
-                if (findYear) {
-                    List<Music> songs = getFirstTrack(a);
-                    if (null!=songs && !songs.isEmpty()) {
-                        a.setYear(songs.get(0).getDate());
-                        a.setPath(songs.get(0).getPath());
-                    }
+            }
+            if (findYear) {
+                List<Music> songs = getFirstTrack(a);
+                if (null!=songs && !songs.isEmpty()) {
+                    a.setYear(songs.get(0).getDate());
+                    a.setPath(songs.get(0).getPath());
                 }
-
             }
         }
     }
