@@ -1,0 +1,41 @@
+apply plugin: 'android'
+
+//evaluationDependsOn(':JmDNS')
+
+dependencies {
+    repositories {
+        mavenCentral()
+    }
+
+    // Support Libraries
+    compile 'com.android.support:support-v4:19.0.+'
+//    compile 'com.android.support:appcompat-v7:19.0.+'
+
+    // Projects
+//    compile project(':JmDNS')
+    compile project(':JMPDComm')
+    compile project(':SmoothProgressBar')
+
+    // Libraries from maven
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:extra-abc:0.9'
+    compile 'asia.ivity.android:drag-sort-listview:1.0'
+    compile 'javax.jmdns:jmdns:3.4.1'
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 19
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+        }
+    }
+}

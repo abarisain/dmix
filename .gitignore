@@ -25,3 +25,8 @@
 /JmDNS/bin
 .DS_Store
 .idea/workspace.xml
+/gradlew*
+local.properties
+**/build/
+.gradle
+gradle
