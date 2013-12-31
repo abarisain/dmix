@@ -36,7 +36,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         coverHelper.setCoverMaxSize(height == 0 ? 256 : height);
 
         // display the album title
-        holder.albumName.setText(album.getName());
+        holder.albumName.setText(album.mainText());
 
         // listen for new artwork to be loaded
         final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, holder.coverArtProgress, lightTheme, false);
