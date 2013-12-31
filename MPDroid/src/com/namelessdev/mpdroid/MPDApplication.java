@@ -16,7 +16,6 @@ import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
-import com.namelessdev.mpdroid.tools.NetworkHelper;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
@@ -173,12 +172,6 @@ public class MPDApplication extends Application implements ConnectionListener {
 	private void connectMPD() {
 		// dismiss possible dialog
 		dismissAlertDialog();
-		
-		// check for network
-		if (!NetworkHelper.isNetworkConnected(this.getApplicationContext())) {
-			connectionFailed("No network.");
-			return;
-		}
 		
 		// show connecting to server dialog
 		if (currentActivity != null) {
