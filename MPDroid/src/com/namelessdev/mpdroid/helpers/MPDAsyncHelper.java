@@ -80,7 +80,7 @@ public class MPDAsyncHelper extends Handler {
 	private MPDConnectionInfo conInfo;
 
 	public MPDAsyncHelper() {
-            this(false);
+            this(true);
         }
 
 	/**
@@ -169,6 +169,10 @@ public class MPDAsyncHelper extends Handler {
 		} catch (ClassCastException e) {
 			// happens when unknown message type is received
 		}
+	}
+
+	public void setUseCache(boolean useCache) {
+            ((CachedMPD)oMPD).setUseCache(useCache);
 	}
 
 	public MPDConnectionInfo getConnectionSettings() {

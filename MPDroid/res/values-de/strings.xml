@@ -100,6 +100,8 @@
     <string name="version">Version</string>
     <string name="updateDB">Datenbank aktualisieren</string>
     <string name="updateDBDetails">Aktualisiere die MPD-Datenbank</string>
+    <string name="useLocalAlbumCache">Album-Cache verwenden</string>
+    <string name="useLocalAlbumCacheDescription">Teile der MPD-Datenbank lokal speichern</string>
     <string name="variousArtists">Verschiedene Interpreten</string>
     <string name="songs">Titel</string>
     <string name="serverInformation">Server-Informationen</string>

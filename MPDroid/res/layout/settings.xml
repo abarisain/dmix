@@ -36,6 +36,14 @@
             android:summary="@string/updateDBDetails"
             android:title="@string/updateDB" >
         </PreferenceScreen>
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="useLocalAlbumCache"
+            android:summary="@string/useLocalAlbumCacheDescription"
+            android:title="@string/useLocalAlbumCache" >
+        </CheckBoxPreference>
+
         <!-- Server Information -->
 
         <PreferenceScreen

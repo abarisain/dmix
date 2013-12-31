@@ -52,6 +52,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 		MPD.setShowAlbumTrackCount(settings.getBoolean("showAlbumTrackCount", MPD.showAlbumTrackCount()));
 		// MPD.setShowArtistAlbumCount(settings.getBoolean("showArtistAlbumCount", MPD.showArtistAlbumCount()));
 
+                oMPDAsyncHelper.setUseCache(settings.getBoolean("useLocalAlbumCache", true));
 		return updateConnectionSettings();
 	}
 
