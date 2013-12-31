@@ -2,4 +2,5 @@
 <resources>
     <string name="jmpdcomm_unknown_album">Album Inconnu</string>
     <string name="jmpdcomm_unknown_artist">Artiste inconnu</string>
+    <string name="jmpdcomm_unknown_genre">Genre inconnu</string>
 </resources>
