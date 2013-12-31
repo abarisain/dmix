@@ -5,7 +5,6 @@ import java.util.Collections;
 
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
-import org.a0z.mpd.UnknownArtist;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -198,9 +197,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         if (o instanceof Music) {
             return ((Music) o).getTitle();
         } else if (o instanceof Artist) {
-            return ((Artist) o).getName();
+            return ((Artist) o).mainText();
         } else if (o instanceof Album) {
-            return ((Album) o).getName();
+            return ((Album) o).mainText();
         }
         return "";
     }
@@ -380,7 +379,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             }
             valueFound = false;
             Artist artist = music.getAlbumArtistAsArtist();
-            if (artist == null || artist == UnknownArtist.instance) {
+            if (artist == null || artist.isUnknown()) {
                 artist = music.getArtistAsArtist();
             }
             if (artist != null) {
