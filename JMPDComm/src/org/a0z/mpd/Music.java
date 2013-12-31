@@ -31,9 +31,9 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private String album;
 
-    private String artist = null;
+    private String artist = "";
 
-    private String albumartist = null;
+    private String albumartist = "";
 
     private String fullpath;
 
@@ -161,12 +161,10 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public Artist getArtistAsArtist() {
-        return isEmpty(artist) ?
-            UnknownArtist.instance : new Artist(artist, false);
+        return new Artist(artist, false);
     }
     public Artist getAlbumArtistAsArtist() {
-        return isEmpty(albumartist) ?
-            UnknownArtist.instance : new Artist(albumartist, true);
+        return new Artist(albumartist, true);
     }
 
 

@@ -24,6 +24,16 @@ public class Genre extends Item implements Parcelable {
 		return name;
 	}
 
+    /*
+     * text for display
+     */
+    @Override
+    public String mainText() {
+        return (name.equals("") ?
+                "("+MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_genre)+")" :
+                name);
+    }
+
 	public String sort() {
 		return null == sort ? name : sort;
 	}

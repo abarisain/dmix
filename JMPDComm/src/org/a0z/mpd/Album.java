@@ -55,6 +55,17 @@ public class Album extends Item implements Parcelable {
         return name;
     }
 
+
+    /*
+     * text for display
+     */
+    @Override
+    public String mainText() {
+        return (name.equals("") ?
+                "("+MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album)+")" :
+                name);
+    }
+
     public long getSongCount() {
         return songCount;
     }
@@ -84,11 +95,6 @@ public class Album extends Item implements Parcelable {
     }
     public void setPath(String p) {
         path = p;
-    }
-
-    @Override
-    public String mainText() {
-        return name;
     }
 
     public Artist getArtist() {
