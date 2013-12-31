@@ -306,8 +306,8 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public String getPath() {
         String result;
-        if (getFullpath().length() > getFilename().length()) {
-            result = fullpath.substring(0, getFullpath().length() - getFilename().length() - 1);
+        if (null != fullpath && fullpath.length() > getFilename().length()) {
+            result = fullpath.substring(0, fullpath.length() - getFilename().length() - 1);
         } else {
             result = "";
         }
