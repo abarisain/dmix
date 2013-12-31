@@ -32,6 +32,9 @@ public abstract class Item implements Comparable<Item> {
             return getName().equals(o.getName());
         }
 
+        public boolean isUnknown() {
+            return getName().length() == 0;
+        }
 
     /*
      * Merge item lists, for example received by albumartist and artist requests.

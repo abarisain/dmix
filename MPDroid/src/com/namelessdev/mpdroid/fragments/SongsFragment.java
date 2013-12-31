@@ -89,7 +89,7 @@ public class SongsFragment extends BrowseFragment {
     @Override
     public String getTitle() {
         if (album != null) {
-            return album.getName();
+            return album.mainText();
         } else {
             return getString(R.string.songs);
         }

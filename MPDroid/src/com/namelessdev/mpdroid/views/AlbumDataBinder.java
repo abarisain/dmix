@@ -15,7 +15,6 @@ import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
-import org.a0z.mpd.UnknownArtist;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 
@@ -35,8 +34,8 @@ public class AlbumDataBinder extends BaseDataBinder {
         Artist artist = album.getArtist();
         String info = "";
         final long songCount = album.getSongCount();
-        if (artist != null && !(artist instanceof UnknownArtist) && !(artist.getName().equals(""))) {
-            info += artist.getName() + " - ";
+        if (artist != null) {
+            info += artist.mainText() + " - ";
         }
         if (album.getYear() > 0)
             info += Long.toString(album.getYear()) + " - ";
@@ -44,7 +43,7 @@ public class AlbumDataBinder extends BaseDataBinder {
             info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader),
                     songCount, Music.timeToString(album.getDuration()));
         }
-        holder.albumName.setText(album.getName());
+        holder.albumName.setText(album.mainText());
         if (info != null && info.length() > 0) {
             holder.albumInfo.setVisibility(View.VISIBLE);
             holder.albumInfo.setText(info);
@@ -54,7 +53,7 @@ public class AlbumDataBinder extends BaseDataBinder {
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-        if (artist == null || artist instanceof UnknownArtist) {
+        if (artist == null) { // full albums list
             holder.albumCover.setVisibility(View.GONE);
         } else {
             holder.albumCover.setVisibility(View.VISIBLE);

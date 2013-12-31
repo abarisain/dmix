@@ -111,8 +111,7 @@ public class CachedMPD extends MPD
             Artist artist = a.getArtist();
             Set<String> aartists =
                 cache.getAlbumArtists(a.getName(),
-                                      (artist == null || artist instanceof UnknownArtist )
-                                      ? "" : artist.getName());
+                                      (artist == null ? "" : artist.getName()));
             albumartists.add(aartists.toArray(new String[0]));
         }
         return albumartists;

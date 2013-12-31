@@ -44,8 +44,17 @@ public class Artist extends Item implements Parcelable {
 		return name;
 	}
 
+    /*
+     * text for display
+     * Item.toString() returns mainText()
+     */
+    public String mainText() {
+        return (name.equals("") ?
+                MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_artist) :
+                name);
+    }
 
-	public String sort() {
+    public String sort() {
         return null == sort ? name == null ? "" : name : sort;
     }
 
