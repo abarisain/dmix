@@ -23,7 +23,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;

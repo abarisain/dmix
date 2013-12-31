@@ -2,7 +2,6 @@ package org.a0z.mpd;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 public class Album extends Item implements Parcelable {
     public static String singleTrackFormat = "%1 Track (%2)";
