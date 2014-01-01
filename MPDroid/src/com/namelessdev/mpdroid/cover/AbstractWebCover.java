@@ -139,9 +139,9 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
     //Remove disc references from albums (like CD1, disc02 ...)
     protected String removeDiscReference(String album) {
-        String cleanedAlbum = album;
+        String cleanedAlbum = album.toLowerCase();
         for (String discReference : DISC_REFERENCES) {
-            cleanedAlbum = cleanedAlbum.replaceAll(discReference.toLowerCase() + "\\s*\\d+", " ");
+            cleanedAlbum = cleanedAlbum.replaceAll(discReference + "\\s*\\d+", " ");
         }
         return cleanedAlbum;
     }
