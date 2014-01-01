@@ -681,7 +681,6 @@ public class CoverManager {
     public void markWrongCover(AlbumInfo albumInfo) {
 
         CachedCover cacheCoverRetriever;
-        String albumCoverKey;
         String wrongUrl;
         if (DEBUG)
             Log.d(CoverManager.class.getSimpleName(), "Blacklisting cover for " + albumInfo);

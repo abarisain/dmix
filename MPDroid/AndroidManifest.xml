@@ -183,6 +183,13 @@
                 <data android:pathPattern=".*\\.ogg" />
                 <data android:pathPattern=".*\\.oga" />
                 <data android:pathPattern=".*\\.wma" />
+                <!-- pathPattern is case sensitive -->
+                <data android:pathPattern=".*\\.MP3" />
+                <data android:pathPattern=".*\\.MP4" />
+                <data android:pathPattern=".*\\.M4A" />
+                <data android:pathPattern=".*\\.OGG" />
+                <data android:pathPattern=".*\\.OGA" />
+                <data android:pathPattern=".*\\.WMA" />
             </intent-filter>
 
             <!-- mimeTypes to send to the playlist processor -->

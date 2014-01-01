@@ -1317,7 +1317,7 @@ public class MPD {
         if (albums == null || albums.size() == 0) {
             return;
         }
-        List<String[]> paths;
+        
          for (Album a : albums) {
             try {
                 List<Music> songs = getFirstTrack(a);

@@ -5,8 +5,6 @@ import android.net.Uri;
 import com.namelessdev.mpdroid.MPDApplication;
 import org.a0z.mpd.AlbumInfo;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
