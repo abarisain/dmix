@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MPDroid.iml" filepath="$PROJECT_DIR$/MPDroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JMPDComm/JMPDComm.iml" filepath="$PROJECT_DIR$/JMPDComm/JMPDComm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JmDNS/JmDNS.iml" filepath="$PROJECT_DIR$/JmDNS/JmDNS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MPDroid/MPDroid.iml" filepath="$PROJECT_DIR$/MPDroid/MPDroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SmoothProgressBar/SmoothProgressBar.iml" filepath="$PROJECT_DIR$/SmoothProgressBar/SmoothProgressBar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mpdroid.iml" filepath="$PROJECT_DIR$/mpdroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mpdroid.iml" filepath="$PROJECT_DIR$/mpdroid.iml" />
     </modules>
   </component>
 </project>
