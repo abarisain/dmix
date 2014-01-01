@@ -88,7 +88,11 @@ public interface JmmDNS extends Closeable {
             if (delegate != null) {
                 dns = delegate.newJmmDNS();
             }
-            return (dns != null ? dns : new JmmDNSImpl());
+			if (dns == null) {
+				dns = new JmmDNSImpl();
+			}
+
+			return (dns);
         }
 
         /**
