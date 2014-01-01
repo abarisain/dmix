@@ -329,13 +329,15 @@ public final class DNSOutgoing extends DNSMessage {
     }
 
     /**
-     * Builds the final message buffer to be send and returns it.
-     * 
-     * @return bytes to send.
-     */
-    public byte[] data() {
+	 * Builds the final message buffer to be sent and returns it.
+	 * 
+	 * @return bytes to send.
+	 */
+	public byte[] data() throws IOException {
         long now = System.currentTimeMillis(); // System.currentTimeMillis()
         _names.clear();
+
+		byte[] byteArray = null;
 
         MessageOutputStream message = new MessageOutputStream(_maxUDPPayload, this);
         message.writeShort(_multicast ? 0 : this.getId());
@@ -356,7 +358,15 @@ public final class DNSOutgoing extends DNSMessage {
         for (DNSRecord record : _additionals) {
             message.writeRecord(record, now);
         }
-        return message.toByteArray();
+
+		byteArray = message.toByteArray();
+		message.close();
+
+		if (byteArray.length == 0) {
+			throw new IOException("Failed to build final message.");
+		} else {
+			return byteArray;
+		}
     }
 
     @Override
@@ -367,12 +377,21 @@ public final class DNSOutgoing extends DNSMessage {
     /**
      * Debugging.
      */
-    String print(boolean dump) {
+	String print(boolean dump) throws IOException {
         StringBuilder buf = new StringBuilder();
-        buf.append(this.print());
-        if (dump) {
-            buf.append(this.print(this.data()));
-        }
+
+		byte[] byteArray = this.data();
+
+		if (byteArray.length == 0) {
+			throw new IOException("Failed to receive buffer for debugging.");
+		} else {
+			buf.append(this.print());
+
+			if (dump) {
+				buf.append(this.print(byteArray));
+			}
+		}
+
         return buf.toString();
     }
 
