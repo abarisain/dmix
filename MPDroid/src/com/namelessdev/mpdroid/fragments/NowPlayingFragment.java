@@ -581,7 +581,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             if (params == null) {
                 try {
                     // A recursive call doesn't seem that bad here.
-                    return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
+                    return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus(true));
                 } catch (MPDServerException e) {
                     e.printStackTrace();
                 }
