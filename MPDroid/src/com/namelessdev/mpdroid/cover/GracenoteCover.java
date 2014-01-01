@@ -10,9 +10,10 @@ import java.io.StringReader;
 
 public class GracenoteCover extends AbstractWebCover {
 
-    private static final String CLIENT_ID = "15942656-184B7C5BA04F0D8709F6E2A808C9ECD4";
+    private static final String CLIENT_ID_PREFIX = "15942656";
+    private static final String CLIENT_ID = CLIENT_ID_PREFIX + "-184B7C5BA04F0D8709F6E2A808C9ECD4";
     private static final String USER_ID = "GRACENOTE_USERID";
-    private static final String API_URL = "https://" + CLIENT_ID + ".web.cddbp.net/webapi/xml/1.0/";
+    private static final String API_URL = "https://c" + CLIENT_ID_PREFIX + ".web.cddbp.net/webapi/xml/1.0/";
     private SharedPreferences sharedPreferences;
     private String userId;
     public static final String URL_PREFIX = "web.content.cddbp.net";
