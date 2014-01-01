@@ -202,10 +202,12 @@ public class MPD {
      * @param server server address or host name
      * @param port   server port
      */
-    public final void connect(InetAddress server, int port, String password) throws MPDServerException {
-        this.mpdConnection = new MPDConnectionMultiSocket(server, port, 5, password, 5000);
-        this.mpdIdleConnection = new MPDConnectionMonoSocket(server, port, password, 0);
-        this.mpdStatusConnection = new MPDConnectionMonoSocket(server, port, password, 10000);
+    public synchronized final void connect(InetAddress server, int port, String password) throws MPDServerException {
+        if (!isConnected()) {
+            this.mpdConnection = new MPDConnectionMultiSocket(server, port, 3, password, 5000);
+            this.mpdIdleConnection = new MPDConnectionMonoSocket(server, port, password, 0);
+            this.mpdStatusConnection = new MPDConnectionMonoSocket(server, port, password, 5000);
+        }
     }
 
     /**
@@ -232,7 +234,7 @@ public class MPD {
      *
      * @throws MPDServerException if an error occur while closing connection
      */
-    public void disconnect() throws MPDServerException {
+    public synchronized void disconnect() throws MPDServerException {
         MPDServerException ex = null;
         if (mpdConnection != null && mpdConnection.isConnected()) {
             try {
