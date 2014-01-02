@@ -214,10 +214,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         return null == s || 0 == s.length();
     }
 
-    private boolean isEmpty() {
-        return (isEmpty(getArtist()) && isEmpty(album) && isEmpty(title)) || isEmpty(fullpath);
-    }
-
     /**
      * Retrieves album name.
      *

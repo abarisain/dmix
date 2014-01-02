@@ -581,7 +581,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             if (params == null) {
                 try {
                     // A recursive call doesn't seem that bad here.
-                    return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
+                    return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus(true));
                 } catch (MPDServerException e) {
                     e.printStackTrace();
                 }
@@ -608,8 +608,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 String artist = null;
                 String title = null;
                 String album = null;
-                String path = null;
-                String filename = null;
                 String date = null;
 
                 int songMax = 0;
@@ -628,8 +626,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         album = "";
                     }
                     artist = actSong.getArtist();
-                    path = actSong.getPath();
-                    filename = actSong.getFilename();
                     songMax = (int) actSong.getTime();
                     date = "";
 
@@ -642,8 +638,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     title = actSong.getTitle();
                     album = actSong.getAlbum();
                     date = Long.toString(actSong.getDate());
-                    path = actSong.getPath();
-                    filename = actSong.getFilename();
                     songMax = (int) actSong.getTime();
                 }
 
