@@ -8,7 +8,7 @@ import android.view.KeyEvent;
 
 /**
  * RemoteControlReceiver receives media player button stuff. Most of the code is taken from google's music app.
- * 
+ *
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
  */
@@ -51,7 +51,12 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 					i.setAction(StreamingService.CMD_REMOTE);
 					i.putExtra(StreamingService.CMD_COMMAND, command);
 					context.startService(i);
-				}
+
+                    // Start the remote control service too (TODO: shouldn't start if currently streaming)
+                    i = new Intent(context, MusicService.class);
+                    i.setAction(command);
+                    context.startService(i);
+                }
 			}
 		}
 	}

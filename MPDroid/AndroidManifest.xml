@@ -101,6 +101,10 @@
             android:name="com.namelessdev.mpdroid.StreamingService"
             android:enabled="true" />
 
+        <service
+            android:name="com.namelessdev.mpdroid.MusicService"
+            android:enabled="true" />
+
         <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >
             <intent-filter android:priority="500" >
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
