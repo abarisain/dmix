@@ -52,6 +52,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MusicService;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.StreamingService;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -84,82 +85,47 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             switch (v.getId()) {
                 case R.id.stop:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.stop();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
                     if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
                         i.setAction("com.namelessdev.mpdroid.DIE");
                         activity.startService(i);
                         ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
+                    } else {
+                        i = new Intent(app, MusicService.class);
+                        i.setAction(MusicService.ACTION_STOP);
+                        activity.startService(i);
+                        ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
                     }
                     break;
                 case R.id.next:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.next();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
                     if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
                         i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
                         activity.startService(i);
+                    } else {
+                        i = new Intent(app, MusicService.class);
+                        i.setAction(MusicService.ACTION_SKIP);
+                        activity.startService(i);
+                        ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
                     }
                     break;
                 case R.id.prev:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.previous();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-
                     if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
                         i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
                         activity.startService(i);
+                    } else {
+                        i = new Intent(app, MusicService.class);
+                        i.setAction(MusicService.ACTION_REWIND);
+                        activity.startService(i);
+                        ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
                     }
                     break;
                 case R.id.playpause:
-                    /**
-                     * If playing or paused, just toggle state, otherwise start
-                     * playing.
-                     * 
-                     * @author slubman
-                     */
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            String state;
-                            try {
-                                state = mpd.getStatus().getState();
-                                if (state.equals(MPDStatus.MPD_STATE_PLAYING)
-                                        || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-                                    mpd.pause();
-                                } else {
-                                    mpd.play();
-                                }
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
+                    i = new Intent(app, MusicService.class);
+                    i.setAction(MusicService.ACTION_TOGGLE_PLAYBACK);
+                    activity.startService(i);
+                    ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
                     break;
                 case R.id.shuffle:
                     try {
@@ -201,7 +167,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
             return true;
         }
-
     }
 
     private class PosTimerTask extends TimerTask {
@@ -730,7 +695,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void onDetach() {
         super.onDetach();
         this.activity = null;
-
     }
 
     @Override

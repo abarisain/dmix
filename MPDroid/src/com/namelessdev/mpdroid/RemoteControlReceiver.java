@@ -30,7 +30,6 @@ import android.view.KeyEvent;
  * @version $Id: $
  */
 public class RemoteControlReceiver extends BroadcastReceiver {
-
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
@@ -67,6 +66,12 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     Intent i = new Intent(context, StreamingService.class);
                     i.setAction(StreamingService.CMD_REMOTE);
                     i.putExtra(StreamingService.CMD_COMMAND, command);
+                    context.startService(i);
+
+                    // Start the remote control service too (TODO: shouldn't
+                    // start if currently streaming)
+                    i = new Intent(context, MusicService.class);
+                    i.setAction(command);
                     context.startService(i);
                 }
             }
