@@ -29,7 +29,6 @@
         android:layout_height="40dip"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/albumCover"
-        android:layout_toLeftOf="@+id/menu"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
         android:paddingBottom="10dp"
