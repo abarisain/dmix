@@ -32,6 +32,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.namelessdev.mpdroid.models.MusicParcelable;
+
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -45,12 +47,13 @@ import org.a0z.mpd.exception.MPDServerException;
  */
 public class MusicService extends Service implements MusicFocusable {
     // The tag we put on debug messages
-    final static String TAG = "RandomMusicPlayer";
+    final static String TAG = "MusicService";
 
     // These are the Intent actions that we are prepared to handle. Notice that the fact these
     // constants exist in our class is a mere convenience: what really defines the actions our
     // service can handle are the <action> tags in the <intent-filters> tag for our service in
     // AndroidManifest.xml.
+    public static final String ACTION_UPDATE_INFO = "com.namelessdev.mpdroid.MusicService.UPDATE_INFO";
     public static final String ACTION_TOGGLE_PLAYBACK = StreamingService.CMD_PLAYPAUSE;
     public static final String ACTION_PLAY = StreamingService.CMD_PLAY;
     public static final String ACTION_PAUSE = StreamingService.CMD_PAUSE;
@@ -58,9 +61,15 @@ public class MusicService extends Service implements MusicFocusable {
     public static final String ACTION_SKIP = StreamingService.CMD_NEXT;
     public static final String ACTION_REWIND = StreamingService.CMD_PREV;
 
+    /**
+     * Extra information passed to the intent bundle: the currently playing {@link org.a0z.mpd.Music}
+     */
+    public static final String EXTRA_CURRENT_MUSIC = "com.namelessdev.mpdroid.MusicService.CurrentMusic";
+
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
     AudioFocusHelper mAudioFocusHelper = null;
+    private int mPreviousState = -1;
 
     // do we have audio focus?
     enum AudioFocus {
@@ -70,9 +79,6 @@ public class MusicService extends Service implements MusicFocusable {
     }
 
     AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
-
-    // title of the song we are currently playing
-    String mSongTitle = "";
 
     // The ID we use for the notification (the onscreen alert that appears at the notification
     // area at the top of the screen as an icon -- and as text as well if the user expands the
@@ -134,6 +140,8 @@ public class MusicService extends Service implements MusicFocusable {
             processStopRequest();
         } else if (action.equals(ACTION_REWIND)) {
             processRewindRequest();
+        } else if (action.equals(ACTION_UPDATE_INFO)) {
+            processUpdateInfo((MusicParcelable) intent.getParcelableExtra(EXTRA_CURRENT_MUSIC));
         }
 
         return START_NOT_STICKY; // Means we started the service, but don't want it to restart in case it's killed.
@@ -210,6 +218,11 @@ public class MusicService extends Service implements MusicFocusable {
             mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
         }
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_PAUSED);
+    }
+
+    void processUpdateInfo(MusicParcelable music) {
+        Log.d(TAG, "parcelable=" + music);
+        updatePlayingInfo(StreamingService.PLAYSTATE_PLAYING, music);
     }
 
     void processRewindRequest() {
@@ -295,29 +308,13 @@ public class MusicService extends Service implements MusicFocusable {
     }
 
     void updatePlayingInfo(int state) {
+        updatePlayingInfo(state, null);
+    }
+
+    void updatePlayingInfo(int state, Music currentMusic) {
         relaxResources(); // release everything except MediaPlayer
 
         try {
-            Music music = null;
-            final MPDApplication app = (MPDApplication) getApplication();
-            if (app != null) {
-                if (app.getApplicationState().streamingMode) {
-                    Intent i = new Intent(app, StreamingService.class);
-                    i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-                    startService(i);
-                }
-
-                final MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-                final int songPos = status.getSongPos();
-                mSongTitle = "";
-                if (songPos >= 0) {
-                    music = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-                    mSongTitle = music.getTitle();
-                }
-            }
-
-            setUpAsForeground(mSongTitle);
-
             // Use the media button APIs (if available) to register ourselves for media button events
             MediaButtonHelper.registerMediaButtonEventReceiverCompat(mAudioManager, mMediaButtonReceiverComponent);
 
@@ -336,32 +333,54 @@ public class MusicService extends Service implements MusicFocusable {
                     RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
                     RemoteControlClient.FLAG_KEY_MEDIA_STOP);
 
-            // Update the remote controls
-            final String artist = music == null ? "" : music.getArtist();
-            final String album = music == null ? "" : music.getAlbum();
-            final String title = music == null ? "" : music.getTitle();
-            final long duration = music == null ? 0 : music.getTime();
-            mRemoteControlClient.editMetadata(true) //
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, artist) //
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, album) //
-                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, title) //
-                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, duration) //
-                            // TODO: fetch real item artwork
-                            //.putBitmap(RemoteControlClient.MetadataEditorCompat.METADATA_KEY_ARTWORK, mDummyAlbumArt) //
-                    .apply();
+            Music music = currentMusic;
+            if (currentMusic == null) {
+                //TODO: load this from a background thread
+                final MPDApplication app = (MPDApplication) getApplication();
+                if (app != null) {
+                    if (app.getApplicationState().streamingMode) {
+                        Intent i = new Intent(app, StreamingService.class);
+                        i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
+                        startService(i);
+                    }
 
-            updateNotification(artist, title);
+                    final MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+                    final int songPos = status.getSongPos();
+                    if (songPos >= 0) {
+                        music = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+                    }
+                }
+            }
+
+            if (music != null) {
+                // Update the remote controls
+                mRemoteControlClient.editMetadata(true) //
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, music.getArtist()) //
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, music.getAlbum()) //
+                        .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, music.getTitle()) //
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, music.getTime()) //
+                                // TODO: fetch real item artwork
+                                //.putBitmap(RemoteControlClient.MetadataEditorCompat.METADATA_KEY_ARTWORK, mDummyAlbumArt) //
+                        .apply();
+
+                if (mNotification == null || state != mPreviousState) {
+                    setUpAsForeground(music.getArtist(), music.getTitle());
+                    updateNotification(music.getArtist(), music.getTitle());
+                }
+            }
         } catch (MPDServerException e) {
             Log.w("MusicService", "MPDServerException playing next song: " + e.getMessage());
         }
+
+        mPreviousState = state;
     }
 
     /**
      * Updates the notification.
      */
-    void updateNotification(String artist, String text) {
+    void updateNotification(String artist, String title) {
         PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(getApplicationContext(), MainMenuActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-        mNotification.setLatestEventInfo(getApplicationContext(), artist, text, pi);
+        mNotification.setLatestEventInfo(getApplicationContext(), artist, title, pi);
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
     }
 
@@ -370,13 +389,13 @@ public class MusicService extends Service implements MusicFocusable {
      * something the user is actively aware of (such as playing music), and must appear to the
      * user as a notification. That's why we create the notification here.
      */
-    void setUpAsForeground(String text) {
+    void setUpAsForeground(String artist, String title) {
         PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(getApplicationContext(), MainMenuActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
         mNotification = new Notification();
-        mNotification.tickerText = text;
+        mNotification.tickerText = title;
         mNotification.icon = R.drawable.icon_bw;
         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-        mNotification.setLatestEventInfo(getApplicationContext(), "RandomMusicPlayer", text, pi);
+        mNotification.setLatestEventInfo(getApplicationContext(), title, artist, pi);
         startForeground(NOTIFICATION_ID, mNotification);
     }
 

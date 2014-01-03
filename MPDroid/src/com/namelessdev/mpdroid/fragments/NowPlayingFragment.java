@@ -15,12 +15,23 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MusicService;
 import com.namelessdev.mpdroid.R;
@@ -30,7 +41,13 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
-import org.a0z.mpd.*;
+import com.namelessdev.mpdroid.models.MusicParcelable;
+
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDServerException;
@@ -501,7 +518,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             Date now = new Date();
             ellapsed = start + ((now.getTime() - date.getTime()) / 1000);
             progressBarTrack.setProgress((int) ellapsed);
-            if (currentSong != null && ! currentSong.isStream()) {
+            if (currentSong != null && !currentSong.isStream()) {
                 ellapsed = ellapsed > lastSongTime ? lastSongTime : ellapsed;
             }
             handler.post(new Runnable() {
@@ -562,6 +579,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     if (songPos >= 0) {
                         actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
                         status = params[0];
+                        if (actSong != null) {
+                            Log.d("MusicService", "Launching service for UPDATE_INFO with current music: " + actSong);
+                            Intent i = new Intent(getActivity(), MusicService.class);
+                            i.setAction(MusicService.ACTION_UPDATE_INFO);
+                            i.putExtra(MusicService.EXTRA_CURRENT_MUSIC, new MusicParcelable(actSong));
+                            getActivity().startService(i);
+                        }
                         return true;
                     }
                 }
