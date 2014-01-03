@@ -60,8 +60,10 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+import com.namelessdev.mpdroid.models.MusicParcelable;
 
 import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.Artist;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -219,6 +221,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     if (songPos >= 0) {
                         actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
                         status = params[0];
+                        if (actSong != null) {
+                            Log.d("MusicService",
+                                    "Launching service for UPDATE_INFO with current music: "
+                                            + actSong);
+                            Intent i = new Intent(getActivity(), MusicService.class);
+                            i.setAction(MusicService.ACTION_UPDATE_INFO);
+                            i.putExtra(MusicService.EXTRA_CURRENT_MUSIC, new MusicParcelable(
+                                    actSong));
+                            getActivity().startService(i);
+                        }
                         return true;
                     }
                 }
