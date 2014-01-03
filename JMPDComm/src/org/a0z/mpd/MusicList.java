@@ -66,7 +66,7 @@ public class MusicList {
 			throw new IllegalArgumentException("Music is already on list");
 		
 		// add it to the map and at the right position to the list
-		map.put(new Integer(music.getSongId()), music);
+		map.put(Integer.valueOf(music.getSongId()), music);
 		while (list.size() < (music.getPos() + 1))
 			list.add(null);
 		list.set(music.getPos(), music);
@@ -88,7 +88,7 @@ public class MusicList {
 	 * @return a Music with given songId or <code>null</code> if it is not present on this <code>MusicList</code>.
 	 */
 	public Music getById(int songId) {
-		return map.get(new Integer(songId));
+		return map.get(Integer.valueOf(songId));
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class MusicList {
 		Music music = getById(songId);
 		
 		if (music != null) {
-			map.remove(new Integer(songId));
+			map.remove(Integer.valueOf(songId));
 			list.remove(music);
 		}
 	}
@@ -131,7 +131,7 @@ public class MusicList {
 		
 		if (music != null) {
 			list.remove(index);
-			map.remove(new Integer(music.getSongId()));
+			map.remove(Integer.valueOf(music.getSongId()));
 		}
 	}
 
