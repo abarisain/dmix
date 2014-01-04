@@ -162,8 +162,9 @@ public class AlbumCache
                 String artist = m.getArtist();
                 String album = m.getAlbum();
                 if (album != null) {
+                    boolean isAA = albumartist != null;
                     String thisalbum =
-                        albumCode(albumartist != null ? albumartist : artist, album);
+                        albumCode(isAA ? albumartist : artist, album, isAA);
                     AlbumDetails details;
                     if (albumDetails.containsKey(thisalbum)){
                         details = albumDetails.get(thisalbum);
@@ -378,19 +379,21 @@ public class AlbumCache
         }
     }
 
-    public String getDirByArtistAlbum(String artist, String album) {
-        String aa = albumCode(artist, album);
+    public String getDirByArtistAlbum(String artist, String album, boolean isAlbumArtist) {
+        String aa = albumCode(artist, album, isAlbumArtist);
         String result = albumDetails.get(aa).path;
         Log.d("MPD ALBUMCACHE", "key "+aa +" - "+result );
         return result;
     }
 
-    public AlbumDetails getAlbumDetails(String artist, String album) {
-        return albumDetails.get(albumCode(artist, album));
+    public AlbumDetails getAlbumDetails(String artist, String album, boolean isAlbumArtist) {
+        return albumDetails.get(albumCode(artist, album, isAlbumArtist));
     }
 
-    public String albumCode(String artist, String album) {
-        return (artist != null ? artist : "") + "///" + (album != null ? album : "");
+    public String albumCode(String artist, String album, boolean isAlbumArtist) {
+        return (artist != null ? artist : "") + "//"+
+            (isAlbumArtist?"AA":"A") +
+            "//" + (album != null ? album : "");
     }
 
 }

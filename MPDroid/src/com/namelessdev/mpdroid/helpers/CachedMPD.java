@@ -115,13 +115,13 @@ public class CachedMPD extends MPD
         Map<String, Set<String>> aa_albums = cache.getAlbumArtistsByAlbum();
         for (String album : aa_albums.keySet()) {
             for (String artist : aa_albums.get(album)) {
-                albums.add(new Album(album, new Artist(artist, 0, true)));
+                albums.add(new Album(album, new Artist(artist, 0), true));
             }
         }
         Map<String, Set<String>> a_albums  = cache.getArtistsByAlbum();
         for (String album : a_albums.keySet()) {
             for (String artist : a_albums.get(album)) {
-                albums.add(new Album(album, new Artist(artist, 0, false)));
+                albums.add(new Album(album, new Artist(artist, 0), false));
             }
         }
         Collections.sort(albums);
@@ -142,7 +142,7 @@ public class CachedMPD extends MPD
             Artist artist = a.getArtist();
             String aname = (artist==null?"":artist.getName());
             AlbumCache.AlbumDetails details
-                = cache.getAlbumDetails(aname, a.getName());
+                = cache.getAlbumDetails(aname, a.getName(), a.hasAlbumArtist());
             if (details != null) {
                 a.setPath(details.path);
             }
@@ -166,7 +166,7 @@ public class CachedMPD extends MPD
             String artist = (art == null ? "" : art.getName());
             //Log.d("MPD CACHED","Details  " + artist+" // "+a.getName());
             AlbumCache.AlbumDetails details =
-                cache.getAlbumDetails(artist, a.getName());
+                cache.getAlbumDetails(artist, a.getName(), a.hasAlbumArtist());
             if (null != details){
                 a.setSongCount(details.numtracks);
                 a.setDuration(details.totaltime);

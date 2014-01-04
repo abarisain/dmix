@@ -226,7 +226,7 @@ public class SongsFragment extends BrowseFragment {
         });
 
         updateFromItems();
-        
+
         return view;
     }
 

@@ -162,11 +162,11 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     public Artist getArtistAsArtist() {
         return isEmpty(artist) ?
-            UnknownArtist.instance : new Artist(artist, false);
+            UnknownArtist.instance : new Artist(artist);
     }
     public Artist getAlbumArtistAsArtist() {
         return isEmpty(albumartist) ?
-            UnknownArtist.instance : new Artist(albumartist, true);
+            UnknownArtist.instance : new Artist(albumartist);
     }
 
 
@@ -180,8 +180,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     public Album getAlbumAsAlbum() {
         boolean is_aa = !isEmpty(albumartist);
-        Artist art = new Artist((is_aa ? albumartist : artist), is_aa);
-        return new Album(album, art);
+        Artist art = new Artist((is_aa ? albumartist : artist));
+        return new Album(album, art, is_aa);
     }
 
 

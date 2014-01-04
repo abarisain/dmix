@@ -19,13 +19,6 @@ public abstract class Item implements Comparable<Item> {
             return getName().compareToIgnoreCase(o.getName());
 	}
 
-    public boolean isSameOnList(Item o) {
-        if (null == o) {
-            return false;
-        }
-        return getName().equals(o.getName());
-    }
-
 	@Override
 	public	String toString() {
 		return mainText();
@@ -48,7 +41,7 @@ public abstract class Item implements Comparable<Item> {
         for (int i = a_items.size()-1; i >= 0; i--) {  // artists
             String a_name = a_items.get(i).getName();
             for (int j = j_start; j >= 0; j--) {  // album artists
-                if (aa_items.get(j).getName().equals(a_name)) {
+                if (aa_items.get(j).equals(a_items.get(i))) {
                     j_start = j;
                     a_items.remove(i);
                     break;
