@@ -21,6 +21,7 @@ public class LocalCover implements ICoverRetriever {
             "cover", "folder", "front"};
     private final static String[] EXT = new String[]{"jpg", "png", "jpeg",};
     private final static String[] SUB_FOLDERS = new String[]{"", "artwork", "Covers"};
+    public static final String RETRIEVER_NAME = "User's HTTP Server";
 
     private MPDApplication app = null;
     private SharedPreferences settings = null;
@@ -33,12 +34,12 @@ public class LocalCover implements ICoverRetriever {
     static public void appendPathString(Uri.Builder builder, String string) {
         if (string != null && string.length() > 0) {
             final String[] components = string.split("/");
-            for(String component : components) {
+            for (String component : components) {
                 builder.appendPath(component);
             }
         }
     }
-    
+
     static public String buildCoverUrl(String serverName, String musicPath, String path, String fileName) {
 
         if (musicPath.startsWith(URL_PREFIX)) {
@@ -116,7 +117,7 @@ public class LocalCover implements ICoverRetriever {
 
     @Override
     public String getName() {
-        return "User's HTTP Server";
+        return RETRIEVER_NAME;
     }
 
 }

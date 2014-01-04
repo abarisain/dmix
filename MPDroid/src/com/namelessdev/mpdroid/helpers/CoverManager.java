@@ -18,6 +18,7 @@ import org.a0z.mpd.AlbumInfo;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -28,6 +29,7 @@ import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.*;
 /**
  */
 public class CoverManager {
+    private static final String[] DISC_REFERENCES = {"disc", "cd", "disque"};
     public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
     public static final String PREFERENCE_LASTFM = "enableLastFM";
     public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
@@ -359,7 +361,7 @@ public class CoverManager {
         @Override
         public void run() {
             String[] coverUrls;
-            boolean remote;
+            boolean remote = false;
             boolean local;
             boolean canStart = true;
             byte[] coverBytes;
@@ -386,6 +388,17 @@ public class CoverManager {
                                 }
                                 coverInfo.setCoverRetriever(coverRetriever);
                                 coverUrls = coverRetriever.getCoverUrl(coverInfo);
+
+                                // Normalize (remove special characters ...) the artist and album names if no result has been found.
+                                if (!(coverUrls != null && coverUrls.length > 0) && remote && !(coverRetriever.getName().equals(LocalCover.RETRIEVER_NAME))) {
+                                    AlbumInfo normalizedAlbumInfo = getNormalizedAlbumInfo(coverInfo);
+                                    if (!normalizedAlbumInfo.equals(coverInfo)) {
+                                        if (DEBUG)
+                                            d(FetchCoverTask.class.getSimpleName(), "Retry to fetch cover with normalized names for " + normalizedAlbumInfo);
+                                        coverUrls = coverRetriever.getCoverUrl(normalizedAlbumInfo);
+                                    }
+                                }
+
                                 if (coverUrls != null && coverUrls.length > 0) {
                                     List<String> wrongUrlsForCover = wrongCoverUrlMap.get(coverInfo.getKey());
 
@@ -408,7 +421,7 @@ public class CoverManager {
 
                                     } else {
                                         if (DEBUG) {
-                                            Log.d(CoverManager.class.getSimpleName(), "Blacklisted cover url found for " + coverInfo.getAlbum() + " : " + coverUrls[0]);
+                                            d(CoverManager.class.getSimpleName(), "Blacklisted cover url found for " + coverInfo.getAlbum() + " : " + coverUrls[0]);
                                         }
                                     }
                                 }
@@ -683,7 +696,7 @@ public class CoverManager {
         CachedCover cacheCoverRetriever;
         String wrongUrl;
         if (DEBUG)
-            Log.d(CoverManager.class.getSimpleName(), "Blacklisting cover for " + albumInfo);
+            d(CoverManager.class.getSimpleName(), "Blacklisting cover for " + albumInfo);
 
 
         if (!albumInfo.isValid()) {
@@ -695,14 +708,14 @@ public class CoverManager {
         // Do not blacklist cover if from local storage (url starts with /...)
         if (wrongUrl != null && !wrongUrl.startsWith("/")) {
             if (DEBUG)
-                Log.d(CoverManager.class.getSimpleName(), "Cover URL to be blacklisted  " + wrongUrl);
+                d(CoverManager.class.getSimpleName(), "Cover URL to be blacklisted  " + wrongUrl);
 
             wrongCoverUrlMap.put(albumInfo.getKey(), wrongUrl);
 
             cacheCoverRetriever = getCacheRetriever();
             if (cacheCoverRetriever != null) {
                 if (DEBUG)
-                    Log.d(CoverManager.class.getSimpleName(), "Removing blacklisted cover from cache : ");
+                    d(CoverManager.class.getSimpleName(), "Removing blacklisted cover from cache : ");
                 coverUrlMap.remove(albumInfo.getKey());
                 cacheCoverRetriever.delete(albumInfo);
             }
@@ -811,5 +824,36 @@ public class CoverManager {
         coverUrlMap.remove(albumInfo);
         wrongCoverUrlMap.remove(albumInfo.getKey());
         notFoundAlbumKeys.remove(albumInfo.getKey());
+    }
+
+    protected String cleanGetRequest(String text) {
+        String processedtext;
+
+        if (text == null) {
+            return text;
+        }
+
+        processedtext = text.replaceAll("[^\\w .-]+", " ");
+        processedtext = Normalizer.normalize(processedtext, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        return processedtext;
+    }
+
+
+    public AlbumInfo getNormalizedAlbumInfo(AlbumInfo albumInfo) throws Exception {
+        AlbumInfo normalizedAlbumInfo = new AlbumInfo(albumInfo);
+        normalizedAlbumInfo.setAlbum(cleanGetRequest(normalizedAlbumInfo.getAlbum()));
+        normalizedAlbumInfo.setAlbum(removeDiscReference(normalizedAlbumInfo.getAlbum()));
+        normalizedAlbumInfo.setArtist(cleanGetRequest(normalizedAlbumInfo.getArtist()));
+        return normalizedAlbumInfo;
+    }
+
+    //Remove disc references from albums (like CD1, disc02 ...)
+    protected String removeDiscReference(String album) {
+        String cleanedAlbum = album.toLowerCase();
+        for (String discReference : DISC_REFERENCES) {
+            cleanedAlbum = cleanedAlbum.replaceAll(discReference + "\\s*\\d+", " ");
+        }
+        return cleanedAlbum;
     }
 }

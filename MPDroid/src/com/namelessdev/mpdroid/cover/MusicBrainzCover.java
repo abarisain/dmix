@@ -45,11 +45,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
         String response;
 
-        String artist = cleanGetRequest(albumInfo.getArtist());
-        String album = cleanGetRequest(albumInfo.getAlbum());
-
-        String url = "http://musicbrainz.org/ws/2/release/?query=" + artist + " " + album + "&type=release&limit=5";
-        url = url.replace("!", "");
+        String url = "http://musicbrainz.org/ws/2/release/?query=" + albumInfo.getArtist() + " " + albumInfo.getAlbum() + "&type=release&limit=5";
         response = executeGetRequest(url);
         return extractReleaseIds(response);
     }

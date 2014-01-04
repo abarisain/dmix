@@ -16,13 +16,11 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.text.Normalizer;
 
 public abstract class AbstractWebCover implements ICoverRetriever {
 
     private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
     private final static boolean DEBUG = false;
-    private static final String[] DISC_REFERENCES = {"disc", "cd"};
 
     protected AndroidHttpClient client = prepareRequest();
 
@@ -106,7 +104,6 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         HttpGet httpGet = null;
         try {
             prepareRequest();
-            request = removeDiscReference(request);
             request = request.replace(" ", "%20");
             if (DEBUG)
                 Log.d(getName(), "Http request : " + request);
@@ -119,31 +116,8 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         }
     }
 
-    protected String cleanGetRequest(String text) {
-        String processedtext;
-
-        if (text == null) {
-            return text;
-        }
-
-        processedtext = text.replaceAll("[^\\w .-]+", " ");
-        processedtext = Normalizer.normalize(processedtext, Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-        return processedtext;
-    }
-
-
     public boolean isCoverLocal() {
         return false;
-    }
-
-    //Remove disc references from albums (like CD1, disc02 ...)
-    protected String removeDiscReference(String album) {
-        String cleanedAlbum = album.toLowerCase();
-        for (String discReference : DISC_REFERENCES) {
-            cleanedAlbum = cleanedAlbum.replaceAll(discReference + "\\s*\\d+", " ");
-        }
-        return cleanedAlbum;
     }
 
     @Override

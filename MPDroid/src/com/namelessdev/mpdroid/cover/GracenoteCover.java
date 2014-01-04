@@ -57,10 +57,6 @@ public class GracenoteCover extends AbstractWebCover {
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
         String coverUrl;
 
-        String artist = cleanGetRequest(albumInfo.getArtist());
-        String album = cleanGetRequest(albumInfo.getAlbum());
-
-
         if (userId == null) {
             initializeUserId();
         }
@@ -69,7 +65,7 @@ public class GracenoteCover extends AbstractWebCover {
             return new String[0];
         }
         try {
-            coverUrl = getCoverUrl(artist, album);
+            coverUrl = getCoverUrl(albumInfo.getArtist(), albumInfo.getAlbum());
             if (coverUrl != null) {
                 return new String[]{coverUrl};
             }
