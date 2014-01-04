@@ -145,11 +145,11 @@ public class CoverManager {
             }
             if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
                 enabledRetrievers.add(CoverRetrievers.LASTFM);
+                enabledRetrievers.add(CoverRetrievers.ITUNES);
                 enabledRetrievers.add(CoverRetrievers.DEEZER);
                 enabledRetrievers.add(CoverRetrievers.SPOTIFY);
                 enabledRetrievers.add(CoverRetrievers.DISCOGS);
                 enabledRetrievers.add(CoverRetrievers.GRACENOTE);
-                enabledRetrievers.add(CoverRetrievers.ITUNES);
                 enabledRetrievers.add(CoverRetrievers.MUSICBRAINZ);
             }
         }

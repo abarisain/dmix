@@ -23,8 +23,8 @@ public class ItunesCover extends AbstractWebCover {
                 coverUrl = jsonObject.getString("artworkUrl100");
                 if (coverUrl != null) {
                     // Based on some tests even if the cover art size returned is 100x100
-                    // The 200 X 200 version also exists. Add it first so that the 100x100 will be a fallback.
-                    return new String[]{coverUrl.replace("100x100", "200x200"), coverUrl};
+                    // Bigger versions also exists.
+                    return new String[]{coverUrl.replace("100x100", "600x600")};
                 }
             }
 
