@@ -178,7 +178,6 @@
     <string name="enableAudioText">Показать свойства звука</string>
 	<string name="singleMode">Одиночный режим</string>
 	<string name="consumeMode">Убирать из очереди после воспроизведения</string>
-	<string name="donate">Пожертвовать</string>
 	<string name="stop">Стоп</string>
 
 	<string name="behavior">Реакция на звонки</string>

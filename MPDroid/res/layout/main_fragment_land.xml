@@ -44,7 +44,7 @@
             android:id="@+id/songInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/seekLayout"
+            android:layout_above="@+id/progress_layout"
             android:layout_alignParentTop="true"
             android:layout_gravity="center"
             android:layout_marginTop="8dip"
@@ -164,7 +164,6 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:paddingLeft="10dip"
-                android:text="0:20"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?attr/nowPlayingPrimaryTextColor"
                 android:textSize="12sp" />
@@ -176,7 +175,6 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:paddingRight="10dip"
-                android:text="3:45"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?attr/nowPlayingPrimaryTextColor"
                 android:textSize="12sp" />

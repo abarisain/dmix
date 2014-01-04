@@ -118,7 +118,6 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:paddingLeft="10dip"
-            android:text="0:20"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?attr/nowPlayingPrimaryTextColor"
             android:textSize="12sp" />
@@ -130,7 +129,6 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:paddingRight="10dip"
-            android:text="3:45"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?attr/nowPlayingPrimaryTextColor"
             android:textSize="12sp" />
