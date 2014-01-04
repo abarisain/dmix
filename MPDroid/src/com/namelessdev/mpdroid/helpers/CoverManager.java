@@ -80,7 +80,8 @@ public class CoverManager {
         DEEZER,
         MUSICBRAINZ,
         DISCOGS,
-        SPOTIFY;
+        SPOTIFY,
+        ITUNES;
     }
 
     public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
@@ -114,6 +115,9 @@ public class CoverManager {
                 case SPOTIFY:
                     this.coverRetrievers[i] = new SpotifyCover();
                     break;
+                case ITUNES:
+                    this.coverRetrievers[i] = new ItunesCover();
+                    break;
             }
         }
     }
@@ -144,9 +148,9 @@ public class CoverManager {
                 enabledRetrievers.add(CoverRetrievers.DEEZER);
                 enabledRetrievers.add(CoverRetrievers.SPOTIFY);
                 enabledRetrievers.add(CoverRetrievers.DISCOGS);
+                enabledRetrievers.add(CoverRetrievers.ITUNES);
                 enabledRetrievers.add(CoverRetrievers.GRACENOTE);
                 enabledRetrievers.add(CoverRetrievers.MUSICBRAINZ);
-
             }
         }
         setCoverRetrievers(enabledRetrievers);
