@@ -44,7 +44,6 @@
             android:id="@+id/songInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/progress_layout"
             android:layout_alignParentTop="true"
             android:layout_gravity="center"
             android:layout_marginTop="8dip"
