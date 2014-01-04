@@ -1,19 +1,22 @@
 package com.namelessdev.mpdroid.cover;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 import org.a0z.mpd.AlbumInfo;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.StringReader;
 
+import static android.text.TextUtils.isEmpty;
+import static android.util.Log.e;
+import static android.util.Log.w;
+
 public class GracenoteCover extends AbstractWebCover {
 
-    private static final String CLIENT_ID_PREFIX = "15942656";
-    private static final String CLIENT_ID = CLIENT_ID_PREFIX + "-184B7C5BA04F0D8709F6E2A808C9ECD4";
-    private static final String USER_ID = "GRACENOTE_USERID";
-    private static final String API_URL = "https://c" + CLIENT_ID_PREFIX + ".web.cddbp.net/webapi/xml/1.0/";
+    private static String CLIENT_ID = "15942656-184B7C5BA04F0D8709F6E2A808C9ECD4";
+    public static final String USER_ID = "GRACENOTE_USERID";
+    public static final String CUSTOM_CLIENT_ID_KEY = "gracenoteClientId";
+    private static final String API_URL = "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
     private SharedPreferences sharedPreferences;
     private String userId;
     public static final String URL_PREFIX = "web.content.cddbp.net";
@@ -26,6 +29,10 @@ public class GracenoteCover extends AbstractWebCover {
         try {
 
             if (sharedPreferences != null) {
+                String customClientId = sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null);
+                if (!isEmpty(customClientId)) {
+                    CLIENT_ID = customClientId;
+                }
                 userId = sharedPreferences.getString(USER_ID, null);
             }
 
@@ -39,7 +46,7 @@ public class GracenoteCover extends AbstractWebCover {
                 }
             }
         } catch (Exception e) {
-            Log.e(GracenoteCover.class.getName(), "Gracenote initialisation failure : " + e.getMessage());
+            e(GracenoteCover.class.getName(), "Gracenote initialisation failure : " + e.getMessage());
             this.userId = null;
             if (sharedPreferences != null) {
                 if (sharedPreferences != null && userId != null) {
@@ -70,7 +77,7 @@ public class GracenoteCover extends AbstractWebCover {
                 return new String[]{coverUrl};
             }
         } catch (Exception ex) {
-            Log.e(GracenoteCover.class.getName(), "GracenoteCover fetch failure : " + ex);
+            e(GracenoteCover.class.getName(), "GracenoteCover fetch failure : " + ex);
         }
         return new String[0];
     }
@@ -141,7 +148,7 @@ public class GracenoteCover extends AbstractWebCover {
         } catch (Exception e)
 
         {
-            Log.e(GracenoteCover.class.getName(), "Cannot extract userID from Gracenote response : " + e);
+            e(GracenoteCover.class.getName(), "Cannot extract userID from Gracenote response : " + e);
         }
 
         return null;
@@ -177,9 +184,20 @@ public class GracenoteCover extends AbstractWebCover {
                 eventType = xpp.next();
             }
         } catch (Exception e) {
-            Log.e(GracenoteCover.class.getName(), "Cannot extract coverArt URL from Gracenote response : " + e);
+            e(GracenoteCover.class.getName(), "Cannot extract coverArt URL from Gracenote response : " + e);
         }
         return null;
+    }
+
+    private static String getClientIdPrefix() {
+        String[] splittedString;
+        splittedString = CLIENT_ID.split("-");
+        if (splittedString.length == 2) {
+            return splittedString[0];
+        } else {
+            w(GracenoteCover.class.getSimpleName(), "Invalid GraceNote User ID (must be XXXX-XXXXXXXXXXXXX) : " + CLIENT_ID);
+            return "";
+        }
     }
 }
 

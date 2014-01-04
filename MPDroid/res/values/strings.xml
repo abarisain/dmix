@@ -232,6 +232,8 @@
     <string name="enableTabletUIDescription">Restart the application to see the changes</string>
     <string name="enableInternetCover">Download cover art</string>
 	<string name="enableInternetCoverDescription">Get cover art using various internet services (sends them your song information)</string>
+    <string name="gracenoteClientId">GraceNote Client ID</string>
+    <string name="gracenoteClientIdDescription">GraceNote Client ID (XXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)</string>
 	<string name="drawer_open">Show drawer</string>
 	<string name="drawer_close">Close drawer</string>
 

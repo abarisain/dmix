@@ -156,6 +156,13 @@
                 android:summary="@string/enableInternetCoverDescription"
                 android:title="@string/enableInternetCover" />
 
+            <EditTextPreference
+                    android:defaultValue=""
+                    android:key="gracenoteClientId"
+                    android:persistent="true"
+                    android:summary="@string/gracenoteClientIdDescription"
+                    android:title="@string/gracenoteClientId" />
+
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="enableLocalCover"

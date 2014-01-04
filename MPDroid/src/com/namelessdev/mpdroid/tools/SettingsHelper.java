@@ -1,5 +1,6 @@
 package com.namelessdev.mpdroid.tools;
 
+import com.namelessdev.mpdroid.cover.GracenoteCover;
 import org.a0z.mpd.MPD;
 
 import android.content.Context;
@@ -15,33 +16,37 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 public class SettingsHelper implements OnSharedPreferenceChangeListener {
 	private static final int DEFAULT_MPD_PORT = 6600;
 	private static final int DEFAULT_STREAMING_PORT = 8000;
-	
+
 	private WifiManager mWifiManager;
 	private SharedPreferences settings;
 	private MPDAsyncHelper oMPDAsyncHelper;
-	
+
 	public SettingsHelper(ContextWrapper parent, MPDAsyncHelper MPDAsyncHelper) {
 		// Get Settings and register ourself for updates
 		settings = PreferenceManager.getDefaultSharedPreferences(parent);// getSharedPreferences("org.pmix", MODE_PRIVATE);
 		settings.registerOnSharedPreferenceChangeListener(this);
-		
+
 		// get reference on WiFi service
 		mWifiManager = (WifiManager) parent.getSystemService(Context.WIFI_SERVICE);
-		
+
 		oMPDAsyncHelper = MPDAsyncHelper;
 	}
-	
+
 	public void onSharedPreferenceChanged(SharedPreferences settings, String key) {
+        // Reset the Grace note authentication if a custom client ID has been sets
+        if (key.equals(GracenoteCover.CUSTOM_CLIENT_ID_KEY)) {
+            removeProperty(GracenoteCover.USER_ID);
+        }
 		updateSettings();
 	}
-	
+
 	public boolean warningShown() {
 		return getBooleanSetting("newWarningShown");
 	}
-	
+
 	public boolean updateSettings() {
-		
-		
+
+
 		MPD.setSortByTrackNumber(settings.getBoolean("albumTrackSort", MPD.sortByTrackNumber()));
 		MPD.setSortAlbumsByYear(settings.getBoolean("sortAlbumsByYear", MPD.sortAlbumsByYear()));
 		MPD.setUseAlbumArtist(settings.getBoolean("albumartist", MPD.useAlbumArtist()));
@@ -50,7 +55,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 
 		return updateConnectionSettings();
 	}
-	
+
 	public boolean updateConnectionSettings(){
 		String wifiSSID = getCurrentSSID();
 		if (getStringSetting(getStringWithSSID("hostname",  wifiSSID)) != null) {
@@ -63,13 +68,13 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 			return false;
 		}
 	}
-	
+
 	private void updateConnectionSettings(String wifiSSID) {
 		// an empty SSID should be null
-		if (wifiSSID != null) 
+		if (wifiSSID != null)
 			if (wifiSSID.trim().equals(""))
 				wifiSSID = null;
-		
+
 		oMPDAsyncHelper.getConnectionSettings().sServer				= getStringSetting(getStringWithSSID("hostname", wifiSSID));
 		oMPDAsyncHelper.getConnectionSettings().iPort				= getIntegerSetting(getStringWithSSID("port", wifiSSID), DEFAULT_MPD_PORT);
 		oMPDAsyncHelper.getConnectionSettings().sPassword			= getStringSetting(getStringWithSSID("password", wifiSSID));
@@ -87,30 +92,37 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 			return DEFAULT_MPD_PORT;
 		}
 	}
-	
+
 	private String getStringSetting(String name) {
 		String value = settings.getString(name, "").trim();
-		
+
 		if (value.equals(""))
 			return null;
 		else
 			return value;
 	}
-	
+
 	private boolean getBooleanSetting(String name) {
 		return settings.getBoolean(name, false);
 	}
-	
+
 	private String getCurrentSSID() {
 		WifiInfo info = mWifiManager.getConnectionInfo();
 		final String ssid = info.getSSID();
 		return ssid == null ? null : ssid.replace("\"", "");
 	}
-	
+
 	private String getStringWithSSID(String param, String wifiSSID) {
 		if (wifiSSID == null)
 			return param;
 		else
 			return wifiSSID + param;
+	}
+
+    private void removeProperty(String property) {
+        SharedPreferences.Editor editor;
+        editor = settings.edit();
+        editor.remove(property);
+        editor.commit();
 	}
 }
