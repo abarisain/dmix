@@ -138,7 +138,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private String oldStatus;
     private boolean isPlaying;
     private boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
-    private boolean needStoppedNotification;
     private Integer lastStartID;
     //private Integer mediaPlayerError;
 
@@ -323,7 +322,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         oldStatus = "";
         isPlaying = true;
         isPaused = false;
-        needStoppedNotification = false; // Maybe I shouldn't try fixing bugs after long days of work
         lastStartID = 0;
         // streaming_enabled = false;
         mediaPlayer.setOnBufferingUpdateListener(this);
@@ -359,16 +357,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     @Override
     public void onDestroy() {
-        if (needStoppedNotification) {
-            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
-            Notification status = new NotificationCompat.Builder(this)
-                    .setContentTitle(getString(R.string.streamStopped))
-                    .setSmallIcon(R.drawable.icon)
-                    .setContentIntent(PendingIntent.getActivity(this, 0,
-                            new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0))
-                    .build();
-            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_STOPPED, status);
-        }
         isServiceRunning = false;
         setMusicState(PLAYSTATE_STOPPED);
         unregisterMediaButtonEvent();
@@ -550,7 +538,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         if (!((MPDApplication) getApplication()).getApplicationState().streamingMode)
             return;
 
-        needStoppedNotification = false;
         isPaused = false;
         buffering = true;
         // MPDApplication app = (MPDApplication) getApplication();
