@@ -1,6 +1,5 @@
 package com.namelessdev.mpdroid.library;
 
-import android.annotation.TargetApi;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +29,6 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 	private boolean isPlayQueue=true;
 	private boolean isFirstRefresh = true;
 
-	@TargetApi(11)
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);

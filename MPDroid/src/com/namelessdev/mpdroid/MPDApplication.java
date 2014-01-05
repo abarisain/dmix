@@ -1,6 +1,5 @@
 package com.namelessdev.mpdroid;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -69,7 +68,6 @@ public class MPDApplication extends Application implements ConnectionListener {
 
 	public static final int SETTINGS = 5;
 
-	@TargetApi(9)
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -77,12 +75,10 @@ public class MPDApplication extends Application implements ConnectionListener {
 		
 		MPD.setApplicationContext(getApplicationContext());
 
-		if (android.os.Build.VERSION.SDK_INT > 9) {
-			StrictMode.VmPolicy vmpolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
-			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-			StrictMode.setThreadPolicy(policy);
-			StrictMode.setVmPolicy(vmpolicy);
-		}
+		StrictMode.VmPolicy vmpolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy);
+		StrictMode.setVmPolicy(vmpolicy);
 
 		oMPDAsyncHelper = new MPDAsyncHelper();
 		oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());

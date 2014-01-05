@@ -1,7 +1,6 @@
 package com.namelessdev.mpdroid;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -206,47 +205,40 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
     }
 
-    @TargetApi(14)
     private void registerRemoteControlClient() {
-        if (Build.VERSION.SDK_INT > 14) {
-            // build the PendingIntent for the remote control client
-            Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            mediaButtonIntent.setComponent(remoteControlResponder);
-            PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
-            // create and register the remote control client
-            remoteControlClient = new RemoteControlClient(mediaPendingIntent);
-            ((RemoteControlClient) remoteControlClient).setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE |
-                    RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
-                    RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
-            audioManager.registerRemoteControlClient((RemoteControlClient) remoteControlClient);
-        }
+		// build the PendingIntent for the remote control client
+		Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+		mediaButtonIntent.setComponent(remoteControlResponder);
+		PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
+		// create and register the remote control client
+		remoteControlClient = new RemoteControlClient(mediaPendingIntent);
+		((RemoteControlClient) remoteControlClient).setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
+						| RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
+						| RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
+		audioManager.registerRemoteControlClient((RemoteControlClient) remoteControlClient);
     }
 
-    @TargetApi(14)
     private void unregisterRemoteControlClient() {
-        if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+        if (remoteControlClient != null) {
             audioManager.unregisterRemoteControlClient((RemoteControlClient) remoteControlClient);
         }
     }
 
-    @TargetApi(14)
     private void setMusicState(int state) {
-        if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+        if (remoteControlClient != null) {
             ((RemoteControlClient) remoteControlClient).setPlaybackState(state);
         }
     }
 
-    @TargetApi(14)
     private void setMusicCover(Bitmap cover) {
-        if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+        if (remoteControlClient != null) {
             ((RemoteControlClient) remoteControlClient).editMetadata(false)
                     .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, cover).apply();
         }
     }
 
-    @TargetApi(14)
     private void setMusicInfo(Music song) {
-        if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null && song != null) {
+        if (remoteControlClient != null && song != null) {
             MetadataEditor editor = ((RemoteControlClient) remoteControlClient).editMetadata(true);
             //TODO : maybe add cover art here someday
             editor.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, song.getTime() * 1000);
@@ -301,14 +293,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
     };
 
-    @TargetApi(9)
     public void onCreate() {
         super.onCreate();
 
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy);
 
         if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
             stopSelf();
