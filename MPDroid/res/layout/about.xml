@@ -4,15 +4,15 @@
 	android:layout_height="fill_parent" android:gravity="center">
 
 	<TextView android:layout_width="fill_parent"
-	android:layout_height="wrap_content" android:gravity="center" android:textSize="25sp" android:padding="10px"
+	android:layout_height="wrap_content" android:gravity="center" android:textSize="25sp" android:padding="10dp"
 	android:text="@string/aboutText1"/>
 	<TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:gravity="center"
-	android:text="@string/aboutText2" android:padding="10px"/>	
+	android:text="@string/aboutText2" android:padding="10dp"/>	
 	
-	<TextView android:layout_width="fill_parent" android:id="@+id/versionText"  android:padding="10px"
+	<TextView android:layout_width="fill_parent" android:id="@+id/versionText"  android:padding="10dp"
 	android:layout_height="wrap_content" android:singleLine="true"  android:gravity="center" />	
 	
-	<TextView android:layout_width="fill_parent" android:padding="10px"
+	<TextView android:layout_width="fill_parent" android:padding="10dp"
 	android:layout_height="wrap_content" android:singleLine="true"  android:gravity="center" 
 	android:text="@string/aboutIcon"/>
 
