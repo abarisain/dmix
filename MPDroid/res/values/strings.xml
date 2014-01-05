@@ -121,7 +121,7 @@
 	<string name="cancel">Cancel</string>
 	<string name="skipToHere">Skip to here</string>
 	<string name="playNext">Play next</string>
-    <string name="go_to">Go to ...</string>
+    <string name="go_to">Go to …</string>
     <string name="moveFirst">Move to first</string>
 	<string name="moveLast">Move to last</string>
 	<string name="removeFromPlaylist">Remove from playlist</string>

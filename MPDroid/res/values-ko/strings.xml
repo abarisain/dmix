@@ -121,7 +121,7 @@
         <string name="cancel">취소</string>
         <string name="skipToHere">여기로 건너뜀</string>
         <string name="playNext">다음 곡 연주</string>
-    	<string name="go_to">가기...</string>
+    	<string name="go_to">가기…</string>
         <string name="moveFirst">처음으로 이동</string>
         <string name="moveLast">마지막으로 이동</string>
         <string name="removeFromPlaylist">연주목록에서 지우기</string>
