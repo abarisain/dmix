@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class MusicBrainzCover extends AbstractWebCover {
 
-    private static final String COVER_ART_ARCHIVE_URL = "http://coverartarchive.org/release/";
+    private static final String COVER_ART_ARCHIVE_URL = "http://coverartarchive.org/release-group/";
 
     @Override
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
@@ -45,8 +45,8 @@ public class MusicBrainzCover extends AbstractWebCover {
 
         String response;
 
-        String url = "http://musicbrainz.org/ws/2/release/?query=" + albumInfo.getArtist() + " " + albumInfo.getAlbum() + "&type=release&limit=5";
-        response = executeGetRequest(url);
+        String url = "http://musicbrainz.org/ws/2/release-group/?query=" + albumInfo.getArtist() + " " + albumInfo.getAlbum() + "&type=release-group&limit=5";
+        response = executeGetRequestWithConnection(url);
         return extractReleaseIds(response);
     }
 
@@ -66,7 +66,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.getName().equals("release")) {
+                    if (xpp.getName().equals("release-group")) {
                         String id = xpp.getAttributeValue(null, "id");
                         if (id != null) {
                             releaseList.add(id);
@@ -85,8 +85,8 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private String getCoverArtArchiveResponse(String mbid) {
 
-        String request = (COVER_ART_ARCHIVE_URL + mbid);
-        return executeGetRequest(request);
+        String request = (COVER_ART_ARCHIVE_URL + mbid + "/");
+        return executeGetRequestWithConnection(request);
     }
 
 
