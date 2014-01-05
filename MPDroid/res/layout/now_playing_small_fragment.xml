@@ -19,6 +19,7 @@
 
             <ImageView
                 android:id="@+id/albumCover"
+                android:contentDescription="@string/albumCover"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:scaleType="fitCenter"
@@ -66,16 +67,19 @@
 
     <ImageButton
         android:id="@+id/prev"
+        android:contentDescription="@string/previous"
         style="@style/PlayerSmallButton"
         android:src="?attr/prevIcon" />
 
     <ImageButton
         android:id="@+id/playpause"
+        android:contentDescription="@string/play"
         style="@style/PlayerSmallButton"
         android:src="?attr/playIcon" />
 
     <ImageButton
         android:id="@+id/next"
+        android:contentDescription="@string/next"
         style="@style/PlayerSmallButton"
         android:src="?attr/nextIcon" />
 

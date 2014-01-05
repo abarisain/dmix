@@ -179,6 +179,12 @@
 	<string name="enableStopButton">Show stop button</string>
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
+	<string name="albumCover">Album cover</string>
+	<string name="divider">Divider button</string>
+	<string name="startApp">Start MPDroid</string>
+	<string name="menuButton">Menu button</string>
+	<string name="listItemHandle">List item handle</string>
+	<string name="play">Play</string>
 	<string name="stop">Stop</string>
     <string name="enableAlbumYearText">Show album year</string>
     <string name="showAlbumArtist">Show album artist</string>

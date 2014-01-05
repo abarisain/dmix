@@ -12,6 +12,7 @@
 
     <ImageView
         android:id="@+id/icon"
+        android:contentDescription="@string/listItemHandle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
@@ -23,6 +24,7 @@
 
     <ImageView
         android:id="@+id/cover"
+        android:contentDescription="@string/albumCover"
         android:layout_width="46dip"
         android:layout_height="46dip"
         android:layout_gravity="center"
@@ -77,6 +79,7 @@
 
     <ImageButton
         android:id="@+id/menu"
+        android:contentDescription="@string/menuButton"
         android:layout_width="40dip"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"

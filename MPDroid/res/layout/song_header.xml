@@ -15,6 +15,7 @@
 
         <ImageView
             android:id="@+id/albumCover"
+            android:contentDescription="@string/albumCover"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:scaleType="fitCenter"
@@ -64,6 +65,7 @@
 
     <ImageButton
         android:id="@+id/album_menu"
+        android:contentDescription="@string/menuButton"
         android:layout_width="40dip"
         android:layout_height="wrap_content"
         android:layout_above="@+id/list_separator_layout"

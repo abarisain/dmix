@@ -25,6 +25,7 @@
 
     <ImageButton
         android:id="@+id/control_app"
+        android:contentDescription="@string/startApp"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -33,12 +34,14 @@
         android:src="@drawable/icon" />
 
     <ImageView
+        android:contentDescription="@string/divider"
         android:layout_width="1dip"
         android:layout_height="match_parent"
         android:background="@drawable/appwidget_divider" />
 
     <ImageButton
         android:id="@+id/control_prev"
+        android:contentDescription="@string/previous"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -47,12 +50,14 @@
         android:src="@drawable/ic_appwidget_music_prev" />
 
     <ImageView
+        android:contentDescription="@string/divider"
         android:layout_width="1dip"
         android:layout_height="match_parent"
         android:background="@drawable/appwidget_divider" />
 
     <ImageButton
         android:id="@+id/control_play"
+        android:contentDescription="@string/play"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -61,12 +66,14 @@
         android:src="@drawable/ic_appwidget_music_pause" />
 
     <ImageView
+        android:contentDescription="@string/divider"
         android:layout_width="1dip"
         android:layout_height="match_parent"
         android:background="@drawable/appwidget_divider" />
 
     <ImageButton
         android:id="@+id/control_stop"
+        android:contentDescription="@string/stop"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -76,12 +83,14 @@
 
     <ImageView
         android:id="@+id/imageView"
+        android:contentDescription="@string/divider"
         android:layout_width="1dip"
         android:layout_height="match_parent"
         android:background="@drawable/appwidget_divider" />
 
     <ImageButton
         android:id="@+id/control_next"
+        android:contentDescription="@string/next"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
