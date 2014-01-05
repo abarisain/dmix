@@ -34,7 +34,7 @@ public class CoverManager {
     public static final String PREFERENCE_LASTFM = "enableLastFM";
     public static final String PREFERENCE_LOCALSERVER = "enableLocalCover";
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
-    private static final boolean DEBUG = false;
+    public static final boolean DEBUG = false;
     public static final int MAX_REQUESTS = 20;
     private static final String FOLDER_SUFFIX = "/covers/";
     public static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";

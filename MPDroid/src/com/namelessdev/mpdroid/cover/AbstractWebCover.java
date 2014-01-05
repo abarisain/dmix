@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.cover;
 
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -20,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 public abstract class AbstractWebCover implements ICoverRetriever {
 
     private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
-    private final static boolean DEBUG = false;
+    private final static boolean DEBUG = CoverManager.DEBUG;
 
     protected AndroidHttpClient client = prepareRequest();
 

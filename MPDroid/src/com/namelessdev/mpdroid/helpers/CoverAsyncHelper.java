@@ -6,7 +6,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.MPD;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -107,8 +109,11 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case EVENT_COVER_DOWNLOADED:
+                CoverInfo coverInfo = (CoverInfo) msg.obj;
                 for (CoverDownloadListener listener : coverDownloadListener)
-                    listener.onCoverDownloaded((CoverInfo) msg.obj);
+                    listener.onCoverDownloaded(coverInfo);
+                if (CoverManager.DEBUG)
+                    displayCoverRetrieverName(coverInfo);
                 break;
 
             case EVENT_COVER_NOT_FOUND:
@@ -148,5 +153,14 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         CoverManager.getInstance(app, settings).setCoverRetrieversFromPreferences();
     }
 
-
+    private void displayCoverRetrieverName(CoverInfo coverInfo) {
+        try {
+            if (!coverInfo.getCoverRetriever().isCoverLocal()) {
+                String message = "\"" + coverInfo.getAlbum() + "\" cover found with " + coverInfo.getCoverRetriever().getName();
+                Tools.notifyUser(message, MPD.getApplicationContext());
+            }
+        } catch (Exception e) {
+            //Nothing to do
+        }
+    }
 }
