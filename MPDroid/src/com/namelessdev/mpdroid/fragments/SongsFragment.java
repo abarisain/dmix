@@ -39,13 +39,11 @@ import com.namelessdev.mpdroid.views.SongDataBinder;
 
 public class SongsFragment extends BrowseFragment {
 
-    private static final String EXTRA_ARTIST = "artist";
     private static final String EXTRA_ALBUM = "album";
     private static final int POPUP_COVER_BLACKLIST = 5;
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
     Album album = null;
-    Artist artist = null;
     TextView headerArtist;
     TextView headerInfo;
 
@@ -71,7 +69,6 @@ public class SongsFragment extends BrowseFragment {
 
     public SongsFragment init(Album al) {
         album = al;
-        artist = al.getArtist();
         return this;
     }
 
@@ -176,7 +173,7 @@ public class SongsFragment extends BrowseFragment {
                                 break;
                         }
                         try {
-                            app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
+                            app.oMPDAsyncHelper.oMPD.add(album, replace, play);
                             Tools.notifyUser(String.format(getResources().getString(R.string.albumAdded), album), getActivity());
                         } catch (MPDServerException e) {
                             e.printStackTrace();
@@ -233,7 +230,6 @@ public class SongsFragment extends BrowseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(EXTRA_ALBUM, album);
-        outState.putParcelable(EXTRA_ARTIST, artist);
         super.onSaveInstanceState(outState);
     }
 
@@ -275,7 +271,7 @@ public class SongsFragment extends BrowseFragment {
         try {
             if (getActivity() == null)
                 return;
-            items = app.oMPDAsyncHelper.oMPD.getSongs(artist, album);
+            items = app.oMPDAsyncHelper.oMPD.getSongs(album);
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
