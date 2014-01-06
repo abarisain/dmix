@@ -1243,7 +1243,11 @@ public class MPD {
     public MPDCommand getSongsCommand(Album album) {
         String albumname = (album instanceof UnknownAlbum ? "" : album.getName());
         Artist artist = album.getArtist();
-        String artistname = ((artist == null || artist instanceof UnknownArtist) ? "" : artist.getName());
+        if (null == artist) { // get songs for ANY artist
+            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
+                                  MPDCommand.MPD_TAG_ALBUM, albumname);
+        }
+        String artistname = ((artist instanceof UnknownArtist) ? "" : artist.getName());
         if (album.hasAlbumArtist()) {
             return new MPDCommand(MPDCommand.MPD_CMD_FIND,
                                   MPDCommand.MPD_TAG_ALBUM, albumname,
