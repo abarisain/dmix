@@ -68,6 +68,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private boolean repeatCurrent = false;
     private PopupMenu popupMenu = null;
     private PopupMenu popupMenuStream = null;
+    private ImageView volumeIcon = null;
 
     public static final int ALBUMS = 4;
 
@@ -185,6 +186,20 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         @Override
                         public void run() {
                             progressBarVolume.setProgress(volume);
+                            if (volume == -1)
+                            {
+                            	// volume is -1 when output device does not support
+                            	// a volume control, e.g. Optical Output
+                                progressBarVolume.setEnabled(false);
+                                progressBarVolume.setVisibility(View.GONE);
+                                volumeIcon.setVisibility(View.GONE);
+                            }
+                            else
+                            {
+                                progressBarVolume.setEnabled(false);
+                                progressBarVolume.setVisibility(View.VISIBLE);
+                                volumeIcon.setVisibility(View.VISIBLE);
+                            }
                         }
                     });
                 } catch (MPDServerException e) {
@@ -226,6 +241,27 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
         progressBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
+        volumeIcon = (ImageView) view.findViewById(R.id.volume_icon);
+        
+        try {
+            final int volume = app.oMPDAsyncHelper.oMPD.getStatus().getVolume();
+            if (volume == -1)
+            {
+                progressBarVolume.setEnabled(false);
+                progressBarVolume.setVisibility(View.GONE);
+                volumeIcon.setVisibility(View.GONE);
+            }
+            else
+            {
+                progressBarVolume.setEnabled(false);
+                progressBarVolume.setVisibility(View.VISIBLE);
+                volumeIcon.setVisibility(View.VISIBLE);
+            }
+                    
+        } catch (MPDServerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         trackTime = (TextView) view.findViewById(R.id.trackTime);
         trackTotalTime = (TextView) view.findViewById(R.id.trackTotalTime);
@@ -456,10 +492,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     break;
                 case R.id.playpause:
                     /**
-                     * If playing or paused, just toggle state, otherwise start playing.
-                     *
-                     * @author slubman
-                     */
+					* If playing or paused, just toggle state, otherwise start playing.
+					*
+					* @author slubman
+					*/
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -824,7 +860,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 sb.append(extension.toUpperCase() + " | ");
             }
 
-            sb.append(status.getBitrate() + " kbps | " + status.getBitsPerSample() + " bits | " + status.getSampleRate() / 1000 + "  khz");
+            sb.append(status.getBitrate() + " kbps | " + status.getBitsPerSample() + " bits | " + status.getSampleRate() / 1000 + " khz");
             audioNameText.setText(sb.toString());
         }
 
@@ -943,7 +979,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(activity)).clear(currentSong.getAlbumInfo());
-                downloadCover(currentSong.getAlbumInfo());                //Update the playlist covers
+                downloadCover(currentSong.getAlbumInfo()); //Update the playlist covers
                 updatePlaylistCovers(currentSong.getAlbumInfo());
                 break;
             default:
