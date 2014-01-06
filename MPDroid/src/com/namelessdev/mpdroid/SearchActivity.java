@@ -119,17 +119,17 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         actionBar.addTab(tabSongs);
 
         listArtistsFrame = findViewById(R.id.list_artists_frame);
-        noResultArtistsView = listArtistsFrame.findViewById(R.id.no_result);
+        noResultArtistsView = listArtistsFrame.findViewById(R.id.no_artist_result);
         listArtists = (ListView) listArtistsFrame.findViewById(android.R.id.list);
         listArtists.setOnItemClickListener(this);
 
         listAlbumsFrame = findViewById(R.id.list_albums_frame);
-        noResultAlbumsView = listAlbumsFrame.findViewById(R.id.no_result);
+        noResultAlbumsView = listAlbumsFrame.findViewById(R.id.no_album_result);
         listAlbums = (ListView) listAlbumsFrame.findViewById(android.R.id.list);
         listAlbums.setOnItemClickListener(this);
 
         listSongsFrame = findViewById(R.id.list_songs_frame);
-        noResultSongsView = listSongsFrame.findViewById(R.id.no_result);
+        noResultSongsView = listSongsFrame.findViewById(R.id.no_song_result);
         listSongs = (ListView) listSongsFrame.findViewById(android.R.id.list);
         listSongs.setOnItemClickListener(this);
 
