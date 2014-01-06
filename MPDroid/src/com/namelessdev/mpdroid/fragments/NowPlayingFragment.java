@@ -798,7 +798,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         setShuffleButton(status.isRandom());
         setRepeatButton(status.isRepeat());
         
-        if (mpdStatus.getVolume() == -1)
+        if (status.getVolume() == -1)
         {
             // volume is -1 when output device does not support
             // a volume control, e.g. Optical Output
