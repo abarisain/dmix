@@ -29,10 +29,10 @@ public class AlbumCache
     protected MPDConnection mpdconnection;
     protected Date lastUpdate = null;
 
-    protected Map<String, Set<String>> albumsByArtist;      // artist -> albums
-    protected Map<String, Set<String>> albumsByAlbumArtist; // albumartist -> albums
-    protected Map<String, Set<String>> artistsByAlbum;      // album -> artists
-    protected Map<String, Set<String>> albumArtistsByAlbum; // album -> albumartists
+    // list of albumname, artist, albumartist including ""
+    protected Set< List<String>> albumSet;
+    // albums that have an albumartist get an empty artist:
+    protected Set< List<String>> uniqueAlbumSet;
 
     class AlbumDetails implements Serializable {
         String path = null;
@@ -112,6 +112,17 @@ public class AlbumCache
         return true;
     }
 
+    protected void makeUniqueAlbumSet() {
+        uniqueAlbumSet = new HashSet<List<String>>();
+        for (List<String> ai : albumSet) {
+            if ("".equals(ai.get(2))) { // no albumartist
+                uniqueAlbumSet.add(Arrays.asList(ai.get(0), ai.get(1),""));
+            } else { // with albumartist set artist to ""
+                uniqueAlbumSet.add(Arrays.asList(ai.get(0), "", ai.get(2)));
+            }
+        }
+    }
+
     /*
      * reloads info from MPD if it is not up to date
      */
@@ -137,11 +148,8 @@ public class AlbumCache
                          (R.string.updatingLocalAlbumCacheNote),context);
 
         Date oldUpdate = lastUpdate;
-        albumsByAlbumArtist = new HashMap<String, Set<String>>();
-        albumsByArtist      = new HashMap<String, Set<String>>();
-        artistsByAlbum      = new HashMap<String, Set<String>>();
-        albumArtistsByAlbum = new HashMap<String, Set<String>>();
         albumDetails        = new HashMap<String, AlbumDetails>();
+        albumSet            = new HashSet<List<String>>();
 
         List<Music> allmusic;
         try {
@@ -161,52 +169,39 @@ public class AlbumCache
                 String albumartist = m.getAlbumArtist();
                 String artist = m.getArtist();
                 String album = m.getAlbum();
-                if (album != null) {
-                    boolean isAA = albumartist != null;
-                    String thisalbum =
-                        albumCode(isAA ? albumartist : artist, album, isAA);
-                    AlbumDetails details;
-                    if (albumDetails.containsKey(thisalbum)){
-                        details = albumDetails.get(thisalbum);
-                    } else {
-                        details = new AlbumDetails();
-                        albumDetails.put(thisalbum, details);
-                    }
-                    if (details.path == null) {
-                        details.path = m.getPath();
-                    }
-                    // if (details.times == null)
-                    //     details.times = new ArrayList<Long>();
-                    // details.times.add((Long)m.getTime());
-                    details.numtracks += 1;
-                    details.totaltime += m.getTime();
-                    if (details.date == 0)
-                        details.date = m.getDate();
-                    if (albumartist != null) { // AlbumArtist is set
-                        if (!albumsByAlbumArtist.containsKey(albumartist)) {
-                            albumsByAlbumArtist.put(albumartist, new HashSet<String>());
-                        }
-                        albumsByAlbumArtist.get(albumartist).add(album);
-                        if (!albumArtistsByAlbum.containsKey(album)) {
-                            albumArtistsByAlbum.put(album, new HashSet<String>());
-                        }
-                        albumArtistsByAlbum.get(album).add(albumartist);
-                    } else { // only add if music has no albumartist
-                        if (!artistsByAlbum.containsKey(album)) {
-                            artistsByAlbum.put(album, new HashSet<String>());
-                        }
-                        artistsByAlbum.get(album).add(artist);
-                    }
-                    if (artist != null) { // Artist is set
-                        if (!albumsByArtist.containsKey(artist)) {
-                            albumsByArtist.put(artist, new HashSet<String>());
-                        }
-                        albumsByArtist.get(artist).add(album);
-                    }
+                if (album == null) {
+                    album = "";
                 }
+                List<String> albuminfo = Arrays.asList
+                    (album, artist == null ? "": artist,
+                     albumartist == null ? "": albumartist);
+                albumSet.add(albuminfo);
+
+                boolean isAA = albumartist != null && !("".equals(albumartist));
+                String thisalbum =
+                    albumCode(isAA ? albumartist : artist, album, isAA);
+                AlbumDetails details;
+                if (albumDetails.containsKey(thisalbum)){
+                    details = albumDetails.get(thisalbum);
+                } else {
+                    details = new AlbumDetails();
+                    albumDetails.put(thisalbum, details);
+                }
+                if (details.path == null) {
+                    details.path = m.getPath();
+                }
+                // if (details.times == null)
+                //     details.times = new ArrayList<Long>();
+                // details.times.add((Long)m.getTime());
+                details.numtracks += 1;
+                details.totaltime += m.getTime();
+                if (details.date == 0)
+                    details.date = m.getDate();
             }
-            Log.d("MPD ALBUMCACHE", "albumsByArtists: " + albumsByArtist.keySet().size() );
             Log.d("MPD ALBUMCACHE", "albumDetails: " + albumDetails.size() );
+            Log.d("MPD ALBUMCACHE", "albumSet: " + albumSet.size() );
+            makeUniqueAlbumSet();
+            Log.d("MPD ALBUMCACHE", "uniqueAlbumSet: " + uniqueAlbumSet.size() );
             if (!save()) {
                 lastUpdate = oldUpdate;
                 return false;
@@ -248,12 +243,10 @@ public class AlbumCache
                 restore = new ObjectInputStream(new FileInputStream(file));
             }
             lastUpdate          = (Date)restore.readObject();
-            albumsByArtist      = (HashMap<String,Set<String>>)restore.readObject();
-            albumsByAlbumArtist = (HashMap<String,Set<String>>)restore.readObject();
-            artistsByAlbum      = (HashMap<String,Set<String>>)restore.readObject();
-            albumArtistsByAlbum = (HashMap<String,Set<String>>)restore.readObject();
             albumDetails        = (HashMap<String, AlbumDetails>)restore.readObject();
+            albumSet            = (Set<List<String>>)restore.readObject();
             restore.close();
+            makeUniqueAlbumSet();
             loaded_ok = true;
         } catch (FileNotFoundException e) {
         } catch (Exception e) {
@@ -284,11 +277,8 @@ public class AlbumCache
                                               (new FileOutputStream(file)));
             }
             save.writeObject(lastUpdate);
-            save.writeObject(albumsByArtist);
-            save.writeObject(albumsByAlbumArtist);
-            save.writeObject(artistsByAlbum);
-            save.writeObject(albumArtistsByAlbum);
             save.writeObject(albumDetails);
+            save.writeObject(albumSet);
             save.close();
             Log.d("MPD ALBUMCACHE", "saved to "+ file);
         } catch (Exception e) {
@@ -314,24 +304,28 @@ public class AlbumCache
     }
 
     public String cacheInfo(){
-        return "AlbumCache: " + albumsByArtist.size() + " artists, " +
-            albumsByAlbumArtist.size() + " albumartists, " +
-            artistsByAlbum.size() + " albums by artists, " +
-            albumArtistsByAlbum.size() + " albums by albumartists, Date " +
-            lastUpdate;
+        return "AlbumCache: " +
+            albumSet.size() + " album/artist combinations, " +
+            uniqueAlbumSet.size() + " unique album/artist combinations, " +
+            "Date: "+lastUpdate;
     }
 
-    public Map<String, Set<String>> getAlbumsByArtist() {
-        return albumsByArtist;
+    public Set<List<String>> getAlbumSet() {
+        return albumSet;
     }
-    public Map<String, Set<String>> getAlbumsByAlbumArtist() {
-        return albumsByAlbumArtist;
+    public Set<List<String>> getUniqueAlbumSet() {
+        return uniqueAlbumSet;
     }
-    public Map<String, Set<String>> getArtistsByAlbum() {
-        return artistsByAlbum;
-    }
-    public Map<String, Set<String>> getAlbumArtistsByAlbum() {
-        return albumArtistsByAlbum;
+
+    public Set<String> getAlbumArtists(String album, String artist) {
+        Set<String> aartists = new HashSet<String>();
+        for (List<String> ai : albumSet) {
+            if (ai.get(0).equals(album) &&
+                ai.get(1).equals(artist)) {
+                aartists.add(ai.get(2));
+            }
+        }
+        return aartists;
     }
 
     protected Set<String> getKeysByValue(Map<String,Set<String>> map, String val) {
@@ -346,16 +340,20 @@ public class AlbumCache
         return result;
     }
 
-    public List<String> getArtistsByAlbum(String album, boolean albumArtist){
-        Set<String> set;
-        if (albumArtist) {
-            set = getKeysByValue(albumsByAlbumArtist, album);
-        } else {
-            set = getKeysByValue(albumsByArtist, album);
+    public List<String> getArtistsByAlbum(String album, boolean albumArtist) {
+        Set<String> artists = new HashSet<String>();
+        for (List<String> ai : albumSet) {
+            if (ai.get(0).equals(album)) {
+                if (albumArtist) {
+                    artists.add(ai.get(2));
+                } else {
+                    artists.add(ai.get(1));
+                }
+            }
         }
         List<String> result;
-        if (set != null && set.size() > 0) {
-            result = new ArrayList<String>(set);
+        if (artists != null && artists.size() > 0) {
+            result = new ArrayList<String>(artists);
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
         }
         else {
@@ -365,18 +363,15 @@ public class AlbumCache
     }
 
 
-    public Set<String> getAlbums(String artist, boolean useAlbumArtist){
-        Map<String, Set<String>> map;
-        if (useAlbumArtist) {
-            map = albumsByAlbumArtist;
-        } else {
-            map = albumsByArtist;
+    public Set<String> getAlbums(String artist, boolean albumArtist){
+        Set<String> albums = new HashSet<String>();
+        for (List<String> ai : albumSet) {
+            if (albumArtist && ai.get(2).equals(artist) ||
+                !albumArtist && ai.get(1).equals(artist)) {
+                albums.add(ai.get(0));
+            }
         }
-        if (map != null && map.containsKey(artist)) {
-            return map.get(artist);
-        } else {
-            return new HashSet<String>();
-        }
+        return albums;
     }
 
     public String getDirByArtistAlbum(String artist, String album, boolean isAlbumArtist) {

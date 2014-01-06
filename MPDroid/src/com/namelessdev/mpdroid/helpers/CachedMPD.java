@@ -101,6 +101,22 @@ public class CachedMPD extends MPD
         return new ArrayList(cache.getArtistsByAlbum(album, useAlbumArtist));
     }
 
+    @Override
+    public List<String[]> listAlbumArtists(List<Album> albums) throws MPDServerException {
+        if (!cacheOK()) {
+            return super.listAlbumArtists(albums);
+        }
+        List<String[]> albumartists = new ArrayList<String[]>();
+        for (Album a : albums) {
+            Artist artist = a.getArtist();
+            Set<String> aartists =
+                cache.getAlbumArtists(a.getName(),
+                                      (artist == null || artist instanceof UnknownArtist )
+                                      ? "" : artist.getName());
+            albumartists.add(aartists.toArray(new String[0]));
+        }
+        return albumartists;
+    }
 
     /*
      * with cache we can afford to get the paths for all albums
@@ -111,23 +127,21 @@ public class CachedMPD extends MPD
         if (!cacheOK()) {
             return super.getAllAlbums(trackCountNeeded);
         }
-        List<Album> albums = new ArrayList<Album>();
-        Map<String, Set<String>> aa_albums = cache.getAlbumArtistsByAlbum();
-        for (String album : aa_albums.keySet()) {
-            for (String artist : aa_albums.get(album)) {
-                albums.add(new Album(album, new Artist(artist, 0), true));
+        Set<Album> albums = new HashSet<Album>();
+        Set<List<String>> albumset = cache.getUniqueAlbumSet();
+        for (List<String> ai : albumset) {
+            Album album;
+            if ("".equals(ai.get(2))) { // no albumartist
+                album = (new Album(ai.get(0), new Artist(ai.get(1)), false));
+            } else {
+                album = (new Album(ai.get(0), new Artist(ai.get(2)), true));
             }
+            albums.add(album);
         }
-        Map<String, Set<String>> a_albums  = cache.getArtistsByAlbum();
-        for (String album : a_albums.keySet()) {
-            for (String artist : a_albums.get(album)) {
-                albums.add(new Album(album, new Artist(artist, 0), false));
-            }
-        }
-        Collections.sort(albums);
-        // fixAlbumArtists(albums);
-        getAlbumDetails(albums,true);
-        return albums;
+        List<Album> result = new ArrayList<Album>(albums);
+        Collections.sort(result);
+        getAlbumDetails(result,true);
+        return result;
     }
 
     /*
@@ -146,7 +160,7 @@ public class CachedMPD extends MPD
             if (details != null) {
                 a.setPath(details.path);
             }
-            Log.d("MPD CACHED","album " + a.info());
+            // Log.d("MPD CACHED","album " + a.info());
         }
         Log.d("MPD CACHED","addAlbumPaths " + albums.size());
     }
@@ -164,7 +178,7 @@ public class CachedMPD extends MPD
         for (Album a : albums) {
             Artist art = a.getArtist();
             String artist = (art == null ? "" : art.getName());
-            //Log.d("MPD CACHED","Details  " + artist+" // "+a.getName());
+            // Log.d("MPD CACHED","Details for " + a.info());
             AlbumCache.AlbumDetails details =
                 cache.getAlbumDetails(artist, a.getName(), a.hasAlbumArtist());
             if (null != details){
