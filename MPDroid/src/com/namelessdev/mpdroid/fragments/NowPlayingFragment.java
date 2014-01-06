@@ -196,7 +196,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                             }
                             else
                             {
-                                progressBarVolume.setEnabled(false);
+                                progressBarVolume.setEnabled(true);
                                 progressBarVolume.setVisibility(View.VISIBLE);
                                 volumeIcon.setVisibility(View.VISIBLE);
                             }
@@ -253,7 +253,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
             else
             {
-                progressBarVolume.setEnabled(false);
+                progressBarVolume.setEnabled(true);
                 progressBarVolume.setVisibility(View.VISIBLE);
                 volumeIcon.setVisibility(View.VISIBLE);
             }
