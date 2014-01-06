@@ -35,11 +35,12 @@ public class AlbumDataBinder extends BaseDataBinder {
         Artist artist = album.getArtist();
         String info = "";
         final long songCount = album.getSongCount();
+        if (artist != null && !(artist instanceof UnknownArtist) && !(artist.getName().equals(""))) {
+            info += artist.getName() + " - ";
+        }
         if (album.getYear() > 0)
-            info = Long.toString(album.getYear());
+            info += Long.toString(album.getYear()) + " - ";
         if (songCount > 0) {
-            if (info != null && info.length() > 0)
-                info += " - ";
             info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader),
                     songCount, Music.timeToString(album.getDuration()));
         }
