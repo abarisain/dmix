@@ -188,9 +188,17 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                             progressBarVolume.setProgress(volume);
                             if (volume == -1)
                             {
-                                    progressBarVolume.setEnabled(false);
-                                    progressBarVolume.setVisibility(View.GONE);
-                                    volumeIcon.setVisibility(View.GONE);
+                            	// volume is -1 when output device does not support
+                            	// a volume control, e.g. Optical Output
+                                progressBarVolume.setEnabled(false);
+                                progressBarVolume.setVisibility(View.GONE);
+                                volumeIcon.setVisibility(View.GONE);
+                            }
+                            else
+                            {
+                                progressBarVolume.setEnabled(false);
+                                progressBarVolume.setVisibility(View.VISIBLE);
+                                volumeIcon.setVisibility(View.VISIBLE);
                             }
                         }
                     });
@@ -239,9 +247,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             final int volume = app.oMPDAsyncHelper.oMPD.getStatus().getVolume();
             if (volume == -1)
             {
-                    progressBarVolume.setEnabled(false);
-                    progressBarVolume.setVisibility(View.GONE);
-                    volumeIcon.setVisibility(View.GONE);
+                progressBarVolume.setEnabled(false);
+                progressBarVolume.setVisibility(View.GONE);
+                volumeIcon.setVisibility(View.GONE);
+            }
+            else
+            {
+                progressBarVolume.setEnabled(false);
+                progressBarVolume.setVisibility(View.VISIBLE);
+                volumeIcon.setVisibility(View.VISIBLE);
             }
                     
         } catch (MPDServerException e) {
