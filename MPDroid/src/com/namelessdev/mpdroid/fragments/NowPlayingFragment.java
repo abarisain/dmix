@@ -478,10 +478,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     break;
                 case R.id.playpause:
                     /**
-* If playing or paused, just toggle state, otherwise start playing.
-*
-* @author slubman
-*/
+					* If playing or paused, just toggle state, otherwise start playing.
+					*
+					* @author slubman
+					*/
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
