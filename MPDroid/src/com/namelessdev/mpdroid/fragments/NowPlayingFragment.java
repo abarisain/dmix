@@ -753,20 +753,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
         progressBarVolume.setProgress(mpdStatus.getVolume());
-        if (mpdStatus.getVolume() == -1)
-        {
-            // volume is -1 when output device does not support
-            // a volume control, e.g. Optical Output
-            progressBarVolume.setEnabled(false);
-            progressBarVolume.setVisibility(View.GONE);
-            volumeIcon.setVisibility(View.GONE);
-        }
-        else
-        {
-            progressBarVolume.setEnabled(true);
-            progressBarVolume.setVisibility(View.VISIBLE);
-            volumeIcon.setVisibility(View.VISIBLE);
-        }
     }
 
     @Override
@@ -811,6 +797,21 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
         setShuffleButton(status.isRandom());
         setRepeatButton(status.isRepeat());
+        
+        if (mpdStatus.getVolume() == -1)
+        {
+            // volume is -1 when output device does not support
+            // a volume control, e.g. Optical Output
+            progressBarVolume.setEnabled(false);
+            progressBarVolume.setVisibility(View.GONE);
+            volumeIcon.setVisibility(View.GONE);
+        }
+        else
+        {
+            progressBarVolume.setEnabled(true);
+            progressBarVolume.setVisibility(View.VISIBLE);
+            volumeIcon.setVisibility(View.VISIBLE);
+        }
 
         //Update audio properties
         if (audioNameText != null && currentSong != null) {
