@@ -176,39 +176,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
         updateStatus(null);
 
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    final int volume = app.oMPDAsyncHelper.oMPD.getStatus().getVolume();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBarVolume.setProgress(volume);
-                            if (volume == -1)
-                            {
-                            	// volume is -1 when output device does not support
-                            	// a volume control, e.g. Optical Output
-                                progressBarVolume.setEnabled(false);
-                                progressBarVolume.setVisibility(View.GONE);
-                                volumeIcon.setVisibility(View.GONE);
-                            }
-                            else
-                            {
-                                progressBarVolume.setEnabled(true);
-                                progressBarVolume.setVisibility(View.VISIBLE);
-                                volumeIcon.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
         // Update the cover on resume (when you update the current cover from the library activity)
         if (currentSong != null) {
             downloadCover(currentSong.getAlbumInfo());
@@ -242,26 +209,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
         progressBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
         volumeIcon = (ImageView) view.findViewById(R.id.volume_icon);
-        
-        try {
-            final int volume = app.oMPDAsyncHelper.oMPD.getStatus().getVolume();
-            if (volume == -1)
-            {
-                progressBarVolume.setEnabled(false);
-                progressBarVolume.setVisibility(View.GONE);
-                volumeIcon.setVisibility(View.GONE);
-            }
-            else
-            {
-                progressBarVolume.setEnabled(true);
-                progressBarVolume.setVisibility(View.VISIBLE);
-                volumeIcon.setVisibility(View.VISIBLE);
-            }
-                    
-        } catch (MPDServerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
         trackTime = (TextView) view.findViewById(R.id.trackTime);
         trackTotalTime = (TextView) view.findViewById(R.id.trackTotalTime);
@@ -806,6 +753,20 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
         progressBarVolume.setProgress(mpdStatus.getVolume());
+        if (mpdStatus.getVolume() == -1)
+        {
+            // volume is -1 when output device does not support
+            // a volume control, e.g. Optical Output
+            progressBarVolume.setEnabled(false);
+            progressBarVolume.setVisibility(View.GONE);
+            volumeIcon.setVisibility(View.GONE);
+        }
+        else
+        {
+            progressBarVolume.setEnabled(true);
+            progressBarVolume.setVisibility(View.VISIBLE);
+            volumeIcon.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
