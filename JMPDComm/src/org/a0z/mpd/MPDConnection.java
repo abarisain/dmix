@@ -245,7 +245,7 @@ public abstract class MPDConnection {
         for (MPDCommand command : commandQueue) {
             commandstr += command.toString();
         }
-        commandstr += MPD_CMD_END_BULK + "\n";
+        commandstr += MPD_CMD_END_BULK;
         commandQueue = new ArrayList<MPDCommand>();
         return sendRawCommand(new MPDCommand(commandstr));
     }
