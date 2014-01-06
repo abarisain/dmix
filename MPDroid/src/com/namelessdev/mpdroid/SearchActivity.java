@@ -240,16 +240,23 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         } else if (object instanceof Artist) {
             add(((Artist) object), null, replace, play);
         } else if (object instanceof Album) {
-            Album album = (Album) object;
-            add(album.getArtist(), album, replace, play);
+            add(null, (Album) object, replace, play);
         }
     }
 
     protected void add(Artist artist, Album album, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
-            Tools.notifyUser(String.format(getResources().getString(addedString), null == album ? artist.getName()
-                    : (null == artist ? album.getName() : artist.getName() + " - " + album.getName())), this);
+            String note = "";
+            if (artist == null) {
+                app.oMPDAsyncHelper.oMPD.add(album, replace, play);
+                note = album.getArtist().getName() + " - " + album.getName();
+            } else if (album == null) {
+                app.oMPDAsyncHelper.oMPD.add(artist, replace, play);
+                note = artist.getName();
+            } else {
+                return;
+            }
+            Tools.notifyUser(String.format(getResources().getString(addedString) + note), this);
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
