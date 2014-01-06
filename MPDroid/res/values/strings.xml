@@ -111,6 +111,7 @@
 	<string name="notInRange">Not in range, remembered</string>
 	<string name="playlistDeleted">Playlist %s deleted</string>
 	<string name="deletePlaylist">Delete playlist</string>
+	<string name="defaultConnection">Default connection</string>
 	<string name="preferredConnection">Preferred connection</string>
 	<string name="chooseWLAN">Choose a WLAN network</string>
 	<string name="wlanBasedSettings">WLAN based connection</string>
