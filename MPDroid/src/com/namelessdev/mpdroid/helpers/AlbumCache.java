@@ -91,6 +91,10 @@ public class AlbumCache
 
     protected synchronized boolean updateConnection() {
         // get server/port from mpd
+        if (!enabled) {
+            Log.d("MPD ALBUMCACHE", "is disabled");
+            return false;
+        }
         if (mpd == null) {
             Log.d("MPD ALBUMCACHE", "no MPD! ");
             return false;
@@ -156,11 +160,12 @@ public class AlbumCache
             allmusic = Music.getMusicFromList(mpdconnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO), false);
             Log.d("MPD ALBUMCACHE", "allmusic " + allmusic.size());
         } catch (MPDServerException e) {
-            Tools.notifyUser("Error with the 'listallinfo' command. Probably you have to adjust your server's 'max_output_buffer_size'", context);
-            e.printStackTrace();
-            lastUpdate = oldUpdate;
-            updateConnection();
             enabled = false;
+            lastUpdate = null;
+            e.printStackTrace();
+            updateConnection();
+            Log.d("MPD ALBUMCACHE", "disabled AlbumCache");
+            Tools.notifyUser("Error with the 'listallinfo' command. Probably you have to adjust your server's 'max_output_buffer_size'", context);
             return false;
         }
 

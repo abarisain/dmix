@@ -150,6 +150,7 @@ public class CachedMPD extends MPD
     @Override
     protected void addAlbumPaths(List<Album> albums) {
         if (!cacheOK()) {
+            super.addAlbumPaths(albums);
             return;
         }
         for (Album a : albums) {
