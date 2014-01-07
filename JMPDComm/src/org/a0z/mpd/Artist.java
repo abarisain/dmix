@@ -81,6 +81,11 @@ public class Artist extends Item implements Parcelable {
     	return (o instanceof Artist) && ((Artist)o).name.equals(name);
     }
 
+    @Override
+    public boolean nameEquals(Item o) {
+        return equals(o);
+    }
+
 	@Override
 	public int describeContents() {
 		return 0;

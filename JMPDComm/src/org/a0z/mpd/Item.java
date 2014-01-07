@@ -28,6 +28,9 @@ public abstract class Item implements Comparable<Item> {
             return toString();
         }
 
+        public boolean nameEquals(Item o) {
+            return getName().equals(o.getName());
+        }
 
 
     /*
@@ -41,7 +44,7 @@ public abstract class Item implements Comparable<Item> {
         for (int i = a_items.size()-1; i >= 0; i--) {  // artists
             String a_name = a_items.get(i).getName();
             for (int j = j_start; j >= 0; j--) {  // album artists
-                if (aa_items.get(j).equals(a_items.get(i))) {
+                if (aa_items.get(j).nameEquals(a_items.get(i))) {
                     j_start = j;
                     a_items.remove(i);
                     break;

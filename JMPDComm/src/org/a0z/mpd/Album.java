@@ -156,6 +156,16 @@ public class Album extends Item implements Parcelable {
     }
 
     @Override
+    public boolean nameEquals(Item o) {
+        if (o instanceof Album) {
+            Album a = (Album) o;
+            return (name.equals(a.getName()) &&
+                    artist.nameEquals(a.getArtist()));
+        }
+        return false;
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }
