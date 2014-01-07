@@ -21,11 +21,6 @@
     <dimen name="normal_height">55dip</dimen>
     <!-- height of an expanded list item in edit playlist mode -->
     <dimen name="expanded_height">110dip</dimen>
-    <dimen name="actionbar_height">45dip</dimen>
-    <dimen name="actionbar_height_minus_one">44dip</dimen>
-    <dimen name="actionbar_logo_width">54dip</dimen>
-    <dimen name="actionbar_button_size">45dip</dimen>
-    <dimen name="actionBarSizeLocal">?android:attr/actionBarSize</dimen>
     <dimen name="playerbutton_height">70dip</dimen>
     <dimen name="playerbutton_width">65dip</dimen>
     <dimen name="playerbutton_small_height">48dip</dimen>

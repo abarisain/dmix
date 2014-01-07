@@ -7,8 +7,6 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
@@ -113,8 +111,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
 	private DisplayMode currentDisplayMode;
 
-	@SuppressLint("NewApi")
-	@TargetApi(11)
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

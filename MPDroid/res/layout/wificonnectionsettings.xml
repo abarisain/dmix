@@ -5,7 +5,7 @@
 			</PreferenceCategory>
 		</PreferenceScreen>	
 	</PreferenceCategory>
-	<PreferenceCategory android:visible="false" android:title="Default connection" android:key="defaultCategory">
+	<PreferenceCategory android:visible="false" android:title="@string/defaultConnection" android:key="defaultCategory">
 		<PreferenceScreen android:title="@string/defaultSettings" android:summary="@string/defaultSettingsDescription" android:key="defaultScreen">
 			<intent android:action="android.intent.action.MAIN"
                     android:targetPackage="com.namelessdev.mpdroid"

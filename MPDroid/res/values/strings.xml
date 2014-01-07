@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<!-- Unused strings, commented for possible for later use.
+	<string name="albumGridWifiUnavailable">Wi-Fi unavailable, so no new artwork will be retrieved</string>
+	<string name="configurationName">Configuration Name</string>
+	<string name="coverSettings">Cover artwork settings</string>
+	<string name="clientSettings">Client settings</string>
+	<string name="edit">Edit</string>
+	<string name="enableLightNowPlayingTheme">Use light theme for "Now Playing"</string>
+	<string name="enableLightNowPlayingThemeDescription">Restart the application to see the changes</string>
+	<string name="manage">Manage</string>
+	<string name="paused">Paused</string>
+	<string name="playlistNameEditTitle">Playlist name</string>
+	<string name="playlistSave">Save playlist</string>
+	<string name="random">Random</string>
+	<string name="randomDescription">Enable/Disable random</string>
+	<string name="removeSong">Remove song</string>
+	<string name="repeat">Repeat</string>
+	<string name="repeatDescription">Enable/Disable repeat</string>
+	<string name="sc_LibTab">L</string>
+	<string name="serverAddress">Server address :</string>
+	<string name="skipToHere">Skip to here</string>
+	<string name="stopped">Stopped</string>
+	<string name="streamDetails">Stream details:</string>
+	<string name="streamError">Streaming error, stream not playable</string>
+	<string name="streamPaused">Streaming paused</string>
+	<string name="streamPauseBattery">For saving battery, stop streaming if not used</string>
+	<string name="streamingManualURL">Use a specific URL for streaming (Icecast)</string>
+	<string name="streamingURLDescription">Stream URL (with http://)</string>
+	<string name="track">Track</string>
+	<string name="waitForWLAN">Waiting for WLAN to be connected…</string>
+	<string name="whatsNew">What\'s new ?</string>
+	<string name="whatsNewDescription">See changelog (opens external webpage)</string>
+	<string name="widget_initial_text">Touch to select music.</string>
+	-->
+
 	<string name="app_name">MPDroid</string>
 	<string name="artists">Artists</string>
 	<string name="genres">Genres</string>
@@ -8,9 +42,6 @@
 	<string name="albums">Albums</string>
 	<string name="settings">Settings</string>
 	<string name="volume">Volume</string>
-	<string name="track">Track</string>
-	<string name="paused">Paused</string>
-	<string name="stopped">Stopped</string>
 	<string name="next">Next</string>
 	<string name="previous">Previous</string>
 	<string name="ok">OK</string>
@@ -22,7 +53,6 @@
 	<string name="loadingArtists">Loading artists…</string>
 	<string name="loadingSongs">Loading songs…</string>
 	<string name="loadingPlaylists">Loading playlists…</string>
-	<string name="serverAddress">Server address :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Add and replace</string>
 	<string name="addAndReplacePlay">Add, replace and play</string>
@@ -33,7 +63,6 @@
 	<string name="addGenre">Add genre</string>
 	<string name="addDirectory">Add</string>
 	<string name="addSong">Add song</string>
-	<string name="removeSong">Remove song</string>
 	<string name="removeSongs">Remove songs</string>
     <string name="cropSongs">Crop</string>
     <string name="removeCountSongs">Removed %s songs</string>
@@ -53,10 +82,6 @@
 	<string name="portDescription">MPD-Server port (Default: 6600)</string>
 	<string name="password">Password</string>
 	<string name="passwordDescription">Password for the Server</string>
-	<string name="random">Random</string>
-	<string name="randomDescription">Enable/Disable random</string>
-	<string name="repeat">Repeat</string>
-	<string name="repeatDescription">Enable/Disable repeat</string>
 	<string name="albumartist">Album Artist</string>
 	<string name="albumartistDescription">Use Album Artist tag in Artists view</string>
 	<string name="albumTrackSort">Album Sort Track</string>
@@ -70,14 +95,11 @@
 	<string name="outputs">Outputs</string>
 	<string name="outputsDescription">Enable/Disable MPD-Outputs</string>
 	<string name="serverSettings">Server settings</string>
-	<string name="coverSettings">Cover artwork settings</string>
-	<string name="clientSettings">Client settings</string>
 	<string name="interfaceSettings">Interface settings</string>
 	<string name="librarySettings">Library settings</string>
 	<string name="songAdded">Song %s added</string>
 	<string name="about">About</string>
 	<string name="aboutDescription">About MPDroid</string>
-	<string name="waitForWLAN">Waiting for WLAN to be connected…</string>
 	<string name="connectionFailed">Connection Failed</string>
 	<string name="connectionFailedMessage">Connection to MPD-Server failed! Check if the Server is running and reachable. (%s)</string>
 	<string name="connect">Connect</string>
@@ -87,10 +109,9 @@
 	<string name="notConnected">Not connected</string>
 	<string name="noSongInfo">No song info</string>
 	<string name="notInRange">Not in range, remembered</string>
-	<string name="playlistNameEditTitle">Playlist name</string>
-	<string name="playlistSave">Save playlist</string>
 	<string name="playlistDeleted">Playlist %s deleted</string>
 	<string name="deletePlaylist">Delete playlist</string>
+	<string name="defaultConnection">Default connection</string>
 	<string name="preferredConnection">Preferred connection</string>
 	<string name="chooseWLAN">Choose a WLAN network</string>
 	<string name="wlanBasedSettings">WLAN based connection</string>
@@ -104,9 +125,6 @@
 	<string name="suffixStreaming">Streaming URL suffix</string>
 	<string name="suffixStreamingDescription">Suffix to append to stream URL (ex. mpd.mp3)</string>
 	<string name="streamStopped">Streaming stopped</string>
-	<string name="streamError">Streaming error, stream not playable</string>
-	<string name="streamPaused">Streaming paused</string>
-	<string name="streamPauseBattery">For saving battery, stop streaming if not used</string>
 	<string name="aboutText1">MPDroid is open-source software. Visit http://github.com/abarisain/dmix for source code !</string>
 	<string name="aboutText2">MPDroid is a fork of PMix (http://code.google.com/p/pmix/). Thanks to them !</string>
 	<string name="search">Search</string>
@@ -116,24 +134,17 @@
 	<string name="warningTitle">Please read</string>
 	<string name="warningText1">Welcome to MPDroid 1.0 !\nThis will only display once.\n\nFirst of all, if you don\'t know what a MPD server is, you should uninstall the application now, it is not made for you.\n\nImportant known bug : Widget sometimes crashes or drains battery.\n\nFor previous users, thanks a lot for your support and contributions.</string>
 	<string name="editPlaylist">Edit</string>
-	<string name="edit">Edit</string>
 	<string name="nowPlaying">Now Playing</string>
 	<string name="cancel">Cancel</string>
-	<string name="skipToHere">Skip to here</string>
 	<string name="playNext">Play next</string>
-    <string name="go_to">Go to ...</string>
+    <string name="go_to">Go to …</string>
     <string name="moveFirst">Move to first</string>
 	<string name="moveLast">Move to last</string>
 	<string name="removeFromPlaylist">Remove from playlist</string>
 	<string name="removeAlbumFromPlaylist">Remove album from playlist</string>
-    <string name="manage">Manage</string>
 	<string name="save">Save</string>
-	<string name="sc_LibTab">L</string>
 	<string name="updateDB">Update</string>
 	<string name="updateDBDetails">Refresh MPD\'s database</string>
-	<string name="streamingManualURL">Use a specific URL for streaming (Icecast)</string>
-	<string name="configurationName">Configuration Name</string>
-	<string name="streamingURLDescription">Stream URL (with http://)</string>
 	<string name="sortAlbumsByYear">Album year</string>
 	<string name="sortAlbumsByYearDescription">Sort albums by year</string>
 	<string name="showAlbumTrackCount">Album track count</string>
@@ -145,12 +156,9 @@
 	<string name="coverFileName">Cover filename</string>
 	<string name="coverFileNameDescription">Standard filename for your album artwork IE, folder.jpg (cover.jpg for vortexbox users)</string>
 	<string name="cacheUsage">Cache usage</string>
-	<string name="whatsNew">What\'s new ?</string>
-	<string name="whatsNewDescription">See changelog (opens external webpage)</string>
 	<string name="deleteServer">Delete this server</string>
 	<string name="aboutIcon">Original app icon by Asher (http://kyo-tux.deviantart.com/) and brsev (http://brsev.deviantart.com/), modified for MPDroid.</string>
 	<string name="connectionFailedMessageSetting">Connection failed, check your connection settings. (%s)</string>
-	<string name="widget_initial_text">Touch to select music.</string>
 	<string name="no_result">No results</string>
 	<string name="backpressToQuit">Press back again to quit</string>
 	<string name="playQueue">Play Queue</string>
@@ -174,11 +182,16 @@
 	<string name="deleteStreamPrompt">Are you sure you wish to delete %s?</string>
 	<string name="streamName">Name:</string>
 	<string name="streamUrl">URL:</string>
-	<string name="streamDetails">Stream details:</string>
 	<string name="genreAdded">Genre %s added</string>
 	<string name="enableStopButton">Show stop button</string>
 	<string name="singleMode">Single mode</string>
 	<string name="consumeMode">Consume mode</string>
+	<string name="albumCover">Album cover</string>
+	<string name="divider">Divider button</string>
+	<string name="startApp">Start MPDroid</string>
+	<string name="menuButton">Menu button</string>
+	<string name="listItemHandle">List item handle</string>
+	<string name="play">Play</string>
 	<string name="stop">Stop</string>
     <string name="enableAlbumYearText">Show album year</string>
     <string name="showAlbumArtist">Show album artist</string>
@@ -206,7 +219,6 @@
 
 	<string name="enableAlbumArtLibrary">Album cover art listing in library</string>
 	<string name="enableAlbumArtLibraryDescription">Use large cover art tiles for the albums listing in the library. This feature is experimental! You may experience lag and/or crashes. (Requires cache cover art)</string>
-    <string name="albumGridWifiUnavailable">Wi-Fi unavailable, so no new artwork will be retrieved</string>
 
     <string name="goToAlbum">Go to album</string>
     <string name="goToArtist">Go to artist</string>
@@ -224,8 +236,6 @@
 	<string name="enableExitConfirmation">Ask confirmation before exiting</string>
     <string name="enableExitConfirmationDescription">Require to double tap Back to exit</string>
     <string name="enableLightTheme">Use light theme</string>
-    <string name="enableLightNowPlayingTheme">Use light theme for "Now Playing"</string>
-    <string name="enableLightNowPlayingThemeDescription">Restart the application to see the changes</string>
     <string name="share">Share</string>
     <string name="sharePrefix">Now Playing :</string>
     <string name="enableTabletUI">Use tablet UI</string>

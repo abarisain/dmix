@@ -8,7 +8,6 @@ import org.a0z.mpd.exception.MPDServerException;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -73,7 +72,6 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         setHasOptionsMenu(false);
     }
 
-    @TargetApi(11)
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

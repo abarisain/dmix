@@ -12,11 +12,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
+		<!-- baselineAligned is a lint recommendation revert if funky. -->
         <LinearLayout
             android:id="@+id/nowplaying_dual_pane"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
+            android:baselineAligned="false"
             tools:context=".MainMenuActivity" >
 
             <fragment

@@ -1,5 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Unused strings, commented for possible for later use.
+	<string name="configurationName">Назва налаштувань</string>
+	<string name="coverSettings">Налаштування обкладинок</string>
+	<string name="clientSettings">Налаштування клієнта</string>
+	<string name="edit">Редагувати</string>
+	<string name="enableLightNowPlayingTheme">Використовувати світлу тему "Зараз вітдворюється"</string>
+	<string name="enableLightNowPlayingThemeDescription">Перезапустіть програму, щоб зміни набули чинності</string>
+	<string name="manage">Впорядкувати</string>
+	<string name="paused">Пауза</string>
+	<string name="playlistNameEditTitle">Назва плейлиста</string>
+	<string name="playlistSave">Зберегти плейлист</string>
+	<string name="random">Змішування</string>
+	<string name="randomDescription">Дозволити/заборонити змішування</string>
+	<string name="removeSong">Видалити пісню</string>
+	<string name="repeat">Повтопення</string>
+	<string name="repeatDescription">Дозволити/заборонити повторення</string>
+	<string name="sc_LibTab">Б</string>
+	<string name="serverAddress">Адреси серверів:</string>
+	<string name="skipToHere">Пропустит до цього місця</string>
+	<string name="stopped">Зупинено</string>
+	<string name="streamDetails">Деталі потоку:</string>
+	<string name="streamError">Помилка потоек, потік неможливо відтворити</string>
+	<string name="streamPaused">Потік призупинено</string>
+	<string name="streamPauseBattery">Для збереження батареї, припинити потік, якщо він не використовується</string>
+	<string name="streamingManualURL">Використовувати специфічний URL для потокового відтворення (icecast)</string>
+	<string name="streamingURLDescription">URL потоку(with http://)</string>
+	<string name="track">Трек</string>
+	<string name="waitForWLAN">Очікування на з’єднання WLAN…</string>
+	<string name="whatsNew">Що нового?</string>
+	<string name="whatsNewDescription">Подивитися лог змін (відкриється зовнішня вебсторінка)</string>
+	<string name="widget_initial_text">Торкніться щоб обрати музику.</string>
+	-->
+
 	<string name="app_name">MPDroid</string>
 	<string name="artists">Виконавець</string>
 	<string name="genres">Стилі</string>
@@ -8,9 +41,6 @@
 	<string name="albums">Альбоми</string>
 	<string name="settings">Налаштування</string>
 	<string name="volume">Гучність</string>
-	<string name="track">Трек</string>
-	<string name="paused">Пауза</string>
-	<string name="stopped">Зупинено</string>
 	<string name="next">Наступний</string>
 	<string name="previous">Попередній</string>
 	<string name="ok">OK</string>
@@ -18,11 +48,10 @@
 	<string name="retry">Нова спроба</string>
 	<string name="loading">Завантаження…</string>
 	<string name="loadingGenres">Завантаження стилів</string>
-	<string name="loadingAlbums">Завантаження альбомів...</string>
+	<string name="loadingAlbums">Завантаження альбомів…</string>
 	<string name="loadingArtists">Завантаження артистів…</string>
 	<string name="loadingSongs">Завантаження пісень…</string>
 	<string name="loadingPlaylists">Завантаження плейлистів…</string>
-	<string name="serverAddress">Адреси серверів:</string>
 	<string name="playlist">Плейлист</string>
 	<string name="addAndReplace">Додати та замінити</string>
 	<string name="addAndReplacePlay">Додати, замінити та відтворити</string>
@@ -33,7 +62,6 @@
 	<string name="addGenre">Додати стиль</string>
 	<string name="addDirectory">Додати</string>
 	<string name="addSong">Додати пісню</string>
-	<string name="removeSong">Видалити пісню</string>
 	<string name="removeSongs">Видалити пісні</string>
 	<string name="removeCountSongs">Видалено пісень:%s</string>
 	<string name="clear">Очистити</string>
@@ -52,10 +80,6 @@
 	<string name="portDescription">Порт MPD-сервера (За замовчуванням: 6600)</string>
 	<string name="password">Пароль</string>
 	<string name="passwordDescription">Пароль для сервера</string>
-	<string name="random">Змішування</string>
-	<string name="randomDescription">Дозволити/заборонити змішування</string>
-	<string name="repeat">Повтопення</string>
-	<string name="repeatDescription">Дозволити/заборонити повторення</string>
 	<string name="albumartist">Виконавець альбому</string>
 	<string name="albumartistDescription">Використовувати тег Виконавець альбому у вкладці Виконавці</string>
 	<string name="albumTrackSort">Сортування за альбомом</string>
@@ -69,14 +93,11 @@
 	<string name="outputs">Виходи</string>
 	<string name="outputsDescription">Дозволити/заборонити MPD-виходи</string>
 	<string name="serverSettings">Налаштування сервера</string>
-	<string name="coverSettings">Налаштування обкладинок</string>
-	<string name="clientSettings">Налаштування клієнта</string>
 	<string name="interfaceSettings">Налаштування інтерфейса</string>
 	<string name="librarySettings">Налаштування бібліотеки</string>
 	<string name="songAdded">Додано пісень: %s</string>
 	<string name="about">Про</string>
 	<string name="aboutDescription">Про MPDroid</string>
-	<string name="waitForWLAN">Очікування на з’єднання WLAN…</string>
 	<string name="connectionFailed">Невдале з’єднання</string>
 	<string name="connectionFailedMessage">З’єднання з MPD-сервером невдале! Перевірте чи сервер доступний та запущений. (%s)</string>
 	<string name="connect">З’єднання</string>
@@ -86,8 +107,6 @@
 	<string name="notConnected">Не під’єднано</string>
 	<string name="noSongInfo">Інфо про пісню відсутнє</string>
 	<string name="notInRange">Не досяжна, але збережена</string>
-	<string name="playlistNameEditTitle">Назва плейлиста</string>
-	<string name="playlistSave">Зберегти плейлист</string>
 	<string name="playlistDeleted">Плейлист %s видалено</string>
 	<string name="deletePlaylist">Видалити плейлист</string>
 	<string name="preferredConnection">Приоритетне з’єднання</string>
@@ -103,9 +122,6 @@
 	<string name="suffixStreaming">Url суфікс потоку</string>
 	<string name="suffixStreamingDescription">Сіфукс, що додаватиметься до url потоку(напр. mpd.mp3)</string>
 	<string name="streamStopped">Потік зупинено</string>
-	<string name="streamError">Помилка потоек, потік неможливо відтворити</string>
-	<string name="streamPaused">Потік призупинено</string>
-	<string name="streamPauseBattery">Для збереження батареї, припинити потік, якщо він не використовується</string>
 	<string name="aboutText1">MPDroid є програмним забеспеченням з відкритим кодом. Завітайте до http://github.com/abarisain/dmix для його отримання!</string>
 	<string name="aboutText2">MPDroid - це форк PMix (http://code.google.com/p/pmix/). Подяка їм!</string>
 	<string name="search">Пошук</string>
@@ -115,23 +131,16 @@
 	<string name="warningTitle">Будь ласка, прочитайте</string>
 	<string name="warningText1">Вітаю в MPDroid 1.0!\nЦе повідомлення з’являється тільки один раз.\n\nПоперше, якщо Ви не знаєте для чого MPD сервео, слід видалити програму, її зроблено не для Вас.\n\nВажливий відомий баґ: Інколи віджет виснажує батарею.\n\nДля користувачів, що зі мною - дякую за підтримку та Ваші внески а проект. Я маю велике сподівання, що нова веосія MPDroid Вам сподообається. Пишіть, будь ласка, на email що Вам не подобається чи що Ви хотіли б повернути з попередньої версії:)\nСтара версія досі присутня на сторінці github.</string>
 	<string name="editPlaylist">Редагувати</string>
-	<string name="edit">Редагувати</string>
 	<string name="nowPlaying">Зараз відтворюється</string>
 	<string name="cancel">Відміна</string>
-	<string name="skipToHere">Пропустит до цього місця</string>
 	<string name="playNext">Відтворити наступний</string>
-    <string name="go_to">перейти до ...</string>
+    <string name="go_to">перейти до …</string>
     <string name="moveFirst">Перейти до першого</string>
 	<string name="moveLast">Перейти до останнього</string>
 	<string name="removeFromPlaylist">Видалити з плейлиста</string>
-	<string name="manage">Впорядкувати</string>
 	<string name="save">Зберегти</string>
-	<string name="sc_LibTab">Б</string>
 	<string name="updateDB">Оновити</string>
 	<string name="updateDBDetails">Оновити базу MPD</string>
-	<string name="streamingManualURL">Використовувати специфічний URL для потокового відтворення (icecast)</string>
-	<string name="configurationName">Назва налаштувань</string>
-	<string name="streamingURLDescription">URL потоку(with http://)</string>
 	<string name="sortAlbumsByYear">Рік альбому</string>
 	<string name="sortAlbumsByYearDescription">Сортувати альбоми за роком</string>
 	<string name="showAlbumTrackCount">Кількість треків в альбомі</string>
@@ -142,12 +151,9 @@
 	<string name="musicPathDescription">Шлях до Вашої теки з музикою на сервері MPD як, files/mp3 (music/ для користувачів vortexbox)</string>
 	<string name="coverFileName">Ім’я обкладенки</string>
 	<string name="coverFileNameDescription">Стандартна назва файла для обкладинки як, folder.jpg (cover.jpg для користувачів vortexbox)</string>
-	<string name="whatsNew">Що нового?</string>
-	<string name="whatsNewDescription">Подивитися лог змін (відкриється зовнішня вебсторінка)</string>
 	<string name="deleteServer">Видалити цей сервер</string>
 	<string name="aboutIcon">Оригінальні іконки додатку від Asher (http://kyo-tux.deviantart.com/) та brsev (http://brsev.deviantart.com/), модифіковані для MPDroid.</string>
 	<string name="connectionFailedMessageSetting">З’єднання невдале, перевірте налаштування з’єднання. (%s)</string>
-	<string name="widget_initial_text">Торкніться щоб обрати музику.</string>
 	<string name="no_result">Немає результатів</string>
 	<string name="backpressToQuit">Натисніть “Назад” ще раз для виходу</string>
 	<string name="playQueue">Послідовність відтворення</string>
@@ -171,7 +177,6 @@
 	<string name="deleteStreamPrompt">Ви впевнені, що бажаєте видалити  %s?</string>
 	<string name="streamName">Назва:</string>
 	<string name="streamUrl">URL:</string>
-	<string name="streamDetails">Деталі потоку:</string>
 	<string name="genreAdded">Стиль %s додано</string>
 	<string name="enableStopButton">Показувати кнопку “Стоп”</string>
     <string name="enableAlbumYearText">Показати альбом року</string>
@@ -215,8 +220,6 @@
 	<string name="enableExitConfirmation">Питати підтвердження перед виходом</string>
     <string name="enableExitConfirmationDescription">Використовувати подвійне натискання Back тап для виходу</string>
     <string name="enableLightTheme">Використовувати світлу тему</string>
-    <string name="enableLightNowPlayingTheme">Використовувати світлу тему "Зараз вітдворюється"</string>
-    <string name="enableLightNowPlayingThemeDescription">Перезапустіть програму, щоб зміни набули чинності</string>
     <string name="share">Порекомендувати</string>
     <string name="sharePrefix">Зараз вітворюється:</string>
     <string name="enableTabletUI">Використовувати оболонку для планшета</string>

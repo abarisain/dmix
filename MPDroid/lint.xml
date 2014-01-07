@@ -6,7 +6,4 @@
     <issue id="NestedWeights">
         <ignore path="res/layout/song_list_item.xml" />
     </issue>
-    <issue id="NewApi">
-        <ignore path="res/layout-v14/list_separator.xml" />
-    </issue>
 </lint>

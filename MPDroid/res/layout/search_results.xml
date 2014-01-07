@@ -21,7 +21,7 @@
                 android:fastScrollEnabled="true" />
 
             <TextView
-                android:id="@+id/no_result"
+                android:id="@+id/no_artist_result"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -41,7 +41,7 @@
                 android:fastScrollEnabled="true" />
 
             <TextView
-                android:id="@+id/no_result"
+                android:id="@+id/no_album_result"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -61,7 +61,7 @@
                 android:fastScrollEnabled="true" />
 
             <TextView
-                android:id="@+id/no_result"
+                android:id="@+id/no_song_result"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

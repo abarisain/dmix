@@ -1,7 +1,6 @@
 package com.namelessdev.mpdroid;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -138,7 +137,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private String oldStatus;
     private boolean isPlaying;
     private boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
-    private boolean needStoppedNotification;
     private Integer lastStartID;
     //private Integer mediaPlayerError;
 
@@ -207,47 +205,40 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
     }
 
-    @TargetApi(14)
     private void registerRemoteControlClient() {
-        if (Build.VERSION.SDK_INT > 14) {
-            // build the PendingIntent for the remote control client
-            Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            mediaButtonIntent.setComponent(remoteControlResponder);
-            PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
-            // create and register the remote control client
-            remoteControlClient = new RemoteControlClient(mediaPendingIntent);
-            ((RemoteControlClient) remoteControlClient).setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE |
-                    RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
-                    RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
-            audioManager.registerRemoteControlClient((RemoteControlClient) remoteControlClient);
-        }
+		// build the PendingIntent for the remote control client
+		Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+		mediaButtonIntent.setComponent(remoteControlResponder);
+		PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
+		// create and register the remote control client
+		remoteControlClient = new RemoteControlClient(mediaPendingIntent);
+		((RemoteControlClient) remoteControlClient).setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
+						| RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
+						| RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
+		audioManager.registerRemoteControlClient((RemoteControlClient) remoteControlClient);
     }
 
-    @TargetApi(14)
     private void unregisterRemoteControlClient() {
-        if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+        if (remoteControlClient != null) {
             audioManager.unregisterRemoteControlClient((RemoteControlClient) remoteControlClient);
         }
     }
 
-    @TargetApi(14)
     private void setMusicState(int state) {
-        if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+        if (remoteControlClient != null) {
             ((RemoteControlClient) remoteControlClient).setPlaybackState(state);
         }
     }
 
-    @TargetApi(14)
     private void setMusicCover(Bitmap cover) {
-        if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null) {
+        if (remoteControlClient != null) {
             ((RemoteControlClient) remoteControlClient).editMetadata(false)
                     .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, cover).apply();
         }
     }
 
-    @TargetApi(14)
     private void setMusicInfo(Music song) {
-        if (Build.VERSION.SDK_INT > 14 && remoteControlClient != null && song != null) {
+        if (remoteControlClient != null && song != null) {
             MetadataEditor editor = ((RemoteControlClient) remoteControlClient).editMetadata(true);
             //TODO : maybe add cover art here someday
             editor.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, song.getTime() * 1000);
@@ -302,14 +293,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
     };
 
-    @TargetApi(9)
     public void onCreate() {
         super.onCreate();
 
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy);
 
         if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
             stopSelf();
@@ -323,7 +311,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         oldStatus = "";
         isPlaying = true;
         isPaused = false;
-        needStoppedNotification = false; // Maybe I shouldn't try fixing bugs after long days of work
         lastStartID = 0;
         // streaming_enabled = false;
         mediaPlayer.setOnBufferingUpdateListener(this);
@@ -359,16 +346,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     @Override
     public void onDestroy() {
-        if (needStoppedNotification) {
-            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
-            Notification status = new NotificationCompat.Builder(this)
-                    .setContentTitle(getString(R.string.streamStopped))
-                    .setSmallIcon(R.drawable.icon)
-                    .setContentIntent(PendingIntent.getActivity(this, 0,
-                            new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0))
-                    .build();
-            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(STREAMINGSERVICE_STOPPED, status);
-        }
         isServiceRunning = false;
         setMusicState(PLAYSTATE_STOPPED);
         unregisterMediaButtonEvent();
@@ -469,7 +446,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                         setMusicInfo(actSong);
                         Notification status = null;
                         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                                .setSmallIcon(Build.VERSION.SDK_INT >= 9 ? R.drawable.icon_bw : R.drawable.icon)
+                                .setSmallIcon(R.drawable.icon_bw)
                                 .setOngoing(true)
                                 .setContentTitle(getString(R.string.streamStopped))
                                 .setContentIntent(PendingIntent.getActivity(this, 0,
@@ -550,7 +527,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         if (!((MPDApplication) getApplication()).getApplicationState().streamingMode)
             return;
 
-        needStoppedNotification = false;
         isPaused = false;
         buffering = true;
         // MPDApplication app = (MPDApplication) getApplication();

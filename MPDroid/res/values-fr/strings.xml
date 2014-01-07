@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    
+    <!--  Unused strings, commented for possible for later use.
+	<string name="albumGridWifiUnavailable">Wi-Fi non disponible, aucune pochette ne sera téléchargée</string>
+	<string name="clientSettings">Paramètres client</string>
+	<string name="configurationName">Nom de la configuration</string>
+	<string name="edit">Modifier</string>
+	<string name="enableLightNowPlayingTheme">Utiliser le thème clair pour "En Cours"</string>
+	<string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
+	<string name="manage">Gérer</string>
+	<string name="paused">En pause</string>
+	<string name="playlistNameEditTitle">Nom de la playlist</string>
+	<string name="playlistSave">Sauvegarder la Playlist</string>
+	<string name="random">Random</string>
+	<string name="randomDescription">Activer/Désactiver random</string>
+	<string name="removeSong">Enlever la chanson</string>
+	<string name="repeat">Répeter</string>
+	<string name="repeatDescription">Activer/Désactiver répetition</string>
+	<string name="serverAddress">Addresse du serveur :</string>
+	<string name="skipToHere">Sauter vers ici</string>
+	<string name="streamDetails">Détails du flux :</string>
+	<string name="streamError">Erreur de streaming, flux illisible</string>
+	<string name="streamingManualURL">Utiliser une URL spécifique pour le streaming (icecast)</string>
+	<string name="streamPaused">Streaming en pause</string>
+	<string name="streamPauseBattery">Pour économiser la batterie, coupez le streaming.</string>
+	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
+	<string name="stopped">Arreté</string>
+	<string name="track">Piste</string>
+	<string name="waitForWLAN">Attente du WIFI …</string>
+	<string name="whatsNew">Quoi de neuf ?</string>
+	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
+	-->
+ 
 	<string name="app_name">MPDroid</string>
 	<string name="artists">Artistes</string>
 	<string name="playlists">Playlists</string>
@@ -7,9 +39,6 @@
 	<string name="albums">Albums</string>
 	<string name="settings">Paramètres</string>
 	<string name="volume">Volume</string>
-	<string name="track">Piste</string>
-	<string name="paused">En pause</string>
-	<string name="stopped">Arreté</string>
 	<string name="next">Suivant</string>
 	<string name="previous">Précédent</string>
 	<string name="ok">OK</string>
@@ -19,7 +48,6 @@
 	<string name="loadingAlbums">Chargement des albums …</string>
 	<string name="loadingArtists">Chargement des artistes …</string>
 	<string name="loadingSongs">Chargement des chansons …</string>
-	<string name="serverAddress">Addresse du serveur :</string>
 	<string name="playlist">Playlist</string>
 	<string name="addAndReplace">Ajouter et remplacer</string>
 	<string name="addAndReplacePlay">Ajouter, remplacer et jouer</string>
@@ -29,7 +57,6 @@
 	<string name="addSong">Ajouter la chanson</string>
 	<string name="addAlbum">Ajouter l\'album</string>
 	<string name="addArtist">Ajouter l\'artiste</string>
-	<string name="removeSong">Enlever la chanson</string>
 	<string name="removeSongs">Enlever les chansons</string>
 	<string name="cropSongs">Rogner</string>
 	<string name="removeCountSongs">%s chansons enlevées</string>
@@ -47,10 +74,6 @@
 	<string name="portDescription">Port du serveur MPD (Defaut: 6600)</string>
 	<string name="password">Mot de passe</string>
 	<string name="passwordDescription">Mot de passe du serveur</string>
-	<string name="random">Random</string>
-	<string name="randomDescription">Activer/Désactiver random</string>
-	<string name="repeat">Répeter</string>
-	<string name="repeatDescription">Activer/Désactiver répetition</string>
 	<string name="albumartist">Artiste de l\'album</string>
 	<string name="albumartistDescription">Utiliser le tag Album Artiste dans la vue Artistes</string>
 	<string name="albumTrackSort">Tri d\'album par numéro</string>
@@ -64,13 +87,11 @@
 	<string name="outputs">Sorties</string>
 	<string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
 	<string name="serverSettings">Paramètres serveur</string>
-	<string name="clientSettings">Paramètres client</string>
 	<string name="interfaceSettings">Paramètres d\'interface</string>
 	<string name="librarySettings">Paramètres de la bibliothèque</string>
 	<string name="songAdded">Chanson %s ajoutée</string>
 	<string name="about">A Propos</string>
 	<string name="aboutDescription">A Propos de MPDroid</string>
-	<string name="waitForWLAN">Attente du WIFI …</string>
 	<string name="connectionFailed">Echec de la connexion</string>
 	<string name="connectionFailedMessage">Echec de la connexion au serveur MPD ! Verifiez que le serveur est atteignable (%s)</string>
 	<string name="connect">Connecter</string>
@@ -80,8 +101,6 @@
 	<string name="notConnected">Non connecté</string>
 	<string name="noSongInfo">Aucune information</string>
 	<string name="notInRange">Pas à portée, enregistré</string>
-	<string name="playlistNameEditTitle">Nom de la playlist</string>
-	<string name="playlistSave">Sauvegarder la Playlist</string>
 	<string name="playlistDeleted">Playlist %s supprimée</string>
 	<string name="deletePlaylist">Supprimer la Playlist</string>
 	<string name="preferredConnection">Connexion preferée</string>
@@ -97,8 +116,6 @@
 	<string name="suffixStreaming">Suffixe url streaming</string>
 	<string name="suffixStreamingDescription">Suffixe à ajouter à l\'url du stream (ex. mpd.mp3)</string>
 	<string name="streamStopped">Streaming arreté</string>
-	<string name="streamPaused">Streaming en pause</string>
-	<string name="streamPauseBattery">Pour économiser la batterie, coupez le streaming.</string>
 	<string name="aboutText1">MPDroid est un programme open-source. Visitez http://github.com/abarisain/dmix pour voir le code source !</string>
 	<string name="aboutText2">MPDroid est un fork de PMix\n (http://code.google.com/p/pmix/). Merci à eux !</string>
 	<string name="search">Recherche</string>
@@ -108,25 +125,18 @@
 	<string name="warningTitle">Merci de lire ce qui suit.</string>
 	<string name="warningText1">Bienvenue dans MPDroid 1.0 !\nCette popup ne s\'affichera qu\'une seule fois.\n\nPremièrement, si vous ne savez pas ce qu\'est un serveur MPD, passez vôtre chemin, cette application n\'est pas faite pour vous.\n\nBug connu important : Le widget plante parfois et cause un drain de batterie.\n\nPour les "anciens" utilisateurs de MPDroid : Merci beaucoup pour votre support et contributions. J\'espère que cette nouvelle version vous plaira.</string>
 	<string name="editPlaylist">Modifier</string>
-	<string name="edit">Modifier</string>
 	<string name="nowPlaying">En cours</string>
 	<string name="cancel">Annuler</string>
-	<string name="skipToHere">Sauter vers ici</string>
 	<string name="playNext">Jouer après</string>
-    <string name="go_to">Aller à ...</string>
+    <string name="go_to">Aller à …</string>
     <string name="moveFirst">Déplacer en première position</string>
 	<string name="moveLast">Déplacer en dernière position</string>
 	<string name="removeFromPlaylist">Supprimer de la liste</string>
     <string name="removeAlbumFromPlaylist">Supprimer l\'album de la liste</string>
-    <string name="manage">Gérer</string>
 	<string name="save">Sauvegarder</string>
 	<string name="clear">Vider</string>
-	<string name="streamError">Erreur de streaming, flux illisible</string>
 	<string name="updateDB">Mettre à jour</string>
 	<string name="updateDBDetails">Rafraichir la bibliothèque de MPD</string>
-	<string name="streamingManualURL">Utiliser une URL spécifique pour le streaming (icecast)</string>
-	<string name="configurationName">Nom de la configuration</string>
-	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
 	<string name="sortAlbumsByYear">Année de l\'album</string>
 	<string name="sortAlbumsByYearDescription">Trier les albums par année</string>
 	<string name="showAlbumTrackCount">Nombre de chansons</string>
@@ -138,8 +148,6 @@
 	<string name="coverFileName">Nom du fichier pochette</string>
 	<string name="coverFileNameDescription">Nom de fichier des pochettes, par ex. folder.jpg (cover.jpg pour les utilisateurs de vortexbox)</string>
 	<string name="cacheUsage">Espace occupé par le cache</string>
-	<string name="whatsNew">Quoi de neuf ?</string>
-	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
 	<string name="deleteServer">Supprimer ce serveur</string>
 	<string name="no_result">Aucun résultat</string>
 	<string name="backpressToQuit">Appuyez encore une fois sur retour pour quitter</string>
@@ -195,8 +203,6 @@
 	<string name="enableExitConfirmation">Demander une confirmation avant de quitter</string>
     <string name="enableExitConfirmationDescription">Faire effectuer un double appui sur Retour pour quitter</string>
     <string name="enableLightTheme">Utiliser le thème clair</string>
-    <string name="enableLightNowPlayingTheme">Utiliser le thème clair pour "En Cours"</string>
-    <string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
     <string name="share">Partager</string>
     <string name="sharePrefix">Now Playing :</string>
 	<string name="enableTabletUI">Utiliser l\'interface pour tablette</string>
@@ -206,7 +212,6 @@
     
 	<string name="enableAlbumArtLibrary">Pochettes d\'album dans la biliothèque</string>
 	<string name="enableAlbumArtLibraryDescription">Utiliser des larges pochettes pour la liste d\'albums dans la bibliothèque. Cette fonctionnalité est expérimentale ! Vous serez peut-être victime de lag et/ou plantages. (Nécessite le cache de pochettes)</string>
-	<string name="albumGridWifiUnavailable">Wi-Fi non disponible, aucune pochette ne sera téléchargée</string>
 	
 	<string name="nowPlayingSettingsTitle">Paramètres de la vue \'En Cours\'</string>
 	<string name="enableSmallSeekbars">Barres d\'avancement fines</string>
@@ -222,5 +227,4 @@
 	<string name="deleteStreamPrompt">Êtes vous sur de vouloir supprimer %s?</string>
 	<string name="streamName">Nom :</string>
 	<string name="streamUrl">URL :</string>
-	<string name="streamDetails">Détails du flux :</string>
 </resources>
