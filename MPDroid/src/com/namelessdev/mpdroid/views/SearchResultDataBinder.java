@@ -29,12 +29,12 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
 			formattedResult1 = music.getTitle();
 			formattedResult2 = join(music.getAlbum(), music.getArtist());
         } else if (item instanceof Artist) {
-			formattedResult1 = (((Artist) item).getName());
+			formattedResult1 = (((Artist) item).mainText());
         } else if (item instanceof Album) {
             Album album;
             album = (Album) item;
-			formattedResult1 = album.getName();
-			formattedResult2 = album.getArtist().getName();
+			formattedResult1 = album.mainText();
+			formattedResult2 = album.getArtist().mainText();
         }
 		text1.setText(formattedResult1);
 		text2.setVisibility(formattedResult2 != null ? View.VISIBLE : View.GONE);

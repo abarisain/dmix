@@ -197,9 +197,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         if (o instanceof Music) {
             return ((Music) o).getTitle();
         } else if (o instanceof Artist) {
-            return ((Artist) o).getName();
+            return ((Artist) o).mainText();
         } else if (o instanceof Album) {
-            return ((Album) o).getName();
+            return ((Album) o).mainText();
         }
         return "";
     }

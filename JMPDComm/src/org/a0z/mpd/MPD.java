@@ -458,7 +458,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbums() throws MPDServerException {
-        return listAlbums(null, false, false);
+        return listAlbums(null, false, true);
     }
 
     /**
@@ -469,7 +469,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbums(boolean useAlbumArtist) throws MPDServerException {
-        return listAlbums(null, useAlbumArtist, false);
+        return listAlbums(null, useAlbumArtist, true);
     }
 
     /**
@@ -524,16 +524,14 @@ public class MPD {
             }
         }
 
-        Collections.sort(result);
-
         // add a single blank entry to host all songs without an album set
         if((includeUnknownAlbum == true) && (foundSongWithoutAlbum == true)) {
             result.add("");
         }
 
+        Collections.sort(result);
         return result;
     }
-
 
 
     protected List<Music> getFirstTrack(Album album) throws MPDServerException {
@@ -673,8 +671,7 @@ public class MPD {
         ArrayList<String> result = new ArrayList<String>();
         for (String s : response) {
             String name = s.substring("Genre: ".length());
-            if (name.length() > 0)
-                result.add(name);
+            result.add(name);
         }
         if (sortInsensitive)
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
@@ -701,7 +698,7 @@ public class MPD {
         }
         for (Album a : albums) {
             // When adding album artist to existing artist check that the artist matches
-            if (!useAlbumArtist() && albumArtist && a.getArtist() != null && a.getArtist() != UnknownArtist.instance && !isEmpty(a.getArtist().getName())) {
+            if (!useAlbumArtist() && albumArtist && a.getArtist() != null && !a.getArtist().isUnknown()) {
                 mpdConnection.queueCommand
                         (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
                                 (albumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
@@ -720,8 +717,7 @@ public class MPD {
             ArrayList<String> albumresult = new ArrayList<String>();
             for (String s : r) {
                 String name = s.substring((albumArtist?"AlbumArtist: ":"Artist: ").length());
-                if (name.length() > 0)
-                    albumresult.add(name);
+                albumresult.add(name);
             }
             result.add(albumresult.toArray(new String[0]));
         }
@@ -753,9 +749,7 @@ public class MPD {
 
         ArrayList<String> result = new ArrayList<String>();
         for (String s : response) {
-            String name = s.substring("Artist: ".length());
-            if (name.length() > 0)
-                result.add(name);
+            result.add(s.substring("Artist: ".length()));
         }
         if (sortInsensitive)
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
@@ -791,8 +785,7 @@ public class MPD {
         ArrayList<String> result = new ArrayList<String>();
         for (String s : response) {
             String name = s.substring("Artist: ".length());
-            if (name.length() > 0)
-                result.add(name);
+            result.add(name);
         }
         if (sortInsensitive)
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
@@ -820,8 +813,7 @@ public class MPD {
         ArrayList<String> result = new ArrayList<String>();
         for (String s : response) {
             String name = s.substring("albumartist: ".length());
-            if (name.length() > 0)
-                result.add(name);
+            result.add(name);
         }
         if (sortInsensitive)
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
@@ -849,8 +841,7 @@ public class MPD {
         ArrayList<String> result = new ArrayList<String>();
         for (String s : response) {
             String name = s.substring("albumartist: ".length());
-            if (name.length() > 0)
-                result.add(name);
+            result.add(name);
         }
         if (sortInsensitive)
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
@@ -1250,19 +1241,10 @@ public class MPD {
 
     public List<Music> getSongs(Artist artist, Album album,
                                 boolean useAlbumArtist) throws MPDServerException {
-
         String[] command = getSongsCommand
             ((artist == null) ? null : artist.getName(),
-             (album == null || album instanceof UnknownAlbum)? null : album.getName(),
-             useAlbumArtist);
+             (album == null ? null : album.getName()), useAlbumArtist);
         List<Music> songs = genericSearch(MPDCommand.MPD_CMD_FIND, command, true);
-        if(album instanceof UnknownAlbum) {
-            // filter out any songs with which have the album tag set
-            Iterator<Music> iter = songs.iterator();
-            while (iter.hasNext()) {
-                if (iter.next().getAlbum() != null) iter.remove();
-            }
-        }
         if (null!=songs) {
             Collections.sort(songs);
         }
@@ -1281,7 +1263,6 @@ public class MPD {
                                  boolean _useAlbumArtist) throws MPDServerException {
         List<String> albumNames = null;
         List<Album> albums = null;
-        final Artist unknownArtist = UnknownArtist.instance;
 
         if(artist != null) {
             albumNames = listAlbums(artist.getName(), _useAlbumArtist);
@@ -1292,14 +1273,9 @@ public class MPD {
         if (null!=albumNames && !albumNames.isEmpty()) {
             albums=new ArrayList<Album>();
             for (String album : albumNames) {
-                if (album.equals("")) {
-                    // add a blank entry to host all songs without an album set
-                    albums.add(UnknownAlbum.instance);
-                } else {
-                    albums.add(new Album(album, artist));
-                }
+                albums.add(new Album(album, artist));
             }
-            if (null != artist && !_useAlbumArtist  && artist != unknownArtist) {
+            if (null != artist && !_useAlbumArtist  && !artist.isUnknown()) {
                 fixAlbumArtists(albums);
             }
             if (null != artist && ((MPD.showAlbumTrackCount() && trackCountNeeded) ||
