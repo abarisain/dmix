@@ -1389,6 +1389,24 @@ public class MPD {
         albums.addAll(splitalbums);
     }
 
+
+    /* test whether given album is in given genre
+     */
+    public boolean albumInGenre(Album album, Genre genre) throws MPDServerException {
+        List<String> response = null;
+        Artist artist = album.getArtist();
+        response = mpdConnection.sendCommand
+            (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
+                            MPDCommand.MPD_TAG_ALBUM,
+                            MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                            album.hasAlbumArtist() ? MPDCommand.MPD_TAG_ALBUM_ARTIST : MPDCommand.MPD_TAG_ARTIST,
+                            (artist == null?"":artist.getName()),
+                            MPDCommand.MPD_TAG_GENRE, genre.getName()));
+        return (response.size() > 0);
+    }
+
+
+
     public List<Genre> getGenres() throws MPDServerException {
         List<String> genreNames = listGenres();
         List<Genre> genres = null;

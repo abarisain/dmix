@@ -46,9 +46,9 @@ public class ArtistsFragment extends BrowseFragment {
 		AlbumsFragment af;
 		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication());
         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-			af = new AlbumsGridFragment((Artist) items.get(position));
+            af = new AlbumsGridFragment((Artist) items.get(position), genre);
 		} else {
-			af = new AlbumsFragment((Artist) items.get(position));
+            af = new AlbumsFragment((Artist) items.get(position), genre);
 		}
 		((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, "album");
 	}

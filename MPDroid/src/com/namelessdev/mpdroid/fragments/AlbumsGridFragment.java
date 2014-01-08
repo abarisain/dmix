@@ -1,6 +1,7 @@
 package com.namelessdev.mpdroid.fragments;
 
 import org.a0z.mpd.Artist;
+import org.a0z.mpd.Genre;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import android.os.Bundle;
@@ -22,7 +23,11 @@ public class AlbumsGridFragment extends AlbumsFragment {
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 6;
 
     public AlbumsGridFragment(Artist artist) {
-        super(artist);
+        this(artist, null);
+    }
+
+    public AlbumsGridFragment(Artist artist, Genre genre) {
+        super(artist, genre);
         isCountPossiblyDisplayed = false;
     }
 
