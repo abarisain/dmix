@@ -29,7 +29,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     // Hack to discard some album artist names very long listing a long list of people and not useful to fetch covers ...
     public static final int MAX_ARTIST_NAME_LENGTH = 40;
 
-    private String album;
+    private String album = "";
 
     private String artist = "";
 
