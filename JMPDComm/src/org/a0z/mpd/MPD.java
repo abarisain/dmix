@@ -1263,6 +1263,16 @@ public class MPD {
     public List<Music> getSongs(Album album) throws MPDServerException {
         List<Music> songs =  Music.getMusicFromList
             (getMpdConnection().sendCommand(getSongsCommand(album)),true);
+        if (album.hasAlbumArtist()) {
+            // remove songs that don't have this albumartist
+            // (mpd >=0.18 puts them in)
+            String artistname = album.getArtist().getName();
+            for (int i = songs.size()-1; i>=0; i--) {
+                if (!(artistname.equals(songs.get(i).getAlbumArtist()))){
+                    songs.remove(i);
+                }
+            }
+        }
         if (null!=songs) {
             Collections.sort(songs);
         }
