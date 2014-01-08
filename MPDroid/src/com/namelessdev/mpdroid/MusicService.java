@@ -408,7 +408,7 @@ public class MusicService extends Service implements MusicFocusable {
         PendingIntent pi = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Set notification play/pause icon state
-        contentView.setImageViewResource(R.id.notificationPlayPause, state == RemoteControlClient.PLAYSTATE_PLAYING ? R.drawable.ic_media_play : R.drawable.ic_media_pause);
+        contentView.setImageViewResource(R.id.notificationPlayPause, state == RemoteControlClient.PLAYSTATE_PLAYING ? R.drawable.ic_media_pause : R.drawable.ic_media_play);
 
         // Finish the notification
         if (mNotification == null) {
