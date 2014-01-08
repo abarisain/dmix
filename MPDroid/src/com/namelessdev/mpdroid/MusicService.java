@@ -23,17 +23,24 @@ import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.models.MusicParcelable;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
@@ -72,6 +79,9 @@ public class MusicService extends Service implements MusicFocusable {
     private static final long UPDATE_INFO_NEAR_FUTURE_DELAY = 500;
 
     Music mCurrentMusic = null, mPreviousMusic = null;
+
+    private Bitmap mAlbumCover = null;
+    private String mAlbumCoverPath;
 
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
@@ -209,7 +219,6 @@ public class MusicService extends Service implements MusicFocusable {
                 }
             }
         }).start();
-        relaxResources(); // while paused, we always retain the MediaPlayer do not give up audio focus
 
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_PAUSED);
     }
@@ -313,6 +322,10 @@ public class MusicService extends Service implements MusicFocusable {
      */
     void relaxResources() {
         stopForeground(true);
+        if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
+            mAlbumCover.recycle();
+            mAlbumCover = null;
+        }
     }
 
     void giveUpAudioFocus() {
@@ -371,6 +384,33 @@ public class MusicService extends Service implements MusicFocusable {
         }
         // Otherwise, update notification & lockscreen widget
         else {
+            if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
+                mAlbumCover.recycle();
+            }
+
+            // The code below is copied from StreamingService (thanks! :P)
+            if (mCurrentMusic != null) {
+                // Check if we have a sdcard cover cache for this song
+                // Maybe find a more efficient way
+                final MPDApplication app = (MPDApplication) getApplication();
+                final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+                if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
+                    final CachedCover cache = new CachedCover(app);
+                    final String[] coverArtPath;
+                    try {
+                        coverArtPath = cache.getCoverUrl(mCurrentMusic.getAlbumInfo());
+                        if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
+                            mAlbumCoverPath = coverArtPath[0];
+                            mAlbumCover = Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
+                                    .getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
+                                    .getDimensionPixelSize(android.R.dimen.notification_large_icon_height), true);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             updateNotification(state);
             updateRemoteControlClient(state);
         }
@@ -381,6 +421,8 @@ public class MusicService extends Service implements MusicFocusable {
 
     /**
      * Update the notification.
+     *
+     * @param state The new current playing state
      */
     private void updateNotification(int state) {
         Log.d(TAG, "update notification: " + mCurrentMusic.getArtist() + " - " + mCurrentMusic.getTitle() + ", state: " + state);
@@ -417,6 +459,11 @@ public class MusicService extends Service implements MusicFocusable {
         // Set notification play/pause icon state
         contentView.setImageViewResource(R.id.notificationPlayPause, state == RemoteControlClient.PLAYSTATE_PLAYING ? R.drawable.ic_media_pause : R.drawable.ic_media_play);
 
+        // Set notification icon, if we have one
+        if (mAlbumCover != null) {
+            contentView.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+        }
+
         // Finish the notification
         if (mNotification == null) {
             final Notification.Builder builder = new Notification.Builder(this);
@@ -441,8 +488,7 @@ public class MusicService extends Service implements MusicFocusable {
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum()) //
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle()) //
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, mCurrentMusic.getTime()) //
-                        // TODO: fetch real item artwork
-                        //.putBitmap(RemoteControlClient.MetadataEditorCompat.METADATA_KEY_ARTWORK, mDummyAlbumArt) //
+                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover) //
                 .apply();
         mRemoteControlClient.setPlaybackState(state);
         Log.d(TAG, "Updated remote client with state " + state + " for music " + mCurrentMusic);
