@@ -1297,7 +1297,7 @@ public class MPD {
             return albums; // empty list
         }
         for (String album : albumNames) {
-            if (album == "") {
+            if ("".equals(album)) {
                 // add a blank entry to host all songs without an album set
                 albums.add(UnknownAlbum.instance);
             } else {
@@ -1322,7 +1322,7 @@ public class MPD {
         }
 
         for (String album : albumNames) {
-            if (album == "") {
+            if ("".equals(album)) {
                 // add a blank entry to host all songs without an album set
                 albums.add(UnknownAlbum.instance);
             } else {
