@@ -283,7 +283,12 @@ public class SongsFragment extends BrowseFragment {
         if (items != null && headerArtist != null && headerInfo != null) {
             AlbumInfo fixedAlbumInfo;
             fixedAlbumInfo = getFixedAlbumInfo();
-            headerArtist.setText(fixedAlbumInfo.getArtist());
+            String artist = fixedAlbumInfo.getArtist();
+            if ("".equals(artist)) {
+                headerArtist.setText(getString(R.string.jmpdcomm_unknown_artist));
+            } else {
+                headerArtist.setText(artist);
+            }
             headerInfo.setText(getHeaderInfoString());
             if (coverHelper != null) {
                 coverHelper.downloadCover(fixedAlbumInfo, true);
@@ -334,7 +339,7 @@ public class SongsFragment extends BrowseFragment {
             }
         }
 
-        if (differentArtists || albumInfo == null || !albumInfo.isValid()) {
+        if (differentArtists || albumInfo == null) {
             return new AlbumInfo(getString(R.string.variousArtists), album.getName());
         }
         return albumInfo;
