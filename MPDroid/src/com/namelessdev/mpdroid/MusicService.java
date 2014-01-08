@@ -27,6 +27,7 @@ import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -49,10 +50,9 @@ public class MusicService extends Service implements MusicFocusable {
     // The tag we put on debug messages
     final static String TAG = "MusicService";
 
-    // These are the Intent actions that we are prepared to handle. Notice that the fact these
-    // constants exist in our class is a mere convenience: what really defines the actions our
-    // service can handle are the <action> tags in the <intent-filters> tag for our service in
-    // AndroidManifest.xml.
+    // These are the Intent actions that we are prepared to handle.
+    // Notice: they currently are a shortcut to the ones in StreamingService so that the code changes to NowPlayingFragment would be minimal.
+    // TODO: change this?
     public static final String ACTION_UPDATE_INFO = "com.namelessdev.mpdroid.MusicService.UPDATE_INFO";
     public static final String ACTION_TOGGLE_PLAYBACK = StreamingService.CMD_PLAYPAUSE;
     public static final String ACTION_PLAY = StreamingService.CMD_PLAY;
@@ -65,6 +65,11 @@ public class MusicService extends Service implements MusicFocusable {
      * Extra information passed to the intent bundle: the currently playing {@link org.a0z.mpd.Music}
      */
     public static final String EXTRA_CURRENT_MUSIC = "com.namelessdev.mpdroid.MusicService.CurrentMusic";
+
+    /**
+     * How many milliseconds in the future we need to trigger an update when we just skipped forward/backward a song
+     */
+    private static final long UPDATE_INFO_NEAR_FUTURE_DELAY = 500;
 
     Music mCurrentMusic = null, mPreviousMusic = null;
 
@@ -172,11 +177,11 @@ public class MusicService extends Service implements MusicFocusable {
     void processPlayRequest() {
         tryToGetAudioFocus();
 
-        new AsyncTask<MPDApplication, Void, String>() {
+        new Thread(new Runnable() {
             @Override
-            protected String doInBackground(MPDApplication... params) {
+            public void run() {
                 try {
-                    final MPD mpd = params[0].oMPDAsyncHelper.oMPD;
+                    final MPD mpd = ((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD;
                     String state = mpd.getStatus().getState();
                     if (!MPDStatus.MPD_STATE_PLAYING.equals(state)) {
                         mpd.play();
@@ -184,9 +189,8 @@ public class MusicService extends Service implements MusicFocusable {
                 } catch (MPDServerException e) {
                     Log.w(MPDApplication.TAG, e.getMessage());
                 }
-                return null;
             }
-        }.execute((MPDApplication) getApplication());
+        }).start();
 
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
     }
@@ -234,6 +238,10 @@ public class MusicService extends Service implements MusicFocusable {
             }
         }).start();
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_REWINDING);
+
+        final Intent service = new Intent(this, MusicService.class);
+        service.setAction(ACTION_UPDATE_INFO);
+        startService(service);
     }
 
     void processSkipRequest() {
@@ -252,7 +260,7 @@ public class MusicService extends Service implements MusicFocusable {
                 }
             }
         }).start();
-        updatePlayingInfo(RemoteControlClient.PLAYSTATE_SKIPPING_FORWARDS);
+        triggerFutureUpdate();
     }
 
     void processStopRequest() {
@@ -284,6 +292,22 @@ public class MusicService extends Service implements MusicFocusable {
     }
 
     /**
+     * Launch the service again with action {@link #ACTION_UPDATE_INFO} in a near future
+     */
+    private void triggerFutureUpdate() {
+        // Don't updatePlayingInfo right now, but rather trigger an update in a small delay
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                final Intent service = new Intent(MusicService.this, MusicService.class);
+                service.setAction(ACTION_UPDATE_INFO);
+                startService(service);
+            }
+        }, UPDATE_INFO_NEAR_FUTURE_DELAY);
+    }
+
+    /**
      * Releases resources used by the service for playback. This includes the "foreground service"
      * status and notification, the wake locks and possibly the MediaPlayer.
      */
@@ -292,18 +316,19 @@ public class MusicService extends Service implements MusicFocusable {
     }
 
     void giveUpAudioFocus() {
-        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper.abandonFocus())
+        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper.abandonFocus()) {
             mAudioFocus = AudioFocus.NoFocusNoDuck;
+        }
     }
 
     void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper.requestFocus())
+        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper.requestFocus()) {
             mAudioFocus = AudioFocus.Focused;
+        }
     }
 
     void updatePlayingInfo(int state) {
         Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState + "), music=" + mCurrentMusic + " (previous music: " + mPreviousMusic + ")");
-        boolean updateNotification = false;
 
         // Create the remote control client
         if (mRemoteControlClient == null) {
@@ -317,10 +342,6 @@ public class MusicService extends Service implements MusicFocusable {
                     RemoteControlClient.FLAG_KEY_MEDIA_STOP);
 
             mAudioManager.registerRemoteControlClient(mRemoteControlClient);
-        }
-
-        if (state != mPreviousState || mCurrentMusic == null) {
-            updateNotification = true;
         }
 
         //TODO: load this from a background thread
@@ -339,22 +360,7 @@ public class MusicService extends Service implements MusicFocusable {
             }
         }
 
-        if (mCurrentMusic != null) {
-            // Update the remote controls
-            mRemoteControlClient.editMetadata(true) //
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, mCurrentMusic.getArtist()) //
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum()) //
-                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle()) //
-                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, mCurrentMusic.getTime()) //
-                            // TODO: fetch real item artwork
-                            //.putBitmap(RemoteControlClient.MetadataEditorCompat.METADATA_KEY_ARTWORK, mDummyAlbumArt) //
-                    .apply();
-        }
-
-        if (mPreviousMusic != null && mCurrentMusic != null && !mPreviousMusic.equals(mCurrentMusic)) {
-            updateNotification = true;
-        }
-
+        // Clear everything if we stopped
         if (state == RemoteControlClient.PLAYSTATE_STOPPED) {
             if (mNotificationManager != null) {
                 mNotificationManager.cancel(NOTIFICATION_ID);
@@ -362,10 +368,11 @@ public class MusicService extends Service implements MusicFocusable {
             relaxResources();
             giveUpAudioFocus();
             stopSelf();
-        } else /*if (updateNotification) */ {
-            // Update notification & lockscreen widget
+        }
+        // Otherwise, update notification & lockscreen widget
+        else {
             updateNotification(state);
-            mRemoteControlClient.setPlaybackState(state);
+            updateRemoteControlClient(state);
         }
 
         mPreviousMusic = mCurrentMusic;
@@ -373,9 +380,9 @@ public class MusicService extends Service implements MusicFocusable {
     }
 
     /**
-     * Updates the notification.
+     * Update the notification.
      */
-    void updateNotification(int state) {
+    private void updateNotification(int state) {
         Log.d(TAG, "update notification: " + mCurrentMusic.getArtist() + " - " + mCurrentMusic.getTitle() + ", state: " + state);
 
         // Build a virtual task stack
@@ -421,6 +428,24 @@ public class MusicService extends Service implements MusicFocusable {
 
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
         startForeground(NOTIFICATION_ID, mNotification);
+    }
+
+    /**
+     * Update the remote controls
+     *
+     * @param state The new current playing state
+     */
+    private void updateRemoteControlClient(int state) {
+        mRemoteControlClient.editMetadata(true) //
+                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, mCurrentMusic.getArtist()) //
+                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum()) //
+                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle()) //
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, mCurrentMusic.getTime()) //
+                        // TODO: fetch real item artwork
+                        //.putBitmap(RemoteControlClient.MetadataEditorCompat.METADATA_KEY_ARTWORK, mDummyAlbumArt) //
+                .apply();
+        mRemoteControlClient.setPlaybackState(state);
+        Log.d(TAG, "Updated remote client with state " + state + " for music " + mCurrentMusic);
     }
 
     public void onGainedAudioFocus() {
