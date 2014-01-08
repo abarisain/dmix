@@ -1273,7 +1273,9 @@ public class MPD {
 
     public List<Album> getAlbums(Artist artist, boolean trackCountNeeded) throws MPDServerException {
         List<Album> a_albums = getAlbums(artist, trackCountNeeded, false);
-        if (artist != null) { // (the null artist list already contains all albums)
+        // 1. the null artist list already contains all albums
+        // 2. the "unknown artist" should not list unknown albumartists
+        if (artist != null && !artist.isUnknown()) {
             return Item.merged(a_albums, getAlbums(artist, trackCountNeeded, true));
         }
         return a_albums;
