@@ -10,7 +10,7 @@ public abstract class Item implements Comparable<Item> {
 		return null;
 	}
 	public String sort() {
-		return mainText();
+		return getName();
 	}
 	abstract public String getName();
 
