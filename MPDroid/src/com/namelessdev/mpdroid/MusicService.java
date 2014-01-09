@@ -419,6 +419,48 @@ public class MusicService extends Service implements MusicFocusable {
         mPreviousState = state;
     }
 
+    private RemoteViews buildCollapsedNotification(PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piQuit, int playPauseResId) {
+        final RemoteViews contentView;
+        if (mNotification == null || mNotification.contentView == null) {
+            contentView = new RemoteViews(getPackageName(), R.layout.notification);
+        } else {
+            contentView = mNotification.contentView;
+        }
+
+        contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
+        contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
+
+        contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
+        contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
+        contentView.setOnClickPendingIntent(R.id.notificationClose, piQuit);
+
+        contentView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
+
+        return contentView;
+    }
+
+    private RemoteViews buildExpandedNotification(PendingIntent piPrev, PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piQuit, int playPauseResId) {
+        final RemoteViews contentView;
+        if (mNotification == null || mNotification.bigContentView == null) {
+            contentView = new RemoteViews(getPackageName(), R.layout.notification_big);
+        } else {
+            contentView = mNotification.bigContentView;
+        }
+
+        contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
+        contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
+        contentView.setTextViewText(R.id.notificationAlbum, mCurrentMusic.getAlbum());
+
+        contentView.setOnClickPendingIntent(R.id.notificationPrev, piPrev);
+        contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
+        contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
+        contentView.setOnClickPendingIntent(R.id.notificationClose, piQuit);
+
+        contentView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
+
+        return contentView;
+    }
+
     /**
      * Update the notification.
      *
@@ -433,45 +475,51 @@ public class MusicService extends Service implements MusicFocusable {
         stackBuilder.addParentStack(MainMenuActivity.class);
         stackBuilder.addNextIntent(musicPlayerActivity);
 
-        // Prepare the notification
-        final RemoteViews contentView;
-        if (mNotification == null || mNotification.contentView == null) {
-            contentView = new RemoteViews(getPackageName(), R.layout.notification);
-        } else {
-            contentView = mNotification.contentView;
-        }
-        contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
-        contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
-
         // Build notification actions
         final Intent playPause = new Intent(this, MusicService.class);
         playPause.setAction(MusicService.ACTION_TOGGLE_PLAYBACK);
+        final PendingIntent piPlayPause = PendingIntent.getService(this, 0, playPause, 0);
+        final Intent prev = new Intent(this, MusicService.class);
+        prev.setAction(ACTION_REWIND);
+        final PendingIntent piPrev = PendingIntent.getService(this, 0, prev, 0);
         final Intent next = new Intent(this, MusicService.class);
         next.setAction(MusicService.ACTION_SKIP);
+        final PendingIntent piNext = PendingIntent.getService(this, 0, next, 0);
         final Intent quit = new Intent(this, MusicService.class);
         quit.setAction(MusicService.ACTION_STOP);
-
-        contentView.setOnClickPendingIntent(R.id.notificationPlayPause, PendingIntent.getService(this, 0, playPause, 0));
-        contentView.setOnClickPendingIntent(R.id.notificationNext, PendingIntent.getService(this, 0, next, 0));
-        contentView.setOnClickPendingIntent(R.id.notificationClose, PendingIntent.getService(this, 0, quit, 0));
-        PendingIntent pi = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        final PendingIntent piQuit = PendingIntent.getService(this, 0, quit, 0);
+        PendingIntent piClick = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT); // click on notification itself
 
         // Set notification play/pause icon state
-        contentView.setImageViewResource(R.id.notificationPlayPause, state == RemoteControlClient.PLAYSTATE_PLAYING ? R.drawable.ic_media_pause : R.drawable.ic_media_play);
+        final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PLAYING ? R.drawable.ic_media_pause : R.drawable.ic_media_play;
+
+        // Create the views
+        RemoteViews collapsedNotification = buildCollapsedNotification(piPlayPause, piNext, piQuit, playPauseResId);
+        RemoteViews expandedNotification = buildExpandedNotification(piPrev, piPlayPause, piNext, piQuit, playPauseResId);
 
         // Set notification icon, if we have one
         if (mAlbumCover != null) {
-            contentView.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+            collapsedNotification.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+            expandedNotification.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
         }
 
         // Finish the notification
         if (mNotification == null) {
             final Notification.Builder builder = new Notification.Builder(this);
             builder.setSmallIcon(R.drawable.icon_bw);
-            builder.setContentIntent(pi);
-            builder.setContent(contentView);
+            builder.setContentIntent(piClick);
+            builder.setContent(collapsedNotification);
+
+
+            builder.setStyle(new Notification.BigTextStyle());
+//            builder.setStyle(new Notification.BigTextStyle().bigText(mCurrentMusic.getArtist()).setBigContentTitle(mCurrentMusic.getTitle()));
+//            builder.addAction(R.drawable.ic_media_previous, "", piPrev);
+//            builder.addAction(playPauseResId, "", piPlayPause);
+//            builder.addAction(R.drawable.ic_media_next, "", piNext);
+
             mNotification = builder.build();
         }
+        mNotification.bigContentView = expandedNotification;
 
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
         startForeground(NOTIFICATION_ID, mNotification);
