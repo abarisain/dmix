@@ -253,5 +253,7 @@
 	<string name="enableSmallSeekbars">Use small seekbars</string>
 	<string name="clearSearchHistory">Clear search history</string>
 	<string name="streamSaved">Stream saved</string>
+	<string name="separatorDescription">Separator</string>
+	<string name="notificationIconDescription">Cover art</string>
 	
 </resources>
