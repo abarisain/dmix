@@ -11,4 +11,5 @@
     <color name="holo_button_highlight">#9933b5e5</color>
     <color name="holo_button_highlight_low">#5533b5e5</color>
     <color name="now_playing_small_separator">@android:color/holo_blue_light</color>
+    <color name="notification_separator">#393939</color>
 </resources>
