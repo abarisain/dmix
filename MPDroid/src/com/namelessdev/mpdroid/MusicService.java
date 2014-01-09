@@ -16,11 +16,16 @@
 
 package com.namelessdev.mpdroid;
 
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,9 +35,12 @@ import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -41,11 +49,6 @@ import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.models.MusicParcelable;
 import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
@@ -439,6 +442,7 @@ public class MusicService extends Service implements MusicFocusable {
         return contentView;
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private RemoteViews buildExpandedNotification(PendingIntent piPrev, PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piQuit, int playPauseResId) {
         final RemoteViews contentView;
         if (mNotification == null || mNotification.bigContentView == null) {
@@ -495,23 +499,27 @@ public class MusicService extends Service implements MusicFocusable {
 
         // Create the views
         RemoteViews collapsedNotification = buildCollapsedNotification(piPlayPause, piNext, piQuit, playPauseResId);
-        RemoteViews expandedNotification = buildExpandedNotification(piPrev, piPlayPause, piNext, piQuit, playPauseResId);
+        RemoteViews expandedNotification = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            expandedNotification = buildExpandedNotification(piPrev, piPlayPause, piNext, piQuit, playPauseResId);
+        }
 
         // Set notification icon, if we have one
         if (mAlbumCover != null) {
             collapsedNotification.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
-            expandedNotification.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+            if (expandedNotification != null)
+                expandedNotification.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
         }
 
         // Finish the notification
         if (mNotification == null) {
-            final Notification.Builder builder = new Notification.Builder(this);
+            final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
             builder.setSmallIcon(R.drawable.icon_bw);
             builder.setContentIntent(piClick);
             builder.setContent(collapsedNotification);
 
 
-            builder.setStyle(new Notification.BigTextStyle());
+            builder.setStyle(new NotificationCompat.BigTextStyle());
 //            builder.setStyle(new Notification.BigTextStyle().bigText(mCurrentMusic.getArtist()).setBigContentTitle(mCurrentMusic.getTitle()));
 //            builder.addAction(R.drawable.ic_media_previous, "", piPrev);
 //            builder.addAction(playPauseResId, "", piPlayPause);
@@ -519,10 +527,18 @@ public class MusicService extends Service implements MusicFocusable {
 
             mNotification = builder.build();
         }
-        mNotification.bigContentView = expandedNotification;
+
+        setBigContentView(mNotification, expandedNotification);
 
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
         startForeground(NOTIFICATION_ID, mNotification);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void setBigContentView(Notification notif, RemoteViews view) {
+        if (view != null) {
+            notif.bigContentView = view;
+        }
     }
 
     /**
