@@ -256,5 +256,7 @@
 
     <string name="about_authors">Authors</string>
     <string name="about_libraries">Libraries</string>
+	<string name="separatorDescription">Separator</string>
+	<string name="notificationIconDescription">Cover art</string>
 	
 </resources>
