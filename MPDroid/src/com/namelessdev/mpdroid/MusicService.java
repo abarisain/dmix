@@ -43,7 +43,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;
@@ -559,12 +558,12 @@ public class MusicService extends Service implements MusicFocusable {
     }
 
     public void onGainedAudioFocus() {
-        Toast.makeText(this, "gained audio focus.", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "gained audio focus.", Toast.LENGTH_SHORT).show();
         mAudioFocus = AudioFocus.Focused;
     }
 
     public void onLostAudioFocus(boolean canDuck) {
-        Toast.makeText(this, "lost audio focus." + (canDuck ? "can duck" : "no duck"), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "lost audio focus." + (canDuck ? "can duck" : "no duck"), Toast.LENGTH_SHORT).show();
         mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck : AudioFocus.NoFocusNoDuck;
     }
 
