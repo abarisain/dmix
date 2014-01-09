@@ -12,31 +12,35 @@
         android:scaleType="fitCenter"
         android:src="@drawable/icon_bw" />
 
-    <TextView
-        android:id="@+id/notificationTitle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/notificationPlayPause"
         android:layout_toRightOf="@+id/notificationIcon"
-        android:ellipsize="marquee"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:text="Title"
-        android:textAppearance="?android:textAppearanceMedium" />
+        android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/notificationArtist"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/notificationTitle"
-        android:layout_toLeftOf="@+id/notificationPlayPause"
-        android:layout_toRightOf="@+id/notificationIcon"
-        android:ellipsize="marquee"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:text="Artist"
-        android:textAppearance="?android:textAppearanceSmall" />
+        <TextView
+            android:id="@+id/notificationTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:fontFamily="sans-serif-light"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:text="Title"
+            android:textAppearance="?android:textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/notificationArtist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:text="Artist"
+            android:textAppearance="?android:textAppearanceSmall" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/notificationPlayPause"
