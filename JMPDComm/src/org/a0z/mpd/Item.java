@@ -1,8 +1,13 @@
 package org.a0z.mpd;
+
+import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class Item implements Comparable<Item> {
+    public static final Collator defaultCollator = Collator.getInstance(Locale.getDefault());
+
 	public String mainText() {
 		return getName();
 	}
@@ -10,17 +15,28 @@ public abstract class Item implements Comparable<Item> {
 		return null;
 	}
 	public String sort() {
-		return getName();
+            return getName().toLowerCase(Locale.getDefault());
 	}
 	abstract public String getName();
 
 	@Override
-    public int compareTo(Item o) {
-            return getName().compareToIgnoreCase(o.getName());
+        public int compareTo(Item o) {
+            // sort "" behind everything else
+            if ("".equals(sort())) {
+                if ("".equals(o.sort())) {
+                    return 0;
+                }
+                return 1;
+            }
+            if ("".equals(o.sort())) {
+                return -1;
+            }
+            return defaultCollator.compare(sort(), o.sort());
+            //return sort().compareToIgnoreCase(o.sort());
 	}
 
 	@Override
-	public	String toString() {
+        public String toString() {
 		return mainText();
 	}
 
