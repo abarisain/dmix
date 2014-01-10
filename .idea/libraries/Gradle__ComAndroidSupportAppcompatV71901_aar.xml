@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: ComAndroidSupportAppcompatV71901.aar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/MPDroid/build/exploded-bundles/ComAndroidSupportAppcompatV71901.aar/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
