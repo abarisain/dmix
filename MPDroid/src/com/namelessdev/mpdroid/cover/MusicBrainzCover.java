@@ -98,7 +98,7 @@ public class MusicBrainzCover extends AbstractWebCover {
         List<String> coverUrls = new ArrayList<String>();
 
         if (covertArchiveResponse == null || covertArchiveResponse.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         try {
