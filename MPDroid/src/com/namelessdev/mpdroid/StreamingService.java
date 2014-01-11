@@ -425,12 +425,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         return START_STICKY;
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public void showNotification() {
         showNotification(false);
     }
@@ -676,11 +670,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     }
 
     @Override
-    public void onBufferingUpdate(MediaPlayer mp, int percent) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         pauseStreaming();
         return false;
@@ -689,28 +678,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     @Override
     public boolean onInfo(MediaPlayer mp, int what, int extra) {
         return false;
-    }
-
-    @Override
-    public void connectionFailed(String message) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void connectionSucceeded(String message) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -750,30 +717,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     }
 
-    @Override
-    public void repeatChanged(boolean repeating) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void randomChanged(boolean random) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void libraryStateChanged(boolean updating) {
-        // TODO Auto-generated method stub
-
-    }
-
+    /**
+     * Handle the change of volume if a notification, or any other kind of interrupting audio event.
+     */
     @Override
     public void onAudioFocusChange(int focusChange) {
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
@@ -783,5 +729,39 @@ public class StreamingService extends Service implements StatusChangeListener, O
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
             stop();
         }
+    }
+    
+    /** Beyond here are stubs. */
+    
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+    @Override
+    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+    }
+    @Override
+    public void connectionFailed(String message) {
+    }
+    @Override
+    public void connectionSucceeded(String message) {
+    }
+    @Override
+    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+    }
+    @Override
+    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+    }
+    @Override
+    public void repeatChanged(boolean repeating) {
+    }
+    @Override
+    public void randomChanged(boolean random) {
+    }
+    @Override
+    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+    }
+    @Override
+    public void libraryStateChanged(boolean updating) {
     }
 }
