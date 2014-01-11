@@ -62,8 +62,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * StreamingService is my code which notifies and streams MPD (theoretically) I hope I'm doing things right. Really. And say farewell to your
- * battery because I think I am raping it.
+ * StreamingService hooks Android's audio framework to MPD's streaming server to allow local audio
+ * playback, audio metadata parsing and cover art retrieving.
  *
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
@@ -155,20 +155,35 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
     private ComponentName remoteControlResponder;
+    
+    /** This field will contain the URL of the MPD server streaming source */
     private String streamSource;
+
+    /** Is the Android media framework buffering the stream? */
     private Boolean buffering;
+
     private String prevMpdState;
+
+    /** Is MPD playing? */
     private boolean isPlaying;
-    private boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
+    
+    /** isPaused is required (along with isPlaying) so the service doesn't start when it's not wanted. */
+    private boolean isPaused;
+    
+    /** Field containing the ID used to stopSelfResult() which will stop the streaming service. */
     private Integer lastStartID;
 
-    private static Method registerMediaButtonEventReceiver; // Thanks you google again for this code
+    /** Methods to enable and disable MPDroid to control media buttons. */
+    private static Method registerMediaButtonEventReceiver;
     private static Method unregisterMediaButtonEventReceiver;
 
+    /** Field to control remoteControlClient */
     private RemoteControlClient remoteControlClient = null;
 
+    /** How long to wait before queuing the message into the current handler queue. */
     private static final int IDLE_DELAY = 60000;
 
+    /** Set up the message handler. */
     @SuppressLint("HandlerLeak")
     private Handler delayedStopHandler = new Handler() {
         @Override
@@ -179,7 +194,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
             die();
         }
     };
-
+    /** 
+     * Initializes registerMediaButtonReceiver and unregisterMediaButtonEventReceiver as is
+     * required before the RemoteControlClient can be registered through
+     * {@link #registerRemoteControlClient()}.
+     */
     private static void initializeRemoteControlRegistrationMethods() {
         try {
             if (registerMediaButtonEventReceiver == null) {
@@ -194,7 +213,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
             /* Aww we're not 2.2 */
         }
     }
-
+    /**
+     * Register the media button event receiver intents, which is a requirement before registering
+     * the {@link #registerRemoteControlClient()}.
+     */
     private void registerMediaButtonEvent() {
         if (registerMediaButtonEventReceiver == null)
             return;
@@ -209,7 +231,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
             e.printStackTrace();
         }
     }
-
+    /**
+     * Unregisters the registered media button event receiver intents.
+     */
     private void unregisterMediaButtonEvent() {
         if (unregisterMediaButtonEventReceiver == null)
             return;
@@ -226,17 +250,21 @@ public class StreamingService extends Service implements StatusChangeListener, O
             e.printStackTrace();
         }
     }
-
+    /**
+     * Builds the media button intent. 
+     */
     private void registerRemoteControlClient() {
 		// build the PendingIntent for the remote control client
 		Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
 		mediaButtonIntent.setComponent(remoteControlResponder);
 		PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
+
 		// create and register the remote control client
 		remoteControlClient = new RemoteControlClient(mediaPendingIntent);
 		((RemoteControlClient) remoteControlClient).setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
 						| RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
 						| RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
+
 		audioManager.registerRemoteControlClient((RemoteControlClient) remoteControlClient);
     }
 
@@ -258,7 +286,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
                     .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, cover).apply();
         }
     }
-
+    /**
+     * This method will grab the metadata from the stream coming from the MPD server. 
+     * @param song
+     */
     private void setMusicInfo(Music song) {
         if (remoteControlClient != null && song != null) {
             MetadataEditor editor = ((RemoteControlClient) remoteControlClient).editMetadata(true);
@@ -273,12 +304,16 @@ public class StreamingService extends Service implements StatusChangeListener, O
             editor.apply();
         }
     }
-
+    /**
+     * Get the status of the streaming service.
+     * @return bool
+     */
     public static Boolean getStreamingServiceStatus() {
         return isServiceRunning;
     }
-
-    // And thanks to google ... again
+    /**
+     * Setup for the method which allows MPDroid to override behavior during phone events.
+     */
     private PhoneStateListener phoneStateListener = new PhoneStateListener() {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
@@ -305,7 +340,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 isPaused = (isPaused || isPlaying) && (app.getApplicationState().streamingMode);
                 pauseStreaming();
             } else if (state == TelephonyManager.CALL_STATE_IDLE) {
-                // start playing again
+                // Resume playback only if music was playing when the call was answered
                 if (isPaused) {
                     // resume play back only if music was playing
                     // when the call was answered
@@ -321,6 +356,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
+		/** If streaming mode is not enabled, return */
         if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
             stopSelf();
             return;
@@ -371,13 +407,16 @@ public class StreamingService extends Service implements StatusChangeListener, O
         setMusicState(PLAYSTATE_STOPPED);
         unregisterMediaButtonEvent();
         unregisterRemoteControlClient();
+ 
         if (audioManager != null)
             audioManager.abandonAudioFocus(this);
+        
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
         }
+        
         MPDApplication app = (MPDApplication) getApplication();
         app.unsetActivity(this);
         app.getApplicationState().streamingMode = false;
@@ -420,26 +459,31 @@ public class StreamingService extends Service implements StatusChangeListener, O
             }
         }
 
-        // We want this service to continue running until it is explicitly
-        // stopped, so return sticky.
+        /**
+         * We want this service to continue running until it is explicitly stopped, so return
+         * sticky.
+         */
         return START_STICKY;
     }
 
     public void showNotification() {
         showNotification(false);
     }
-
+    /**
+     * Show a notification (and control with Android 4.1+).
+     */
     public void showNotification(boolean streamingStatusChanged) {
         
             MPDApplication app = (MPDApplication) getApplication();
             MPDStatus statusMpd = null;
+
             try {
                 statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
             } catch (MPDServerException e) {
-                // Do nothing cause I suck hard at android programming
+            	/** TODO: Properly handle exception for getStatus() failure. */
             }
 
-        	/** Don't show the notification if MPD is paused and where the SDK allows for notification buttons */
+        	/** Don't show the notification if MPD is paused and where the SDK allows for notification buttons. */
         	if (statusMpd == null || (isPaused && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)) {
         		return;
         	}
@@ -454,11 +498,16 @@ public class StreamingService extends Service implements StatusChangeListener, O
            		return;
            	}
            	
+        	/** Setup the notification manager. */
            	((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
            	((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
            	stopForeground(true);
+           	
+         	/** Setup the media player. */
            	Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
            	setMusicInfo(actSong);
+           	
+           	/** Setup the notification defaults. */
            	Notification status = null;
            	NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
            	.setSmallIcon(R.drawable.icon_bw)
@@ -466,10 +515,14 @@ public class StreamingService extends Service implements StatusChangeListener, O
            	.setContentTitle(getString(R.string.streamStopped))
            	.setContentIntent(PendingIntent.getActivity(this, 0,
            			new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
-
+           	/**
+           	 * Initialize the text strings for the notification panel.
+           	 */
            	CharSequence contentText = actSong.getAlbum();
            	CharSequence contentTitle = actSong.getTitle();
-
+           	/**
+           	 * There's no guarantee that an Artist or an Album exists.
+           	 */
            	if ( contentText == null ) {
            		contentText = actSong.getArtist();
            	} else {
@@ -477,21 +530,29 @@ public class StreamingService extends Service implements StatusChangeListener, O
            			contentText = contentText + " - " + actSong.getArtist();
            		}
            	}
-
+           	/**
+           	 * There's no guarantee that a title exists, but filename is guaranteed.
+           	 */
            	if ( contentTitle == null ) {
            		contentTitle = actSong.getFilename();
            	}
-
+           	/**
+           	 * If buffering, the main title will be Buffering... alternate will be the title.
+           	 */
            	if (buffering) {
            		contentText = contentTitle + " - " + contentText;
            		contentTitle = getString(R.string.buffering);
            	}
-           	
+           	/**
+           	 * Finally, build the notification.
+           	 */
            	notificationBuilder.setContentTitle(contentTitle);
            	if ( contentText != null ) {
            		notificationBuilder.setContentText(contentText);
            	}
-           	
+           	/**
+           	 * Setup the music state. On Android 4.1+ setup notification control buttons.
+           	 */
            	if (buffering) {
            		setMusicState(PLAYSTATE_BUFFERING);
 
@@ -517,9 +578,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
            					PendingIntent.FLAG_CANCEL_CURRENT));
            		}
            	}
-
-           	// Check if we have a sdcard cover cache for this song
-           	// Maybe find a more efficient way
+          	/**
+           	 * This block sets up the cover art for the notification panel.
+           	 * TODO: Check the sdcard cover cache for this song.
+           	 * TODO: Try to find a more efficient method to accomplish this task.
+           	 */
            	final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
            	if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
            		final CachedCover cache = new CachedCover(app);
@@ -548,19 +611,29 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
            	startForeground(STREAMINGSERVICE_STATUS, status);
     }
-
+    /**
+     * If streaming is playing, then streaming is paused, due to user command or interrupting event
+     * this will stop the Android mediaPlayer framework while keeping the notification showing.
+     */
     public void pauseStreaming() {
         if (isPlaying == false)
             return;
+        
         isPlaying = false;
         isPaused = true;
         buffering = false;
-        if (mediaPlayer != null) { // If that stupid thing crashes
-            mediaPlayer.stop(); // So it stops faster
+
+        /** If the Android media framework crashes, try to stop it earlier. */
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
         }
         showNotification(true);
     }
-
+    /**
+     * If streaming mode is activated this will setup the Android mediaPlayer framework, register
+     * the media button events, register the remote control client then setup and the framework
+     * streaming.
+     */
     public void beginStreaming() {
         // just to be sure, we do not want to start when we're not supposed to
         if (!((MPDApplication) getApplication()).getApplicationState().streamingMode)
@@ -574,6 +647,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         if (mediaPlayer == null)
             return;
+
         try {
             mediaPlayer.reset();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -581,7 +655,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
             mediaPlayer.prepareAsync();
             showNotification(true);
         } catch (IOException e) {
-            // Error ? Notify the user ! (Another day)
+        	/**
+        	 * TODO: Notify the user
+        	 */
             buffering = false; // Obviously if it failed we are not buffering.
             isPlaying = false;
         } catch (IllegalStateException e) {
@@ -589,7 +665,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
             isPlaying = false;
         }
     }
-
+    /**
+     * Stops the playback after the MPD has been stopped.
+     */
     public void stopStreaming() {
         prevMpdState = "";
         if (mediaPlayer == null)
@@ -597,7 +675,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
         mediaPlayer.stop();
         stopForeground(true);
     }
-
+    /**
+     * This sends the previous command to MPD, stops and resumes streaming.
+     */
     public void prev() {
         MPDApplication app = (MPDApplication) getApplication();
         MPD mpd = app.oMPDAsyncHelper.oMPD;
@@ -609,7 +689,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
         stopStreaming();
         beginStreaming();
     }
-
+    /**
+     * This sends the next command to MPD, stops and resumes streaming.
+     */
     public void next() {
         MPDApplication app = (MPDApplication) getApplication();
         MPD mpd = app.oMPDAsyncHelper.oMPD;
@@ -621,17 +703,23 @@ public class StreamingService extends Service implements StatusChangeListener, O
         stopStreaming();
         beginStreaming();
     }
-
+    /**
+     * This stops the streaming, turns streaming mode off and stops the StreamingService.
+     */
     public void stop() {
         stopStreaming();
         die();
     }
-
+    /**
+     * This turns streaming mode off and stops the StreamingService.
+     */
     public void die() {
         ((MPDApplication) getApplication()).getApplicationState().streamingMode = false;
         stopSelfResult(lastStartID);
     }
-
+    /**
+     * This will be called when MPDroid is ready to stream the MPD playback.
+     */
     @Override
     public void onPrepared(MediaPlayer mp) {
         // Buffering done
@@ -641,7 +729,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
         showNotification();
         mediaPlayer.start();
     }
-
+    /**
+    * This will be called when the end of the stream is reached during playback.
+    */
     @Override
     public void onCompletion(MediaPlayer mp) {
         Message msg = delayedStopHandler.obtainMessage();
@@ -651,13 +741,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
         try {
             statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
         } catch (MPDServerException e) {
-            // Do nothing cause I suck hard at android programming
+        	// TODO: Properly handle exception for getStatus() failure.
         }
         if (statusMpd != null) {
             String state = statusMpd.getState();
             if (state != null) {
                 if (state == MPDStatus.MPD_STATE_PLAYING) {
-                    // Resume playing
                     // TODO Stop resuming if no 3G. There's no point. Add something that says "ok we're waiting for 3G/wifi !"
                     beginStreaming();
                 } else {
@@ -696,7 +785,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         try {
             statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
         } catch (MPDServerException e) {
-            // Do nothing cause I suck hard at android programming
+        	// TODO: Properly handle exception for getStatus() failure.
         }
         if (statusMpd != null) {
             String state = statusMpd.getState();
@@ -714,7 +803,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 }
             }
         }
-
     }
 
     /**
