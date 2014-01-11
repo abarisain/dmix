@@ -157,7 +157,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private ComponentName remoteControlResponder;
     private String streamSource;
     private Boolean buffering;
-    private String oldStatus;
+    private String prevMpdState;
     private boolean isPlaying;
     private boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
     private Integer lastStartID;
@@ -309,7 +309,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 if (isPaused) {
                     // resume play back only if music was playing
                     // when the call was answered
-                    resumeStreaming();
+                    beginStreaming();
                 }
             }
         }
@@ -330,7 +330,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         mediaPlayer = new MediaPlayer();
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         buffering = true;
-        oldStatus = "";
+        prevMpdState = "";
         isPlaying = true;
         isPaused = false;
         lastStartID = 0;
@@ -393,12 +393,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
 
         if (intent.getAction().equals("com.namelessdev.mpdroid.START_STREAMING")) {
-            resumeStreaming();
+            beginStreaming();
         } else if (intent.getAction().equals("com.namelessdev.mpdroid.STOP_STREAMING")) {
             stopStreaming();
         } else if (intent.getAction().equals("com.namelessdev.mpdroid.RESET_STREAMING")) {
             stopStreaming();
-            resumeStreaming();
+            beginStreaming();
         } else if (intent.getAction().equals("com.namelessdev.mpdroid.DIE")) {
             die();
         } else if (intent.getAction().equals(CMD_REMOTE)) {
@@ -411,7 +411,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 if (isPaused == false) {
                     pauseStreaming();
                 } else {
-                    resumeStreaming();
+                    beginStreaming();
                 }
             } else if (cmd.equals(CMD_PAUSE)) {
                 pauseStreaming();
@@ -451,7 +451,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         	}
         	
         	String state = statusMpd.getState();
-        	if (state == null || state == oldStatus && !streamingStatusChanged) {
+        	if (state == null || state == prevMpdState && !streamingStatusChanged) {
         		return;
         	}
 
@@ -567,7 +567,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         showNotification(true);
     }
 
-    public void resumeStreaming() {
+    public void beginStreaming() {
         // just to be sure, we do not want to start when we're not supposed to
         if (!((MPDApplication) getApplication()).getApplicationState().streamingMode)
             return;
@@ -597,7 +597,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     }
 
     public void stopStreaming() {
-        oldStatus = "";
+        prevMpdState = "";
         if (mediaPlayer == null)
             return;
         mediaPlayer.stop();
@@ -613,7 +613,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         }
         stopStreaming();
-        resumeStreaming();
+        beginStreaming();
     }
 
     public void next() {
@@ -625,7 +625,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         }
         stopStreaming();
-        resumeStreaming();
+        beginStreaming();
     }
 
     public void stop() {
@@ -643,7 +643,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         // Buffering done
         buffering = false;
         isPlaying = true;
-        oldStatus = "";
+        prevMpdState = "";
         showNotification();
         mediaPlayer.start();
     }
@@ -665,10 +665,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 if (state == MPDStatus.MPD_STATE_PLAYING) {
                     // Resume playing
                     // TODO Stop resuming if no 3G. There's no point. Add something that says "ok we're waiting for 3G/wifi !"
-                    resumeStreaming();
+                    beginStreaming();
                 } else {
-                    oldStatus = state;
                     // Something's happening, like crappy network or MPD just stopped..
+                    prevMpdState = state;
                     die();
                 }
             }
@@ -715,7 +715,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        oldStatus = "";
+        prevMpdState = "";
         showNotification();
 
     }
@@ -734,14 +734,14 @@ public class StreamingService extends Service implements StatusChangeListener, O
         if (statusMpd != null) {
             String state = statusMpd.getState();
             if (state != null) {
-                if (state == oldStatus)
+                if (state == prevMpdState)
                     return;
                 if (state == MPDStatus.MPD_STATE_PLAYING) {
                     isPaused = false;
-                    resumeStreaming();
+                    beginStreaming();
                     isPlaying = true;
                 } else {
-                    oldStatus = state;
+                    prevMpdState = state;
                     isPlaying = false;
                     stopStreaming();
                 }
