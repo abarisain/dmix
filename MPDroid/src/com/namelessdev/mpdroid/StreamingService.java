@@ -436,7 +436,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     }
 
     public void showNotification(boolean streamingStatusChanged) {
-        try {
+        
             MPDApplication app = (MPDApplication) getApplication();
             MPDStatus statusMpd = null;
             try {
@@ -444,84 +444,94 @@ public class StreamingService extends Service implements StatusChangeListener, O
             } catch (MPDServerException e) {
                 // Do nothing cause I suck hard at android programming
             }
-            // Don't show the notification if paused, except on Jelly bean where it has buttons
-            if (statusMpd != null && (!isPaused || Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)) {
-                String state = statusMpd.getState();
-                if (state != null) {
-                    if (state == oldStatus && !streamingStatusChanged)
-                        return;
-                    oldStatus = state;
-                    int songPos = statusMpd.getSongPos();
-                    if (songPos >= 0) {
-                        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
-                        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
-                        stopForeground(true);
-                        Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-                        setMusicInfo(actSong);
-                        Notification status = null;
-                        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                                .setSmallIcon(R.drawable.icon_bw)
-                                .setOngoing(true)
-                                .setContentTitle(getString(R.string.streamStopped))
-                                .setContentIntent(PendingIntent.getActivity(this, 0,
-                                        new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
-                        if (buffering) {
-                            setMusicState(PLAYSTATE_BUFFERING);
-                            notificationBuilder.setContentTitle(getString(R.string.buffering));
-                            notificationBuilder.setContentText(actSong.getTitle() + " - " + actSong.getArtist());
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                notificationBuilder.addAction(R.drawable.ic_media_stop, getString(R.string.stop), PendingIntent.getService(
-                                        this, 41,
-                                        new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_STOP),
-                                        PendingIntent.FLAG_CANCEL_CURRENT));
-                            }
-                        } else {
-                            setMusicState(isPaused ? PLAYSTATE_PAUSED : PLAYSTATE_PLAYING);
-                            notificationBuilder.setContentTitle(actSong.getTitle());
-                            notificationBuilder.setContentText(actSong.getAlbum() + " - " + actSong.getArtist());
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                notificationBuilder.addAction(R.drawable.ic_appwidget_music_prev, "", PendingIntent.getService(this, 11,
-                                        new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_PREV),
-                                        PendingIntent.FLAG_CANCEL_CURRENT));
-                                notificationBuilder.addAction(isPaused ? R.drawable.ic_appwidget_music_play
-                                        : R.drawable.ic_appwidget_music_pause, "", PendingIntent.getService(this, 21, new Intent(this,
-                                        StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_PLAYPAUSE),
-                                        PendingIntent.FLAG_CANCEL_CURRENT));
-                                notificationBuilder.addAction(R.drawable.ic_appwidget_music_next, "", PendingIntent.getService(this, 31,
-                                        new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_NEXT),
-                                        PendingIntent.FLAG_CANCEL_CURRENT));
-                            }
-                        }
 
-                        // Check if we have a sdcard cover cache for this song
-                        // Maybe find a more efficient way
-                        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-                        if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
-                            final CachedCover cache = new CachedCover(app);
-                            final String[] coverArtPath = cache.getCoverUrl(actSong.getAlbumInfo());
-                            if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
-                                notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
-                                        .getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
-                                        .getDimensionPixelSize(android.R.dimen.notification_large_icon_height), true));
-                                setMusicCover(Tools.decodeSampledBitmapFromPath(coverArtPath[0],
-                                        (int) Tools.convertDpToPixel(200, this), (int) Tools.convertDpToPixel(200, this), false));
-                            } else {
-                                setMusicCover(null);
-                            }
-                        } else {
-                            setMusicCover(null);
-                        }
+        	/** Don't show the notification if MPD is paused and where the SDK allows for notification buttons */
+        	if (statusMpd == null || (isPaused && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)) {
+        		return;
+        	}
+        	
+        	String state = statusMpd.getState();
+        	if (state == null || state == oldStatus && !streamingStatusChanged) {
+        		return;
+        	}
 
-                        status = notificationBuilder.build();
+           	int songPos = statusMpd.getSongPos();
+           	if (songPos < 0) {
+           		return;
+           	}
+           	
+           	((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_PAUSED);
+           	((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
+           	stopForeground(true);
+           	Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+           	setMusicInfo(actSong);
+           	Notification status = null;
+           	NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+           	.setSmallIcon(R.drawable.icon_bw)
+           	.setOngoing(true)
+           	.setContentTitle(getString(R.string.streamStopped))
+           	.setContentIntent(PendingIntent.getActivity(this, 0,
+           			new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
 
-                        startForeground(STREAMINGSERVICE_STATUS, status);
-                    }
-                }
-            }
+           	if (buffering) {
+           		setMusicState(PLAYSTATE_BUFFERING);
+           		notificationBuilder.setContentTitle(getString(R.string.buffering));
+           		notificationBuilder.setContentText(actSong.getTitle() + " - " + actSong.getArtist());
 
-        } catch (Exception e) {
-            // This should not happen anymore, and catching everything is ugly, but crashing because of a notification is pretty stupid IMHO
-        }
+           		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+           			notificationBuilder.addAction(R.drawable.ic_media_stop, getString(R.string.stop), PendingIntent.getService(
+           					this, 41,
+           					new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_STOP),
+           					PendingIntent.FLAG_CANCEL_CURRENT));
+           		}
+           	} else {
+           		setMusicState(isPaused ? PLAYSTATE_PAUSED : PLAYSTATE_PLAYING);
+           		notificationBuilder.setContentTitle(actSong.getTitle());
+           		notificationBuilder.setContentText(actSong.getAlbum() + " - " + actSong.getArtist());
+
+           		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+           			notificationBuilder.addAction(R.drawable.ic_appwidget_music_prev, "", PendingIntent.getService(this, 11,
+           					new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_PREV),
+           					PendingIntent.FLAG_CANCEL_CURRENT));
+           			notificationBuilder.addAction(isPaused ? R.drawable.ic_appwidget_music_play
+           					: R.drawable.ic_appwidget_music_pause, "", PendingIntent.getService(this, 21, new Intent(this,
+           							StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_PLAYPAUSE),
+           							PendingIntent.FLAG_CANCEL_CURRENT));
+           			notificationBuilder.addAction(R.drawable.ic_appwidget_music_next, "", PendingIntent.getService(this, 31,
+           					new Intent(this, StreamingService.class).setAction(CMD_REMOTE).putExtra(CMD_COMMAND, CMD_NEXT),
+           					PendingIntent.FLAG_CANCEL_CURRENT));
+           		}
+           	}
+
+           	// Check if we have a sdcard cover cache for this song
+           	// Maybe find a more efficient way
+           	final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+           	if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
+           		final CachedCover cache = new CachedCover(app);
+           		String[] coverArtPath = null;
+
+           		try {
+           			coverArtPath = cache.getCoverUrl(actSong.getAlbumInfo());
+           		} catch (Exception e) {
+           			// TODO: Properly handle exception for getStatus() failure.
+           		}
+           		
+           		if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
+           			notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
+           					.getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
+           					.getDimensionPixelSize(android.R.dimen.notification_large_icon_height), true));
+           			setMusicCover(Tools.decodeSampledBitmapFromPath(coverArtPath[0],
+           					(int) Tools.convertDpToPixel(200, this), (int) Tools.convertDpToPixel(200, this), false));
+           		} else {
+           			setMusicCover(null);
+           		}
+           	} else {
+           		setMusicCover(null);
+           	}
+
+           	status = notificationBuilder.build();
+
+           	startForeground(STREAMINGSERVICE_STATUS, status);
     }
 
     public void pauseStreaming() {
