@@ -149,7 +149,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private static Method registerMediaButtonEventReceiver; // Thanks you google again for this code
     private static Method unregisterMediaButtonEventReceiver;
 
-    private Object remoteControlClient = null; // No type ... retrocompatibility
+    private RemoteControlClient remoteControlClient = null;
 
     private static final int IDLE_DELAY = 60000;
 
