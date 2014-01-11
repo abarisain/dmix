@@ -385,11 +385,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     }
 
     @Override
-    public void onStart(Intent intent, int startId) { // Stupid 1.6 compatibility
-        onStartCommand(intent, 0, startId);
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         lastStartID = startId;
         if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
