@@ -473,10 +473,33 @@ public class StreamingService extends Service implements StatusChangeListener, O
            	.setContentIntent(PendingIntent.getActivity(this, 0,
            			new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
 
+           	CharSequence contentText = actSong.getAlbum();
+           	CharSequence contentTitle = actSong.getTitle();
+
+           	if ( contentText == null ) {
+           		contentText = actSong.getArtist();
+           	} else {
+           		if( actSong.getArtist() != null ) {
+           			contentText = contentText + " - " + actSong.getArtist();
+           		}
+           	}
+
+           	if ( contentTitle == null ) {
+           		contentTitle = actSong.getFilename();
+           	}
+
+           	if (buffering) {
+           		contentText = contentTitle + " - " + contentText;
+           		contentTitle = getString(R.string.buffering);
+           	}
+           	
+           	notificationBuilder.setContentTitle(contentTitle);
+           	if ( contentText != null ) {
+           		notificationBuilder.setContentText(contentText);
+           	}
+           	
            	if (buffering) {
            		setMusicState(PLAYSTATE_BUFFERING);
-           		notificationBuilder.setContentTitle(getString(R.string.buffering));
-           		notificationBuilder.setContentText(actSong.getTitle() + " - " + actSong.getArtist());
 
            		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
            			notificationBuilder.addAction(R.drawable.ic_media_stop, getString(R.string.stop), PendingIntent.getService(
@@ -486,8 +509,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
            		}
            	} else {
            		setMusicState(isPaused ? PLAYSTATE_PAUSED : PLAYSTATE_PLAYING);
-           		notificationBuilder.setContentTitle(actSong.getTitle());
-           		notificationBuilder.setContentText(actSong.getAlbum() + " - " + actSong.getArtist());
 
            		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
            			notificationBuilder.addAction(R.drawable.ic_appwidget_music_prev, "", PendingIntent.getService(this, 11,
