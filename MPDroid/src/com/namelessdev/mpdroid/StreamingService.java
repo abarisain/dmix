@@ -51,6 +51,7 @@ import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.tools.Tools;
+import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -279,30 +280,59 @@ public class StreamingService extends Service implements StatusChangeListener, O
             ((RemoteControlClient) remoteControlClient).setPlaybackState(state);
         }
     }
+  	/**
+   	 * This block sets up the cover art bitmap for the lock screen.
+   	 * TODO: Check the sdcard cover cache for this song.
+   	 * TODO: Try to find a more efficient method to accomplish this task.
+   	 */
+    private Bitmap getCoverArtBitmap(AlbumInfo albumInfo, NotificationCompat.Builder notificationBuilder) {
+    	MPDApplication app = (MPDApplication) getApplication();
 
-    private void setMusicCover(Bitmap cover) {
-        if (remoteControlClient != null) {
-            ((RemoteControlClient) remoteControlClient).editMetadata(false)
-                    .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, cover).apply();
-        }
+       	final CachedCover cache = new CachedCover(app);
+       	String[] coverArtPath = null;
+
+       	try {
+       		coverArtPath = cache.getCoverUrl(albumInfo);
+       	} catch (Exception e) {
+       		// TODO: Properly handle exception for getStatus() failure.
+       	}
+       	
+       	if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
+       		notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
+       				.getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
+       				.getDimensionPixelSize(android.R.dimen.notification_large_icon_height), true));
+
+       		return (Tools.decodeSampledBitmapFromPath(coverArtPath[0],
+       					(int) Tools.convertDpToPixel(200, this), (int) Tools.convertDpToPixel(200, this), false));
+       	}
+       	return null;
     }
     /**
-     * This method will grab the metadata from the stream coming from the MPD server. 
-     * @param song
+     * This method will grab the metadata from the stream coming from the MPD server and give it to the remote control
+     * client for use on the lock screen.
      */
-    private void setMusicInfo(Music song) {
-        if (remoteControlClient != null && song != null) {
-            MetadataEditor editor = ((RemoteControlClient) remoteControlClient).editMetadata(true);
-            //TODO : maybe add cover art here someday
-            editor.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, song.getTime() * 1000);
-            editor.putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER, song.getTrack());
-            editor.putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER, song.getDisc());
-            editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, song.getAlbum());
-            editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, song.getAlbumArtist());
-            editor.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, song.getArtist());
-            editor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, song.getTitle());
-            editor.apply();
+    private void setMusicInfo(Music song, AlbumInfo albumInfo, NotificationCompat.Builder notificationBuilder) {
+    	final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences((MPDApplication) getApplication());
+
+    	if (remoteControlClient == null || song == null || settings.getBoolean(CoverManager.PREFERENCE_CACHE, true) == false) {
+        	return;
         }
+        
+        MetadataEditor editor = ((RemoteControlClient) remoteControlClient).editMetadata(true);
+
+        Bitmap bitmap = getCoverArtBitmap(albumInfo, notificationBuilder);
+        if ( bitmap != null ) {
+        	editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, bitmap);
+        }
+
+        editor.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, song.getTime() * 1000);
+        editor.putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER, song.getTrack());
+        editor.putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER, song.getDisc());
+        editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, song.getAlbum());
+        editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, song.getAlbumArtist());
+        editor.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, song.getArtist());
+        editor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, song.getTitle());
+        editor.apply();
     }
     /**
      * Get the status of the streaming service.
@@ -503,10 +533,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
            	((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(STREAMINGSERVICE_STOPPED);
            	stopForeground(true);
            	
-         	/** Setup the media player. */
-           	Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-           	setMusicInfo(actSong);
-           	
            	/** Setup the notification defaults. */
            	Notification status = null;
            	NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
@@ -515,6 +541,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
            	.setContentTitle(getString(R.string.streamStopped))
            	.setContentIntent(PendingIntent.getActivity(this, 0,
            			new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
+
+           	/** Setup the media player. */
+           	Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+           	setMusicInfo(actSong, actSong.getAlbumInfo(), notificationBuilder);
            	/**
            	 * Initialize the text strings for the notification panel.
            	 */
@@ -578,36 +608,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
            					PendingIntent.FLAG_CANCEL_CURRENT));
            		}
            	}
-          	/**
-           	 * This block sets up the cover art for the notification panel.
-           	 * TODO: Check the sdcard cover cache for this song.
-           	 * TODO: Try to find a more efficient method to accomplish this task.
-           	 */
-           	final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-           	if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
-           		final CachedCover cache = new CachedCover(app);
-           		String[] coverArtPath = null;
 
-           		try {
-           			coverArtPath = cache.getCoverUrl(actSong.getAlbumInfo());
-           		} catch (Exception e) {
-           			// TODO: Properly handle exception for getStatus() failure.
-           		}
-           		
-           		if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
-           			notificationBuilder.setLargeIcon(Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
-           					.getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
-           					.getDimensionPixelSize(android.R.dimen.notification_large_icon_height), true));
-           			setMusicCover(Tools.decodeSampledBitmapFromPath(coverArtPath[0],
-           					(int) Tools.convertDpToPixel(200, this), (int) Tools.convertDpToPixel(200, this), false));
-           		} else {
-           			setMusicCover(null);
-           		}
-           	} else {
-           		setMusicCover(null);
-           	}
-
-           	status = notificationBuilder.build();
+            status = notificationBuilder.build();
 
            	startForeground(STREAMINGSERVICE_STATUS, status);
     }
