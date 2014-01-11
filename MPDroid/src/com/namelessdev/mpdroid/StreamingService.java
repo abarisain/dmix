@@ -131,14 +131,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
     private ComponentName remoteControlResponder;
-    //private Timer timer = new Timer();
     private String streamSource;
     private Boolean buffering;
     private String oldStatus;
     private boolean isPlaying;
     private boolean isPaused; // The distinction needs to be made so the service doesn't start whenever it want
     private Integer lastStartID;
-    //private Integer mediaPlayerError;
 
     private static Method registerMediaButtonEventReceiver; // Thanks you google again for this code
     private static Method unregisterMediaButtonEventReceiver;
@@ -312,7 +310,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         isPlaying = true;
         isPaused = false;
         lastStartID = 0;
-        // streaming_enabled = false;
+
         mediaPlayer.setOnBufferingUpdateListener(this);
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnPreparedListener(this);
@@ -341,7 +339,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         streamSource = "http://" + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":"
                 + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/"
                 + app.oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming;
-        // Log.w(MPDApplication.TAG, streamSource);
     }
 
     @Override
@@ -377,7 +374,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
 
         if (intent.getAction().equals("com.namelessdev.mpdroid.START_STREAMING")) {
-            // streaming_enabled = true;
             resumeStreaming();
         } else if (intent.getAction().equals("com.namelessdev.mpdroid.STOP_STREAMING")) {
             stopStreaming();
@@ -404,8 +400,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 stop();
             }
         }
-        // Toast.makeText(this, "onStartCommand  : "+(intent.getAction() == "com.namelessdev.mpdroid.START_STREAMING"),
-        // Toast.LENGTH_SHORT).show();
+
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
@@ -529,16 +524,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         isPaused = false;
         buffering = true;
-        // MPDApplication app = (MPDApplication) getApplication();
-        // MPD mpd = app.oMPDAsyncHelper.oMPD;
+
         registerMediaButtonEvent();
         registerRemoteControlClient();
-		/*
-		 * if (isPaused == true) { try { String state = mpd.getStatus().getState(); if (state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-		 * mpd.pause(); } isPaused = false; } catch (MPDServerException e) {
-		 * 
-		 * } }
-		 */
+
         if (mediaPlayer == null)
             return;
         try {
@@ -553,7 +542,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
             isPlaying = false;
         } catch (IllegalStateException e) {
             // wtf what state ?
-            // Toast.makeText(this, "Error IllegalStateException isPlaying : "+mediaPlayer.isPlaying(), Toast.LENGTH_SHORT).show();
             isPlaying = false;
         }
     }
@@ -591,19 +579,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
     }
 
     public void stop() {
-		/*
-		 * MPDApplication app = (MPDApplication) getApplication(); MPD mpd = app.oMPDAsyncHelper.oMPD; try { mpd.stop(); } catch
-		 * (MPDServerException e) {
-		 * 
-		 * }
-		 */
         stopStreaming();
         die();
     }
 
     public void die() {
         ((MPDApplication) getApplication()).getApplicationState().streamingMode = false;
-        // Toast.makeText(this, "MPD Streaming Stopped", Toast.LENGTH_SHORT).show();
         stopSelfResult(lastStartID);
     }
 
@@ -619,7 +600,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        // Toast.makeText(this, "Completion", Toast.LENGTH_SHORT).show();
         Message msg = delayedStopHandler.obtainMessage();
         delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY); // Don't suck the battery too much
         MPDApplication app = (MPDApplication) getApplication();
@@ -648,34 +628,27 @@ public class StreamingService extends Service implements StatusChangeListener, O
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         // TODO Auto-generated method stub
-        // Toast.makeText(this, "Buf update", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        // Toast.makeText(this, "onError", Toast.LENGTH_SHORT).show();
-        // mediaPlayer.reset();
-        //mediaPlayerError = what;
         pauseStreaming();
         return false;
     }
 
     @Override
     public boolean onInfo(MediaPlayer mp, int what, int extra) {
-        // Toast.makeText(this, "onInfo :", Toast.LENGTH_SHORT).show();
         return false;
     }
 
     @Override
     public void connectionFailed(String message) {
         // TODO Auto-generated method stub
-        // Toast.makeText(this, "Connection Failed !", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void connectionSucceeded(String message) {
         // TODO Auto-generated method stub
-        // Toast.makeText(this, "connectionSucceeded :", Toast.LENGTH_SHORT).show();
     }
 
     @Override
