@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 Arnaud Barisain Monrose (The MPDroid Project)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.namelessdev.mpdroid.helpers;
 
@@ -78,6 +93,7 @@ public class CoverManager {
         SPOTIFY,
         ITUNES;
     }
+
     private class CreateBitmapTask implements Runnable
 
     {
@@ -103,14 +119,14 @@ public class CoverManager {
                 }
                 if (maxSize == CoverInfo.MAX_SIZE) {
                     bitmaps = new Bitmap[] {
-                        BitmapFactory.decodeByteArray(coverInfo.getCoverBytes(), 0,
-                                coverInfo.getCoverBytes().length)
+                            BitmapFactory.decodeByteArray(coverInfo.getCoverBytes(), 0,
+                                    coverInfo.getCoverBytes().length)
                     };
                     coverInfo.setBitmap(bitmaps);
                 } else {
                     bitmaps = new Bitmap[] {
-                        Tools.decodeSampledBitmapFromBytes(coverInfo.getCoverBytes(), maxSize,
-                                maxSize, false)
+                            Tools.decodeSampledBitmapFromBytes(coverInfo.getCoverBytes(), maxSize,
+                                    maxSize, false)
                     };
                     coverInfo.setBitmap(bitmaps);
                 }
@@ -171,6 +187,7 @@ public class CoverManager {
         }
 
     }
+
     private class FetchCoverTask implements Runnable
 
     {
@@ -303,6 +320,7 @@ public class CoverManager {
         }
 
     }
+
     private class RequestProcessorTask implements Runnable {
 
         @Override
@@ -418,6 +436,7 @@ public class CoverManager {
 
         }
     }
+
     private static final String[] DISC_REFERENCES = {
             "disc", "cd", "disque"
     };
@@ -430,13 +449,16 @@ public class CoverManager {
     private static final String FOLDER_SUFFIX = "/covers/";
     public static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";
     public static final String COVERS_FILE_NAME = "covers.bin";
+
     private static ThreadPoolExecutor getCoverFetchExecutor() {
         return new ThreadPoolExecutor(2, 2, 0, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>());
     }
+
     public static String getCoverFileName(AlbumInfo albumInfo) {
         return albumInfo.getKey() + ".jpg";
     }
+
     public synchronized static CoverManager getInstance(MPDApplication app,
             SharedPreferences settings) {
         if (instance == null) {
@@ -444,6 +466,7 @@ public class CoverManager {
         }
         return instance;
     }
+
     private MPDApplication app = null;
     private SharedPreferences settings = null;
     private static CoverManager instance = null;
@@ -812,7 +835,7 @@ public class CoverManager {
                                     coverInfo.getBitmap()[0].getConfig(),
                                     coverInfo.getBitmap()[0].isMutable() ? true : false);
                             coverInfo.setBitmap(new Bitmap[] {
-                                copyBitmap
+                                    copyBitmap
                             });
                         }
                         break;
