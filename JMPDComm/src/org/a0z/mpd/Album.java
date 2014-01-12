@@ -1,3 +1,4 @@
+
 package org.a0z.mpd;
 
 import android.os.Parcel;
@@ -15,20 +16,30 @@ public class Album extends Item implements Parcelable {
     private Artist artist;
     private boolean hasAlbumArtist;
 
-    public Album(String name, long songCount, long duration, long year, Artist artist,
-                 boolean hasAlbumArtist) {
-        this(name, songCount, duration, year, artist, hasAlbumArtist, "");
+    public static final Parcelable.Creator<Album> CREATOR =
+            new Parcelable.Creator<Album>() {
+                public Album createFromParcel(Parcel in) {
+                    return new Album(in);
+                }
+
+                public Album[] newArray(int size) {
+                    return new Album[size];
+                }
+            };
+
+    public Album(Album a) {
+        this(a.name, a.songCount, a.duration, a.year,
+                new Artist(a.artist), a.hasAlbumArtist, a.path);
     }
 
-    public Album(String name, long songCount, long duration, long year,
-                 Artist artist, boolean hasAlbumArtist, String path) {
-        this.name = name;
-        this.songCount = songCount;
-        this.duration = duration;
-        this.year = year;
-        this.artist = artist;
-        this.hasAlbumArtist = hasAlbumArtist;
-        this.path = path;
+    protected Album(Parcel in) {
+        this.name = in.readString();
+        this.songCount = in.readLong();
+        this.duration = in.readLong();
+        this.year = in.readLong();
+        this.path = in.readString();
+        this.artist = new Artist(in.readString());
+        this.hasAlbumArtist = (in.readInt() > 0 ? true : false);
     }
 
     public Album(String name, Artist artist) {
@@ -43,94 +54,20 @@ public class Album extends Item implements Parcelable {
         this(name, 0, 0, 0, artist, hasAlbumArtist, path);
     }
 
-    public Album(Album a) {
-        this(a.name, a.songCount, a.duration, a.year,
-             new Artist(a.artist), a.hasAlbumArtist, a.path);
+    public Album(String name, long songCount, long duration, long year, Artist artist,
+            boolean hasAlbumArtist) {
+        this(name, songCount, duration, year, artist, hasAlbumArtist, "");
     }
 
-    protected Album(Parcel in) {
-        this.name = in.readString();
-        this.songCount = in.readLong();
-        this.duration = in.readLong();
-        this.year = in.readLong();
-        this.path = in.readString();
-        this.artist = new Artist(in.readString());
-        this.hasAlbumArtist = (in.readInt()>0?true:false);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-
-    /*
-     * text for display
-     */
-    @Override
-    public String mainText() {
-        return (name.equals("") ?
-                MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album) :
-                name);
-    }
-
-    public long getSongCount() {
-        return songCount;
-    }
-
-    public void setSongCount(long sc) {
-        songCount = sc;
-    }
-
-    public long getYear() {
-        return year;
-    }
-
-    public void setYear(long y) {
-        year = y;
-    }
-
-    public long getDuration() {
-        return duration;
-    }
-
-    public void setDuration(long d) {
-        duration = d;
-    }
-
-    public String getPath() {
-        return path;
-    }
-    public void setPath(String p) {
-        path = p;
-    }
-
-    public Artist getArtist() {
-        return artist;
-    }
-
-    public void setArtist(Artist artist) {
+    public Album(String name, long songCount, long duration, long year,
+            Artist artist, boolean hasAlbumArtist, String path) {
+        this.name = name;
+        this.songCount = songCount;
+        this.duration = duration;
+        this.year = year;
         this.artist = artist;
-    }
-
-    public boolean hasAlbumArtist() {
-        return hasAlbumArtist;
-    }
-    public void setHasAlbumArtist(boolean aa){
-        hasAlbumArtist = aa;
-    }
-
-    @Override
-    public String subText() {
-        String construct = null;
-        if (MPD.sortAlbumsByYear() && 0 != year) {
-            construct = Long.toString(year);
-        }
-        if (0 != songCount) {
-            if (construct != null)
-                construct += " - ";
-            construct += String.format(1 == songCount ? singleTrackFormat : multipleTracksFormat, songCount, Music.timeToString(duration));
-        }
-        return construct;
+        this.hasAlbumArtist = hasAlbumArtist;
+        this.path = path;
     }
 
     @Override
@@ -151,29 +88,115 @@ public class Album extends Item implements Parcelable {
     }
 
     @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o instanceof Album) {
             Album a = (Album) o;
             return (hasAlbumArtist == a.hasAlbumArtist &&
-                    name.equals(a.getName()) &&
-                    artist.equals(a.getArtist()));
+                    name.equals(a.getName()) && artist.equals(a.getArtist()));
         }
         return false;
+    }
+
+    public AlbumInfo getAlbumInfo() {
+        return new AlbumInfo(this);
+    }
+
+    public Artist getArtist() {
+        return artist;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public long getSongCount() {
+        return songCount;
+    }
+
+    public long getYear() {
+        return year;
+    }
+
+    public boolean hasAlbumArtist() {
+        return hasAlbumArtist;
+    }
+
+    public String info() {
+        return (artist == null ? "null" : artist.info()) +
+                (hasAlbumArtist() ? " (AA)" : "") +
+                " // " + name +
+                ("".equals(path) ? "" : " (" + path + ")");
+    }
+
+    /*
+     * text for display
+     */
+    @Override
+    public String mainText() {
+        return (name.equals("") ?
+                MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album) :
+                name);
     }
 
     @Override
     public boolean nameEquals(Item o) {
         if (o instanceof Album) {
             Album a = (Album) o;
-            return (name.equals(a.getName()) &&
-                    artist.nameEquals(a.getArtist()));
+            return (name.equals(a.getName()) && artist.nameEquals(a.getArtist()));
         }
         return false;
     }
 
+    public void setArtist(Artist artist) {
+        this.artist = artist;
+    }
+
+    public void setDuration(long d) {
+        duration = d;
+    }
+
+    public void setHasAlbumArtist(boolean aa) {
+        hasAlbumArtist = aa;
+    }
+
+    public void setPath(String p) {
+        path = p;
+    }
+
+    public void setSongCount(long sc) {
+        songCount = sc;
+    }
+
+    public void setYear(long y) {
+        year = y;
+    }
+
     @Override
-    public int describeContents() {
-        return 0;
+    public String subText() {
+        String construct = null;
+        if (MPD.sortAlbumsByYear() && 0 != year) {
+            construct = Long.toString(year);
+        }
+        if (0 != songCount) {
+            if (construct != null)
+                construct += " - ";
+            construct += String.format(1 == songCount ? singleTrackFormat : multipleTracksFormat,
+                    songCount, Music.timeToString(duration));
+        }
+        return construct;
     }
 
     @Override
@@ -184,29 +207,7 @@ public class Album extends Item implements Parcelable {
         dest.writeLong(this.year);
         dest.writeString(this.path);
         dest.writeString(this.artist == null ? "" : this.artist.getName());
-        dest.writeInt(this.hasAlbumArtist()?1:0);
-    }
-
-    public static final Parcelable.Creator<Album> CREATOR =
-            new Parcelable.Creator<Album>() {
-                public Album createFromParcel(Parcel in) {
-                    return new Album(in);
-                }
-
-                public Album[] newArray(int size) {
-                    return new Album[size];
-                }
-            };
-
-    public AlbumInfo getAlbumInfo() {
-        return new AlbumInfo(this);
-    }
-
-    public String info() {
-        return (artist == null ? "null" : artist.info()) +
-            (hasAlbumArtist()?" (AA)":"") +
-            " // " + name +
-            ("".equals(path) ? "" : " ("+path+")");
+        dest.writeInt(this.hasAlbumArtist() ? 1 : 0);
     }
 
 }

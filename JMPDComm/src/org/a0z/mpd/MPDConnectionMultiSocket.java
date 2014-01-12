@@ -1,3 +1,4 @@
+
 package org.a0z.mpd;
 
 import org.a0z.mpd.exception.MPDServerException;
@@ -9,7 +10,7 @@ import java.net.Socket;
 
 /**
  * Class representing a connection to MPD Server.
- *
+ * 
  * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDConnectionMultiSocket extends MPDConnection {
@@ -18,19 +19,9 @@ public class MPDConnectionMultiSocket extends MPDConnection {
     private ThreadLocal<InputStreamReader> inputstream = new ThreadLocal<InputStreamReader>();
     private ThreadLocal<OutputStreamWriter> outputstream = new ThreadLocal<OutputStreamWriter>();
 
-
-    MPDConnectionMultiSocket(InetAddress server, int port, int maxConnection, String password, int readWriteTimeout) throws MPDServerException {
+    MPDConnectionMultiSocket(InetAddress server, int port, int maxConnection, String password,
+            int readWriteTimeout) throws MPDServerException {
         super(server, port, readWriteTimeout, maxConnection, password);
-    }
-
-    @Override
-    public OutputStreamWriter getOutputStream() {
-        return this.outputstream.get();
-    }
-
-    @Override
-    public void setOutputStream(OutputStreamWriter outputStream) {
-        this.outputstream.set(outputStream);
     }
 
     @Override
@@ -39,13 +30,23 @@ public class MPDConnectionMultiSocket extends MPDConnection {
     }
 
     @Override
-    public void setInputStream(InputStreamReader inputStream) {
-        this.inputstream.set(inputStream);
+    public OutputStreamWriter getOutputStream() {
+        return this.outputstream.get();
     }
 
     @Override
     protected Socket getSocket() {
         return socket.get();
+    }
+
+    @Override
+    public void setInputStream(InputStreamReader inputStream) {
+        this.inputstream.set(inputStream);
+    }
+
+    @Override
+    public void setOutputStream(OutputStreamWriter outputStream) {
+        this.outputstream.set(outputStream);
     }
 
     @Override

@@ -1,8 +1,9 @@
+
 package org.a0z.mpd.exception;
 
-
 /**
- * Represents an MPD Connection error : the server does not answer to the client command
+ * Represents an MPD Connection error : the server does not answer to the client
+ * command
  */
 public class MPDNoResponseException extends MPDConnectionException {
 
@@ -15,7 +16,7 @@ public class MPDNoResponseException extends MPDConnectionException {
 
     /**
      * Constructor.
-     *
+     * 
      * @param message exception message.
      */
     public MPDNoResponseException(String message) {
@@ -24,9 +25,9 @@ public class MPDNoResponseException extends MPDConnectionException {
 
     /**
      * Constructor.
-     *
+     * 
      * @param message exception message.
-     * @param cause   cause of this exception.
+     * @param cause cause of this exception.
      */
     public MPDNoResponseException(String message, Throwable cause) {
         super(message, cause);
@@ -34,7 +35,7 @@ public class MPDNoResponseException extends MPDConnectionException {
 
     /**
      * Constructor.
-     *
+     * 
      * @param cause cause of this exception.
      */
     public MPDNoResponseException(Throwable cause) {

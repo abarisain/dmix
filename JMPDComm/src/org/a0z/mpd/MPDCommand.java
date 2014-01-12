@@ -1,3 +1,4 @@
+
 package org.a0z.mpd;
 
 import android.util.Log;
@@ -48,9 +49,10 @@ public class MPDCommand {
     public static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
     public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
 
-    public static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,MPD_CMD_PREV,MPD_CMD_PLAYLIST_ADD,MPD_CMD_PLAYLIST_MOVE,MPD_CMD_PLAYLIST_DEL) ;
+    public static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,
+            MPD_CMD_PREV, MPD_CMD_PLAYLIST_ADD, MPD_CMD_PLAYLIST_MOVE, MPD_CMD_PLAYLIST_DEL);
     private boolean sentToServer = false;
-    public static final String MPD_CMD_IDLE="idle";
+    public static final String MPD_CMD_IDLE = "idle";
     public static final String MPD_CMD_PING = "ping";
 
     // deprecated commands
@@ -75,38 +77,18 @@ public class MPDCommand {
     public static final String MPD_TAG_ALBUM_ARTIST = "albumartist";
     public static final String MPD_TAG_GENRE = "genre";
 
+    public static boolean isRetryable(String command) {
+        return !NON_RETRYABLE_COMMANDS.contains(command);
+    }
     String command = null;
+
     String[] args = null;
 
     private boolean synchronous = true;
 
-    public void setSynchronous(boolean synchronous) {
-        this.synchronous = synchronous;
-    }
-
     public MPDCommand(String _command, String... _args) {
         this.command = _command;
         this.args = _args;
-    }
-
-    public String toString() {
-        StringBuffer outBuf = new StringBuffer();
-        outBuf.append(command);
-        for (String arg : args) {
-            if(arg == null)
-                continue;
-            arg = arg.replaceAll("\"", "\\\\\"");
-            outBuf.append(" \"" + arg + "\"");
-        }
-        outBuf.append("\n");
-        final String outString = outBuf.toString();
-        if (DEBUG)
-            Log.d("JMPDComm", "Mpd command : " + (outString.startsWith("password ") ? "password **censored**" : outString));
-        return outString;
-    }
-
-    public boolean isSynchronous() {
-        return synchronous;
     }
 
     public MPDCommand(String command, String[] args, boolean synchronous) {
@@ -115,15 +97,36 @@ public class MPDCommand {
         this.synchronous = synchronous;
     }
 
-    public static boolean isRetryable(String command) {
-        return !NON_RETRYABLE_COMMANDS.contains(command);
-    }
-
     public boolean isSentToServer() {
         return sentToServer;
     }
 
+    public boolean isSynchronous() {
+        return synchronous;
+    }
+
     public void setSentToServer(boolean sentToServer) {
         this.sentToServer = sentToServer;
+    }
+
+    public void setSynchronous(boolean synchronous) {
+        this.synchronous = synchronous;
+    }
+
+    public String toString() {
+        StringBuffer outBuf = new StringBuffer();
+        outBuf.append(command);
+        for (String arg : args) {
+            if (arg == null)
+                continue;
+            arg = arg.replaceAll("\"", "\\\\\"");
+            outBuf.append(" \"" + arg + "\"");
+        }
+        outBuf.append("\n");
+        final String outString = outBuf.toString();
+        if (DEBUG)
+            Log.d("JMPDComm", "Mpd command : "
+                    + (outString.startsWith("password ") ? "password **censored**" : outString));
+        return outString;
     }
 }

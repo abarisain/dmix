@@ -1,5 +1,5 @@
-package org.a0z.mpd.exception;
 
+package org.a0z.mpd.exception;
 
 /**
  * Represents an MPD Client error.
@@ -9,45 +9,41 @@ package org.a0z.mpd.exception;
  */
 public class MPDClientException extends MPDException {
 
-	private static final long serialVersionUID = -7525157411640713109L;
+    private static final long serialVersionUID = -7525157411640713109L;
 
-	/**
-	 * Constructor.
-	 */
-	public MPDClientException() {
-		super();
-	}
+    /**
+     * Constructor.
+     */
+    public MPDClientException() {
+        super();
+    }
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param message
-	 *           exception message.
-	 */
-	public MPDClientException(String message) {
-		super(message);
-	}
+    /**
+     * Constructor.
+     * 
+     * @param message exception message.
+     */
+    public MPDClientException(String message) {
+        super(message);
+    }
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param message
-	 *           exception message.
-	 * @param cause
-	 *           cause of this exception.
-	 */
-	public MPDClientException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     * Constructor.
+     * 
+     * @param message exception message.
+     * @param cause cause of this exception.
+     */
+    public MPDClientException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param cause
-	 *           cause of this exception.
-	 */
-	public MPDClientException(Throwable cause) {
-		super(cause);
-	}
+    /**
+     * Constructor.
+     * 
+     * @param cause cause of this exception.
+     */
+    public MPDClientException(Throwable cause) {
+        super(cause);
+    }
 
 }
