@@ -78,8 +78,8 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         int unknownPos = -1; // "Unknown" item
         for (int i = size - 1; i >= 0; i--) {
             Item element = items.get(i);
-            if (element.sort().length() > 0) {
-                alphaIndexer.put(element.sort().substring(0, 1).toUpperCase(), i);
+            if (element.sortText().length() > 0) {
+                alphaIndexer.put(element.sortText().substring(0, 1).toUpperCase(), i);
             } else {
                 unknownPos = i; // save position
             }

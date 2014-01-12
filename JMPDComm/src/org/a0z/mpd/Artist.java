@@ -84,8 +84,8 @@ public class Artist extends Item implements Parcelable {
         return equals(o);
     }
 
-    public String sort() {
-        return null == sort ? name == null ? "" : super.sort() : sort;
+    public String sortText() {
+        return null == sort ? name == null ? "" : super.sortText() : sort;
     }
 
     @Override

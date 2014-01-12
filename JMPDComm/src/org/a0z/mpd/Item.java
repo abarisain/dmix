@@ -34,16 +34,16 @@ public abstract class Item implements Comparable<Item> {
     @Override
     public int compareTo(Item o) {
         // sort "" behind everything else
-        if ("".equals(sort())) {
-            if ("".equals(o.sort())) {
+        if ("".equals(sortText())) {
+            if ("".equals(o.sortText())) {
                 return 0;
             }
             return 1;
         }
-        if ("".equals(o.sort())) {
+        if ("".equals(o.sortText())) {
             return -1;
         }
-        return defaultCollator.compare(sort(), o.sort());
+        return defaultCollator.compare(sortText(), o.sortText());
         // return sort().compareToIgnoreCase(o.sort());
     }
 
@@ -65,7 +65,7 @@ public abstract class Item implements Comparable<Item> {
         return getName().equals(o.getName());
     }
 
-    public String sort() {
+    public String sortText() {
         return getName().toLowerCase(Locale.getDefault());
     }
 
