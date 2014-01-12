@@ -13,10 +13,10 @@ import static android.util.Log.w;
 
 public class GracenoteCover extends AbstractWebCover {
 
-    private static String CLIENT_ID = "15942656-184B7C5BA04F0D8709F6E2A808C9ECD4";
+    private String clientId;
     public static final String USER_ID = "GRACENOTE_USERID";
     public static final String CUSTOM_CLIENT_ID_KEY = "gracenoteClientId";
-    private static final String API_URL = "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
+    private String apiUrl;
     private SharedPreferences sharedPreferences;
     private String userId;
     public static final String URL_PREFIX = "web.content.cddbp.net";
@@ -25,16 +25,25 @@ public class GracenoteCover extends AbstractWebCover {
         this.sharedPreferences = sharedPreferences;
     }
 
+    public static boolean isClientIdAvailable(SharedPreferences sharedPreferences) {
+        return !isEmpty(sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null));
+    }
+
     private void initializeUserId() {
         try {
 
-            if (sharedPreferences != null) {
-                String customClientId = sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null);
-                if (!isEmpty(customClientId)) {
-                    CLIENT_ID = customClientId;
-                }
-                userId = sharedPreferences.getString(USER_ID, null);
+            if (sharedPreferences == null) {
+                return;
             }
+
+            String customClientId = sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null);
+            if (!isEmpty(customClientId)) {
+                clientId = customClientId;
+                apiUrl = "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
+            } else {
+                return;
+            }
+            userId = sharedPreferences.getString(USER_ID, null);
 
             if (userId == null) {
                 userId = register();
@@ -90,12 +99,12 @@ public class GracenoteCover extends AbstractWebCover {
     // Will register your clientID and Tag in order to get a userID. The userID should be stored
     // in a persistent form (filesystem, db, etc) otherwise you will hit your user limit.
     public String register() {
-        return this.register(CLIENT_ID);
+        return this.register(clientId);
     }
 
     public String register(String clientID) {
         String request = "<QUERIES><QUERY CMD=\"REGISTER\"><CLIENT>" + clientID + "</CLIENT></QUERY></QUERIES>";
-        String response = this.executePostRequest(API_URL, request);
+        String response = this.executePostRequest(apiUrl, request);
         return extractUserID(response);
     }
 
@@ -105,7 +114,7 @@ public class GracenoteCover extends AbstractWebCover {
         String request = "<QUERIES>\n" +
                 "  <LANG>eng</LANG>\n" +
                 "  <AUTH>\n" +
-                "    <CLIENT>" + CLIENT_ID + "</CLIENT>\n" +
+                "    <CLIENT>" + clientId + "</CLIENT>\n" +
                 "    <USER>" + userId + "</USER>\n" +
                 "  </AUTH>\n" +
                 "  <QUERY CMD=\"ALBUM_SEARCH\">\n" +
@@ -116,7 +125,7 @@ public class GracenoteCover extends AbstractWebCover {
                 "  </QUERY>\n" +
                 "</QUERIES>";
 
-        String response = this.executePostRequest(API_URL, request);
+        String response = this.executePostRequest(apiUrl, request);
         return extractCoverUrl(response);
     }
 
@@ -189,13 +198,13 @@ public class GracenoteCover extends AbstractWebCover {
         return null;
     }
 
-    private static String getClientIdPrefix() {
+    private String getClientIdPrefix() {
         String[] splittedString;
-        splittedString = CLIENT_ID.split("-");
+        splittedString = clientId.split("-");
         if (splittedString.length == 2) {
             return splittedString[0];
         } else {
-            w(GracenoteCover.class.getSimpleName(), "Invalid GraceNote User ID (must be XXXX-XXXXXXXXXXXXX) : " + CLIENT_ID);
+            w(GracenoteCover.class.getSimpleName(), "Invalid GraceNote User ID (must be XXXX-XXXXXXXXXXXXX) : " + clientId);
             return "";
         }
     }

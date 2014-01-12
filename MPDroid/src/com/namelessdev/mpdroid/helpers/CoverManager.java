@@ -101,7 +101,9 @@ public class CoverManager {
                     this.coverRetrievers[i] = new LocalCover(this.app, this.settings);
                     break;
                 case GRACENOTE:
-                    this.coverRetrievers[i] = new GracenoteCover(this.settings);
+                    if (GracenoteCover.isClientIdAvailable(settings)) {
+                        this.coverRetrievers[i] = new GracenoteCover(this.settings);
+                    }
                     break;
                 case DEEZER:
                     this.coverRetrievers[i] = new DeezerCover();
@@ -381,6 +383,10 @@ public class CoverManager {
 
                 for (ICoverRetriever coverRetriever : coverRetrievers) {
                     try {
+
+                        if (coverRetriever == null) {
+                            continue;
+                        }
 
                         if (canStart) {
 
