@@ -167,6 +167,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public static Boolean getStreamingServiceStatus() {
         return isServiceRunning;
     }
+
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
 

@@ -385,6 +385,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
     }
+
     /**
      * Represents a node in the list
      */
@@ -470,6 +471,7 @@ public class WeakLinkedList<T> implements List<T> {
             return buff.toString();
         }
     }
+
     private final Object LOCK = new Object();
     private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
     private int size = 0;

@@ -44,17 +44,20 @@ public class TouchInterceptor extends ListView {
     public interface DragListener {
         void drag(int from, int to);
     }
+
     public interface DropListener {
         void drop(int from, int to);
     }
+
     public interface RemoveListener {
         void remove(int which);
     }
+
     private ImageView mDragView;
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mWindowParams;
-                            private int mDragPos; // which item is being dragged
-                              private int mFirstDragPos; // where was the dragged item originally
+    private int mDragPos; // which item is being dragged
+    private int mFirstDragPos; // where was the dragged item originally
     private int mDragPoint; // at what offset inside the item did the user grab
     // it
     private int mCoordOffset; // the difference between screen coordinates and
