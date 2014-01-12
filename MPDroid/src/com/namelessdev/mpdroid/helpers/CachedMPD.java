@@ -1,21 +1,11 @@
 package com.namelessdev.mpdroid.helpers;
 
 import org.a0z.mpd.*;
-import org.a0z.mpd.exception.MPDClientException;
-import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.content.Context;
 import android.util.Log;
 
-import com.namelessdev.mpdroid.tools.MultiMap;
-
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.*;
-
-import android.util.Log;
 
 /*
  * Cached Version of org.a0z.mpd.MPD
@@ -88,7 +78,6 @@ public class CachedMPD extends MPD
         }
         ArrayList<String[]> result = new ArrayList<String[]>();
         for (Album album : albums) {
-            String a = album.getName();
             result.add((String[])cache.getArtistsByAlbum
                        (album.getName(), useAlbumArtist).toArray(new String[0]));
         }

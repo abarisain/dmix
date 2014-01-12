@@ -11,8 +11,6 @@ import java.net.UnknownHostException;
 import java.util.*;
 import android.util.Log;
 
-import static android.text.TextUtils.isEmpty;
-
 /**
  * MPD Server controller.
  *
@@ -568,7 +566,6 @@ public class MPD {
     protected void getAlbumDetails(List<Album> albums,
                                    boolean findYear) throws MPDServerException {
         for (Album a : albums) {
-            Artist artist = a.getArtist();
             mpdConnection.queueCommand(getAlbumDetailsCommand(a));
         }
         List<String[]> response =  mpdConnection.sendCommandQueueSeparated();

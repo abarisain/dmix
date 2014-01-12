@@ -2,7 +2,6 @@ package com.namelessdev.mpdroid.fragments;
 
 import org.a0z.mpd.Album;
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;

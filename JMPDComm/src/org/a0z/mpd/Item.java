@@ -61,7 +61,6 @@ public abstract class Item implements Comparable<Item> {
                                                   List<T> a_items) {
         int j_start = aa_items.size()-1;
         for (int i = a_items.size()-1; i >= 0; i--) {  // artists
-            String a_name = a_items.get(i).getName();
             for (int j = j_start; j >= 0; j--) {  // album artists
                 if (aa_items.get(j).nameEquals(a_items.get(i))) {
                     j_start = j;

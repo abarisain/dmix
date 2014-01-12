@@ -19,7 +19,6 @@ import android.util.Log;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
-import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.helpers.CachedMPD;
 
 /**
