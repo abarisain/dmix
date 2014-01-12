@@ -1,8 +1,5 @@
-package com.namelessdev.mpdroid.library;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.exception.MPDServerException;
+package com.namelessdev.mpdroid.library;
 
 import android.app.ActionBar;
 import android.content.Context;
@@ -30,33 +27,44 @@ import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
 
-public class SimpleLibraryActivity extends MPDroidFragmentActivity implements ILibraryFragmentActivity, OnBackStackChangedListener {
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.exception.MPDServerException;
 
-	public final String EXTRA_ALBUM = "album";
-	public final String EXTRA_ARTIST = "artist";
-	public final String EXTRA_STREAM = "streams";
-	public final String EXTRA_FOLDER = "folder";
+public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
+        ILibraryFragmentActivity, OnBackStackChangedListener {
 
-	private TextView titleView;
+    public final String EXTRA_ALBUM = "album";
+    public final String EXTRA_ARTIST = "artist";
+    public final String EXTRA_STREAM = "streams";
+    public final String EXTRA_FOLDER = "folder";
 
-	@Override
+    private TextView titleView;
+
+    @Override
+    public void onBackStackChanged() {
+        refreshTitleFromCurrentFragment();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		setContentView(R.layout.library_tabs);
-		
-	    LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	    titleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
-	    titleView.setFocusable(true);
-	    titleView.setFocusableInTouchMode(true);
-	    titleView.setSelected(true);
-	    titleView.requestFocus();
-	    
-	    final ActionBar actionBar = getActionBar();
-	    actionBar.setCustomView(titleView);
-	    actionBar.setDisplayShowTitleEnabled(false);
-	    actionBar.setDisplayShowCustomEnabled(true);
-		
-		Object targetElement = null;
+        setContentView(R.layout.library_tabs);
+
+        LayoutInflater inflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        titleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
+        titleView.setFocusable(true);
+        titleView.setFocusableInTouchMode(true);
+        titleView.setSelected(true);
+        titleView.requestFocus();
+
+        final ActionBar actionBar = getActionBar();
+        actionBar.setCustomView(titleView);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowCustomEnabled(true);
+
+        Object targetElement = null;
         if (savedInstanceState == null) {
             Fragment rootFragment = null;
             if (getIntent().getBooleanExtra("streams", false)) {
@@ -68,11 +76,13 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
                 if (targetElement == null)
                     targetElement = getIntent().getStringExtra(EXTRA_FOLDER);
                 if (targetElement == null) {
-                    throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
+                    throw new RuntimeException(
+                            "Error : cannot start SimpleLibraryActivity without an extra");
                 } else {
                     if (targetElement instanceof Artist) {
                         AlbumsFragment af;
-                        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplication());
+                        final SharedPreferences settings = PreferenceManager
+                                .getDefaultSharedPreferences(getApplication());
                         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                             af = new AlbumsGridFragment((Artist) targetElement);
                         } else {
@@ -101,118 +111,102 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
             refreshTitleFromCurrentFragment();
         }
         getSupportFragmentManager().addOnBackStackChangedListener(this);
-	}
-
-	@Override
-	public void setTitle(CharSequence title) {
-	    super.setTitle(title);
-	    titleView.setText(title);
-	}
-	
-	@Override
-	public void setTitle(int titleId) {
-	    super.setTitle(titleId);
-	    titleView.setText(getString(titleId));
-	}
-	
-	@Override
-	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-		final MPDApplication app = (MPDApplication) getApplicationContext();
-		switch (event.getKeyCode()) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						app.oMPDAsyncHelper.oMPD.next();
-					} catch (MPDServerException e) {
-						e.printStackTrace();
-					}
-				}
-			}).start();
-			return true;
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						app.oMPDAsyncHelper.oMPD.previous();
-					} catch (MPDServerException e) {
-						e.printStackTrace();
-					}
-				}
-			}).start();
-			return true;
-		}
-		return super.onKeyLongPress(keyCode, event);
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-			// For onKeyLongPress to work
-			event.startTracking();
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
-	public boolean onKeyUp(int keyCode, final KeyEvent event) {
-		final MPDApplication app = (MPDApplication) getApplicationContext();
-		switch (event.getKeyCode()) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			if (event.isTracking() && !event.isCanceled() && !app.getApplicationState().streamingMode) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							app.oMPDAsyncHelper.oMPD.adjustVolume(
-									event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ?
-											NowPlayingFragment.VOLUME_STEP
-											: -NowPlayingFragment.VOLUME_STEP);
-						} catch (MPDServerException e) {
-							e.printStackTrace();
-						}
-					}
-				}).start();
-			}
-			return true;
-		}
-		return super.onKeyUp(keyCode, event);
-	}
-
-	@Override
-	public void pushLibraryFragment(Fragment fragment, String label) {
-		String title = "";
-		if (fragment instanceof BrowseFragment) {
-			title = ((BrowseFragment) fragment).getTitle();
-		} else {
-			title = fragment.toString();
-		}
-		setTitle(title);
-		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-		ft.replace(R.id.root_frame, fragment);
-		ft.addToBackStack(label);
-		ft.setBreadCrumbTitle(title);
-		ft.commit();
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				finish();
-				return true;
-		}
-		return false;
-	}
+    }
 
     @Override
-    public void onBackStackChanged() {
-        refreshTitleFromCurrentFragment();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            // For onKeyLongPress to work
+            event.startTracking();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        final MPDApplication app = (MPDApplication) getApplicationContext();
+        switch (event.getKeyCode()) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            app.oMPDAsyncHelper.oMPD.next();
+                        } catch (MPDServerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            app.oMPDAsyncHelper.oMPD.previous();
+                        } catch (MPDServerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                return true;
+        }
+        return super.onKeyLongPress(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, final KeyEvent event) {
+        final MPDApplication app = (MPDApplication) getApplicationContext();
+        switch (event.getKeyCode()) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                if (event.isTracking() && !event.isCanceled()
+                        && !app.getApplicationState().streamingMode) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                app.oMPDAsyncHelper.oMPD.adjustVolume(
+                                        event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ?
+                                                NowPlayingFragment.VOLUME_STEP
+                                                : -NowPlayingFragment.VOLUME_STEP);
+                            } catch (MPDServerException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+                }
+                return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void pushLibraryFragment(Fragment fragment, String label) {
+        String title = "";
+        if (fragment instanceof BrowseFragment) {
+            title = ((BrowseFragment) fragment).getTitle();
+        } else {
+            title = fragment.toString();
+        }
+        setTitle(title);
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.replace(R.id.root_frame, fragment);
+        ft.addToBackStack(label);
+        ft.setBreadCrumbTitle(title);
+        ft.commit();
     }
 
     private void refreshTitleFromCurrentFragment() {
@@ -221,12 +215,25 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements IL
         if (fmStackCount > 0) {
             setTitle(supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
         } else {
-            final Fragment displayedFragment = getSupportFragmentManager().findFragmentById(R.id.root_frame);
+            final Fragment displayedFragment = getSupportFragmentManager().findFragmentById(
+                    R.id.root_frame);
             if (displayedFragment instanceof BrowseFragment) {
                 setTitle(((BrowseFragment) displayedFragment).getTitle());
             } else {
                 setTitle(displayedFragment.toString());
             }
         }
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        titleView.setText(title);
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        super.setTitle(titleId);
+        titleView.setText(getString(titleId));
     }
 }

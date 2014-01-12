@@ -1,10 +1,5 @@
+
 package com.namelessdev.mpdroid;
-
-import java.net.UnknownHostException;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,105 +16,111 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.MPDConnectionInfo;
 import com.namelessdev.mpdroid.tools.NetworkHelper;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.net.UnknownHostException;
+
 public class PhoneStateReceiver extends BroadcastReceiver {
-	// Used to trace when the app pauses / resumes playback
-	private static final String PAUSED_MARKER = "wasPausedInCall";
+    // Used to trace when the app pauses / resumes playback
+    private static final String PAUSED_MARKER = "wasPausedInCall";
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
+    @Override
+    public void onReceive(Context context, Intent intent) {
 
-		if (!NetworkHelper.isLocalNetworkConnected(context)) {
-			Log.d(MPDApplication.TAG, "No local network available.");
-			return;
-		}
+        if (!NetworkHelper.isLocalNetworkConnected(context)) {
+            Log.d(MPDApplication.TAG, "No local network available.");
+            return;
+        }
 
-		Log.d(MPDApplication.TAG, "Phonestate received");
-		final SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		// Get config vars
-		boolean pauseOnCall = settings.getBoolean("pauseOnPhoneStateChange",
-				false);
-		boolean playOnCallStop = pauseOnCall
-				&& settings.getBoolean("playOnPhoneStateChange", false);
+        Log.d(MPDApplication.TAG, "Phonestate received");
+        final SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(context);
+        // Get config vars
+        boolean pauseOnCall = settings.getBoolean("pauseOnPhoneStateChange",
+                false);
+        boolean playOnCallStop = pauseOnCall
+                && settings.getBoolean("playOnPhoneStateChange", false);
 
-		Log.d(MPDApplication.TAG, "Pause on call " + pauseOnCall);
-		if (pauseOnCall) {
-			Bundle bundle = intent.getExtras();
-			if (null == bundle) {
-				Log.e(MPDApplication.TAG, "Bundle was null");
-				return;
-			}
-			String state = bundle.getString(TelephonyManager.EXTRA_STATE);
+        Log.d(MPDApplication.TAG, "Pause on call " + pauseOnCall);
+        if (pauseOnCall) {
+            Bundle bundle = intent.getExtras();
+            if (null == bundle) {
+                Log.e(MPDApplication.TAG, "Bundle was null");
+                return;
+            }
+            String state = bundle.getString(TelephonyManager.EXTRA_STATE);
 
-			final boolean shouldPause = pauseOnCall
-					&& (state
-							.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING) || state
-							.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_OFFHOOK));
-			Log.d(MPDApplication.TAG, "Should pause " + shouldPause);
+            final boolean shouldPause = pauseOnCall
+                    && (state
+                            .equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING) || state
+                            .equalsIgnoreCase(TelephonyManager.EXTRA_STATE_OFFHOOK));
+            Log.d(MPDApplication.TAG, "Should pause " + shouldPause);
 
-			final boolean shouldPlay = (playOnCallStop
-					&& settings.getBoolean(PAUSED_MARKER, false) && state
-					.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE));
-			Log.d(MPDApplication.TAG, "Should play " + shouldPlay);
+            final boolean shouldPlay = (playOnCallStop
+                    && settings.getBoolean(PAUSED_MARKER, false) && state
+                    .equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE));
+            Log.d(MPDApplication.TAG, "Should play " + shouldPlay);
 
-			if (shouldPause || shouldPlay) {
-				// get congigured MPD connection
-				final MPDAsyncHelper oMPDAsyncHelper = new MPDAsyncHelper();
-				SettingsHelper settingsHelper = new SettingsHelper(
-						(ContextWrapper) context.getApplicationContext(),
-						oMPDAsyncHelper);
-				settingsHelper.updateConnectionSettings();
+            if (shouldPause || shouldPlay) {
+                // get congigured MPD connection
+                final MPDAsyncHelper oMPDAsyncHelper = new MPDAsyncHelper();
+                SettingsHelper settingsHelper = new SettingsHelper(
+                        (ContextWrapper) context.getApplicationContext(),
+                        oMPDAsyncHelper);
+                settingsHelper.updateConnectionSettings();
 
-				// schedule real work
-				oMPDAsyncHelper.execAsync(new Runnable() {
-					@Override
-					public void run() {
-						Log.d(MPDApplication.TAG, "Runnable started");
+                // schedule real work
+                oMPDAsyncHelper.execAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(MPDApplication.TAG, "Runnable started");
 
-						try {
-							MPD mpd = oMPDAsyncHelper.oMPD;
-							if (!mpd.isConnected()) {
-								Log.d(MPDApplication.TAG, "Trying to connect");
-								// MPD connection has to be done synchronously
-								MPDConnectionInfo conInfo = (MPDConnectionInfo) oMPDAsyncHelper
-										.getConnectionSettings();
-								mpd.connect(conInfo.sServer, conInfo.iPort, conInfo.sPassword);
+                        try {
+                            MPD mpd = oMPDAsyncHelper.oMPD;
+                            if (!mpd.isConnected()) {
+                                Log.d(MPDApplication.TAG, "Trying to connect");
+                                // MPD connection has to be done synchronously
+                                MPDConnectionInfo conInfo = (MPDConnectionInfo) oMPDAsyncHelper
+                                        .getConnectionSettings();
+                                mpd.connect(conInfo.sServer, conInfo.iPort, conInfo.sPassword);
 
-								if (mpd.isConnected()) {
-									Log.d(MPDApplication.TAG, "Connected");
-								} else {
-									Log.e(MPDApplication.TAG, "Not connected");
-								}
-							}
-							if (shouldPause) {
-								Log.d(MPDApplication.TAG, "Trying to pause");
-								if (mpd.getStatus().getState()
-										.equals(MPDStatus.MPD_STATE_PLAYING)) {
-									mpd.pause();
-									settings.edit()
-											.putBoolean(PAUSED_MARKER, true)
-											.commit();
-									Log.d(MPDApplication.TAG, "Playback paused");
-								}
-							} else if (shouldPlay) {
-								Log.d(MPDApplication.TAG, "Trying to play");
-								mpd.play();
-								settings.edit()
-										.putBoolean(PAUSED_MARKER, false)
-										.commit();
-								Log.d(MPDApplication.TAG, "Playback resumed");
-							}
-							mpd.disconnect();
-						} catch (MPDServerException e) {
-							e.printStackTrace();
-							Log.d(MPDApplication.TAG, "MPD Error", e);
-						} catch (UnknownHostException e) {
-							e.printStackTrace();
-							Log.d(MPDApplication.TAG, "MPD Error", e);
-						}
-					}
-				});
-			}
-		}
-	}
+                                if (mpd.isConnected()) {
+                                    Log.d(MPDApplication.TAG, "Connected");
+                                } else {
+                                    Log.e(MPDApplication.TAG, "Not connected");
+                                }
+                            }
+                            if (shouldPause) {
+                                Log.d(MPDApplication.TAG, "Trying to pause");
+                                if (mpd.getStatus().getState()
+                                        .equals(MPDStatus.MPD_STATE_PLAYING)) {
+                                    mpd.pause();
+                                    settings.edit()
+                                            .putBoolean(PAUSED_MARKER, true)
+                                            .commit();
+                                    Log.d(MPDApplication.TAG, "Playback paused");
+                                }
+                            } else if (shouldPlay) {
+                                Log.d(MPDApplication.TAG, "Trying to play");
+                                mpd.play();
+                                settings.edit()
+                                        .putBoolean(PAUSED_MARKER, false)
+                                        .commit();
+                                Log.d(MPDApplication.TAG, "Playback resumed");
+                            }
+                            mpd.disconnect();
+                        } catch (MPDServerException e) {
+                            e.printStackTrace();
+                            Log.d(MPDApplication.TAG, "MPD Error", e);
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                            Log.d(MPDApplication.TAG, "MPD Error", e);
+                        }
+                    }
+                });
+            }
+        }
+    }
 }

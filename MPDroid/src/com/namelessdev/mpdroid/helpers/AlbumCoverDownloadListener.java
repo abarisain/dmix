@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid.helpers;
 
 import android.content.Context;
@@ -8,8 +9,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
+
 import org.a0z.mpd.AlbumInfo;
 
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
@@ -27,8 +30,9 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         freeCoverDrawable();
     }
 
-    public AlbumCoverDownloadListener(Context context, ImageView coverArt, ProgressBar coverArtProgress, boolean lightTheme,
-                                      boolean bigCoverNotFound) {
+    public AlbumCoverDownloadListener(Context context, ImageView coverArt,
+            ProgressBar coverArtProgress, boolean lightTheme,
+            boolean bigCoverNotFound) {
         this.context = context;
         this.coverArt = coverArt;
         this.lightTheme = lightTheme;
@@ -40,52 +44,9 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         freeCoverDrawable();
     }
 
-    @Override
-    public void onCoverDownloaded(CoverInfo cover) {
-        if (!isMatchingCover(cover)) {
-            return;
-        }
-        if (cover.getBitmap() == null) {
-            return;
-        }
-        try {
-            if (coverArtProgress != null) {
-                coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-            }
-            freeCoverDrawable(coverArt.getDrawable());
-            coverArt.setImageDrawable(new CoverBitmapDrawable(context.getResources(), cover.getBitmap()[0]));
-            cover.setBitmap(null);
-        } catch (Exception e) {
-            Log.w(AlbumCoverDownloadListener.class.getSimpleName(), e);
-        }
-    }
-
-    @Override
-    public void onCoverNotFound(CoverInfo cover) {
-        if (!isMatchingCover(cover)) {
-            return;
-        }
-        cover.setBitmap(null);
-        if (coverArtProgress != null)
-            coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
-        freeCoverDrawable();
-    }
-
-    @Override
-    public void onCoverDownloadStarted(CoverInfo cover) {
-        if (!isMatchingCover(cover)) {
-            return;
-        }
-        if (coverArtProgress != null) {
-            this.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-        }
-    }
-
-    @Override
-    public void tagAlbumCover(AlbumInfo albumInfo) {
-        if (coverArt != null && albumInfo != null) {
-            coverArt.setTag(albumInfo.getKey());
-        }
+    public void detach() {
+        coverArtProgress = null;
+        coverArt = null;
     }
 
     public void freeCoverDrawable() {
@@ -101,9 +62,11 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         if (oldDrawable == null) {
             int noCoverDrawable;
             if (bigCoverNotFound) {
-                noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light_big : R.drawable.no_cover_art_big;
+                noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light_big
+                        : R.drawable.no_cover_art_big;
             } else {
-                noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light : R.drawable.no_cover_art;
+                noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light
+                        : R.drawable.no_cover_art;
             }
             coverArt.setImageResource(noCoverDrawable);
         }
@@ -115,13 +78,57 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         }
     }
 
-    public void detach() {
-        coverArtProgress = null;
-        coverArt = null;
-    }
-
     private boolean isMatchingCover(CoverInfo coverInfo) {
         return coverInfo != null && coverArt != null &&
                 (coverArt.getTag() == null || coverArt.getTag().equals(coverInfo.getKey()));
+    }
+
+    @Override
+    public void onCoverDownloaded(CoverInfo cover) {
+        if (!isMatchingCover(cover)) {
+            return;
+        }
+        if (cover.getBitmap() == null) {
+            return;
+        }
+        try {
+            if (coverArtProgress != null) {
+                coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+            }
+            freeCoverDrawable(coverArt.getDrawable());
+            coverArt.setImageDrawable(new CoverBitmapDrawable(context.getResources(), cover
+                    .getBitmap()[0]));
+            cover.setBitmap(null);
+        } catch (Exception e) {
+            Log.w(AlbumCoverDownloadListener.class.getSimpleName(), e);
+        }
+    }
+
+    @Override
+    public void onCoverDownloadStarted(CoverInfo cover) {
+        if (!isMatchingCover(cover)) {
+            return;
+        }
+        if (coverArtProgress != null) {
+            this.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onCoverNotFound(CoverInfo cover) {
+        if (!isMatchingCover(cover)) {
+            return;
+        }
+        cover.setBitmap(null);
+        if (coverArtProgress != null)
+            coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+        freeCoverDrawable();
+    }
+
+    @Override
+    public void tagAlbumCover(AlbumInfo albumInfo) {
+        if (coverArt != null && albumInfo != null) {
+            coverArt.setTag(albumInfo.getKey());
+        }
     }
 }

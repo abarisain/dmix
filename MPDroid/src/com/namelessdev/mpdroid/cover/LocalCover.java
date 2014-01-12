@@ -1,35 +1,35 @@
+
 package com.namelessdev.mpdroid.cover;
+
+import static android.text.TextUtils.isEmpty;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
+
 import com.namelessdev.mpdroid.MPDApplication;
+
 import org.a0z.mpd.AlbumInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.text.TextUtils.isEmpty;
-
-
 public class LocalCover implements ICoverRetriever {
 
-    //	private final static String URL = "%s/%s/%s";
+    // private final static String URL = "%s/%s/%s";
     private final static String URL_PREFIX = "http://";
     private final static String PLACEHOLDER_FILENAME = "%placeholder_filename";
     // Note that having two PLACEHOLDER_FILENAME is on purpose
-    private final static String[] FILENAMES = new String[]{"%placeholder_custom", PLACEHOLDER_FILENAME,
-            "cover", "folder", "front"};
-    private final static String[] EXT = new String[]{"jpg", "png", "jpeg",};
-    private final static String[] SUB_FOLDERS = new String[]{"", "artwork", "Covers"};
+    private final static String[] FILENAMES = new String[] {
+            "%placeholder_custom", PLACEHOLDER_FILENAME,
+            "cover", "folder", "front"
+    };
+    private final static String[] EXT = new String[] {
+            "jpg", "png", "jpeg",
+    };
+    private final static String[] SUB_FOLDERS = new String[] {
+            "", "artwork", "Covers"
+    };
     public static final String RETRIEVER_NAME = "User's HTTP Server";
-
-    private MPDApplication app = null;
-    private SharedPreferences settings = null;
-
-    public LocalCover(MPDApplication app, SharedPreferences settings) {
-        this.app = app;
-        this.settings = settings;
-    }
 
     static public void appendPathString(Uri.Builder builder, String string) {
         if (string != null && string.length() > 0) {
@@ -39,8 +39,8 @@ public class LocalCover implements ICoverRetriever {
             }
         }
     }
-
-    static public String buildCoverUrl(String serverName, String musicPath, String path, String fileName) {
+    static public String buildCoverUrl(String serverName, String musicPath, String path,
+            String fileName) {
 
         if (musicPath.startsWith(URL_PREFIX)) {
             int hostPortEnd = musicPath.indexOf(URL_PREFIX.length(), '/');
@@ -57,6 +57,15 @@ public class LocalCover implements ICoverRetriever {
 
         Uri uri = b.build();
         return uri.toString();
+    }
+
+    private MPDApplication app = null;
+
+    private SharedPreferences settings = null;
+
+    public LocalCover(MPDApplication app, SharedPreferences settings) {
+        this.app = app;
+        this.settings = settings;
     }
 
     @Override
@@ -81,16 +90,20 @@ public class LocalCover implements ICoverRetriever {
                 for (String baseFilename : FILENAMES) {
                     for (String ext : EXT) {
 
-                        if (baseFilename == null || (baseFilename.startsWith("%") && !baseFilename.equals(PLACEHOLDER_FILENAME)))
+                        if (baseFilename == null
+                                || (baseFilename.startsWith("%") && !baseFilename
+                                        .equals(PLACEHOLDER_FILENAME)))
                             continue;
-                        if (baseFilename.equals(PLACEHOLDER_FILENAME) && albumInfo.getFilename() != null) {
+                        if (baseFilename.equals(PLACEHOLDER_FILENAME)
+                                && albumInfo.getFilename() != null) {
                             final int dotIndex = albumInfo.getFilename().lastIndexOf('.');
                             if (dotIndex == -1)
                                 continue;
                             baseFilename = albumInfo.getFilename().substring(0, dotIndex);
                         }
 
-                        // Add file extension except for the filename coming from settings
+                        // Add file extension except for the filename coming
+                        // from settings
                         if (!baseFilename.equals(FILENAMES[0])) {
                             lfilename = subfolder + "/" + baseFilename + "." + ext;
                         } else {
@@ -111,13 +124,13 @@ public class LocalCover implements ICoverRetriever {
     }
 
     @Override
-    public boolean isCoverLocal() {
-        return false;
+    public String getName() {
+        return RETRIEVER_NAME;
     }
 
     @Override
-    public String getName() {
-        return RETRIEVER_NAME;
+    public boolean isCoverLocal() {
+        return false;
     }
 
 }

@@ -1,11 +1,17 @@
+
 package com.namelessdev.mpdroid.cover;
 
+import static android.text.TextUtils.isEmpty;
+import static android.util.Log.e;
+import static android.util.Log.w;
 
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
+
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.tools.StringUtils;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -15,13 +21,13 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.params.HttpConnectionParams;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import static android.text.TextUtils.isEmpty;
-import static android.util.Log.e;
-import static android.util.Log.w;
 
 public abstract class AbstractWebCover implements ICoverRetriever {
 
@@ -29,6 +35,88 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     private final static boolean DEBUG = CoverManager.DEBUG;
 
     protected AndroidHttpClient client = prepareRequest();
+
+    private void closeHttpClient() {
+        if (client != null) {
+            client.close();
+        }
+        client = null;
+    }
+
+    protected String executeGetRequest(String request) {
+        HttpGet httpGet = null;
+        try {
+            prepareRequest();
+            request = request.replace(" ", "%20");
+            if (DEBUG)
+                Log.d(getName(), "Http request : " + request);
+            httpGet = new HttpGet(request);
+            return executeRequest(httpGet);
+        } finally {
+            if (request != null && !httpGet.isAborted()) {
+                httpGet.abort();
+            }
+        }
+    }
+
+    /**
+     * Use a connection insteaf of httpClient to be able to handle redirection
+     * Redirection are needed for MusicBrainz web services.
+     * 
+     * @param request The web service request
+     * @return The web service response
+     */
+    protected String executeGetRequestWithConnection(String request) {
+
+        URL url;
+        HttpURLConnection connection = null;
+        InputStream inputStream = null;
+        int statusCode;
+        BufferedReader bis;
+        String result;
+        String line;
+        try {
+            request = StringUtils.trim(request);
+            if (isEmpty(request)) {
+                return null;
+            }
+            request = request.replace(" ", "%20");
+            url = new URL(request);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setUseCaches(true);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            statusCode = connection.getResponseCode();
+            inputStream = connection.getInputStream();
+            if (!(statusCode == 200 || statusCode == 307 || statusCode == 302)) {
+                w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : "
+                        + statusCode + ", " + request);
+                return null;
+            }
+            bis = new BufferedReader(new InputStreamReader(inputStream));
+            line = bis.readLine();
+            result = line;
+            while ((line = bis.readLine()) != null) {
+                result += line;
+            }
+            return result;
+        } catch (Exception e) {
+            e(CoverAsyncHelper.class.getSimpleName(), "Failed to execute cover get request :" + e);
+            return null;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    // Nothing to do
+                }
+            }
+
+        }
+    }
 
     protected String executePostRequest(String url, String request) {
         HttpPost httpPost = null;
@@ -49,14 +137,6 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             }
         }
 
-
-    }
-
-    private void closeHttpClient() {
-        if (client != null) {
-            client.close();
-        }
-        client = null;
     }
 
     protected String executeRequest(HttpRequestBase request) {
@@ -95,6 +175,16 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         return builder.toString();
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        closeHttpClient();
+        super.finalize();
+    }
+
+    public boolean isCoverLocal() {
+        return false;
+    }
+
     protected AndroidHttpClient prepareRequest() {
 
         if (client == null) {
@@ -103,90 +193,5 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             HttpConnectionParams.setSoTimeout(client.getParams(), 5000);
         }
         return client;
-    }
-
-
-    protected String executeGetRequest(String request) {
-        HttpGet httpGet = null;
-        try {
-            prepareRequest();
-            request = request.replace(" ", "%20");
-            if (DEBUG)
-                Log.d(getName(), "Http request : " + request);
-            httpGet = new HttpGet(request);
-            return executeRequest(httpGet);
-        } finally {
-            if (request != null && !httpGet.isAborted()) {
-                httpGet.abort();
-            }
-        }
-    }
-
-    /**
-     * Use a connection insteaf of httpClient to be able to handle redirection
-     * Redirection are needed for MusicBrainz web services.
-     *
-     * @param request The web service request
-     * @return The web service response
-     */
-    protected String executeGetRequestWithConnection(String request) {
-
-        URL url;
-        HttpURLConnection connection = null;
-        InputStream inputStream = null;
-        int statusCode;
-        BufferedReader bis;
-        String result;
-        String line;
-        try {
-            request = StringUtils.trim(request);
-            if (isEmpty(request)) {
-                return null;
-            }
-            request = request.replace(" ", "%20");
-            url = new URL(request);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setUseCaches(true);
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
-            statusCode = connection.getResponseCode();
-            inputStream = connection.getInputStream();
-            if (!(statusCode == 200 || statusCode == 307 || statusCode == 302)) {
-                w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : " + statusCode + ", " + request);
-                return null;
-            }
-            bis = new BufferedReader(new InputStreamReader(inputStream));
-            line = bis.readLine();
-            result = line;
-            while ((line = bis.readLine()) != null) {
-                result += line;
-            }
-            return result;
-        } catch (Exception e) {
-            e(CoverAsyncHelper.class.getSimpleName(), "Failed to execute cover get request :" + e);
-            return null;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    //Nothing to do
-                }
-            }
-
-        }
-    }
-
-    public boolean isCoverLocal() {
-        return false;
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        closeHttpClient();
-        super.finalize();
     }
 }

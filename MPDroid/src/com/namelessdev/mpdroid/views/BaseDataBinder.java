@@ -1,14 +1,17 @@
+
 package com.namelessdev.mpdroid.views;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.View;
+
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.Item;
 
@@ -31,28 +34,30 @@ public abstract class BaseDataBinder implements ArrayDataBinder {
     }
 
     @Override
-    public abstract View onLayoutInflation(Context context, View targetView, List<? extends Item> items);
-
-    @Override
-    public abstract void onDataBind(Context context, View targetView, AbstractViewHolder viewHolder, List<? extends Item> items,
-                                    Object item,
-                                    int position);
-
-    @Override
     public abstract AbstractViewHolder findInnerViews(View targetView);
+
+    @Override
+    public abstract int getLayoutId();
 
     @Override
     public abstract boolean isEnabled(int position, List<? extends Item> items, Object item);
 
-    @Override
-    public abstract int getLayoutId();
+    protected void loadArtwork(CoverAsyncHelper coverHelper, AlbumInfo albumInfo) {
+        coverHelper.downloadCover(albumInfo);
+    }
 
     protected void loadPlaceholder(CoverAsyncHelper coverHelper) {
         coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
     }
 
-    protected void loadArtwork(CoverAsyncHelper coverHelper, AlbumInfo albumInfo) {
-        coverHelper.downloadCover(albumInfo);
-    }
+    @Override
+    public abstract void onDataBind(Context context, View targetView,
+            AbstractViewHolder viewHolder, List<? extends Item> items,
+            Object item,
+            int position);
+
+    @Override
+    public abstract View onLayoutInflation(Context context, View targetView,
+            List<? extends Item> items);
 
 }

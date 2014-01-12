@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid.data.dao;
 
 import java.util.List;
@@ -24,10 +25,10 @@ public interface BaseDao<T> {
     public int getItemCount();
 
     /**
-     * Checks if an item is in database. Faster than get because it does not bind the data.
+     * Checks if an item is in database. Faster than get because it does not
+     * bind the data.
      * 
-     * @param id
-     *            Id of the target item
+     * @param id Id of the target item
      * @return If the item is found or not
      */
     public boolean isInDatabase(long id);

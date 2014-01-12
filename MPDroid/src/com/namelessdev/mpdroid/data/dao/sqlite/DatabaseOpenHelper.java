@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid.data.dao.sqlite;
 
 import android.content.Context;
@@ -8,6 +9,20 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private static DatabaseOpenHelper _instance;
     private static final String DB_NAME = "digmaat.db";
     private static final int DB_VERSION = 1;
+    public static void destroyInstance() {
+        if (_instance != null) {
+            _instance.closeDB();
+            _instance = null;
+        }
+    }
+
+    public static DatabaseOpenHelper getInstance(Context context) {
+        if (_instance == null) {
+            _instance = new DatabaseOpenHelper(context);
+        }
+        return _instance;
+    }
+
     private SQLiteDatabase db;
 
     public DatabaseOpenHelper(Context context) {
@@ -15,14 +30,14 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         openDB();
     }
 
-    public void openDB() {
-        this.db = this.getWritableDatabase();
-    }
-
     public void closeDB() {
         if (this.db != null) {
             this.db.close();
         }
+    }
+
+    public SQLiteDatabase getDB() {
+        return db;
     }
 
     @Override
@@ -35,22 +50,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         // Ne sera jamais implémenté
     }
 
-    public SQLiteDatabase getDB() {
-        return db;
-    }
-
-    public static DatabaseOpenHelper getInstance(Context context) {
-        if (_instance == null) {
-            _instance = new DatabaseOpenHelper(context);
-        }
-        return _instance;
-    }
-
-    public static void destroyInstance() {
-        if (_instance != null) {
-            _instance.closeDB();
-            _instance = null;
-        }
+    public void openDB() {
+        this.db = this.getWritableDatabase();
     }
 
 }

@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.namelessdev.mpdroid.tools;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@link Map} that supports multiple values per key.
@@ -30,6 +35,24 @@ public class MultiMap<K, V> implements Serializable {
     }
 
     /**
+     * Recursive method that will append characters to proposedKey until its
+     * unique. Used in case there are collisions with generated key values.
+     * 
+     * @param uniqueMap
+     * @param proposedKey
+     * @param value
+     */
+    private String addUniqueEntry(Map<String, V> uniqueMap, String proposedKey, V value) {
+        // not the most efficient algorithm, but should work
+        if (uniqueMap.containsKey(proposedKey)) {
+            return addUniqueEntry(uniqueMap, String.format("%s%s", proposedKey, "X"), value);
+        } else {
+            uniqueMap.put(proposedKey, value);
+            return proposedKey;
+        }
+    }
+
+    /**
      * Clears the map.
      */
     public void clear() {
@@ -38,7 +61,7 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      * Checks whether the map contains the specified key.
-     *
+     * 
      * @see {@link Map#containsKey(Object)} ()}
      */
     public boolean containsKey(K key) {
@@ -47,7 +70,7 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      * Checks whether the map contains the specified value.
-     *
+     * 
      * @see {@link Map#containsValue(Object)} ()}
      */
     public boolean containsValue(V value) {
@@ -60,6 +83,24 @@ public class MultiMap<K, V> implements Serializable {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        MultiMap<?, ?> other = (MultiMap<?, ?>) obj;
+        return mInternalMap != null && mInternalMap.equals(other.mInternalMap);
+    }
+
+    /**
      * Gets the list of values associated with each key.
      */
     public List<V> get(K key) {
@@ -67,7 +108,41 @@ public class MultiMap<K, V> implements Serializable {
     }
 
     /**
+     * Construct a new map, that contains a unique String key for each value.
+     * <p/>
+     * Current algorithm will construct unique key by appending a unique
+     * position number to key's toString() value
+     * 
+     * @return a {@link Map}
+     */
+    public Map<String, V> getUniqueMap() {
+        Map<String, V> uniqueMap = new HashMap<String, V>();
+        for (Map.Entry<K, List<V>> entry : mInternalMap.entrySet()) {
+            int count = 1;
+            for (V value : entry.getValue()) {
+                if (count == 1) {
+                    addUniqueEntry(uniqueMap, entry.getKey().toString(), value);
+                } else {
+                    // append unique number to key for each value
+                    addUniqueEntry(uniqueMap, String.format("%s%d", entry.getKey(), count), value);
+                }
+                count++;
+            }
+        }
+        return uniqueMap;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return mInternalMap.hashCode();
+    }
+
+    /**
      * Check if map is empty.
+     * 
      * @see {@link Map#isEmpty()}
      */
     public boolean isEmpty() {
@@ -82,7 +157,7 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      * Adds the value to the list associated with a key.
-     *
+     * 
      * @see {@link Map#put(Object, Object)} ()}
      */
     public V put(K key, V value) {
@@ -138,74 +213,5 @@ public class MultiMap<K, V> implements Serializable {
             allValues.addAll(valueList);
         }
         return allValues;
-    }
-
-    /**
-     * Construct a new map, that contains a unique String key for each value.
-     * <p/>
-     * Current algorithm will construct unique key by appending a unique position number to
-     * key's toString() value
-     *
-     * @return a {@link Map}
-     */
-    public Map<String, V> getUniqueMap() {
-        Map<String, V> uniqueMap = new HashMap<String, V>();
-        for (Map.Entry<K, List<V>> entry : mInternalMap.entrySet()) {
-            int count = 1;
-            for (V value : entry.getValue()) {
-                if (count == 1) {
-                    addUniqueEntry(uniqueMap, entry.getKey().toString(), value);
-                } else {
-                    // append unique number to key for each value
-                    addUniqueEntry(uniqueMap, String.format("%s%d", entry.getKey(), count), value);
-                }
-                count++;
-            }
-        }
-        return uniqueMap;
-    }
-
-    /**
-     * Recursive method that will append characters to proposedKey until its unique. Used in case
-     * there are collisions with generated key values.
-     *
-     * @param uniqueMap
-     * @param proposedKey
-     * @param value
-     */
-    private String addUniqueEntry(Map<String, V> uniqueMap, String proposedKey, V value) {
-        // not the most efficient algorithm, but should work
-        if (uniqueMap.containsKey(proposedKey)) {
-            return addUniqueEntry(uniqueMap, String.format("%s%s", proposedKey, "X"), value);
-        } else {
-            uniqueMap.put(proposedKey, value);
-            return proposedKey;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return mInternalMap.hashCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        MultiMap<?, ?> other = (MultiMap<?, ?>) obj;
-        return mInternalMap != null && mInternalMap.equals(other.mInternalMap);
     }
 }

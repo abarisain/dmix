@@ -1,12 +1,14 @@
-package com.namelessdev.mpdroid.adapters;
 
-import java.util.List;
+package com.namelessdev.mpdroid.adapters;
 
 import android.content.Context;
 import android.view.View;
 
-public interface SeparatedListDataBinder {
-	public void onDataBind(Context context, View targetView, List<? extends Object> items, Object item, int position);
+import java.util.List;
 
-	public boolean isEnabled(int position, List<? extends Object> items, Object item);
+public interface SeparatedListDataBinder {
+    public boolean isEnabled(int position, List<? extends Object> items, Object item);
+
+    public void onDataBind(Context context, View targetView, List<? extends Object> items,
+            Object item, int position);
 }

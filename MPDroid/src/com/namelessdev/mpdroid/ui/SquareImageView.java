@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid.ui;
 
 import android.content.Context;
@@ -5,7 +6,7 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 /**
- * 	@source	http://stackoverflow.com/a/15264039/425050
+ * @source http://stackoverflow.com/a/15264039/425050
  */
 
 public class SquareImageView extends ImageView {
@@ -24,6 +25,7 @@ public class SquareImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth()); //Snap to width
+        setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth()); // Snap to
+                                                                      // width
     }
 }

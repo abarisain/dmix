@@ -1,11 +1,7 @@
+
 package com.namelessdev.mpdroid.tools;
 
-
 public class StringUtils {
-
-    public static String trim(String text) {
-        return text == null ? text : text.trim();
-    }
 
     public static String getExtension(String path) {
         String[] split = path.split("\\.");
@@ -16,6 +12,10 @@ public class StringUtils {
             }
         }
         return "";
+    }
+
+    public static String trim(String text) {
+        return text == null ? text : text.trim();
     }
 
 }

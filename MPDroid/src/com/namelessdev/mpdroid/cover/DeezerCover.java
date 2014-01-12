@@ -1,6 +1,8 @@
+
 package com.namelessdev.mpdroid.cover;
 
 import android.util.Log;
+
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,7 +22,9 @@ public class DeezerCover extends AbstractWebCover {
         JSONObject jsonObject;
 
         try {
-            deezerResponse = executeGetRequest("http://api.deezer.com/search/album?q=" + albumInfo.getAlbum() + " " + albumInfo.getArtist() + "&nb_items=1&output=json");
+            deezerResponse = executeGetRequest("http://api.deezer.com/search/album?q="
+                    + albumInfo.getAlbum() + " " + albumInfo.getArtist()
+                    + "&nb_items=1&output=json");
             jsonRootObject = new JSONObject(deezerResponse);
             jsonArray = jsonRootObject.getJSONArray("data");
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -28,7 +32,9 @@ public class DeezerCover extends AbstractWebCover {
                 coverUrl = jsonObject.getString("cover");
                 if (coverUrl != null) {
                     coverUrl += "&size=big";
-                    return new String[]{coverUrl};
+                    return new String[] {
+                        coverUrl
+                    };
                 }
             }
 

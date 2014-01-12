@@ -1,9 +1,6 @@
+
 package com.namelessdev.mpdroid.fragments;
 
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Genre;
-
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +15,18 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
 
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.Genre;
+
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+
 public class AlbumsGridFragment extends AlbumsFragment {
 
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 6;
+
+    public AlbumsGridFragment() {
+        this(null);
+    }
 
     public AlbumsGridFragment(Artist artist) {
         this(artist, null);
@@ -31,8 +37,18 @@ public class AlbumsGridFragment extends AlbumsFragment {
         isCountPossiblyDisplayed = false;
     }
 
-    public AlbumsGridFragment() {
-        this(null);
+    @Override
+    protected ListAdapter getCustomListAdapter() {
+        if (items != null) {
+            return new ArrayAdapter(getActivity(), new AlbumGridDataBinder(app,
+                    app.isLightThemeSelected()), items);
+        }
+        return super.getCustomListAdapter();
+    }
+
+    @Override
+    protected int getMinimumItemsCountBeforeFastscroll() {
+        return MIN_ITEMS_BEFORE_FASTSCROLL;
     }
 
     @Override
@@ -52,22 +68,11 @@ public class AlbumsGridFragment extends AlbumsFragment {
     }
 
     @Override
-    protected ListAdapter getCustomListAdapter() {
-        if (items != null) {
-                return new ArrayAdapter(getActivity(), new AlbumGridDataBinder(app, app.isLightThemeSelected()), items);
-        }
-        return super.getCustomListAdapter();
-    }
-
-    @Override
-    protected int getMinimumItemsCountBeforeFastscroll() {
-        return MIN_ITEMS_BEFORE_FASTSCROLL;
-    }
-
-    @Override
     protected void refreshFastScrollStyle(boolean shouldShowFastScroll) {
-        // Note : setting the scrollbar style before setting the fastscroll state is very important pre-KitKat, because of a bug.
-        // It is also very important post-KitKat because it needs the opposite order or it won't show the FastScroll
+        // Note : setting the scrollbar style before setting the fastscroll
+        // state is very important pre-KitKat, because of a bug.
+        // It is also very important post-KitKat because it needs the opposite
+        // order or it won't show the FastScroll
         if (shouldShowFastScroll) {
             if (android.os.Build.VERSION.SDK_INT >= 19) {
                 // No need to enable FastScroll, this setter enables it.

@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid.views;
 
 import android.content.Context;
@@ -7,12 +8,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
+
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
@@ -26,8 +29,30 @@ public class AlbumDataBinder extends BaseDataBinder {
         super(app, isLightTheme);
     }
 
-    public void onDataBind(final Context context, final View targetView, final AbstractViewHolder viewHolder, List<? extends Item> items,
-                           Object item, int position) {
+    @Override
+    public AbstractViewHolder findInnerViews(View targetView) {
+        // look up all references to inner views
+        AlbumViewHolder viewHolder = new AlbumViewHolder();
+        viewHolder.albumName = (TextView) targetView.findViewById(R.id.album_name);
+        viewHolder.albumInfo = (TextView) targetView.findViewById(R.id.album_info);
+        viewHolder.albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
+        viewHolder.coverArtProgress = (ProgressBar) targetView
+                .findViewById(R.id.albumCoverProgress);
+        return viewHolder;
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.album_list_item;
+    }
+
+    public boolean isEnabled(int position, List<? extends Item> items, Object item) {
+        return true;
+    }
+
+    public void onDataBind(final Context context, final View targetView,
+            final AbstractViewHolder viewHolder, List<? extends Item> items,
+            Object item, int position) {
         AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
 
         final Album album = (Album) item;
@@ -40,7 +65,8 @@ public class AlbumDataBinder extends BaseDataBinder {
         if (album.getYear() > 0)
             info += Long.toString(album.getYear()) + " - ";
         if (songCount > 0) {
-            info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader),
+            info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural
+                    : R.string.tracksInfoHeader),
                     songCount, Music.timeToString(album.getDuration()));
         }
         holder.albumName.setText(album.mainText());
@@ -53,13 +79,15 @@ public class AlbumDataBinder extends BaseDataBinder {
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-        if (artist == null || album.isUnknown()) { // full albums list or unknown album
+        if (artist == null || album.isUnknown()) { // full albums list or
+                                                   // unknown album
             holder.albumCover.setVisibility(View.GONE);
         } else {
             holder.albumCover.setVisibility(View.VISIBLE);
             final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
             final int height = holder.albumCover.getHeight();
-            // If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
+            // If the list is not displayed yet, the height is 0. This is a
+            // problem, so set a fallback one.
             coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
 
             loadPlaceholder(coverHelper);
@@ -67,7 +95,8 @@ public class AlbumDataBinder extends BaseDataBinder {
             // display cover art in album listing if caching is on
             if (album.getAlbumInfo().isValid() && enableCache) {
                 // listen for new artwork to be loaded
-                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, holder.coverArtProgress,
+                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context,
+                        holder.albumCover, holder.coverArtProgress,
                         lightTheme, false);
                 final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
                         .getTag(R.id.AlbumCoverDownloadListener);
@@ -83,29 +112,10 @@ public class AlbumDataBinder extends BaseDataBinder {
         }
     }
 
-    public boolean isEnabled(int position, List<? extends Item> items, Object item) {
-        return true;
-    }
-
-    @Override
-    public int getLayoutId() {
-        return R.layout.album_list_item;
-    }
-
     @Override
     public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
-        targetView.findViewById(R.id.albumCover).setVisibility(enableCache ? View.VISIBLE : View.GONE);
+        targetView.findViewById(R.id.albumCover).setVisibility(
+                enableCache ? View.VISIBLE : View.GONE);
         return targetView;
-    }
-
-    @Override
-    public AbstractViewHolder findInnerViews(View targetView) {
-        // look up all references to inner views
-        AlbumViewHolder viewHolder = new AlbumViewHolder();
-        viewHolder.albumName = (TextView) targetView.findViewById(R.id.album_name);
-        viewHolder.albumInfo = (TextView) targetView.findViewById(R.id.album_info);
-        viewHolder.albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
-        viewHolder.coverArtProgress = (ProgressBar) targetView.findViewById(R.id.albumCoverProgress);
-        return viewHolder;
     }
 }

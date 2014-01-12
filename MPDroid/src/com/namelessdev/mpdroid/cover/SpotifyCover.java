@@ -1,6 +1,10 @@
+
 package com.namelessdev.mpdroid.cover;
 
+import static android.text.TextUtils.isEmpty;
+
 import android.util.Log;
+
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -8,40 +12,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.text.TextUtils.isEmpty;
-
 /**
  * Fetch cover from Spotify
  */
 public class SpotifyCover extends AbstractWebCover {
-
-    @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
-
-        String albumResponse;
-        List<String> albumIds;
-        String coverResponse;
-        String coverUrl;
-
-        try {
-            albumResponse = executeGetRequest("http://ws.spotify.com/search/1/album.json?q=" + albumInfo.getArtist() + " " + albumInfo.getAlbum());
-            albumIds = extractAlbumIds(albumResponse);
-            for (String albumId : albumIds) {
-                coverResponse = executeGetRequest("https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/" + albumId);
-                coverUrl = extractImageUrl(coverResponse);
-                if (!isEmpty(coverUrl)) {
-                    coverUrl = coverUrl.replace("/cover/", "/640/");
-                    return new String[]{coverUrl};
-                }
-            }
-
-
-        } catch (Exception e) {
-            Log.e(SpotifyCover.class.toString(), "Failed to get cover URL from Spotify");
-        }
-
-        return new String[0];
-    }
 
     private List<String> extractAlbumIds(String response) {
         JSONObject jsonRoot;
@@ -88,6 +62,37 @@ public class SpotifyCover extends AbstractWebCover {
         }
 
         return null;
+    }
+
+    @Override
+    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+
+        String albumResponse;
+        List<String> albumIds;
+        String coverResponse;
+        String coverUrl;
+
+        try {
+            albumResponse = executeGetRequest("http://ws.spotify.com/search/1/album.json?q="
+                    + albumInfo.getArtist() + " " + albumInfo.getAlbum());
+            albumIds = extractAlbumIds(albumResponse);
+            for (String albumId : albumIds) {
+                coverResponse = executeGetRequest("https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/"
+                        + albumId);
+                coverUrl = extractImageUrl(coverResponse);
+                if (!isEmpty(coverUrl)) {
+                    coverUrl = coverUrl.replace("/cover/", "/640/");
+                    return new String[] {
+                        coverUrl
+                    };
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(SpotifyCover.class.toString(), "Failed to get cover URL from Spotify");
+        }
+
+        return new String[0];
     }
 
     @Override

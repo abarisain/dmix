@@ -1,11 +1,18 @@
-package com.namelessdev.mpdroid.helpers;
 
-import org.a0z.mpd.*;
-import org.a0z.mpd.exception.MPDServerException;
+package com.namelessdev.mpdroid.helpers;
 
 import android.util.Log;
 
-import java.util.*;
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.exception.MPDServerException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /*
  * Cached Version of org.a0z.mpd.MPD
@@ -22,20 +29,46 @@ public class CachedMPD extends MPD
 
     protected AlbumCache cache;
 
+    public CachedMPD() {
+        this(true);
+    }
+
     public CachedMPD(boolean useCache) {
         cache = AlbumCache.getInstance(this);
         setUseCache(useCache);
     }
 
-    public CachedMPD() {
-        this(true);
+    /*
+     * add path info to all albums
+     */
+    @Override
+    protected void addAlbumPaths(List<Album> albums) {
+        if (!cacheOK()) {
+            super.addAlbumPaths(albums);
+            return;
+        }
+        for (Album a : albums) {
+            Artist artist = a.getArtist();
+            String aname = (artist == null ? "" : artist.getName());
+            AlbumCache.AlbumDetails details = cache.getAlbumDetails(aname, a.getName(),
+                    a.hasAlbumArtist());
+            if (details != null) {
+                a.setPath(details.path);
+            }
+            // Log.d("MPD CACHED","album " + a.info());
+        }
+        Log.d("MPD CACHED", "addAlbumPaths " + albums.size());
     }
 
-    public void setUseCache(boolean useCache) {
-        this.useCache = useCache;
+    /*
+     * is checked before requests
+     */
+    protected boolean cacheOK() {
+        return (useCache && cache.refresh());
     }
 
-    /* force refreshing of the cache
+    /*
+     * force refreshing of the cache
      */
     public void clearCache() {
         if (useCache) {
@@ -43,67 +76,30 @@ public class CachedMPD extends MPD
         }
     }
 
-    /* is checked before requests
-     */
-    protected boolean cacheOK() {
-        return (useCache && cache.refresh());
-    }
-
-
     /*
-     * List all albums of given artist from database.
+     * add detail info to all albums
      */
     @Override
-    public List<String> listAlbums(String artist, boolean useAlbumArtist,
-                                   boolean includeUnknownAlbum)
-        throws MPDServerException {
+    protected void getAlbumDetails(List<Album> albums, boolean findYear/* ignored */)
+            throws MPDServerException {
         if (!cacheOK()) {
-            return super.listAlbums(artist, useAlbumArtist, includeUnknownAlbum);
+            super.getAlbumDetails(albums, findYear);
+            return;
         }
-        return new ArrayList(cache.getAlbums(artist, useAlbumArtist));
-    }
-
-
-
-    /*
-     * List all albumartist or artist names of all given albums from database.
-     *
-     * @return list of array of artist names for each album.
-     */
-    @Override
-    public List<String[]> listArtists(List<Album> albums, boolean useAlbumArtist)
-        throws MPDServerException {
-        if (!cacheOK()) {
-            return super.listArtists(albums, useAlbumArtist);
-        }
-        ArrayList<String[]> result = new ArrayList<String[]>();
-        for (Album album : albums) {
-            result.add((String[])cache.getArtistsByAlbum
-                       (album.getName(), useAlbumArtist).toArray(new String[0]));
-        }
-        return result;
-    }
-
-    protected List<String> listArtists(String album, boolean useAlbumArtist,
-                                       boolean includeUnknownAlbum) {
-        // called internally, refresh already done
-        return new ArrayList(cache.getArtistsByAlbum(album, useAlbumArtist));
-    }
-
-    @Override
-    public List<String[]> listAlbumArtists(List<Album> albums) throws MPDServerException {
-        if (!cacheOK()) {
-            return super.listAlbumArtists(albums);
-        }
-        List<String[]> albumartists = new ArrayList<String[]>();
         for (Album a : albums) {
-            Artist artist = a.getArtist();
-            Set<String> aartists =
-                cache.getAlbumArtists(a.getName(),
-                                      (artist == null ? "" : artist.getName()));
-            albumartists.add(aartists.toArray(new String[0]));
+            Artist art = a.getArtist();
+            String artist = (art == null ? "" : art.getName());
+            // Log.d("MPD CACHED","Details for " + a.info());
+            AlbumCache.AlbumDetails details =
+                    cache.getAlbumDetails(artist, a.getName(), a.hasAlbumArtist());
+            if (null != details) {
+                a.setSongCount(details.numtracks);
+                a.setDuration(details.totaltime);
+                a.setYear(details.date);
+                a.setPath(details.path);
+            }
         }
-        return albumartists;
+        Log.d("MPD CACHED", "Details of " + albums.size());
     }
 
     /*
@@ -111,7 +107,7 @@ public class CachedMPD extends MPD
      */
     @Override
     public List<Album> getAllAlbums(boolean trackCountNeeded)
-        throws MPDServerException {
+            throws MPDServerException {
         if (!cacheOK()) {
             return super.getAllAlbums(trackCountNeeded);
         }
@@ -128,56 +124,65 @@ public class CachedMPD extends MPD
         }
         List<Album> result = new ArrayList<Album>(albums);
         Collections.sort(result);
-        getAlbumDetails(result,true);
+        getAlbumDetails(result, true);
         return result;
     }
 
-    /*
-     * add path info to all albums
-     */
     @Override
-    protected void addAlbumPaths(List<Album> albums) {
+    public List<String[]> listAlbumArtists(List<Album> albums) throws MPDServerException {
         if (!cacheOK()) {
-            super.addAlbumPaths(albums);
-            return;
+            return super.listAlbumArtists(albums);
         }
+        List<String[]> albumartists = new ArrayList<String[]>();
         for (Album a : albums) {
             Artist artist = a.getArtist();
-            String aname = (artist==null?"":artist.getName());
-            AlbumCache.AlbumDetails details
-                = cache.getAlbumDetails(aname, a.getName(), a.hasAlbumArtist());
-            if (details != null) {
-                a.setPath(details.path);
-            }
-            // Log.d("MPD CACHED","album " + a.info());
+            Set<String> aartists =
+                    cache.getAlbumArtists(a.getName(),
+                            (artist == null ? "" : artist.getName()));
+            albumartists.add(aartists.toArray(new String[0]));
         }
-        Log.d("MPD CACHED","addAlbumPaths " + albums.size());
+        return albumartists;
     }
 
     /*
-     * add detail info to all albums
+     * List all albums of given artist from database.
      */
     @Override
-    protected void getAlbumDetails(List<Album> albums, boolean findYear/*ignored*/)
-        throws MPDServerException {
+    public List<String> listAlbums(String artist, boolean useAlbumArtist,
+            boolean includeUnknownAlbum)
+            throws MPDServerException {
         if (!cacheOK()) {
-            super.getAlbumDetails(albums, findYear);
-            return;
+            return super.listAlbums(artist, useAlbumArtist, includeUnknownAlbum);
         }
-        for (Album a : albums) {
-            Artist art = a.getArtist();
-            String artist = (art == null ? "" : art.getName());
-            // Log.d("MPD CACHED","Details for " + a.info());
-            AlbumCache.AlbumDetails details =
-                cache.getAlbumDetails(artist, a.getName(), a.hasAlbumArtist());
-            if (null != details){
-                a.setSongCount(details.numtracks);
-                a.setDuration(details.totaltime);
-                a.setYear(details.date);
-                a.setPath(details.path);
-            }
+        return new ArrayList(cache.getAlbums(artist, useAlbumArtist));
+    }
+
+    /*
+     * List all albumartist or artist names of all given albums from database.
+     * @return list of array of artist names for each album.
+     */
+    @Override
+    public List<String[]> listArtists(List<Album> albums, boolean useAlbumArtist)
+            throws MPDServerException {
+        if (!cacheOK()) {
+            return super.listArtists(albums, useAlbumArtist);
         }
-        Log.d("MPD CACHED","Details of " + albums.size());
+        ArrayList<String[]> result = new ArrayList<String[]>();
+        for (Album album : albums) {
+            result.add((String[]) cache.getArtistsByAlbum
+                    (album.getName(), useAlbumArtist).toArray(new String[0]));
+        }
+        return result;
+    }
+
+    protected List<String> listArtists(String album, boolean useAlbumArtist,
+            boolean includeUnknownAlbum) {
+        // called internally, refresh already done
+        return new ArrayList(cache.getArtistsByAlbum(album, useAlbumArtist));
+    }
+
+    public void setUseCache(boolean useCache) {
+        this.useCache = useCache;
     }
 
 }

@@ -1,8 +1,11 @@
+
 package com.namelessdev.mpdroid.widgets;
 
 import android.app.IntentService;
 import android.content.Intent;
+
 import com.namelessdev.mpdroid.MPDApplication;
+
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
@@ -16,11 +19,14 @@ public class WidgetHelperService extends IntentService {
     public static final String CMD_UPDATE_WIDGET = "UPDATE_WIDGET";
     public static final String CMD_STOP = "STOP";
 
-
     private boolean playing = false;
 
     public WidgetHelperService() {
         super(TAG);
+    }
+
+    public boolean isPlaying() {
+        return playing;
     }
 
     @Override
@@ -68,9 +74,5 @@ public class WidgetHelperService extends IntentService {
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
-    }
-
-    public boolean isPlaying() {
-        return playing;
     }
 }

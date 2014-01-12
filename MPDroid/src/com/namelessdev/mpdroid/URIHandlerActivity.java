@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid;
 
 import android.os.Bundle;
@@ -13,8 +14,9 @@ public class URIHandlerActivity extends FragmentActivity {
         setContentView(R.layout.activity_urihandler);
         if (!getIntent().getAction().equals("android.intent.action.VIEW")) {
             finish();
-        } 
-        final StreamsFragment sf = (StreamsFragment) getSupportFragmentManager().findFragmentById(R.id.streamsFragment);
+        }
+        final StreamsFragment sf = (StreamsFragment) getSupportFragmentManager().findFragmentById(
+                R.id.streamsFragment);
         sf.addEdit(-1, getIntent().getDataString());
     }
 

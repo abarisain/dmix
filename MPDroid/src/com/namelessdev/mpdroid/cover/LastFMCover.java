@@ -1,6 +1,8 @@
+
 package com.namelessdev.mpdroid.cover;
 
 import android.util.Log;
+
 import org.a0z.mpd.AlbumInfo;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -27,7 +29,8 @@ public class LastFMCover extends AbstractWebCover {
         int eventType;
 
         try {
-            request = URL + "?method=album.getInfo&artist=" + albumInfo.getArtist() + "&album=" + albumInfo.getAlbum() + "&api_key=" + KEY;
+            request = URL + "?method=album.getInfo&artist=" + albumInfo.getArtist() + "&album="
+                    + albumInfo.getAlbum() + "&api_key=" + KEY;
             response = executeGetRequest(request);
 
             factory = XmlPullParserFactory.newInstance();
@@ -46,7 +49,9 @@ public class LastFMCover extends AbstractWebCover {
                     if (sizeAttribute != null && sizeAttribute.equals("mega")) {
                         imageUrl = xpp.getText();
                         if (imageUrl != null && imageUrl.length() > 0) {
-                            return new String[]{imageUrl};
+                            return new String[] {
+                                imageUrl
+                            };
                         }
                     }
                 }
@@ -62,7 +67,6 @@ public class LastFMCover extends AbstractWebCover {
     }
 
     @Override
-
     public String getName() {
         return "LastFM";
     }

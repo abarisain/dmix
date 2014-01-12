@@ -1,11 +1,5 @@
-package com.namelessdev.mpdroid.fragments;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
+package com.namelessdev.mpdroid.fragments;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -36,6 +30,13 @@ import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
+import org.a0z.mpd.Album;
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.Item;
+import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
 public class SongsFragment extends BrowseFragment {
 
     private static final String EXTRA_ALBUM = "album";
@@ -60,194 +61,13 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
-        if (icicle != null)
-            init((Album) icicle.getParcelable(EXTRA_ALBUM));
-    }
-
-    public SongsFragment init(Album al) {
-        album = al;
-        return this;
-    }
-
-    @Override
-    public void onDestroyView() {
-        headerArtist = null;
-        headerInfo = null;
-        coverArtListener.freeCoverDrawable();
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onDetach() {
-        coverHelper = null;
-        super.onDetach();
-    }
-
-    @Override
-    public String getTitle() {
-        if (album != null) {
-            return album.mainText();
-        } else {
-            return getString(R.string.songs);
-        }
-    }
-
-    @Override
-    public int getLoadingText() {
-        return R.string.loadingSongs;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.songs, container, false);
-        list = (ListView) view.findViewById(R.id.list);
-        registerForContextMenu(list);
-        list.setOnItemClickListener(this);
-
-        loadingView = view.findViewById(R.id.loadingLayout);
-        loadingTextView = (TextView) view.findViewById(R.id.loadingText);
-        noResultView = view.findViewById(R.id.noResultLayout);
-        loadingTextView.setText(getLoadingText());
-
-        final View headerView = inflater.inflate(R.layout.song_header, null, false);
-        coverArt = (ImageView) view.findViewById(R.id.albumCover);
-        if (coverArt != null) {
-            headerArtist = (TextView) view.findViewById(R.id.tracks_artist);
-            headerInfo = (TextView) view.findViewById(R.id.tracks_info);
-            coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-            albumMenu = (ImageButton) view.findViewById(R.id.album_menu);
-        } else {
-            headerArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
-            headerInfo = (TextView) headerView.findViewById(R.id.tracks_info);
-            coverArt = (ImageView) headerView.findViewById(R.id.albumCover);
-            coverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
-            albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
-        }
-
-        final MPDApplication app = (MPDApplication) getActivity().getApplication();
-        coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress, app.isLightThemeSelected(), false);
-        coverHelper = new CoverAsyncHelper(app, PreferenceManager.getDefaultSharedPreferences(getActivity()));
-        coverHelper.setCoverMaxSizeFromScreen(getActivity());
-        final ViewTreeObserver vto = coverArt.getViewTreeObserver();
-        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            public boolean onPreDraw() {
-                if (coverHelper != null)
-                    coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
-                return true;
-            }
-        });
-        coverHelper.addCoverDownloadListener(coverArtListener);
-
-        ((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
-        ((ListView) list).addHeaderView(headerView, null, false);
-
-        popupMenu = new PopupMenu(getActivity(), albumMenu);
-        popupMenu.getMenu().add(Menu.NONE, ADD, Menu.NONE, R.string.addAlbum);
-        popupMenu.getMenu().add(Menu.NONE, ADDNREPLACE, Menu.NONE, R.string.addAndReplace);
-        popupMenu.getMenu().add(Menu.NONE, ADDNREPLACEPLAY, Menu.NONE, R.string.addAndReplacePlay);
-        popupMenu.getMenu().add(Menu.NONE, ADDNPLAY, Menu.NONE, R.string.addAndPlay);
-
-        popupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                final int itemId = item.getItemId();
-                app.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean replace = false;
-                        boolean play = false;
-                        switch (itemId) {
-                            case ADDNREPLACEPLAY:
-                                replace = true;
-                                play = true;
-                                break;
-                            case ADDNREPLACE:
-                                replace = true;
-                                break;
-                            case ADDNPLAY:
-                                play = true;
-                                break;
-                        }
-                        try {
-                            app.oMPDAsyncHelper.oMPD.add(album, replace, play);
-                            Tools.notifyUser(String.format(getResources().getString(R.string.albumAdded), album), getActivity());
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                return true;
-            }
-        });
-
-        albumMenu.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupMenu.show();
-            }
-        });
-
-        coverPopupMenu = new PopupMenu(getActivity(), coverArt);
-        coverPopupMenu.getMenu().add(POPUP_COVER_BLACKLIST, POPUP_COVER_BLACKLIST, 0, R.string.otherCover);
-        coverPopupMenu.getMenu().add(POPUP_COVER_SELECTIVE_CLEAN, POPUP_COVER_SELECTIVE_CLEAN, 0, R.string.resetCover);
-        coverPopupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getGroupId()) {
-                    case POPUP_COVER_BLACKLIST:
-                        CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).markWrongCover(album.getAlbumInfo());
-                        updateCover(album.getAlbumInfo());
-                        updateNowPlayingSmallFragment(album.getAlbumInfo());
-                        break;
-                    case POPUP_COVER_SELECTIVE_CLEAN:
-                        CoverManager.getInstance(app, PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext())).clear(album.getAlbumInfo());
-                        updateCover(album.getAlbumInfo());
-                        updateNowPlayingSmallFragment(album.getAlbumInfo());
-                        break;
-                }
-                return true;
-            }
-        });
-
-        coverArt.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                coverPopupMenu.show();
-                return false;
-            }
-        });
-
-        updateFromItems();
-
-        return view;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(EXTRA_ALBUM, album);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onItemClick(final AdapterView<?> adapterView, View v, final int position, long id) {
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
-            @Override
-            public void run() {
-                add((Item) adapterView.getAdapter().getItem(position), false, false);
-            }
-        });
-    }
-
-    @Override
     protected void add(Item item, boolean replace, boolean play) {
         Music music = (Music) item;
         try {
             app.oMPDAsyncHelper.oMPD.add(music, replace, play);
-            Tools.notifyUser(String.format(getResources().getString(R.string.songAdded, music.getTitle()), music.getName()),
+            Tools.notifyUser(
+                    String.format(getResources().getString(R.string.songAdded, music.getTitle()),
+                            music.getName()),
                     getActivity());
         } catch (MPDServerException e) {
             // TODO Auto-generated catch block
@@ -277,25 +97,8 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    public void updateFromItems() {
-        super.updateFromItems();
-        if (items != null && headerArtist != null && headerInfo != null) {
-            AlbumInfo fixedAlbumInfo;
-            fixedAlbumInfo = getFixedAlbumInfo();
-            String artist = fixedAlbumInfo.getArtist();
-            if ("".equals(artist)) {
-                headerArtist.setText(getString(R.string.jmpdcomm_unknown_artist));
-            } else {
-                headerArtist.setText(artist);
-            }
-            headerInfo.setText(getHeaderInfoString());
-            if (coverHelper != null) {
-                coverHelper.downloadCover(fixedAlbumInfo, true);
-            } else {
-                coverArtListener.onCoverNotFound(new CoverInfo(fixedAlbumInfo));
-            }
-        }
-
+    protected boolean forceEmptyView() {
+        return true;
     }
 
     @Override
@@ -344,6 +147,27 @@ public class SongsFragment extends BrowseFragment {
         return albumInfo;
     }
 
+    private String getHeaderInfoString() {
+        final int count = items.size();
+        return String.format(getString(count > 1 ? R.string.tracksInfoHeaderPlural
+                : R.string.tracksInfoHeader), count,
+                getTotalTimeForTrackList());
+    }
+
+    @Override
+    public int getLoadingText() {
+        return R.string.loadingSongs;
+    }
+
+    @Override
+    public String getTitle() {
+        if (album != null) {
+            return album.mainText();
+        } else {
+            return getString(R.string.songs);
+        }
+    }
+
     private String getTotalTimeForTrackList() {
         Music song;
         long totalTime = 0;
@@ -355,27 +179,222 @@ public class SongsFragment extends BrowseFragment {
         return Music.timeToString(totalTime);
     }
 
-    private String getHeaderInfoString() {
-        final int count = items.size();
-        return String.format(getString(count > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader), count,
-                getTotalTimeForTrackList());
+    public SongsFragment init(Album al) {
+        album = al;
+        return this;
     }
 
     @Override
-    protected boolean forceEmptyView() {
-        return true;
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
+        if (icicle != null)
+            init((Album) icicle.getParcelable(EXTRA_ALBUM));
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.songs, container, false);
+        list = (ListView) view.findViewById(R.id.list);
+        registerForContextMenu(list);
+        list.setOnItemClickListener(this);
+
+        loadingView = view.findViewById(R.id.loadingLayout);
+        loadingTextView = (TextView) view.findViewById(R.id.loadingText);
+        noResultView = view.findViewById(R.id.noResultLayout);
+        loadingTextView.setText(getLoadingText());
+
+        final View headerView = inflater.inflate(R.layout.song_header, null, false);
+        coverArt = (ImageView) view.findViewById(R.id.albumCover);
+        if (coverArt != null) {
+            headerArtist = (TextView) view.findViewById(R.id.tracks_artist);
+            headerInfo = (TextView) view.findViewById(R.id.tracks_info);
+            coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+            albumMenu = (ImageButton) view.findViewById(R.id.album_menu);
+        } else {
+            headerArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
+            headerInfo = (TextView) headerView.findViewById(R.id.tracks_info);
+            coverArt = (ImageView) headerView.findViewById(R.id.albumCover);
+            coverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
+            albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
+        }
+
+        final MPDApplication app = (MPDApplication) getActivity().getApplication();
+        coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt,
+                coverArtProgress, app.isLightThemeSelected(), false);
+        coverHelper = new CoverAsyncHelper(app,
+                PreferenceManager.getDefaultSharedPreferences(getActivity()));
+        coverHelper.setCoverMaxSizeFromScreen(getActivity());
+        final ViewTreeObserver vto = coverArt.getViewTreeObserver();
+        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            public boolean onPreDraw() {
+                if (coverHelper != null)
+                    coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
+                return true;
+            }
+        });
+        coverHelper.addCoverDownloadListener(coverArtListener);
+
+        ((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
+        ((ListView) list).addHeaderView(headerView, null, false);
+
+        popupMenu = new PopupMenu(getActivity(), albumMenu);
+        popupMenu.getMenu().add(Menu.NONE, ADD, Menu.NONE, R.string.addAlbum);
+        popupMenu.getMenu().add(Menu.NONE, ADDNREPLACE, Menu.NONE, R.string.addAndReplace);
+        popupMenu.getMenu().add(Menu.NONE, ADDNREPLACEPLAY, Menu.NONE, R.string.addAndReplacePlay);
+        popupMenu.getMenu().add(Menu.NONE, ADDNPLAY, Menu.NONE, R.string.addAndPlay);
+
+        popupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                final int itemId = item.getItemId();
+                app.oMPDAsyncHelper.execAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean replace = false;
+                        boolean play = false;
+                        switch (itemId) {
+                            case ADDNREPLACEPLAY:
+                                replace = true;
+                                play = true;
+                                break;
+                            case ADDNREPLACE:
+                                replace = true;
+                                break;
+                            case ADDNPLAY:
+                                play = true;
+                                break;
+                        }
+                        try {
+                            app.oMPDAsyncHelper.oMPD.add(album, replace, play);
+                            Tools.notifyUser(String.format(
+                                    getResources().getString(R.string.albumAdded), album),
+                                    getActivity());
+                        } catch (MPDServerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                return true;
+            }
+        });
+
+        albumMenu.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupMenu.show();
+            }
+        });
+
+        coverPopupMenu = new PopupMenu(getActivity(), coverArt);
+        coverPopupMenu.getMenu().add(POPUP_COVER_BLACKLIST, POPUP_COVER_BLACKLIST, 0,
+                R.string.otherCover);
+        coverPopupMenu.getMenu().add(POPUP_COVER_SELECTIVE_CLEAN, POPUP_COVER_SELECTIVE_CLEAN, 0,
+                R.string.resetCover);
+        coverPopupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getGroupId()) {
+                    case POPUP_COVER_BLACKLIST:
+                        CoverManager.getInstance(
+                                app,
+                                PreferenceManager.getDefaultSharedPreferences(app
+                                        .getApplicationContext())).markWrongCover(
+                                album.getAlbumInfo());
+                        updateCover(album.getAlbumInfo());
+                        updateNowPlayingSmallFragment(album.getAlbumInfo());
+                        break;
+                    case POPUP_COVER_SELECTIVE_CLEAN:
+                        CoverManager.getInstance(
+                                app,
+                                PreferenceManager.getDefaultSharedPreferences(app
+                                        .getApplicationContext())).clear(album.getAlbumInfo());
+                        updateCover(album.getAlbumInfo());
+                        updateNowPlayingSmallFragment(album.getAlbumInfo());
+                        break;
+                }
+                return true;
+            }
+        });
+
+        coverArt.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                coverPopupMenu.show();
+                return false;
+            }
+        });
+
+        updateFromItems();
+
+        return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        headerArtist = null;
+        headerInfo = null;
+        coverArtListener.freeCoverDrawable();
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDetach() {
+        coverHelper = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onItemClick(final AdapterView<?> adapterView, View v, final int position, long id) {
+        app.oMPDAsyncHelper.execAsync(new Runnable() {
+            @Override
+            public void run() {
+                add((Item) adapterView.getAdapter().getItem(position), false, false);
+            }
+        });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(EXTRA_ALBUM, album);
+        super.onSaveInstanceState(outState);
     }
 
     public void updateCover(AlbumInfo albumInfo) {
-        if (coverArt != null && null != coverArt.getTag() && coverArt.getTag().equals(albumInfo.getKey())) {
+        if (coverArt != null && null != coverArt.getTag()
+                && coverArt.getTag().equals(albumInfo.getKey())) {
             coverHelper.downloadCover(albumInfo, true);
         }
+    }
+
+    @Override
+    public void updateFromItems() {
+        super.updateFromItems();
+        if (items != null && headerArtist != null && headerInfo != null) {
+            AlbumInfo fixedAlbumInfo;
+            fixedAlbumInfo = getFixedAlbumInfo();
+            String artist = fixedAlbumInfo.getArtist();
+            if ("".equals(artist)) {
+                headerArtist.setText(getString(R.string.jmpdcomm_unknown_artist));
+            } else {
+                headerArtist.setText(artist);
+            }
+            headerInfo.setText(getHeaderInfoString());
+            if (coverHelper != null) {
+                coverHelper.downloadCover(fixedAlbumInfo, true);
+            } else {
+                coverArtListener.onCoverNotFound(new CoverInfo(fixedAlbumInfo));
+            }
+        }
+
     }
 
     private void updateNowPlayingSmallFragment(AlbumInfo albumInfo) {
         NowPlayingSmallFragment nowPlayingSmallFragment;
         if (getActivity() != null) {
-            nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
+            nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity()
+                    .getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
             if (nowPlayingSmallFragment != null) {
                 nowPlayingSmallFragment.updateCover(albumInfo);
             }

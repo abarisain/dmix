@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid;
 
 import android.content.SearchRecentSuggestionsProvider;

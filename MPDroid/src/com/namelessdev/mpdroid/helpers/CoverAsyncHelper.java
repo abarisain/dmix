@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid.helpers;
 
 import android.app.Activity;
@@ -5,8 +6,10 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
+
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
+
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
 
@@ -15,7 +18,7 @@ import java.util.LinkedList;
 
 /**
  * Download Covers Asynchronous with Messages
- *
+ * 
  * @author Stefan Agner
  * @version $Id: $
  */
@@ -47,36 +50,20 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         coverDownloadListener = new LinkedList<CoverDownloadListener>();
     }
 
-    public void setCoverMaxSizeFromScreen(Activity activity) {
-        final DisplayMetrics metrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        setCoverMaxSize(Math.min(metrics.widthPixels, metrics.heightPixels));
-    }
-
-    public void setCoverMaxSize(int size) {
-        if (size < 0)
-            size = MAX_SIZE;
-        coverMaxSize = size;
-    }
-
-    /*
-     * If you want cached images to be read as a different size than the downloaded ones.
-     * If this equals MAX_SIZE, it will use the coverMaxSize (if not also MAX_SIZE)
-     * Example : useful for NowPlayingSmallFragment, where
-     * it's useless to read a big image, but since downloading one will fill the cache, download it at a bigger size.
-     */
-    public void setCachedCoverMaxSize(int size) {
-        if (size < 0)
-            size = MAX_SIZE;
-        cachedCoverMaxSize = size;
-    }
-
     public void addCoverDownloadListener(CoverDownloadListener listener) {
         coverDownloadListener.add(listener);
     }
 
-    public void removeCoverDownloadListener(CoverDownloadListener listener) {
-        coverDownloadListener.remove(listener);
+    private void displayCoverRetrieverName(CoverInfo coverInfo) {
+        try {
+            if (!coverInfo.getCoverRetriever().isCoverLocal()) {
+                String message = "\"" + coverInfo.getAlbum() + "\" cover found with "
+                        + coverInfo.getCoverRetriever().getName();
+                Tools.notifyUser(message, MPD.getApplicationContext());
+            }
+        } catch (Exception e) {
+            // Nothing to do
+        }
     }
 
     public void downloadCover(AlbumInfo albumInfo) {
@@ -98,12 +85,6 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
             CoverManager.getInstance(app, settings).addCoverRequest(info);
         }
 
-    }
-
-    private void tagListenerCovers(AlbumInfo albumInfo) {
-        for (CoverDownloadListener listener : coverDownloadListener) {
-            listener.tagAlbumCover(albumInfo);
-        }
     }
 
     public void handleMessage(Message msg) {
@@ -135,32 +116,56 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     }
 
     @Override
-    public void onCoverNotFound(CoverInfo cover) {
-        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_NOT_FOUND, cover).sendToTarget();
-    }
-
-    @Override
     public void onCoverDownloadStarted(CoverInfo cover) {
         CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, cover).sendToTarget();
     }
 
     @Override
-    public void tagAlbumCover(AlbumInfo albumInfo) {
-        //Nothing to do
+    public void onCoverNotFound(CoverInfo cover) {
+        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_NOT_FOUND, cover).sendToTarget();
+    }
+
+    public void removeCoverDownloadListener(CoverDownloadListener listener) {
+        coverDownloadListener.remove(listener);
+    }
+
+    /*
+     * If you want cached images to be read as a different size than the
+     * downloaded ones. If this equals MAX_SIZE, it will use the coverMaxSize
+     * (if not also MAX_SIZE) Example : useful for NowPlayingSmallFragment,
+     * where it's useless to read a big image, but since downloading one will
+     * fill the cache, download it at a bigger size.
+     */
+    public void setCachedCoverMaxSize(int size) {
+        if (size < 0)
+            size = MAX_SIZE;
+        cachedCoverMaxSize = size;
+    }
+
+    public void setCoverMaxSize(int size) {
+        if (size < 0)
+            size = MAX_SIZE;
+        coverMaxSize = size;
+    }
+
+    public void setCoverMaxSizeFromScreen(Activity activity) {
+        final DisplayMetrics metrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        setCoverMaxSize(Math.min(metrics.widthPixels, metrics.heightPixels));
     }
 
     public void setCoverRetrieversFromPreferences() {
         CoverManager.getInstance(app, settings).setCoverRetrieversFromPreferences();
     }
 
-    private void displayCoverRetrieverName(CoverInfo coverInfo) {
-        try {
-            if (!coverInfo.getCoverRetriever().isCoverLocal()) {
-                String message = "\"" + coverInfo.getAlbum() + "\" cover found with " + coverInfo.getCoverRetriever().getName();
-                Tools.notifyUser(message, MPD.getApplicationContext());
-            }
-        } catch (Exception e) {
-            //Nothing to do
+    @Override
+    public void tagAlbumCover(AlbumInfo albumInfo) {
+        // Nothing to do
+    }
+
+    private void tagListenerCovers(AlbumInfo albumInfo) {
+        for (CoverDownloadListener listener : coverDownloadListener) {
+            listener.tagAlbumCover(albumInfo);
         }
     }
 }

@@ -1,6 +1,8 @@
+
 package com.namelessdev.mpdroid.cover;
 
 import android.util.Log;
+
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,35 +21,38 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private static final String COVER_ART_ARCHIVE_URL = "http://coverartarchive.org/release-group/";
 
-    @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
-
-        List<String> releases;
+    private List<String> extractImageUrls(String covertArchiveResponse) {
+        JSONObject jsonRootObject;
+        JSONArray jsonArray;
+        String coverUrl;
+        JSONObject jsonObject;
         List<String> coverUrls = new ArrayList<String>();
-        String covertArtResponse;
 
-        releases = searchForRelease(albumInfo);
-        for (String release : releases) {
-            covertArtResponse = getCoverArtArchiveResponse(release);
-            if (!covertArtResponse.isEmpty()) {
-                coverUrls.addAll(extractImageUrls(covertArtResponse));
-            }
-
-            if (!coverUrls.isEmpty()) {
-                break;
-            }
+        if (covertArchiveResponse == null || covertArchiveResponse.isEmpty()) {
+            return Collections.emptyList();
         }
-        return coverUrls.toArray(new String[coverUrls.size()]);
 
-    }
+        try {
+            jsonRootObject = new JSONObject(covertArchiveResponse);
+            if (jsonRootObject.has("images")) {
 
-    private List<String> searchForRelease(AlbumInfo albumInfo) {
+                jsonArray = jsonRootObject.getJSONArray("images");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    if (jsonObject.has("image")) {
+                        coverUrl = jsonObject.getString("image");
+                        if (coverUrl != null) {
+                            coverUrls.add(coverUrl);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(MusicBrainzCover.class.getName(), "No cover in CovertArchive : " + e);
+        }
 
-        String response;
+        return coverUrls;
 
-        String url = "http://musicbrainz.org/ws/2/release-group/?query=" + albumInfo.getArtist() + " " + albumInfo.getAlbum() + "&type=release-group&limit=5";
-        response = executeGetRequestWithConnection(url);
-        return extractReleaseIds(response);
     }
 
     private List<String> extractReleaseIds(String response) {
@@ -89,43 +94,40 @@ public class MusicBrainzCover extends AbstractWebCover {
         return executeGetRequestWithConnection(request);
     }
 
+    @Override
+    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
 
-    private List<String> extractImageUrls(String covertArchiveResponse) {
-        JSONObject jsonRootObject;
-        JSONArray jsonArray;
-        String coverUrl;
-        JSONObject jsonObject;
+        List<String> releases;
         List<String> coverUrls = new ArrayList<String>();
+        String covertArtResponse;
 
-        if (covertArchiveResponse == null || covertArchiveResponse.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        try {
-            jsonRootObject = new JSONObject(covertArchiveResponse);
-            if (jsonRootObject.has("images")) {
-
-                jsonArray = jsonRootObject.getJSONArray("images");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    jsonObject = jsonArray.getJSONObject(i);
-                    if (jsonObject.has("image")) {
-                        coverUrl = jsonObject.getString("image");
-                        if (coverUrl != null) {
-                            coverUrls.add(coverUrl);
-                        }
-                    }
-                }
+        releases = searchForRelease(albumInfo);
+        for (String release : releases) {
+            covertArtResponse = getCoverArtArchiveResponse(release);
+            if (!covertArtResponse.isEmpty()) {
+                coverUrls.addAll(extractImageUrls(covertArtResponse));
             }
-        } catch (Exception e) {
-            Log.e(MusicBrainzCover.class.getName(), "No cover in CovertArchive : " + e);
-        }
 
-        return coverUrls;
+            if (!coverUrls.isEmpty()) {
+                break;
+            }
+        }
+        return coverUrls.toArray(new String[coverUrls.size()]);
 
     }
 
     @Override
     public String getName() {
         return "MUSICBRAINZ";
+    }
+
+    private List<String> searchForRelease(AlbumInfo albumInfo) {
+
+        String response;
+
+        String url = "http://musicbrainz.org/ws/2/release-group/?query=" + albumInfo.getArtist()
+                + " " + albumInfo.getAlbum() + "&type=release-group&limit=5";
+        response = executeGetRequestWithConnection(url);
+        return extractReleaseIds(response);
     }
 }

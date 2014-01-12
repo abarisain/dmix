@@ -1,13 +1,19 @@
+
 package com.namelessdev.mpdroid.helpers;
 
 import android.graphics.Bitmap;
+
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
+
 import org.a0z.mpd.AlbumInfo;
 
 public class CoverInfo extends AlbumInfo {
-    public enum STATE {NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND}
+    public enum STATE {
+        NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
+    }
 
     ;
+
     private STATE state = STATE.NEW;
     private Bitmap[] bitmap = new Bitmap[0];
     private byte[] coverBytes = new byte[0];
@@ -18,6 +24,18 @@ public class CoverInfo extends AlbumInfo {
     private ICoverRetriever coverRetriever;
     private CoverDownloadListener listener;
     private boolean requestGivenUp = false;
+
+    public CoverInfo() {
+        super();
+    }
+
+    public CoverInfo(AlbumInfo albumInfo) {
+        super();
+        this.artist = albumInfo.getArtist();
+        this.album = albumInfo.getAlbum();
+        this.path = albumInfo.getPath();
+        this.filename = albumInfo.getFilename();
+    }
 
     public CoverInfo(CoverInfo coverInfo) {
         super();
@@ -36,98 +54,70 @@ public class CoverInfo extends AlbumInfo {
         this.requestGivenUp = coverInfo.requestGivenUp;
     }
 
-    public CoverInfo(AlbumInfo albumInfo) {
-        super();
-        this.artist = albumInfo.getArtist();
-        this.album = albumInfo.getAlbum();
-        this.path = albumInfo.getPath();
-        this.filename = albumInfo.getFilename();
-    }
-
-    public CoverInfo() {
-        super();
-    }
-
-    public void setRequestGivenUp(boolean requestGivenUp) {
-        this.requestGivenUp = requestGivenUp;
-    }
-
-    public CoverDownloadListener getListener() {
-        return listener;
-    }
-
-    public void setListener(CoverDownloadListener listener) {
-        this.listener = listener;
-    }
-
-    public boolean isPriority() {
-        return priority;
-    }
-
-    public void setPriority(boolean priority) {
-        this.priority = priority;
-    }
-
     public CoverInfo(String artist, String album) {
         this.artist = artist;
         this.album = album;
     }
 
-    public boolean isRequestGivenUp() {
-        return requestGivenUp;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        CoverInfo coverInfo = (CoverInfo) o;
+
+        if (album != null ? !album.equals(coverInfo.album) : coverInfo.album != null)
+            return false;
+        if (artist != null ? !artist.equals(coverInfo.artist) : coverInfo.artist != null)
+            return false;
+
+        return true;
     }
 
-    public ICoverRetriever getCoverRetriever() {
-        return coverRetriever;
+    public String getAlbum() {
+        return album;
     }
 
-    public void setCoverRetriever(ICoverRetriever coverRetriever) {
-        this.coverRetriever = coverRetriever;
+    public String getArtist() {
+        return artist;
     }
 
-    public int getCoverMaxSize() {
-        return coverMaxSize;
-    }
-
-    public void setCoverMaxSize(int coverMaxSize) {
-        this.coverMaxSize = coverMaxSize;
+    public Bitmap[] getBitmap() {
+        return bitmap;
     }
 
     public int getCachedCoverMaxSize() {
         return cachedCoverMaxSize;
     }
 
-    public void setCachedCoverMaxSize(int cachedCoverMaxSize) {
-        this.cachedCoverMaxSize = cachedCoverMaxSize;
-    }
-
     public byte[] getCoverBytes() {
         return coverBytes;
     }
 
-    public void setCoverBytes(byte[] coverBytes) {
-        this.coverBytes = coverBytes;
+    public int getCoverMaxSize() {
+        return coverMaxSize;
+    }
+
+    public ICoverRetriever getCoverRetriever() {
+        return coverRetriever;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public CoverDownloadListener getListener() {
+        return listener;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public STATE getState() {
         return state;
-    }
-
-    public void setState(STATE state) {
-        this.state = state;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CoverInfo coverInfo = (CoverInfo) o;
-
-        if (album != null ? !album.equals(coverInfo.album) : coverInfo.album != null) return false;
-        if (artist != null ? !artist.equals(coverInfo.artist) : coverInfo.artist != null) return false;
-
-        return true;
     }
 
     @Override
@@ -137,48 +127,69 @@ public class CoverInfo extends AlbumInfo {
         return result;
     }
 
-    @Override
-    public String toString() {
-        return "CoverInfo{state=" + state + ", artist=" + artist == null ? "" : artist + ", album=" + album == null ? "" : album + " priority=" + priority + "}";
+    public boolean isPriority() {
+        return priority;
     }
 
-    public String getArtist() {
-        return artist;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
-    public String getAlbum() {
-        return album;
+    public boolean isRequestGivenUp() {
+        return requestGivenUp;
     }
 
     public void setAlbum(String album) {
         this.album = album;
     }
 
-    public String getPath() {
-        return path;
+    public void setArtist(String artist) {
+        this.artist = artist;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setBitmap(Bitmap[] bitmap) {
+        this.bitmap = bitmap;
     }
 
-    public String getFilename() {
-        return filename;
+    public void setCachedCoverMaxSize(int cachedCoverMaxSize) {
+        this.cachedCoverMaxSize = cachedCoverMaxSize;
+    }
+
+    public void setCoverBytes(byte[] coverBytes) {
+        this.coverBytes = coverBytes;
+    }
+
+    public void setCoverMaxSize(int coverMaxSize) {
+        this.coverMaxSize = coverMaxSize;
+    }
+
+    public void setCoverRetriever(ICoverRetriever coverRetriever) {
+        this.coverRetriever = coverRetriever;
     }
 
     public void setFilename(String filename) {
         this.filename = filename;
     }
 
-    public Bitmap[] getBitmap() {
-        return bitmap;
+    public void setListener(CoverDownloadListener listener) {
+        this.listener = listener;
     }
 
-    public void setBitmap(Bitmap[] bitmap) {
-        this.bitmap = bitmap;
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public void setPriority(boolean priority) {
+        this.priority = priority;
+    }
+
+    public void setRequestGivenUp(boolean requestGivenUp) {
+        this.requestGivenUp = requestGivenUp;
+    }
+
+    public void setState(STATE state) {
+        this.state = state;
+    }
+
+    @Override
+    public String toString() {
+        return "CoverInfo{state=" + state + ", artist=" + artist == null ? "" : artist + ", album="
+                + album == null ? "" : album + " priority=" + priority + "}";
     }
 }

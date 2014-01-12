@@ -1,3 +1,4 @@
+
 package com.namelessdev.mpdroid;
 
 import android.app.AlertDialog;
@@ -5,8 +6,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -29,19 +35,79 @@ import java.util.Collection;
 public class SettingsActivity extends PreferenceActivity implements
         StatusChangeListener {
 
+    class CheckPreferenceClickListener implements OnPreferenceClickListener {
+        MPDApplication app = (MPDApplication) getApplication();
+
+        @Override
+        public boolean onPreferenceClick(Preference pref) {
+            CheckBoxPreference prefCB = (CheckBoxPreference) pref;
+            MPD oMPD = app.oMPDAsyncHelper.oMPD;
+            try {
+                if (prefCB.getKey().equals("random"))
+                    oMPD.setRandom(prefCB.isChecked());
+                if (prefCB.getKey().equals("repeat"))
+                    oMPD.setRepeat(prefCB.isChecked());
+                return prefCB.isChecked();
+            } catch (MPDServerException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+    }
+    class OutputPreferenceClickListener implements OnPreferenceClickListener {
+        @Override
+        public boolean onPreferenceClick(Preference pref) {
+            CheckBoxPreference prefCB = (CheckBoxPreference) pref;
+            MPDApplication app = (MPDApplication) getApplication();
+            MPD oMPD = app.oMPDAsyncHelper.oMPD;
+            String id = prefCB.getKey();
+            try {
+                if (prefCB.isChecked()) {
+                    oMPD.enableOutput(Integer.parseInt(id));
+                    return false;
+                } else {
+                    oMPD.disableOutput(Integer.parseInt(id));
+                    return true;
+                }
+            } catch (MPDServerException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return true;
+        }
+    }
     private static final int MAIN = 0;
+
     private static final int ADD = 1;
     public static final String OPEN_OUTPUT = "open_output";
 
     private OnPreferenceClickListener onPreferenceClickListener;
     private SparseArray<CheckBoxPreference> cbPrefs;
-
     private PreferenceScreen pOutputsScreen;
+
     private PreferenceScreen pInformationScreen;
     private Handler handler;
 
     private EditTextPreference pCacheUsage1;
+
     private EditTextPreference pCacheUsage2;
+
+    @Override
+    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void libraryStateChanged(boolean updating) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,15 +126,15 @@ public class SettingsActivity extends PreferenceActivity implements
         // Use the ConnectionPreferConnectionPreferenceCategoryenceCategory for
         // Wi-Fi based Connection setttings
 
-		/*
+        /*
          * PreferenceScreen pConnectionScreen =
-		 * (PreferenceScreen)findPreference("connectionScreen");
-		 * PreferenceCategory wifiConnection = new
-		 * ConnectionPreferenceCategory(this);
-		 * wifiConnection.setTitle("Preferred connection");
-		 * wifiConnection.setOrder(0);
-		 * pConnectionScreen.addPreference(wifiConnection);
-		 */
+         * (PreferenceScreen)findPreference("connectionScreen");
+         * PreferenceCategory wifiConnection = new
+         * ConnectionPreferenceCategory(this);
+         * wifiConnection.setTitle("Preferred connection");
+         * wifiConnection.setOrder(0);
+         * pConnectionScreen.addPreference(wifiConnection);
+         */
 
         if (!getResources().getBoolean(R.bool.isTablet)) {
             final PreferenceScreen interfaceCategory = (PreferenceScreen) findPreference("nowPlayingScreen");
@@ -128,13 +194,13 @@ public class SettingsActivity extends PreferenceActivity implements
                             .getMpdVersion();
                     final String artists = ""
                             + app.oMPDAsyncHelper.oMPD.getStatistics()
-                            .getArtists();
+                                    .getArtists();
                     final String albums = ""
                             + app.oMPDAsyncHelper.oMPD.getStatistics()
-                            .getAlbums();
+                                    .getAlbums();
                     final String songs = ""
                             + app.oMPDAsyncHelper.oMPD.getStatistics()
-                            .getSongs();
+                                    .getSongs();
                     handler.post(new Runnable() {
 
                         @Override
@@ -160,17 +226,12 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        MPDApplication app = (MPDApplication) getApplicationContext();
-        app.setActivity(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        MPDApplication app = (MPDApplication) getApplicationContext();
-        app.unsetActivity(this);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        if (getPreferenceScreen().getKey().equals("connectionscreen"))
+            menu.add(0, ADD, 1, R.string.clear).setIcon(
+                    android.R.drawable.ic_menu_add);
+        return result;
     }
 
     @Override
@@ -178,15 +239,6 @@ public class SettingsActivity extends PreferenceActivity implements
         MPDApplication app = (MPDApplication) getApplicationContext();
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
-        if (getPreferenceScreen().getKey().equals("connectionscreen"))
-            menu.add(0, ADD, 1, R.string.clear).setIcon(
-                    android.R.drawable.ic_menu_add);
-        return result;
     }
 
     @Override
@@ -210,7 +262,7 @@ public class SettingsActivity extends PreferenceActivity implements
      */
 
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
-                                         Preference preference) {
+            Preference preference) {
         Log.d("MPDroid", preferenceScreen.getKey());
         MPDApplication app = (MPDApplication) getApplication();
 
@@ -237,7 +289,8 @@ public class SettingsActivity extends PreferenceActivity implements
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             MPDApplication app = (MPDApplication) getApplication();
-                            // Todo : The covermanager must already have been initialized, get rid of the getInstance arguments
+                            // Todo : The covermanager must already have been
+                            // initialized, get rid of the getInstance arguments
                             CoverManager.getInstance(app, null).clear();
                             pCacheUsage1.setSummary("0.00B");
                             pCacheUsage2.setSummary("0.00B");
@@ -284,12 +337,32 @@ public class SettingsActivity extends PreferenceActivity implements
             CheckBoxPreference c = (CheckBoxPreference) findPreference("playOnPhoneStateChange");
             c.setEnabled(cPause.isChecked());
         } else if (preference.getKey().equals("clearSearchHistory")) {
-            final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
+            final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
+                    SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
             suggestions.clearHistory();
             preference.setEnabled(false);
         }
         return false;
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        MPDApplication app = (MPDApplication) getApplicationContext();
+        app.setActivity(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        MPDApplication app = (MPDApplication) getApplicationContext();
+        app.unsetActivity(this);
+    }
+
+    @Override
+    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+        // TODO Auto-generated method stub
     }
 
     private void populateOutputsScreen() {
@@ -316,58 +389,16 @@ public class SettingsActivity extends PreferenceActivity implements
         }
     }
 
-    class CheckPreferenceClickListener implements OnPreferenceClickListener {
-        MPDApplication app = (MPDApplication) getApplication();
-
-        @Override
-        public boolean onPreferenceClick(Preference pref) {
-            CheckBoxPreference prefCB = (CheckBoxPreference) pref;
-            MPD oMPD = app.oMPDAsyncHelper.oMPD;
-            try {
-                if (prefCB.getKey().equals("random"))
-                    oMPD.setRandom(prefCB.isChecked());
-                if (prefCB.getKey().equals("repeat"))
-                    oMPD.setRepeat(prefCB.isChecked());
-                return prefCB.isChecked();
-            } catch (MPDServerException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return false;
-        }
-
-    }
-
-    class OutputPreferenceClickListener implements OnPreferenceClickListener {
-        @Override
-        public boolean onPreferenceClick(Preference pref) {
-            CheckBoxPreference prefCB = (CheckBoxPreference) pref;
-            MPDApplication app = (MPDApplication) getApplication();
-            MPD oMPD = app.oMPDAsyncHelper.oMPD;
-            String id = prefCB.getKey();
-            try {
-                if (prefCB.isChecked()) {
-                    oMPD.enableOutput(Integer.parseInt(id));
-                    return false;
-                } else {
-                    oMPD.disableOutput(Integer.parseInt(id));
-                    return true;
-                }
-            } catch (MPDServerException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return true;
-        }
+    @Override
+    public void randomChanged(boolean random) {
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-        // TODO Auto-generated method stub
+    public void repeatChanged(boolean repeating) {
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+    public void stateChanged(MPDStatus mpdStatus, String oldState) {
         // TODO Auto-generated method stub
     }
 
@@ -377,30 +408,7 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
+    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
         // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void repeatChanged(boolean repeating) {
-    }
-
-    @Override
-    public void randomChanged(boolean random) {
-    }
-
-    @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void libraryStateChanged(boolean updating) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 }

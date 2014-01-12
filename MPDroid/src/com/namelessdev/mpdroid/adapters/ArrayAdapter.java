@@ -1,9 +1,5 @@
+
 package com.namelessdev.mpdroid.adapters;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.a0z.mpd.Item;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+
+import org.a0z.mpd.Item;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
 //Thanks qlimax !
@@ -24,13 +25,6 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
     Context context;
 
     @SuppressWarnings("unchecked")
-    public ArrayAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
-        super(context, textViewResourceId, (List<Item>) items);
-        dataBinder = null;
-        init(context, items);
-    }
-
-    @SuppressWarnings("unchecked")
     public ArrayAdapter(Context context, ArrayDataBinder dataBinder, List<? extends Item> items) {
         super(context, 0, (List<Item>) items);
         this.dataBinder = dataBinder;
@@ -38,26 +32,14 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
     }
 
     @SuppressWarnings("unchecked")
-    protected void init(Context context, List<? extends Item> items) {
-        if (!(items instanceof ArrayList<?>))
-            throw new RuntimeException("Items must be contained in an ArrayList<Item>");
-
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.context = context;
-        this.items = (List<Item>) items;
+    public ArrayAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
+        super(context, textViewResourceId, (List<Item>) items);
+        dataBinder = null;
+        init(context, items);
     }
 
     public ArrayDataBinder getDataBinder() {
         return dataBinder;
-    }
-
-    public void setDataBinder(ArrayDataBinder dataBinder) {
-        this.dataBinder = dataBinder;
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        return 1;
     }
 
     @Override
@@ -89,11 +71,30 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
     }
 
     @Override
+    public int getViewTypeCount() {
+        return 1;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void init(Context context, List<? extends Item> items) {
+        if (!(items instanceof ArrayList<?>))
+            throw new RuntimeException("Items must be contained in an ArrayList<Item>");
+
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = context;
+        this.items = (List<Item>) items;
+    }
+
+    @Override
     public boolean isEnabled(int position) {
         if (dataBinder == null) {
             return super.isEnabled(position);
         }
         return dataBinder.isEnabled(position, items, getItem(position));
+    }
+
+    public void setDataBinder(ArrayDataBinder dataBinder) {
+        this.dataBinder = dataBinder;
     }
 
 }
