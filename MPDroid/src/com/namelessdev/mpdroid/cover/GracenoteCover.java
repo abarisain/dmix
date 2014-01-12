@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 Arnaud Barisain Monrose (The MPDroid Project)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.namelessdev.mpdroid.cover;
 
@@ -18,9 +33,11 @@ public class GracenoteCover extends AbstractWebCover {
     private String clientId;
     public static final String USER_ID = "GRACENOTE_USERID";
     public static final String CUSTOM_CLIENT_ID_KEY = "gracenoteClientId";
+
     public static boolean isClientIdAvailable(SharedPreferences sharedPreferences) {
         return !isEmpty(sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null));
     }
+
     private String apiUrl;
     private SharedPreferences sharedPreferences;
     private String userId;
@@ -129,7 +146,7 @@ public class GracenoteCover extends AbstractWebCover {
             coverUrl = getCoverUrl(albumInfo.getArtist(), albumInfo.getAlbum());
             if (coverUrl != null) {
                 return new String[] {
-                    coverUrl
+                        coverUrl
                 };
             }
         } catch (Exception ex) {
