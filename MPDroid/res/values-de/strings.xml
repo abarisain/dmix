@@ -97,11 +97,11 @@
     <string name="passwordDescription">Passwort für den Server</string>
     <string name="showAlbumTrackCount">Titelanzahl anzeigen</string>
     <string name="showAlbumTrackCountDescription">Zeige Titelanzahl der Alben</string>
-    <string name="albumartist">Albumkünstler</string>
-    <string name="albumartistDescription">Benutze Albumkünstler-Tag in der Ansicht Künstler</string>
     <string name="version">Version</string>
     <string name="updateDB">Datenbank aktualisieren</string>
     <string name="updateDBDetails">Aktualisiere die MPD-Datenbank</string>
+    <string name="useLocalAlbumCache">Album-Cache verwenden</string>
+    <string name="useLocalAlbumCacheDescription">Teile der MPD-Datenbank lokal speichern</string>
     <string name="variousArtists">Verschiedene Interpreten</string>
     <string name="songs">Titel</string>
     <string name="serverInformation">Server-Informationen</string>
@@ -199,9 +199,11 @@
     <string name="clearLocalCoverCache">Leere Albencover-Cache</string>
     <string name="clearLocalCoverCacheDescription">Lösche alle gespeicherten Albencover von der SD-Karte</string>
     <string name="clearLocalCoverCachePrompt">Alle Albencover löschen?</string>
+    <string name="updatingLocalAlbumCacheNote">Erneuere lokalen Alben-Cache</string>
 
     <string name="goToAlbum">Gehe zum Album</string>
     <string name="goToArtist">Gehe zum Künstler</string>
+    <string name="goToAlbumArtist">Gehe zum Albumkünstler</string>
     <string name="goToFolder">Gehe zum Verzeichnis</string>
     <string name="goToStream">Gehe zu Streams</string>
     <string name="goToCurrent">Gehe zum aktuellen Song</string>

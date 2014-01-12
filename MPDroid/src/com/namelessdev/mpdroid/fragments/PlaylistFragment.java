@@ -624,7 +624,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     return true;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", new Artist(MPD.useAlbumArtist() ? music.getAlbumArtistOrArtist() : music.getArtist(), 0));
+                intent.putExtra("artist", music.getArtistAsArtist());
                 startActivityForResult(intent, -1);
                 return true;
             case R.id.PLCX_goToAlbum:
@@ -633,9 +633,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     return true;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                String artist = music.getAlbumArtistOrArtist();
-                intent.putExtra("artist", new Artist(artist, 0));
-                intent.putExtra("album", new Album(music.getAlbum(), new Artist(artist)));
+                intent.putExtra("album", music.getAlbumAsAlbum());
                 startActivityForResult(intent, -1);
                 return true;
             case R.id.PLCX_goToFolder:

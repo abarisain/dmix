@@ -13,31 +13,39 @@ public class Album extends Item implements Parcelable {
     private long year;
     private String path;
     private Artist artist;
+    private boolean hasAlbumArtist;
 
-    public Album(String name, long songCount, long duration, long year, Artist artist) {
-        this(name, songCount, duration, year, artist, "");
+    public Album(String name, long songCount, long duration, long year, Artist artist,
+                 boolean hasAlbumArtist) {
+        this(name, songCount, duration, year, artist, hasAlbumArtist, "");
     }
 
     public Album(String name, long songCount, long duration, long year,
-                 Artist artist, String path) {
+                 Artist artist, boolean hasAlbumArtist, String path) {
         this.name = name;
         this.songCount = songCount;
         this.duration = duration;
         this.year = year;
         this.artist = artist;
+        this.hasAlbumArtist = hasAlbumArtist;
         this.path = path;
     }
 
     public Album(String name, Artist artist) {
-        this(name, 0, 0, 0, artist, "");
+        this(name, 0, 0, 0, artist, false, "");
     }
 
-    public Album(String name, Artist artist, String path) {
-        this(name, 0, 0, 0, artist, path);
+    public Album(String name, Artist artist, boolean hasAlbumArtist) {
+        this(name, 0, 0, 0, artist, hasAlbumArtist, "");
+    }
+
+    public Album(String name, Artist artist, boolean hasAlbumArtist, String path) {
+        this(name, 0, 0, 0, artist, hasAlbumArtist, path);
     }
 
     public Album(Album a) {
-        this(a.name, a.songCount, a.duration, a.year, new Artist(a.artist), a.path);
+        this(a.name, a.songCount, a.duration, a.year,
+             new Artist(a.artist), a.hasAlbumArtist, a.path);
     }
 
     protected Album(Parcel in) {
@@ -47,11 +55,22 @@ public class Album extends Item implements Parcelable {
         this.year = in.readLong();
         this.path = in.readString();
         this.artist = new Artist(in.readString());
-        this.artist.setIsAlbumArtist(in.readInt()>0?true:false);
+        this.hasAlbumArtist = (in.readInt()>0?true:false);
     }
 
     public String getName() {
         return name;
+    }
+
+
+    /*
+     * text for display
+     */
+    @Override
+    public String mainText() {
+        return (name.equals("") ?
+                MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album) :
+                name);
     }
 
     public long getSongCount() {
@@ -85,17 +104,19 @@ public class Album extends Item implements Parcelable {
         path = p;
     }
 
-    @Override
-    public String mainText() {
-        return name;
-    }
-
     public Artist getArtist() {
         return artist;
     }
 
     public void setArtist(Artist artist) {
         this.artist = artist;
+    }
+
+    public boolean hasAlbumArtist() {
+        return hasAlbumArtist;
+    }
+    public void setHasAlbumArtist(boolean aa){
+        hasAlbumArtist = aa;
     }
 
     @Override
@@ -133,21 +154,21 @@ public class Album extends Item implements Parcelable {
     public boolean equals(Object o) {
         if (o instanceof Album) {
             Album a = (Album) o;
-            return (year == a.year && duration == a.duration &&
-                    songCount == a.songCount &&
-                    path.equals(a.path) &&
-                    name.equals(a.name) && artist.equals(a.artist));
+            return (hasAlbumArtist == a.hasAlbumArtist &&
+                    name.equals(a.getName()) &&
+                    artist.equals(a.getArtist()));
         }
         return false;
     }
 
-    public boolean isSameOnList(Item o) {
-        if (null == o) {
-            return false;
+    @Override
+    public boolean nameEquals(Item o) {
+        if (o instanceof Album) {
+            Album a = (Album) o;
+            return (name.equals(a.getName()) &&
+                    artist.nameEquals(a.getArtist()));
         }
-        Album a = (Album)o;
-        return (name.equals(a.getName()) &&
-                artist.isSameOnList(a.getArtist()));
+        return false;
     }
 
     @Override
@@ -163,7 +184,7 @@ public class Album extends Item implements Parcelable {
         dest.writeLong(this.year);
         dest.writeString(this.path);
         dest.writeString(this.artist == null ? "" : this.artist.getName());
-        dest.writeInt(this.artist == null ? 0 : this.artist.isAlbumArtist()?1:0);
+        dest.writeInt(this.hasAlbumArtist()?1:0);
     }
 
     public static final Parcelable.Creator<Album> CREATOR =
@@ -182,7 +203,9 @@ public class Album extends Item implements Parcelable {
     }
 
     public String info() {
-        return (artist == null ? "null" : artist.info()) + " // " + name +
+        return (artist == null ? "null" : artist.info()) +
+            (hasAlbumArtist()?" (AA)":"") +
+            " // " + name +
             ("".equals(path) ? "" : " ("+path+")");
     }
 

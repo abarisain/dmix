@@ -80,8 +80,6 @@
 	<string name="portDescription">Порт MPD-сервера (За замовчуванням: 6600)</string>
 	<string name="password">Пароль</string>
 	<string name="passwordDescription">Пароль для сервера</string>
-	<string name="albumartist">Виконавець альбому</string>
-	<string name="albumartistDescription">Використовувати тег Виконавець альбому у вкладці Виконавці</string>
 	<string name="albumTrackSort">Сортування за альбомом</string>
 	<string name="albumTrackSortDescription">Сортувати треки за номером в альбомі</string>
 	<string name="version">Версія</string>

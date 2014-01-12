@@ -74,8 +74,6 @@
 	<string name="portDescription">Port du serveur MPD (Defaut: 6600)</string>
 	<string name="password">Mot de passe</string>
 	<string name="passwordDescription">Mot de passe du serveur</string>
-	<string name="albumartist">Artiste de l\'album</string>
-	<string name="albumartistDescription">Utiliser le tag Album Artiste dans la vue Artistes</string>
 	<string name="albumTrackSort">Tri d\'album par numéro</string>
 	<string name="albumTrackSortDescription">Trier les albums par numéro de piste</string>
 	<string name="version">Version</string>
@@ -167,7 +165,7 @@
 	<string name="enableAlbumYearText">Afficher l\'année de l\'album</string>
 	<string name="showAlbumArtist">Afficher l\'artiste de l\'album</string>
     <string name="enableAudioText">Afficher les informations d\'encodage</string>
-	
+
 	<string name="behavior">Comportement du téléphone</string>
 	<string name="pauseOnPhoneStateChange">Mettre la musique en pause</string>
 	<string name="pauseOnPhoneStateChangeDescription">Mettre la lecture en pause lors d\'un appel</string>
@@ -178,7 +176,7 @@
 	<string name="libraryTabsSettingsDescription">Choisir les onglets visibles et leur ordre</string>
 	<string name="visibleTabs">Onglets visibles</string>
 	<string name="hiddenTabs">Onglets cachés</string>
-	
+
 	<string name="coverArtTitle">Paramètres des pochettes</string>
 	<string name="coverArtDescription">Changer comment les pochettes sont téléchargées et stockées</string>
 	<string name="enableLocalCoverCache">Mettre en cache les pochettes</string>
@@ -186,9 +184,10 @@
 	<string name="clearLocalCoverCache">Vider le cache</string>
 	<string name="clearLocalCoverCacheDescription">Libère l\'espace utilisé par le cache de pochettes</string>
 	<string name="clearLocalCoverCachePrompt">Supprimer le cache de pochettes ?</string>
-	
+
 	<string name="goToAlbum">Aller à l\'album</string>
     <string name="goToArtist">Aller à l\'artiste</string>
+    <string name="goToAlbumArtist">Aller à l\'artiste de l\'album</string>
     <string name="goToFolder">Aller au dossier</string>
     <string name="goToStream">Aller aux flux</string>
     <string name="goToCurrent">Aller à la chanson en cours</string>
@@ -209,10 +208,10 @@
     <string name="enableTabletUIDescription">Redémarrer l\'application pour voir les changements</string>
     <string name="enableInternetCover">Télécharger les pochettes</string>
 	<string name="enableInternetCoverDescription">Obtenir les pochettes via divers services (leur envoie les informations sur la chanson courante)</string>
-    
+
 	<string name="enableAlbumArtLibrary">Pochettes d\'album dans la biliothèque</string>
 	<string name="enableAlbumArtLibraryDescription">Utiliser des larges pochettes pour la liste d\'albums dans la bibliothèque. Cette fonctionnalité est expérimentale ! Vous serez peut-être victime de lag et/ou plantages. (Nécessite le cache de pochettes)</string>
-	
+
 	<string name="nowPlayingSettingsTitle">Paramètres de la vue \'En Cours\'</string>
 	<string name="enableSmallSeekbars">Barres d\'avancement fines</string>
 	<string name="clearSearchHistory">Vider l\'historique de recherche</string>

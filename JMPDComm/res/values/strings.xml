@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="jmpdcomm_unknown_album">Unknown Album</string>
-    <string name="jmpdcomm_unknown_artist">Unknown Artist</string>
+    <string name="jmpdcomm_unknown_album">(Unknown Album)</string>
+    <string name="jmpdcomm_unknown_artist">(Unknown Artist)</string>
+    <string name="jmpdcomm_unknown_genre">(Unknown Genre)</string>
 </resources>

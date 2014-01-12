@@ -11,6 +11,7 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
 
 import java.util.List;
@@ -35,8 +36,13 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         // If the list is not displayed yet, the height is 0. This is a problem, so set a fallback one.
         coverHelper.setCoverMaxSize(height == 0 ? 256 : height);
 
-        // display the album title
-        holder.albumName.setText(album.getName());
+        // display "artist - album title"
+        String text = album.mainText();
+        Artist artist = album.getArtist();
+        if (null != artist) {
+            text = text + " ("+artist.mainText()+")";
+        }
+        holder.albumName.setText(text);
 
         // listen for new artwork to be loaded
         final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context, holder.albumCover, holder.coverArtProgress, lightTheme, false);

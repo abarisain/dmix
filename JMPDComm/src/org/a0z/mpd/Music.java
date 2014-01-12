@@ -29,11 +29,11 @@ public class Music extends Item implements FilesystemTreeEntry {
     // Hack to discard some album artist names very long listing a long list of people and not useful to fetch covers ...
     public static final int MAX_ARTIST_NAME_LENGTH = 40;
 
-    private String album;
+    private String album = "";
 
-    private String artist = null;
+    private String artist = "";
 
-    private String albumartist = null;
+    private String albumartist = "";
 
     private String fullpath;
 
@@ -161,12 +161,10 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public Artist getArtistAsArtist() {
-        return isEmpty(artist) ?
-            UnknownArtist.instance : new Artist(artist, false);
+        return new Artist(artist);
     }
     public Artist getAlbumArtistAsArtist() {
-        return isEmpty(albumartist) ?
-            UnknownArtist.instance : new Artist(albumartist, true);
+        return new Artist(albumartist);
     }
 
 
@@ -180,8 +178,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     public Album getAlbumAsAlbum() {
         boolean is_aa = !isEmpty(albumartist);
-        Artist art = new Artist((is_aa ? albumartist : artist), is_aa);
-        return new Album(album, art);
+        Artist art = new Artist((is_aa ? albumartist : artist));
+        return new Album(album, art, is_aa);
     }
 
 
@@ -306,8 +304,8 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public String getPath() {
         String result;
-        if (getFullpath().length() > getFilename().length()) {
-            result = fullpath.substring(0, getFullpath().length() - getFilename().length() - 1);
+        if (null != fullpath && fullpath.length() > getFilename().length()) {
+            result = fullpath.substring(0, fullpath.length() - getFilename().length() - 1);
         } else {
             result = "";
         }

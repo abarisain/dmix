@@ -38,8 +38,13 @@ public class SongDataBinder implements ArrayDataBinder {
 		holder.trackNumber.setText(trackNumber < 10 ? "0" + Integer.toString(trackNumber) : Integer.toString(trackNumber));
 		holder.trackDuration.setText(song.getFormatedTime());
 
-		if(showArtist)
-			holder.trackArtist.setText(song.getArtist());
+		if(showArtist) {
+                    String a = song.getArtist();
+                    if (a == null || a.equals("")) {
+                        a = context.getString(R.string.jmpdcomm_unknown_artist);
+                    }
+                    holder.trackArtist.setText(a);
+                }
 	}
 
 	public boolean isEnabled(int position, List<? extends Item> items, Object item) {

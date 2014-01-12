@@ -36,6 +36,14 @@
             android:summary="@string/updateDBDetails"
             android:title="@string/updateDB" >
         </PreferenceScreen>
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="useLocalAlbumCache"
+            android:summary="@string/useLocalAlbumCacheDescription"
+            android:title="@string/useLocalAlbumCache" >
+        </CheckBoxPreference>
+
         <!-- Server Information -->
 
         <PreferenceScreen
@@ -82,12 +90,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/librarySettings" >
-
-        <CheckBoxPreference
-            android:key="albumartist"
-            android:persistent="true"
-            android:summary="@string/albumartistDescription"
-            android:title="@string/albumartist" />
 
         <CheckBoxPreference
             android:defaultValue="true"

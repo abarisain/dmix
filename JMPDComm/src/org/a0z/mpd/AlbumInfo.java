@@ -107,7 +107,6 @@ public class AlbumInfo {
     }
 
     public boolean isValid() {
-        return !isEmpty(artist) && !isEmpty(album) &&
-                !artist.equals(UnknownArtist.instance.getName()) && !album.equals(UnknownAlbum.instance.getName());
+        return !isEmpty(artist) && !isEmpty(album);
     }
 }

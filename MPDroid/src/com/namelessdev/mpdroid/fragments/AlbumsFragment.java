@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.fragments;
 import org.a0z.mpd.Album;
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.Artist;
+import org.a0z.mpd.Genre;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
@@ -30,7 +31,9 @@ import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 public class AlbumsFragment extends BrowseFragment {
     private static final String EXTRA_ARTIST = "artist";
+    private static final String EXTRA_GENRE = "genre";
     protected Artist artist = null;
+    protected Genre genre = null;
     protected boolean isCountPossiblyDisplayed;
     protected ProgressBar coverArtProgress;
 
@@ -43,13 +46,18 @@ public class AlbumsFragment extends BrowseFragment {
 
     @SuppressLint("ValidFragment")
     public AlbumsFragment(Artist artist) {
-        super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
-        init(artist);
+        this(artist, null);
     }
 
-    public AlbumsFragment init(Artist artist) {
+    public AlbumsFragment(Artist artist, Genre genre) {
+        super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
+        init(artist, genre);
+    }
+
+    public AlbumsFragment init(Artist artist, Genre genre) {
         isCountPossiblyDisplayed = true;
         this.artist = artist;
+        this.genre = genre;
         return this;
     }
 
@@ -57,7 +65,8 @@ public class AlbumsFragment extends BrowseFragment {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         if (icicle != null)
-            init((Artist) icicle.getParcelable(EXTRA_ARTIST));
+            init((Artist) icicle.getParcelable(EXTRA_ARTIST),
+                 (Genre) icicle.getParcelable(EXTRA_GENRE));
     }
 
     @Override
@@ -68,6 +77,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(EXTRA_ARTIST, artist);
+        outState.putParcelable(EXTRA_GENRE, genre);
         super.onSaveInstanceState(outState);
     }
 
@@ -99,6 +109,13 @@ public class AlbumsFragment extends BrowseFragment {
     protected void asyncUpdate() {
         try {
             items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountPossiblyDisplayed);
+            if (genre != null) { // filter albums not in genre
+                for (int i = items.size()-1; i >= 0; i--) {
+                    if (!app.oMPDAsyncHelper.oMPD.albumInGenre((Album)items.get(i), genre)) {
+                        items.remove(i);
+                    }
+                }
+            }
         } catch (MPDServerException e) {
         }
     }

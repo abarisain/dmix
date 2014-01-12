@@ -3,6 +3,7 @@ package com.namelessdev.mpdroid.views;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -15,7 +16,6 @@ import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
-import org.a0z.mpd.UnknownArtist;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 
@@ -35,15 +35,16 @@ public class AlbumDataBinder extends BaseDataBinder {
         Artist artist = album.getArtist();
         String info = "";
         final long songCount = album.getSongCount();
+        if (artist != null) {
+            info += artist.mainText() + " - ";
+        }
         if (album.getYear() > 0)
-            info = Long.toString(album.getYear());
+            info += Long.toString(album.getYear()) + " - ";
         if (songCount > 0) {
-            if (info != null && info.length() > 0)
-                info += " - ";
             info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural : R.string.tracksInfoHeader),
                     songCount, Music.timeToString(album.getDuration()));
         }
-        holder.albumName.setText(album.getName());
+        holder.albumName.setText(album.mainText());
         if (info != null && info.length() > 0) {
             holder.albumInfo.setVisibility(View.VISIBLE);
             holder.albumInfo.setText(info);
@@ -53,7 +54,7 @@ public class AlbumDataBinder extends BaseDataBinder {
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-        if (artist == null || artist instanceof UnknownArtist) {
+        if (artist == null || album.isUnknown()) { // full albums list or unknown album
             holder.albumCover.setVisibility(View.GONE);
         } else {
             holder.albumCover.setVisibility(View.VISIBLE);

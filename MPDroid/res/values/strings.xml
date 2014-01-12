@@ -82,8 +82,6 @@
 	<string name="portDescription">MPD-Server port (Default: 6600)</string>
 	<string name="password">Password</string>
 	<string name="passwordDescription">Password for the Server</string>
-	<string name="albumartist">Album Artist</string>
-	<string name="albumartistDescription">Use Album Artist tag in Artists view</string>
 	<string name="albumTrackSort">Album Sort Track</string>
 	<string name="albumTrackSortDescription">Sort Album by track number</string>
 	<string name="version">Version</string>
@@ -145,6 +143,8 @@
 	<string name="save">Save</string>
 	<string name="updateDB">Update</string>
 	<string name="updateDBDetails">Refresh MPD\'s database</string>
+	<string name="useLocalAlbumCache">Use Album Cache</string>
+	<string name="useLocalAlbumCacheDescription">Save MPD Database Info Locally</string>
 	<string name="sortAlbumsByYear">Album year</string>
 	<string name="sortAlbumsByYearDescription">Sort albums by year</string>
 	<string name="showAlbumTrackCount">Album track count</string>
@@ -216,12 +216,14 @@
 	<string name="clearLocalCoverCache">Clear cover art cache</string>
 	<string name="clearLocalCoverCacheDescription">Free the storage space used by the cover art cache</string>
     <string name="clearLocalCoverCachePrompt">Delete all cached cover art ?</string>
+	<string name="updatingLocalAlbumCacheNote">Updating local album cache</string>
 
 	<string name="enableAlbumArtLibrary">Album cover art listing in library</string>
 	<string name="enableAlbumArtLibraryDescription">Use large cover art tiles for the albums listing in the library. This feature is experimental! You may experience lag and/or crashes. (Requires cache cover art)</string>
 
     <string name="goToAlbum">Go to album</string>
     <string name="goToArtist">Go to artist</string>
+    <string name="goToAlbumArtist">Go to album artist</string>
     <string name="goToFolder">Go to folder</string>
     <string name="goToStream">Go to streams</string>
     <string name="goToCurrent">Go to current song</string>

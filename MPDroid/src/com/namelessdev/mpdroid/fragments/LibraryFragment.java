@@ -1,7 +1,9 @@
 package com.namelessdev.mpdroid.fragments;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -23,6 +25,7 @@ public class LibraryFragment extends Fragment {
 	SectionsPagerAdapter sectionsPagerAdapter = null;
 
 	public static final String PREFERENCE_ALBUM_LIBRARY = "enableAlbumArtLibrary";
+	public static final String PREFERENCE_ALBUM_CACHE = "useLocalAlbumCache";
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -78,8 +81,13 @@ public class LibraryFragment extends Fragment {
 			if (tab.equals(LibraryTabsUtil.TAB_ARTISTS)) {
 				fragment = new ArtistsFragment().init(null);
 			} else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
-                // Always display the album list
-                fragment = new AlbumsFragment(null);
+                            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication());
+                            if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true) &&
+                                settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_CACHE, true)) {
+                                fragment = new AlbumsGridFragment(null);
+                            } else {
+                                fragment = new AlbumsFragment(null);
+                            }
 			} else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS)) {
 				fragment = new PlaylistsFragment();
 			} else if (tab.equals(LibraryTabsUtil.TAB_STREAMS)) {

@@ -78,8 +78,6 @@
 	<string name="portDescription">Порт MPD-cервера (Default: 6600)</string>
 	<string name="password">Пароль</string>
 	<string name="passwordDescription">Пароль к серверу</string>
-	<string name="albumartist">Исполнители</string>
-	<string name="albumartistDescription">Использовать метку "Исполнитель" на вкладке Исполнители</string>
 	<string name="albumTrackSort">Упорядочивать по номеру</string>
 	<string name="albumTrackSortDescription">Упорядочивать Альбомы по номерам записей</string>
 	<string name="version">Версия</string>

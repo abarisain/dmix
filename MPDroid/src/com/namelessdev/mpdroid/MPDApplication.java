@@ -15,6 +15,7 @@ import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.helpers.CachedMPD;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;

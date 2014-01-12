@@ -197,9 +197,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         if (o instanceof Music) {
             return ((Music) o).getTitle();
         } else if (o instanceof Artist) {
-            return ((Artist) o).getName();
+            return ((Artist) o).mainText();
         } else if (o instanceof Album) {
-            return ((Album) o).getName();
+            return ((Album) o).mainText();
         }
         return "";
     }
@@ -239,16 +239,23 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         } else if (object instanceof Artist) {
             add(((Artist) object), null, replace, play);
         } else if (object instanceof Album) {
-            Album album = (Album) object;
-            add(album.getArtist(), album, replace, play);
+            add(null, (Album) object, replace, play);
         }
     }
 
     protected void add(Artist artist, Album album, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add(artist, album, replace, play);
-            Tools.notifyUser(String.format(getResources().getString(addedString), null == album ? artist.getName()
-                    : (null == artist ? album.getName() : artist.getName() + " - " + album.getName())), this);
+            String note = "";
+            if (artist == null) {
+                app.oMPDAsyncHelper.oMPD.add(album, replace, play);
+                note = album.getArtist().getName() + " - " + album.getName();
+            } else if (album == null) {
+                app.oMPDAsyncHelper.oMPD.add(artist, replace, play);
+                note = artist.getName();
+            } else {
+                return;
+            }
+            Tools.notifyUser(String.format(getResources().getString(addedString) + note), this);
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
@@ -371,24 +378,33 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 arraySongsResults.add(music);
             }
             valueFound = false;
-            tmpValue = music.getArtist();
-            if (tmpValue != null && tmpValue.toLowerCase().contains(finalsearch)) {
-                for (Artist artistItem : arrayArtistsResults) {
-                    if (artistItem.getName().equalsIgnoreCase(tmpValue))
-                        valueFound = true;
+            Artist artist = music.getAlbumArtistAsArtist();
+            if (artist == null || artist.isUnknown()) {
+                artist = music.getArtistAsArtist();
+            }
+            if (artist != null) {
+                tmpValue = artist.getName().toLowerCase();
+                if (tmpValue.contains(finalsearch)) {
+                    for (Artist artistItem : arrayArtistsResults) {
+                        if (artistItem.getName().equalsIgnoreCase(tmpValue))
+                            valueFound = true;
+                    }
+                    if (!valueFound)
+                        arrayArtistsResults.add(artist);
                 }
-                if (!valueFound)
-                    arrayArtistsResults.add(new Artist(tmpValue));
             }
             valueFound = false;
-            tmpValue = music.getAlbum();
-            if (tmpValue != null && tmpValue.toLowerCase().contains(finalsearch)) {
-                for (Album albumItem : arrayAlbumsResults) {
-                    if (albumItem.getName().equalsIgnoreCase(tmpValue))
-                        valueFound = true;
+            Album album = music.getAlbumAsAlbum();
+            if (album != null && album.getName() != null) {
+                tmpValue = album.getName().toLowerCase();
+                if (tmpValue.contains(finalsearch)) {
+                    for (Album albumItem : arrayAlbumsResults) {
+                        if (albumItem.getName().equalsIgnoreCase(tmpValue))
+                            valueFound = true;
+                    }
+                    if (!valueFound)
+                        arrayAlbumsResults.add(album);
                 }
-                if (!valueFound)
-                    arrayAlbumsResults.add(new Album(tmpValue, new Artist(music.getArtist())));
             }
         }
 

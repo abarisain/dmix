@@ -10,7 +10,7 @@ public abstract class Item implements Comparable<Item> {
 		return null;
 	}
 	public String sort() {
-		return mainText();
+		return getName();
 	}
 	abstract public String getName();
 
@@ -18,13 +18,6 @@ public abstract class Item implements Comparable<Item> {
     public int compareTo(Item o) {
             return getName().compareToIgnoreCase(o.getName());
 	}
-
-    public boolean isSameOnList(Item o) {
-        if (null == o) {
-            return false;
-        }
-        return getName().equals(o.getName());
-    }
 
 	@Override
 	public	String toString() {
@@ -35,7 +28,13 @@ public abstract class Item implements Comparable<Item> {
             return toString();
         }
 
+        public boolean nameEquals(Item o) {
+            return getName().equals(o.getName());
+        }
 
+        public boolean isUnknown() {
+            return getName().length() == 0;
+        }
 
     /*
      * Merge item lists, for example received by albumartist and artist requests.
@@ -48,7 +47,7 @@ public abstract class Item implements Comparable<Item> {
         for (int i = a_items.size()-1; i >= 0; i--) {  // artists
             String a_name = a_items.get(i).getName();
             for (int j = j_start; j >= 0; j--) {  // album artists
-                if (aa_items.get(j).getName().equals(a_name)) {
+                if (aa_items.get(j).nameEquals(a_items.get(i))) {
                     j_start = j;
                     a_items.remove(i);
                     break;

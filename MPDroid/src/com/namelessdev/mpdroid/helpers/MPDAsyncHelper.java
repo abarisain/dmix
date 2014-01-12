@@ -19,13 +19,15 @@ import android.util.Log;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
+import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.helpers.CachedMPD;
 
 /**
  * This Class implements the whole MPD Communication as a thread. It also "translates" the monitor event of the JMPDComm Library back to the
  * GUI-Thread, and allows to execute custom commands asynchronously.
- * 
+ *
  * @author sag
- * 
+ *
  */
 public class MPDAsyncHelper extends Handler {
 
@@ -77,11 +79,15 @@ public class MPDAsyncHelper extends Handler {
 	// Current connection Information
 	private MPDConnectionInfo conInfo;
 
+	public MPDAsyncHelper() {
+            this(true);
+        }
+
 	/**
 	 * Private constructor for static class
 	 */
-	public MPDAsyncHelper() {
-		oMPD = new MPD();
+	public MPDAsyncHelper(boolean cached) {
+		oMPD = new CachedMPD(cached);
 		oMPDAsyncWorkerThread = new HandlerThread("MPDAsyncWorker");
 		oMPDAsyncWorkerThread.start();
 		oMPDAsyncWorker = new MPDAsyncWorker(oMPDAsyncWorkerThread.getLooper());
@@ -165,6 +171,10 @@ public class MPDAsyncHelper extends Handler {
 		}
 	}
 
+	public void setUseCache(boolean useCache) {
+            ((CachedMPD)oMPD).setUseCache(useCache);
+	}
+
 	public MPDConnectionInfo getConnectionSettings() {
 		return conInfo;
 	}
@@ -195,7 +205,7 @@ public class MPDAsyncHelper extends Handler {
 	/**
 	 * Executes a Runnable Asynchronous. Meant to use for individual long during operations on JMPDComm. Use this method only, when the code
 	 * to execute is only used once in the project. If its use more than once, implement individual events and listener in this class.
-	 * 
+	 *
 	 * @param run
 	 *            Runnable to execute async
 	 * @return JobID, which is brought back with the AsyncExecListener interface...
@@ -240,7 +250,7 @@ public class MPDAsyncHelper extends Handler {
 
 	/**
 	 * Asynchronous worker thread-class for long during operations on JMPDComm
-	 * 
+	 *
 	 */
 	public class MPDAsyncWorker extends Handler implements StatusChangeListener, TrackPositionListener {
 		public MPDAsyncWorker(Looper looper) {
