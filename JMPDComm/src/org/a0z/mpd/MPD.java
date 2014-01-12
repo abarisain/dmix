@@ -25,9 +25,6 @@ import java.util.List;
  */
 public class MPD {
 
-    static public void setShowAlbumTrackCount(boolean v) {
-        showAlbumTrackCount = v;
-    }
     protected MPDConnection mpdConnection;
     protected MPDConnection mpdIdleConnection;
 
@@ -47,9 +44,12 @@ public class MPD {
     static public Context getApplicationContext() {
         return applicationContext;
     }
-
     static public void setApplicationContext(Context context) {
         applicationContext = context;
+    }
+
+    static public void setShowAlbumTrackCount(boolean v) {
+        showAlbumTrackCount = v;
     }
 
     static public void setShowArtistAlbumCount(boolean v) {
