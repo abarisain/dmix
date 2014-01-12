@@ -1,9 +1,12 @@
 package com.namelessdev.mpdroid.adapters;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.a0z.mpd.Item;
 
@@ -13,7 +16,19 @@ import android.widget.SectionIndexer;
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
 //Thanks qlimax !
 
+/**
+ * Locale-aware comparator
+ */
+class LocaleComparator implements Comparator {
+    static final Collator defaultCollator = Collator.getInstance(Locale.getDefault());
+    public int compare(Object str1, Object str2) {
+        return defaultCollator.compare((String)str1, (String)str2);
+    }
+}
+
 public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer {
+
+    static final Comparator localeComp = new LocaleComparator();
 
     HashMap<String, Integer> alphaIndexer;
     String[] sections;
@@ -40,12 +55,13 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         // the sections
 
         int size = items.size();
+        int unknownPos = -1; // "Unknown" item
         for (int i = size - 1; i >= 0; i--) {
             Item element = items.get(i);
             if (element.sort().length() > 0) {
                 alphaIndexer.put(element.sort().substring(0, 1).toUpperCase(), i);
             } else {
-                alphaIndexer.put("",i); // "Unknown" item
+                unknownPos = i; // save position
             }
             //We store the first letter of the word, and its index.
             //The Hashmap will replace the value for identical keys are putted in
@@ -58,8 +74,15 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         // array .it must contains the keys, and must (I do so...) be
         // ordered alphabetically
 
+
         ArrayList<String> keyList = new ArrayList<String>(alphaIndexer.keySet()); // list can be sorted
-        Collections.sort(keyList);
+        Collections.sort(keyList, localeComp);
+
+        // add "Unknown" at the end after sorting
+        if (unknownPos >= 0) {
+            alphaIndexer.put("",unknownPos);
+            keyList.add("");
+        }
 
         sections = new String[keyList.size()]; // simple conversion to an array of object
         keyList.toArray(sections);

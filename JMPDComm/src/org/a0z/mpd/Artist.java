@@ -55,7 +55,7 @@ public class Artist extends Item implements Parcelable {
     }
 
     public String sort() {
-        return null == sort ? name == null ? "" : name : sort;
+        return null == sort ? name == null ? "" : super.sort() : sort;
     }
 
 	@Override
@@ -65,24 +65,6 @@ public class Artist extends Item implements Parcelable {
 		}
 
 		return String.format(1==albumCount ? singleAlbumFormat : multipleAlbumsFormat, albumCount);
-	}
-
-	@Override
-    public int compareTo(Item o) {
-		if (o instanceof Artist) {
-			Artist oa=(Artist)o;
-			/*
-			if (isVa && !oa.isVa) {
-				return -1;
-			}
-			if (!isVa && oa.isVa) {
-				return 1;
-			}
-			*/
-			return sort().compareToIgnoreCase(oa.sort());
-		}
-
-		return super.compareTo(o);
 	}
 
     @Override

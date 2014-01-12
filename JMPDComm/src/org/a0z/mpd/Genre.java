@@ -39,20 +39,6 @@ public class Genre extends Item implements Parcelable {
 	}
 
 	@Override
-	public int compareTo(Item o) {
-		if (o instanceof Genre) {
-			Genre oa = (Genre) o;
-			/*
-			 * if (isVa && !oa.isVa) { return -1; } if (!isVa && oa.isVa) {
-			 * return 1; }
-			 */
-			return sort().compareToIgnoreCase(oa.sort());
-		}
-
-		return super.compareTo(o);
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		return (o instanceof Genre) && ((Genre) o).name.equals(name);
 	}
