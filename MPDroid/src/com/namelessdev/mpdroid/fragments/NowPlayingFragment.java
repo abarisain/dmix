@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2010-2014 The MPDroid Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.namelessdev.mpdroid.fragments;
 
@@ -188,6 +203,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
 
     }
+
     private class PosTimerTask extends TimerTask {
         Date date = new Date();
         long start = 0;
@@ -215,6 +231,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             lastElapsedTime = ellapsed;
         }
     }
+
     public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
         Music actSong = null;
         MPDStatus status = null;
@@ -328,6 +345,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         }
     }
+
     public static final String PREFS_NAME = "mpdroid.properties";
     private static final boolean DEBUG = false;
     private static final int POPUP_ARTIST = 0;
@@ -461,6 +479,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         // TODO Auto-generated method stub
 
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -629,6 +648,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     int lastSentVol = -1;
 
                     SeekBar progress;
+
                     public void run() {
                         if (lastSentVol != progress.getProgress()) {
                             lastSentVol = progress.getProgress();
@@ -876,7 +896,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void setRepeatButton(boolean on) {
         if (null != repeatButton && repeatCurrent != on) {
             int[] attrs = new int[] {
-                on ? R.attr.repeatEnabled : R.attr.repeatDisabled
+                    on ? R.attr.repeatEnabled : R.attr.repeatDisabled
             };
             final TypedArray ta = activity.obtainStyledAttributes(attrs);
             final Drawable drawableFromTheme = ta.getDrawable(0);
@@ -889,7 +909,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void setShuffleButton(boolean on) {
         if (null != shuffleButton && shuffleCurrent != on) {
             int[] attrs = new int[] {
-                on ? R.attr.shuffleEnabled : R.attr.shuffleDisabled
+                    on ? R.attr.shuffleEnabled : R.attr.shuffleDisabled
             };
             final TypedArray ta = activity.obtainStyledAttributes(attrs);
             final Drawable drawableFromTheme = ta.getDrawable(0);
