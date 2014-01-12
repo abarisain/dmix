@@ -16,9 +16,12 @@ import javax.jmdns.impl.constants.DNSRecordClass;
 import javax.jmdns.impl.constants.DNSRecordType;
 
 /**
- * The ServiceResolver queries three times consecutively for services of a given type, and then removes itself from the timer.
+ * The ServiceResolver queries three times consecutively for services of a given
+ * type, and then removes itself from the timer.
  * <p/>
- * The ServiceResolver will run only if JmDNS is in state ANNOUNCED. REMIND: Prevent having multiple service resolvers for the same type in the timer queue.
+ * The ServiceResolver will run only if JmDNS is in state ANNOUNCED. REMIND:
+ * Prevent having multiple service resolvers for the same type in the timer
+ * queue.
  */
 public class ServiceResolver extends DNSResolverTask {
 
@@ -31,24 +34,24 @@ public class ServiceResolver extends DNSResolverTask {
 
     /*
      * (non-Javadoc)
-     * @see javax.jmdns.impl.tasks.DNSTask#getName()
-     */
-    @Override
-    public String getName() {
-        return "ServiceResolver(" + (this.getDns() != null ? this.getDns().getName() : "") + ")";
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see javax.jmdns.impl.tasks.Resolver#addAnswers(javax.jmdns.impl.DNSOutgoing)
+     * @see
+     * javax.jmdns.impl.tasks.Resolver#addAnswers(javax.jmdns.impl.DNSOutgoing)
      */
     @Override
     protected DNSOutgoing addAnswers(DNSOutgoing out) throws IOException {
         DNSOutgoing newOut = out;
         long now = System.currentTimeMillis();
         for (ServiceInfo info : this.getDns().getServices().values()) {
-            newOut = this.addAnswer(newOut, new DNSRecord.Pointer(info.getType(), DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE, DNSConstants.DNS_TTL, info.getQualifiedName()), now);
-            // newOut = this.addAnswer(newOut, new DNSRecord.Service(info.getQualifiedName(), DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE, DNSConstants.DNS_TTL, info.getPriority(), info.getWeight(), info.getPort(),
+            newOut = this.addAnswer(
+                    newOut,
+                    new DNSRecord.Pointer(info.getType(), DNSRecordClass.CLASS_IN,
+                            DNSRecordClass.NOT_UNIQUE, DNSConstants.DNS_TTL, info
+                                    .getQualifiedName()), now);
+            // newOut = this.addAnswer(newOut, new
+            // DNSRecord.Service(info.getQualifiedName(),
+            // DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE,
+            // DNSConstants.DNS_TTL, info.getPriority(), info.getWeight(),
+            // info.getPort(),
             // this.getDns().getLocalHost().getName()), now);
         }
         return newOut;
@@ -56,13 +59,18 @@ public class ServiceResolver extends DNSResolverTask {
 
     /*
      * (non-Javadoc)
-     * @see javax.jmdns.impl.tasks.Resolver#addQuestions(javax.jmdns.impl.DNSOutgoing)
+     * @see
+     * javax.jmdns.impl.tasks.Resolver#addQuestions(javax.jmdns.impl.DNSOutgoing
+     * )
      */
     @Override
     protected DNSOutgoing addQuestions(DNSOutgoing out) throws IOException {
         DNSOutgoing newOut = out;
-        newOut = this.addQuestion(newOut, DNSQuestion.newQuestion(_type, DNSRecordType.TYPE_PTR, DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE));
-        // newOut = this.addQuestion(newOut, DNSQuestion.newQuestion(_type, DNSRecordType.TYPE_SRV, DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE));
+        newOut = this.addQuestion(newOut, DNSQuestion.newQuestion(_type, DNSRecordType.TYPE_PTR,
+                DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE));
+        // newOut = this.addQuestion(newOut, DNSQuestion.newQuestion(_type,
+        // DNSRecordType.TYPE_SRV, DNSRecordClass.CLASS_IN,
+        // DNSRecordClass.NOT_UNIQUE));
         return newOut;
     }
 
@@ -73,5 +81,14 @@ public class ServiceResolver extends DNSResolverTask {
     @Override
     protected String description() {
         return "querying service";
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see javax.jmdns.impl.tasks.DNSTask#getName()
+     */
+    @Override
+    public String getName() {
+        return "ServiceResolver(" + (this.getDns() != null ? this.getDns().getName() : "") + ")";
     }
 }

@@ -15,7 +15,7 @@ import javax.jmdns.impl.constants.DNSConstants;
  * Listen for multicast packets.
  */
 class SocketListener extends Thread {
-    static Logger           logger = Logger.getLogger(SocketListener.class.getName());
+    static Logger logger = Logger.getLogger(SocketListener.class.getName());
 
     /**
      *
@@ -31,6 +31,10 @@ class SocketListener extends Thread {
         this._jmDNSImpl = jmDNSImpl;
     }
 
+    public JmDNSImpl getDns() {
+        return _jmDNSImpl;
+    }
+
     @Override
     public void run() {
         try {
@@ -39,7 +43,8 @@ class SocketListener extends Thread {
             while (!this._jmDNSImpl.isCanceling() && !this._jmDNSImpl.isCanceled()) {
                 packet.setLength(buf.length);
                 this._jmDNSImpl.getSocket().receive(packet);
-                if (this._jmDNSImpl.isCanceling() || this._jmDNSImpl.isCanceled() || this._jmDNSImpl.isClosing() || this._jmDNSImpl.isClosed()) {
+                if (this._jmDNSImpl.isCanceling() || this._jmDNSImpl.isCanceled()
+                        || this._jmDNSImpl.isClosing() || this._jmDNSImpl.isClosed()) {
                     break;
                 }
                 try {
@@ -55,7 +60,8 @@ class SocketListener extends Thread {
                         if (packet.getPort() != DNSConstants.MDNS_PORT) {
                             this._jmDNSImpl.handleQuery(msg, packet.getAddress(), packet.getPort());
                         }
-                        this._jmDNSImpl.handleQuery(msg, this._jmDNSImpl.getGroup(), DNSConstants.MDNS_PORT);
+                        this._jmDNSImpl.handleQuery(msg, this._jmDNSImpl.getGroup(),
+                                DNSConstants.MDNS_PORT);
                     } else {
                         this._jmDNSImpl.handleResponse(msg);
                     }
@@ -64,7 +70,8 @@ class SocketListener extends Thread {
                 }
             }
         } catch (IOException e) {
-            if (!this._jmDNSImpl.isCanceling() && !this._jmDNSImpl.isCanceled() && !this._jmDNSImpl.isClosing() && !this._jmDNSImpl.isClosed()) {
+            if (!this._jmDNSImpl.isCanceling() && !this._jmDNSImpl.isCanceled()
+                    && !this._jmDNSImpl.isClosing() && !this._jmDNSImpl.isClosed()) {
                 logger.log(Level.WARNING, this.getName() + ".run() exception ", e);
                 this._jmDNSImpl.recover();
             }
@@ -81,10 +88,6 @@ class SocketListener extends Thread {
         synchronized (this._jmDNSImpl) {
             this._jmDNSImpl.notifyAll();
         }
-    }
-
-    public JmDNSImpl getDns() {
-        return _jmDNSImpl;
     }
 
 }

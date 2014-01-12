@@ -15,8 +15,8 @@ public interface ServiceTypeListener extends EventListener {
     /**
      * A new service type was discovered.
      * 
-     * @param event
-     *            The service event providing the fully qualified type of the service.
+     * @param event The service event providing the fully qualified type of the
+     *            service.
      */
     void serviceTypeAdded(ServiceEvent event);
 
@@ -27,8 +27,8 @@ public interface ServiceTypeListener extends EventListener {
      * &lt;sub&gt;._sub.&lt;app&gt;.&lt;protocol&gt;.&lt;servicedomain&gt;.&lt;parentdomain&gt;.
      * </pre>
      * 
-     * @param event
-     *            The service event providing the fully qualified type of the service with subtype.
+     * @param event The service event providing the fully qualified type of the
+     *            service with subtype.
      * @since 3.2.0
      */
     void subTypeForServiceTypeAdded(ServiceEvent event);

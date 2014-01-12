@@ -18,7 +18,8 @@ import javax.jmdns.impl.constants.DNSRecordType;
 /**
  * Helper class to resolve service types.
  * <p/>
- * The TypeResolver queries three times consecutively for service types, and then removes itself from the timer.
+ * The TypeResolver queries three times consecutively for service types, and
+ * then removes itself from the timer.
  * <p/>
  * The TypeResolver will run only if JmDNS is in state ANNOUNCED.
  */
@@ -33,16 +34,8 @@ public class TypeResolver extends DNSResolverTask {
 
     /*
      * (non-Javadoc)
-     * @see javax.jmdns.impl.tasks.DNSTask#getName()
-     */
-    @Override
-    public String getName() {
-        return "TypeResolver(" + (this.getDns() != null ? this.getDns().getName() : "") + ")";
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see javax.jmdns.impl.tasks.Resolver#addAnswers(javax.jmdns.impl.DNSOutgoing)
+     * @see
+     * javax.jmdns.impl.tasks.Resolver#addAnswers(javax.jmdns.impl.DNSOutgoing)
      */
     @Override
     protected DNSOutgoing addAnswers(DNSOutgoing out) throws IOException {
@@ -50,18 +43,23 @@ public class TypeResolver extends DNSResolverTask {
         long now = System.currentTimeMillis();
         for (String type : this.getDns().getServiceTypes().keySet()) {
             ServiceTypeEntry typeEntry = this.getDns().getServiceTypes().get(type);
-            newOut = this.addAnswer(newOut, new DNSRecord.Pointer("_services._dns-sd._udp.local.", DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE, DNSConstants.DNS_TTL, typeEntry.getType()), now);
+            newOut = this.addAnswer(newOut, new DNSRecord.Pointer("_services._dns-sd._udp.local.",
+                    DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE, DNSConstants.DNS_TTL,
+                    typeEntry.getType()), now);
         }
         return newOut;
     }
 
     /*
      * (non-Javadoc)
-     * @see javax.jmdns.impl.tasks.Resolver#addQuestions(javax.jmdns.impl.DNSOutgoing)
+     * @see
+     * javax.jmdns.impl.tasks.Resolver#addQuestions(javax.jmdns.impl.DNSOutgoing
+     * )
      */
     @Override
     protected DNSOutgoing addQuestions(DNSOutgoing out) throws IOException {
-        return this.addQuestion(out, DNSQuestion.newQuestion("_services._dns-sd._udp.local.", DNSRecordType.TYPE_PTR, DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE));
+        return this.addQuestion(out, DNSQuestion.newQuestion("_services._dns-sd._udp.local.",
+                DNSRecordType.TYPE_PTR, DNSRecordClass.CLASS_IN, DNSRecordClass.NOT_UNIQUE));
     }
 
     /*
@@ -71,5 +69,14 @@ public class TypeResolver extends DNSResolverTask {
     @Override
     protected String description() {
         return "querying type";
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see javax.jmdns.impl.tasks.DNSTask#getName()
+     */
+    @Override
+    public String getName() {
+        return "TypeResolver(" + (this.getDns() != null ? this.getDns().getName() : "") + ")";
     }
 }

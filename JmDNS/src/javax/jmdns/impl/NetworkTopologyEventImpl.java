@@ -1,6 +1,7 @@
 /**
  *
  */
+
 package javax.jmdns.impl;
 
 import java.net.InetAddress;
@@ -26,8 +27,7 @@ public class NetworkTopologyEventImpl extends NetworkTopologyEvent implements Cl
      * 
      * @param jmDNS
      * @param inetAddress
-     * @exception IllegalArgumentException
-     *                if source is null.
+     * @exception IllegalArgumentException if source is null.
      */
     public NetworkTopologyEventImpl(JmDNS jmDNS, InetAddress inetAddress) {
         super(jmDNS);
@@ -37,6 +37,15 @@ public class NetworkTopologyEventImpl extends NetworkTopologyEvent implements Cl
     NetworkTopologyEventImpl(NetworkTopologyListener jmmDNS, InetAddress inetAddress) {
         super(jmmDNS);
         this._inetAddress = inetAddress;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public NetworkTopologyEventImpl clone() throws CloneNotSupportedException {
+        return new NetworkTopologyEventImpl(getDNS(), getInetAddress());
     }
 
     /*
@@ -60,7 +69,8 @@ public class NetworkTopologyEventImpl extends NetworkTopologyEvent implements Cl
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        buf.append("[" + this.getClass().getSimpleName() + "@" + System.identityHashCode(this) + " ");
+        buf.append("[" + this.getClass().getSimpleName() + "@" + System.identityHashCode(this)
+                + " ");
         buf.append("\n\tinetAddress: '");
         buf.append(this.getInetAddress());
         buf.append("']");
@@ -68,15 +78,6 @@ public class NetworkTopologyEventImpl extends NetworkTopologyEvent implements Cl
         // buf.append("\n\t" + source + "");
         // buf.append("\n]");
         return buf.toString();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#clone()
-     */
-    @Override
-    public NetworkTopologyEventImpl clone() throws CloneNotSupportedException {
-        return new NetworkTopologyEventImpl(getDNS(), getInetAddress());
     }
 
 }

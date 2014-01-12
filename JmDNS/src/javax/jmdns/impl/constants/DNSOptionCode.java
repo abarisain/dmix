@@ -1,6 +1,7 @@
 /**
  *
  */
+
 package javax.jmdns.impl.constants;
 
 /**
@@ -15,7 +16,8 @@ public enum DNSOptionCode {
      */
     Unknown("Unknown", 65535),
     /**
-     * Long-Lived Queries Option [http://files.dns-sd.org/draft-sekar-dns-llq.txt]
+     * Long-Lived Queries Option
+     * [http://files.dns-sd.org/draft-sekar-dns-llq.txt]
      */
     LLQ("LLQ", 1),
     /**
@@ -31,9 +33,22 @@ public enum DNSOptionCode {
      */
     Owner("Owner", 4);
 
+    /**
+     * @param optioncode
+     * @return label
+     */
+    public static DNSOptionCode resultCodeForFlags(int optioncode) {
+        int maskedIndex = optioncode;
+        for (DNSOptionCode aCode : DNSOptionCode.values()) {
+            if (aCode._index == maskedIndex)
+                return aCode;
+        }
+        return Unknown;
+    }
+
     private final String _externalName;
 
-    private final int    _index;
+    private final int _index;
 
     DNSOptionCode(String name, int index) {
         _externalName = name;
@@ -56,18 +71,6 @@ public enum DNSOptionCode {
      */
     public int indexValue() {
         return _index;
-    }
-
-    /**
-     * @param optioncode
-     * @return label
-     */
-    public static DNSOptionCode resultCodeForFlags(int optioncode) {
-        int maskedIndex = optioncode;
-        for (DNSOptionCode aCode : DNSOptionCode.values()) {
-            if (aCode._index == maskedIndex) return aCode;
-        }
-        return Unknown;
     }
 
     @Override

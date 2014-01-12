@@ -1,12 +1,14 @@
 /**
  *
  */
+
 package javax.jmdns.impl.constants;
 
 /**
  * DNS operation code.
  * 
- * @author Arthur van Hoff, Jeff Sonstein, Werner Randelshofer, Pierre Frisch, Rick Blair
+ * @author Arthur van Hoff, Jeff Sonstein, Werner Randelshofer, Pierre Frisch,
+ *         Rick Blair
  */
 public enum DNSOperationCode {
     /**
@@ -37,11 +39,24 @@ public enum DNSOperationCode {
     /**
      * DNS RCode types are encoded on the last 4 bits
      */
-    static final int     OpCode_MASK = 0x7800;
+    static final int OpCode_MASK = 0x7800;
+
+    /**
+     * @param flags
+     * @return label
+     */
+    public static DNSOperationCode operationCodeForFlags(int flags) {
+        int maskedIndex = (flags & OpCode_MASK) >> 11;
+        for (DNSOperationCode aCode : DNSOperationCode.values()) {
+            if (aCode._index == maskedIndex)
+                return aCode;
+        }
+        return Unassigned;
+    }
 
     private final String _externalName;
 
-    private final int    _index;
+    private final int _index;
 
     DNSOperationCode(String name, int index) {
         _externalName = name;
@@ -64,18 +79,6 @@ public enum DNSOperationCode {
      */
     public int indexValue() {
         return _index;
-    }
-
-    /**
-     * @param flags
-     * @return label
-     */
-    public static DNSOperationCode operationCodeForFlags(int flags) {
-        int maskedIndex = (flags & OpCode_MASK) >> 11;
-        for (DNSOperationCode aCode : DNSOperationCode.values()) {
-            if (aCode._index == maskedIndex) return aCode;
-        }
-        return Unassigned;
     }
 
     @Override

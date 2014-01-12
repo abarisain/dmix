@@ -1,6 +1,7 @@
 /**
  *
  */
+
 package javax.jmdns.impl;
 
 import java.util.ArrayList;
@@ -21,31 +22,31 @@ public abstract class DNSMessage {
     /**
      *
      */
-    public static final boolean       MULTICAST = true;
+    public static final boolean MULTICAST = true;
 
     /**
      *
      */
-    public static final boolean       UNICAST   = false;
+    public static final boolean UNICAST = false;
 
     // protected DatagramPacket _packet;
     // protected int _off;
     // protected int _len;
     // protected byte[] _data;
 
-    private int                       _id;
+    private int _id;
 
-    boolean                           _multicast;
+    boolean _multicast;
 
-    private int                       _flags;
+    private int _flags;
 
     protected final List<DNSQuestion> _questions;
 
-    protected final List<DNSRecord>   _answers;
+    protected final List<DNSRecord> _answers;
 
-    protected final List<DNSRecord>   _authoritativeAnswers;
+    protected final List<DNSRecord> _authoritativeAnswers;
 
-    protected final List<DNSRecord>   _additionals;
+    protected final List<DNSRecord> _additionals;
 
     /**
      * @param flags
@@ -81,58 +82,15 @@ public abstract class DNSMessage {
     // }
 
     /**
-     * @return message id
+     * @return list of additional answers
      */
-    public int getId() {
-        return (_multicast ? 0 : _id);
-    }
-
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(int id) {
-        this._id = id;
-    }
-
-    /**
-     * @return message flags
-     */
-    public int getFlags() {
-        return _flags;
-    }
-
-    /**
-     * @param flags
-     *            the flags to set
-     */
-    public void setFlags(int flags) {
-        this._flags = flags;
-    }
-
-    /**
-     * @return true if multicast
-     */
-    public boolean isMulticast() {
-        return _multicast;
-    }
-
-    /**
-     * @return list of questions
-     */
-    public Collection<? extends DNSQuestion> getQuestions() {
-        return _questions;
-    }
-
-    /**
-     * @return number of questions in the message
-     */
-    public int getNumberOfQuestions() {
-        return this.getQuestions().size();
+    public Collection<? extends DNSRecord> getAdditionals() {
+        return _additionals;
     }
 
     public Collection<? extends DNSRecord> getAllAnswers() {
-        List<DNSRecord> aList = new ArrayList<DNSRecord>(_answers.size() + _authoritativeAnswers.size() + _additionals.size());
+        List<DNSRecord> aList = new ArrayList<DNSRecord>(_answers.size()
+                + _authoritativeAnswers.size() + _additionals.size());
         aList.addAll(_answers);
         aList.addAll(_authoritativeAnswers);
         aList.addAll(_additionals);
@@ -147,13 +105,6 @@ public abstract class DNSMessage {
     }
 
     /**
-     * @return number of answers in the message
-     */
-    public int getNumberOfAnswers() {
-        return this.getAnswers().size();
-    }
-
-    /**
      * @return list of authorities
      */
     public Collection<? extends DNSRecord> getAuthorities() {
@@ -161,17 +112,17 @@ public abstract class DNSMessage {
     }
 
     /**
-     * @return number of authorities in the message
+     * @return message flags
      */
-    public int getNumberOfAuthorities() {
-        return this.getAuthorities().size();
+    public int getFlags() {
+        return _flags;
     }
 
     /**
-     * @return list of additional answers
+     * @return message id
      */
-    public Collection<? extends DNSRecord> getAdditionals() {
-        return _additionals;
+    public int getId() {
+        return (_multicast ? 0 : _id);
     }
 
     /**
@@ -182,12 +133,48 @@ public abstract class DNSMessage {
     }
 
     /**
-     * Check if the message is truncated.
-     * 
-     * @return true if the message was truncated
+     * @return number of answers in the message
      */
-    public boolean isTruncated() {
-        return (_flags & DNSConstants.FLAGS_TC) != 0;
+    public int getNumberOfAnswers() {
+        return this.getAnswers().size();
+    }
+
+    /**
+     * @return number of authorities in the message
+     */
+    public int getNumberOfAuthorities() {
+        return this.getAuthorities().size();
+    }
+
+    /**
+     * @return number of questions in the message
+     */
+    public int getNumberOfQuestions() {
+        return this.getQuestions().size();
+    }
+
+    /**
+     * @return list of questions
+     */
+    public Collection<? extends DNSQuestion> getQuestions() {
+        return _questions;
+    }
+
+    /**
+     * Check if the message is empty
+     * 
+     * @return true is the message is empty
+     */
+    public boolean isEmpty() {
+        return (this.getNumberOfQuestions() + this.getNumberOfAnswers()
+                + this.getNumberOfAuthorities() + this.getNumberOfAdditionals()) == 0;
+    }
+
+    /**
+     * @return true if multicast
+     */
+    public boolean isMulticast() {
+        return _multicast;
     }
 
     /**
@@ -209,12 +196,12 @@ public abstract class DNSMessage {
     }
 
     /**
-     * Check if the message is empty
+     * Check if the message is truncated.
      * 
-     * @return true is the message is empty
+     * @return true if the message was truncated
      */
-    public boolean isEmpty() {
-        return (this.getNumberOfQuestions() + this.getNumberOfAnswers() + this.getNumberOfAuthorities() + this.getNumberOfAdditionals()) == 0;
+    public boolean isTruncated() {
+        return (_flags & DNSConstants.FLAGS_TC) != 0;
     }
 
     /**
@@ -302,6 +289,20 @@ public abstract class DNSMessage {
             }
         }
         return buf.toString();
+    }
+
+    /**
+     * @param flags the flags to set
+     */
+    public void setFlags(int flags) {
+        this._flags = flags;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(int id) {
+        this._id = id;
     }
 
 }

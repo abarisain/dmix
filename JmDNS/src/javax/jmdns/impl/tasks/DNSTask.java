@@ -1,4 +1,5 @@
 // Licensed under Apache License version 2.0
+
 package javax.jmdns.impl.tasks;
 
 import java.io.IOException;
@@ -33,52 +34,19 @@ public abstract class DNSTask extends TimerTask {
     }
 
     /**
-     * Return the DNS associated with this task.
+     * Add an additional answer to the record. Omit if there is no room.
      * 
-     * @return associated DNS
-     */
-    public JmDNSImpl getDns() {
-        return _jmDNSImpl;
-    }
-
-    /**
-     * Start this task.
-     * 
-     * @param timer
-     *            task timer.
-     */
-    public abstract void start(Timer timer);
-
-    /**
-     * Return this task name.
-     * 
-     * @return task name
-     */
-    public abstract String getName();
-
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return this.getName();
-    }
-
-    /**
-     * Add a question to the message.
-     * 
-     * @param out
-     *            outgoing message
-     * @param rec
-     *            DNS question
-     * @return outgoing message for the next question
+     * @param out outgoing message
+     * @param in incoming request
+     * @param rec DNS record answer
+     * @return outgoing message for the next answer
      * @exception IOException
      */
-    public DNSOutgoing addQuestion(DNSOutgoing out, DNSQuestion rec) throws IOException {
+    public DNSOutgoing addAdditionalAnswer(DNSOutgoing out, DNSIncoming in, DNSRecord rec)
+            throws IOException {
         DNSOutgoing newOut = out;
         try {
-            newOut.addQuestion(rec);
+            newOut.addAdditionalAnswer(in, rec);
         } catch (final IOException e) {
             int flags = newOut.getFlags();
             boolean multicast = newOut.isMulticast();
@@ -90,7 +58,7 @@ public abstract class DNSTask extends TimerTask {
             this._jmDNSImpl.send(newOut);
 
             newOut = new DNSOutgoing(flags, multicast, maxUDPPayload);
-            newOut.addQuestion(rec);
+            newOut.addAdditionalAnswer(in, rec);
         }
         return newOut;
     }
@@ -98,12 +66,9 @@ public abstract class DNSTask extends TimerTask {
     /**
      * Add an answer if it is not suppressed.
      * 
-     * @param out
-     *            outgoing message
-     * @param in
-     *            incoming request
-     * @param rec
-     *            DNS record answer
+     * @param out outgoing message
+     * @param in incoming request
+     * @param rec DNS record answer
      * @return outgoing message for the next answer
      * @exception IOException
      */
@@ -130,10 +95,8 @@ public abstract class DNSTask extends TimerTask {
     /**
      * Add an answer to the message.
      * 
-     * @param out
-     *            outgoing message
-     * @param rec
-     *            DNS record answer
+     * @param out outgoing message
+     * @param rec DNS record answer
      * @param now
      * @return outgoing message for the next answer
      * @exception IOException
@@ -161,10 +124,8 @@ public abstract class DNSTask extends TimerTask {
     /**
      * Add an authoritative answer to the message.
      * 
-     * @param out
-     *            outgoing message
-     * @param rec
-     *            DNS record answer
+     * @param out outgoing message
+     * @param rec DNS record answer
      * @return outgoing message for the next answer
      * @exception IOException
      */
@@ -189,21 +150,17 @@ public abstract class DNSTask extends TimerTask {
     }
 
     /**
-     * Add an additional answer to the record. Omit if there is no room.
+     * Add a question to the message.
      * 
-     * @param out
-     *            outgoing message
-     * @param in
-     *            incoming request
-     * @param rec
-     *            DNS record answer
-     * @return outgoing message for the next answer
+     * @param out outgoing message
+     * @param rec DNS question
+     * @return outgoing message for the next question
      * @exception IOException
      */
-    public DNSOutgoing addAdditionalAnswer(DNSOutgoing out, DNSIncoming in, DNSRecord rec) throws IOException {
+    public DNSOutgoing addQuestion(DNSOutgoing out, DNSQuestion rec) throws IOException {
         DNSOutgoing newOut = out;
         try {
-            newOut.addAdditionalAnswer(in, rec);
+            newOut.addQuestion(rec);
         } catch (final IOException e) {
             int flags = newOut.getFlags();
             boolean multicast = newOut.isMulticast();
@@ -215,9 +172,41 @@ public abstract class DNSTask extends TimerTask {
             this._jmDNSImpl.send(newOut);
 
             newOut = new DNSOutgoing(flags, multicast, maxUDPPayload);
-            newOut.addAdditionalAnswer(in, rec);
+            newOut.addQuestion(rec);
         }
         return newOut;
+    }
+
+    /**
+     * Return the DNS associated with this task.
+     * 
+     * @return associated DNS
+     */
+    public JmDNSImpl getDns() {
+        return _jmDNSImpl;
+    }
+
+    /**
+     * Return this task name.
+     * 
+     * @return task name
+     */
+    public abstract String getName();
+
+    /**
+     * Start this task.
+     * 
+     * @param timer task timer.
+     */
+    public abstract void start(Timer timer);
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return this.getName();
     }
 
 }

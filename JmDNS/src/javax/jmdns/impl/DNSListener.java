@@ -17,12 +17,9 @@ interface DNSListener {
     /**
      * Update a DNS record.
      * 
-     * @param dnsCache
-     *            record cache
-     * @param now
-     *            update date
-     * @param record
-     *            DNS record
+     * @param dnsCache record cache
+     * @param now update date
+     * @param record DNS record
      */
     void updateRecord(DNSCache dnsCache, long now, DNSEntry record);
 }

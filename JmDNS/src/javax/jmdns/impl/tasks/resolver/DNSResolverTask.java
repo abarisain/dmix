@@ -1,4 +1,5 @@
 // Licensed under Apache License version 2.0
+
 package javax.jmdns.impl.tasks.resolver;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public abstract class DNSResolverTask extends DNSTask {
     /**
      * Counts the number of queries being sent.
      */
-    protected int         _count = 0;
+    protected int _count = 0;
 
     /**
      * @param jmDNSImpl
@@ -31,25 +32,34 @@ public abstract class DNSResolverTask extends DNSTask {
         super(jmDNSImpl);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
+    /**
+     * Overridden by subclasses to add questions to the message.<br/>
+     * <b>Note:</b> Because of message size limitation the returned message may
+     * be different than the message parameter.
+     * 
+     * @param out outgoing message
+     * @return the outgoing message.
+     * @exception IOException
      */
-    @Override
-    public String toString() {
-        return super.toString() + " count: " + _count;
-    }
+    protected abstract DNSOutgoing addAnswers(DNSOutgoing out) throws IOException;
 
-    /*
-     * (non-Javadoc)
-     * @see javax.jmdns.impl.tasks.DNSTask#start(java.util.Timer)
+    /**
+     * Overridden by subclasses to add questions to the message.<br/>
+     * <b>Note:</b> Because of message size limitation the returned message may
+     * be different than the message parameter.
+     * 
+     * @param out outgoing message
+     * @return the outgoing message.
+     * @exception IOException
      */
-    @Override
-    public void start(Timer timer) {
-        if (!this.getDns().isCanceling() && !this.getDns().isCanceled()) {
-            timer.schedule(this, DNSConstants.QUERY_WAIT_INTERVAL, DNSConstants.QUERY_WAIT_INTERVAL);
-        }
-    }
+    protected abstract DNSOutgoing addQuestions(DNSOutgoing out) throws IOException;
+
+    /**
+     * Returns a description of the resolver for debugging
+     * 
+     * @return resolver description
+     */
+    protected abstract String description();
 
     /*
      * (non-Javadoc)
@@ -84,33 +94,24 @@ public abstract class DNSResolverTask extends DNSTask {
         }
     }
 
-    /**
-     * Overridden by subclasses to add questions to the message.<br/>
-     * <b>Note:</b> Because of message size limitation the returned message may be different than the message parameter.
-     * 
-     * @param out
-     *            outgoing message
-     * @return the outgoing message.
-     * @exception IOException
+    /*
+     * (non-Javadoc)
+     * @see javax.jmdns.impl.tasks.DNSTask#start(java.util.Timer)
      */
-    protected abstract DNSOutgoing addQuestions(DNSOutgoing out) throws IOException;
+    @Override
+    public void start(Timer timer) {
+        if (!this.getDns().isCanceling() && !this.getDns().isCanceled()) {
+            timer.schedule(this, DNSConstants.QUERY_WAIT_INTERVAL, DNSConstants.QUERY_WAIT_INTERVAL);
+        }
+    }
 
-    /**
-     * Overridden by subclasses to add questions to the message.<br/>
-     * <b>Note:</b> Because of message size limitation the returned message may be different than the message parameter.
-     * 
-     * @param out
-     *            outgoing message
-     * @return the outgoing message.
-     * @exception IOException
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
      */
-    protected abstract DNSOutgoing addAnswers(DNSOutgoing out) throws IOException;
-
-    /**
-     * Returns a description of the resolver for debugging
-     * 
-     * @return resolver description
-     */
-    protected abstract String description();
+    @Override
+    public String toString() {
+        return super.toString() + " count: " + _count;
+    }
 
 }

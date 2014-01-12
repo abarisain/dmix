@@ -22,15 +22,14 @@ public final class DNSOutgoing extends DNSMessage {
     public static class MessageOutputStream extends ByteArrayOutputStream {
         private final DNSOutgoing _out;
 
-        private final int         _offset;
+        private final int _offset;
 
         /**
-         * Creates a new message stream, with a buffer capacity of the specified size, in bytes.
+         * Creates a new message stream, with a buffer capacity of the specified
+         * size, in bytes.
          * 
-         * @param size
-         *            the initial size.
-         * @exception IllegalArgumentException
-         *                if size is negative.
+         * @param size the initial size.
+         * @exception IllegalArgumentException if size is negative.
          */
         MessageOutputStream(int size, DNSOutgoing out) {
             this(size, out, 0);
@@ -46,12 +45,6 @@ public final class DNSOutgoing extends DNSMessage {
             this.write(value & 0xFF);
         }
 
-        void writeBytes(String str, int off, int len) {
-            for (int i = 0; i < len; i++) {
-                writeByte(str.charAt(off + i));
-            }
-        }
-
         void writeBytes(byte data[]) {
             if (data != null) {
                 writeBytes(data, 0, data.length);
@@ -64,49 +57,15 @@ public final class DNSOutgoing extends DNSMessage {
             }
         }
 
-        void writeShort(int value) {
-            writeByte(value >> 8);
-            writeByte(value);
+        void writeBytes(String str, int off, int len) {
+            for (int i = 0; i < len; i++) {
+                writeByte(str.charAt(off + i));
+            }
         }
 
         void writeInt(int value) {
             writeShort(value >> 16);
             writeShort(value);
-        }
-
-        void writeUTF(String str, int off, int len) {
-            // compute utf length
-            int utflen = 0;
-            for (int i = 0; i < len; i++) {
-                int ch = str.charAt(off + i);
-                if ((ch >= 0x0001) && (ch <= 0x007F)) {
-                    utflen += 1;
-                } else {
-                    if (ch > 0x07FF) {
-                        utflen += 3;
-                    } else {
-                        utflen += 2;
-                    }
-                }
-            }
-            // write utf length
-            writeByte(utflen);
-            // write utf data
-            for (int i = 0; i < len; i++) {
-                int ch = str.charAt(off + i);
-                if ((ch >= 0x0001) && (ch <= 0x007F)) {
-                    writeByte(ch);
-                } else {
-                    if (ch > 0x07FF) {
-                        writeByte(0xE0 | ((ch >> 12) & 0x0F));
-                        writeByte(0x80 | ((ch >> 6) & 0x3F));
-                        writeByte(0x80 | ((ch >> 0) & 0x3F));
-                    } else {
-                        writeByte(0xC0 | ((ch >> 6) & 0x1F));
-                        writeByte(0x80 | ((ch >> 0) & 0x3F));
-                    }
-                }
-            }
         }
 
         void writeName(String name) {
@@ -154,11 +113,13 @@ public final class DNSOutgoing extends DNSMessage {
         void writeRecord(DNSRecord rec, long now) {
             writeName(rec.getName());
             writeShort(rec.getRecordType().indexValue());
-            writeShort(rec.getRecordClass().indexValue() | ((rec.isUnique() && _out.isMulticast()) ? DNSRecordClass.CLASS_UNIQUE : 0));
+            writeShort(rec.getRecordClass().indexValue()
+                    | ((rec.isUnique() && _out.isMulticast()) ? DNSRecordClass.CLASS_UNIQUE : 0));
             writeInt((now == 0) ? rec.getTTL() : rec.getRemainingTTL(now));
 
             // We need to take into account the 2 size bytes
-            MessageOutputStream record = new MessageOutputStream(512, _out, _offset + this.size() + 2);
+            MessageOutputStream record = new MessageOutputStream(512, _out, _offset + this.size()
+                    + 2);
             rec.write(record);
             byte[] byteArray = record.toByteArray();
 
@@ -166,16 +127,57 @@ public final class DNSOutgoing extends DNSMessage {
             write(byteArray, 0, byteArray.length);
         }
 
+        void writeShort(int value) {
+            writeByte(value >> 8);
+            writeByte(value);
+        }
+
+        void writeUTF(String str, int off, int len) {
+            // compute utf length
+            int utflen = 0;
+            for (int i = 0; i < len; i++) {
+                int ch = str.charAt(off + i);
+                if ((ch >= 0x0001) && (ch <= 0x007F)) {
+                    utflen += 1;
+                } else {
+                    if (ch > 0x07FF) {
+                        utflen += 3;
+                    } else {
+                        utflen += 2;
+                    }
+                }
+            }
+            // write utf length
+            writeByte(utflen);
+            // write utf data
+            for (int i = 0; i < len; i++) {
+                int ch = str.charAt(off + i);
+                if ((ch >= 0x0001) && (ch <= 0x007F)) {
+                    writeByte(ch);
+                } else {
+                    if (ch > 0x07FF) {
+                        writeByte(0xE0 | ((ch >> 12) & 0x0F));
+                        writeByte(0x80 | ((ch >> 6) & 0x3F));
+                        writeByte(0x80 | ((ch >> 0) & 0x3F));
+                    } else {
+                        writeByte(0xC0 | ((ch >> 6) & 0x1F));
+                        writeByte(0x80 | ((ch >> 0) & 0x3F));
+                    }
+                }
+            }
+        }
+
     }
 
     /**
-     * This can be used to turn off domain name compression. This was helpful for tracking problems interacting with other mdns implementations.
+     * This can be used to turn off domain name compression. This was helpful
+     * for tracking problems interacting with other mdns implementations.
      */
-    public static boolean             USE_DOMAIN_NAME_COMPRESSION = true;
+    public static boolean USE_DOMAIN_NAME_COMPRESSION = true;
 
-    Map<String, Integer>              _names;
+    Map<String, Integer> _names;
 
-    private int                       _maxUDPPayload;
+    private int _maxUDPPayload;
 
     private final MessageOutputStream _questionsBytes;
 
@@ -185,7 +187,7 @@ public final class DNSOutgoing extends DNSMessage {
 
     private final MessageOutputStream _additionalsAnswersBytes;
 
-    private final static int          HEADER_SIZE                 = 12;
+    private final static int HEADER_SIZE = 12;
 
     /**
      * Create an outgoing multicast query or response.
@@ -211,8 +213,9 @@ public final class DNSOutgoing extends DNSMessage {
      * 
      * @param flags
      * @param multicast
-     * @param senderUDPPayload
-     *            The sender's UDP payload size is the number of bytes of the largest UDP payload that can be reassembled and delivered in the sender's network stack.
+     * @param senderUDPPayload The sender's UDP payload size is the number of
+     *            bytes of the largest UDP payload that can be reassembled and
+     *            delivered in the sender's network stack.
      */
     public DNSOutgoing(int flags, boolean multicast, int senderUDPPayload) {
         super(flags, 0, multicast);
@@ -225,28 +228,20 @@ public final class DNSOutgoing extends DNSMessage {
     }
 
     /**
-     * Return the number of byte available in the message.
+     * Add an additional answer to the record. Omit if there is no room.
      * 
-     * @return available space
-     */
-    public int availableSpace() {
-        return _maxUDPPayload - HEADER_SIZE - _questionsBytes.size() - _answersBytes.size() - _authoritativeAnswersBytes.size() - _additionalsAnswersBytes.size();
-    }
-
-    /**
-     * Add a question to the message.
-     * 
+     * @param in
      * @param rec
      * @exception IOException
      */
-    public void addQuestion(DNSQuestion rec) throws IOException {
+    public void addAdditionalAnswer(DNSIncoming in, DNSRecord rec) throws IOException {
         MessageOutputStream record = new MessageOutputStream(512, this);
-        record.writeQuestion(rec);
+        record.writeRecord(rec, 0);
         byte[] byteArray = record.toByteArray();
         record.close();
         if (byteArray.length < this.availableSpace()) {
-            _questions.add(rec);
-            _questionsBytes.write(byteArray, 0, byteArray.length);
+            _additionals.add(rec);
+            _additionalsAnswersBytes.write(byteArray, 0, byteArray.length);
         } else {
             throw new IOException("message full");
         }
@@ -309,35 +304,44 @@ public final class DNSOutgoing extends DNSMessage {
     }
 
     /**
-     * Add an additional answer to the record. Omit if there is no room.
+     * Add a question to the message.
      * 
-     * @param in
      * @param rec
      * @exception IOException
      */
-    public void addAdditionalAnswer(DNSIncoming in, DNSRecord rec) throws IOException {
+    public void addQuestion(DNSQuestion rec) throws IOException {
         MessageOutputStream record = new MessageOutputStream(512, this);
-        record.writeRecord(rec, 0);
+        record.writeQuestion(rec);
         byte[] byteArray = record.toByteArray();
         record.close();
         if (byteArray.length < this.availableSpace()) {
-            _additionals.add(rec);
-            _additionalsAnswersBytes.write(byteArray, 0, byteArray.length);
+            _questions.add(rec);
+            _questionsBytes.write(byteArray, 0, byteArray.length);
         } else {
             throw new IOException("message full");
         }
     }
 
     /**
-	 * Builds the final message buffer to be sent and returns it.
-	 * 
-	 * @return bytes to send.
-	 */
-	public byte[] data() throws IOException {
+     * Return the number of byte available in the message.
+     * 
+     * @return available space
+     */
+    public int availableSpace() {
+        return _maxUDPPayload - HEADER_SIZE - _questionsBytes.size() - _answersBytes.size()
+                - _authoritativeAnswersBytes.size() - _additionalsAnswersBytes.size();
+    }
+
+    /**
+     * Builds the final message buffer to be sent and returns it.
+     * 
+     * @return bytes to send.
+     */
+    public byte[] data() throws IOException {
         long now = System.currentTimeMillis(); // System.currentTimeMillis()
         _names.clear();
 
-		byte[] byteArray = null;
+        byte[] byteArray = null;
 
         MessageOutputStream message = new MessageOutputStream(_maxUDPPayload, this);
         message.writeShort(_multicast ? 0 : this.getId());
@@ -359,14 +363,21 @@ public final class DNSOutgoing extends DNSMessage {
             message.writeRecord(record, now);
         }
 
-		byteArray = message.toByteArray();
-		message.close();
+        byteArray = message.toByteArray();
+        message.close();
 
-		if (byteArray.length == 0) {
-			throw new IOException("Failed to build final message.");
-		} else {
-			return byteArray;
-		}
+        if (byteArray.length == 0) {
+            throw new IOException("Failed to build final message.");
+        } else {
+            return byteArray;
+        }
+    }
+
+    /**
+     * @return the maxUDPPayload
+     */
+    public int getMaxUDPPayload() {
+        return this._maxUDPPayload;
     }
 
     @Override
@@ -377,20 +388,20 @@ public final class DNSOutgoing extends DNSMessage {
     /**
      * Debugging.
      */
-	String print(boolean dump) throws IOException {
+    String print(boolean dump) throws IOException {
         StringBuilder buf = new StringBuilder();
 
-		byte[] byteArray = this.data();
+        byte[] byteArray = this.data();
 
-		if (byteArray.length == 0) {
-			throw new IOException("Failed to receive buffer for debugging.");
-		} else {
-			buf.append(this.print());
+        if (byteArray.length == 0) {
+            throw new IOException("Failed to receive buffer for debugging.");
+        } else {
+            buf.append(this.print());
 
-			if (dump) {
-				buf.append(this.print(byteArray));
-			}
-		}
+            if (dump) {
+                buf.append(this.print(byteArray));
+            }
+        }
 
         return buf.toString();
     }
@@ -462,13 +473,6 @@ public final class DNSOutgoing extends DNSMessage {
         buf.append(_names);
         buf.append("]");
         return buf.toString();
-    }
-
-    /**
-     * @return the maxUDPPayload
-     */
-    public int getMaxUDPPayload() {
-        return this._maxUDPPayload;
     }
 
 }
