@@ -98,10 +98,10 @@ public class CoverManager {
 
             if (coverInfo.getCoverRetriever().isCoverLocal()) {
                 int maxSize = coverInfo.getCoverMaxSize();
-                if (coverInfo.getCachedCoverMaxSize() != coverInfo.MAX_SIZE) {
+                if (coverInfo.getCachedCoverMaxSize() != CoverInfo.MAX_SIZE) {
                     maxSize = coverInfo.getCachedCoverMaxSize();
                 }
-                if (maxSize == coverInfo.MAX_SIZE) {
+                if (maxSize == CoverInfo.MAX_SIZE) {
                     bitmaps = new Bitmap[] {
                         BitmapFactory.decodeByteArray(coverInfo.getCoverBytes(), 0,
                                 coverInfo.getCoverBytes().length)

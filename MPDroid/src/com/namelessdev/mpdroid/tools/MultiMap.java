@@ -28,6 +28,7 @@ import java.util.Set;
  */
 public class MultiMap<K, V> implements Serializable {
 
+    private static final long serialVersionUID = 6716321360137860110L;
     private final Map<K, List<V>> mInternalMap;
 
     public MultiMap() {

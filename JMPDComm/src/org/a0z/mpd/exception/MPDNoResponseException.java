@@ -7,6 +7,8 @@ package org.a0z.mpd.exception;
  */
 public class MPDNoResponseException extends MPDConnectionException {
 
+    private static final long serialVersionUID = 3680916889263961898L;
+
     /**
      * Constructor.
      */

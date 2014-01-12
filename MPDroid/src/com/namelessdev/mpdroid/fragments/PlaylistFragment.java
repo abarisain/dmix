@@ -81,7 +81,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             lightTheme = app.isLightThemeSelected();
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             PlayQueueViewHolder viewHolder;
@@ -275,7 +274,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
-            @SuppressWarnings("unchecked")
             @Override
             public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
 
@@ -385,7 +383,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                                                                                  // selected
                                                                                  // Song
 
-                @SuppressWarnings("unchecked")
                 final Integer song = ((AbstractPlaylistMusic) l.getAdapter().getItem(position))
                         .getSongId();
                 try {

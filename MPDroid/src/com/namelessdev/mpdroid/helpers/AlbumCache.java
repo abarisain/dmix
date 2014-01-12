@@ -7,6 +7,7 @@ import android.util.Log;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDConnection;
 import org.a0z.mpd.Music;
@@ -37,6 +38,7 @@ import java.util.zip.GZIPOutputStream;
 public class AlbumCache
 {
     class AlbumDetails implements Serializable {
+        private static final long serialVersionUID = 2465675380232237273L;
         String path = null;
         // List<Long> times = null;
         long numtracks = 0;
@@ -273,7 +275,7 @@ public class AlbumCache
         Log.d("MPD ALBUMCACHE", "Cache is NOT up to date. fetching ...");
         lastUpdate = Calendar.getInstance().getTime();
 
-        Context context = mpd.getApplicationContext();
+        Context context = MPD.getApplicationContext();
         Tools.notifyUser(context.getResources().getString
                 (R.string.updatingLocalAlbumCacheNote), context);
 
@@ -413,7 +415,7 @@ public class AlbumCache
         if (this.server == null) {
             this.server = mpdconnection.getHostAddress().getHostName();
             this.port = mpdconnection.getHostPort();
-            this.filesdir = mpd.getApplicationContext().getCacheDir();
+            this.filesdir = MPD.getApplicationContext().getCacheDir();
             Log.d("MPD ALBUMCACHE", "server " + server + " port " + port + " dir " + filesdir);
             if (!load()) {
                 refresh(true);
