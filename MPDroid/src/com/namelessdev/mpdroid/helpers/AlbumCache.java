@@ -3,7 +3,6 @@ package com.namelessdev.mpdroid.helpers;
 import org.a0z.mpd.*;
 import org.a0z.mpd.exception.MPDServerException;
 
-import com.namelessdev.mpdroid.tools.MultiMap;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.R;
 
@@ -13,7 +12,6 @@ import java.util.*;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.io.*;
-import java.net.InetAddress;
 
 public class AlbumCache
 {
@@ -54,8 +52,6 @@ public class AlbumCache
             numtracks = in.readLong();
             totaltime = in.readLong();
             date = in.readLong();
-        }
-        private void readObjectNoData() throws ObjectStreamException {
         }
      }
     protected Map<String, AlbumDetails> albumDetails; // "artist///album" -> details
