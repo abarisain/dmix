@@ -6,6 +6,3 @@ project(':JmDNS').projectDir = new File('JmDNS')
 
 include 'JMPDComm'
 project(':JMPDComm').projectDir = new File('JMPDComm')
-
-include 'SmoothProgressBar'
-project(':SmoothProgressBar').projectDir = new File('SmoothProgressBar')

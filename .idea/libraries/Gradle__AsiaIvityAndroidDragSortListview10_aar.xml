@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: AsiaIvityAndroidDragSortListview10.aar">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/MPDroid/build/exploded-bundles/AsiaIvityAndroidDragSortListview10.aar/res" />
+      <root url="jar://$PROJECT_DIR$/MPDroid/build/exploded-bundles/AsiaIvityAndroidDragSortListview10.aar/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
