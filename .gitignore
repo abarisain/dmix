@@ -30,6 +30,7 @@
 .idea/dataSources.ids
 .idea/dictionaries
 .idea/misc.xml
+.idea/libraries
 /gradlew*
 local.properties
 **/build/
