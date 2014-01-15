@@ -1,7 +1,5 @@
 apply plugin: 'android'
 
-//evaluationDependsOn(':JmDNS')
-
 dependencies {
     repositories {
         mavenCentral()
@@ -11,7 +9,6 @@ dependencies {
     compile 'com.android.support:support-v4:19.0.+'
 
     // Projects
-    compile project(':JmDNS')
     compile project(':JMPDComm')
 
     // Libraries from maven

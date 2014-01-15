@@ -8,8 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/JMPDComm" />
-            <option value="$PROJECT_DIR$/JmDNS" />
+            <option value="$PROJECT_DIR$/JMPDComm" /> 
             <option value="$PROJECT_DIR$/MPDroid" />
           </set>
         </option>

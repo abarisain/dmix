@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/JMPDComm/JMPDComm.iml" filepath="$PROJECT_DIR$/JMPDComm/JMPDComm.iml" />
-      <module fileurl="file://$PROJECT_DIR$/JmDNS/JmDNS.iml" filepath="$PROJECT_DIR$/JmDNS/JmDNS.iml" />
       <module fileurl="file://$PROJECT_DIR$/MPDroid/MPDroid.iml" filepath="$PROJECT_DIR$/MPDroid/MPDroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/dmix.iml" filepath="$PROJECT_DIR$/dmix.iml" />
     </modules>

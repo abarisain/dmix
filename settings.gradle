@@ -1,8 +1,5 @@
 include 'MPDroid'
 project(':MPDroid').projectDir = new File('MPDroid')
 
-include 'JmDNS'
-project(':JmDNS').projectDir = new File('JmDNS')
-
 include 'JMPDComm'
 project(':JMPDComm').projectDir = new File('JMPDComm')
