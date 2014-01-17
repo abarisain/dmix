@@ -32,6 +32,8 @@
 	<string name="whatsNew">새로운 점?</string>
 	<string name="whatsNewDescription">바뀐 내용 읽기 (외부 웹페이지를 엽니다)</string>
 	<string name="widget_initial_text">음악을 선택하려면 터치합니다</string>
+	<string name="albumartist">음반 연주자</string>
+    <string name="albumartistDescription">연주자 보기에서 음반 연주자 태그를 사용합니다</string>
     -->
     
         <string name="app_name">MPDroid</string>
@@ -82,8 +84,6 @@
         <string name="portDescription">MPD 서버 포트 (기본값: 6600)</string>
         <string name="password">비밀번호</string>
         <string name="passwordDescription">서버 비밀번호</string>
-        <string name="albumartist">음반 연주자</string>
-        <string name="albumartistDescription">연주자 보기에서 음반 연주자 태그를 사용합니다</string>
         <string name="albumTrackSort">음반 곡 정리</string>
         <string name="albumTrackSortDescription">곡 순서대로 음반을 정리합니다</string>
         <string name="version">버전</string>

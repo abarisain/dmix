@@ -52,8 +52,6 @@
             android:title="@string/serverInformation" >
 
             <PreferenceCategory
-                android:id="@+id/preferenceOutput"
-                android:key="outputs"
                 android:title="@string/serverInformation" >
 
                 <EditTextPreference
