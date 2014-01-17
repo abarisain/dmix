@@ -13,10 +13,6 @@
     <!-- Cover art cache -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
-
     <application
         android:name="com.namelessdev.mpdroid.MPDApplication"
         android:allowBackup="true"
