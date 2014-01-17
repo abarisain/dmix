@@ -43,7 +43,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
@@ -286,7 +285,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * method to accomplish this task.
      */
     private Bitmap getCoverArtBitmap(AlbumInfo albumInfo,
-            NotificationCompat.Builder notificationBuilder) {
+            Notification.Builder notificationBuilder) {
         MPDApplication app = (MPDApplication) getApplication();
 
         final CachedCover cache = new CachedCover(app);
@@ -632,7 +631,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * screen.
      */
     private void setMusicInfo(Music song, AlbumInfo albumInfo,
-            NotificationCompat.Builder notificationBuilder) {
+            Notification.Builder notificationBuilder) {
         final SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences((MPDApplication) getApplication());
 
@@ -710,7 +709,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         /** Setup the notification defaults. */
         Notification status = null;
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+        Notification.Builder notificationBuilder = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.icon_bw)
                 .setOngoing(true)
                 .setContentTitle(getString(R.string.streamStopped))
