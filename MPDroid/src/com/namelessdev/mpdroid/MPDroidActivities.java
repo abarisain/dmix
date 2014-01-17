@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.support.v4.app.FragmentActivity;
 
 public class MPDroidActivities {
 
+    @SuppressLint("Registered")
     public static class MPDroidActivity extends Activity {
 
         @Override
@@ -33,6 +35,7 @@ public class MPDroidActivities {
         }
     }
 
+    @SuppressLint("Registered")
     public static class MPDroidFragmentActivity extends FragmentActivity {
 
         @Override
@@ -42,6 +45,7 @@ public class MPDroidActivities {
         }
     }
 
+    @SuppressLint("Registered")
     public static class MPDroidListActivity extends ListActivity {
 
         @Override
