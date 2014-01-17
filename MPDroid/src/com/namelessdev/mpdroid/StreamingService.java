@@ -94,72 +94,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public static boolean isServiceRunning = false;
 
     /**
-     * Playback state of a RemoteControlClient which is stopped.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_STOPPED = 1;
-    /**
-     * Playback state of a RemoteControlClient which is paused.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_PAUSED = 2;
-    /**
-     * Playback state of a RemoteControlClient which is playing media.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_PLAYING = 3;
-    /**
-     * Playback state of a RemoteControlClient which is fast forwarding in the
-     * media it is currently playing.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_FAST_FORWARDING = 4;
-    /**
-     * Playback state of a RemoteControlClient which is fast rewinding in the
-     * media it is currently playing.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_REWINDING = 5;
-    /**
-     * Playback state of a RemoteControlClient which is skipping to the next
-     * logical chapter (such as a song in a playlist) in the media it is
-     * currently playing.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_SKIPPING_FORWARDS = 6;
-    /**
-     * Playback state of a RemoteControlClient which is skipping back to the
-     * previous logical chapter (such as a song in a playlist) in the media it
-     * is currently playing.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_SKIPPING_BACKWARDS = 7;
-    /**
-     * Playback state of a RemoteControlClient which is buffering data to play
-     * before it can start or resume playback.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_BUFFERING = 8;
-    /**
-     * Playback state of a RemoteControlClient which cannot perform any playback
-     * related operation because of an internal error. Examples of such
-     * situations are no network connectivity when attempting to stream data
-     * from a server, or expired user credentials when trying to play
-     * subscription-based content.
-     * 
-     * @see #setPlaybackState(int)
-     */
-    public final static int PLAYSTATE_ERROR = 9;
-
-    /**
      * Get the status of the streaming service.
      * 
      * @return bool
@@ -520,7 +454,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     @Override
     public void onDestroy() {
         isServiceRunning = false;
-        setMusicState(PLAYSTATE_STOPPED);
+        setMusicState(RemoteControlClient.PLAYSTATE_STOPPED);
         unregisterMediaButtonEvent();
         unregisterRemoteControlClient();
 
@@ -829,7 +763,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
          * buttons.
          */
         if (buffering) {
-            setMusicState(PLAYSTATE_BUFFERING);
+            setMusicState(RemoteControlClient.PLAYSTATE_BUFFERING);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 notificationBuilder.addAction(R.drawable.ic_media_stop, getString(R.string.stop),
@@ -840,7 +774,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                                 PendingIntent.FLAG_CANCEL_CURRENT));
             }
         } else {
-            setMusicState(isPaused ? PLAYSTATE_PAUSED : PLAYSTATE_PLAYING);
+            setMusicState(isPaused ? RemoteControlClient.PLAYSTATE_PAUSED : RemoteControlClient.PLAYSTATE_PLAYING);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 notificationBuilder.addAction(R.drawable.ic_appwidget_music_prev, "", PendingIntent
