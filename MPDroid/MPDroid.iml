@@ -69,14 +69,12 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="ComGithubCastorflexSmoothprogressbarLibrary031.aar" level="project" />
     <orderEntry type="library" exported="" name="jmdns-3.4.1" level="project" />
     <orderEntry type="module" module-name="JMPDComm" exported="" />
-    <orderEntry type="library" exported="" name="ComGithubChrisbanesActionbarpulltorefreshLibrary09.aar" level="project" />
-    <orderEntry type="library" exported="" name="ComGithubChrisbanesActionbarpulltorefreshExtraAbc09.aar" level="project" />
+    <orderEntry type="library" exported="" name="ComGithubCastorflexSmoothprogressbarLibrary020.aar" level="project" />
     <orderEntry type="library" exported="" name="support-v4-19.0.1" level="project" />
     <orderEntry type="library" exported="" name="AsiaIvityAndroidDragSortListview10.aar" level="project" />
-    <orderEntry type="library" exported="" name="ComAndroidSupportAppcompatV71901.aar" level="project" />
+    <orderEntry type="library" exported="" name="ComGithubChrisbanesActionbarpulltorefreshLibrary093.aar" level="project" />
   </component>
 </module>
 
