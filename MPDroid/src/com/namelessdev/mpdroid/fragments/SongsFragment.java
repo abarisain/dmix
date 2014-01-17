@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.fragments;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.PopupMenuCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -294,6 +295,7 @@ public class SongsFragment extends BrowseFragment {
             }
         });
 
+        albumMenu.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(popupMenu));
         albumMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

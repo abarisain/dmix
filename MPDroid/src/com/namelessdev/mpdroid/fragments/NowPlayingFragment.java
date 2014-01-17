@@ -33,6 +33,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.PopupMenuCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -369,10 +370,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private ImageButton stopButton = null;
     private boolean shuffleCurrent = false;
     private boolean repeatCurrent = false;
+    private View songInfo = null;
 
     private PopupMenu popupMenu = null;
+    private View.OnTouchListener popupMenuTouchListener = null;
 
     private PopupMenu popupMenuStream = null;
+    private View.OnTouchListener popupMenuStreamTouchListener = null;
 
     private ImageView volumeIcon = null;
     public static final int ALBUMS = 4;
@@ -603,7 +607,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             repeatButton.setOnClickListener(buttonEventHandler);
         }
 
-        final View songInfo = view.findViewById(R.id.songInfo);
+        songInfo = view.findViewById(R.id.songInfo);
         if (songInfo != null) {
             popupMenu = new PopupMenu(activity, songInfo);
             popupMenu.getMenu().add(Menu.NONE, POPUP_ALBUM, Menu.NONE, R.string.goToAlbum);
@@ -621,6 +625,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     .add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
             popupMenuStream.getMenu().add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
             popupMenuStream.setOnMenuItemClickListener(NowPlayingFragment.this);
+
+            popupMenuTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenu);
+            popupMenuStreamTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenuStream);
 
             songInfo.setOnClickListener(new OnClickListener() {
                 @Override
@@ -1027,7 +1034,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             boolean showAA = (!isEmpty(currentSong.getAlbumArtist()) &&
                     !currentSong.getAlbumArtist().equals(currentSong.getArtist()));
             popupMenu.getMenu().findItem(POPUP_ALBUMARTIST).setVisible(showAA);
-
+            songInfo.setOnTouchListener(currentSong.isStream() ? popupMenuStreamTouchListener : popupMenuTouchListener);
+        } else {
+            songInfo.setOnTouchListener(null);
         }
     }
 
