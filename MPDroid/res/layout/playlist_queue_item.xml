@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="55dip"
     android:layout_gravity="left"
@@ -70,7 +71,8 @@
                 android:layout_height="fill_parent"
                 android:layout_gravity="left"
                 android:gravity="center"
-                android:padding="4dp" />
+                android:padding="4dp"
+                tools:ignore="ContentDescription" />
         </LinearLayout>
     </LinearLayout>
 
