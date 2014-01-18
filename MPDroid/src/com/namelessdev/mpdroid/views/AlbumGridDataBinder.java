@@ -31,6 +31,7 @@ import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
+import org.a0z.mpd.Music;
 
 import java.util.List;
 
@@ -64,11 +65,35 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 
         // display "artist - album title"
         String text = album.mainText();
-        Artist artist = album.getArtist();
-        if (null != artist) {
-            text = text + " (" + artist.mainText() + ")";
-        }
         holder.albumName.setText(text);
+
+        Artist artist = album.getArtist();
+        String info = "";
+        final long songCount = album.getSongCount();
+        if (artist != null) {
+            info += artist.mainText();
+        }
+        if (album.getYear() > 0) {
+            if (!info.isEmpty()) {
+                info += " - ";
+            }
+            info += Long.toString(album.getYear());
+        }
+        if (songCount > 0) {
+            if (!info.isEmpty()) {
+                info += " - ";
+            }
+            info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural
+                    : R.string.tracksInfoHeader),
+                    songCount, Music.timeToString(album.getDuration()));
+        }
+        holder.albumName.setText(album.mainText());
+        if (info != null && info.length() > 0) {
+            holder.albumInfo.setVisibility(View.VISIBLE);
+            holder.albumInfo.setText(info);
+        } else {
+            holder.albumInfo.setVisibility(View.GONE);
+        }
 
         // listen for new artwork to be loaded
         final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context,
