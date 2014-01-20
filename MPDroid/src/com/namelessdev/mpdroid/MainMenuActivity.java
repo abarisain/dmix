@@ -78,6 +78,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         public static enum Action {
             ACTION_NOWPLAYING,
             ACTION_LIBRARY,
+            ACTION_QUEUE,
             ACTION_OUTPUTS
         }
 
@@ -118,6 +119,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     break;
                 case ACTION_NOWPLAYING:
                     switchMode(DisplayMode.MODE_NOWPLAYING);
+                    break;
+                case ACTION_QUEUE:
+                    switchMode(DisplayMode.MODE_QUEUE);
                     break;
                 case ACTION_OUTPUTS:
                     switchMode(DisplayMode.MODE_OUTPUTS);
@@ -318,8 +322,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         mDrawerItems = new ArrayList<DrawerItem>();
         mDrawerItems.add(new DrawerItem(getString(R.string.nowPlaying),
                 DrawerItem.Action.ACTION_NOWPLAYING));
+        if (!isDualPaneMode) {
+            mDrawerItems.add(new DrawerItem(getString(R.string.playQueue),
+                    DrawerItem.Action.ACTION_QUEUE));
+        }
         mDrawerItems.add(new DrawerItem(getString(R.string.libraryTabActivity),
                 DrawerItem.Action.ACTION_LIBRARY));
+
         mDrawerItems.add(new DrawerItem(getString(R.string.outputs),
                 DrawerItem.Action.ACTION_OUTPUTS));
 
@@ -409,6 +418,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         @Override
                         public void onPageSelected(int position) {
                             refreshActionBarTitle();
+                            // "Now playing" and "Play queue" are 0 and 1 in the actions array
+                            // Just like they are in the pager !
+                            if(currentDisplayMode == DisplayMode.MODE_NOWPLAYING ||
+                                    currentDisplayMode == DisplayMode.MODE_QUEUE) {
+                                mDrawerList.setItemChecked(position, true);
+                            }
                         }
                     });
         }
