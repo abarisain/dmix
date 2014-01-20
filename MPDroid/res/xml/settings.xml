@@ -16,19 +16,6 @@
                 android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings"
                 android:targetPackage="com.namelessdev.mpdroid" />
         </PreferenceScreen>
-        <!-- Outputs -->
-
-        <PreferenceScreen
-            android:key="outputsScreen"
-            android:summary="@string/outputsDescription"
-            android:title="@string/outputs" >
-
-            <PreferenceCategory
-                android:id="@+id/preferenceOutput"
-                android:key="outputsCategory"
-                android:title="@string/outputs" >
-            </PreferenceCategory>
-        </PreferenceScreen>
         <!-- Other settings -->
 
         <PreferenceScreen
