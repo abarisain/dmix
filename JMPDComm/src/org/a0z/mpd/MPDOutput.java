@@ -36,4 +36,8 @@ public class MPDOutput {
         return enabled;
     }
 
+    public String toString() {
+        return getName();
+    }
+
 }
