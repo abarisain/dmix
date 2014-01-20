@@ -36,8 +36,6 @@ import android.text.format.Formatter;
 
 public class SettingsFragment extends PreferenceFragment {
 
-    private PreferenceScreen outputsScreen;
-
     private PreferenceScreen informationScreen;
 
     private EditTextPreference cacheUsage1;
@@ -84,7 +82,6 @@ public class SettingsFragment extends PreferenceFragment {
 
         handler = new Handler();
 
-        outputsScreen = (PreferenceScreen) findPreference("outputsScreen");
         informationScreen = (PreferenceScreen) findPreference("informationScreen");
         update = (PreferenceScreen) findPreference("updateDB");
 
@@ -150,7 +147,6 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     public void onConnectionStateChanged(final MPDApplication app, boolean connected) {
-        outputsScreen.setEnabled(connected);
         update.setEnabled(connected);
         informationScreen.setEnabled(connected);
         new Thread(new Runnable() {
