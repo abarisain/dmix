@@ -20,6 +20,7 @@ import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
+import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
@@ -68,7 +69,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public static enum DisplayMode {
         MODE_NOWPLAYING,
         MODE_QUEUE,
-        MODE_LIBRARY
+        MODE_LIBRARY,
+        MODE_OUTPUTS
     }
 
     public static class DrawerItem {
@@ -118,10 +120,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     switchMode(DisplayMode.MODE_NOWPLAYING);
                     break;
                 case ACTION_OUTPUTS:
-                    mDrawerList.setItemChecked(oldDrawerPosition, true);
-                    final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
-                    //i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
-                    startActivityForResult(i, SETTINGS);
+                    switchMode(DisplayMode.MODE_OUTPUTS);
                     break;
             }
             oldDrawerPosition = position;
@@ -174,6 +173,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private static final String FRAGMENT_TAG_LIBRARY = "library";
 
+    private static final String FRAGMENT_TAG_OUTPUTS = "outputs";
+
     private static final String EXTRA_DISPLAY_MODE = "displaymode";
 
     private int backPressExitCount;
@@ -189,6 +190,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private ViewPager nowPlayingPager;
 
     private View libraryRootFrame;
+
+    private View outputsRootFrame;
+
+    private OutputsFragment outputsFragment;
 
     private TextView titleView;
 
@@ -292,6 +297,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
         nowPlayingPager = (ViewPager) findViewById(R.id.pager);
         libraryRootFrame = findViewById(R.id.library_root_frame);
+        outputsRootFrame = findViewById(R.id.outputs_root_frame);
 
         isDualPaneMode = (nowPlayingDualPane != null);
         switchMode(DisplayMode.MODE_NOWPLAYING);
@@ -383,6 +389,15 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             ft.replace(R.id.library_root_frame, libraryFragment, FRAGMENT_TAG_LIBRARY);
+            ft.commit();
+        }
+
+        outputsFragment = (OutputsFragment) fragmentManager.findFragmentByTag(FRAGMENT_TAG_OUTPUTS);
+        if (outputsFragment == null) {
+            outputsFragment = new OutputsFragment();
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.replace(R.id.outputs_root_frame, outputsFragment, FRAGMENT_TAG_OUTPUTS);
             ft.commit();
         }
 
@@ -641,10 +656,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
         switch (currentDisplayMode) {
+            case MODE_OUTPUTS:
             case MODE_QUEUE:
             case MODE_NOWPLAYING:
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                if (nowPlayingPager != null && nowPlayingPager.getCurrentItem() > 0) {
+                if (currentDisplayMode == DisplayMode.MODE_OUTPUTS) {
+                    titleView.setText(R.string.outputs);
+                } else if (nowPlayingPager != null && nowPlayingPager.getCurrentItem() > 0) {
                     titleView.setText(R.string.playQueue);
                 } else {
                     titleView.setText(R.string.nowPlaying);
@@ -685,6 +703,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     }
                 }
                 libraryRootFrame.setVisibility(View.GONE);
+                outputsRootFrame.setVisibility(View.GONE);
                 // Force MODE_NOWPLAYING even if MODE_QUEUE was asked
                 currentDisplayMode = DisplayMode.MODE_NOWPLAYING;
                 break;
@@ -695,6 +714,17 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     nowPlayingPager.setVisibility(View.GONE);
                 }
                 libraryRootFrame.setVisibility(View.VISIBLE);
+                outputsRootFrame.setVisibility(View.GONE);
+                break;
+            case MODE_OUTPUTS:
+                if (isDualPaneMode) {
+                    nowPlayingDualPane.setVisibility(View.GONE);
+                } else {
+                    nowPlayingPager.setVisibility(View.GONE);
+                }
+                libraryRootFrame.setVisibility(View.GONE);
+                outputsRootFrame.setVisibility(View.VISIBLE);
+                outputsFragment.refreshOutputs();
                 break;
         }
         refreshActionBarTitle();

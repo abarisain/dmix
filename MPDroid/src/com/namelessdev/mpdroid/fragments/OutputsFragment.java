@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.fragments;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MainMenuActivity;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDOutput;
@@ -57,7 +58,10 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
         getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         getListView().setOnItemClickListener(this);
 
-        refreshOutputs();
+        // Not needed since MainMenuActivity will take care of telling us to refresh
+        if (!(getActivity() instanceof MainMenuActivity)) {
+            refreshOutputs();
+        }
     }
 
     @Override
