@@ -744,11 +744,11 @@ public class MPD {
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 
-        List<String> resonse = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
+        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
 
         LinkedList<String> lineCache = new LinkedList<String>();
         LinkedList<FilesystemTreeEntry> result = new LinkedList<FilesystemTreeEntry>();
-        for (String line : resonse) {
+        for (String line : response) {
             // file-elements are the only ones using fileCache,
             // therefore if something new begins and the cache
             // contains data, its music
@@ -1642,7 +1642,7 @@ public class MPD {
     /**
      * Wait for server changes using "idle" command on the dedicated connection.
      * 
-     * @return Data readed from the server.
+     * @return Data read from the server.
      * @throws MPDServerException if an error occur while contacting server
      */
     public List<String> waitForChanges() throws MPDServerException {
