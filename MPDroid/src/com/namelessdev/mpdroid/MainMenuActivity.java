@@ -16,6 +16,19 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
+import com.namelessdev.mpdroid.fragments.BrowseFragment;
+import com.namelessdev.mpdroid.fragments.LibraryFragment;
+import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.library.ILibraryTabActivity;
+import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
+import com.namelessdev.mpdroid.tools.Tools;
+
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
@@ -45,19 +58,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
-import com.namelessdev.mpdroid.fragments.BrowseFragment;
-import com.namelessdev.mpdroid.fragments.LibraryFragment;
-import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
-import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
-import com.namelessdev.mpdroid.library.ILibraryTabActivity;
-import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
-import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +72,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     public static class DrawerItem {
+
         public static enum Action {
             ACTION_NOWPLAYING,
             ACTION_LIBRARY,
@@ -79,6 +80,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
 
         public Action action;
+
         public String label;
 
         public DrawerItem(String label, Action action) {
@@ -93,6 +95,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
+
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mDrawerLayout.closeDrawer(mDrawerList);
@@ -117,7 +120,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 case ACTION_OUTPUTS:
                     mDrawerList.setItemChecked(oldDrawerPosition, true);
                     final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
-                    i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
+                    //i.putExtra(SettingsActivity.OPEN_OUTPUT, true);
                     startActivityForResult(i, SETTINGS);
                     break;
             }
@@ -166,25 +169,39 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public static final int STREAM = 6;
 
     public static final int LIBRARY = 7;
+
     public static final int CONNECT = 8;
 
     private static final String FRAGMENT_TAG_LIBRARY = "library";
+
     private static final String EXTRA_DISPLAY_MODE = "displaymode";
+
     private int backPressExitCount;
+
     private Handler exitCounterReset;
+
     private boolean isDualPaneMode;
+
     private MPDApplication app;
+
     private View nowPlayingDualPane;
+
     private ViewPager nowPlayingPager;
 
     private View libraryRootFrame;
+
     private TextView titleView;
+
     private List<DrawerItem> mDrawerItems;
+
     private DrawerLayout mDrawerLayout;
+
     private ListView mDrawerList;
 
     private ActionBarDrawerToggle mDrawerToggle;
+
     private int oldDrawerPosition;
+
     private LibraryFragment libraryFragment;
 
     private FragmentManager fragmentManager;
@@ -204,7 +221,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      * count of how many time back button is pressed within 5 seconds. If the
      * count is greater than 1 then call system.exit(0) Starts a post delay
      * handler to reset the back press count to zero after 5 seconds
-     * 
+     *
      * @return None
      */
     @Override
@@ -309,26 +326,26 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
                 R.string.drawer_open, /* "open drawer" description */
                 R.string.drawer_close /* "close drawer" description */
-                ) {
+        ) {
 
-                    /**
-                     * Called when a drawer has settled in a completely closed
-                     * state.
-                     */
-                    public void onDrawerClosed(View view) {
-                        refreshActionBarTitle();
-                    }
+            /**
+             * Called when a drawer has settled in a completely closed
+             * state.
+             */
+            public void onDrawerClosed(View view) {
+                refreshActionBarTitle();
+            }
 
-                    /**
-                     * Called when a drawer has settled in a completely open
-                     * state.
-                     */
-                    public void onDrawerOpened(View drawerView) {
-                        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                        actionBar.setDisplayShowCustomEnabled(true);
-                        titleView.setText(R.string.app_name);
-                    }
-                };
+            /**
+             * Called when a drawer has settled in a completely open
+             * state.
+             */
+            public void onDrawerOpened(View drawerView) {
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+                actionBar.setDisplayShowCustomEnabled(true);
+                titleView.setText(R.string.app_name);
+            }
+        };
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -381,8 +398,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     });
         }
 
-        if (savedInstanceState != null)
+        if (savedInstanceState != null) {
             switchMode((DisplayMode) savedInstanceState.getSerializable(EXTRA_DISPLAY_MODE));
+        }
     }
 
     @Override
@@ -446,8 +464,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         public void run() {
                             try {
                                 app.oMPDAsyncHelper.oMPD
-                                        .adjustVolume(event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? NowPlayingFragment.VOLUME_STEP
-                                                : -NowPlayingFragment.VOLUME_STEP);
+                                        .adjustVolume(
+                                                event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP
+                                                        ? NowPlayingFragment.VOLUME_STEP
+                                                        : -NowPlayingFragment.VOLUME_STEP);
                             } catch (MPDServerException e) {
                                 e.printStackTrace();
                             }
@@ -492,7 +512,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     i = new Intent(this, StreamingService.class);
                     i.setAction("com.namelessdev.mpdroid.DIE");
                     this.startService(i);
-                    ((MPDApplication) this.getApplication()).getApplicationState().streamingMode = false;
+                    ((MPDApplication) this.getApplication()).getApplicationState().streamingMode
+                            = false;
                     // Toast.makeText(this, "MPD Streaming Stopped",
                     // Toast.LENGTH_SHORT).show();
                 } else {
@@ -500,7 +521,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         i = new Intent(this, StreamingService.class);
                         i.setAction("com.namelessdev.mpdroid.START_STREAMING");
                         this.startService(i);
-                        ((MPDApplication) this.getApplication()).getApplicationState().streamingMode = true;
+                        ((MPDApplication) this.getApplication()).getApplicationState().streamingMode
+                                = true;
                         // Toast.makeText(this, "MPD Streaming Started",
                         // Toast.LENGTH_SHORT).show();
                     }
@@ -590,8 +612,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void pageChanged(int position) {
         final ActionBar actionBar = getActionBar();
         if (currentDisplayMode == DisplayMode.MODE_LIBRARY
-                && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST)
+                && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
             actionBar.setSelectedNavigationItem(position);
+        }
     }
 
     @Override
@@ -614,12 +637,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      * Navigation Drawer helpers
      */
 
-    private void refreshActionBarTitle()
-    {
+    private void refreshActionBarTitle() {
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
-        switch (currentDisplayMode)
-        {
+        switch (currentDisplayMode) {
             case MODE_QUEUE:
             case MODE_NOWPLAYING:
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -650,8 +671,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     /** Swaps fragments in the main content view */
     public void switchMode(DisplayMode newMode) {
         currentDisplayMode = newMode;
-        switch (currentDisplayMode)
-        {
+        switch (currentDisplayMode) {
             case MODE_QUEUE:
             case MODE_NOWPLAYING:
                 if (isDualPaneMode) {
