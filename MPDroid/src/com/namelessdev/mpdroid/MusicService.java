@@ -116,9 +116,23 @@ public class MusicService extends Service implements MusicFocusable {
     NotificationManager mNotificationManager;
     Notification mNotification = null;
 
+    MPDApplication app;
+
+    private MPDApplication getMpdApplication() {
+        if (app == null) {
+            app = (MPDApplication) getApplication();
+        }
+        return app;
+    }
+
     @Override
     public void onCreate() {
         Log.d(TAG, "Creating service");
+
+        //TODO: Acquire a network wakelock here if the user wants us to !
+        //Otherwise we'll just shut down on screen off and reconnect on screen on
+        //Tons of work ahead
+        getMpdApplication().addConnectionLock(this);
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -196,7 +210,7 @@ public class MusicService extends Service implements MusicFocusable {
             @Override
             public void run() {
                 try {
-                    final MPD mpd = ((MPDApplication) getApplication()).oMPDAsyncHelper.oMPD;
+                    final MPD mpd = getMpdApplication().oMPDAsyncHelper.oMPD;
                     String state = mpd.getStatus().getState();
                     if (!MPDStatus.MPD_STATE_PLAYING.equals(state)) {
                         mpd.play();
@@ -215,7 +229,7 @@ public class MusicService extends Service implements MusicFocusable {
             @Override
             public void run() {
                 try {
-                    final MPDApplication app = (MPDApplication) getApplication();
+                    getMpdApplication();
                     if (app != null) {
                         app.oMPDAsyncHelper.oMPD.pause();
                     }
@@ -261,7 +275,7 @@ public class MusicService extends Service implements MusicFocusable {
     void processSkipRequest() {
         tryToGetAudioFocus();
 
-        final MPDApplication app = (MPDApplication) getApplication();
+        getMpdApplication();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -340,6 +354,8 @@ public class MusicService extends Service implements MusicFocusable {
      * status and notification, the wake locks and possibly the MediaPlayer.
      */
     void relaxResources() {
+        Log.d(TAG, "Removing connection lock");
+        getMpdApplication().removeConnectionLock(this);
         stopForeground(true);
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
             mAlbumCover.recycle();

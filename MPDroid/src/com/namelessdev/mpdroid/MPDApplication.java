@@ -267,9 +267,7 @@ public class MPDApplication extends Application implements ConnectionListener {
         if (activity instanceof Activity)
             currentActivity = (Activity) activity;
 
-        connectionLocks.add(activity);
-        checkConnectionNeeded();
-        cancelDisconnectSheduler();
+        addConnectionLock(activity);
     }
 
     private void startDisconnectSheduler() {
@@ -289,10 +287,20 @@ public class MPDApplication extends Application implements ConnectionListener {
     }
 
     public void unsetActivity(Object activity) {
-        connectionLocks.remove(activity);
-        checkConnectionNeeded();
+        removeConnectionLock(activity);
 
         if (currentActivity == activity)
             currentActivity = null;
+    }
+
+    public void addConnectionLock(Object lockOwner) {
+        connectionLocks.add(lockOwner);
+        checkConnectionNeeded();
+        cancelDisconnectSheduler();
+    }
+
+    public void removeConnectionLock(Object lockOwner) {
+        connectionLocks.remove(lockOwner);
+        checkConnectionNeeded();
     }
 }
