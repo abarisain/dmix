@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingBottom="10dp"
     android:background="?attr/cardBackground" >
 
         <com.namelessdev.mpdroid.ui.SquareImageView
@@ -45,7 +46,6 @@
         android:layout_below="@+id/album_name"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
-        android:paddingBottom="10dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:singleLine="true" />
