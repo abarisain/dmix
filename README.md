@@ -19,12 +19,9 @@ DragSortListView - Really nice and widely used TouchInterceptor replacement.
 JmDNS - For Bonjour integration. Still a work in progress (and may even be finished one day), allows local MPD servers to be discovered without finding their IP.  
 JMPDComm - The core MPD interface lib. Heavily modified.  
 ActionBar-PullToRefresh - Pull to refresh for library.  
-SmoothProgressBar - Required for ActionBar-PullToRefresh.  
 
 ## Known issues
  - Limited multi server support (based on WLAN name)
- - Sometimes drops connection
- - Lack some library information (read the roadmap)
 
 ## Roadmap
 New features will most likely be delayed. MPDroid is, in my opinion, almost fully-featured and pushes (hits) MPD's API limits. Widely requested features (like better search, better library browsing) can't be done without duplicating MPD's database locally.
@@ -33,22 +30,13 @@ Also, MPDroid's speed isn't that great, but considering that MPD's API was never
 
 So, the current roadmap is:
 
-####1.1
- - [x] ~~Song mute on incoming call (optional)~~ (1.04)
- - [x] ~~Select default library tab to show (for people who mainly use filesystem view)~~ (done in 1.03)
- - [ ] Add better streams support
- - [ ] Add lyrics & artist/album info
+####1.1  
+
+ - [ ] Add Pending notification for controlling your server outside of MPDroid
  - [ ] Make MPDroid configurable for multiple servers (Better implementation than the hackish WLAN based one)
  - [ ] Add Bonjour support
- - [ ] Streams XML Import/Export
- - [ ] Rework AlbumArtist (also, see LouBas's request on the blog)
+ - [ ] Rework Streams storage
  - [ ] Split album details by CD and allow only one CD to be added to the playlist
- - [x] ~~Fix the stupidly small hit box for the progress thumb, make the view sliding impossible around it so accidents don't happen as often as they do now~~ (1.04)
- - [x] ~~Improve cover art support and add a local cache~~
- - [x] ~~Better Android 4.x integration (Jelly Bean notifications, lock screen controls)~~
- - Keep it the most up to date and best MPDroid client for android
- - ???
- - Profit
 
 ## Donations
 
@@ -86,7 +74,9 @@ Craig Drummond - Helped me integrate new features while cleaning up old internal
 
 [jcnoir](https://github.com/jcnoir) - Contributor. Reworked cover art support, and many other improvements.
 
-[hurzl](https://github.com/hurzl) - MPD Backend improvement, various tweaks and bug fixes.
+[hurzl](https://github.com/hurzl) - MPD Backend improvement (cached MPD), various tweaks and bug fixes.
+
+[Avuton Olrich](https://github.com/avuton) - Behind the scenes fixes, cleanup and Git support.
 
 Other patch submitters : Jörg Thalheim, Florian Weile, Daniel Schoepe, John Bäckstrand, ...
 
