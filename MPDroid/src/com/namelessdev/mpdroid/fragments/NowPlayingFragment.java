@@ -119,7 +119,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         activity.startService(i);
                     } else {
                         i = new Intent(app, MusicService.class);
-                        i.setAction(MusicService.ACTION_REWIND);
+                        i.setAction(MusicService.ACTION_PREVIOUS);
                         activity.startService(i);
                         ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
                     }

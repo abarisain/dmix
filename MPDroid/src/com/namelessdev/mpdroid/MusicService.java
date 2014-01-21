@@ -69,7 +69,8 @@ public class MusicService extends Service implements MusicFocusable {
     public static final String ACTION_STOP = StreamingService.CMD_STOP;
     public static final String ACTION_CLOSE_NOTIFICATION = "CLOSE_NOTIFICATION";
     public static final String ACTION_SKIP = StreamingService.CMD_NEXT;
-    public static final String ACTION_REWIND = StreamingService.CMD_PREV;
+    public static final String ACTION_REWIND = "REWIND";
+    public static final String ACTION_PREVIOUS = StreamingService.CMD_PREV;
 
     /**
      * Extra information passed to the intent bundle: the currently playing {@link org.a0z.mpd.Music}
@@ -172,6 +173,8 @@ public class MusicService extends Service implements MusicFocusable {
             processCloseNotificationRequest();
         } else if (action.equals(ACTION_REWIND)) {
             processRewindRequest();
+        } else if (action.equals(ACTION_PREVIOUS)) {
+            processPreviousRequest();
         } else if (action.equals(ACTION_UPDATE_INFO)) {
             processUpdateInfo((MusicParcelable) intent.getParcelableExtra(EXTRA_CURRENT_MUSIC));
         }
@@ -266,6 +269,26 @@ public class MusicService extends Service implements MusicFocusable {
             }
         }).start();
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_REWINDING);
+
+        final Intent service = new Intent(this, MusicService.class);
+        service.setAction(ACTION_UPDATE_INFO);
+        startService(service);
+    }
+
+    void processPreviousRequest() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final MPDApplication app = (MPDApplication) getApplication();
+                    if (app != null) {
+                        app.oMPDAsyncHelper.oMPD.previous();
+                    }
+                } catch (MPDServerException e) {
+                    Log.w(MPDApplication.TAG, e.getMessage());
+                }
+            }
+        }).start();
 
         final Intent service = new Intent(this, MusicService.class);
         service.setAction(ACTION_UPDATE_INFO);
@@ -516,7 +539,7 @@ public class MusicService extends Service implements MusicFocusable {
         playPause.setAction(MusicService.ACTION_TOGGLE_PLAYBACK);
         final PendingIntent piPlayPause = PendingIntent.getService(this, 0, playPause, 0);
         final Intent prev = new Intent(this, MusicService.class);
-        prev.setAction(ACTION_REWIND);
+        prev.setAction(ACTION_PREVIOUS);
         final PendingIntent piPrev = PendingIntent.getService(this, 0, prev, 0);
         final Intent next = new Intent(this, MusicService.class);
         next.setAction(MusicService.ACTION_SKIP);
