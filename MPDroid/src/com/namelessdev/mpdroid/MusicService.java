@@ -67,6 +67,7 @@ public class MusicService extends Service implements MusicFocusable {
     public static final String ACTION_PLAY = StreamingService.CMD_PLAY;
     public static final String ACTION_PAUSE = StreamingService.CMD_PAUSE;
     public static final String ACTION_STOP = StreamingService.CMD_STOP;
+    public static final String ACTION_CLOSE_NOTIFICATION = "CLOSE_NOTIFICATION";
     public static final String ACTION_SKIP = StreamingService.CMD_NEXT;
     public static final String ACTION_REWIND = StreamingService.CMD_PREV;
 
@@ -153,6 +154,8 @@ public class MusicService extends Service implements MusicFocusable {
             processSkipRequest();
         } else if (action.equals(ACTION_STOP)) {
             processStopRequest();
+        } else if (action.equals(ACTION_CLOSE_NOTIFICATION)) {
+            processCloseNotificationRequest();
         } else if (action.equals(ACTION_REWIND)) {
             processRewindRequest();
         } else if (action.equals(ACTION_UPDATE_INFO)) {
@@ -227,7 +230,7 @@ public class MusicService extends Service implements MusicFocusable {
 
     void processUpdateInfo(MusicParcelable music) {
         Log.d(TAG, "parcelable=" + music + " mCurrentMusic=" + mCurrentMusic);
-        if (mCurrentMusic != null && mCurrentMusic.equals((Music) music)) {
+        if (mCurrentMusic != null && ((Object) mCurrentMusic).equals(music)) {
             return;
         }
         mCurrentMusic = music;
@@ -289,6 +292,20 @@ public class MusicService extends Service implements MusicFocusable {
             }
         }).start();
 
+        // let go of all resources...
+        relaxResources();
+        giveUpAudioFocus();
+
+        // Tell any remote controls that our playback state is 'paused'.
+        if (mRemoteControlClient != null) {
+            mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
+        }
+
+        // service is no longer necessary. Will be started again if needed.
+        stopSelf();
+    }
+
+    void processCloseNotificationRequest() {
         // let go of all resources...
         relaxResources();
         giveUpAudioFocus();
@@ -421,7 +438,7 @@ public class MusicService extends Service implements MusicFocusable {
         mPreviousState = state;
     }
 
-    private RemoteViews buildCollapsedNotification(PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piQuit, int playPauseResId) {
+    private RemoteViews buildCollapsedNotification(PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piCloseNotification, int playPauseResId) {
         final RemoteViews contentView;
         if (mNotification == null || mNotification.contentView == null) {
             contentView = new RemoteViews(getPackageName(), R.layout.notification);
@@ -434,7 +451,7 @@ public class MusicService extends Service implements MusicFocusable {
 
         contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
         contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
-        contentView.setOnClickPendingIntent(R.id.notificationClose, piQuit);
+        contentView.setOnClickPendingIntent(R.id.notificationClose, piCloseNotification);
 
         contentView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
 
@@ -442,7 +459,7 @@ public class MusicService extends Service implements MusicFocusable {
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private RemoteViews buildExpandedNotification(PendingIntent piPrev, PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piQuit, int playPauseResId) {
+    private RemoteViews buildExpandedNotification(PendingIntent piPrev, PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piCloseNotification, int playPauseResId) {
         final RemoteViews contentView;
         if (mNotification == null || mNotification.bigContentView == null) {
             contentView = new RemoteViews(getPackageName(), R.layout.notification_big);
@@ -457,7 +474,7 @@ public class MusicService extends Service implements MusicFocusable {
         contentView.setOnClickPendingIntent(R.id.notificationPrev, piPrev);
         contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
         contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
-        contentView.setOnClickPendingIntent(R.id.notificationClose, piQuit);
+        contentView.setOnClickPendingIntent(R.id.notificationClose, piCloseNotification);
 
         contentView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
 
@@ -488,19 +505,19 @@ public class MusicService extends Service implements MusicFocusable {
         final Intent next = new Intent(this, MusicService.class);
         next.setAction(MusicService.ACTION_SKIP);
         final PendingIntent piNext = PendingIntent.getService(this, 0, next, 0);
-        final Intent quit = new Intent(this, MusicService.class);
-        quit.setAction(MusicService.ACTION_STOP);
-        final PendingIntent piQuit = PendingIntent.getService(this, 0, quit, 0);
+        final Intent closeNotification = new Intent(this, MusicService.class);
+        closeNotification.setAction(MusicService.ACTION_CLOSE_NOTIFICATION);
+        final PendingIntent piCloseNotification = PendingIntent.getService(this, 0, closeNotification, 0);
         PendingIntent piClick = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT); // click on notification itself
 
         // Set notification play/pause icon state
         final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PLAYING ? R.drawable.ic_media_pause : R.drawable.ic_media_play;
 
         // Create the views
-        RemoteViews collapsedNotification = buildCollapsedNotification(piPlayPause, piNext, piQuit, playPauseResId);
+        RemoteViews collapsedNotification = buildCollapsedNotification(piPlayPause, piNext, piCloseNotification, playPauseResId);
         RemoteViews expandedNotification = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            expandedNotification = buildExpandedNotification(piPrev, piPlayPause, piNext, piQuit, playPauseResId);
+            expandedNotification = buildExpandedNotification(piPrev, piPlayPause, piNext, piCloseNotification, playPauseResId);
         }
 
         // Set notification icon, if we have one
