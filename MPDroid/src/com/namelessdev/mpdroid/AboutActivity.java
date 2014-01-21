@@ -16,12 +16,21 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
+import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AboutActivity extends Activity {
 
@@ -30,35 +39,70 @@ public class AboutActivity extends Activity {
             ComponentName comp = new ComponentName(context, cls);
             PackageInfo pinfo = context.getPackageManager()
                     .getPackageInfo(comp.getPackageName(), 0);
-            return pinfo.versionName;
+            return pinfo.versionName + " (" + pinfo.versionCode + ")";
         } catch (android.content.pm.PackageManager.NameNotFoundException e) {
             return null;
         }
     }
+
+    private class AboutListItem {
+
+        private String text;
+
+        public AboutListItem(String _text) {
+            text = _text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+
+    private ListView listView;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.about);
 
-        TextView versionInfo = (TextView) findViewById(R.id.versionText);
+        listView = (ListView) findViewById(android.R.id.list);
+
+        final LayoutInflater inflater = LayoutInflater.from(this);
+        final View headerView = inflater.inflate(R.layout.about_header, null, false);
+        TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
         versionInfo.setText(getResources().getString(R.string.version) + ": "
                 + getVersionName(this, Activity.class));
 
-    }
+        listView.setHeaderDividersEnabled(false);
+        listView.addHeaderView(headerView);
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        MPDApplication app = (MPDApplication) getApplicationContext();
-        app.setActivity(this);
-    }
+        String[] tmpStringArray;
+        final List<Object> listItems = new ArrayList<>();
+        listItems.add(getString(R.string.about_libraries));
+        tmpStringArray = getResources().getStringArray(R.array.libraries_array);
+        for (String tmpString : tmpStringArray) {
+            listItems.add(new AboutListItem(tmpString));
+        }
+        listItems.add(getString(R.string.about_authors));
+        tmpStringArray = getResources().getStringArray(R.array.authors_array);
+        for (String tmpString : tmpStringArray) {
+            listItems.add(new AboutListItem(tmpString));
+        }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        MPDApplication app = (MPDApplication) getApplicationContext();
-        app.unsetActivity(this);
+        listView.setAdapter(new SeparatedListAdapter(this, android.R.layout.simple_list_item_1,
+                R.layout.list_separator, new SeparatedListDataBinder() {
+            @Override
+            public boolean isEnabled(int position, List<? extends Object> items, Object item) {
+                return false;
+            }
+
+            @Override
+            public void onDataBind(Context context, View targetView, List<? extends Object> items,
+                    Object item, int position) {
+                ((TextView) targetView.findViewById(android.R.id.text1)).setText(item.toString());
+            }
+        }, listItems));
     }
 
 }

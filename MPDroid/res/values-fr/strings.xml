@@ -226,4 +226,7 @@
 	<string name="deleteStreamPrompt">Êtes vous sur de vouloir supprimer %s?</string>
 	<string name="streamName">Nom :</string>
 	<string name="streamUrl">URL :</string>
+
+    <string name="about_authors">Auteurs</string>
+    <string name="about_libraries">Bibliothèques</string>
 </resources>

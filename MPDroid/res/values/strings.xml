@@ -253,5 +253,8 @@
 	<string name="enableSmallSeekbars">Use small seekbars</string>
 	<string name="clearSearchHistory">Clear search history</string>
 	<string name="streamSaved">Stream saved</string>
+
+    <string name="about_authors">Authors</string>
+    <string name="about_libraries">Libraries</string>
 	
 </resources>
