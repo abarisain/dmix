@@ -52,11 +52,13 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
- * handling in our application. Upon initialization, it waits for Intents (which come from our main activity,
+ * handling in our application. Upon initialization, it waits for Intents (which come from our main
+ * activity,
  * {@link MainMenuActivity}, which signal the service to perform specific operations: Play, Pause,
  * Rewind, Skip, etc.
  */
 public class NotificationService extends Service implements MusicFocusable, StatusChangeListener {
+
     // The tag we put on debug messages
     final static String TAG = "NotificationService";
 
@@ -64,35 +66,51 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     // Notice: they currently are a shortcut to the ones in StreamingService so that the code changes to NowPlayingFragment would be minimal.
     // TODO: change this?
     public static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.NotificationService";
+
     public static final String ACTION_UPDATE_INFO = FULLY_QUALIFIED_NAME + ".UPDATE_INFO";
+
     public static final String ACTION_TOGGLE_PLAYBACK = StreamingService.CMD_PLAYPAUSE;
+
     public static final String ACTION_PLAY = StreamingService.CMD_PLAY;
+
     public static final String ACTION_PAUSE = StreamingService.CMD_PAUSE;
+
     public static final String ACTION_STOP = StreamingService.CMD_STOP;
-    public static final String ACTION_SHOW_NOTIFICATION = FULLY_QUALIFIED_NAME + ".SHOW_NOTIFICATION";
-    public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME + ".CLOSE_NOTIFICATION";
+
+    public static final String ACTION_SHOW_NOTIFICATION = FULLY_QUALIFIED_NAME
+            + ".SHOW_NOTIFICATION";
+
+    public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME
+            + ".CLOSE_NOTIFICATION";
+
     public static final String ACTION_SKIP = StreamingService.CMD_NEXT;
+
     public static final String ACTION_REWIND = "REWIND";
+
     public static final String ACTION_PREVIOUS = StreamingService.CMD_PREV;
 
     /**
-     * Extra information passed to the intent bundle: the currently playing {@link org.a0z.mpd.Music}
+     * Extra information passed to the intent bundle: the currently playing {@link
+     * org.a0z.mpd.Music}
      */
     public static final String EXTRA_CURRENT_MUSIC = FULLY_QUALIFIED_NAME + ".CurrentMusic";
 
     /**
-     * How many milliseconds in the future we need to trigger an update when we just skipped forward/backward a song
+     * How many milliseconds in the future we need to trigger an update when we just skipped
+     * forward/backward a song
      */
     private static final long UPDATE_INFO_NEAR_FUTURE_DELAY = 500;
 
     Music mCurrentMusic = null, mPreviousMusic = null;
 
     private Bitmap mAlbumCover = null;
+
     private String mAlbumCoverPath;
 
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
     AudioFocusHelper mAudioFocusHelper = null;
+
     private int mPreviousState = -1;
 
     // do we have audio focus?
@@ -117,7 +135,9 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     ComponentName mMediaButtonReceiverComponent;
 
     AudioManager mAudioManager;
+
     NotificationManager mNotificationManager;
+
     Notification mNotification = null;
 
     MPDApplication app;
@@ -198,7 +218,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
                 } catch (MPDServerException e) {
                     Log.w(MPDApplication.TAG, e.getMessage());
                 }
-                return MPDStatus.MPD_STATE_PLAYING.equals(state) || MPDStatus.MPD_STATE_PAUSED.equals(state);
+                return MPDStatus.MPD_STATE_PLAYING.equals(state) || MPDStatus.MPD_STATE_PAUSED
+                        .equals(state);
             }
 
             @Override
@@ -375,7 +396,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                final Intent service = new Intent(NotificationService.this, NotificationService.class);
+                final Intent service = new Intent(NotificationService.this,
+                        NotificationService.class);
                 service.setAction(ACTION_UPDATE_INFO);
                 startService(service);
             }
@@ -398,25 +420,29 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     void giveUpAudioFocus() {
-        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper.abandonFocus()) {
+        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper
+                .abandonFocus()) {
             mAudioFocus = AudioFocus.NoFocusNoDuck;
         }
     }
 
     void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper.requestFocus()) {
+        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper
+                .requestFocus()) {
             mAudioFocus = AudioFocus.Focused;
         }
     }
 
     void updatePlayingInfo(int state) {
-        Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState + "), music=" + mCurrentMusic + " (previous music: " + mPreviousMusic + ")");
+        Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState
+                + "), music=" + mCurrentMusic + " (previous music: " + mPreviousMusic + ")");
 
         // Create the remote control client
         if (mRemoteControlClient == null) {
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
             intent.setComponent(mMediaButtonReceiverComponent);
-            mRemoteControlClient = new RemoteControlClient(PendingIntent.getBroadcast(this /*context*/, 0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/));
+            mRemoteControlClient = new RemoteControlClient(PendingIntent
+                    .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/));
             mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                     RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
                     RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
@@ -437,7 +463,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
                         mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
                     }
                 } catch (MPDServerException e) {
-                    Log.w("NotificationService", "MPDServerException playing next song: " + e.getMessage());
+                    Log.w("NotificationService",
+                            "MPDServerException playing next song: " + e.getMessage());
                 }
             }
         }
@@ -462,17 +489,24 @@ public class NotificationService extends Service implements MusicFocusable, Stat
                 // Check if we have a sdcard cover cache for this song
                 // Maybe find a more efficient way
                 final MPDApplication app = (MPDApplication) getApplication();
-                final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+                final SharedPreferences settings = PreferenceManager
+                        .getDefaultSharedPreferences(app);
                 if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
                     final CachedCover cache = new CachedCover(app);
                     final String[] coverArtPath;
                     try {
                         coverArtPath = cache.getCoverUrl(mCurrentMusic.getAlbumInfo());
-                        if (coverArtPath != null && coverArtPath.length > 0 && coverArtPath[0] != null) {
+                        if (coverArtPath != null && coverArtPath.length > 0
+                                && coverArtPath[0] != null) {
                             mAlbumCoverPath = coverArtPath[0];
-                            mAlbumCover = Tools.decodeSampledBitmapFromPath(coverArtPath[0], getResources()
-                                    .getDimensionPixelSize(android.R.dimen.notification_large_icon_width), getResources()
-                                    .getDimensionPixelSize(android.R.dimen.notification_large_icon_height), true);
+                            mAlbumCover = Tools
+                                    .decodeSampledBitmapFromPath(coverArtPath[0], getResources()
+                                            .getDimensionPixelSize(
+                                                    android.R.dimen.notification_large_icon_width),
+                                            getResources()
+                                                    .getDimensionPixelSize(
+                                                            android.R.dimen.notification_large_icon_height),
+                                            true);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -488,7 +522,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         mPreviousState = state;
     }
 
-    private RemoteViews buildCollapsedNotification(PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piCloseNotification, int playPauseResId) {
+    private RemoteViews buildCollapsedNotification(PendingIntent piPlayPause, PendingIntent piNext,
+            PendingIntent piCloseNotification, int playPauseResId) {
         final RemoteViews contentView;
         if (mNotification == null || mNotification.contentView == null) {
             contentView = new RemoteViews(getPackageName(), R.layout.notification);
@@ -509,7 +544,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private RemoteViews buildExpandedNotification(PendingIntent piPrev, PendingIntent piPlayPause, PendingIntent piNext, PendingIntent piCloseNotification, int playPauseResId) {
+    private RemoteViews buildExpandedNotification(PendingIntent piPrev, PendingIntent piPlayPause,
+            PendingIntent piNext, PendingIntent piCloseNotification, int playPauseResId) {
         final RemoteViews contentView;
         if (mNotification == null || mNotification.bigContentView == null) {
             contentView = new RemoteViews(getPackageName(), R.layout.notification_big);
@@ -537,10 +573,12 @@ public class NotificationService extends Service implements MusicFocusable, Stat
      * @param state The new current playing state
      */
     private void updateNotification(int state) {
-        Log.d(TAG, "update notification: " + mCurrentMusic.getArtist() + " - " + mCurrentMusic.getTitle() + ", state: " + state);
+        Log.d(TAG, "update notification: " + mCurrentMusic.getArtist() + " - " + mCurrentMusic
+                .getTitle() + ", state: " + state);
 
         // Build a virtual task stack
-        final Intent musicPlayerActivity = new Intent(getApplicationContext(), MainMenuActivity.class);
+        final Intent musicPlayerActivity = new Intent(getApplicationContext(),
+                MainMenuActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MainMenuActivity.class);
         stackBuilder.addNextIntent(musicPlayerActivity);
@@ -557,24 +595,32 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         final PendingIntent piNext = PendingIntent.getService(this, 0, next, 0);
         final Intent closeNotification = new Intent(this, NotificationService.class);
         closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
-        final PendingIntent piCloseNotification = PendingIntent.getService(this, 0, closeNotification, 0);
-        PendingIntent piClick = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT); // click on notification itself
+        final PendingIntent piCloseNotification = PendingIntent
+                .getService(this, 0, closeNotification, 0);
+        PendingIntent piClick = stackBuilder.getPendingIntent(0,
+                PendingIntent.FLAG_UPDATE_CURRENT); // click on notification itself
 
         // Set notification play/pause icon state
-        final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PLAYING ? R.drawable.ic_media_pause : R.drawable.ic_media_play;
+        final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PLAYING
+                ? R.drawable.ic_media_pause : R.drawable.ic_media_play;
 
         // Create the views
-        RemoteViews collapsedNotification = buildCollapsedNotification(piPlayPause, piNext, piCloseNotification, playPauseResId);
+        RemoteViews collapsedNotification = buildCollapsedNotification(piPlayPause, piNext,
+                piCloseNotification, playPauseResId);
         RemoteViews expandedNotification = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            expandedNotification = buildExpandedNotification(piPrev, piPlayPause, piNext, piCloseNotification, playPauseResId);
+            expandedNotification = buildExpandedNotification(piPrev, piPlayPause, piNext,
+                    piCloseNotification, playPauseResId);
         }
 
         // Set notification icon, if we have one
         if (mAlbumCover != null) {
-            collapsedNotification.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
-            if (expandedNotification != null)
-                expandedNotification.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+            collapsedNotification
+                    .setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+            if (expandedNotification != null) {
+                expandedNotification
+                        .setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+            }
         }
 
         // Finish the notification
@@ -583,7 +629,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             builder.setSmallIcon(R.drawable.icon_bw);
             builder.setContentIntent(piClick);
             builder.setContent(collapsedNotification);
-
 
             builder.setStyle(new NotificationCompat.BigTextStyle());
 //            builder.setStyle(new Notification.BigTextStyle().bigText(mCurrentMusic.getArtist()).setBigContentTitle(mCurrentMusic.getTitle()));
