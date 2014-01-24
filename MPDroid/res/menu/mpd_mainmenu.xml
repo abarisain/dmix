@@ -23,14 +23,7 @@
         android:checkable="true" >
     </item>
     <item
-        android:id="@+id/GMM_Volume"
-        android:icon="@drawable/ic_action_volume"
-		android:showAsAction="ifRoom" android:visible="false"
-        android:title="@string/volume" android:orderInCategory="3" >
-    </item>
-    <item
         android:id="@+id/GMM_Settings"
-        android:icon="@android:drawable/ic_menu_preferences"
         android:title="@string/settings">
     </item>
     <item
