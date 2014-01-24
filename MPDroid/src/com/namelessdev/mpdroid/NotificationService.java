@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
@@ -55,7 +56,7 @@ import com.namelessdev.mpdroid.tools.Tools;
  * {@link MainMenuActivity}, which signal the service to perform specific operations: Play, Pause,
  * Rewind, Skip, etc.
  */
-public class NotificationService extends Service implements MusicFocusable {
+public class NotificationService extends Service implements MusicFocusable, StatusChangeListener {
     // The tag we put on debug messages
     final static String TAG = "NotificationService";
 
@@ -136,6 +137,7 @@ public class NotificationService extends Service implements MusicFocusable {
         //Otherwise we'll just shut down on screen off and reconnect on screen on
         //Tons of work ahead
         getMpdApplication().addConnectionLock(this);
+        getMpdApplication().oMPDAsyncHelper.addStatusChangeListener(this);
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -387,6 +389,7 @@ public class NotificationService extends Service implements MusicFocusable {
     void relaxResources() {
         Log.d(TAG, "Removing connection lock");
         getMpdApplication().removeConnectionLock(this);
+        getMpdApplication().oMPDAsyncHelper.removeStatusChangeListener(this);
         stopForeground(true);
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
             mAlbumCover.recycle();
@@ -641,5 +644,57 @@ public class NotificationService extends Service implements MusicFocusable {
     @Override
     public IBinder onBind(Intent arg0) {
         return null;
+    }
+
+    /**
+     * StatusChangeListener methods
+     */
+    @Override
+    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+        //TODO : Probably do something here
+    }
+
+    @Override
+    public void libraryStateChanged(boolean updating) {
+        // We do not care about that event
+    }
+
+    @Override
+    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+        // We do not care about that event
+    }
+
+    @Override
+    public void randomChanged(boolean random) {
+        // We do not care about that event
+    }
+
+    @Override
+    public void repeatChanged(boolean repeating) {
+        // We do not care about that event
+    }
+
+    @Override
+    public void stateChanged(MPDStatus mpdStatus, String oldState) {
+        updatePlayingInfo(mpdStatus.getState().equals(MPDStatus.MPD_STATE_PLAYING) ?
+                RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+    }
+
+    @Override
+    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+        if (mpdStatus.getPlaylistLength() == 0) {
+            updatePlayingInfo(RemoteControlClient.PLAYSTATE_STOPPED);
+        } else {
+            final int songPos = mpdStatus.getSongPos();
+            if (songPos >= 0) {
+                mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+            }
+            stateChanged(mpdStatus, null);
+        }
+    }
+
+    @Override
+    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+        // We do not care about that event
     }
 }
