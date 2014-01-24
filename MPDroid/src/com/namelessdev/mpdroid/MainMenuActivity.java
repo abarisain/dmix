@@ -573,6 +573,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 } catch (MPDServerException e) {
                 }
                 return true;
+            case R.id.GMM_ShowNotification:
+                i = new Intent(this, NotificationService.class);
+                i.setAction(NotificationService.ACTION_SHOW_NOTIFICATION);
+                this.startService(i);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

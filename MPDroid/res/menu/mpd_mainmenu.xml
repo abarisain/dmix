@@ -27,6 +27,10 @@
         android:title="@string/settings">
     </item>
     <item
+        android:id="@+id/GMM_ShowNotification"
+        android:title="@string/debug_showNotification" >
+    </item>
+    <item
         android:id="@+id/GMM_bonjour"
         android:visible="false">
     </item>

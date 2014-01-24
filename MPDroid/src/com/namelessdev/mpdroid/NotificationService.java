@@ -62,12 +62,14 @@ public class NotificationService extends Service implements MusicFocusable {
     // These are the Intent actions that we are prepared to handle.
     // Notice: they currently are a shortcut to the ones in StreamingService so that the code changes to NowPlayingFragment would be minimal.
     // TODO: change this?
-    public static final String ACTION_UPDATE_INFO = "com.namelessdev.mpdroid.NotificationService.UPDATE_INFO";
+    public static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.NotificationService";
+    public static final String ACTION_UPDATE_INFO = FULLY_QUALIFIED_NAME + ".UPDATE_INFO";
     public static final String ACTION_TOGGLE_PLAYBACK = StreamingService.CMD_PLAYPAUSE;
     public static final String ACTION_PLAY = StreamingService.CMD_PLAY;
     public static final String ACTION_PAUSE = StreamingService.CMD_PAUSE;
     public static final String ACTION_STOP = StreamingService.CMD_STOP;
-    public static final String ACTION_CLOSE_NOTIFICATION = "CLOSE_NOTIFICATION";
+    public static final String ACTION_SHOW_NOTIFICATION = FULLY_QUALIFIED_NAME + ".SHOW_NOTIFICATION";
+    public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME + ".CLOSE_NOTIFICATION";
     public static final String ACTION_SKIP = StreamingService.CMD_NEXT;
     public static final String ACTION_REWIND = "REWIND";
     public static final String ACTION_PREVIOUS = StreamingService.CMD_PREV;
@@ -75,7 +77,7 @@ public class NotificationService extends Service implements MusicFocusable {
     /**
      * Extra information passed to the intent bundle: the currently playing {@link org.a0z.mpd.Music}
      */
-    public static final String EXTRA_CURRENT_MUSIC = "com.namelessdev.mpdroid.NotificationService.CurrentMusic";
+    public static final String EXTRA_CURRENT_MUSIC = FULLY_QUALIFIED_NAME + ".CurrentMusic";
 
     /**
      * How many milliseconds in the future we need to trigger an update when we just skipped forward/backward a song
@@ -169,6 +171,8 @@ public class NotificationService extends Service implements MusicFocusable {
             processSkipRequest();
         } else if (action.equals(ACTION_STOP)) {
             processStopRequest();
+        } else if (action.equals(ACTION_SHOW_NOTIFICATION)) {
+            processShowNotificationRequest();
         } else if (action.equals(ACTION_CLOSE_NOTIFICATION)) {
             processCloseNotificationRequest();
         } else if (action.equals(ACTION_REWIND)) {
@@ -340,6 +344,10 @@ public class NotificationService extends Service implements MusicFocusable {
 
         // service is no longer necessary. Will be started again if needed.
         stopSelf();
+    }
+
+    void processShowNotificationRequest() {
+        processUpdateInfo(null);
     }
 
     void processCloseNotificationRequest() {

@@ -258,5 +258,8 @@
     <string name="about_libraries">Libraries</string>
 	<string name="separatorDescription">Separator</string>
 	<string name="notificationIconDescription">Cover art</string>
+
+    <!-- Do not translate the debug_ strings -->
+    <string name="debug_showNotification">Show notification</string>
 	
 </resources>
