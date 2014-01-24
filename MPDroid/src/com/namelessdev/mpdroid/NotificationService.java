@@ -370,6 +370,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     void processShowNotificationRequest() {
+        tryToGetAudioFocus();
         processUpdateInfo(null);
     }
 
@@ -442,7 +443,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
             intent.setComponent(mMediaButtonReceiverComponent);
             mRemoteControlClient = new RemoteControlClient(PendingIntent
-                    .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/));
+                    .getBroadcast(getApplicationContext() /*context*/, 0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/));
             mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                     RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
                     RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
