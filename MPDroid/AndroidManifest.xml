@@ -98,7 +98,7 @@
             android:enabled="true" />
 
         <service
-            android:name="com.namelessdev.mpdroid.MusicService"
+            android:name=".NotificationService"
             android:enabled="true" />
 
         <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >

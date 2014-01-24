@@ -70,7 +70,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 
                     // Start the remote control service too (TODO: shouldn't
                     // start if currently streaming)
-                    i = new Intent(context, MusicService.class);
+                    i = new Intent(context, NotificationService.class);
                     i.setAction(command);
                     context.startService(i);
                 }

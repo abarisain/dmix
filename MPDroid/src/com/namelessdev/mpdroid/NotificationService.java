@@ -55,14 +55,14 @@ import com.namelessdev.mpdroid.tools.Tools;
  * {@link MainMenuActivity}, which signal the service to perform specific operations: Play, Pause,
  * Rewind, Skip, etc.
  */
-public class MusicService extends Service implements MusicFocusable {
+public class NotificationService extends Service implements MusicFocusable {
     // The tag we put on debug messages
-    final static String TAG = "MusicService";
+    final static String TAG = "NotificationService";
 
     // These are the Intent actions that we are prepared to handle.
     // Notice: they currently are a shortcut to the ones in StreamingService so that the code changes to NowPlayingFragment would be minimal.
     // TODO: change this?
-    public static final String ACTION_UPDATE_INFO = "com.namelessdev.mpdroid.MusicService.UPDATE_INFO";
+    public static final String ACTION_UPDATE_INFO = "com.namelessdev.mpdroid.NotificationService.UPDATE_INFO";
     public static final String ACTION_TOGGLE_PLAYBACK = StreamingService.CMD_PLAYPAUSE;
     public static final String ACTION_PLAY = StreamingService.CMD_PLAY;
     public static final String ACTION_PAUSE = StreamingService.CMD_PAUSE;
@@ -75,7 +75,7 @@ public class MusicService extends Service implements MusicFocusable {
     /**
      * Extra information passed to the intent bundle: the currently playing {@link org.a0z.mpd.Music}
      */
-    public static final String EXTRA_CURRENT_MUSIC = "com.namelessdev.mpdroid.MusicService.CurrentMusic";
+    public static final String EXTRA_CURRENT_MUSIC = "com.namelessdev.mpdroid.NotificationService.CurrentMusic";
 
     /**
      * How many milliseconds in the future we need to trigger an update when we just skipped forward/backward a song
@@ -270,7 +270,7 @@ public class MusicService extends Service implements MusicFocusable {
         }).start();
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_REWINDING);
 
-        final Intent service = new Intent(this, MusicService.class);
+        final Intent service = new Intent(this, NotificationService.class);
         service.setAction(ACTION_UPDATE_INFO);
         startService(service);
     }
@@ -290,7 +290,7 @@ public class MusicService extends Service implements MusicFocusable {
             }
         }).start();
 
-        final Intent service = new Intent(this, MusicService.class);
+        final Intent service = new Intent(this, NotificationService.class);
         service.setAction(ACTION_UPDATE_INFO);
         startService(service);
     }
@@ -365,7 +365,7 @@ public class MusicService extends Service implements MusicFocusable {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                final Intent service = new Intent(MusicService.this, MusicService.class);
+                final Intent service = new Intent(NotificationService.this, NotificationService.class);
                 service.setAction(ACTION_UPDATE_INFO);
                 startService(service);
             }
@@ -426,7 +426,7 @@ public class MusicService extends Service implements MusicFocusable {
                         mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
                     }
                 } catch (MPDServerException e) {
-                    Log.w("MusicService", "MPDServerException playing next song: " + e.getMessage());
+                    Log.w("NotificationService", "MPDServerException playing next song: " + e.getMessage());
                 }
             }
         }
@@ -535,17 +535,17 @@ public class MusicService extends Service implements MusicFocusable {
         stackBuilder.addNextIntent(musicPlayerActivity);
 
         // Build notification actions
-        final Intent playPause = new Intent(this, MusicService.class);
-        playPause.setAction(MusicService.ACTION_TOGGLE_PLAYBACK);
+        final Intent playPause = new Intent(this, NotificationService.class);
+        playPause.setAction(NotificationService.ACTION_TOGGLE_PLAYBACK);
         final PendingIntent piPlayPause = PendingIntent.getService(this, 0, playPause, 0);
-        final Intent prev = new Intent(this, MusicService.class);
+        final Intent prev = new Intent(this, NotificationService.class);
         prev.setAction(ACTION_PREVIOUS);
         final PendingIntent piPrev = PendingIntent.getService(this, 0, prev, 0);
-        final Intent next = new Intent(this, MusicService.class);
-        next.setAction(MusicService.ACTION_SKIP);
+        final Intent next = new Intent(this, NotificationService.class);
+        next.setAction(NotificationService.ACTION_SKIP);
         final PendingIntent piNext = PendingIntent.getService(this, 0, next, 0);
-        final Intent closeNotification = new Intent(this, MusicService.class);
-        closeNotification.setAction(MusicService.ACTION_CLOSE_NOTIFICATION);
+        final Intent closeNotification = new Intent(this, NotificationService.class);
+        closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
         final PendingIntent piCloseNotification = PendingIntent.getService(this, 0, closeNotification, 0);
         PendingIntent piClick = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT); // click on notification itself
 
