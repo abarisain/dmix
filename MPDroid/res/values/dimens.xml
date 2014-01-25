@@ -27,5 +27,6 @@
     <dimen name="playerbutton_small_width">50dip</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="locale_edit_seekbar_padding">20dp</dimen>
 
 </resources>

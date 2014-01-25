@@ -89,6 +89,10 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     public static final String ACTION_PREVIOUS = StreamingService.CMD_PREV;
 
+    public static final String ACTION_MUTE = "MUTE";
+
+    public static final String ACTION_SET_VOLUME = "SET_VOLUME";
+
     /**
      * Extra information passed to the intent bundle: the currently playing {@link
      * org.a0z.mpd.Music}

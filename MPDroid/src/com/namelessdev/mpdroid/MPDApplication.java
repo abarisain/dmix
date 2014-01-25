@@ -22,6 +22,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
@@ -243,8 +245,11 @@ public class MPDApplication extends Application implements ConnectionListener {
     public void onCreate() {
         super.onCreate();
         System.err.println("onCreate Application");
+        init(this);
+    }
 
-        MPD.setApplicationContext(getApplicationContext());
+    public void init(Context context) {
+        MPD.setApplicationContext(context);
 
         StrictMode.VmPolicy vmpolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -252,13 +257,13 @@ public class MPDApplication extends Application implements ConnectionListener {
         StrictMode.setVmPolicy(vmpolicy);
 
         oMPDAsyncHelper = new MPDAsyncHelper();
-        oMPDAsyncHelper.addConnectionListener((MPDApplication) getApplicationContext());
+        oMPDAsyncHelper.addConnectionListener(this);
 
-        settingsHelper = new SettingsHelper(this, oMPDAsyncHelper);
+        settingsHelper = new SettingsHelper(context, oMPDAsyncHelper);
 
         disconnectSheduler = new Timer();
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         if (!settings.contains("albumTrackSort"))
             settings.edit().putBoolean("albumTrackSort", true).commit();
     }

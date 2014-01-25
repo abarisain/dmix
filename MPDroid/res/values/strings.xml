@@ -259,7 +259,14 @@
 	<string name="separatorDescription">Separator</string>
 	<string name="notificationIconDescription">Cover art</string>
 
-    <!-- Do not translate the debug_ strings -->
-    <string name="debug_showNotification">Show notification</string>
-	
+    <string name="locale_select_action">Pick the action to run</string>
+
+    <string name="showNotification">Show notification</string>
+    <string name="closeNotification">Close notification</string>
+    <string name="togglePlayback">Toggle playback</string>
+    <string name="pause">Pause</string>
+    <string name="rewind">Rewind</string>
+    <string name="mute">Mute</string>
+    <string name="setVolume">Set volume</string>
+
 </resources>

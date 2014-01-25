@@ -37,7 +37,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
     private SharedPreferences settings;
     private MPDAsyncHelper oMPDAsyncHelper;
 
-    public SettingsHelper(ContextWrapper parent, MPDAsyncHelper MPDAsyncHelper) {
+    public SettingsHelper(Context parent, MPDAsyncHelper MPDAsyncHelper) {
         // Get Settings and register ourself for updates
         settings = PreferenceManager.getDefaultSharedPreferences(parent);// getSharedPreferences("org.pmix",
                                                                          // MODE_PRIVATE);

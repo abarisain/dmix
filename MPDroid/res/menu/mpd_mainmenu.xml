@@ -28,7 +28,7 @@
     </item>
     <item
         android:id="@+id/GMM_ShowNotification"
-        android:title="@string/debug_showNotification" >
+        android:title="@string/showNotification" >
     </item>
     <item
         android:id="@+id/GMM_bonjour"
