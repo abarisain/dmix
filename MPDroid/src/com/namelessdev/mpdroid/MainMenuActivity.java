@@ -243,6 +243,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             }
         }
 
+        if (currentDisplayMode != DisplayMode.MODE_NOWPLAYING) {
+            switchMode(DisplayMode.MODE_NOWPLAYING);
+            mDrawerList.setItemChecked(0, true);
+            return;
+        }
+
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         final boolean exitConfirmationRequired = settings.getBoolean("enableExitConfirmation",
                 false);
@@ -423,6 +429,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                             if(currentDisplayMode == DisplayMode.MODE_NOWPLAYING ||
                                     currentDisplayMode == DisplayMode.MODE_QUEUE) {
                                 mDrawerList.setItemChecked(position, true);
+                                currentDisplayMode = (position == 0) ? DisplayMode.MODE_NOWPLAYING
+                                        : DisplayMode.MODE_QUEUE;
                             }
                         }
                     });
