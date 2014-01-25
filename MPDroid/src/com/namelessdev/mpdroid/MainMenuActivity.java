@@ -732,8 +732,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
                 libraryRootFrame.setVisibility(View.GONE);
                 outputsRootFrame.setVisibility(View.GONE);
-                // Force MODE_NOWPLAYING even if MODE_QUEUE was asked
-                currentDisplayMode = DisplayMode.MODE_NOWPLAYING;
                 break;
             case MODE_LIBRARY:
                 if (isDualPaneMode) {
