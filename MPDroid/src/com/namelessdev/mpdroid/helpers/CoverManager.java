@@ -623,7 +623,9 @@ public class CoverManager {
             try {
                 if (DEBUG)
                     d(CoverManager.class.getSimpleName(),
-                            "Downloading cover for " + coverInfo.getAlbum() + " from " + url);
+                            "Downloading cover (with maxsize " + coverInfo.getCoverMaxSize() + ", "
+                                    + coverInfo.getCachedCoverMaxSize() + ") for "
+                                    + coverInfo.getAlbum() + " from " + url);
                 if (coverInfo.getState() == CACHE_COVER_FETCH) {
 
                     coverBytes = readBytes(new URL("file://" + url).openStream());
