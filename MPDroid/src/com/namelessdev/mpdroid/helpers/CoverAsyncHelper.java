@@ -106,6 +106,12 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         switch (msg.what) {
             case EVENT_COVER_DOWNLOADED:
                 CoverInfo coverInfo = (CoverInfo) msg.obj;
+                if (coverInfo.getCachedCoverMaxSize() < cachedCoverMaxSize ||
+                        coverInfo.getCoverMaxSize() < coverMaxSize) {
+                    // We've got the wrong size, get it again from the cache
+                    downloadCover(coverInfo);
+                    break;
+                }
                 for (CoverDownloadListener listener : coverDownloadListener)
                     listener.onCoverDownloaded(coverInfo);
                 if (CoverManager.DEBUG)
