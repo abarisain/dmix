@@ -236,10 +236,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 
             // If enabled, sort by disc and track number
             if (MPD.sortByTrackNumber()) {
-                if (disc != om.disc) {
+                if (disc != om.disc && disc != -1 && om.disc != -1) {
                     return disc < om.disc ? -1 : 1;
                 }
-                if (track != om.track) {
+                if (track != om.track && track != -1 && om.track != -1) {
                     return track < om.track ? -1 : 1;
                 }
             }
