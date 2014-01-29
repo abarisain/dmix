@@ -229,24 +229,12 @@ public class Music extends Item implements FilesystemTreeEntry {
             Music om = (Music) o;
             int compare;
 
+            // songId overrides every other sorting method. It's used for playlists/queue
             if (songId != om.songId) {
                 return songId < om.songId ? -1 : 1;
             }
 
-            // int compare = compare(getArtist(), om.getArtist());
-            // if (0 != compare) {
-            // return compare;
-            // }
-
-            compare = compare(album, om.album);
-            if (0 != compare) {
-                return compare;
-            }
-
-            if (MPD.sortAlbumsByYear() && date != om.date) {
-                return date < om.date ? -1 : 1;
-            }
-
+            // If enabled, sort by disc and track number
             if (MPD.sortByTrackNumber()) {
                 if (disc != om.disc) {
                     return disc < om.disc ? -1 : 1;
@@ -259,15 +247,19 @@ public class Music extends Item implements FilesystemTreeEntry {
                 }
             }
 
+            // Order by song title (getTitle() fallback on filenames)
             compare = compare(getTitle(), om.getTitle());
             if (0 != compare) {
                 return compare;
             }
 
+            // Then order by name (streams)
             compare = compare(name, om.name);
             if (0 != compare) {
                 return compare;
             }
+
+            // Last resort is to order by fullpath
             return compare(fullpath, om.fullpath);
         }
         return super.compareTo(o);
