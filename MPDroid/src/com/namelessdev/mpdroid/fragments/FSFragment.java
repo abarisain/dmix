@@ -102,7 +102,7 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     protected void asyncUpdate() {
-        if (directory != null) {
+        if (!TextUtils.isEmpty(directory)) {
             currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(directory);
         } else {
             currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
@@ -163,7 +163,7 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        if (directory == null) {
+        if (TextUtils.isEmpty(directory)) {
             return getString(R.string.files);
         } else {
             return directory;
