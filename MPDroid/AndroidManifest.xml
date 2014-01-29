@@ -83,9 +83,6 @@
             android:name="com.namelessdev.mpdroid.ServerListActivity"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="com.namelessdev.mpdroid.ServerBonjourListActivity"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name="com.namelessdev.mpdroid.AboutActivity"
             android:label="@string/about" />
         <activity

@@ -15,9 +15,8 @@ MPDroid works on **all** devices from 4.0.3 (API 15) to 4.4+
 
 #### Libraries
 
-DragSortListView - Really nice and widely used TouchInterceptor replacement.  
-JmDNS - For Bonjour integration. Still a work in progress (and may even be finished one day), allows local MPD servers to be discovered without finding their IP.  
-JMPDComm - The core MPD interface lib. Heavily modified.  
+JMPDComm - The core MPD interface lib. Heavily modified.
+DragSortListView - Really nice and widely used TouchInterceptor replacement.
 ActionBar-PullToRefresh - Pull to refresh for library.  
 
 ## Known issues

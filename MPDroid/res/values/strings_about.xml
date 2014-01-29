@@ -39,6 +39,5 @@
         <item>JMPDComm - Heavily modified core MPD interface</item>
         <item>DragSortListView</item>
         <item>ActionBar-PullToRefresh</item>
-        <item>JmDNS</item>
     </string-array>
 </resources>
