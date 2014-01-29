@@ -17,10 +17,13 @@
 package com.namelessdev.mpdroid.fragments;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
@@ -133,8 +136,29 @@ public class FSFragment extends BrowseFragment {
     // Disable the indexer for FSFragment
     @SuppressWarnings("unchecked")
     protected ListAdapter getCustomListAdapter() {
-        return new ArrayAdapter<Item>(getActivity(), R.layout.simple_list_item_1,
-                (List<Item>) items);
+        return new ArrayAdapter<Item>(getActivity(), R.layout.fs_list_item,
+                R.id.text1, (List<Item>) items) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                final View v = super.getView(position, convertView, parent);
+                final TextView subtext = (TextView) v.findViewById(R.id.text2);
+                final Item item = items.get(position);
+                String filename;
+                if (item instanceof Music) {
+                    filename = ((Music) item).getFilename();
+                    if (!TextUtils.isEmpty(filename) && !item.toString().equals(filename)) {
+                        subtext.setVisibility(View.VISIBLE);
+                        subtext.setText(filename);
+                    } else {
+                        subtext.setVisibility(View.GONE);
+                    }
+                } else {
+                    subtext.setVisibility(View.GONE);
+                }
+
+                return v;
+            }
+        };
     }
 
     @Override

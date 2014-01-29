@@ -749,11 +749,10 @@ public class MPD {
         LinkedList<String> lineCache = new LinkedList<String>();
         LinkedList<FilesystemTreeEntry> result = new LinkedList<FilesystemTreeEntry>();
         for (String line : response) {
-            // file-elements are the only ones using fileCache,
-            // therefore if something new begins and the cache
-            // contains data, its music
-            if ((line.startsWith("file: ") || line.startsWith("directory: ") || line
-                    .startsWith("playlist: ")) && lineCache.size() > 0) {
+
+            // If we detect a new file element and the line cache isn't empty
+            // dump the linecache into a music item
+            if (line.startsWith("file: ") && lineCache.size() > 0) {
                 result.add(new Music(lineCache));
                 lineCache.clear();
             }
@@ -764,7 +763,7 @@ public class MPD {
             } else if (line.startsWith("directory: ")) {
                 line = line.substring("directory: ".length());
                 result.add(rootDirectory.makeDirectory(line));
-            } else if (line.startsWith("file: ")) {
+            } else {
                 lineCache.add(line);
             }
 
