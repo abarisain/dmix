@@ -164,7 +164,13 @@ public class FSFragment extends BrowseFragment {
     @Override
     public String getTitle() {
         if (TextUtils.isEmpty(directory)) {
-            return getString(R.string.files);
+            try {
+                return getString(R.string.files);
+            } catch (IllegalStateException e) {
+                // Can't get the translated string if we are not attached ...
+                // Stupid workaround
+                return "/";
+            }
         } else {
             return directory;
         }
