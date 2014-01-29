@@ -242,9 +242,6 @@ public class Music extends Item implements FilesystemTreeEntry {
                 if (track != om.track) {
                     return track < om.track ? -1 : 1;
                 }
-                if (time != om.time) {
-                    return time < om.time ? -1 : 1;
-                }
             }
 
             // Order by song title (getTitle() fallback on filenames)
