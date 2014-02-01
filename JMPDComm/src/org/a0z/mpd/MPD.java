@@ -758,9 +758,11 @@ public class MPD {
             }
 
             if (line.startsWith("playlist: ")) {
+                lineCache.clear();
                 line = line.substring("playlist: ".length());
                 result.add(new PlaylistFile(line));
             } else if (line.startsWith("directory: ")) {
+                lineCache.clear();
                 line = line.substring("directory: ".length());
                 result.add(rootDirectory.makeDirectory(line));
             } else {
@@ -769,7 +771,14 @@ public class MPD {
 
         }
         if (lineCache.size() > 0) {
-            result.add(new Music(lineCache));
+            // Don't create a music object if the line cache does not contain any
+            // It can happen for playlist and directory items with supplementary information
+            for (String line : lineCache) {
+                if (line.startsWith("file: ")) {
+                    result.add(new Music(lineCache));
+                    break;
+                }
+            }
         }
 
         return result;
