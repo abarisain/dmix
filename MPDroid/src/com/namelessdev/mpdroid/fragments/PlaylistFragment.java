@@ -68,6 +68,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
 
 import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
@@ -76,6 +77,7 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -510,6 +512,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     }
 
+    private String playlistToSave = "";
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Menu actions...
@@ -534,41 +538,89 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 startActivity(i);
                 return true;
             case R.id.PLM_Save:
-                final EditText input = new EditText(activity);
-                new AlertDialog.Builder(activity)
-                        .setTitle(R.string.playlistName)
-                        .setMessage(R.string.newPlaylistPrompt)
-                        .setView(input)
-                        .setPositiveButton(android.R.string.ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        final String name = input.getText().toString().trim();
-                                        if (null != name && name.length() > 0) {
-                                            app.oMPDAsyncHelper.execAsync(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        app.oMPDAsyncHelper.oMPD.getPlaylist()
-                                                                .savePlaylist(name);
-                                                    } catch (MPDServerException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                })
-                        .setNegativeButton(android.R.string.cancel,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        // Do nothing.
-                                    }
-                                }).show();
+                List<Item> plists  = new ArrayList<Item>();
+                try {
+                    plists = app.oMPDAsyncHelper.oMPD.getPlaylists();
+                } catch (MPDServerException e) {
+                }
+                Collections.sort(plists);
+                final String[] playlistsArray = new String[plists.size()+1];
+                for (int p = 0; p < plists.size(); p++) {
+                    playlistsArray[p] = plists.get(p).getName(); // old playlists
+                }
+                playlistsArray[playlistsArray.length-1] = getResources().getString(R.string.newPlaylist); // "new playlist"
+                playlistToSave = playlistsArray[playlistsArray.length-1];
+                new AlertDialog.Builder(activity) // dialog with list of playlists
+                    .setTitle(R.string.playlistName)
+                    .setSingleChoiceItems
+                    (playlistsArray, playlistsArray.length-1,
+                     new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                             playlistToSave = playlistsArray[which];
+                         }
+                     })
+                    .setPositiveButton
+                    (android.R.string.ok,
+                     new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int whichButton) {
+                             savePlaylist(playlistToSave);
+                         }
+                     })
+                    .setNegativeButton
+                    (android.R.string.cancel,
+                     new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int whichButton) {
+                             // Do nothing.
+                         }
+                     })
+                    .create().show();
                 return true;
             default:
                 return false;
         }
 
+    }
+
+    protected void savePlaylist(final String name) {
+        if (name.equals(getResources().getString(R.string.newPlaylist))) {
+            // if "new playlist", show dialog with EditText for new playlist:
+            final EditText input = new EditText(activity);
+            new AlertDialog.Builder(activity)
+                .setTitle(R.string.newPlaylistPrompt)
+                .setView(input)
+                .setPositiveButton
+                (android.R.string.ok,
+                 new DialogInterface.OnClickListener() {
+                     public void onClick(DialogInterface dialog, int whichButton) {
+                         final String name = input.getText().toString().trim();
+                         if (null != name && name.length() > 0) {
+                             savePlaylist(name);
+                         }
+                     }
+                 })
+                .setNegativeButton
+                (android.R.string.cancel,
+                 new DialogInterface.OnClickListener() {
+                     public void onClick(DialogInterface dialog, int whichButton) {
+                         // Do nothing.
+                     }
+                 })
+                .create().show();
+            return;
+        }
+        // actually save:
+        if (null != name && name.length() > 0) {
+            app.oMPDAsyncHelper.execAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
+                        } catch (MPDServerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        }
     }
 
     @Override

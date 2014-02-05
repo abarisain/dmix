@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * MPD Playlist controller.
- * 
+ *
  * @version $Id: MPDPlaylist.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPDPlaylist extends AbstractStatusChangeListener {
@@ -50,7 +50,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Adds a music to playlist.
-     * 
+     *
      * @param entry music/directory/playlist to be added.
      * @throws MPDServerException if an error occur while contacting server.
      */
@@ -61,7 +61,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Adds a stream to playlist.
-     * 
+     *
      * @param url streams's URL
      * @throws MPDServerException
      * @throws MPDClientException.
@@ -73,7 +73,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Adds a <code>Collection</code> of <code>Music</code> to playlist.
-     * 
+     *
      * @param c <code>Collection</code> of <code>Music</code> to be added to
      *            playlist.
      * @throws MPDServerException if an error occur while contacting server.
@@ -89,7 +89,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Clears playlist content.
-     * 
+     *
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void clear() throws MPDServerException {
@@ -100,7 +100,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     /**
      * Retrieves music at position index in playlist. Operates on local copy of
      * playlist, may not reflect server's current playlist.
-     * 
+     *
      * @param index position.
      * @return music at position index.
      */
@@ -110,7 +110,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Retrieves all songs as an <code>List</code> of <code>Music</code>.
-     * 
+     *
      * @return all songs as an <code>List</code> of <code>Music</code>.
      * @see Music
      */
@@ -120,7 +120,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Load playlist file.
-     * 
+     *
      * @param file playlist filename without .m3u extension.
      * @throws MPDServerException if an error occur while contacting server.
      */
@@ -131,7 +131,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Moves song with specified id to position <code>to</code>.
-     * 
+     *
      * @param songId Id of the song to be moved.
      * @param to target position of the song to be moved.
      * @throws MPDServerException if an error occur while contacting server.
@@ -144,7 +144,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Moves song at position <code>from</code> to position <code>to</code>.
-     * 
+     *
      * @param from current position of the song to be moved.
      * @param to target position of the song to be moved.
      * @throws MPDServerException if an error occur while contacting server.
@@ -174,7 +174,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     /**
      * Reload playlist content. <code>refresh</code> has better performance and
      * is more server friendly, use it whenever possible.
-     * 
+     *
      * @see #refresh(int)
      * @throws MPDServerException if an error occur while contacting server.
      * @return current playlist version.
@@ -199,7 +199,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Do incremental update of playlist contents.
-     * 
+     *
      * @param playlistVersion last read playlist version
      * @throws MPDServerException if an error occur while contacting server.
      * @return current playlist version.
@@ -234,7 +234,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Removes album of given ID from playlist.
-     * 
+     *
      * @param songs entries positions.
      * @throws MPDServerException if an error occur while contacting server.
      * @see #removeById(int[])
@@ -285,7 +285,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Remove playlist entry with ID songId
-     * 
+     *
      * @param songId id of the entry to be removed.
      * @throws MPDServerException if an error occur while contacting server.
      */
@@ -297,7 +297,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Removes entries from playlist.
-     * 
+     *
      * @param songIds entries IDs.
      * @throws MPDServerException if an error occur while contacting server.
      */
@@ -313,7 +313,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Remove playlist entry at position index.
-     * 
+     *
      * @param position position of the entry to be removed.
      * @throws MPDServerException if an error occur while contacting server.
      * @see #removeId(int)
@@ -326,7 +326,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Removes entries from playlist.
-     * 
+     *
      * @param songs entries positions.
      * @throws MPDServerException if an error occur while contacting server.
      * @see #removeById(int[])
@@ -345,7 +345,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Removes playlist file.
-     * 
+     *
      * @param file playlist filename without .m3u extension.
      * @throws MPDServerException if an error occur while contacting server.
      */
@@ -355,7 +355,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Save playlist file.
-     * 
+     *
      * @param file playlist filename without .m3u extension.
      * @throws MPDServerException if an error occur while contacting server.
      */
@@ -363,7 +363,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         // If the playlist already exists, save will fail. So, just remove it
         // first!
         try {
-            this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_DELETE, file);
+            removePlaylist(file);
         } catch (MPDServerException e) {
             // Guess the file did not exist???
         }
@@ -372,7 +372,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Shuffles playlist content.
-     * 
+     *
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void shuffle() throws MPDServerException {
@@ -383,7 +383,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * Retrieves playlist size. Operates on local copy of playlist, may not
      * reflect server's current playlist. You may call refresh() before calling
      * size().
-     * 
+     *
      * @return playlist size.
      */
     public int size() {
@@ -392,7 +392,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Swap positions of song1 and song2.
-     * 
+     *
      * @param song1Id id of song1 in playlist.
      * @param song2Id id of song2 in playlist.
      * @throws MPDServerException if an error occur while contacting server.
@@ -405,7 +405,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Swap positions of song1 and song2.
-     * 
+     *
      * @param song1 position of song1 in playlist.
      * @param song2 position of song2 in playlist
      * @throws MPDServerException if an error occur while contacting server.
@@ -419,7 +419,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Retrieves a string representation of the object.
-     * 
+     *
      * @return a string representation of the object.
      * @see java.lang.Object#toString()
      */
