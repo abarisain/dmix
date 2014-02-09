@@ -17,10 +17,12 @@
 package com.namelessdev.mpdroid.library;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.mobeta.android.dslv.DragSortController;
@@ -30,7 +32,6 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
-import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,40 +82,8 @@ public class LibraryTabsSettings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.library_tabs_settings);
 
-        // get a list of all tabs
-        ArrayList<String> allTabs = LibraryTabsUtil.getAllLibraryTabs();
+        refreshTable();
 
-        // get a list of all currently visible tabs
-        ArrayList<String> currentTabs = LibraryTabsUtil
-                .getCurrentLibraryTabs(this.getApplicationContext());
-
-        // create a list of all currently hidden tabs
-        ArrayList<String> hiddenTabs = new ArrayList<String>();
-        for (String tab : allTabs) {
-            // add all items not in currentTabs
-            if (!currentTabs.contains(tab)) {
-                hiddenTabs.add(tab);
-            }
-        }
-
-        tabList = new ArrayList<Object>();
-        // add a separator
-        tabList.add(getString(R.string.visibleTabs));
-        // add all visible tabs
-        for (int i = 0; i < currentTabs.size(); i++) {
-            tabList.add(new TabItem(currentTabs.get(i)));
-        }
-        // add a separator
-        tabList.add(getString(R.string.hiddenTabs));
-        // add all hidden tabs
-        for (int i = 0; i < hiddenTabs.size(); i++) {
-            tabList.add(new TabItem(hiddenTabs.get(i)));
-        }
-        adapter = new SeparatedListAdapter(this,
-                R.layout.library_tabs_settings_item, new TabListDataBinder(),
-                tabList);
-
-        setListAdapter(adapter);
         DragSortListView mList;
         mList = (DragSortListView) getListView();
         mList.setDropListener(mDropListener);
@@ -149,6 +118,61 @@ public class LibraryTabsSettings extends PreferenceActivity {
                 getVisibleTabs());
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.mpd_librarytabsmenu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.reset:
+                LibraryTabsUtil.resetLibraryTabs(this);
+                refreshTable();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    private void refreshTable() {
+        // get a list of all tabs
+        ArrayList<String> allTabs = LibraryTabsUtil.getAllLibraryTabs();
+
+        // get a list of all currently visible tabs
+        ArrayList<String> currentTabs = LibraryTabsUtil.
+                getCurrentLibraryTabs(this.getApplicationContext());
+
+        // create a list of all currently hidden tabs
+        ArrayList<String> hiddenTabs = new ArrayList<String>();
+        for (String tab : allTabs) {
+            // add all items not in currentTabs
+            if (!currentTabs.contains(tab)) {
+                hiddenTabs.add(tab);
+            }
+        }
+
+        tabList = new ArrayList<Object>();
+        // add a separator
+        tabList.add(getString(R.string.visibleTabs));
+        // add all visible tabs
+        for (int i = 0; i < currentTabs.size(); i++) {
+            tabList.add(new TabItem(currentTabs.get(i)));
+        }
+        // add a separator
+        tabList.add(getString(R.string.hiddenTabs));
+        // add all hidden tabs
+        for (int i = 0; i < hiddenTabs.size(); i++) {
+            tabList.add(new TabItem(hiddenTabs.get(i)));
+        }
+        adapter = new SeparatedListAdapter(this,
+                R.layout.library_tabs_settings_item, new TabListDataBinder(),
+                tabList);
+        setListAdapter(adapter);
+    }
 }
 
 class TabItem {

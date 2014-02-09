@@ -238,4 +238,6 @@
     <string name="rewind">Rembobiner</string>
     <string name="mute">Couper le son</string>
     <string name="setVolume">Définir le volume</string>
+
+    <string name="reset">RAZ</string>
 </resources>

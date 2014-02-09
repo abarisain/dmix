@@ -269,4 +269,6 @@
     <string name="mute">Mute</string>
     <string name="setVolume">Set volume</string>
 
+    <string name="reset">Reset</string>
+
 </resources>

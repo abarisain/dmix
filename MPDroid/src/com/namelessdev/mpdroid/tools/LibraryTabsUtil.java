@@ -68,8 +68,7 @@ public class LibraryTabsUtil {
         String currentSettings = settings.getString(LIBRARY_TABS_SETTINGS_KEY, "");
         if (currentSettings == "") {
             currentSettings = DEFAULT_LIBRARY_TABS;
-            settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, currentSettings)
-                    .commit();
+            resetLibraryTabs(context);
         }
         return new ArrayList<String>(Arrays.asList(currentSettings.split("\\"
                 + LIBRARY_TABS_DELIMITER)));
@@ -102,5 +101,12 @@ public class LibraryTabsUtil {
                 .getDefaultSharedPreferences(context);
         String currentSettings = getTabsStringFromList(tabs);
         settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, currentSettings).commit();
+    }
+
+    public static void resetLibraryTabs(Context context) {
+        final SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(context);
+        settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, DEFAULT_LIBRARY_TABS)
+                .commit();
     }
 }
