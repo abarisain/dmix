@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dslv="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
 
     <!-- <include android:id="@+id/header" layout="@layout/generic_header" /> -->
-    <com.namelessdev.mpdroid.views.TouchInterceptor android:id="@android:id/list"
+    <com.mobeta.android.dslv.DragSortListView android:id="@android:id/list"
         android:layout_width="fill_parent"
 		android:layout_height="0dip"
 		android:layout_weight="1"
 		android:drawSelectorOnTop="false"
-		android:fastScrollEnabled="true"/>
+		android:fastScrollEnabled="true"
+        dslv:collapsed_height="2dp"
+        dslv:drag_enabled="true"
+        dslv:drag_scroll_start="0.33"
+        dslv:drag_start_mode="onMove"
+        dslv:float_alpha="0.6"
+        dslv:max_drag_scroll_speed="0.5"
+        dslv:remove_enabled="false"
+        dslv:slide_shuffle_speed="0.3"
+        dslv:sort_enabled="true"
+        dslv:track_drag_sort="false"
+        dslv:use_default_controller="true" />
     
 
     <View

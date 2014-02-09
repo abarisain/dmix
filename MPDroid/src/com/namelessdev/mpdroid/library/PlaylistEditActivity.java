@@ -27,11 +27,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidListActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
-import com.namelessdev.mpdroid.views.TouchInterceptor;
 
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
@@ -52,7 +53,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     private boolean isPlayQueue = true;
     private boolean isFirstRefresh = true;
 
-    private TouchInterceptor.DropListener mDropListener = new TouchInterceptor.DropListener() {
+    private DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
         public void drop(int from, int to) {
             if (from == to) {
                 return;
@@ -80,7 +81,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         }
     };
 
-    private TouchInterceptor.RemoveListener mRemoveListener = new TouchInterceptor.RemoveListener() {
+    private DragSortListView.RemoveListener mRemoveListener = new DragSortListView.RemoveListener() {
         public void remove(int which) {
             // removePlaylistItem(which);
         }
@@ -160,10 +161,19 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         update();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
 
-        ListView trackList = getListView();
+        final DragSortListView trackList = (DragSortListView) getListView();
         trackList.setOnCreateContextMenuListener(this);
-        ((TouchInterceptor) trackList).setDropListener(mDropListener);
-        ((TouchInterceptor) trackList).setRemoveListener(mRemoveListener);
+        trackList.setDropListener(mDropListener);
+
+        final DragSortController controller = new DragSortController(trackList);
+        controller.setDragHandleId(R.id.icon);
+        controller.setRemoveEnabled(false);
+        controller.setSortEnabled(true);
+        controller.setDragInitMode(1);
+
+        trackList.setFloatViewManager(controller);
+        trackList.setOnTouchListener(controller);
+        trackList.setDragEnabled(true);
         trackList.setCacheColorHint(0);
 
         Button button = (Button) findViewById(R.id.Remove);
