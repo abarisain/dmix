@@ -23,6 +23,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
@@ -38,7 +40,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
     private SeparatedListAdapter adapter;
     private ArrayList<Object> tabList;
 
-    public TouchInterceptor.DropListener mDropListener = new TouchInterceptor.DropListener() {
+    public DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
 
         public void drop(int from, int to) {
             if (from == to) {
@@ -113,9 +115,19 @@ public class LibraryTabsSettings extends PreferenceActivity {
                 tabList);
 
         setListAdapter(adapter);
-        ListView mList;
-        mList = getListView();
-        ((TouchInterceptor) mList).setDropListener(mDropListener);
+        DragSortListView mList;
+        mList = (DragSortListView) getListView();
+        mList.setDropListener(mDropListener);
+
+        final DragSortController controller = new DragSortController(mList);
+        controller.setDragHandleId(R.id.text1);
+        controller.setRemoveEnabled(false);
+        controller.setSortEnabled(true);
+        controller.setDragInitMode(1);
+
+        mList.setFloatViewManager(controller);
+        mList.setOnTouchListener(controller);
+        mList.setDragEnabled(true);
     }
 
     @Override
@@ -155,8 +167,7 @@ class TabListDataBinder implements SeparatedListDataBinder {
 
     public void onDataBind(Context context, View targetView,
             List<? extends Object> items, Object item, int position) {
-        final TextView text1 = (TextView) targetView.findViewById(R.id.text1);
-        text1.setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).text));
+        ((TextView) targetView).setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).text));
     }
 
 }
