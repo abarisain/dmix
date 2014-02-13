@@ -12,7 +12,7 @@
     <!-- Project settings -->
     <property name="configs.dir" value="${ant.android.scala.dir}/configs" />
     <property name="ant-invoked.jar" value="${configs.dir}/ant-invoked.jar" />
-    <property name="out.classes.absolute.dir" value="${source.dir}/../bin/classes" />
+    <property name="out.classes.absolute.dir" value="${scala.source.dir}/../bin/classes" />
 
     <condition property="extensible.classpath"
         value="${tested.project.absolute.dir}/bin/classes"
