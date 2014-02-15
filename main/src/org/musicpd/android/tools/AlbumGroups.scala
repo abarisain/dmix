@@ -29,7 +29,11 @@ object AlbumGroups {
 	  numbers.replaceAllIn(_ : String, x => {
 	    var ns = for (
 	      i <- (1 to x.groupCount) if x.group(i) != null;
-	      n = if(i < 22) i - 1 else if (i < 29) 20 + (i - 21) * 20 else if (i < 41) i - 29 else x.group(i).toInt
+	      n = try {
+	        if(i < 22) i - 1 else if (i < 29) 20 + (i - 21) * 20 else if (i < 41) i - 29 else x.group(i).toInt
+	      } catch {
+                _ => 0
+              }
 	    ) yield n
 	    ns.sum.formatted("~%04d")
 	  })
