@@ -33,7 +33,6 @@ import org.musicpd.android.views.TouchInterceptor;
 
 public class PlaylistEditActivity extends MPDListActivity implements StatusChangeListener, OnClickListener {
 	private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
-	private List<Music> musics;
 	private String playlistName=null;
 	private boolean isPlayQueue=true;
 	private boolean isFirstRefresh = true;
@@ -74,6 +73,7 @@ public class PlaylistEditActivity extends MPDListActivity implements StatusChang
 		final Activity activity = this;
 		Utils.retry(new MPDAction0() {
 		  public void apply() throws MPDServerException {
+			List<Music> musics;
 			if (isPlayQueue) {
 				MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 				musics = playlist.getMusicList();
@@ -87,19 +87,21 @@ public class PlaylistEditActivity extends MPDListActivity implements StatusChang
 			View view = null==getListView() ? null : getListView().getChildAt(0);
 			int top = null==view ? -1 : view.getTop();
 			int listPlayingId = 0;
-			for (Music m : musics) {
-				HashMap<String, Object> item = new HashMap<String, Object>();
-				item.put("songid", m.getSongId());
-				item.put("artist", m.getArtist());
-				item.put("title", m.getTitle());
-				item.put("marked", false);
-				if (isPlayQueue && m.getSongId() == playingID) {
-					item.put("play", android.R.drawable.ic_media_play);
-					listPlayingId = songlist.size() - 1;
-				} else {
-					item.put("play", 0);
+			synchronized(musics) {
+				for (Music m : musics) {
+					HashMap<String, Object> item = new HashMap<String, Object>();
+					item.put("songid", m.getSongId());
+					item.put("artist", m.getArtist());
+					item.put("title", m.getTitle());
+					item.put("marked", false);
+					if (isPlayQueue && m.getSongId() == playingID) {
+						item.put("play", android.R.drawable.ic_media_play);
+						listPlayingId = songlist.size() - 1;
+					} else {
+						item.put("play", 0);
+					}
+					songlist.add(item);
 				}
-				songlist.add(item);
 			}
 			SimpleAdapter songs = new SimpleAdapter(activity, songlist, R.layout.playlist_editlist_item, new String[] { "play", "title", "artist",
 					"marked" }, new int[] { R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox });

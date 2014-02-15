@@ -84,44 +84,46 @@ public class PlaylistFragmentCompat extends SherlockListFragment implements Stat
 		  public void apply() throws MPDServerException {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			songlist = new ArrayList<HashMap<String, Object>>();
-			List<Music> currentMusics = musics = playlist.getMusicList();
+			musics = playlist.getMusicList();
 			int playingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			// The position in the songlist of the currently played song
 			int listPlayingID = -1;
-			for (Music m : currentMusics) {
-				if (m == null) {
-					continue;
-				}
-				HashMap<String, Object> item = new HashMap<String, Object>();
-				item.put("songid", m.getSongId());
-				if (m.isStream()) {
-					if (m.haveTitle()) {
-						item.put("title", m.getTitle());
-						if (Tools.isStringEmptyOrNull(m.getName())) {
-							item.put("artist", m.getArtist());
+			synchronized(musics) {
+				for (Music m : musics) {
+					if (m == null) {
+						continue;
+					}
+					HashMap<String, Object> item = new HashMap<String, Object>();
+					item.put("songid", m.getSongId());
+					if (m.isStream()) {
+						if (m.haveTitle()) {
+							item.put("title", m.getTitle());
+							if (Tools.isStringEmptyOrNull(m.getName())) {
+								item.put("artist", m.getArtist());
+							} else {
+								item.put("artist", m.getArtist() + " - " + m.getName());
+							}
 						} else {
-							item.put("artist", m.getArtist() + " - " + m.getName());
+							item.put("title", m.getName());
 						}
 					} else {
-						item.put("title", m.getName());
+						if (Tools.isStringEmptyOrNull(m.getAlbum())) {
+							item.put("artist", m.getArtist());
+						} else {
+							item.put("artist", m.getArtist() + " - " + m.getAlbum());
+						}
+						item.put("title", m.getTitle());
 					}
-				} else {
-					if (Tools.isStringEmptyOrNull(m.getAlbum())) {
-						item.put("artist", m.getArtist());
+					if (m.getSongId() == playingID) {
+						item.put("play", android.R.drawable.ic_media_play);
+						// Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
+						// it
+						listPlayingID = songlist.size() - 1;
 					} else {
-						item.put("artist", m.getArtist() + " - " + m.getAlbum());
+						item.put("play", 0);
 					}
-					item.put("title", m.getTitle());
+					songlist.add(item);
 				}
-				if (m.getSongId() == playingID) {
-					item.put("play", android.R.drawable.ic_media_play);
-					// Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
-					// it
-					listPlayingID = songlist.size() - 1;
-				} else {
-					item.put("play", 0);
-				}
-				songlist.add(item);
 			}
 
 			final int finalListPlayingID = listPlayingID;

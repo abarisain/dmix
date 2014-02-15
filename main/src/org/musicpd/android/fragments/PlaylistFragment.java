@@ -55,7 +55,6 @@ import org.musicpd.android.views.TouchInterceptor;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class PlaylistFragment extends SherlockListFragment implements StatusChangeListener, OnMenuItemClickListener {
 	private ArrayList<HashMap<String, Object>> songlist;
-	private List<Music> musics;
 
 	private MPDApplication app;
 	private ListView list;
@@ -206,7 +205,7 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 		try {
 			MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
 			songlist = new ArrayList<HashMap<String, Object>>();
-			List<Music> currentMusics = musics = playlist.getMusicList();
+			List<Music> musics = playlist.getMusicList();
 			if (lastPlayingID == -1 || forcePlayingIDRefresh)
 				lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
 			// The position in the songlist of the currently played song
@@ -215,61 +214,63 @@ public class PlaylistFragment extends SherlockListFragment implements StatusChan
 			String tmpAlbum = null;
 			String tmpAlbumArtist = null;
 			String tmpTitle = null;
-			for (Music m : currentMusics) {
-				if (m == null) {
-					continue;
-				}
-				tmpArtist = m.getArtist();
-				tmpAlbum = m.getAlbum();
-				tmpAlbumArtist = m.getAlbumArtist();
-				tmpTitle = m.getTitle();
-				if (filter != null) {
-					if (tmpArtist == null)
-						tmpArtist = "";
-					if (tmpAlbum == null)
-						tmpAlbum = "";
-					if (tmpAlbumArtist == null)
-						tmpAlbumArtist = "";
-					if (tmpTitle == null)
-						tmpTitle = "";
-					if (!tmpArtist.toLowerCase().contains(filter) &&
-							!tmpAlbum.toLowerCase().contains(filter) &&
-							!tmpAlbumArtist.toLowerCase().contains(filter) &&
-							!tmpTitle.toLowerCase().contains(filter)) {
+			synchronized(musics) {
+				for (Music m : musics) {
+					if (m == null) {
 						continue;
 					}
-				}
-				HashMap<String, Object> item = new HashMap<String, Object>();
-				item.put("songid", m.getSongId());
-				if (m.isStream()) {
-					if (m.haveTitle()) {
-						item.put("title", tmpTitle);
-						if (Tools.isStringEmptyOrNull(m.getName())) {
-							item.put("artist", tmpArtist);
+					tmpArtist = m.getArtist();
+					tmpAlbum = m.getAlbum();
+					tmpAlbumArtist = m.getAlbumArtist();
+					tmpTitle = m.getTitle();
+					if (filter != null) {
+						if (tmpArtist == null)
+							tmpArtist = "";
+						if (tmpAlbum == null)
+							tmpAlbum = "";
+						if (tmpAlbumArtist == null)
+							tmpAlbumArtist = "";
+						if (tmpTitle == null)
+							tmpTitle = "";
+						if (!tmpArtist.toLowerCase().contains(filter) &&
+								!tmpAlbum.toLowerCase().contains(filter) &&
+								!tmpAlbumArtist.toLowerCase().contains(filter) &&
+								!tmpTitle.toLowerCase().contains(filter)) {
+							continue;
+						}
+					}
+					HashMap<String, Object> item = new HashMap<String, Object>();
+					item.put("songid", m.getSongId());
+					if (m.isStream()) {
+						if (m.haveTitle()) {
+							item.put("title", tmpTitle);
+							if (Tools.isStringEmptyOrNull(m.getName())) {
+								item.put("artist", tmpArtist);
+							} else {
+								item.put("artist", tmpArtist + " - " + m.getName());
+							}
 						} else {
-							item.put("artist", tmpArtist + " - " + m.getName());
+							item.put("title", m.getName());
 						}
 					} else {
-						item.put("title", m.getName());
+						if (Tools.isStringEmptyOrNull(tmpAlbum)) {
+							item.put("artist", tmpArtist);
+						} else {
+							item.put("artist", tmpArtist + " - " + tmpAlbum);
+						}
+						item.put("title", tmpTitle);
 					}
-				} else {
-					if (Tools.isStringEmptyOrNull(tmpAlbum)) {
-						item.put("artist", tmpArtist);
+					
+					if (m.getSongId() == lastPlayingID) {
+						item.put("play", android.R.drawable.ic_media_play);
+						// Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
+						// it
+						listPlayingID = songlist.size() - 1;
 					} else {
-						item.put("artist", tmpArtist + " - " + tmpAlbum);
+						item.put("play", 0);
 					}
-					item.put("title", tmpTitle);
+					songlist.add(item);
 				}
-				
-				if (m.getSongId() == lastPlayingID) {
-					item.put("play", android.R.drawable.ic_media_play);
-					// Lie a little. Scroll to the previous song than the one playing. That way it shows that there are other songs before
-					// it
-					listPlayingID = songlist.size() - 1;
-				} else {
-					item.put("play", 0);
-				}
-				songlist.add(item);
 			}
 
 			final int finalListPlayingID = listPlayingID;
