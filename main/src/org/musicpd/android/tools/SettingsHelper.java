@@ -40,7 +40,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
 	}
 	
 	public void setHostname(String hostname) {
-		String wifiSSID = getCurrentConfiguredSSID();
+		String wifiSSID = getCurrentSSID();
 		settings
 			.edit()
 			.putString(getStringWithSSID("hostname", wifiSSID), hostname)
