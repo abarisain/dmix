@@ -56,16 +56,16 @@ public class SimpleLibraryActivity extends MPDFragmentActivity implements ILibra
 				targetElement = intent.getParcelableExtra(EXTRA_ARTIST);
 			if (targetElement == null)
 				targetElement = intent.getStringExtra(EXTRA_FOLDER);
-			if (targetElement == null) {
-				throw new RuntimeException("Error : cannot start SimpleLibraryActivity without an extra");
+			if (targetElement instanceof Artist) {
+				rootFragment = new AlbumsFragment().init((Artist) targetElement);
+			} else if (targetElement instanceof Album) {
+				rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST), (Album) targetElement);
 			} else {
-				if (targetElement instanceof Artist) {
-					rootFragment = new AlbumsFragment().init((Artist) targetElement);
-				} else if (targetElement instanceof Album) {
-					rootFragment = new SongsFragment().init((Artist) getIntent().getParcelableExtra(EXTRA_ARTIST), (Album) targetElement);
-				} else if (targetElement instanceof String) {
-					rootFragment = new FSFragment().init((String) targetElement);
-				}
+				rootFragment = new FSFragment().init(
+					targetElement instanceof String
+						? (String) targetElement
+						: ""
+				);
 			}
 		}
 		if (rootFragment != null) {
