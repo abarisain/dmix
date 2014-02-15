@@ -170,6 +170,9 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 	public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
 		try {
 			refresh(oldPlaylistVersion);
+		} catch(Exception e) {
+			// Log and ignore errors relating to lack of atomicity
+			e.printStackTrace();
 		} catch (MPDServerException e) {
 			e.printStackTrace();
 		}
@@ -227,7 +230,10 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 		int oldLength = this.list.size();
 		List<Music> newPlaylist = new ArrayList<Music>(newLength+1);
 		
-		newPlaylist.addAll(this.list.subList(0 , newLength < oldLength ? newLength : oldLength));
+		List<Music> oldList = this.list.subList(0 , newLength < oldLength ? newLength : oldLength);
+		synchronized(oldList) {
+			newPlaylist.addAll(oldList);
+		}
 		
 		for(int i = newLength - oldLength; i > 0; i--)
 			newPlaylist.add(null);
