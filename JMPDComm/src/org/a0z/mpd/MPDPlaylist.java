@@ -173,8 +173,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 		} catch(Exception e) {
 			// Log and ignore errors relating to lack of atomicity
 			e.printStackTrace();
-		} catch (MPDServerException e) {
-			e.printStackTrace();
 		}
 	}
 	
