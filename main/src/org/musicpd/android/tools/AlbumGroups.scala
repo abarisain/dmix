@@ -32,7 +32,7 @@ object AlbumGroups {
 	      n = try {
 	        if(i < 22) i - 1 else if (i < 29) 20 + (i - 21) * 20 else if (i < 41) i - 29 else x.group(i).toInt
 	      } catch {
-                _ => 0
+                case _ => 0
               }
 	    ) yield n
 	    ns.sum.formatted("~%04d")
