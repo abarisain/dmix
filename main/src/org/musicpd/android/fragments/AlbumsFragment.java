@@ -98,6 +98,8 @@ public class AlbumsFragment extends BrowseFragment {
 			}
 		} catch (MPDServerException e) {
 			Log.w(e);
+		} catch (Exception e) {
+			Log.e(e);
 		}
 	}
 
