@@ -120,14 +120,14 @@ public class Music extends Item implements FilesystemTreeEntry {
 		
 		if (isStream()) {
 			String n=getStreamName();
-			if (null!=n && !n.isEmpty()) {
+			if (!isEmpty(n)) {
 				name=n;
 			}
 		}
 	}
 	
 	private String getStreamName() {
-		if (null!=fullpath && !fullpath.isEmpty()) {
+		if (!isEmpty(fullpath)) {
 			int pos=fullpath.indexOf("#");
 			if (pos>1) {
 				return fullpath.substring(pos+1, fullpath.length());
