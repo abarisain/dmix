@@ -117,6 +117,8 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	private Timer posTimer = null;
 	private TimerTask posTimerTask = null;
 
+	private String noSongInfo = "";
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -139,6 +141,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	@Override
 	public void onStart() {
 		super.onStart();
+		noSongInfo = getResources().getString(R.string.noSongInfo);
 		MPDApplication app = (MPDApplication) getActivity().getApplication();
 		app.oMPDAsyncHelper.addStatusChangeListener(this);
 		app.oMPDAsyncHelper.addTrackPositionListener(this);
@@ -579,7 +582,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 				boolean noSong=actSong == null || status.getPlaylistLength() == 0;
 				if (noSong) {
 					currentSong = null;
-					title = getResources().getString(R.string.noSongInfo);
+					title = noSongInfo;
 				} else if (actSong.isStream()){
 					currentSong = actSong;
 					Log.d("Playing a stream");
@@ -636,7 +639,7 @@ public class NowPlayingFragment extends SherlockFragment implements StatusChange
 	public void checkConnected() {
 		connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD.isConnected();
 		if (connected) {
-			songNameText.setText(getResources().getString(R.string.noSongInfo));
+			songNameText.setText(noSongInfo);
 		} else {
 			songNameText.setText(getResources().getString(R.string.notConnected));
 		}
