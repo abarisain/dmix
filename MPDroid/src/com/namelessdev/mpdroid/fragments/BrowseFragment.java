@@ -162,17 +162,26 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         int index = (int) info.id;
         if (index >= 0 && items.size() > index) {
             menu.setHeaderTitle(items.get((int) info.id).toString());
-            android.view.MenuItem addItem = menu.add(ADD, ADD, 0, getResources().getString(irAdd));
-            addItem.setOnMenuItemClickListener(this);
-            android.view.MenuItem addAndReplaceItem = menu.add(ADDNREPLACE, ADDNREPLACE, 0,
-                    R.string.addAndReplace);
-            addAndReplaceItem.setOnMenuItemClickListener(this);
-            android.view.MenuItem addAndReplacePlayItem = menu.add(ADDNREPLACEPLAY,
-                    ADDNREPLACEPLAY, 0, R.string.addAndReplacePlay);
-            addAndReplacePlayItem.setOnMenuItemClickListener(this);
-            android.view.MenuItem addAndPlayItem = menu.add(ADDNPLAY, ADDNPLAY, 0,
-                    R.string.addAndPlay);
-            addAndPlayItem.setOnMenuItemClickListener(this);
+            // If in simple mode, show "Play" (add, replace & play), "Add to queue" and "Add to playlist"
+            if (app.isInSimpleMode()) {
+                android.view.MenuItem playItem = menu.add(ADDNREPLACEPLAY,
+                        ADDNREPLACEPLAY, 0, R.string.play);
+                playItem.setOnMenuItemClickListener(this);
+                android.view.MenuItem addItem = menu.add(ADD, ADD, 0, R.string.addToQueue);
+                addItem.setOnMenuItemClickListener(this);
+            } else {
+                android.view.MenuItem addItem = menu.add(ADD, ADD, 0, getResources().getString(irAdd));
+                addItem.setOnMenuItemClickListener(this);
+                android.view.MenuItem addAndReplaceItem = menu.add(ADDNREPLACE, ADDNREPLACE, 0,
+                        R.string.addAndReplace);
+                addAndReplaceItem.setOnMenuItemClickListener(this);
+                android.view.MenuItem addAndReplacePlayItem = menu.add(ADDNREPLACEPLAY,
+                        ADDNREPLACEPLAY, 0, R.string.addAndReplacePlay);
+                addAndReplacePlayItem.setOnMenuItemClickListener(this);
+                android.view.MenuItem addAndPlayItem = menu.add(ADDNPLAY, ADDNPLAY, 0,
+                        R.string.addAndPlay);
+                addAndPlayItem.setOnMenuItemClickListener(this);
+            }
 
             if (R.string.addPlaylist != irAdd && R.string.addStream != irAdd) {
                 int id = 0;

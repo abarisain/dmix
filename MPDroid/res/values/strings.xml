@@ -270,5 +270,8 @@
     <string name="setVolume">Set volume</string>
 
     <string name="reset">Reset</string>
+    <string name="simpleMode">Simple mode</string>
+    <string name="simpleModeDescription">Behave like a standard Android media player for play queue management</string>
+    <string name="addToQueue">Add to queue</string>
 
 </resources>

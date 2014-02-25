@@ -165,6 +165,7 @@
 	<string name="enableAlbumYearText">Afficher l\'année de l\'album</string>
 	<string name="showAlbumArtist">Afficher l\'artiste de l\'album</string>
     <string name="enableAudioText">Afficher les informations d\'encodage</string>
+    <string name="play">Jouer</string>
 
 	<string name="behavior">Comportement du téléphone</string>
 	<string name="pauseOnPhoneStateChange">Mettre la musique en pause</string>
@@ -240,4 +241,8 @@
     <string name="setVolume">Définir le volume</string>
 
     <string name="reset">RAZ</string>
+
+    <string name="simpleMode">Mode simple</string>
+    <string name="simpleModeDescription">Se comporter comme un lecteur audio Android standard pour la gestion de la file</string>
+    <string name="addToQueue">Ajouter à la file d\'attente</string>
 </resources>

@@ -241,6 +241,10 @@ public class MPDApplication extends Application implements ConnectionListener {
                 && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletUI", true);
     }
 
+    public boolean isInSimpleMode() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("simpleMode", false);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

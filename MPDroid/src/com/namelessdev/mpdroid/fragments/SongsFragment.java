@@ -364,12 +364,23 @@ public class SongsFragment extends BrowseFragment {
 
     @Override
     public void onItemClick(final AdapterView<?> adapterView, View v, final int position, long id) {
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
-            @Override
-            public void run() {
-                add((Item) adapterView.getAdapter().getItem(position), false, false);
-            }
-        });
+        // If in simple mode : add, replace and play the shown album.
+        if (app.isInSimpleMode()) {
+            app.oMPDAsyncHelper.execAsync(new Runnable() {
+                @Override
+                public void run() {
+                    add(album, true, true);
+                }
+            });
+        } else {
+            app.oMPDAsyncHelper.execAsync(new Runnable() {
+                @Override
+                public void run() {
+                    add((Item) adapterView.getAdapter().getItem(position), false, false);
+                }
+            });
+        }
+
     }
 
     @Override
