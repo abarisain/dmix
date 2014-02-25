@@ -369,7 +369,17 @@ public class SongsFragment extends BrowseFragment {
             app.oMPDAsyncHelper.execAsync(new Runnable() {
                 @Override
                 public void run() {
-                    add(album, true, true);
+                    try {
+                        app.oMPDAsyncHelper.oMPD.add(album, true, true);
+                        // Account for the list header
+                        int positionCorrection = 0;
+                        if (list instanceof ListView) {
+                            positionCorrection = ((ListView)list).getHeaderViewsCount();
+                        }
+                        app.oMPDAsyncHelper.oMPD.seekByIndex(position - positionCorrection, 0l);
+                    } catch (MPDServerException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         } else {
