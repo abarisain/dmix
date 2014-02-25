@@ -135,6 +135,8 @@
 	<string name="clear">Vider</string>
 	<string name="updateDB">Mettre à jour</string>
 	<string name="updateDBDetails">Rafraichir la bibliothèque de MPD</string>
+    <string name="useLocalAlbumCache">Utiliser le cache d\'albums</string>
+    <string name="useLocalAlbumCacheDescription">Sauvergarder les informations de la bibliothèque MPD localement</string>
 	<string name="sortAlbumsByYear">Année de l\'album</string>
 	<string name="sortAlbumsByYearDescription">Trier les albums par année</string>
 	<string name="showAlbumTrackCount">Nombre de chansons</string>
