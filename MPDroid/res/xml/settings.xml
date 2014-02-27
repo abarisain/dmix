@@ -2,65 +2,132 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="preferencescreen"  android:layout_height="match_parent" android:layout_width="match_parent">
 
-    <PreferenceCategory android:title="@string/serverSettings" >
+    <PreferenceScreen
+        android:key="informationScreen"
+        android:summary="@string/serverInformationDescription"
+        android:title="@string/serverInformation" >
 
-        <!-- Connection Settings -->
-
-        <PreferenceScreen
-            android:key="connectionScreen"
-            android:summary="@string/connectionSettingsDescription"
-            android:title="@string/connectionSettings" >
-
-            <intent
-                android:action="android.intent.action.MAIN"
-                android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings"
-                android:targetPackage="com.namelessdev.mpdroid" />
-        </PreferenceScreen>
-
-        <!-- Server Information -->
-
-        <PreferenceScreen
-            android:key="informationScreen"
-            android:summary="@string/serverInformationDescription"
+        <PreferenceCategory
             android:title="@string/serverInformation" >
 
-            <PreferenceCategory
-                android:title="@string/serverInformation" >
+            <EditTextPreference
+                android:defaultValue=""
+                android:enabled="false"
+                android:key="version"
+                android:title="@string/version" />
 
-                <EditTextPreference
-                    android:defaultValue=""
-                    android:enabled="false"
-                    android:key="version"
-                    android:title="@string/version" />
+            <EditTextPreference
+                android:defaultValue=""
+                android:enabled="false"
+                android:key="artists"
+                android:title="@string/artists" />
 
-                <EditTextPreference
-                    android:defaultValue=""
-                    android:enabled="false"
-                    android:key="artists"
-                    android:title="@string/artists" />
+            <EditTextPreference
+                android:defaultValue=""
+                android:enabled="false"
+                android:key="albums"
+                android:title="@string/albums" />
 
-                <EditTextPreference
-                    android:defaultValue=""
-                    android:enabled="false"
-                    android:key="albums"
-                    android:title="@string/albums" />
+            <EditTextPreference
+                android:defaultValue=""
+                android:enabled="false"
+                android:key="songs"
+                android:title="@string/songs" />
 
-                <EditTextPreference
-                    android:defaultValue=""
-                    android:enabled="false"
-                    android:key="songs"
-                    android:title="@string/songs" />
+            <EditTextPreference
+                android:defaultValue=""
+                android:enabled="false"
+                android:key="cacheUsage1"
+                android:title="@string/cacheUsage" />
+        </PreferenceCategory>
+    </PreferenceScreen>
 
-                <EditTextPreference
-                    android:defaultValue=""
-                    android:enabled="false"
-                    android:key="cacheUsage1"
-                    android:title="@string/cacheUsage" />
-            </PreferenceCategory>
+    <PreferenceScreen
+        android:key="connectionScreen"
+        android:summary="@string/connectionSettingsDescription"
+        android:title="@string/connectionSettings" >
+
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings"
+            android:targetPackage="com.namelessdev.mpdroid" />
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:key="coverArtScreen"
+        android:summary="@string/coverArtDescription"
+        android:title="@string/coverArtTitle" >
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="enableLocalCoverCache"
+            android:persistent="true"
+            android:summary="@string/enableLocalCoverCacheDescription"
+            android:title="@string/enableLocalCoverCache" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:enabled="false"
+            android:key="cacheUsage2"
+            android:title="@string/cacheUsage" />
+
+        <PreferenceScreen
+            android:key="clearLocalCoverCache"
+            android:summary="@string/clearLocalCoverCacheDescription"
+            android:title="@string/clearLocalCoverCache" >
         </PreferenceScreen>
-    </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/librarySettings" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="enableLastFM"
+            android:persistent="true"
+            android:summary="@string/enableInternetCoverDescription"
+            android:title="@string/enableInternetCover" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:key="gracenoteClientId"
+            android:persistent="true"
+            android:summary="@string/gracenoteClientIdDescription"
+            android:title="@string/gracenoteClientId" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="enableLocalCover"
+            android:persistent="true"
+            android:summary="@string/enableLocalCoverDescription"
+            android:title="@string/enableLocalCover" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:key="musicPath"
+            android:persistent="true"
+            android:summary="@string/musicPathDescription"
+            android:title="@string/musicPath" />
+
+        <EditTextPreference
+            android:defaultValue="folder.jpg"
+            android:key="coverFileName"
+            android:persistent="true"
+            android:summary="@string/coverFileNameDescription"
+            android:title="@string/coverFileName" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="enableCoverOnlyOnWifi"
+            android:persistent="true"
+            android:summary="@string/enableCoverOnlyOnWifiDescription"
+            android:title="@string/enableCoverOnlyOnWifi" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="enableAlbumArtLibrary"
+            android:persistent="true"
+            android:summary="@string/enableAlbumArtLibraryDescription"
+            android:title="@string/enableAlbumArtLibrary" />
+    </PreferenceScreen>
+
+    <PreferenceScreen android:title="@string/librarySettings" >
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -93,9 +160,9 @@
             android:persistent="true"
             android:summary="@string/showAlbumTrackCountDescription"
             android:title="@string/showAlbumTrackCount" />
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory
+    <PreferenceScreen
         android:key="category_interface"
         android:title="@string/interfaceSettings" >
 
@@ -108,80 +175,6 @@
                 android:action="android.intent.action.MAIN"
                 android:targetClass="com.namelessdev.mpdroid.library.LibraryTabsSettings"
                 android:targetPackage="com.namelessdev.mpdroid" />
-        </PreferenceScreen>
-
-        <PreferenceScreen
-            android:key="coverArtScreen"
-            android:summary="@string/coverArtDescription"
-            android:title="@string/coverArtTitle" >
-
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="enableLocalCoverCache"
-                android:persistent="true"
-                android:summary="@string/enableLocalCoverCacheDescription"
-                android:title="@string/enableLocalCoverCache" />
-
-            <EditTextPreference
-                android:defaultValue=""
-                android:enabled="false"
-                android:key="cacheUsage2"
-                android:title="@string/cacheUsage" />
-
-            <PreferenceScreen
-                android:key="clearLocalCoverCache"
-                android:summary="@string/clearLocalCoverCacheDescription"
-                android:title="@string/clearLocalCoverCache" >
-            </PreferenceScreen>
-
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="enableLastFM"
-                android:persistent="true"
-                android:summary="@string/enableInternetCoverDescription"
-                android:title="@string/enableInternetCover" />
-
-            <EditTextPreference
-                    android:defaultValue=""
-                    android:key="gracenoteClientId"
-                    android:persistent="true"
-                    android:summary="@string/gracenoteClientIdDescription"
-                    android:title="@string/gracenoteClientId" />
-
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="enableLocalCover"
-                android:persistent="true"
-                android:summary="@string/enableLocalCoverDescription"
-                android:title="@string/enableLocalCover" />
-
-            <EditTextPreference
-                android:defaultValue=""
-                android:key="musicPath"
-                android:persistent="true"
-                android:summary="@string/musicPathDescription"
-                android:title="@string/musicPath" />
-
-            <EditTextPreference
-                android:defaultValue="folder.jpg"
-                android:key="coverFileName"
-                android:persistent="true"
-                android:summary="@string/coverFileNameDescription"
-                android:title="@string/coverFileName" />
-
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="enableCoverOnlyOnWifi"
-                android:persistent="true"
-                android:summary="@string/enableCoverOnlyOnWifiDescription"
-                android:title="@string/enableCoverOnlyOnWifi" />
-
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="enableAlbumArtLibrary"
-                android:persistent="true"
-                android:summary="@string/enableAlbumArtLibraryDescription"
-                android:title="@string/enableAlbumArtLibrary" />
         </PreferenceScreen>
 
         <PreferenceScreen
@@ -242,9 +235,9 @@
         <PreferenceScreen
             android:key="clearSearchHistory"
             android:title="@string/clearSearchHistory" />
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory android:title="@string/behavior" >
+    <PreferenceScreen android:title="@string/behavior" >
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -259,22 +252,16 @@
             android:persistent="true"
             android:summary="@string/playOnPhoneStateChangeDescription"
             android:title="@string/playOnPhoneStateChange" />
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory android:title="@string/app_name" >
+    <PreferenceScreen
+        android:key="aboutScreen"
+        android:title="@string/about" >
 
-        <!-- About -->
-
-        <PreferenceScreen
-            android:key="aboutScreen"
-            android:summary="@string/aboutDescription"
-            android:title="@string/about" >
-
-            <intent
-                android:action="android.intent.action.MAIN"
-                android:targetClass="com.namelessdev.mpdroid.AboutActivity"
-                android:targetPackage="com.namelessdev.mpdroid" />
-        </PreferenceScreen>
-    </PreferenceCategory>
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.namelessdev.mpdroid.AboutActivity"
+            android:targetPackage="com.namelessdev.mpdroid" />
+    </PreferenceScreen>
 
 </PreferenceScreen>
