@@ -221,4 +221,22 @@
     <string name="share">Weiterleiten</string>
     <string name="sharePrefix">Wird abgespielt:</string>
 
+    <string name="play">Abspielen</string>
+    <string name="stop">Stopp</string>
+
+    <string name="about_authors">Autoren</string>
+    <string name="about_libraries">Programmbibliotheken</string>
+
+    <string name="showNotification">Benachrichtigung zeigen</string>
+    <string name="closeNotification">Benachrichtigung schließen</string>
+    <string name="togglePlayback">Wiedergabe</string>
+    <string name="pause">Pause</string>
+    <string name="rewind">Zum Anfang</string>
+    <string name="mute">Stumm</string>
+    <string name="setVolume">Lautstärke</string>
+
+    <string name="simpleMode">Einfacher Modus</string>
+    <string name="simpleModeDescription">Wiedergabelisten-Management wie ein Standard-Player (sofortiges Ersetzen und Abspielen aus der Bibliothek heraus)</string>
+    <string name="addToQueue">Zur Wiedergabeliste hinzufügen</string>
+
 </resources>
