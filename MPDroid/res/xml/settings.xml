@@ -70,7 +70,7 @@
     <PreferenceCategory android:title="@string/librarySettings" >
 
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="useLocalAlbumCache"
             android:summary="@string/useLocalAlbumCacheDescription"
             android:title="@string/useLocalAlbumCache" />

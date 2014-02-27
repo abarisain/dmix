@@ -57,7 +57,7 @@ public class LibraryFragment extends Fragment {
                 final SharedPreferences settings = PreferenceManager
                         .getDefaultSharedPreferences(getActivity().getApplication());
                 if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true) &&
-                        settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_CACHE, true)) {
+                        settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_CACHE, false)) {
                     fragment = new AlbumsGridFragment(null);
                 } else {
                     fragment = new AlbumsFragment(null);
