@@ -42,8 +42,6 @@ public class SettingsFragment extends PreferenceFragment {
 
     private EditTextPreference cacheUsage2;
 
-    private PreferenceScreen update;
-
     private Handler handler;
 
     private EditTextPreference version;
@@ -83,7 +81,6 @@ public class SettingsFragment extends PreferenceFragment {
         handler = new Handler();
 
         informationScreen = (PreferenceScreen) findPreference("informationScreen");
-        update = (PreferenceScreen) findPreference("updateDB");
 
         if (!getResources().getBoolean(R.bool.isTablet)) {
             final PreferenceScreen interfaceCategory = (PreferenceScreen) findPreference(
@@ -147,7 +144,6 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     public void onConnectionStateChanged(final MPDApplication app, boolean connected) {
-        update.setEnabled(connected);
         informationScreen.setEnabled(connected);
         new Thread(new Runnable() {
 
@@ -191,15 +187,7 @@ public class SettingsFragment extends PreferenceFragment {
 
         final MPDApplication app = (MPDApplication) getActivity().getApplication();
 
-        if (preference.getKey().equals("updateDB")) {
-            try {
-                MPD oMPD = app.oMPDAsyncHelper.oMPD;
-                oMPD.refreshDatabase();
-            } catch (MPDServerException e) {
-            }
-            return true;
-
-        } else if (preference.getKey().equals("clearLocalCoverCache")) {
+        if (preference.getKey().equals("clearLocalCoverCache")) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.clearLocalCoverCache)
                     .setMessage(R.string.clearLocalCoverCachePrompt)

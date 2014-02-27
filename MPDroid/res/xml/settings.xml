@@ -16,13 +16,6 @@
                 android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings"
                 android:targetPackage="com.namelessdev.mpdroid" />
         </PreferenceScreen>
-        <!-- Other settings -->
-
-        <PreferenceScreen
-            android:key="updateDB"
-            android:summary="@string/updateDBDetails"
-            android:title="@string/updateDB" >
-        </PreferenceScreen>
 
         <!-- Server Information -->
 

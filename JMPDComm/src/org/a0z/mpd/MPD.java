@@ -1446,6 +1446,18 @@ public class MPD {
         mpdConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH);
     }
 
+    /**
+     * Tells server to refresh database.
+     *
+     * @throws MPDServerException if an error occur while contacting server.
+     */
+    public void refreshDatabase(String folder) throws MPDServerException {
+        if (!isConnected())
+            throw new MPDServerException("MPD Connection is not established");
+
+        mpdConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH, folder);
+    }
+
     public void removeFromPlaylist(String playlistName, Integer pos) throws MPDServerException {
         getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName,
                 Integer.toString(pos));

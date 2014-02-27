@@ -18,6 +18,9 @@ package com.namelessdev.mpdroid.fragments;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -184,6 +187,7 @@ public class FSFragment extends BrowseFragment {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        setHasOptionsMenu(true);
         if (icicle != null)
             init(icicle.getString(EXTRA_DIRECTORY));
     }
@@ -224,6 +228,36 @@ public class FSFragment extends BrowseFragment {
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(EXTRA_DIRECTORY, directory);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.mpd_fsmenu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Menu actions...
+        switch (item.getItemId()) {
+            case R.id.menu_update:
+                app.oMPDAsyncHelper.execAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (TextUtils.isEmpty(directory)) {
+                                app.oMPDAsyncHelper.oMPD.refreshDatabase();
+                            } else {
+                                app.oMPDAsyncHelper.oMPD.refreshDatabase(directory);
+                            }
+                        } catch (MPDServerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                break;
+        }
+        return false;
     }
 
 }
