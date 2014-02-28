@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
+import com.namelessdev.mpdroid.fragments.PlaylistFragment;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
@@ -29,6 +30,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Playlist;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
@@ -49,6 +51,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.PopupMenuCompat;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,9 +60,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -67,7 +70,7 @@ import java.util.List;
 
 public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener,
         ILibraryFragmentActivity,
-        ILibraryTabActivity, OnBackStackChangedListener {
+        ILibraryTabActivity, OnBackStackChangedListener, PopupMenu.OnMenuItemClickListener {
 
     public static enum DisplayMode {
         MODE_LIBRARY,
@@ -208,11 +211,15 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private ImageButton mHeaderOverflowMenu;
 
+    private PopupMenu mHeaderOverflowPopupMenu;
+
     private TextView mHeaderTitle;
 
     private int oldDrawerPosition;
 
     private LibraryFragment libraryFragment;
+
+    private PlaylistFragment playlistFragment;
 
     private FragmentManager fragmentManager;
 
@@ -427,6 +434,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
 
         final View nowPlayingSmallFragment = findViewById(R.id.now_playing_small_fragment);
+        playlistFragment = (PlaylistFragment) fragmentManager.findFragmentById(R.id.playlist_fragment);
+
         mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
         mHeaderOverflowMenu = (ImageButton) findViewById(R.id.header_overflow_menu);
         mHeaderTitle = (TextView) findViewById(R.id.header_title);
@@ -445,7 +454,26 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
             });
         }
-        // Sliding panel test
+        if (mHeaderOverflowMenu != null) {
+            mHeaderOverflowPopupMenu = new PopupMenu(this, mHeaderOverflowMenu);
+            mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_mainmenu,
+                    mHeaderOverflowPopupMenu.getMenu());
+            mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_playlistmenu,
+                    mHeaderOverflowPopupMenu.getMenu());
+            mHeaderOverflowPopupMenu.getMenu().removeItem(R.id.PLM_EditPL);
+            mHeaderOverflowPopupMenu.setOnMenuItemClickListener(this);
+
+            mHeaderOverflowMenu.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(mHeaderOverflowPopupMenu));
+
+            mHeaderOverflowMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    prepareNowPlayingMenu(mHeaderOverflowPopupMenu.getMenu());
+                    mHeaderOverflowPopupMenu.show();
+                }
+            });
+        }
+        // Sliding panel
         mSlidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         mSlidingLayout.setDragView(findViewById(R.id.header_dragview));
         mSlidingLayout.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
@@ -490,7 +518,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.mpd_mainmenu, menu);
+        getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
         return true;
     }
 
@@ -570,8 +598,17 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        if (playlistFragment != null && playlistFragment.onOptionsItemSelected(item)) {
             return true;
         }
 
@@ -632,6 +669,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 i.setAction(NotificationService.ACTION_SHOW_NOTIFICATION);
                 this.startService(i);
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -650,6 +688,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
         super.onPrepareOptionsMenu(menu);
+        return true;
+    }
+
+    public boolean prepareNowPlayingMenu(Menu menu) {
+        // Reminder : never disable buttons that are shown as actionbar actions
+        // here
         MPDApplication app = (MPDApplication) this.getApplication();
         MPD mpd = app.oMPDAsyncHelper.oMPD;
         if (!mpd.isConnected()) {
