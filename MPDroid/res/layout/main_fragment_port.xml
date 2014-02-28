@@ -5,7 +5,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     tools:ignore="ContentDescription" >
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"

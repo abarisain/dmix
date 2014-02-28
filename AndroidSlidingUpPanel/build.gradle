@@ -1,4 +1,4 @@
-apply plugin: 'android'
+apply plugin: 'android-library'
 
 dependencies {
     repositories {
@@ -7,24 +7,11 @@ dependencies {
 
     // Support Libraries
     compile 'com.android.support:support-v4:19.0.+'
-
-    // Projects
-    compile project(':JMPDComm')
-    compile project(':AndroidSlidingUpPanel')
-
-    // Libraries from maven
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.3'
-    compile 'asia.ivity.android:drag-sort-listview:1.0'
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
-
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 19
-    }
+    buildToolsVersion '19.0.1'
 
     sourceSets {
         main {

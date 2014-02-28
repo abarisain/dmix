@@ -25,6 +25,7 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
@@ -209,6 +210,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private SlidingUpPanelLayout mSlidingLayout;
+
     private int oldDrawerPosition;
 
     private LibraryFragment libraryFragment;
@@ -235,6 +238,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      */
     @Override
     public void onBackPressed() {
+        if (mSlidingLayout.isExpanded()) {
+            mSlidingLayout.collapsePane();
+            return;
+        }
+
         if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
             final int fmStackCount = fragmentManager.getBackStackEntryCount();
             if (fmStackCount > 0) {
@@ -310,7 +318,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         outputsRootFrame = findViewById(R.id.outputs_root_frame);
 
         isDualPaneMode = (nowPlayingDualPane != null);
-        switchMode(DisplayMode.MODE_NOWPLAYING);
+        switchMode(DisplayMode.MODE_LIBRARY);
 
         exitCounterReset = new Handler();
 
@@ -439,6 +447,45 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (savedInstanceState != null) {
             switchMode((DisplayMode) savedInstanceState.getSerializable(EXTRA_DISPLAY_MODE));
         }
+
+        final View nowPlayingSmallFragment = findViewById(R.id.now_playing_small_fragment);
+        // Sliding panel test
+        mSlidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        mSlidingLayout.setDragView(findViewById(R.id.now_playing_header));
+        mSlidingLayout.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
+        mSlidingLayout.setPanelHeight((int)getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
+        mSlidingLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+                if (slideOffset < 0.3) {
+                    if (getActionBar().isShowing()) {
+                        getActionBar().hide();
+                    }
+                } else {
+                    if (!getActionBar().isShowing()) {
+                        getActionBar().show();
+                    }
+                }
+                nowPlayingSmallFragment.setVisibility(View.VISIBLE);
+                nowPlayingSmallFragment.setAlpha(slideOffset);
+            }
+
+            @Override
+            public void onPanelExpanded(View panel) {
+                nowPlayingSmallFragment.setVisibility(View.GONE);
+                nowPlayingSmallFragment.setAlpha(1);
+            }
+
+            @Override
+            public void onPanelCollapsed(View panel) {
+                nowPlayingSmallFragment.setVisibility(View.VISIBLE);
+                nowPlayingSmallFragment.setAlpha(1);
+            }
+
+            @Override
+            public void onPanelAnchored(View panel) {
+            }
+        });
     }
 
     @Override
@@ -697,7 +744,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
                 break;
             case MODE_LIBRARY:
-                final int fmStackCount = fragmentManager.getBackStackEntryCount();
+                int fmStackCount = 0;
+                if (fragmentManager != null) {
+                    fmStackCount = fragmentManager.getBackStackEntryCount();
+                }
                 if (fmStackCount > 0) {
                     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
                     titleView.setText(fragmentManager.getBackStackEntryAt(fmStackCount - 1)
@@ -720,7 +770,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         switch (currentDisplayMode) {
             case MODE_QUEUE:
             case MODE_NOWPLAYING:
-                if (isDualPaneMode) {
+                /*if (isDualPaneMode) {
                     nowPlayingDualPane.setVisibility(View.VISIBLE);
                 } else {
                     nowPlayingPager.setVisibility(View.VISIBLE);
@@ -730,24 +780,24 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         nowPlayingPager.setCurrentItem(1, true);
                     }
                 }
-                libraryRootFrame.setVisibility(View.GONE);
+                libraryRootFrame.setVisibility(View.GONE);*/
                 outputsRootFrame.setVisibility(View.GONE);
                 break;
             case MODE_LIBRARY:
-                if (isDualPaneMode) {
+                /*if (isDualPaneMode) {
                     nowPlayingDualPane.setVisibility(View.GONE);
                 } else {
                     nowPlayingPager.setVisibility(View.GONE);
-                }
+                }*/
                 libraryRootFrame.setVisibility(View.VISIBLE);
                 outputsRootFrame.setVisibility(View.GONE);
                 break;
             case MODE_OUTPUTS:
-                if (isDualPaneMode) {
+                /*if (isDualPaneMode) {
                     nowPlayingDualPane.setVisibility(View.GONE);
                 } else {
                     nowPlayingPager.setVisibility(View.GONE);
-                }
+                }*/
                 libraryRootFrame.setVisibility(View.GONE);
                 outputsRootFrame.setVisibility(View.VISIBLE);
                 outputsFragment.refreshOutputs();

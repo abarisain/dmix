@@ -3,3 +3,6 @@ project(':MPDroid').projectDir = new File('MPDroid')
 
 include 'JMPDComm'
 project(':JMPDComm').projectDir = new File('JMPDComm')
+
+include 'AndroidSlidingUpPanel'
+project(':AndroidSlidingUpPanel').projectDir = new File('AndroidSlidingUpPanel')

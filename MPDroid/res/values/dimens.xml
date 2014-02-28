@@ -28,5 +28,6 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="locale_edit_seekbar_padding">20dp</dimen>
+    <dimen name="nowplaying_small_fragment_height">48dp</dimen>
 
 </resources>
