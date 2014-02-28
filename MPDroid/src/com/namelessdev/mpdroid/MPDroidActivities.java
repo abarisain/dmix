@@ -58,13 +58,20 @@ public class MPDroidActivities {
     private static void applyTheme(Activity activity, MPDApplication app) {
         final boolean lightTheme = app.isLightThemeSelected();
         int themeID = R.style.AppTheme;
-        if (activity instanceof MainMenuActivity
-                && PreferenceManager.getDefaultSharedPreferences(activity).getBoolean(
-                        "smallSeekbars", true)) {
-            if (lightTheme) {
-                themeID = R.style.AppTheme_Light_SmallSeekBars;
+        if (activity instanceof MainMenuActivity) {
+            if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean(
+                    "smallSeekbars", true)) {
+                if (lightTheme) {
+                    themeID = R.style.AppTheme_MainMenu_Light_SmallSeekBars;
+                } else {
+                    themeID = R.style.AppTheme_MainMenu_SmallSeekBars;
+                }
             } else {
-                themeID = R.style.AppTheme_SmallSeekBars;
+                if (lightTheme) {
+                    themeID = R.style.AppTheme_MainMenu_Light;
+                } else {
+                    themeID = R.style.AppTheme_MainMenu;
+                }
             }
         } else if (lightTheme) {
             themeID = R.style.AppTheme_Light;
