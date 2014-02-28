@@ -844,7 +844,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (mHeaderPlayQueue != null) {
             mHeaderPlayQueue.setAlpha((float)(queueShown ? 1 : 0.5));
         }
-        if (mHeaderTitle != null) {
+        if (mHeaderTitle != null && !isDualPaneMode) {
             mHeaderTitle.setText(queueShown ? R.string.playQueue : R.string.nowPlaying);
         }
     }
