@@ -451,7 +451,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         final View nowPlayingSmallFragment = findViewById(R.id.now_playing_small_fragment);
         // Sliding panel test
         mSlidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        mSlidingLayout.setDragView(findViewById(R.id.now_playing_header));
+        final View[] actionViews = new View[] {
+            findViewById(R.id.header_overflow_menu),
+                findViewById(R.id.header_show_queue)
+        };
+        mSlidingLayout.setDragView(findViewById(R.id.header_test));
         mSlidingLayout.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
         mSlidingLayout.setPanelHeight((int)getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
         mSlidingLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -474,12 +478,14 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             public void onPanelExpanded(View panel) {
                 nowPlayingSmallFragment.setVisibility(View.GONE);
                 nowPlayingSmallFragment.setAlpha(1);
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             }
 
             @Override
             public void onPanelCollapsed(View panel) {
                 nowPlayingSmallFragment.setVisibility(View.VISIBLE);
                 nowPlayingSmallFragment.setAlpha(1);
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
 
             @Override

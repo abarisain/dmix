@@ -46,7 +46,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/nowplaying_small_fragment_height"
                     android:orientation="horizontal">
+                    <View
+                        android:id="@+id/header_test"
+                        android:layout_width="0dip"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"></View>
+                    <ImageButton
+                        android:id="@+id/header_show_queue"
+                        android:layout_width="56dip"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/playQueue"
+                        android:alpha="0.8"
+                        style="@android:style/Widget.Holo.ActionButton"
+                        android:src="?attr/playQueueIcon" />
 
+                    <ImageButton
+                        android:id="@+id/header_overflow_menu"
+                        android:layout_width="56dip"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/menuButton"
+                        style="@android:style/Widget.Holo.ActionButton.Overflow" />
                 </LinearLayout>
 
                 <android.support.v4.view.ViewPager

@@ -200,7 +200,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     public PlaylistFragment() {
         super();
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
     }
 
     @Override
