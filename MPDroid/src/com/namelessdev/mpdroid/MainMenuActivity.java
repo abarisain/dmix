@@ -30,7 +30,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Playlist;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
@@ -499,7 +498,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         getActionBar().show();
                     }
                 }
-                nowPlayingSmallFragment.setVisibility(View.VISIBLE);
+                nowPlayingSmallFragment.setVisibility(slideOffset <= 0 ? View.GONE : View.VISIBLE);
                 nowPlayingSmallFragment.setAlpha(slideOffset);
             }
 
