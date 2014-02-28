@@ -46,26 +46,42 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/nowplaying_small_fragment_height"
                     android:orientation="horizontal">
-                    <View
-                        android:id="@+id/header_test"
+
+                    <FrameLayout
+                        android:id="@+id/header_dragview"
                         android:layout_width="0dip"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"></View>
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/header_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:ellipsize="marquee"
+                            android:gravity="center_vertical"
+                            android:maxLines="1"
+                            android:paddingLeft="10dip"
+                            android:singleLine="true"
+                            android:text=""
+                            android:textColor="@android:color/white"
+                            android:textSize="18sp" />
+                    </FrameLayout>
+
                     <ImageButton
                         android:id="@+id/header_show_queue"
+                        style="@android:style/Widget.Holo.ActionButton"
                         android:layout_width="56dip"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/playQueue"
                         android:alpha="0.8"
-                        style="@android:style/Widget.Holo.ActionButton"
+                        android:contentDescription="@string/playQueue"
                         android:src="?attr/playQueueIcon" />
 
                     <ImageButton
                         android:id="@+id/header_overflow_menu"
+                        style="@android:style/Widget.Holo.ActionButton.Overflow"
                         android:layout_width="56dip"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/menuButton"
-                        style="@android:style/Widget.Holo.ActionButton.Overflow" />
+                        android:contentDescription="@string/menuButton" />
                 </LinearLayout>
 
                 <android.support.v4.view.ViewPager

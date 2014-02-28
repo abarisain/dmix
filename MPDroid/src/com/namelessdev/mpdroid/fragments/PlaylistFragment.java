@@ -717,8 +717,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 if (songIndex != null) {
 
                     if (activity instanceof MainMenuActivity) {
-                        ((MainMenuActivity) activity)
-                                .switchMode(MainMenuActivity.DisplayMode.MODE_QUEUE);
+                        ((MainMenuActivity) activity).showQueue();
                     }
 
                     getListView().requestFocusFromTouch();
