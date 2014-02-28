@@ -4,25 +4,21 @@
     <item
         android:id="@+id/GMM_Stream"
         android:checkable="true"
-        android:orderInCategory="3"
+        android:orderInCategory="2"
         android:title="@string/stream"></item>
     <item
         android:id="@+id/GMM_Single"
         android:checkable="true"
-        android:orderInCategory="4"
+        android:orderInCategory="3"
         android:title="@string/singleMode"></item>
     <item
         android:id="@+id/GMM_Consume"
         android:checkable="true"
-        android:orderInCategory="5"
+        android:orderInCategory="4"
         android:title="@string/consumeMode"></item>
     <item
-        android:id="@+id/GMM_Settings"
-        android:orderInCategory="1"
-        android:title="@string/settings"></item>
-    <item
         android:id="@+id/GMM_ShowNotification"
-        android:orderInCategory="2"
+        android:orderInCategory="1"
         android:title="@string/showNotification"></item>
     <item
         android:id="@+id/GMM_bonjour"

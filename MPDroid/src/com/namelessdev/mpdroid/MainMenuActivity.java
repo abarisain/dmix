@@ -81,7 +81,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         public static enum Action {
             ACTION_LIBRARY,
-            ACTION_OUTPUTS
+            ACTION_OUTPUTS,
+            ACTION_SETTINGS
         }
 
         public Action action;
@@ -121,6 +122,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     break;
                 case ACTION_OUTPUTS:
                     switchMode(DisplayMode.MODE_OUTPUTS);
+                    break;
+                case ACTION_SETTINGS:
+                    mDrawerList.setItemChecked(oldDrawerPosition, true);
+                    final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
+                    startActivityForResult(i, SETTINGS);
                     break;
             }
             oldDrawerPosition = position;
@@ -338,6 +344,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         mDrawerItems.add(new DrawerItem(getString(R.string.outputs),
                 DrawerItem.Action.ACTION_OUTPUTS));
+
+        mDrawerItems.add(new DrawerItem(getString(R.string.settings),
+                DrawerItem.Action.ACTION_SETTINGS));
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -620,10 +629,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         switch (item.getItemId()) {
             case R.id.menu_search:
                 this.onSearchRequested();
-                return true;
-            case R.id.GMM_Settings:
-                i = new Intent(this, SettingsActivity.class);
-                startActivityForResult(i, SETTINGS);
                 return true;
             case CONNECT:
                 ((MPDApplication) this.getApplication()).connect();
