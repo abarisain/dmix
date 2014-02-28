@@ -63,7 +63,7 @@
                             android:paddingLeft="10dip"
                             android:singleLine="true"
                             android:text=""
-                            android:textColor="@android:color/white"
+                            android:textColor="?android:textColorPrimary"
                             android:textSize="18sp" />
                     </FrameLayout>
 
@@ -78,7 +78,7 @@
 
                     <ImageButton
                         android:id="@+id/header_overflow_menu"
-                        style="@android:style/Widget.Holo.ActionButton.Overflow"
+                        style="?attr/overflowButton"
                         android:layout_width="56dip"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/menuButton" />
