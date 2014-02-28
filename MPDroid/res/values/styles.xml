@@ -81,12 +81,10 @@
     </style>
 
     <style name="AppTheme.MainMenu" parent="AppTheme">
-        <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="android:windowActionBarOverlay">true</item>
     </style>
 
     <style name="AppTheme.MainMenu.Light" parent="AppTheme.Light">
-        <item name="android:seekBarStyle">@style/SeekBar</item>
         <item name="android:windowActionBarOverlay">true</item>
     </style>
 
