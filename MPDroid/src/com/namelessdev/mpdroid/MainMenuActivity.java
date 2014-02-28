@@ -182,6 +182,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private static final String EXTRA_DISPLAY_MODE = "displaymode";
 
+    private static final String EXTRA_SLIDING_PANEL_EXPANDED = "slidingpanelexpanded";
+
     private int backPressExitCount;
 
     private Handler exitCounterReset;
@@ -486,7 +488,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         mSlidingLayout.setDragView(findViewById(R.id.header_dragview));
         mSlidingLayout.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
         mSlidingLayout.setPanelHeight((int)getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
-        mSlidingLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+        final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
+                new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
                 if (slideOffset < 0.3) {
@@ -519,7 +522,21 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             @Override
             public void onPanelAnchored(View panel) {
             }
-        });
+        };
+        mSlidingLayout.setPanelSlideListener(panelSlideListener);
+        // Ensure that the view state is consistent (otherwise we end up with a view mess)
+        // The sliding layout should take care of it itself but does not
+        if (savedInstanceState != null) {
+            if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
+                mSlidingLayout.expandPane();
+                panelSlideListener.onPanelSlide(mSlidingLayout, 0);
+                panelSlideListener.onPanelExpanded(mSlidingLayout);
+            } else {
+                mSlidingLayout.collapsePane();
+                panelSlideListener.onPanelSlide(mSlidingLayout, 1);
+                panelSlideListener.onPanelCollapsed(mSlidingLayout);
+            }
+        }
         refreshQueueIndicator(false);
     }
 
@@ -727,6 +744,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(EXTRA_DISPLAY_MODE, currentDisplayMode);
+        outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isExpanded());
         super.onSaveInstanceState(outState);
     }
 
