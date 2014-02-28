@@ -338,7 +338,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         mDrawerToggle = new ActionBarDrawerToggle(
                 this, /* host Activity */
                 mDrawerLayout, /* DrawerLayout object */
-                R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
+                app.isLightThemeSelected() ? R.drawable.ic_drawer_light : R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
                 R.string.drawer_open, /* "open drawer" description */
                 R.string.drawer_close /* "close drawer" description */
         ) {
