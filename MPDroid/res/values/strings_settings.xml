@@ -43,4 +43,17 @@
         <item>DragSortListView</item>
         <item>ActionBar-PullToRefresh</item>
     </string-array>
+
+    <string-array name="setting_artist_tag_array">
+        <item>@string/both</item>
+        <item>@string/albumartist</item>
+        <item>@string/artist</item>
+    </string-array>
+
+    <string-array name="setting_artist_tag_array_values">
+        <item>both</item>
+        <item>albumartist</item>
+        <item>artist</item>
+    </string-array>
+
 </resources>

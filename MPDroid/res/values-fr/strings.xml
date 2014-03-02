@@ -247,4 +247,10 @@
     <string name="simpleMode">Mode simple</string>
     <string name="simpleModeDescription">Se comporter comme un lecteur audio Android standard pour la gestion de la file</string>
     <string name="addToQueue">Ajouter à la file d\'attente</string>
+
+    <string name="both">Les deux</string>
+    <string name="albumartist">Artiste de l\'album</string>
+    <string name="artist">Artiste</string>
+    <string name="artistTagToUse">Tag à utiliser pour la liste des artistes</string>
+    <string name="artistTagToUseDescription">Choisir le tag utilisé pour afficher la liste d\'artistes. Utile pour cacher les artistes qui n\'apparaissent que dans des compilations.</string>
 </resources>

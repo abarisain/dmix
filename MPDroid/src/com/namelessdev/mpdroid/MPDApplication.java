@@ -260,6 +260,9 @@ public class MPDApplication extends Application implements ConnectionListener {
         StrictMode.setThreadPolicy(policy);
         StrictMode.setVmPolicy(vmpolicy);
 
+        // Init the default preferences (meaning we won't have different defaults between code/xml)
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+
         oMPDAsyncHelper = new MPDAsyncHelper();
         oMPDAsyncHelper.addConnectionListener(this);
 

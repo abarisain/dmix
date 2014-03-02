@@ -67,10 +67,31 @@ public class ArtistsFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         try {
-            if (genre != null) {
-                items = app.oMPDAsyncHelper.oMPD.getArtists(genre);
-            } else {
-                items = app.oMPDAsyncHelper.oMPD.getArtists();
+            final SharedPreferences settings = PreferenceManager
+                    .getDefaultSharedPreferences(getActivity().getApplication());
+            switch (settings.getString(LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE,
+                    LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
+                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
+                default:
+                    if (genre != null) {
+                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre);
+                    } else {
+                        items = app.oMPDAsyncHelper.oMPD.getArtists();
+                    }
+                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
+                    if (genre != null) {
+                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre, true);
+                    } else {
+                        items = app.oMPDAsyncHelper.oMPD.getArtists(true);
+                    }
+                    break;
+                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
+                    if (genre != null) {
+                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre, false);
+                    } else {
+                        items = app.oMPDAsyncHelper.oMPD.getArtists(false);
+                    }
+                    break;
             }
         } catch (MPDServerException e) {
         }

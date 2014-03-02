@@ -131,15 +131,23 @@
 
         <CheckBoxPreference
             android:defaultValue="false"
+            android:key="simpleMode"
+            android:summary="@string/simpleModeDescription"
+            android:title="@string/simpleMode" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
             android:key="useLocalAlbumCache"
             android:summary="@string/useLocalAlbumCacheDescription"
             android:title="@string/useLocalAlbumCache" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="simpleMode"
-            android:summary="@string/simpleModeDescription"
-            android:title="@string/simpleMode" />
+        <ListPreference
+            android:defaultValue="both"
+            android:key="artistTagToUse"
+            android:summary="@string/artistTagToUseDescription"
+            android:title="@string/artistTagToUse"
+            android:entries="@array/setting_artist_tag_array"
+            android:entryValues="@array/setting_artist_tag_array_values" />
 
         <CheckBoxPreference
             android:defaultValue="true"

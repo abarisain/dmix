@@ -88,6 +88,13 @@ public class LibraryFragment extends Fragment {
     public static final String PREFERENCE_ALBUM_LIBRARY = "enableAlbumArtLibrary";
 
     public static final String PREFERENCE_ALBUM_CACHE = "useLocalAlbumCache";
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE = "artistTagToUse";
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ARTIST = "artist";
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST = "albumartist";
+
     /**
      * The {@link ViewPager} that will host the section contents.
      */
