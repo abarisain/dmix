@@ -52,7 +52,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     }
 
     /**
-     * Link up various button actions using {@link PendingIntents}.
+     * Link up various button actions using {@link PendingIntent}.
      */
     protected void linkButtons(Context context, RemoteViews views) {
         Intent intent;
@@ -84,7 +84,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Handle a change notification coming over from
-     * {@link MediaPlaybackService}
+     * {@link android.media.RemoteControlClient}
      */
     void notifyChange(WidgetHelperService service) {
         if (hasInstances(service))

@@ -28,7 +28,7 @@ public class SimpleWidgetProviderWithStop extends SimpleWidgetProvider {
     protected String TAG = "MPDroidSimpleWidgetProviderWithStop";
 
     /**
-     * Link up various button actions using {@link PendingIntents}.
+     * Link up various button actions using {@link PendingIntent}.
      */
     @Override
     protected void linkButtons(Context context, RemoteViews views) {
