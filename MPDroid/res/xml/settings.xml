@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:key="preferencescreen"  android:layout_height="match_parent" android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:key="preferencescreen">
 
     <PreferenceScreen
         android:key="informationScreen"
         android:summary="@string/serverInformationDescription"
-        android:title="@string/serverInformation" >
+        android:title="@string/serverInformation">
 
-        <PreferenceCategory
-            android:title="@string/serverInformation" >
+        <PreferenceCategory android:title="@string/serverInformation">
 
             <EditTextPreference
                 android:defaultValue=""
@@ -45,7 +46,7 @@
     <PreferenceScreen
         android:key="connectionScreen"
         android:summary="@string/connectionSettingsDescription"
-        android:title="@string/connectionSettings" >
+        android:title="@string/connectionSettings">
 
         <intent
             android:action="android.intent.action.MAIN"
@@ -56,7 +57,7 @@
     <PreferenceScreen
         android:key="coverArtScreen"
         android:summary="@string/coverArtDescription"
-        android:title="@string/coverArtTitle" >
+        android:title="@string/coverArtTitle">
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -74,8 +75,7 @@
         <PreferenceScreen
             android:key="clearLocalCoverCache"
             android:summary="@string/clearLocalCoverCacheDescription"
-            android:title="@string/clearLocalCoverCache" >
-        </PreferenceScreen>
+            android:title="@string/clearLocalCoverCache"></PreferenceScreen>
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -127,7 +127,7 @@
             android:title="@string/enableAlbumArtLibrary" />
     </PreferenceScreen>
 
-    <PreferenceScreen android:title="@string/librarySettings" >
+    <PreferenceScreen android:title="@string/librarySettings">
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -143,11 +143,11 @@
 
         <ListPreference
             android:defaultValue="both"
+            android:entries="@array/setting_artist_tag_array"
+            android:entryValues="@array/setting_artist_tag_array_values"
             android:key="artistTagToUse"
             android:summary="@string/artistTagToUseDescription"
-            android:title="@string/artistTagToUse"
-            android:entries="@array/setting_artist_tag_array"
-            android:entryValues="@array/setting_artist_tag_array_values" />
+            android:title="@string/artistTagToUse" />
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -172,12 +172,12 @@
 
     <PreferenceScreen
         android:key="category_interface"
-        android:title="@string/interfaceSettings" >
+        android:title="@string/interfaceSettings">
 
         <PreferenceScreen
             android:key="libraryTabsSettings"
             android:summary="@string/libraryTabsSettingsDescription"
-            android:title="@string/libraryTabsSettings" >
+            android:title="@string/libraryTabsSettings">
 
             <intent
                 android:action="android.intent.action.MAIN"
@@ -187,14 +187,14 @@
 
         <PreferenceScreen
             android:key="nowPlayingScreen"
-            android:title="@string/nowPlayingSettingsTitle" >
+            android:title="@string/nowPlayingSettingsTitle">
 
-          	<CheckBoxPreference
+            <CheckBoxPreference
                 android:defaultValue="true"
                 android:key="smallSeekbars"
                 android:persistent="true"
                 android:title="@string/enableSmallSeekbars" />
-            
+
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="enableStopButton"
@@ -239,13 +239,13 @@
             android:key="lightTheme"
             android:persistent="true"
             android:title="@string/enableLightTheme" />
-        
+
         <PreferenceScreen
             android:key="clearSearchHistory"
             android:title="@string/clearSearchHistory" />
     </PreferenceScreen>
 
-    <PreferenceScreen android:title="@string/behavior" >
+    <PreferenceScreen android:title="@string/behavior">
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -264,7 +264,7 @@
 
     <PreferenceScreen
         android:key="aboutScreen"
-        android:title="@string/about" >
+        android:title="@string/about">
 
         <intent
             android:action="android.intent.action.MAIN"
