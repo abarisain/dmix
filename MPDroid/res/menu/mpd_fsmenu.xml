@@ -20,6 +20,6 @@
         android:id="@+id/menu_update"
         android:icon="@drawable/ic_action_refresh"
         android:showAsAction="always"
-        android:title="@string/updateDB" />
+        android:title="@string/updateDBDetails" />
 
 </menu>
