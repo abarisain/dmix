@@ -49,17 +49,17 @@ public class SimpleWidgetProviderWithStop extends SimpleWidgetProvider {
         final RemoteViews views = new RemoteViews(context.getPackageName(),
                 R.layout.widget_simple_with_stop);
 
-        super.onUpdate(views, context, appWidgetManager, appWidgetIds);
+        super.onUpdate(views, context, appWidgetManager);
     }
 
     /**
      * Update all active widget instances by pushing changes
      */
     @Override
-    protected void performUpdate(WidgetHelperService service, int[] appWidgetIds) {
+    protected void performUpdate(WidgetHelperService service) {
         final RemoteViews views = new RemoteViews(service.getPackageName(),
                 R.layout.widget_simple_with_stop);
 
-        super.performUpdate(views, service, appWidgetIds);
+        super.performUpdate(views, service);
     }
 }
