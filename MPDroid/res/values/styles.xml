@@ -25,8 +25,14 @@
         <item name="android:background">@color/nowplaying_background</item>
     </style>
 
-    <style name="ActionBar.Blue" parent="@android:style/Widget.Holo.ActionBar">
+    <style name="ActionBar.Blue" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/actionbar_background_blue</item>
+        <item name="android:backgroundStacked">@color/actionbar_background_blue</item>
+        <item name="android:titleTextStyle">@android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse</item>
+    </style>
+
+    <style name="ActionBarTabStyle.Light" parent="@android:style/Widget.Holo.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_indicator_ab_light</item>
     </style>
 
     <style name="AppTheme" parent="@android:style/Theme.Holo">
@@ -58,6 +64,7 @@
 
     <style name="AppTheme.Light" parent="@android:style/Theme.Holo.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/ActionBar.Blue</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Light</item>
         <item name="listItemHeight">?android:attr/listPreferredItemHeightSmall</item>
         <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
         <item name="menuButton">@drawable/spinner_default_holo_light</item>
