@@ -31,6 +31,7 @@
 	<string name="whatsNew">Що нового?</string>
 	<string name="whatsNewDescription">Подивитися лог змін (відкриється зовнішня вебсторінка)</string>
 	<string name="widget_initial_text">Торкніться щоб обрати музику.</string>
+	<string name="musicPathDescription">Шлях до Вашої теки з музикою на сервері MPD як, files/mp3 (music/ для користувачів vortexbox)</string>
 	-->
 
 	<string name="app_name">MPDroid</string>
@@ -146,7 +147,6 @@
 	<string name="enableLocalCover">Використовувати локальну обкладмнку альбома</string>
 	<string name="enableLocalCoverDescription">Отримати обкладинку альбома з сервера MPD (потребує веб-сервео, читайте wiki!)</string>
 	<string name="musicPath">Шлях до музики</string>
-	<string name="musicPathDescription">Шлях до Вашої теки з музикою на сервері MPD як, files/mp3 (music/ для користувачів vortexbox)</string>
 	<string name="coverFileName">Ім’я обкладенки</string>
 	<string name="coverFileNameDescription">Стандартна назва файла для обкладинки як, folder.jpg (cover.jpg для користувачів vortexbox)</string>
 	<string name="deleteServer">Видалити цей сервер</string>

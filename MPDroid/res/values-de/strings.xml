@@ -31,6 +31,7 @@
 	<string name="whatsNew">Neue Funktionen</string>
 	<string name="whatsNewDescription">Änderungsliste ansehen (öffnet externe Webseite)</string>
 	<string name="widget_initial_text">Berühre, um Musik auszuwählen</string>
+	<string name="musicPathDescription">Musikverzeichnis auf dem MPD-Server z.B. files/mp3 (music/ für Vortexbox-Benutzer)</string>
 	-->
 
     <string name="app_name">MPDroid</string>
@@ -141,7 +142,6 @@
     <string name="next">Nächster</string>
     <string name="newPlaylistPrompt">Name der neuen Wiedergabeliste:</string>
     <string name="newPlaylist">(Neue Wiedergabeliste)</string>
-    <string name="musicPathDescription">Musikverzeichnis auf dem MPD-Server z.B. files/mp3 (music/ für Vortexbox-Benutzer)</string>
     <string name="preferredConnection">Bevorzugte Verbindung</string>
     <string name="chooseWLAN">WLAN-Netzwerk wählen</string>
     <string name="wlanBasedSettings">WLAN basierte Verbindung</string>

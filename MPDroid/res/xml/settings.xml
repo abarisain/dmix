@@ -102,7 +102,7 @@
             android:defaultValue=""
             android:key="musicPath"
             android:persistent="true"
-            android:summary="@string/musicPathDescription"
+            android:summary="@string/musicPathDescriptionNew"
             android:title="@string/musicPath" />
 
         <EditTextPreference

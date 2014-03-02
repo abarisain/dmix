@@ -35,6 +35,7 @@
 	<string name="whatsNew">¿Qué hay de nuevo?</string>
 	<string name="whatsNewDescription">Ver el registro de cambios (abre una página web externa)</string>
 	<string name="widget_initial_text">Toque para seleccionar la música</string>
+	<string name="musicPathDescription">Directorio de la música en el servidor MPD, ej.: files/mp3 (music/ para usuarios de vortexbox)</string>
 	-->
 
 	<string name="app_name">MPDroid</string>
@@ -156,7 +157,6 @@
 	<string name="enableLocalCover">Descargar carátulas localmente</string>
 	<string name="enableLocalCoverDescription">Obtener carátulas desde el servidor que corre MPD (requiere un servidor web, lea la Wiki!)</string>
 	<string name="musicPath">Directorio de la música</string>
-	<string name="musicPathDescription">Directorio de la música en el servidor MPD, ej.: files/mp3 (music/ para usuarios de vortexbox)</string>
 	<string name="coverFileName">Cover filename</string>
 	<string name="coverFileNameDescription">Nombre estándar de las carátulas en el servidor, ej.: folder.jpg (cover.jpg para usuarios de vortexbox)</string>
 	<string name="cacheUsage">Uso de caché</string>

@@ -29,6 +29,7 @@
 	<string name="whatsNew">Что нового ?</string>
 	<string name="whatsNewDescription">Смотреть список изменений (Открывает внешнюю web-страницу)</string>
 	<string name="widget_initial_text">Нажмите чтобы выбрать музыку.</string>
+	<string name="musicPathDescription">Путь к директории с музыкой на сервере MPD</string>
 	-->
 
 	<string name="app_name">MPDroid</string>
@@ -144,7 +145,6 @@
 	<string name="enableLocalCover">Загружать локальные обложки</string>
 	<string name="enableLocalCoverDescription">Получать обложки с сервера на котором запущен MPD (требуется вебсервер, смотрите вики!)</string>
 	<string name="musicPath">Путь к музыке</string>
-	<string name="musicPathDescription">Путь к директории с музыкой на сервере MPD</string>
 	<string name="coverFileName">Имя файла с обложкой</string>
 	<string name="coverFileNameDescription">Стандартное имя файла обложки,например folder.jpg или cover.jpg</string>
 	<string name="deleteServer">Удалить эту страницу</string>

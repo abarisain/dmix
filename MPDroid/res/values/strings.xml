@@ -152,7 +152,7 @@
 	<string name="enableLocalCover">Download local cover art</string>
 	<string name="enableLocalCoverDescription">Get cover art from the server running MPD (requires a web server, read the wiki!)</string>
 	<string name="musicPath">Path to music</string>
-	<string name="musicPathDescription">Path to your music directory on the MPD server IE, files/mp3 (music/ for vortexbox users)</string>
+	<string name="musicPathDescriptionNew">Path to your music directory on the MPD server IE, files/mp3 (music/ for vortexbox users). For complex setups, absolute paths (IE "http://ip:port/music") are accepted.</string>
 	<string name="coverFileName">Cover filename</string>
 	<string name="coverFileNameDescription">Standard filename for your album artwork IE, folder.jpg (cover.jpg for vortexbox users)</string>
 	<string name="cacheUsage">Cache usage</string>
