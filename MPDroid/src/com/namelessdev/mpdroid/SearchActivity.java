@@ -137,7 +137,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     protected void add(Artist artist, Album album, boolean replace, boolean play) {
         try {
-            String note = "";
+            String note;
             if (artist == null) {
                 app.oMPDAsyncHelper.oMPD.add(album, replace, play);
                 note = album.getArtist().getName() + " - " + album.getName();
@@ -147,7 +147,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             } else {
                 return;
             }
-            Tools.notifyUser(String.format(getResources().getString(addedString) + note), this);
+            Tools.notifyUser(String.format(getResources().getString(addedString), note), this);
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
