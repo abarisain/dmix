@@ -29,7 +29,7 @@ import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 
 public class SimpleWidgetProvider extends AppWidgetProvider {
-    static final String TAG = "MPDroidSimpleWidgetProvider";
+    static String TAG = "MPDroidSimpleWidgetProvider";
 
     private static SimpleWidgetProvider sInstance;
 
@@ -52,9 +52,9 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     }
 
     /**
-     * Link up various button actions using {@link PendingIntents}.
+     * Link up various button actions using {@link PendingIntent}.
      */
-    private void linkButtons(Context context, RemoteViews views) {
+    protected void linkButtons(Context context, RemoteViews views) {
         Intent intent;
         PendingIntent pendingIntent;
 
@@ -84,40 +84,38 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Handle a change notification coming over from
-     * {@link MediaPlaybackService}
+     * {@link android.media.RemoteControlClient}
      */
     void notifyChange(WidgetHelperService service) {
         if (hasInstances(service))
-            performUpdate(service, null);
+            performUpdate(service);
     }
 
-    @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    public void onUpdate(RemoteViews views, Context context, AppWidgetManager appWidgetManager) {
         Log.v(TAG, "Enter onUpdate");
 
         // Initialise given widgets to default state, where we launch MPDroid on
         // default click and hide actions if service not running.
-        final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_simple);
         linkButtons(context, views);
-        pushUpdate(context, appWidgetIds, views);
+        pushUpdate(context, views);
 
         // Start service intent to WidgetHelperService so it can wrap around
         // with an immediate update
         Intent updateIntent = new Intent(context, WidgetHelperService.class);
         updateIntent.setAction(WidgetHelperService.CMD_UPDATE_WIDGET);
-        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
         context.startService(updateIntent);
     }
 
-    /**
-     * Update all active widget instances by pushing changes
-     */
-    void performUpdate(WidgetHelperService service, int[] appWidgetIds) {
-        final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.widget_simple);
+    @Override
+    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+        final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_simple);
 
+        onUpdate(views, context, appWidgetManager);
+    }
+
+    protected void performUpdate(RemoteViews views, WidgetHelperService service) {
         // Set correct drawable for pause state
-        final boolean playing = service.isPlaying();
-        if (playing) {
+        if (service.isPlaying()) {
             views.setImageViewResource(R.id.control_play, R.drawable.ic_appwidget_music_pause);
         } else {
             views.setImageViewResource(R.id.control_play, R.drawable.ic_appwidget_music_play);
@@ -125,20 +123,23 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
         // Link actions buttons to intents
         linkButtons(service, views);
-        pushUpdate(service, appWidgetIds, views);
+        pushUpdate(service, views);
+    }
+
+    /**
+     * Update all active widget instances by pushing changes
+     */
+    protected void performUpdate(WidgetHelperService service) {
+        final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.widget_simple);
+
+        performUpdate(views, service);
     }
 
     /**
      * Set the RemoteViews to use for all AppWidget instances
      */
-    private void pushUpdate(Context context, int[] appWidgetIds, RemoteViews views) {
-        // Update specific list of appWidgetIds if given, otherwise default to
-        // all
+    protected void pushUpdate(Context context, RemoteViews views) {
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);
-        if (appWidgetIds != null) {
-            gm.updateAppWidget(appWidgetIds, views);
-        } else {
-            gm.updateAppWidget(new ComponentName(context, this.getClass()), views);
-        }
+        gm.updateAppWidget(new ComponentName(context, this.getClass()), views);
     }
 }
