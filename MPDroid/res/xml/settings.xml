@@ -40,6 +40,10 @@
                 android:enabled="false"
                 android:key="cacheUsage1"
                 android:title="@string/cacheUsage" />
+
+            <PreferenceScreen
+                android:key="refreshMPDDatabase"
+                android:title="@string/updateDBDetails" />
         </PreferenceCategory>
     </PreferenceScreen>
 

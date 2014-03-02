@@ -187,7 +187,14 @@ public class SettingsFragment extends PreferenceFragment {
 
         final MPDApplication app = (MPDApplication) getActivity().getApplication();
 
-        if (preference.getKey().equals("clearLocalCoverCache")) {
+        if (preference.getKey().equals("refreshMPDDatabase")) {
+            try {
+                MPD oMPD = app.oMPDAsyncHelper.oMPD;
+                oMPD.refreshDatabase();
+            } catch (MPDServerException e) {
+            }
+            return true;
+        } else if (preference.getKey().equals("clearLocalCoverCache")) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.clearLocalCoverCache)
                     .setMessage(R.string.clearLocalCoverCachePrompt)
