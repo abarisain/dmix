@@ -78,6 +78,7 @@ public class ArtistsFragment extends BrowseFragment {
                     } else {
                         items = app.oMPDAsyncHelper.oMPD.getArtists();
                     }
+                    break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
                     if (genre != null) {
                         items = app.oMPDAsyncHelper.oMPD.getArtists(genre, true);
