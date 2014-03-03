@@ -14,6 +14,7 @@
         <attr name="nowPlayingPrimaryTextColor" format="color" />
         <attr name="cardPrimaryTextColor" format="color" />
         <attr name="listItemHorizontalSeparatorColor" format="color" />
+        <attr name="nowPlayingSliderBackgroundColor" format="color" />
         <attr name="repeatDisabled" format="reference" />
         <attr name="repeatEnabled" format="reference" />
         <attr name="shuffleDisabled" format="reference" />
