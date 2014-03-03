@@ -67,16 +67,6 @@
                     </FrameLayout>
 
                     <ImageButton
-                        android:id="@+id/header_show_queue"
-                        style="@android:style/Widget.Holo.ActionButton"
-                        android:layout_width="56dip"
-                        android:layout_height="match_parent"
-                        android:alpha="0.8"
-                        android:contentDescription="@string/playQueue"
-                        android:src="?attr/playQueueIcon"
-                        android:visibility="invisible" />
-
-                    <ImageButton
                         android:id="@+id/header_overflow_menu"
                         style="?attr/overflowButton"
                         android:layout_width="56dip"
