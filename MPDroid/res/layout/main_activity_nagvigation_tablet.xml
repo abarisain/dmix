@@ -103,7 +103,7 @@
                     android:id="@+id/now_playing_small_fragment"
                     android:name="com.namelessdev.mpdroid.fragments.NowPlayingSmallFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/nowplaying_small_fragment_height"
                     tools:layout="@layout/now_playing_small_fragment" />
             </FrameLayout>
 

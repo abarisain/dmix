@@ -453,7 +453,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             mHeaderPlayQueue.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (nowPlayingPager != null) {
+                    if (nowPlayingPager != null && mSlidingLayout != null
+                            && mSlidingLayout.isExpanded()) {
                         if (nowPlayingPager.getCurrentItem() == 0) {
                             showQueue();
                         } else {
@@ -478,8 +479,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             mHeaderOverflowMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    prepareNowPlayingMenu(mHeaderOverflowPopupMenu.getMenu());
-                    mHeaderOverflowPopupMenu.show();
+                    if (mSlidingLayout != null && mSlidingLayout.isExpanded()) {
+                        prepareNowPlayingMenu(mHeaderOverflowPopupMenu.getMenu());
+                        mHeaderOverflowPopupMenu.show();
+                    }
                 }
             });
         }
