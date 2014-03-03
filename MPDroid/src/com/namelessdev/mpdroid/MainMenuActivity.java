@@ -485,7 +485,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
         // Sliding panel
         mSlidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        mSlidingLayout.setDragView(findViewById(R.id.header_dragview));
+        //mSlidingLayout.setDragView(findViewById(R.id.header_dragview));
+        mSlidingLayout.setEnableDragViewTouchEvents(true);
         mSlidingLayout.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
         mSlidingLayout.setPanelHeight((int)getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
         final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
@@ -857,5 +858,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             nowPlayingPager.setCurrentItem(1, true);
         }
         refreshQueueIndicator(true);
+    }
+
+    public void onQueueListAttached(View list) {
+        if (mSlidingLayout != null) {
+            mSlidingLayout.mActionViews = new View[] { list };
+        }
     }
 }

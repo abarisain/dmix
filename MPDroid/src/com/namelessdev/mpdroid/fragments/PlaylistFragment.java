@@ -233,6 +233,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         app = (MPDApplication) activity.getApplication();
         lightTheme = app.isLightThemeSelected();
         refreshListColorCacheHint();
+        if (list != null) {
+            ((MainMenuActivity) this.activity).onQueueListAttached(list);
+        }
     }
 
     /*
