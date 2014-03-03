@@ -70,8 +70,7 @@
         android:id="@+id/prev"
         android:contentDescription="@string/previous"
         style="@style/PlayerSmallButton"
-        android:src="?attr/prevIcon"
-        android:visibility="gone" />
+        android:src="?attr/prevIcon" />
 
     <ImageButton
         android:id="@+id/playpause"
