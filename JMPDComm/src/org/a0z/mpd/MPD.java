@@ -655,9 +655,7 @@ public class MPD {
             addAlbumPaths(albums);
         }
 
-        if (null != albums) {
-            Collections.sort(albums);
-        }
+        Collections.sort(albums);
         return albums;
     }
 
