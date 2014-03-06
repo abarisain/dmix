@@ -260,12 +260,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         if (DEBUG)
             Log.d("MPD", "Remove album " + album + " of " + artist);
 
-        /**
-         * SuppressWarning: This warning is suppressed due to Eclipse/ADT
-         * emitting a warning about num going unused, but the iteration is a
-         * use. For block: Have artist & album, remove matching
-         */
-        @SuppressWarnings("unused")
         int num = 0;
         for (Music song : songs)
             if (album.equals(song.getAlbum())) {
