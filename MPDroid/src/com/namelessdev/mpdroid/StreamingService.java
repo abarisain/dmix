@@ -206,7 +206,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 }
             } else if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
                 // pause the music while a conversation is in progress
-                if (isPlaying == false)
+                if (!isPlaying)
                     return;
                 isPaused = (isPaused || isPlaying) && (app.getApplicationState().streamingMode);
                 pauseStreaming();
@@ -520,7 +520,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
             } else if (cmd.equals(CMD_PREV)) {
                 prev();
             } else if (cmd.equals(CMD_PLAYPAUSE)) {
-                if (isPaused == false) {
+                if (!isPaused) {
                     pauseStreaming();
                 } else {
                     beginStreaming();
@@ -545,7 +545,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * keeping the notification showing.
      */
     public void pauseStreaming() {
-        if (isPlaying == false)
+        if (!isPlaying)
             return;
 
         isPlaying = false;
@@ -636,7 +636,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 .getDefaultSharedPreferences(getApplication());
 
         if (remoteControlClient == null || song == null
-                || settings.getBoolean(CoverManager.PREFERENCE_CACHE, true) == false) {
+                || !settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
             return;
         }
 

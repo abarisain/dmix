@@ -1201,7 +1201,7 @@ public class MPD {
         }
 
         // add a single blank entry to host all songs without an album set
-        if ((includeUnknownAlbum == true) && (foundSongWithoutAlbum == true)) {
+        if (includeUnknownAlbum && foundSongWithoutAlbum) {
             result.add("");
         }
 

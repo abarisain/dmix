@@ -58,7 +58,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                 && settings.getBoolean("playOnPhoneStateChange", false);
 
         Log.d(MPDApplication.TAG, "Pause on call " + pauseOnCall);
-        if (pauseOnCall == false) {
+        if (!pauseOnCall) {
             return;
         }
         Bundle bundle = intent.getExtras();
@@ -79,7 +79,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                 .equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE));
         Log.d(MPDApplication.TAG, "Should play " + shouldPlay);
 
-        if (shouldPause == false && shouldPlay == false) {
+        if (!shouldPause && !shouldPlay) {
             return;
         }
         // get configured MPD connection

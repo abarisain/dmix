@@ -18,8 +18,7 @@ public class MPDOutput {
             } else if (line.startsWith("outputname:")) {
                 this.name = line.substring("outputname: ".length());
             } else if (line.startsWith("outputenabled:")) {
-                this.enabled = "1".equals(line.substring("outputenabled: ".length())) ? true
-                        : false;
+                this.enabled = line.substring("outputenabled: ".length()).equals("1");
             }
         }
     }
