@@ -430,7 +430,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     new ViewPager.SimpleOnPageChangeListener() {
                         @Override
                         public void onPageSelected(int position) {
-                            refreshQueueIndicator(position == 0 ? false : true);
+                            refreshQueueIndicator(position == 0);
                         }
                     });
         }

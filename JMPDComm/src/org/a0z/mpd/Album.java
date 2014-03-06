@@ -39,7 +39,7 @@ public class Album extends Item implements Parcelable {
         this.year = in.readLong();
         this.path = in.readString();
         this.artist = new Artist(in.readString());
-        this.hasAlbumArtist = (in.readInt() > 0 ? true : false);
+        this.hasAlbumArtist = (in.readInt() > 0);
     }
 
     public Album(String name, Artist artist) {

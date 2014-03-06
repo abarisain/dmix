@@ -835,7 +835,7 @@ public class CoverManager {
                             coverInfo = new CoverInfo(coverInfo);
                             Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(
                                     coverInfo.getBitmap()[0].getConfig(),
-                                    coverInfo.getBitmap()[0].isMutable() ? true : false);
+                                    coverInfo.getBitmap()[0].isMutable());
                             coverInfo.setBitmap(new Bitmap[] {
                                     copyBitmap
                             });
