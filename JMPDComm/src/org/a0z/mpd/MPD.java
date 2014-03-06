@@ -254,9 +254,7 @@ public class MPD {
             public void run() {
                 try {
                     getPlaylist().add(stream);
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
-                } catch (MPDClientException e) {
+                } catch (MPDServerException | MPDClientException e) {
                     e.printStackTrace();
                 }
             }
