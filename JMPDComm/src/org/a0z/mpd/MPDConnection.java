@@ -237,7 +237,7 @@ public abstract class MPDConnection {
         }
     }
 
-    final private int[] innerConnect() throws MPDServerException {
+    private int[] innerConnect() throws MPDServerException {
 
         if (getSocket() != null) { // Always release existing socket if any
                                    // before creating a new one
