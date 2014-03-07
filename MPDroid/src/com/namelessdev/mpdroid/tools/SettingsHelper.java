@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid.tools;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.wifi.WifiInfo;

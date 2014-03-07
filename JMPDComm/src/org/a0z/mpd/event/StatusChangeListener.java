@@ -2,7 +2,6 @@
 package org.a0z.mpd.event;
 
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
 
 /**
  * @version $Id: StatusChangeListener.java 2941 2005-02-09 02:34:21Z galmeida $

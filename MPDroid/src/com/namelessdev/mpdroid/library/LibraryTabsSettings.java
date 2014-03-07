@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid.library;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.view.Menu;
