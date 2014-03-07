@@ -714,7 +714,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         return true;
     }
 
-    public boolean prepareNowPlayingMenu(Menu menu) {
+    public void prepareNowPlayingMenu(Menu menu) {
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
         MPDApplication app = (MPDApplication) this.getApplication();
@@ -734,7 +734,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
             setMenuChecked(menu.findItem(R.id.GMM_Consume), mpdStatus.isConsume());
         }
-        return true;
     }
 
     @Override
