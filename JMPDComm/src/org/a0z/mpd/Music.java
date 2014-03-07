@@ -138,6 +138,12 @@ public class Music extends Item implements FilesystemTreeEntry {
         for (String line : response) {
             if (line.startsWith("file:")) {
                 this.fullpath = line.substring("file: ".length());
+                if(this.fullpath.contains("://")) {
+                    String n = getStreamName();
+                    if (null != n && !n.isEmpty()) {
+                        this.name = n;
+                    }
+                }
             } else if (line.startsWith("Artist:")) {
                 this.artist = line.substring("Artist: ".length());
             } else if (line.startsWith("AlbumArtist:")) {
@@ -146,7 +152,10 @@ public class Music extends Item implements FilesystemTreeEntry {
                 this.album = line.substring("Album: ".length());
             } else if (line.startsWith("Title:")) {
                 this.title = line.substring("Title: ".length());
-            } else if (line.startsWith("Name:")) {
+            } else if (line.startsWith("Name:") && this.name == null) {
+                /**
+                 * this.name may already be assigned to the stream name in file conditional
+                 */
                 this.name = line.substring("Name: ".length());
             } else if (line.startsWith("Track:")) {
                 String[] aux = line.substring("Track: ".length()).split("/");
@@ -193,13 +202,6 @@ public class Music extends Item implements FilesystemTreeEntry {
                 // common and therefore not implemented here...
                 // (new InvalidResponseException("unknown response: " +
                 // line)).printStackTrace();
-            }
-        }
-
-        if (isStream()) {
-            String n = getStreamName();
-            if (null != n && !n.isEmpty()) {
-                name = n;
             }
         }
     }
