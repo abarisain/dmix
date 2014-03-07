@@ -16,11 +16,14 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.namelessdev.mpdroid.MPDApplication;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 
 public class MPDConnectionHandler extends BroadcastReceiver {
 
@@ -38,16 +41,16 @@ public class MPDConnectionHandler extends BroadcastReceiver {
         // context.getApplicationContext();
         String action = intent.getAction();
         if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
-            System.out.println("WIFI-STATE:" + intent.getAction());
-            System.out.println("WIFI-STATE:"
+            Log.d(MPDApplication.TAG, "WIFI-STATE:" + intent.getAction());
+            Log.d(MPDApplication.TAG, "WIFI-STATE:"
                     + (intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE,
                             WifiManager.WIFI_STATE_UNKNOWN)));
         } else if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-            System.out.println("NETW-STATE:" + intent.getAction());
+            Log.d(MPDApplication.TAG, "NETW-STATE:" + intent.getAction());
             NetworkInfo networkInfo = (NetworkInfo) intent
                     .getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-            System.out.println("NETW-STATE: Connected: " + networkInfo.isConnected());
-            System.out.println("NETW-STATE: Connected: " + networkInfo.getState().toString());
+            Log.d(MPDApplication.TAG, "NETW-STATE: Connected: " + networkInfo.isConnected());
+            Log.d(MPDApplication.TAG, "NETW-STATE: Connected: " + networkInfo.getState().toString());
         }
     }
 }
