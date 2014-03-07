@@ -203,7 +203,7 @@ public class AlbumCache
         Set<String> keys = map.keySet();
         for (String k : keys) {
             Set<String> values = map.get(k);
-            if (val == null || val == "" || values.contains(val)) {
+            if (val == null || val.equals("") || values.contains(val)) {
                 result.add(k);
             }
         }

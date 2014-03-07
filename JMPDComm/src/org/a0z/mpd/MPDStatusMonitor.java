@@ -171,7 +171,7 @@ public class MPDStatusMonitor extends Thread {
                         }
 
                         // state
-                        if (connectionStateChanged || oldState != status.getState()) {
+                        if (connectionStateChanged || !oldState.equals(status.getState())) {
                             for (StatusChangeListener listener : statusChangedListeners)
                                 listener.stateChanged(status, oldState);
                             oldState = status.getState();

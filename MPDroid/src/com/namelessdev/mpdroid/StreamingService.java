@@ -385,7 +385,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
             return;
         }
 
-        if (state == MPDStatus.MPD_STATE_PLAYING) {
+        if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
             // TODO Stop resuming if no 3G. There's no point. Add something that
             // says "ok we're waiting for 3G/wifi !"
             beginStreaming();
@@ -691,7 +691,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
 
         String state = statusMpd.getState();
-        if (state == null || state == prevMpdState && !streamingStatusChanged) {
+        if (state == null || state.equals(prevMpdState) && !streamingStatusChanged) {
             return;
         }
 
@@ -822,11 +822,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
 
         String state = statusMpd.getState();
-        if (state == null || state == prevMpdState) {
+        if (state == null || state.equals(prevMpdState)) {
             return;
         }
 
-        if (state == MPDStatus.MPD_STATE_PLAYING) {
+        if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
             isPaused = false;
             beginStreaming();
             isPlaying = true;
