@@ -154,7 +154,7 @@ public class CachedMPD extends MPD
             Set<String> aartists =
                     cache.getAlbumArtists(a.getName(),
                             (artist == null ? "" : artist.getName()));
-            albumartists.add(aartists.toArray(new String[0]));
+            albumartists.add(aartists.toArray(new String[aartists.size()]));
         }
         return albumartists;
     }
@@ -184,8 +184,8 @@ public class CachedMPD extends MPD
         }
         ArrayList<String[]> result = new ArrayList<String[]>();
         for (Album album : albums) {
-            result.add((String[]) cache.getArtistsByAlbum
-                    (album.getName(), useAlbumArtist).toArray(new String[0]));
+            List<String> aba = cache.getArtistsByAlbum(album.getName(), useAlbumArtist);
+            result.add(aba.toArray(new String[aba.size()]));
         }
         return result;
     }
