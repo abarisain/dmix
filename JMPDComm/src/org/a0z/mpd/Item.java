@@ -25,10 +25,9 @@ public abstract class Item implements Comparable<Item> {
                 }
             }
         }
-        List<T> result = a_items;
-        result.addAll(aa_items);
-        Collections.sort(result);
-        return result;
+        a_items.addAll(aa_items);
+        Collections.sort(a_items);
+        return a_items;
     }
 
     @Override
