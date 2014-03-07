@@ -2,6 +2,7 @@
 <resources>
     
     <!--  Unused strings, commented for possible for later use.
+	<string name="aboutDescription">A Propos de MPDroid</string>
 	<string name="albumGridWifiUnavailable">Wi-Fi non disponible, aucune pochette ne sera téléchargée</string>
 	<string name="clientSettings">Paramètres client</string>
 	<string name="configurationName">Nom de la configuration</string>
@@ -9,6 +10,7 @@
 	<string name="enableLightNowPlayingTheme">Utiliser le thème clair pour "En Cours"</string>
 	<string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
 	<string name="manage">Gérer</string>
+	<string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
 	<string name="paused">En pause</string>
 	<string name="playlistNameEditTitle">Nom de la playlist</string>
 	<string name="playlistSave">Sauvegarder la Playlist</string>
@@ -18,6 +20,7 @@
 	<string name="repeat">Répeter</string>
 	<string name="repeatDescription">Activer/Désactiver répetition</string>
 	<string name="serverAddress">Addresse du serveur :</string>
+	<string name="serverSettings">Paramètres serveur</string>
 	<string name="skipToHere">Sauter vers ici</string>
 	<string name="streamDetails">Détails du flux :</string>
 	<string name="streamError">Erreur de streaming, flux illisible</string>
@@ -27,6 +30,8 @@
 	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
 	<string name="stopped">Arreté</string>
 	<string name="track">Piste</string>
+	<string name="volume">Volume</string>
+	<string name="updateDB">Mettre à jour</string>
 	<string name="waitForWLAN">Attente du WIFI …</string>
 	<string name="whatsNew">Quoi de neuf ?</string>
 	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
@@ -38,7 +43,6 @@
 	<string name="files">Fichiers</string>
 	<string name="albums">Albums</string>
 	<string name="settings">Paramètres</string>
-	<string name="volume">Volume</string>
 	<string name="next">Suivant</string>
 	<string name="previous">Précédent</string>
 	<string name="ok">OK</string>
@@ -83,13 +87,10 @@
 	<string name="connectionSettings">Paramètres de connexion</string>
 	<string name="connectionSettingsDescription">Définir l\'addresse/port et mot de passe du serveur MPD</string>
 	<string name="outputs">Sorties</string>
-	<string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
-	<string name="serverSettings">Paramètres serveur</string>
 	<string name="interfaceSettings">Paramètres d\'interface</string>
 	<string name="librarySettings">Paramètres de la bibliothèque</string>
 	<string name="songAdded">Chanson %s ajoutée</string>
 	<string name="about">A Propos</string>
-	<string name="aboutDescription">A Propos de MPDroid</string>
 	<string name="connectionFailed">Echec de la connexion</string>
 	<string name="connectionFailedMessage">Echec de la connexion au serveur MPD ! Verifiez que le serveur est atteignable (%s)</string>
 	<string name="connect">Connecter</string>
@@ -133,7 +134,6 @@
     <string name="removeAlbumFromPlaylist">Supprimer l\'album de la liste</string>
 	<string name="save">Sauvegarder</string>
 	<string name="clear">Vider</string>
-	<string name="updateDB">Mettre à jour</string>
 	<string name="updateDBDetails">Rafraichir la bibliothèque de MPD</string>
     <string name="useLocalAlbumCache">Utiliser le cache d\'albums</string>
     <string name="useLocalAlbumCacheDescription">Sauvergarder les informations de la bibliothèque MPD localement</string>

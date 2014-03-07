@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- Unused strings, commented for possible for later use.
+	<string name="aboutDescription">Информация о MPDroid</string>
 	<string name="configurationName">Название конфигурации</string>
 	<string name="coverSettings">Настройки обложек</string>
 	<string name="clientSettings">Настройки клиента</string>
 	<string name="edit">Редактировать</string>
 	<string name="manage">Управление</string>
+	<string name="musicPathDescription">Путь к директории с музыкой на сервере MPD</string>
+	<string name="outputsDescription">Вкл/Выкл выходы MPD</string>
 	<string name="paused">Приостановленно</string>
 	<string name="playlistNameEditTitle">Название списка воспроизведения</string>
 	<string name="playlistSave">Сохранить список воспроизведения</string>
@@ -16,6 +19,7 @@
 	<string name="removeSong">Удалить песню</string>
 	<string name="sc_LibTab">L</string>
 	<string name="serverAddress">Адрес сервера :</string>
+	<string name="serverSettings">Настройки сервера</string>
 	<string name="skipToHere">Проиграть</string>
 	<string name="stopped">Остановленно</string>
 	<string name="streamDetails">Детали потока:</string>
@@ -25,11 +29,12 @@
 	<string name="streamPaused">Потоковое воспроизведение приостановлено</string>
 	<string name="streamPauseBattery">Для сохранения заряда батареи, останавливайте потоковое воспроизведение если не используете его</string>
 	<string name="track">Дорожка</string>
+	<string name="updateDB">Обновить БД</string>
+	<string name="volume">Громкость</string>
 	<string name="waitForWLAN">Ожидается подключение к WLAN…</string>
 	<string name="whatsNew">Что нового ?</string>
 	<string name="whatsNewDescription">Смотреть список изменений (Открывает внешнюю web-страницу)</string>
 	<string name="widget_initial_text">Нажмите чтобы выбрать музыку.</string>
-	<string name="musicPathDescription">Путь к директории с музыкой на сервере MPD</string>
 	-->
 
 	<string name="app_name">MPDroid</string>
@@ -39,7 +44,6 @@
 	<string name="files">Файлы</string>
 	<string name="albums">Альбомы</string>
 	<string name="settings">Настройки</string>
-	<string name="volume">Громкость</string>
 	<string name="next">Следующий</string>
 	<string name="previous">Предыдущий</string>
 	<string name="ok">OK</string>
@@ -88,13 +92,10 @@
 	<string name="connectionSettings">Настройки соединения</string>
 	<string name="connectionSettingsDescription">Указать IP-адрес сервера MPD, порт и пароль</string>
 	<string name="outputs">Выходы</string>
-	<string name="outputsDescription">Вкл/Выкл выходы MPD</string>
-	<string name="serverSettings">Настройки сервера</string>
 	<string name="interfaceSettings">Настройки интерфейса</string>
 	<string name="librarySettings">Настройки библиотеки</string>
 	<string name="songAdded">Песня %s добавленна</string>
 	<string name="about">О приложении</string>
-	<string name="aboutDescription">Информация о MPDroid</string>
 	<string name="connectionFailed">Не удалось подключиться</string>
 	<string name="connectionFailedMessage">Не удалось подключиться к серверу MPD! Убедитесь что сервер запущен и доступен. (%s)</string>
 	<string name="connect">Подключиться</string>
@@ -136,7 +137,6 @@
 	<string name="moveLast">Поместить в конец</string>
 	<string name="removeFromPlaylist">Удалить из списка воспроизведения</string>
 	<string name="save">Сохранить</string>
-	<string name="updateDB">Обновить БД</string>
 	<string name="updateDBDetails">Обновить базу данных MPD</string>
 	<string name="sortAlbumsByYear">Год</string>
 	<string name="sortAlbumsByYearDescription">Упорядочить альбомы по году</string>

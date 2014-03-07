@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Unused strings, commented for possible for later use.
+	<string name="aboutDescription">Про MPDroid</string>
 	<string name="configurationName">Назва налаштувань</string>
 	<string name="coverSettings">Налаштування обкладинок</string>
 	<string name="clientSettings">Налаштування клієнта</string>
@@ -8,6 +9,7 @@
 	<string name="enableLightNowPlayingTheme">Використовувати світлу тему "Зараз вітдворюється"</string>
 	<string name="enableLightNowPlayingThemeDescription">Перезапустіть програму, щоб зміни набули чинності</string>
 	<string name="manage">Впорядкувати</string>
+	<string name="outputsDescription">Дозволити/заборонити MPD-виходи</string>
 	<string name="paused">Пауза</string>
 	<string name="playlistNameEditTitle">Назва плейлиста</string>
 	<string name="playlistSave">Зберегти плейлист</string>
@@ -18,6 +20,7 @@
 	<string name="repeatDescription">Дозволити/заборонити повторення</string>
 	<string name="sc_LibTab">Б</string>
 	<string name="serverAddress">Адреси серверів:</string>
+	<string name="serverSettings">Налаштування сервера</string>
 	<string name="skipToHere">Пропустит до цього місця</string>
 	<string name="stopped">Зупинено</string>
 	<string name="streamDetails">Деталі потоку:</string>
@@ -27,6 +30,8 @@
 	<string name="streamingManualURL">Використовувати специфічний URL для потокового відтворення (icecast)</string>
 	<string name="streamingURLDescription">URL потоку(with http://)</string>
 	<string name="track">Трек</string>
+	<string name="updateDB">Оновити</string>
+	<string name="volume">Гучність</string>
 	<string name="waitForWLAN">Очікування на з’єднання WLAN…</string>
 	<string name="whatsNew">Що нового?</string>
 	<string name="whatsNewDescription">Подивитися лог змін (відкриється зовнішня вебсторінка)</string>
@@ -41,7 +46,6 @@
 	<string name="files">Файли</string>
 	<string name="albums">Альбоми</string>
 	<string name="settings">Налаштування</string>
-	<string name="volume">Гучність</string>
 	<string name="next">Наступний</string>
 	<string name="previous">Попередній</string>
 	<string name="ok">OK</string>
@@ -90,13 +94,10 @@
 	<string name="connectionSettings">Налаштування підключення</string>
 	<string name="connectionSettingsDescription">Встановити MPD-хост/порт та пароль</string>
 	<string name="outputs">Виходи</string>
-	<string name="outputsDescription">Дозволити/заборонити MPD-виходи</string>
-	<string name="serverSettings">Налаштування сервера</string>
 	<string name="interfaceSettings">Налаштування інтерфейса</string>
 	<string name="librarySettings">Налаштування бібліотеки</string>
 	<string name="songAdded">Додано пісень: %s</string>
 	<string name="about">Про</string>
-	<string name="aboutDescription">Про MPDroid</string>
 	<string name="connectionFailed">Невдале з’єднання</string>
 	<string name="connectionFailedMessage">З’єднання з MPD-сервером невдале! Перевірте чи сервер доступний та запущений. (%s)</string>
 	<string name="connect">З’єднання</string>
@@ -138,7 +139,6 @@
 	<string name="moveLast">Перейти до останнього</string>
 	<string name="removeFromPlaylist">Видалити з плейлиста</string>
 	<string name="save">Зберегти</string>
-	<string name="updateDB">Оновити</string>
 	<string name="updateDBDetails">Оновити базу MPD</string>
 	<string name="sortAlbumsByYear">Рік альбому</string>
 	<string name="sortAlbumsByYearDescription">Сортувати альбоми за роком</string>

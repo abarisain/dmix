@@ -19,8 +19,6 @@
 
     <!-- height of a normal list item in edit playlist mode -->
     <dimen name="normal_height">55dip</dimen>
-    <!-- height of an expanded list item in edit playlist mode -->
-    <dimen name="expanded_height">110dip</dimen>
     <dimen name="playerbutton_height">70dip</dimen>
     <dimen name="playerbutton_width">65dip</dimen>
     <dimen name="playerbutton_small_height">48dip</dimen>

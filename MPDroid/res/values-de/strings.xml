@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- Unused strings, commented for possible for later use.
+    <string name="aboutDescription">Über MPDroid</string>
 	<string name="configurationName">Configuration Name</string>
 	<string name="coverSettings">Albencover Einstellungen</string>
 	<string name="clientSettings">Client Einstellungen</string>
@@ -8,6 +9,8 @@
 	<string name="enableLightNowPlayingTheme">Benutze Light Theme für "Du hörst"</string>
 	<string name="enableLightNowPlayingThemeDescription">Starte die App neu, um Änderung anzuwenden</string>
 	<string name="manage">Verwalten</string>
+    <string name="outputsDescription">Aktiviere/Deaktiviere MPD-Ausgänge</string>
+	<string name="musicPathDescription">Musikverzeichnis auf dem MPD-Server z.B. files/mp3 (music/ für Vortexbox-Benutzer)</string>
 	<string name="paused">Angehalten</string>
 	<string name="playlistNameEditTitle">Name</string>
 	<string name="playlistSave">Wiedergabeliste speichern</string>
@@ -17,6 +20,7 @@
 	<string name="randomDescription">Aktiviere/Deaktiviere zufällige Titelwahl</string>
 	<string name="repeat">Endlosschleife</string>
 	<string name="serverAddress">Server Adresse:</string>
+    <string name="serverSettings">Server Einstellungen</string>
 	<string name="skipToHere">Hierhin springen</string>
 	<string name="stopped">Beendet</string>
 	<string name="streamDeleted">Stream \&quot;%s\&quot; gelöscht</string>
@@ -27,11 +31,12 @@
 	<string name="streamPauseBattery">Um den Akku zu schonen, sollte Streaming gestoppt werden, wenn es nicht verwendet wird</string>
 	<string name="streamingURLDescription">Stream-URL (mit http://)</string>
 	<string name="track">Titel</string>
+    <string name="updateDB">Datenbank aktualisieren</string>
+    <string name="volume">Lautstärke</string>
 	<string name="waitForWLAN">Warte auf Verbindung mit WLAN…</string>
 	<string name="whatsNew">Neue Funktionen</string>
 	<string name="whatsNewDescription">Änderungsliste ansehen (öffnet externe Webseite)</string>
 	<string name="widget_initial_text">Berühre, um Musik auszuwählen</string>
-	<string name="musicPathDescription">Musikverzeichnis auf dem MPD-Server z.B. files/mp3 (music/ für Vortexbox-Benutzer)</string>
 	-->
 
     <string name="app_name">MPDroid</string>
@@ -53,7 +58,6 @@
     <string name="backpressToQuit">Erneut drücken, um das Programm zu beenden</string>
     <string name="behavior">Verhalten bei Anruf</string>
     <string name="settings">Einstellungen</string>
-    <string name="volume">Lautstärke</string>
     <string name="tracksInfoHeaderPlural">%1$s Titel, %2$s</string>
     <string name="tracksInfoHeader">%1$s Titel, %2$s</string>
     <string name="ok">OK</string>
@@ -99,7 +103,6 @@
     <string name="showAlbumTrackCount">Titelanzahl anzeigen</string>
     <string name="showAlbumTrackCountDescription">Zeige Titelanzahl der Alben</string>
     <string name="version">Version</string>
-    <string name="updateDB">Datenbank aktualisieren</string>
     <string name="updateDBDetails">Aktualisiere die MPD-Datenbank</string>
     <string name="useLocalAlbumCache">Album-Cache verwenden</string>
     <string name="useLocalAlbumCacheDescription">Teile der MPD-Datenbank lokal speichern</string>
@@ -113,8 +116,6 @@
     <string name="coverFileNameDescription">Dateiname der Albencover z.B. folder.jpg (cover.jpg für Vortexbox-Benutzer)</string>
     <string name="connectionSettingsDescription">Setze MPD-Host/Port und Passwort</string>
     <string name="outputs">Ausgänge</string>
-    <string name="outputsDescription">Aktiviere/Deaktiviere MPD-Ausgänge</string>
-    <string name="serverSettings">Server Einstellungen</string>
     <string name="connect">Verbinde</string>
     <string name="songAdded">Titel \&quot;%s\&quot; hinzugefügt</string>
     <string name="about">Über</string>
@@ -128,7 +129,6 @@
     <string name="addSong">Titel hinzufügen</string>
     <string name="addStream">Stream hinzufügen</string>
     <string name="addToPlaylist">Zu einer Wiedergabeliste hinzufügen</string>
-    <string name="aboutDescription">Über MPDroid</string>
     <string name="connectionFailed">Verbindung fehlgeschlagen</string>
     <string name="connectionFailedMessage">Die Verbindung zum MPD-Server ist fehlgeschlagen! Bitte überprüfen Sie, ob der Server läuft und erreichbar ist. (%s)</string>
     <string name="connecting">Verbinde…</string>
