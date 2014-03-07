@@ -455,7 +455,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else {
             songNameText.setText(activity.getResources().getString(R.string.notConnected));
         }
-        return;
     }
 
     @Override

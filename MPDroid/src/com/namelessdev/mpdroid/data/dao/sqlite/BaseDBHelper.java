@@ -153,7 +153,6 @@ public abstract class BaseDBHelper<T> implements BaseDao<T> {
     public void delete(long id) {
         if (getMainTableName() == null) {
             throwMainNotSetException();
-            return;
         }
     }
 

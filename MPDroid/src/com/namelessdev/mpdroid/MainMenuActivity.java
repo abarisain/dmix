@@ -136,7 +136,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            return;
         }
 
         @Override
@@ -284,7 +283,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
              */
             System.exit(0);
         }
-        return;
     }
 
     /**

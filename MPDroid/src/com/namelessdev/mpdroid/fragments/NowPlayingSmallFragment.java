@@ -224,7 +224,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
             songTitle.setText(getResources().getString(R.string.notConnected));
             songArtist.setText("");
         }
-        return;
     }
 
     @Override

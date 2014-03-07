@@ -477,7 +477,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        return;
     }
 
     @Override
@@ -487,7 +486,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-        return;
     }
 
     private void setContextForObject(Object object) {
