@@ -66,7 +66,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        Intent i = null;
+        Intent i;
 
         switch (item.getItemId()) {
 

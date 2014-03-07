@@ -332,7 +332,7 @@ public class MPD {
      * test whether given album is in given genre
      */
     public boolean albumInGenre(Album album, Genre genre) throws MPDServerException {
-        List<String> response = null;
+        List<String> response;
         Artist artist = album.getArtist();
         response = mpdConnection.sendCommand
                 (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
@@ -396,7 +396,7 @@ public class MPD {
     public final void connect(String server, String password) throws MPDServerException,
             UnknownHostException {
         int port = MPDCommand.DEFAULT_MPD_PORT;
-        String host = null;
+        String host;
         if (server.indexOf(':') != -1) {
             host = server.substring(0, server.lastIndexOf(':'));
             port = Integer.parseInt(server.substring(server.lastIndexOf(':') + 1));

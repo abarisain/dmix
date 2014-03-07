@@ -231,7 +231,7 @@ public class AlbumCache
             return false;
         }
         Log.d("MPD ALBUMCACHE", "Loading " + file);
-        ObjectInputStream restore = null;
+        ObjectInputStream restore;
         boolean loaded_ok = false;
         try {
             if (GZIP) {
@@ -376,7 +376,7 @@ public class AlbumCache
                 backupfile.delete();
             file.renameTo(backupfile);
         }
-        ObjectOutputStream save = null;
+        ObjectOutputStream save;
         boolean error = false;
         try {
             if (GZIP) {

@@ -637,7 +637,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return true;
         }
 
-        Intent i = null;
+        Intent i;
         final MPDApplication app = (MPDApplication) this.getApplication();
         final MPD mpd = app.oMPDAsyncHelper.oMPD;
 
@@ -773,7 +773,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     @Override
     public void pushLibraryFragment(Fragment fragment, String label) {
-        String title = "";
+        String title;
         if (fragment instanceof BrowseFragment) {
             title = ((BrowseFragment) fragment).getTitle();
         } else {

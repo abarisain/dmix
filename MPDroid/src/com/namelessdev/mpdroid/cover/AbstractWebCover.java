@@ -160,8 +160,8 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         HttpResponse response;
         StatusLine statusLine;
         int statusCode;
-        HttpEntity entity = null;
-        InputStream content = null;
+        HttpEntity entity;
+        InputStream content;
         BufferedReader reader;
         String line;
 

@@ -81,7 +81,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         public void onClick(View v) {
             final MPD mpd = app.oMPDAsyncHelper.oMPD;
-            Intent i = null;
+            Intent i;
 
             switch (v.getId()) {
                 case R.id.stop:
@@ -267,7 +267,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             if (result != null && result && activity != null) {
                 String albumartist = null;
                 String artist = null;
-                String title = null;
+                String title;
                 String album = null;
                 String date = null;
 

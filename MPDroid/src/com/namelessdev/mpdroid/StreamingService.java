@@ -708,7 +708,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         stopForeground(true);
 
         /** Setup the notification defaults. */
-        Notification status = null;
+        Notification status;
         Notification.Builder notificationBuilder = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.icon_bw)
                 .setOngoing(true)

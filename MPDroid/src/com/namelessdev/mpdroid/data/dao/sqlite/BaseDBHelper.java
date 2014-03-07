@@ -233,7 +233,7 @@ public abstract class BaseDBHelper<T> implements BaseDao<T> {
         final Cursor cursor = getDatabase().query(getMainTableName(), null, whereClause, whereArgs,
                 null, null, orderBy);
         mapColumnIdFromCursor(cursor);
-        T convertedObject = null;
+        T convertedObject;
         while (cursor.moveToNext()) {
             convertedObject = cursorToObject(cursor);
             if (convertedObject == null) {

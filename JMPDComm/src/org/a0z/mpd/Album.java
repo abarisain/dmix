@@ -79,10 +79,10 @@ public class Album extends Item implements Parcelable {
                     return year < oa.year ? -1 : 1;
                 }
             }
-            int comp = super.compareTo(o);
-            if (comp == 0 && artist != null) { // same album name, check artist
-                comp = artist.compareTo(oa.artist);
-            }
+            //int comp = super.compareTo(o);
+            // if (comp == 0 && artist != null) { // same album name, check artist
+            //    comp = artist.compareTo(oa.artist);
+            // }
         }
         return super.compareTo(o);
     }
