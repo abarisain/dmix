@@ -120,7 +120,9 @@ public class MPDCommand {
             if (arg == null)
                 continue;
             arg = arg.replaceAll("\"", "\\\\\"");
-            outBuf.append(" \"" + arg + "\"");
+            outBuf.append(" \"");
+            outBuf.append(arg);
+            outBuf.append("\"");
         }
         outBuf.append("\n");
         final String outString = outBuf.toString();

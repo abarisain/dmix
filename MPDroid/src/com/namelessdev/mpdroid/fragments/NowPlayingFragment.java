@@ -1016,11 +1016,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             String extension = getExtension(currentSong.getFullpath());
 
             if (!isEmpty(extension)) {
-                sb.append(extension.toUpperCase() + " | ");
+                sb.append(extension.toUpperCase());
+                sb.append(" | ");
             }
 
-            sb.append(status.getBitrate() + " kbps | " + status.getBitsPerSample() + " bits | "
-                    + status.getSampleRate() / 1000 + " khz");
+            sb.append(status.getBitrate());
+            sb.append(" kbps | ");
+            sb.append(status.getBitsPerSample());
+            sb.append(" bits | ");
+            sb.append(status.getSampleRate() / 1000);
+            sb.append(" khz");
             audioNameText.setText(sb.toString());
         }
 

@@ -420,7 +420,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         for (Music m : list.getMusic()) {
-            sb.append(m.toString() + "\n");
+            sb.append(m.toString());
+            sb.append("\n");
         }
         return sb.toString();
     }

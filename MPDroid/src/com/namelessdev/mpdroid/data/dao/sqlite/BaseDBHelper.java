@@ -291,13 +291,10 @@ public abstract class BaseDBHelper<T> implements BaseDao<T> {
             return false;
         }
         boolean found = false;
-        final StringBuilder builder = new StringBuilder(idColumnName);
-        builder.append("=");
-        builder.append(id);
 
         final Cursor cursor = getDatabase().query(getMainTableName(), new String[] {
                 idColumnName
-        }, builder.toString(), null, null, null,
+        }, idColumnName + "=" + id, null, null, null,
                 null);
 
         while (cursor.moveToNext()) {
