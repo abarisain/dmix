@@ -174,7 +174,7 @@ public final class StringComparators {
                 if (sAllZero && tAllZero) {
                     continue;
                 }
-                if (sAllZero && !tAllZero) {
+                if (sAllZero) {
                     return -1;
                 }
                 if (tAllZero) {
