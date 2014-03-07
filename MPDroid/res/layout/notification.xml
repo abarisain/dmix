@@ -10,6 +10,7 @@
         android:layout_marginRight="8dp"
         android:background="#3333B5E5"
         android:scaleType="fitCenter"
+        android:contentDescription="@string/notificationIconDescription"
         android:src="@drawable/icon_bw" />
 
     <LinearLayout

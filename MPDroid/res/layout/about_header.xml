@@ -27,6 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:paddingBottom="10dip"
+        android:contentDescription="@string/iconDescription"
         android:src="@drawable/icon" />
 
     <TextView

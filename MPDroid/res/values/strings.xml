@@ -277,6 +277,7 @@
     <string name="both">Both</string>
     <string name="albumartist">Album artist</string>
     <string name="artist">Artist</string>
+    <string name="iconDescription">Project Icon</string>
     <string name="artistTagToUse">Tag to use for artists listing</string>
     <string name="artistTagToUseDescription">Select the tag used for populating the Artists list. Useful for hiding artists that only star in compilations.</string>
 
