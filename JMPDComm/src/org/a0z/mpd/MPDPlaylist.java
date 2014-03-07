@@ -64,7 +64,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      *
      * @param url stream URL
      * @throws MPDServerException
-     * @throws MPDClientException.
      */
     public void add(URL url) throws MPDServerException, MPDClientException {
         this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, url.toString());
@@ -235,7 +234,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     /**
      * Removes album of given ID from playlist.
      *
-     * @param songs entries positions.
+     * @param songsId entries positions.
      * @throws MPDServerException if an error occur while contacting server.
      * @see #removeById(int[])
      */
@@ -310,7 +309,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      *
      * @param position position of the entry to be removed.
      * @throws MPDServerException if an error occur while contacting server.
-     * @see #removeId(int)
      */
     public void removeByIndex(int position) throws MPDServerException {
         this.mpd.getMpdConnection()

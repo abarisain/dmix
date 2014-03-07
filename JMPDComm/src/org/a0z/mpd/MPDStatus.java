@@ -265,7 +265,7 @@ public class MPDStatus {
     /**
      * Updates the state of the MPD Server...
      * 
-     * @param response
+     * @param response The response from the server.
      */
     public void updateStatus(List<String> response) {
         // reset values

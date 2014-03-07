@@ -39,9 +39,9 @@ public class MultiMap<K, V> implements Serializable {
      * Recursive method that will append characters to proposedKey until its
      * unique. Used in case there are collisions with generated key values.
      * 
-     * @param uniqueMap
-     * @param proposedKey
-     * @param value
+     * @param uniqueMap The haystack.
+     * @param proposedKey The proposed needle.
+     * @param value The value which goes with the needle.
      */
     private String addUniqueEntry(Map<String, V> uniqueMap, String proposedKey, V value) {
         // not the most efficient algorithm, but should work

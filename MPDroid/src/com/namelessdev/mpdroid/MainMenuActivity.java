@@ -244,8 +244,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      * count of how many time back button is pressed within 5 seconds. If the
      * count is greater than 1 then call system.exit(0) Starts a post delay
      * handler to reset the back press count to zero after 5 seconds
-     *
-     * @return None
      */
     @Override
     public void onBackPressed() {

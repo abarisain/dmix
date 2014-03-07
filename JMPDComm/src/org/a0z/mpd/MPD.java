@@ -554,24 +554,6 @@ public class MPD {
         return listAlbums(artist, useAlbumArtistTag).size();
     }
 
-    /**
-     * Recursively retrieves all songs and directories.
-     * 
-     * @param dir directory to list.
-     * @throws MPDServerException if an error occur while contacting server.
-     * @return <code>FileStorage</code> with all songs and directories.
-     */
-    /*
-     * public Directory listAllFiles(String dir) throws MPDServerException {
-     * if(!isConnected()) throw new
-     * MPDServerException("MPD Connection is not established"); List<String>
-     * list = mpdConnection.sendCommand(MPD_CMD_LISTALL, dir); for (String line
-     * : list) { if (line.startsWith("directory: ")) {
-     * rootDirectory.makeDirectory(line.substring("directory: ".length())); }
-     * else if (line.startsWith("file: ")) { rootDirectory.addFile(new
-     * Music(line.substring("file: ".length()))); } } return rootDirectory; }
-     */
-
     protected void getAlbumDetails(List<Album> albums,
             boolean findYear) throws MPDServerException {
         for (Album a : albums) {

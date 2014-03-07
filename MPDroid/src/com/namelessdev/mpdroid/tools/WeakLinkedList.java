@@ -816,7 +816,7 @@ public class WeakLinkedList<T> implements List<T> {
     /**
      * Removes a node from the list
      * 
-     * @param deadNode
+     * @param deadNode The node which gets removed by this method.
      */
     private void removeNode(WeakListNode deadNode) {
         synchronized (LOCK) {
