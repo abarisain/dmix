@@ -91,7 +91,7 @@ public class CoverManager {
         MUSICBRAINZ,
         DISCOGS,
         SPOTIFY,
-        ITUNES;
+        ITUNES
     }
 
     private class CreateBitmapTask implements Runnable

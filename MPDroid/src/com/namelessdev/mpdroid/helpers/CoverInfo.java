@@ -27,8 +27,6 @@ public class CoverInfo extends AlbumInfo {
         NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
     }
 
-    ;
-
     private STATE state = STATE.NEW;
     private Bitmap[] bitmap = new Bitmap[0];
     private byte[] coverBytes = new byte[0];
