@@ -47,8 +47,7 @@ public class MPDConnectionHandler extends BroadcastReceiver {
                             WifiManager.WIFI_STATE_UNKNOWN)));
         } else if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
             Log.d(MPDApplication.TAG, "NETW-STATE:" + intent.getAction());
-            NetworkInfo networkInfo = (NetworkInfo) intent
-                    .getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             Log.d(MPDApplication.TAG, "NETW-STATE: Connected: " + networkInfo.isConnected());
             Log.d(MPDApplication.TAG, "NETW-STATE: Connected: " + networkInfo.getState().toString());
         }

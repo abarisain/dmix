@@ -264,7 +264,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 break;
             case ADD_TO_PLAYLIST: {
                 final EditText input = new EditText(getActivity());
-                final int id = (int) item.getOrder();
+                final int id = item.getOrder();
                 if (item.getItemId() == 0) {
                     new AlertDialog.Builder(getActivity())
                             .setTitle(R.string.playlistName)
@@ -297,7 +297,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
             }
             default:
                 final String name = item.getTitle().toString();
-                final int id = (int) item.getOrder();
+                final int id = item.getOrder();
                 app.oMPDAsyncHelper.execAsync(new Runnable() {
                     @Override
                     public void run() {

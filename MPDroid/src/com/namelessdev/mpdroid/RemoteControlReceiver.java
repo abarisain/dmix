@@ -39,7 +39,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
             i.putExtra(StreamingService.CMD_COMMAND, StreamingService.CMD_STOP);
             context.startService(i);
         } else if (action.equals(Intent.ACTION_MEDIA_BUTTON)) {
-            KeyEvent event = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+            KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             if (event == null) {
                 return;
             }

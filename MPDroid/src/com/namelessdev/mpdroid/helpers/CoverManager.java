@@ -173,7 +173,7 @@ public class CoverManager {
                     if (DEBUG)
                         i(MPDApplication.TAG, "Saving cover art to cache");
                     // Save the fullsize bitmap
-                    ((CachedCover) getCacheRetriever()).save(coverInfo, fullBmp);
+                    (getCacheRetriever()).save(coverInfo, fullBmp);
 
                     // Release the cover immediately if not used
                     if (bitmaps[0] != bitmaps[1]) {

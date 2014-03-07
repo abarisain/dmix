@@ -192,7 +192,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
             if (app == null)
                 return;
 
-            if (!((MPDApplication) app).getApplicationState().streamingMode) {
+            if (!(app).getApplicationState().streamingMode) {
                 stopSelf();
                 return;
             }
@@ -613,12 +613,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         // create and register the remote control client
         remoteControlClient = new RemoteControlClient(mediaPendingIntent);
-        ((RemoteControlClient) remoteControlClient)
+        (remoteControlClient)
                 .setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
                         | RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
                         | RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
 
-        audioManager.registerRemoteControlClient((RemoteControlClient) remoteControlClient);
+        audioManager.registerRemoteControlClient(remoteControlClient);
     }
 
     @Override
@@ -633,14 +633,14 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private void setMusicInfo(Music song, AlbumInfo albumInfo,
             Notification.Builder notificationBuilder) {
         final SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences((MPDApplication) getApplication());
+                .getDefaultSharedPreferences(getApplication());
 
         if (remoteControlClient == null || song == null
                 || settings.getBoolean(CoverManager.PREFERENCE_CACHE, true) == false) {
             return;
         }
 
-        MetadataEditor editor = ((RemoteControlClient) remoteControlClient).editMetadata(true);
+        MetadataEditor editor = (remoteControlClient).editMetadata(true);
 
         Bitmap bitmap = getCoverArtBitmap(albumInfo, notificationBuilder);
         if (bitmap != null) {
@@ -659,7 +659,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     private void setMusicState(int state) {
         if (remoteControlClient != null) {
-            ((RemoteControlClient) remoteControlClient).setPlaybackState(state);
+            (remoteControlClient).setPlaybackState(state);
         }
     }
 
@@ -886,7 +886,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     private void unregisterRemoteControlClient() {
         if (remoteControlClient != null) {
-            audioManager.unregisterRemoteControlClient((RemoteControlClient) remoteControlClient);
+            audioManager.unregisterRemoteControlClient(remoteControlClient);
         }
     }
 

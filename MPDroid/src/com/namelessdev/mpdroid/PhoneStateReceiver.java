@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -86,7 +85,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         // get configured MPD connection
         final MPDAsyncHelper oMPDAsyncHelper = new MPDAsyncHelper();
         SettingsHelper settingsHelper = new SettingsHelper(
-                (ContextWrapper) context.getApplicationContext(),
+                context.getApplicationContext(),
                 oMPDAsyncHelper);
         settingsHelper.updateConnectionSettings();
 
@@ -101,8 +100,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                     if (!mpd.isConnected()) {
                         Log.d(MPDApplication.TAG, "Trying to connect");
                         // MPD connection has to be done synchronously
-                        MPDConnectionInfo conInfo = (MPDConnectionInfo) oMPDAsyncHelper
-                                .getConnectionSettings();
+                        MPDConnectionInfo conInfo = oMPDAsyncHelper.getConnectionSettings();
                         mpd.connect(conInfo.sServer, conInfo.iPort, conInfo.sPassword);
 
                         if (mpd.isConnected()) {

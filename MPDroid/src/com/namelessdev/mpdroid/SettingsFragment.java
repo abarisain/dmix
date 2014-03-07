@@ -95,8 +95,8 @@ public class SettingsFragment extends PreferenceFragment {
 
         localCoverCheckbox = (CheckBoxPreference) findPreference(
                 "enableLocalCover");
-        musicPath = (Preference) findPreference("musicPath");
-        coverFilename = (Preference) findPreference("coverFileName");
+        musicPath = findPreference("musicPath");
+        coverFilename = findPreference("coverFileName");
         if (localCoverCheckbox.isChecked()) {
             musicPath.setEnabled(true);
             coverFilename.setEnabled(true);
