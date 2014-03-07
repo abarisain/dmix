@@ -185,12 +185,12 @@ class TabItem {
 
 class TabListDataBinder implements SeparatedListDataBinder {
 
-    public boolean isEnabled(int position, List<? extends Object> items, Object item) {
+    public boolean isEnabled(int position, List<?> items, Object item) {
         return true;
     }
 
     public void onDataBind(Context context, View targetView,
-            List<? extends Object> items, Object item, int position) {
+            List<?> items, Object item, int position) {
         ((TextView) targetView).setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).text));
     }
 

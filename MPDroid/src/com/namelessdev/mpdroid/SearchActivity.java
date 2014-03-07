@@ -349,7 +349,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        ArrayList<? extends Object> targetArray;
+        ArrayList<?> targetArray;
         switch (pager.getCurrentItem()) {
             default:
             case 0:
@@ -405,7 +405,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     public boolean onMenuItemClick(final android.view.MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         final MPDApplication app = (MPDApplication) getApplication();
-        ArrayList<? extends Object> targetArray;
+        ArrayList<?> targetArray;
         switch (pager.getCurrentItem()) {
             default:
             case 0:
