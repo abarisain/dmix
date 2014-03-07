@@ -382,8 +382,8 @@ public class MPD {
      */
     public final void connect(String server, int port, String password) throws MPDServerException,
             UnknownHostException {
-        InetAddress adress = InetAddress.getByName(server);
-        connect(adress, port, password);
+        InetAddress address = InetAddress.getByName(server);
+        connect(address, port, password);
     }
 
     /**
@@ -1465,7 +1465,7 @@ public class MPD {
      * 
      * @param type type of search. Should be one of the following constants:
      *            MPD_SEARCH_ARTIST, MPD_SEARCH_TITLE, MPD_SEARCH_ALBUM,
-     *            MPD_SEARCG_FILENAME
+     *            MPD_SEARCH_FILENAME
      * @param string case-insensitive locator string. Anything that contains
      *            <code>string</code> will be returned in the results.
      * @return a Collection of <code>Music</code>.
@@ -1636,7 +1636,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      * @see #skipToId(int)
      */
-    public void skipToPositon(int position) throws MPDServerException {
+    public void skipToPosition(int position) throws MPDServerException {
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 

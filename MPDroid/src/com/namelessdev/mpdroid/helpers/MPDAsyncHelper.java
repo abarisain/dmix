@@ -220,7 +220,7 @@ public class MPDAsyncHelper extends Handler {
     public MPD oMPD;
     private static int iJobID = 0;
     // Listener Collections
-    private Collection<ConnectionListener> connectionListners;
+    private Collection<ConnectionListener> connectionListeners;
     private Collection<StatusChangeListener> statusChangedListeners;
 
     private Collection<TrackPositionListener> trackPositionListeners;
@@ -243,7 +243,7 @@ public class MPDAsyncHelper extends Handler {
         oMPDAsyncWorkerThread.start();
         oMPDAsyncWorker = new MPDAsyncWorker(oMPDAsyncWorkerThread.getLooper());
 
-        connectionListners = new WeakLinkedList<ConnectionListener>("ConnectionListener");
+        connectionListeners = new WeakLinkedList<ConnectionListener>("ConnectionListener");
         statusChangedListeners = new WeakLinkedList<StatusChangeListener>("StatusChangeListener");
         trackPositionListeners = new WeakLinkedList<TrackPositionListener>("TrackPositionListener");
         asyncExecListeners = new WeakLinkedList<AsyncExecListener>("AsyncExecListener");
@@ -256,7 +256,7 @@ public class MPDAsyncHelper extends Handler {
     }
 
     public void addConnectionListener(ConnectionListener listener) {
-        connectionListners.add(listener);
+        connectionListeners.add(listener);
     }
 
     public void addStatusChangeListener(StatusChangeListener listener) {
@@ -309,10 +309,10 @@ public class MPDAsyncHelper extends Handler {
                         listener.connectionStateChanged((Boolean) args[0], (Boolean) args[1]);
                     // Also notify Connection Listener...
                     if ((Boolean) args[0])
-                        for (ConnectionListener listener : connectionListners)
+                        for (ConnectionListener listener : connectionListeners)
                             listener.connectionSucceeded("");
                     if ((Boolean) args[1])
-                        for (ConnectionListener listener : connectionListners)
+                        for (ConnectionListener listener : connectionListeners)
                             listener.connectionFailed("Connection Lost");
                     break;
                 case EVENT_PLAYLIST:
@@ -348,11 +348,11 @@ public class MPDAsyncHelper extends Handler {
                         listener.trackPositionChanged((MPDStatus) args[0]);
                     break;
                 case EVENT_CONNECTFAILED:
-                    for (ConnectionListener listener : connectionListners)
+                    for (ConnectionListener listener : connectionListeners)
                         listener.connectionFailed((String) args[0]);
                     break;
                 case EVENT_CONNECTSUCCEEDED:
-                    for (ConnectionListener listener : connectionListners)
+                    for (ConnectionListener listener : connectionListeners)
                         listener.connectionSucceeded(null);
                     break;
                 case EVENT_EXECASYNCFINISHED:
@@ -380,7 +380,7 @@ public class MPDAsyncHelper extends Handler {
     }
 
     public void removeConnectionListener(ConnectionListener listener) {
-        connectionListners.remove(listener);
+        connectionListeners.remove(listener);
     }
 
     public void removeStatusChangeListener(StatusChangeListener listener) {

@@ -349,7 +349,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * 
      * @return date as string.
      */
-    public String getFormatedTime() {
+    public String getFormattedTime() {
         return timeToString(time);
     }
 

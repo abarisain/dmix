@@ -86,7 +86,7 @@ public final class Tools {
     }
 
     public static Bitmap decodeSampledBitmapFromBytes(byte[] bytes, int reqWidth, int reqHeight,
-            boolean resizePerfectlty) {
+            boolean resizePerfectly) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -99,7 +99,7 @@ public final class Tools {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-        if (resizePerfectlty) {
+        if (resizePerfectly) {
             final Bitmap scaledBitmap = Bitmap
                     .createScaledBitmap(bitmap, reqWidth, reqHeight, true);
             bitmap.recycle();

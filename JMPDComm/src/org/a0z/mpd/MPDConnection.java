@@ -345,7 +345,7 @@ public abstract class MPDConnection {
         } catch (MPDConnectionException e) {
             if (command.command.equals(MPDCommand.MPD_CMD_CLOSE))
                 return result;// we sent close command, so don't care about
-                              // Exception while ryong to read response
+                              // Exception while wrong to read response
             else
                 throw e;
         } catch (IOException e) {

@@ -33,7 +33,7 @@ import java.util.List;
  * type, the binder will be called. The binder should do what getView does when
  * you extend BaseAdapter (except that you never inflate the view yourself)
  * There are many other implementations of this list on the internet, this one
- * has a lot of restrictions (which makes it simplier), but handles the
+ * has a lot of restrictions (which makes it simpler), but handles the
  * separators so that you always get the right line number when you select a
  * line. The separator needs to have a TextView named "separator_title".
  */

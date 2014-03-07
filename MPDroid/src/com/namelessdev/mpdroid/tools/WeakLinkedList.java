@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
  * dropping out of the list due to being unreachable. <br>
  * <br>
  * An Iterator or ListIterator on this list will not fail if an element
- * disapears due to being unreachable. Also while iterating no reachable element
+ * disappears due to being unreachable. Also while iterating no reachable element
  * will ever be skipped.
  * 
  * @author Eric Dalquist <a
@@ -545,7 +545,7 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     /**
-     * Checks the ReferenceQueue for nodes whos values are no long valid and
+     * Checks the ReferenceQueue for nodes whose values are no long valid and
      * cleanly removes them from the list
      */
     @SuppressWarnings("unchecked")
@@ -705,7 +705,7 @@ public class WeakLinkedList<T> implements List<T> {
      * Iterator cannot ensure that after calling hasNext() successfully a call
      * to next() will not throw a NoSuchElementException due to element
      * expiration due to weak references. <br>
-     * The remove methodhas been implemented
+     * The remove method has been implemented
      * 
      * @see java.util.List#iterator()
      */

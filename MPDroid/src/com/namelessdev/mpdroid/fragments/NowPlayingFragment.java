@@ -208,7 +208,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private class PosTimerTask extends TimerTask {
         Date date = new Date();
         long start = 0;
-        long ellapsed = 0;
+        long elapsed = 0;
 
         public PosTimerTask(long start) {
             this.start = start;
@@ -217,19 +217,19 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         @Override
         public void run() {
             Date now = new Date();
-            ellapsed = start + ((now.getTime() - date.getTime()) / 1000);
-            progressBarTrack.setProgress((int) ellapsed);
+            elapsed = start + ((now.getTime() - date.getTime()) / 1000);
+            progressBarTrack.setProgress((int) elapsed);
             if (currentSong != null && !currentSong.isStream()) {
-                ellapsed = ellapsed > lastSongTime ? lastSongTime : ellapsed;
+                elapsed = elapsed > lastSongTime ? lastSongTime : elapsed;
             }
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    trackTime.setText(timeToString(ellapsed));
+                    trackTime.setText(timeToString(elapsed));
                     trackTotalTime.setText(timeToString(lastSongTime));
                 }
             });
-            lastElapsedTime = ellapsed;
+            lastElapsedTime = elapsed;
         }
     }
 

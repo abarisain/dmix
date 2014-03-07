@@ -75,7 +75,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     }
 
     /**
-     * Use a connection insteaf of httpClient to be able to handle redirection
+     * Use a connection instead of httpClient to be able to handle redirection
      * Redirection are needed for MusicBrainz web services.
      * 
      * @param request The web service request

@@ -75,7 +75,7 @@ public class SongDataBinder implements ArrayDataBinder {
         holder.trackTitle.setText(song.getTitle());
         holder.trackNumber.setText(trackNumber < 10 ? "0" + Integer.toString(trackNumber) : Integer
                 .toString(trackNumber));
-        holder.trackDuration.setText(song.getFormatedTime());
+        holder.trackDuration.setText(song.getFormattedTime());
 
         if (showArtist) {
             String a = song.getArtist();

@@ -36,7 +36,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     private MPD mpd;
     private MusicList list;
     private int lastPlaylistVersion = -1;
-    private boolean firstRefreash = true;
+    private boolean firstRefresh = true;
     private static final boolean DEBUG = false;
 
     /**
@@ -62,7 +62,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     /**
      * Adds a stream to playlist.
      *
-     * @param url streams's URL
+     * @param url stream URL
      * @throws MPDServerException
      * @throws MPDClientException.
      */
@@ -157,7 +157,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     }
 
     /*
-     * React to playlist change on server and refresh ourself
+     * React to playlist change on server and refresh the queue
      * @see
      * org.a0z.mpd.event.AbstractStatusChangeListener#playlistChanged(org.a0z
      * .mpd.MPDStatus, int)
@@ -180,7 +180,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * @return current playlist version.
      */
     private int refresh() throws MPDServerException {
-        if (firstRefreash) {
+        if (firstRefresh) {
             // TODO should be atomic
             MPDStatus status = this.mpd.getStatus();
             List<String> response = this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_LIST);
@@ -190,7 +190,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
             list.addAll(playlist);
 
             lastPlaylistVersion = status.getPlaylistVersion();
-            firstRefreash = false;
+            firstRefresh = false;
         } else {
             this.lastPlaylistVersion = this.refresh(lastPlaylistVersion);
         }

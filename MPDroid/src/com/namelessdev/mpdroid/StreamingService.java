@@ -390,7 +390,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
             // says "ok we're waiting for 3G/wifi !"
             beginStreaming();
         } else {
-            // Something's happening, like crappy network or MPD just stopped..
+            // Somethings happening, like crappy network or MPD just stopped..
             prevMpdState = state;
             die();
         }

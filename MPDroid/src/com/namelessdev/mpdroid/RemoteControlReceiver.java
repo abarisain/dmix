@@ -24,7 +24,7 @@ import android.view.KeyEvent;
 
 /**
  * RemoteControlReceiver receives media player button stuff. Most of the code is
- * taken from google's music app.
+ * taken from Google's music app.
  * 
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $

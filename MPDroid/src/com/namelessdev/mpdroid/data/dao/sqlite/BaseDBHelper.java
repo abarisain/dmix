@@ -324,7 +324,7 @@ public abstract class BaseDBHelper<T> implements BaseDao<T> {
 
     /**
      * Sets the ID column name for delete, getItemCount, truncate and
-     * isInDatabase Only necessary if the column isnt "id"
+     * isInDatabase Only necessary if the column is not "id"
      * 
      * @param idColumnName The id column name to use
      */
