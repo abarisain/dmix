@@ -197,12 +197,10 @@ public class Music extends Item implements FilesystemTreeEntry {
                             ""));
                 } catch (NumberFormatException e) {
                 }
-            } else {
-                // Ignore this case, there could be some id3 tags which are not
-                // common and therefore not implemented here...
-                // (new InvalidResponseException("unknown response: " +
-                // line)).printStackTrace();
-            }
+            } /**
+             * Ignore potential else block, there could be some id3 tags which are not common and
+             * are, therefore, not implemented here.
+             */
         }
     }
 

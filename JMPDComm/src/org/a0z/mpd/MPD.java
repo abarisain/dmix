@@ -453,9 +453,7 @@ public class MPD {
             }
         }
 
-        if (ex != null) {
-            // throw ex;
-        }
+        // TODO: Throw ex
     }
 
     public void enableOutput(int id) throws MPDServerException {

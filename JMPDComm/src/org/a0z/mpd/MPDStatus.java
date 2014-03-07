@@ -332,11 +332,9 @@ public class MPDStatus {
                     this.consume = "1".equals(line.substring("consume: ".length())) ? true : false;
                 } else if (line.startsWith("single:")) {
                     this.single = "1".equals(line.substring("single: ".length())) ? true : false;
-                } else {
-                    // TODO : This floods logcat too much, will fix later
-                    // (new InvalidResponseException("unknown response: " +
-                    // line)).printStackTrace();
                 }
+                // TODO : Write else block that doesn't flood logcat.
+
             } catch (RuntimeException e) {
                 // Do nothing, these should be harmless
                 e.printStackTrace();
