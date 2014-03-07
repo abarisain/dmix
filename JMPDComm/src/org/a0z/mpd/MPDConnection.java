@@ -135,14 +135,14 @@ public abstract class MPDConnection {
         for (String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
                 if (lineCache.size() != 0) {
-                    result.add((String[]) lineCache.toArray(new String[0]));
+                    result.add(lineCache.toArray(new String[lineCache.size()]));
                     lineCache.clear();
                 }
             } else
                 lineCache.add(line);
         }
         if (lineCache.size() != 0) {
-            result.add((String[]) lineCache.toArray(new String[0]));
+            result.add(lineCache.toArray(new String[lineCache.size()]));
         }
         return result;
     }
