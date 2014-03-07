@@ -1297,7 +1297,7 @@ public class MPD {
                 String name = s.substring((albumArtist ? "AlbumArtist: " : "Artist: ").length());
                 albumresult.add(name);
             }
-            result.add(albumresult.toArray(new String[0]));
+            result.add(albumresult.toArray(new String[albumresult.size()]));
         }
         return result;
     }
