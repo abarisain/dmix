@@ -28,7 +28,6 @@
             android:fontFamily="sans-serif-light"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="Title"
             android:textAppearance="?android:textAppearanceMedium" />
 
         <TextView
@@ -38,7 +37,7 @@
             android:ellipsize="marquee"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="Artist"
+            android:text="@string/artist"
             android:textAppearance="?android:textAppearanceSmall" />
     </LinearLayout>
 
