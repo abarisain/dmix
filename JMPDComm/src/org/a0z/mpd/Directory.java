@@ -110,7 +110,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     /**
      * Retrieves a sub-directory.
      * 
-     * @param name name of sub-directory to retrieve.
+     * @param filename name of sub-directory to retrieve.
      * @return a sub-directory.
      */
     public Directory getDirectory(String filename) {

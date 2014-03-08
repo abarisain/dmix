@@ -83,10 +83,10 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         @Override
         protected void onPostExecute(Boolean result) {
             if (result != null && result) {
-                String albumartist = null;
+                String albumartist;
                 String artist = null;
                 String artistlabel = null;
-                String title = null;
+                String title;
                 String album = null;
                 boolean noSong = actSong == null || status.getPlaylistLength() == 0;
                 if (noSong) {
@@ -224,7 +224,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
             songTitle.setText(getResources().getString(R.string.notConnected));
             songArtist.setText("");
         }
-        return;
     }
 
     @Override

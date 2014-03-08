@@ -568,10 +568,9 @@ public class SlidingUpPanelLayout extends ViewGroup {
                 childTop = lp.slideable ? slidingTop - (int) (mSlideRange * mSlideOffset) : paddingTop + mPanelHeight;
             }
             final int childBottom = childTop + childHeight;
-            final int childLeft = paddingLeft;
-            final int childRight = childLeft + child.getMeasuredWidth();
+            final int childRight = paddingLeft + child.getMeasuredWidth();
 
-            child.layout(childLeft, childTop, childRight, childBottom);
+            child.layout(paddingLeft, childTop, childRight, childBottom);
         }
 
         if (mFirstLayout) {
@@ -779,7 +778,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
      * Expand the sliding pane if it is currently slideable. If first layout
      * has already completed this will animate.
      *
-     * @return true if the pane was slideable and is now expanded/in the process of expading
+     * @return true if the pane was slideable and is now expanded/in the process of expanding
      */
     public boolean expandPane() {
         return expandPane(0);

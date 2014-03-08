@@ -135,14 +135,14 @@ public abstract class MPDConnection {
         for (String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
                 if (lineCache.size() != 0) {
-                    result.add((String[]) lineCache.toArray(new String[0]));
+                    result.add(lineCache.toArray(new String[lineCache.size()]));
                     lineCache.clear();
                 }
             } else
                 lineCache.add(line);
         }
         if (lineCache.size() != 0) {
-            result.add((String[]) lineCache.toArray(new String[0]));
+            result.add(lineCache.toArray(new String[lineCache.size()]));
         }
         return result;
     }
@@ -237,7 +237,7 @@ public abstract class MPDConnection {
         }
     }
 
-    final private int[] innerConnect() throws MPDServerException {
+    private int[] innerConnect() throws MPDServerException {
 
         if (getSocket() != null) { // Always release existing socket if any
                                    // before creating a new one
@@ -345,7 +345,7 @@ public abstract class MPDConnection {
         } catch (MPDConnectionException e) {
             if (command.command.equals(MPDCommand.MPD_CMD_CLOSE))
                 return result;// we sent close command, so don't care about
-                              // Exception while ryong to read response
+                              // Exception while wrong to read response
             else
                 throw e;
         } catch (IOException e) {

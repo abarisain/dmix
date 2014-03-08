@@ -254,9 +254,7 @@ public class MPD {
             public void run() {
                 try {
                     getPlaylist().add(stream);
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
-                } catch (MPDClientException e) {
+                } catch (MPDServerException | MPDClientException e) {
                     e.printStackTrace();
                 }
             }
@@ -334,7 +332,7 @@ public class MPD {
      * test whether given album is in given genre
      */
     public boolean albumInGenre(Album album, Genre genre) throws MPDServerException {
-        List<String> response = null;
+        List<String> response;
         Artist artist = album.getArtist();
         response = mpdConnection.sendCommand
                 (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
@@ -384,8 +382,8 @@ public class MPD {
      */
     public final void connect(String server, int port, String password) throws MPDServerException,
             UnknownHostException {
-        InetAddress adress = InetAddress.getByName(server);
-        connect(adress, port, password);
+        InetAddress address = InetAddress.getByName(server);
+        connect(address, port, password);
     }
 
     /**
@@ -398,7 +396,7 @@ public class MPD {
     public final void connect(String server, String password) throws MPDServerException,
             UnknownHostException {
         int port = MPDCommand.DEFAULT_MPD_PORT;
-        String host = null;
+        String host;
         if (server.indexOf(':') != -1) {
             host = server.substring(0, server.lastIndexOf(':'));
             port = Integer.parseInt(server.substring(server.lastIndexOf(':') + 1));
@@ -455,9 +453,7 @@ public class MPD {
             }
         }
 
-        if (ex != null) {
-            // throw ex;
-        }
+        // TODO: Throw ex
     }
 
     public void enableOutput(int id) throws MPDServerException {
@@ -556,24 +552,6 @@ public class MPD {
         return listAlbums(artist, useAlbumArtistTag).size();
     }
 
-    /**
-     * Recursively retrieves all songs and directories.
-     * 
-     * @param dir directory to list.
-     * @throws MPDServerException if an error occur while contacting server.
-     * @return <code>FileStorage</code> with all songs and directories.
-     */
-    /*
-     * public Directory listAllFiles(String dir) throws MPDServerException {
-     * if(!isConnected()) throw new
-     * MPDServerException("MPD Connection is not established"); List<String>
-     * list = mpdConnection.sendCommand(MPD_CMD_LISTALL, dir); for (String line
-     * : list) { if (line.startsWith("directory: ")) {
-     * rootDirectory.makeDirectory(line.substring("directory: ".length())); }
-     * else if (line.startsWith("file: ")) { rootDirectory.addFile(new
-     * Music(line.substring("file: ".length()))); } } return rootDirectory; }
-     */
-
     protected void getAlbumDetails(List<Album> albums,
             boolean findYear) throws MPDServerException {
         for (Album a : albums) {
@@ -655,9 +633,7 @@ public class MPD {
             addAlbumPaths(albums);
         }
 
-        if (null != albums) {
-            Collections.sort(albums);
-        }
+        Collections.sort(albums);
         return albums;
     }
 
@@ -1205,7 +1181,7 @@ public class MPD {
         }
 
         // add a single blank entry to host all songs without an album set
-        if ((includeUnknownAlbum == true) && (foundSongWithoutAlbum == true)) {
+        if (includeUnknownAlbum && foundSongWithoutAlbum) {
             result.add("");
         }
 
@@ -1301,7 +1277,7 @@ public class MPD {
                 String name = s.substring((albumArtist ? "AlbumArtist: " : "Artist: ").length());
                 albumresult.add(name);
             }
-            result.add(albumresult.toArray(new String[0]));
+            result.add(albumresult.toArray(new String[albumresult.size()]));
         }
         return result;
     }
@@ -1469,7 +1445,7 @@ public class MPD {
      * 
      * @param type type of search. Should be one of the following constants:
      *            MPD_SEARCH_ARTIST, MPD_SEARCH_TITLE, MPD_SEARCH_ALBUM,
-     *            MPD_SEARCG_FILENAME
+     *            MPD_SEARCH_FILENAME
      * @param string case-insensitive locator string. Anything that contains
      *            <code>string</code> will be returned in the results.
      * @return a Collection of <code>Music</code>.
@@ -1640,7 +1616,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      * @see #skipToId(int)
      */
-    public void skipToPositon(int position) throws MPDServerException {
+    public void skipToPosition(int position) throws MPDServerException {
         if (!isConnected())
             throw new MPDServerException("MPD Connection is not established");
 

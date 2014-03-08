@@ -81,7 +81,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         public void onClick(View v) {
             final MPD mpd = app.oMPDAsyncHelper.oMPD;
-            Intent i = null;
+            Intent i;
 
             switch (v.getId()) {
                 case R.id.stop:
@@ -208,7 +208,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private class PosTimerTask extends TimerTask {
         Date date = new Date();
         long start = 0;
-        long ellapsed = 0;
+        long elapsed = 0;
 
         public PosTimerTask(long start) {
             this.start = start;
@@ -217,19 +217,19 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         @Override
         public void run() {
             Date now = new Date();
-            ellapsed = start + ((now.getTime() - date.getTime()) / 1000);
-            progressBarTrack.setProgress((int) ellapsed);
+            elapsed = start + ((now.getTime() - date.getTime()) / 1000);
+            progressBarTrack.setProgress((int) elapsed);
             if (currentSong != null && !currentSong.isStream()) {
-                ellapsed = ellapsed > lastSongTime ? lastSongTime : ellapsed;
+                elapsed = elapsed > lastSongTime ? lastSongTime : elapsed;
             }
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    trackTime.setText(timeToString(ellapsed));
+                    trackTime.setText(timeToString(elapsed));
                     trackTotalTime.setText(timeToString(lastSongTime));
                 }
             });
-            lastElapsedTime = ellapsed;
+            lastElapsedTime = elapsed;
         }
     }
 
@@ -267,7 +267,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             if (result != null && result && activity != null) {
                 String albumartist = null;
                 String artist = null;
-                String title = null;
+                String title;
                 String album = null;
                 String date = null;
 
@@ -455,7 +455,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else {
             songNameText.setText(activity.getResources().getString(R.string.notConnected));
         }
-        return;
     }
 
     @Override
@@ -1016,11 +1015,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             String extension = getExtension(currentSong.getFullpath());
 
             if (!isEmpty(extension)) {
-                sb.append(extension.toUpperCase() + " | ");
+                sb.append(extension.toUpperCase());
+                sb.append(" | ");
             }
 
-            sb.append(status.getBitrate() + " kbps | " + status.getBitsPerSample() + " bits | "
-                    + status.getSampleRate() / 1000 + " khz");
+            sb.append(status.getBitrate());
+            sb.append(" kbps | ");
+            sb.append(status.getBitsPerSample());
+            sb.append(" bits | ");
+            sb.append(status.getSampleRate() / 1000);
+            sb.append(" khz");
             audioNameText.setText(sb.toString());
         }
 

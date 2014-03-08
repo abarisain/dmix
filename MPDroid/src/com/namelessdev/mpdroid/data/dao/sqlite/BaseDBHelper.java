@@ -153,7 +153,6 @@ public abstract class BaseDBHelper<T> implements BaseDao<T> {
     public void delete(long id) {
         if (getMainTableName() == null) {
             throwMainNotSetException();
-            return;
         }
     }
 
@@ -234,7 +233,7 @@ public abstract class BaseDBHelper<T> implements BaseDao<T> {
         final Cursor cursor = getDatabase().query(getMainTableName(), null, whereClause, whereArgs,
                 null, null, orderBy);
         mapColumnIdFromCursor(cursor);
-        T convertedObject = null;
+        T convertedObject;
         while (cursor.moveToNext()) {
             convertedObject = cursorToObject(cursor);
             if (convertedObject == null) {
@@ -291,13 +290,10 @@ public abstract class BaseDBHelper<T> implements BaseDao<T> {
             return false;
         }
         boolean found = false;
-        final StringBuilder builder = new StringBuilder(idColumnName);
-        builder.append("=");
-        builder.append(id);
 
         final Cursor cursor = getDatabase().query(getMainTableName(), new String[] {
                 idColumnName
-        }, builder.toString(), null, null, null,
+        }, idColumnName + "=" + id, null, null, null,
                 null);
 
         while (cursor.moveToNext()) {
@@ -328,7 +324,7 @@ public abstract class BaseDBHelper<T> implements BaseDao<T> {
 
     /**
      * Sets the ID column name for delete, getItemCount, truncate and
-     * isInDatabase Only necessary if the column isnt "id"
+     * isInDatabase Only necessary if the column is not "id"
      * 
      * @param idColumnName The id column name to use
      */

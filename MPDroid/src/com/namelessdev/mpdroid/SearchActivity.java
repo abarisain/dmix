@@ -89,7 +89,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         @Override
         public boolean isViewFromObject(View arg0, Object arg1) {
-            return arg0 == ((View) arg1);
+            return arg0 == arg1;
         }
     }
 
@@ -349,7 +349,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        ArrayList<? extends Object> targetArray;
+        ArrayList<?> targetArray;
         switch (pager.getCurrentItem()) {
             default:
             case 0:
@@ -405,7 +405,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     public boolean onMenuItemClick(final android.view.MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         final MPDApplication app = (MPDApplication) getApplication();
-        ArrayList<? extends Object> targetArray;
+        ArrayList<?> targetArray;
         switch (pager.getCurrentItem()) {
             default:
             case 0:
@@ -477,7 +477,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        return;
     }
 
     @Override
@@ -487,7 +486,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-        return;
     }
 
     private void setContextForObject(Object object) {

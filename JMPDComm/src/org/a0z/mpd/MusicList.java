@@ -57,7 +57,7 @@ public class MusicList {
      * @param playlist <code>Collection</code> of <code>Music</code> to be added
      *            to this <code>MusicList</code>.
      * @throws ClassCastException when <code>playlist</code> contains elements
-     *             not asignable to <code>Music</code>.
+     *             not assignable to <code>Music</code>.
      */
     public void addAll(List<Music> playlist) throws ClassCastException {
         list.addAll(playlist);

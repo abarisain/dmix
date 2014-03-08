@@ -54,8 +54,7 @@ public final class Tools {
     public static float convertDpToPixel(float dp, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * (metrics.densityDpi / 160f);
-        return px;
+        return dp * (metrics.densityDpi / 160f);
     }
 
     /**
@@ -64,7 +63,7 @@ public final class Tools {
      * @param data Target data array.
      * @return Hex string.
      */
-    private static final String convertToHex(byte[] data) {
+    private static String convertToHex(byte[] data) {
         if (data == null || data.length == 0) {
             return null;
         }
@@ -86,7 +85,7 @@ public final class Tools {
     }
 
     public static Bitmap decodeSampledBitmapFromBytes(byte[] bytes, int reqWidth, int reqHeight,
-            boolean resizePerfectlty) {
+            boolean resizePerfectly) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -99,7 +98,7 @@ public final class Tools {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-        if (resizePerfectlty) {
+        if (resizePerfectly) {
             final Bitmap scaledBitmap = Bitmap
                     .createScaledBitmap(bitmap, reqWidth, reqHeight, true);
             bitmap.recycle();

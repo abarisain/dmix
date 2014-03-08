@@ -79,7 +79,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        Object targetElement = null;
+        Object targetElement;
         if (savedInstanceState == null) {
             Fragment rootFragment = null;
             if (getIntent().getBooleanExtra("streams", false)) {
@@ -209,7 +209,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
 
     @Override
     public void pushLibraryFragment(Fragment fragment, String label) {
-        String title = "";
+        String title;
         if (fragment instanceof BrowseFragment) {
             title = ((BrowseFragment) fragment).getTitle();
         } else {

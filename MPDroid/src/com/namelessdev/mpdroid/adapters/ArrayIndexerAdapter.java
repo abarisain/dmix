@@ -44,12 +44,12 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     @SuppressWarnings("unchecked")
     public ArrayIndexerAdapter(Context context, ArrayDataBinder dataBinder,
             List<? extends Item> items) {
-        super(context, dataBinder, (List<Item>) items);
+        super(context, dataBinder, items);
     }
 
     @SuppressWarnings("unchecked")
     public ArrayIndexerAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
-        super(context, textViewResourceId, (List<Item>) items);
+        super(context, textViewResourceId, items);
     }
 
     @Override

@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid.library;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.view.Menu;
@@ -185,12 +184,12 @@ class TabItem {
 
 class TabListDataBinder implements SeparatedListDataBinder {
 
-    public boolean isEnabled(int position, List<? extends Object> items, Object item) {
+    public boolean isEnabled(int position, List<?> items, Object item) {
         return true;
     }
 
     public void onDataBind(Context context, View targetView,
-            List<? extends Object> items, Object item, int position) {
+            List<?> items, Object item, int position) {
         ((TextView) targetView).setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).text));
     }
 

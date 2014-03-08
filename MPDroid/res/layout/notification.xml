@@ -10,6 +10,7 @@
         android:layout_marginRight="8dp"
         android:background="#3333B5E5"
         android:scaleType="fitCenter"
+        android:contentDescription="@string/notificationIconDescription"
         android:src="@drawable/icon_bw" />
 
     <LinearLayout
@@ -28,7 +29,6 @@
             android:fontFamily="sans-serif-light"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="Title"
             android:textAppearance="?android:textAppearanceMedium" />
 
         <TextView
@@ -38,7 +38,7 @@
             android:ellipsize="marquee"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="Artist"
+            android:text="@string/artist"
             android:textAppearance="?android:textAppearanceSmall" />
     </LinearLayout>
 

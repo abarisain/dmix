@@ -192,7 +192,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
             if (app == null)
                 return;
 
-            if (!((MPDApplication) app).getApplicationState().streamingMode) {
+            if (!(app).getApplicationState().streamingMode) {
                 stopSelf();
                 return;
             }
@@ -206,7 +206,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 }
             } else if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
                 // pause the music while a conversation is in progress
-                if (isPlaying == false)
+                if (!isPlaying)
                     return;
                 isPaused = (isPaused || isPlaying) && (app.getApplicationState().streamingMode);
                 pauseStreaming();
@@ -385,12 +385,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
             return;
         }
 
-        if (state == MPDStatus.MPD_STATE_PLAYING) {
+        if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
             // TODO Stop resuming if no 3G. There's no point. Add something that
             // says "ok we're waiting for 3G/wifi !"
             beginStreaming();
         } else {
-            // Something's happening, like crappy network or MPD just stopped..
+            // Somethings happening, like crappy network or MPD just stopped..
             prevMpdState = state;
             die();
         }
@@ -520,7 +520,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
             } else if (cmd.equals(CMD_PREV)) {
                 prev();
             } else if (cmd.equals(CMD_PLAYPAUSE)) {
-                if (isPaused == false) {
+                if (!isPaused) {
                     pauseStreaming();
                 } else {
                     beginStreaming();
@@ -545,7 +545,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * keeping the notification showing.
      */
     public void pauseStreaming() {
-        if (isPlaying == false)
+        if (!isPlaying)
             return;
 
         isPlaying = false;
@@ -613,12 +613,12 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         // create and register the remote control client
         remoteControlClient = new RemoteControlClient(mediaPendingIntent);
-        ((RemoteControlClient) remoteControlClient)
+        (remoteControlClient)
                 .setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
                         | RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
                         | RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
 
-        audioManager.registerRemoteControlClient((RemoteControlClient) remoteControlClient);
+        audioManager.registerRemoteControlClient(remoteControlClient);
     }
 
     @Override
@@ -633,14 +633,14 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private void setMusicInfo(Music song, AlbumInfo albumInfo,
             Notification.Builder notificationBuilder) {
         final SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences((MPDApplication) getApplication());
+                .getDefaultSharedPreferences(getApplication());
 
         if (remoteControlClient == null || song == null
-                || settings.getBoolean(CoverManager.PREFERENCE_CACHE, true) == false) {
+                || !settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
             return;
         }
 
-        MetadataEditor editor = ((RemoteControlClient) remoteControlClient).editMetadata(true);
+        MetadataEditor editor = (remoteControlClient).editMetadata(true);
 
         Bitmap bitmap = getCoverArtBitmap(albumInfo, notificationBuilder);
         if (bitmap != null) {
@@ -659,7 +659,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     private void setMusicState(int state) {
         if (remoteControlClient != null) {
-            ((RemoteControlClient) remoteControlClient).setPlaybackState(state);
+            (remoteControlClient).setPlaybackState(state);
         }
     }
 
@@ -691,7 +691,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
 
         String state = statusMpd.getState();
-        if (state == null || state == prevMpdState && !streamingStatusChanged) {
+        if (state == null || state.equals(prevMpdState) && !streamingStatusChanged) {
             return;
         }
 
@@ -708,7 +708,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         stopForeground(true);
 
         /** Setup the notification defaults. */
-        Notification status = null;
+        Notification status;
         Notification.Builder notificationBuilder = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.icon_bw)
                 .setOngoing(true)
@@ -822,11 +822,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
 
         String state = statusMpd.getState();
-        if (state == null || state == prevMpdState) {
+        if (state == null || state.equals(prevMpdState)) {
             return;
         }
 
-        if (state == MPDStatus.MPD_STATE_PLAYING) {
+        if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
             isPaused = false;
             beginStreaming();
             isPlaying = true;
@@ -886,7 +886,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     private void unregisterRemoteControlClient() {
         if (remoteControlClient != null) {
-            audioManager.unregisterRemoteControlClient((RemoteControlClient) remoteControlClient);
+            audioManager.unregisterRemoteControlClient(remoteControlClient);
         }
     }
 

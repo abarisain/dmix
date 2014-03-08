@@ -89,7 +89,7 @@ public final class StringComparators {
      * </p>
      * <p>
      * If you know that the texts to be compared are in a certain language that
-     * differs from the default locale's langage, then get a collator for the
+     * differs from the default locale's language, then get a collator for the
      * desired locale ({@link java.text.Collator#getInstance(java.util.Locale)})
      * and pass it to
      * {@link #compareNatural(java.text.Collator, String, String)}
@@ -174,7 +174,7 @@ public final class StringComparators {
                 if (sAllZero && tAllZero) {
                     continue;
                 }
-                if (sAllZero && !tAllZero) {
+                if (sAllZero) {
                     return -1;
                 }
                 if (tAllZero) {
@@ -226,7 +226,7 @@ public final class StringComparators {
                 // Compare words
                 if (collator != null) {
                     // To use the collator the whole subwords have to be
-                    // compared - character-by-character comparision
+                    // compared - character-by-character comparison
                     // is not possible. So find the two subwords first
                     int aw = sIndex;
                     int bw = tIndex;

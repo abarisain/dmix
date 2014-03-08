@@ -59,14 +59,12 @@ public class AboutActivity extends Activity {
         }
     }
 
-    private ListView listView;
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.about);
 
-        listView = (ListView) findViewById(android.R.id.list);
+        final ListView listView = (ListView) findViewById(android.R.id.list);
 
         final LayoutInflater inflater = LayoutInflater.from(this);
         final View headerView = inflater.inflate(R.layout.about_header, null, false);
@@ -93,12 +91,12 @@ public class AboutActivity extends Activity {
         listView.setAdapter(new SeparatedListAdapter(this, android.R.layout.simple_list_item_1,
                 R.layout.list_separator, new SeparatedListDataBinder() {
             @Override
-            public boolean isEnabled(int position, List<? extends Object> items, Object item) {
+            public boolean isEnabled(int position, List<?> items, Object item) {
                 return false;
             }
 
             @Override
-            public void onDataBind(Context context, View targetView, List<? extends Object> items,
+            public void onDataBind(Context context, View targetView, List<?> items,
                     Object item, int position) {
                 ((TextView) targetView.findViewById(android.R.id.text1)).setText(item.toString());
             }

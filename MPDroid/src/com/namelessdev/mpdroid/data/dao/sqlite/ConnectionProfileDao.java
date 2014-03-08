@@ -65,8 +65,7 @@ public class ConnectionProfileDao extends BaseDBHelper<ConnectionProfile> implem
         profile.setStreamingSuffix(cursor.getString(columnIds.get(COL_STREAMING_SUFFIX)));
         profile.setMusicPath(cursor.getString(columnIds.get(COL_MUSIC_PATH)));
         profile.setCoverFilename(cursor.getString(columnIds.get(COL_COVER_FILENAME)));
-        profile.setUseDatabaseCache(cursor.getInt(columnIds.get(COL_USE_DATABASE_CACHE)) > 0 ? true
-                : false);
+        profile.setUseDatabaseCache(cursor.getInt(columnIds.get(COL_USE_DATABASE_CACHE)) > 0);
         return profile;
     }
 

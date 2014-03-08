@@ -127,7 +127,7 @@ public class FSFragment extends BrowseFragment {
             }
         }
         newItems.addAll(currentDirectory.getDirectories());
-        numSubdirs = newItems.size(); // stors number if subdirs
+        numSubdirs = newItems.size(); // store number if subdirs
         newItems.addAll(currentDirectory.getFiles());
         // Do not show playlists for root directory
         if (!TextUtils.isEmpty(directory)) {

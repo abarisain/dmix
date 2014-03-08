@@ -136,7 +136,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            return;
         }
 
         @Override
@@ -160,7 +159,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         @Override
         public boolean isViewFromObject(View arg0, Object arg1) {
-            return arg0 == ((View) arg1);
+            return arg0 == arg1;
         }
     }
 
@@ -245,8 +244,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      * count of how many time back button is pressed within 5 seconds. If the
      * count is greater than 1 then call system.exit(0) Starts a post delay
      * handler to reset the back press count to zero after 5 seconds
-     *
-     * @return None
      */
     @Override
     public void onBackPressed() {
@@ -284,7 +281,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
              */
             System.exit(0);
         }
-        return;
     }
 
     /**
@@ -434,7 +430,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     new ViewPager.SimpleOnPageChangeListener() {
                         @Override
                         public void onPageSelected(int position) {
-                            refreshQueueIndicator(position == 0 ? false : true);
+                            refreshQueueIndicator(position == 0);
                         }
                     });
         }
@@ -641,7 +637,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return true;
         }
 
-        Intent i = null;
+        Intent i;
         final MPDApplication app = (MPDApplication) this.getApplication();
         final MPD mpd = app.oMPDAsyncHelper.oMPD;
 
@@ -716,7 +712,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         return true;
     }
 
-    public boolean prepareNowPlayingMenu(Menu menu) {
+    public void prepareNowPlayingMenu(Menu menu) {
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
         MPDApplication app = (MPDApplication) this.getApplication();
@@ -736,7 +732,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
             setMenuChecked(menu.findItem(R.id.GMM_Consume), mpdStatus.isConsume());
         }
-        return true;
     }
 
     @Override
@@ -778,7 +773,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     @Override
     public void pushLibraryFragment(Fragment fragment, String label) {
-        String title = "";
+        String title;
         if (fragment instanceof BrowseFragment) {
             title = ((BrowseFragment) fragment).getTitle();
         } else {

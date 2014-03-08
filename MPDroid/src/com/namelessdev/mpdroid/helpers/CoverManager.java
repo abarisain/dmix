@@ -91,7 +91,7 @@ public class CoverManager {
         MUSICBRAINZ,
         DISCOGS,
         SPOTIFY,
-        ITUNES;
+        ITUNES
     }
 
     private class CreateBitmapTask implements Runnable
@@ -149,7 +149,7 @@ public class CoverManager {
                 o.inJustDecodeBounds = false;
                 Bitmap fullBmp = BitmapFactory.decodeByteArray(coverInfo.getCoverBytes(), 0,
                         coverInfo.getCoverBytes().length, o);
-                Bitmap bmp = null;
+                Bitmap bmp;
                 if (scale == 1) {
                     // This can cause some problem (a bitmap being freed will
                     // free both references)
@@ -173,7 +173,7 @@ public class CoverManager {
                     if (DEBUG)
                         i(MPDApplication.TAG, "Saving cover art to cache");
                     // Save the fullsize bitmap
-                    ((CachedCover) getCacheRetriever()).save(coverInfo, fullBmp);
+                    (getCacheRetriever()).save(coverInfo, fullBmp);
 
                     // Release the cover immediately if not used
                     if (bitmaps[0] != bitmaps[1]) {
@@ -200,7 +200,7 @@ public class CoverManager {
         @Override
         public void run() {
             String[] coverUrls;
-            boolean remote = false;
+            boolean remote;
             boolean local;
             boolean canStart = true;
             byte[] coverBytes;
@@ -835,7 +835,7 @@ public class CoverManager {
                             coverInfo = new CoverInfo(coverInfo);
                             Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(
                                     coverInfo.getBitmap()[0].getConfig(),
-                                    coverInfo.getBitmap()[0].isMutable() ? true : false);
+                                    coverInfo.getBitmap()[0].isMutable());
                             coverInfo.setBitmap(new Bitmap[] {
                                     copyBitmap
                             });
@@ -875,7 +875,7 @@ public class CoverManager {
 
             // we need to know how may bytes were read to write them to the
             // byteBuffer
-            int len = 0;
+            int len;
             while ((len = inputStream.read(buffer)) != -1) {
                 byteBuffer.write(buffer, 0, len);
             }

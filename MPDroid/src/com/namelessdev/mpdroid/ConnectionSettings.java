@@ -133,12 +133,10 @@ public class ConnectionSettings extends PreferenceActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        Intent i = null;
-
         switch (item.getItemId()) {
 
             case MAIN:
-                i = new Intent(this, MainMenuActivity.class);
+                Intent i = new Intent(this, MainMenuActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 return true;

@@ -265,7 +265,7 @@ public class MPDStatus {
     /**
      * Updates the state of the MPD Server...
      * 
-     * @param response
+     * @param response The response from the server.
      */
     public void updateStatus(List<String> response) {
         // reset values
@@ -289,9 +289,9 @@ public class MPDStatus {
                 } else if (line.startsWith("songid:")) {
                     this.songId = Integer.parseInt(line.substring("songid: ".length()));
                 } else if (line.startsWith("repeat:")) {
-                    this.repeat = "1".equals(line.substring("repeat: ".length())) ? true : false;
+                    this.repeat = "1".equals(line.substring("repeat: ".length()));
                 } else if (line.startsWith("random:")) {
-                    this.random = "1".equals(line.substring("random: ".length())) ? true : false;
+                    this.random = "1".equals(line.substring("random: ".length()));
                 } else if (line.startsWith("state:")) {
                     String state = line.substring("state: ".length());
 
@@ -329,14 +329,12 @@ public class MPDStatus {
                 } else if (line.startsWith("nextsongid:")) {
                     this.nextSongId = Integer.parseInt(line.substring("nextsongid: ".length()));
                 } else if (line.startsWith("consume:")) {
-                    this.consume = "1".equals(line.substring("consume: ".length())) ? true : false;
+                    this.consume = "1".equals(line.substring("consume: ".length()));
                 } else if (line.startsWith("single:")) {
-                    this.single = "1".equals(line.substring("single: ".length())) ? true : false;
-                } else {
-                    // TODO : This floods logcat too much, will fix later
-                    // (new InvalidResponseException("unknown response: " +
-                    // line)).printStackTrace();
+                    this.single = "1".equals(line.substring("single: ".length()));
                 }
+                // TODO : Write else block that doesn't flood logcat.
+
             } catch (RuntimeException e) {
                 // Do nothing, these should be harmless
                 e.printStackTrace();

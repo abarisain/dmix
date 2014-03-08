@@ -11,7 +11,7 @@ public class StringsUtils {
      * @param data Target data array.
      * @return Hex string.
      */
-    private static final String convertToHex(byte[] data) {
+    private static String convertToHex(byte[] data) {
         if (data == null || data.length == 0) {
             return null;
         }

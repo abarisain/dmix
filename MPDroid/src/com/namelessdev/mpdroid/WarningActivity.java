@@ -28,9 +28,6 @@ public class WarningActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-
-        // eat the event, do nothing
-        return;
     }
 
     @Override

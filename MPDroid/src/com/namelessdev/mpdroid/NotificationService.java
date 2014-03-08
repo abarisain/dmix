@@ -278,7 +278,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     void processUpdateInfo(MusicParcelable music) {
         Log.d(TAG, "parcelable=" + music + " mCurrentMusic=" + mCurrentMusic);
-        if (mCurrentMusic != null && ((Object) mCurrentMusic).equals(music)) {
+        if (mCurrentMusic != null && (mCurrentMusic).equals(music)) {
             return;
         }
         mCurrentMusic = music;

@@ -33,7 +33,7 @@ import java.util.List;
  * type, the binder will be called. The binder should do what getView does when
  * you extend BaseAdapter (except that you never inflate the view yourself)
  * There are many other implementations of this list on the internet, this one
- * has a lot of restrictions (which makes it simplier), but handles the
+ * has a lot of restrictions (which makes it simpler), but handles the
  * separators so that you always get the right line number when you select a
  * line. The separator needs to have a TextView named "separator_title".
  */
@@ -42,7 +42,7 @@ public class SeparatedListAdapter extends BaseAdapter {
     private static final int TYPE_CONTENT = 0;
     private static final int TYPE_SEPARATOR = 1;
 
-    private List<? extends Object> items; // Content
+    private List<?> items; // Content
     private SeparatedListDataBinder binder; // The content -> view 'binding'
     private int viewId = -1; // The view to be displayed
     private LayoutInflater inflater;
@@ -51,12 +51,12 @@ public class SeparatedListAdapter extends BaseAdapter {
 
     public SeparatedListAdapter(Context context, int viewId, int separatorViewId,
             SeparatedListDataBinder binder,
-            List<? extends Object> items) {
+            List<?> items) {
         init(context, viewId, separatorViewId, binder, items);
     }
 
     public SeparatedListAdapter(Context context, int viewId, SeparatedListDataBinder binder,
-            List<? extends Object> items) {
+            List<?> items) {
         init(context, viewId, R.layout.list_separator, binder, items);
     }
 
@@ -112,7 +112,7 @@ public class SeparatedListAdapter extends BaseAdapter {
     }
 
     private void init(Context context, int viewId, int separatorViewId,
-            SeparatedListDataBinder binder, List<? extends Object> items) {
+            SeparatedListDataBinder binder, List<?> items) {
         this.viewId = viewId;
         this.binder = binder;
         this.items = items;
