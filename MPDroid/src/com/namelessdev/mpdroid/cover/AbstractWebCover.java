@@ -103,7 +103,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             connection.setReadTimeout(5000);
             statusCode = connection.getResponseCode();
             inputStream = connection.getInputStream();
-            if (!(statusCode == 200 || statusCode == 307 || statusCode == 302)) {
+            if (!CoverManager.urlExists(statusCode)) {
                 w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : "
                         + statusCode + ", " + request);
                 return null;
@@ -172,7 +172,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             entity = response.getEntity();
             content = entity.getContent();
 
-            if (statusCode == 200 || statusCode == 307 || statusCode == 302) {
+            if(CoverManager.urlExists(statusCode)) {
 
                 reader = new BufferedReader(new InputStreamReader(content));
                 while ((line = reader.readLine()) != null) {

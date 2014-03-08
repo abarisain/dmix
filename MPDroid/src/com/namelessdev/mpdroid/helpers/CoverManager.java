@@ -16,24 +16,6 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import static android.text.TextUtils.isEmpty;
-import static android.util.Log.d;
-import static android.util.Log.e;
-import static android.util.Log.i;
-import static android.util.Log.w;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CREATE_BITMAP;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
-import android.util.Log;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.DeezerCover;
@@ -50,6 +32,15 @@ import com.namelessdev.mpdroid.tools.StringUtils;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.AlbumInfo;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -78,6 +69,15 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static android.text.TextUtils.isEmpty;
+import static android.util.Log.d;
+import static android.util.Log.e;
+import static android.util.Log.i;
+import static android.util.Log.w;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CREATE_BITMAP;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
 
 /**
  */
@@ -567,7 +567,7 @@ public class CoverManager {
             connection.setReadTimeout(5000);
             statusCode = connection.getResponseCode();
             inputStream = connection.getInputStream();
-            if (statusCode != 200) {
+            if (!urlExists(statusCode)) {
                 w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : "
                         + statusCode + ", " + textUrl);
                 return null;
@@ -596,6 +596,21 @@ public class CoverManager {
             }
 
         }
+    }
+
+    /**
+     * This method connects to the HTTP server URL, gets a HTTP status code and if the
+     * status code is OK or similar this method returns true, otherwise false.
+     *
+     * @param statusCode An HttpURLConnection object.
+     * @return True if the URL exists, false otherwise.
+     */
+    public static boolean urlExists(int statusCode) {
+        final int TEMPORARY_REDIRECT = 307; /** No constant for 307 exists */
+
+        return ((statusCode == HttpURLConnection.HTTP_OK ||
+                statusCode == TEMPORARY_REDIRECT ||
+                statusCode == HttpURLConnection.HTTP_MOVED_TEMP));
     }
 
     @Override
