@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 
@@ -32,13 +33,12 @@ import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import static android.util.Log.e;
 
 public abstract class AbstractWebCover implements ICoverRetriever {
 
@@ -81,7 +81,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
         URL url = CoverManager.buildURLForConnection(request);
         HttpURLConnection connection = CoverManager.getHttpConnection(url);
-        BufferedReader br;
+        BufferedReader br = null;
         String result = null;
         String line;
 
@@ -98,10 +98,17 @@ public abstract class AbstractWebCover implements ICoverRetriever {
                 result += line;
             }
         } catch (Exception e) {
-            e(CoverAsyncHelper.class.getSimpleName(), "Failed to execute cover get request :" + e);
+            Log.e(CoverAsyncHelper.class.getSimpleName(), "Failed to execute cover get request.", e);
         } finally {
             if (connection != null) {
                 connection.disconnect();
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    Log.e(MPDApplication.TAG, "Failed to close the buffered reader.", e);
+                }
             }
         }
         return result;
