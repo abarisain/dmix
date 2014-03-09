@@ -610,12 +610,12 @@ public class CoverManager {
 
         try {
             statusCode = connection.getResponseCode();
-            inputStream = connection.getInputStream();
             if (!urlExists(statusCode)) {
                 w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : "
                         + statusCode + ", " + textUrl);
                 return null;
             }
+            inputStream = connection.getInputStream();
             bis = new BufferedInputStream(inputStream, 8192);
             baos = new ByteArrayOutputStream();
             buffer = new byte[1024];
