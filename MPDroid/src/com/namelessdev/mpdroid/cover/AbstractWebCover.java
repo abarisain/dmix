@@ -16,16 +16,8 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import static android.text.TextUtils.isEmpty;
-import static android.util.Log.e;
-import static android.util.Log.w;
-
-import android.net.http.AndroidHttpClient;
-import android.util.Log;
-
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.tools.StringUtils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -36,6 +28,9 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.params.HttpConnectionParams;
 
+import android.net.http.AndroidHttpClient;
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +38,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import static android.util.Log.e;
+import static android.util.Log.w;
 
 public abstract class AbstractWebCover implements ICoverRetriever {
 
@@ -83,20 +81,15 @@ public abstract class AbstractWebCover implements ICoverRetriever {
      */
     protected String executeGetRequestWithConnection(String request) {
 
-        URL url;
+        URL url = CoverManager.buildURLForConnection(request);
         HttpURLConnection connection = null;
         InputStream inputStream = null;
         int statusCode;
         BufferedReader bis;
         String result;
         String line;
+
         try {
-            request = StringUtils.trim(request);
-            if (isEmpty(request)) {
-                return null;
-            }
-            request = request.replace(" ", "%20");
-            url = new URL(request);
             connection = (HttpURLConnection) url.openConnection();
             connection.setUseCaches(true);
             connection.setConnectTimeout(5000);

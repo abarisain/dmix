@@ -52,6 +52,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -542,9 +543,34 @@ public class CoverManager {
         notFoundAlbumKeys.remove(albumInfo.getKey());
     }
 
+    /**
+     * This method cleans and builds a proper URL object from a string.
+     *
+     * @param _request This is the URL in string form.
+     * @return A URL Object
+     */
+    public static URL buildURLForConnection(final String _request) {
+        URL url = null;
+        String request = StringUtils.trim(_request);
+
+        if (isEmpty(request)) {
+            return null;
+        }
+        request = request.replace(" ", "%20");
+
+        try {
+            url = new URL(request);
+        } catch (MalformedURLException e) {
+            Log.w(MPDApplication.TAG,
+                    "Failed to parse the URL string for URL object generation.", e);
+        }
+
+        return url;
+    }
+
     private byte[] download(String textUrl) {
 
-        URL url;
+        URL url = buildURLForConnection(textUrl);
         HttpURLConnection connection = null;
         InputStream inputStream = null;
         int statusCode;
@@ -554,13 +580,6 @@ public class CoverManager {
         int len;
 
         try {
-            textUrl = StringUtils.trim(textUrl);
-            if (isEmpty(textUrl)) {
-                return null;
-            }
-            // Download Cover File...
-            textUrl = textUrl.replace(" ", "%20");
-            url = new URL(textUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.setUseCaches(true);
             connection.setConnectTimeout(5000);
