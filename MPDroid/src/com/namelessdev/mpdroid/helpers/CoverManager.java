@@ -512,15 +512,13 @@ public class CoverManager {
     }
 
     protected String cleanGetRequest(String text) {
-        String processedtext;
+        String processedtext = null;
 
-        if (text == null) {
-            return text;
+        if(text != null) {
+            processedtext = text.replaceAll("[^\\w .-]+", " ");
+            processedtext = Normalizer.normalize(processedtext, Normalizer.Form.NFD)
+                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
         }
-
-        processedtext = text.replaceAll("[^\\w .-]+", " ");
-        processedtext = Normalizer.normalize(processedtext, Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
         return processedtext;
     }
 
@@ -628,7 +626,7 @@ public class CoverManager {
         HttpURLConnection connection = getHttpConnection(url);
         BufferedInputStream bis;
         ByteArrayOutputStream baos;
-        byte[] buffer;
+        byte[] buffer = null;
         int len;
 
         if(!urlExists(connection)) {
@@ -643,15 +641,15 @@ public class CoverManager {
                 baos.write(buffer, 0, len);
             }
             baos.flush();
-            return baos.toByteArray();
+            buffer = baos.toByteArray();
         } catch (Exception e) {
             e(CoverAsyncHelper.class.getSimpleName(), "Failed to download cover :" + e);
-            return null;
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
         }
+        return buffer;
     }
 
     /**
@@ -709,7 +707,6 @@ public class CoverManager {
                         d(CoverManager.class.getSimpleName(),
                                 "Cover downloaded for " + coverInfo.getAlbum() + " from " + url
                                         + ", size=" + coverBytes.length);
-                    return coverBytes;
                 }
             } catch (Exception e) {
                 w(CoverManager.class.getSimpleName(), "Cover get bytes failure : " + e);
@@ -778,11 +775,8 @@ public class CoverManager {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         // Get status of wifi connection
         NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState();
-        if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING);
     }
 
     private Map<String, String> loadCovers() {
