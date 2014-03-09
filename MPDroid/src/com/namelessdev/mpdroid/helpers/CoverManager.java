@@ -597,24 +597,46 @@ public class CoverManager {
         return connection;
     }
 
+    /**
+     * This method connects to the HTTP server URL, and gets a HTTP status code. If the
+     * status code is OK or similar this method returns true, otherwise false.
+     *
+     * @param connection An HttpURLConnection object.
+     * @return True if the URL exists, false otherwise.
+     */
+    public static boolean urlExists(HttpURLConnection connection) {
+        int statusCode = 0;
+
+        if(connection == null) {
+            Log.d(CoverManager.class.getSimpleName(),
+                    "Cannot find out if URL exists with a null connection.");
+            return false;
+        }
+
+        try {
+            statusCode = connection.getResponseCode();
+        } catch (IOException e) {
+            Log.e(MPDApplication.TAG, "Failed to get a valid response code.",e);
+        }
+
+        return urlExists(statusCode);
+    }
+
     private byte[] download(String textUrl) {
 
         URL url = buildURLForConnection(textUrl);
         HttpURLConnection connection = getHttpConnection(url);
         InputStream inputStream = null;
-        int statusCode;
         BufferedInputStream bis;
         ByteArrayOutputStream baos;
         byte[] buffer;
         int len;
 
+        if(!urlExists(connection)) {
+            return null;
+        }
+
         try {
-            statusCode = connection.getResponseCode();
-            if (!urlExists(statusCode)) {
-                w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : "
-                        + statusCode + ", " + textUrl);
-                return null;
-            }
             inputStream = connection.getInputStream();
             bis = new BufferedInputStream(inputStream, 8192);
             baos = new ByteArrayOutputStream();

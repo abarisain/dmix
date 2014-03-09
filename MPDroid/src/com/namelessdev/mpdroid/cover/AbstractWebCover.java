@@ -40,7 +40,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static android.util.Log.e;
-import static android.util.Log.w;
 
 public abstract class AbstractWebCover implements ICoverRetriever {
 
@@ -84,18 +83,15 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         URL url = CoverManager.buildURLForConnection(request);
         HttpURLConnection connection = CoverManager.getHttpConnection(url);
         InputStream inputStream = null;
-        int statusCode;
         BufferedReader bis;
         String result;
         String line;
 
+        if (!CoverManager.urlExists(connection)) {
+            return null;
+        }
+
         try {
-            statusCode = connection.getResponseCode();
-            if (!CoverManager.urlExists(statusCode)) {
-                w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : "
-                        + statusCode + ", " + request);
-                return null;
-            }
             inputStream = connection.getInputStream();
             bis = new BufferedReader(new InputStreamReader(inputStream));
             line = bis.readLine();
