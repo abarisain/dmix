@@ -82,7 +82,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     protected String executeGetRequestWithConnection(String request) {
 
         URL url = CoverManager.buildURLForConnection(request);
-        HttpURLConnection connection = null;
+        HttpURLConnection connection = CoverManager.getHttpConnection(url);
         InputStream inputStream = null;
         int statusCode;
         BufferedReader bis;
@@ -90,10 +90,6 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         String line;
 
         try {
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setUseCaches(true);
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
             statusCode = connection.getResponseCode();
             inputStream = connection.getInputStream();
             if (!CoverManager.urlExists(statusCode)) {

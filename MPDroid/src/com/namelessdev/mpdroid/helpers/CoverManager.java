@@ -568,10 +568,39 @@ public class CoverManager {
         return url;
     }
 
+    /**
+     * This method takes a URL object and returns a HttpURLConnection object.
+     *
+     * @param url The URL object used to create the connection.
+     * @return The connection which is returned; ensure this resource is disconnected after use.
+     */
+    public static HttpURLConnection getHttpConnection(URL url) {
+        HttpURLConnection connection = null;
+
+        if(url == null) {
+            Log.d(MPDApplication.TAG, "Cannot create a connection with a null URL");
+            return null;
+        }
+
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            Log.w(MPDApplication.TAG, "Failed to execute cover get request: ", e);
+        }
+
+        if(connection != null) {
+            connection.setUseCaches(true);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+        }
+
+        return connection;
+    }
+
     private byte[] download(String textUrl) {
 
         URL url = buildURLForConnection(textUrl);
-        HttpURLConnection connection = null;
+        HttpURLConnection connection = getHttpConnection(url);
         InputStream inputStream = null;
         int statusCode;
         BufferedInputStream bis;
@@ -580,10 +609,6 @@ public class CoverManager {
         int len;
 
         try {
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setUseCaches(true);
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
             statusCode = connection.getResponseCode();
             inputStream = connection.getInputStream();
             if (!urlExists(statusCode)) {
