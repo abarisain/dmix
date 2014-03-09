@@ -626,7 +626,6 @@ public class CoverManager {
 
         URL url = buildURLForConnection(textUrl);
         HttpURLConnection connection = getHttpConnection(url);
-        InputStream inputStream = null;
         BufferedInputStream bis;
         ByteArrayOutputStream baos;
         byte[] buffer;
@@ -637,8 +636,7 @@ public class CoverManager {
         }
 
         try {
-            inputStream = connection.getInputStream();
-            bis = new BufferedInputStream(inputStream, 8192);
+            bis = new BufferedInputStream(connection.getInputStream(), 8192);
             baos = new ByteArrayOutputStream();
             buffer = new byte[1024];
             while ((len = bis.read(buffer)) > -1) {
@@ -653,14 +651,6 @@ public class CoverManager {
             if (connection != null) {
                 connection.disconnect();
             }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // Nothing to do
-                }
-            }
-
         }
     }
 

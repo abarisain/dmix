@@ -32,7 +32,6 @@ import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -82,8 +81,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
         URL url = CoverManager.buildURLForConnection(request);
         HttpURLConnection connection = CoverManager.getHttpConnection(url);
-        InputStream inputStream = null;
-        BufferedReader bis;
+        BufferedReader br;
         String result;
         String line;
 
@@ -92,11 +90,11 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         }
 
         try {
-            inputStream = connection.getInputStream();
-            bis = new BufferedReader(new InputStreamReader(inputStream));
-            line = bis.readLine();
+            InputStream inputStream = connection.getInputStream();
+            br = new BufferedReader(new InputStreamReader(inputStream));
+            line = br.readLine();
             result = line;
-            while ((line = bis.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 result += line;
             }
             return result;
@@ -107,14 +105,6 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             if (connection != null) {
                 connection.disconnect();
             }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // Nothing to do
-                }
-            }
-
         }
     }
 
