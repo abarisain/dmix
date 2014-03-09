@@ -89,14 +89,15 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             return null;
         }
 
+        /** TODO: After minSdkVersion="19" use try-with-resources here. */
         try {
             InputStream inputStream = connection.getInputStream();
             br = new BufferedReader(new InputStreamReader(inputStream));
             line = br.readLine();
-            result = line;
-            while ((line = br.readLine()) != null) {
+            do {
                 result += line;
-            }
+                line = br.readLine();
+            } while(line != null);
         } catch (Exception e) {
             Log.e(CoverAsyncHelper.class.getSimpleName(), "Failed to execute cover get request.", e);
         } finally {
