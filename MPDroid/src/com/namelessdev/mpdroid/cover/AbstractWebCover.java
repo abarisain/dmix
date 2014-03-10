@@ -45,19 +45,22 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
     private final static boolean DEBUG = CoverManager.DEBUG;
 
-    protected String executeGetRequest(String request) {
-        HttpGet httpGet = null;
-        try {
-            request = request.replace(" ", "%20");
-            if (DEBUG)
-                Log.d(getName(), "Http request : " + request);
-            httpGet = new HttpGet(request);
-            return executeRequest(httpGet);
-        } finally {
-            if (request != null && httpGet != null && !httpGet.isAborted()) {
-                httpGet.abort();
-            }
+    protected String executeGetRequest(String _request) {
+        HttpGet httpGet;
+        String request;
+        String response;
+
+        request = _request.replace(" ", "%20");
+        if (DEBUG) {
+            Log.d(getName(), "Http request : " + request);
         }
+        httpGet = new HttpGet(request);
+        response = executeRequest(httpGet);
+
+        if (request != null && !httpGet.isAborted()) {
+            httpGet.abort();
+        }
+        return response;
     }
 
     /**
