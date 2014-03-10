@@ -64,7 +64,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             httpGet = new HttpGet(request);
             return executeRequest(httpGet);
         } finally {
-            if (request != null && !httpGet.isAborted()) {
+            if (request != null && httpGet != null && !httpGet.isAborted()) {
                 httpGet.abort();
             }
         }
@@ -129,7 +129,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             Log.e(getName(), "Cannot build the HTTP POST : " + e);
             return "";
         } finally {
-            if (request != null && !httpPost.isAborted()) {
+            if (request != null && httpPost != null && !httpPost.isAborted()) {
                 httpPost.abort();
             }
         }
