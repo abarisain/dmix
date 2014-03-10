@@ -45,19 +45,9 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
     private final static boolean DEBUG = CoverManager.DEBUG;
 
-    protected AndroidHttpClient client = prepareRequest();
-
-    private void closeHttpClient() {
-        if (client != null) {
-            client.close();
-        }
-        client = null;
-    }
-
     protected String executeGetRequest(String request) {
         HttpGet httpGet = null;
         try {
-            prepareRequest();
             request = request.replace(" ", "%20");
             if (DEBUG)
                 Log.d(getName(), "Http request : " + request);
@@ -117,6 +107,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
     protected String executePostRequest(String url, String request) {
         HttpPost httpPost = null;
+        String result = null;
 
         try {
             prepareRequest();
@@ -124,20 +115,21 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             if (DEBUG)
                 Log.d(getName(), "Http request : " + request);
             httpPost.setEntity(new StringEntity(request));
-            return executeRequest(httpPost);
+            result = executeRequest(httpPost);
         } catch (UnsupportedEncodingException e) {
             Log.e(getName(), "Cannot build the HTTP POST : " + e);
-            return "";
+            result = "";
         } finally {
             if (request != null && httpPost != null && !httpPost.isAborted()) {
                 httpPost.abort();
             }
         }
-
+        return result;
     }
 
     protected String executeRequest(HttpRequestBase request) {
 
+        AndroidHttpClient client = prepareRequest();
         StringBuilder builder = new StringBuilder();
         HttpResponse response;
         StatusLine statusLine;
@@ -166,16 +158,14 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             }
         } catch (Exception e) {
             Log.e(getName(), "Failed to download cover :" + e);
+        } finally {
+            if (client != null) {
+                client.close();
+            }
         }
         if (DEBUG)
             Log.d(getName(), "Http response : " + builder);
         return builder.toString();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        closeHttpClient();
-        super.finalize();
     }
 
     public boolean isCoverLocal() {
@@ -183,12 +173,10 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     }
 
     protected AndroidHttpClient prepareRequest() {
+        AndroidHttpClient client = AndroidHttpClient.newInstance(USER_AGENT);
+        HttpConnectionParams.setConnectionTimeout(client.getParams(), 5000);
+        HttpConnectionParams.setSoTimeout(client.getParams(), 5000);
 
-        if (client == null) {
-            client = AndroidHttpClient.newInstance(USER_AGENT);
-            HttpConnectionParams.setConnectionTimeout(client.getParams(), 5000);
-            HttpConnectionParams.setSoTimeout(client.getParams(), 5000);
-        }
         return client;
     }
 }
