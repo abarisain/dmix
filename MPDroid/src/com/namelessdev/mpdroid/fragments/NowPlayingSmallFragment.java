@@ -16,6 +16,20 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverInfo;
+
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -35,20 +49,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverInfo;
-
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener {
 
     public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
@@ -57,10 +57,16 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
         @Override
         protected Boolean doInBackground(MPDStatus... params) {
+            MPD mpd = app.oMPDAsyncHelper.oMPD;
+
+            if(!mpd.isConnected()) {
+                Log.d(MPDApplication.TAG,"Media server is not yet connected.");
+                return false;
+            }
             if (params == null) {
                 try {
                     // A recursive call doesn't seem that bad here.
-                    return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
+                    return doInBackground(mpd.getStatus());
                 } catch (MPDServerException e) {
                     e.printStackTrace();
                 }
@@ -71,7 +77,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 if (state != null) {
                     int songPos = params[0].getSongPos();
                     if (songPos >= 0) {
-                        actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+                        actSong = mpd.getPlaylist().getByIndex(songPos);
                         status = params[0];
                         return true;
                     }
