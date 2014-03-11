@@ -16,24 +16,6 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import static android.text.TextUtils.isEmpty;
-import static android.util.Log.d;
-import static android.util.Log.e;
-import static android.util.Log.i;
-import static android.util.Log.w;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CREATE_BITMAP;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
-import android.util.Log;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.DeezerCover;
@@ -51,6 +33,15 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.AlbumInfo;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -61,6 +52,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -78,6 +70,15 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static android.text.TextUtils.isEmpty;
+import static android.util.Log.d;
+import static android.util.Log.e;
+import static android.util.Log.i;
+import static android.util.Log.w;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CREATE_BITMAP;
+import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
 
 /**
  */
@@ -511,15 +512,13 @@ public class CoverManager {
     }
 
     protected String cleanGetRequest(String text) {
-        String processedtext;
+        String processedtext = null;
 
-        if (text == null) {
-            return text;
+        if(text != null) {
+            processedtext = text.replaceAll("[^\\w .-]+", " ");
+            processedtext = Normalizer.normalize(processedtext, Normalizer.Form.NFD)
+                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
         }
-
-        processedtext = text.replaceAll("[^\\w .-]+", " ");
-        processedtext = Normalizer.normalize(processedtext, Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
         return processedtext;
     }
 
@@ -542,60 +541,149 @@ public class CoverManager {
         notFoundAlbumKeys.remove(albumInfo.getKey());
     }
 
-    private byte[] download(String textUrl) {
+    /**
+     * This method cleans and builds a proper URL object from a string.
+     *
+     * @param _request This is the URL in string form.
+     * @return A URL Object
+     */
+    public static URL buildURLForConnection(final String _request) {
+        URL url = null;
+        String request = StringUtils.trim(_request);
 
-        URL url;
-        HttpURLConnection connection = null;
-        InputStream inputStream = null;
-        int statusCode;
-        BufferedInputStream bis;
-        ByteArrayOutputStream baos;
-        byte[] buffer;
-        int len;
+        if (isEmpty(request)) {
+            return null;
+        }
+        request = request.replace(" ", "%20");
 
         try {
-            textUrl = StringUtils.trim(textUrl);
-            if (isEmpty(textUrl)) {
-                return null;
-            }
-            // Download Cover File...
-            textUrl = textUrl.replace(" ", "%20");
-            url = new URL(textUrl);
+            url = new URL(request);
+        } catch (MalformedURLException e) {
+            Log.w(MPDApplication.TAG,
+                    "Failed to parse the URL string for URL object generation.", e);
+        }
+
+        return url;
+    }
+
+    /**
+     * This method takes a URL object and returns a HttpURLConnection object.
+     *
+     * @param url The URL object used to create the connection.
+     * @return The connection which is returned; ensure this resource is disconnected after use.
+     */
+    public static HttpURLConnection getHttpConnection(URL url) {
+        HttpURLConnection connection = null;
+
+        if(url == null) {
+            Log.d(MPDApplication.TAG, "Cannot create a connection with a null URL");
+            return null;
+        }
+
+        try {
             connection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            Log.w(MPDApplication.TAG, "Failed to execute cover get request: ", e);
+        }
+
+        if(connection != null) {
             connection.setUseCaches(true);
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
+        }
+
+        return connection;
+    }
+
+    /**
+     * This method connects to the HTTP server URL, and gets a HTTP status code. If the
+     * status code is OK or similar this method returns true, otherwise false.
+     *
+     * @param connection An HttpURLConnection object.
+     * @return True if the URL exists, false otherwise.
+     */
+    public static boolean urlExists(HttpURLConnection connection) {
+        int statusCode = 0;
+
+        if(connection == null) {
+            Log.d(CoverManager.class.getSimpleName(),
+                    "Cannot find out if URL exists with a null connection.");
+            return false;
+        }
+
+        try {
             statusCode = connection.getResponseCode();
-            inputStream = connection.getInputStream();
-            if (statusCode != 200) {
-                w(CoverAsyncHelper.class.getName(), "This URL does not exist : Status code : "
-                        + statusCode + ", " + textUrl);
-                return null;
-            }
-            bis = new BufferedInputStream(inputStream, 8192);
+        } catch (IOException e) {
+            Log.e(MPDApplication.TAG, "Failed to get a valid response code.",e);
+        }
+
+        return urlExists(statusCode);
+    }
+
+    private byte[] download(String textUrl) {
+
+        URL url = buildURLForConnection(textUrl);
+        HttpURLConnection connection = getHttpConnection(url);
+        BufferedInputStream bis = null;
+        ByteArrayOutputStream baos = null;
+        byte[] buffer = null;
+        int len;
+
+        if(!urlExists(connection)) {
+            return null;
+        }
+
+        /** TODO: After minSdkVersion="19" use try-with-resources here. */
+        try {
+            bis = new BufferedInputStream(connection.getInputStream(), 8192);
             baos = new ByteArrayOutputStream();
             buffer = new byte[1024];
             while ((len = bis.read(buffer)) > -1) {
                 baos.write(buffer, 0, len);
             }
             baos.flush();
-            return baos.toByteArray();
+            buffer = baos.toByteArray();
         } catch (Exception e) {
             e(CoverAsyncHelper.class.getSimpleName(), "Failed to download cover :" + e);
-            return null;
         } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-            if (inputStream != null) {
+            if (bis != null) {
                 try {
-                    inputStream.close();
+                    bis.close();
                 } catch (IOException e) {
-                    // Nothing to do
+                    Log.e(CoverAsyncHelper.class.getSimpleName(),
+                            "Failed to close the BufferedInputStream.", e);
                 }
             }
 
+            if (baos != null) {
+                try {
+                    baos.close();
+                } catch (IOException e) {
+                    Log.e(MPDApplication.TAG,
+                            "Failed to close the BufferedArrayOutputStream.", e);
+                }
+            }
+
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
+        return buffer;
+    }
+
+    /**
+     * This method connects to the HTTP server URL, gets a HTTP status code and if the
+     * status code is OK or similar this method returns true, otherwise false.
+     *
+     * @param statusCode An HttpURLConnection object.
+     * @return True if the URL exists, false otherwise.
+     */
+    public static boolean urlExists(int statusCode) {
+        final int TEMPORARY_REDIRECT = 307; /** No constant for 307 exists */
+
+        return ((statusCode == HttpURLConnection.HTTP_OK ||
+                statusCode == TEMPORARY_REDIRECT ||
+                statusCode == HttpURLConnection.HTTP_MOVED_TEMP));
     }
 
     @Override
@@ -638,7 +726,6 @@ public class CoverManager {
                         d(CoverManager.class.getSimpleName(),
                                 "Cover downloaded for " + coverInfo.getAlbum() + " from " + url
                                         + ", size=" + coverBytes.length);
-                    return coverBytes;
                 }
             } catch (Exception e) {
                 w(CoverManager.class.getSimpleName(), "Cover get bytes failure : " + e);
@@ -707,11 +794,8 @@ public class CoverManager {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         // Get status of wifi connection
         NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState();
-        if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING);
     }
 
     private Map<String, String> loadCovers() {

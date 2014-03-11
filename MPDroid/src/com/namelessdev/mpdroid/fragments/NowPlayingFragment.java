@@ -16,8 +16,22 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import static android.text.TextUtils.isEmpty;
-import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.StreamingService;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -52,26 +66,12 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.StreamingService;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
-import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
-
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static android.text.TextUtils.isEmpty;
+import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener,
         TrackPositionListener,
@@ -239,27 +239,30 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         @Override
         protected Boolean doInBackground(MPDStatus... params) {
-            if (params == null) {
+            MPD mpd = app.oMPDAsyncHelper.oMPD;
+            Boolean result = false;
+
+            if(!mpd.isConnected()) {
+                Log.d(MPDApplication.TAG,"Media server is not yet connected.");
+            } else if (params == null) {
                 try {
                     // A recursive call doesn't seem that bad here.
-                    return doInBackground(app.oMPDAsyncHelper.oMPD.getStatus(true));
+                    result = doInBackground(mpd.getStatus(true));
                 } catch (MPDServerException e) {
-                    e.printStackTrace();
+                    Log.d(MPDApplication.TAG, "Failed to populate params in the background.", e);
                 }
-                return false;
-            }
-            if (params[0] != null) {
+            } else if (params[0] != null) {
                 String state = params[0].getState();
                 if (state != null) {
                     int songPos = params[0].getSongPos();
                     if (songPos >= 0) {
-                        actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+                        actSong = mpd.getPlaylist().getByIndex(songPos);
                         status = params[0];
-                        return true;
+                        result = true;
                     }
                 }
             }
-            return false;
+            return result;
         }
 
         @Override
