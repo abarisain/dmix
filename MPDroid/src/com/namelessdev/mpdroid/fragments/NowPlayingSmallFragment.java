@@ -57,15 +57,12 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
         @Override
         protected Boolean doInBackground(MPDStatus... params) {
-            MPD mpd = app.oMPDAsyncHelper.oMPD;
             Boolean result = false;
 
-            if(!mpd.isConnected()) {
-                Log.d(MPDApplication.TAG,"Media server is not yet connected.");
-            } else if (params == null) {
+            if (params == null) {
                 try {
                     // A recursive call doesn't seem that bad here.
-                    result = doInBackground(mpd.getStatus());
+                    result = doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
                 } catch (MPDServerException e) {
                     Log.d(MPDApplication.TAG, "Failed to populate params in the background.", e);
                 }
@@ -74,7 +71,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 if (state != null) {
                     int songPos = params[0].getSongPos();
                     if (songPos >= 0) {
-                        actSong = mpd.getPlaylist().getByIndex(songPos);
+                        actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
                         status = params[0];
                         result = true;
                     }
