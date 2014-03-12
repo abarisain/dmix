@@ -82,6 +82,7 @@ public class MPDStatusMonitor extends Thread {
     public void run() {
         // initialize value cache
         int oldSong = -1;
+        int oldSongId = -1;
         int oldPlaylistVersion = -1;
         long oldElapsedTime = -1;
         String oldState = "";
@@ -157,10 +158,16 @@ public class MPDStatusMonitor extends Thread {
                         }
 
                         // song
-                        if (connectionStateChanged || oldSong != status.getSongPos()) {
+                        /**
+                         * songId is used here, otherwise, once consume mode is enabled getSongPos
+                         * would never iterate without manual user playlist queue intervention and
+                         * trackChanged() would never be called.
+                         */
+                        if (connectionStateChanged || oldSongId != status.getSongId()) {
                             for (StatusChangeListener listener : statusChangedListeners)
                                 listener.trackChanged(status, oldSong);
                             oldSong = status.getSongPos();
+                            oldSongId = status.getSongId();
                         }
 
                         // time
