@@ -16,6 +16,11 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.models.MusicParcelable;
+import com.namelessdev.mpdroid.tools.Tools;
+
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -45,11 +50,6 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.models.MusicParcelable;
-import com.namelessdev.mpdroid.tools.Tools;
-
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
  * handling in our application. Upon initialization, it waits for Intents (which come from our main
@@ -59,15 +59,24 @@ import com.namelessdev.mpdroid.tools.Tools;
  */
 public class NotificationService extends Service implements MusicFocusable, StatusChangeListener {
 
-    // The tag we put on debug messages
-    final static String TAG = "NotificationService";
-
     // These are the Intent actions that we are prepared to handle.
     // Notice: they currently are a shortcut to the ones in StreamingService so that the code changes to NowPlayingFragment would be minimal.
     // TODO: change this?
     public static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.NotificationService";
 
     public static final String ACTION_UPDATE_INFO = FULLY_QUALIFIED_NAME + ".UPDATE_INFO";
+
+    public static final String ACTION_SHOW_NOTIFICATION = FULLY_QUALIFIED_NAME
+            + ".SHOW_NOTIFICATION";
+
+    public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME
+            + ".CLOSE_NOTIFICATION";
+
+    /**
+     * Extra information passed to the intent bundle: the currently playing {@link
+     * org.a0z.mpd.Music}
+     */
+    public static final String EXTRA_CURRENT_MUSIC = FULLY_QUALIFIED_NAME + ".CurrentMusic";
 
     public static final String ACTION_TOGGLE_PLAYBACK = StreamingService.CMD_PLAYPAUSE;
 
@@ -76,12 +85,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     public static final String ACTION_PAUSE = StreamingService.CMD_PAUSE;
 
     public static final String ACTION_STOP = StreamingService.CMD_STOP;
-
-    public static final String ACTION_SHOW_NOTIFICATION = FULLY_QUALIFIED_NAME
-            + ".SHOW_NOTIFICATION";
-
-    public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME
-            + ".CLOSE_NOTIFICATION";
 
     public static final String ACTION_SKIP = StreamingService.CMD_NEXT;
 
@@ -93,11 +96,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     public static final String ACTION_SET_VOLUME = "SET_VOLUME";
 
-    /**
-     * Extra information passed to the intent bundle: the currently playing {@link
-     * org.a0z.mpd.Music}
-     */
-    public static final String EXTRA_CURRENT_MUSIC = FULLY_QUALIFIED_NAME + ".CurrentMusic";
+    // The tag we put on debug messages
+    final static String TAG = "NotificationService";
 
     /**
      * How many milliseconds in the future we need to trigger an update when we just skipped
@@ -105,31 +105,18 @@ public class NotificationService extends Service implements MusicFocusable, Stat
      */
     private static final long UPDATE_INFO_NEAR_FUTURE_DELAY = 500;
 
+    // The ID we use for the notification (the onscreen alert that appears at the notification
+    // area at the top of the screen as an icon -- and as text as well if the user expands the
+    // notification area).
+    final int NOTIFICATION_ID = 1;
+
     Music mCurrentMusic = null, mPreviousMusic = null;
-
-    private Bitmap mAlbumCover = null;
-
-    private String mAlbumCoverPath;
 
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
     AudioFocusHelper mAudioFocusHelper = null;
 
-    private int mPreviousState = -1;
-
-    // do we have audio focus?
-    enum AudioFocus {
-        NoFocusNoDuck,    // we don't have audio focus, and can't duck
-        NoFocusCanDuck,   // we don't have focus, but can play at a low volume ("ducking")
-        Focused           // we have full audio focus
-    }
-
     AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
-
-    // The ID we use for the notification (the onscreen alert that appears at the notification
-    // area at the top of the screen as an icon -- and as text as well if the user expands the
-    // notification area).
-    final int NOTIFICATION_ID = 1;
 
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
@@ -145,6 +132,12 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     Notification mNotification = null;
 
     MPDApplication app;
+
+    private Bitmap mAlbumCover = null;
+
+    private String mAlbumCoverPath;
+
+    private int mPreviousState = -1;
 
     private MPDApplication getMpdApplication() {
         if (app == null) {
@@ -447,7 +440,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
             intent.setComponent(mMediaButtonReceiverComponent);
             mRemoteControlClient = new RemoteControlClient(PendingIntent
-                    .getBroadcast(getApplicationContext() /*context*/, 0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/));
+                    .getBroadcast(getApplicationContext() /*context*/, 0 /*requestCode, ignored*/,
+                            intent /*intent*/, 0 /*flags*/));
             mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                     RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
                     RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
@@ -506,12 +500,13 @@ public class NotificationService extends Service implements MusicFocusable, Stat
                             mAlbumCoverPath = coverArtPath[0];
                             mAlbumCover = Tools
                                     .decodeSampledBitmapFromPath(coverArtPath[0], getResources()
-                                            .getDimensionPixelSize(
-                                                    android.R.dimen.notification_large_icon_width),
+                                                    .getDimensionPixelSize(
+                                                            android.R.dimen.notification_large_icon_width),
                                             getResources()
                                                     .getDimensionPixelSize(
                                                             android.R.dimen.notification_large_icon_height),
-                                            true);
+                                            true
+                                    );
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -746,5 +741,12 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     @Override
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
         // We do not care about that event
+    }
+
+    // do we have audio focus?
+    enum AudioFocus {
+        NoFocusNoDuck,    // we don't have audio focus, and can't duck
+        NoFocusCanDuck,   // we don't have focus, but can play at a low volume ("ducking")
+        Focused           // we have full audio focus
     }
 }

@@ -16,6 +16,18 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.tools.Tools;
+
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -47,18 +59,6 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
-import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
-import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -66,7 +66,7 @@ import java.lang.reflect.Method;
 /**
  * StreamingService hooks Android's audio framework to MPD's streaming server to
  * allow local audio playback, audio metadata parsing and cover art retrieving.
- * 
+ *
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
  */
@@ -76,32 +76,47 @@ public class StreamingService extends Service implements StatusChangeListener, O
         OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener,
         OnAudioFocusChangeListener {
 
+    public static final int STREAMINGSERVICE_STATUS = 1;
+
+    public static final int STREAMINGSERVICE_PAUSED = 2;
+
+    public static final int STREAMINGSERVICE_STOPPED = 3;
+
+    public static final String CMD_REMOTE = "com.namelessdev.mpdroid.REMOTE_COMMAND";
+
+    public static final String CMD_COMMAND = "COMMAND";
+
+    public static final String CMD_PAUSE = "PAUSE";
+
+    public static final String CMD_STOP = "STOP";
+
+    public static final String CMD_PLAY = "PLAY";
+
+    public static final String CMD_PLAYPAUSE = "PLAYPAUSE";
+
+    public static final String CMD_PREV = "PREV";
+
+    public static final String CMD_NEXT = "NEXT";
+
+    public static final String CMD_DIE = "DIE"; // Just in case
+
     static final String TAG = "MPDroidStreamingService";
 
-    public static final int STREAMINGSERVICE_STATUS = 1;
-    public static final int STREAMINGSERVICE_PAUSED = 2;
-    public static final int STREAMINGSERVICE_STOPPED = 3;
-    public static final String CMD_REMOTE = "com.namelessdev.mpdroid.REMOTE_COMMAND";
-    public static final String CMD_COMMAND = "COMMAND";
-    public static final String CMD_PAUSE = "PAUSE";
-    public static final String CMD_STOP = "STOP";
-    public static final String CMD_PLAY = "PLAY";
-    public static final String CMD_PLAYPAUSE = "PLAYPAUSE";
-    public static final String CMD_PREV = "PREV";
-    public static final String CMD_NEXT = "NEXT";
-    public static final String CMD_DIE = "DIE"; // Just in case
+    /**
+     * How long to wait before queuing the message into the current handler
+     * queue.
+     */
+    private static final int IDLE_DELAY = 60000;
+
     public static boolean isServiceRunning = false;
 
-    /**
-     * Get the status of the streaming service.
-     * 
-     * @return bool
-     */
-    public static Boolean getStreamingServiceStatus() {
-        return isServiceRunning;
-    }
+    /** Methods to enable and disable MPDroid to control media buttons. */
+    private static Method registerMediaButtonEventReceiver;
+
+    private static Method unregisterMediaButtonEventReceiver;
 
     private MediaPlayer mediaPlayer;
+
     private AudioManager audioManager;
 
     private ComponentName remoteControlResponder;
@@ -123,52 +138,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
      */
     private boolean isPaused;
 
-    /**
-     * Field containing the ID used to stopSelfResult() which will stop the
-     * streaming service.
-     */
-    private Integer lastStartID;
-    /** Methods to enable and disable MPDroid to control media buttons. */
-    private static Method registerMediaButtonEventReceiver;
-
-    private static Method unregisterMediaButtonEventReceiver;
-
-    /** Field to control remoteControlClient */
-    private RemoteControlClient remoteControlClient = null;
-
-    /**
-     * How long to wait before queuing the message into the current handler
-     * queue.
-     */
-    private static final int IDLE_DELAY = 60000;
-
-    /**
-     * Initializes registerMediaButtonReceiver and
-     * unregisterMediaButtonEventReceiver as is required before the
-     * RemoteControlClient can be registered through
-     * {@link #registerRemoteControlClient()}.
-     */
-    private static void initializeRemoteControlRegistrationMethods() {
-        try {
-            if (registerMediaButtonEventReceiver == null) {
-                registerMediaButtonEventReceiver = AudioManager.class.getMethod(
-                        "registerMediaButtonEventReceiver",
-                        new Class[] {
-                            ComponentName.class
-                        });
-            }
-            if (unregisterMediaButtonEventReceiver == null) {
-                unregisterMediaButtonEventReceiver = AudioManager.class.getMethod(
-                        "unregisterMediaButtonEventReceiver",
-                        new Class[] {
-                            ComponentName.class
-                        });
-            }
-        } catch (NoSuchMethodException nsme) {
-            /* Aww we're not 2.2 */
-        }
-    }
-
     /** Set up the message handler. */
     @SuppressLint("HandlerLeak")
     private Handler delayedStopHandler = new Handler() {
@@ -189,8 +158,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             MPDApplication app = (MPDApplication) getApplication();
-            if (app == null)
+            if (app == null) {
                 return;
+            }
 
             if (!(app).getApplicationState().streamingMode) {
                 stopSelf();
@@ -206,8 +176,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 }
             } else if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
                 // pause the music while a conversation is in progress
-                if (!isPlaying)
+                if (!isPlaying) {
                     return;
+                }
                 isPaused = (isPaused || isPlaying) && (app.getApplicationState().streamingMode);
                 pauseStreaming();
             } else if (state == TelephonyManager.CALL_STATE_IDLE) {
@@ -223,14 +194,62 @@ public class StreamingService extends Service implements StatusChangeListener, O
     };
 
     /**
+     * Field containing the ID used to stopSelfResult() which will stop the
+     * streaming service.
+     */
+    private Integer lastStartID;
+
+    /** Field to control remoteControlClient */
+    private RemoteControlClient remoteControlClient = null;
+
+    /**
+     * Get the status of the streaming service.
+     *
+     * @return bool
+     */
+    public static Boolean getStreamingServiceStatus() {
+        return isServiceRunning;
+    }
+
+    /**
+     * Initializes registerMediaButtonReceiver and
+     * unregisterMediaButtonEventReceiver as is required before the
+     * RemoteControlClient can be registered through
+     * {@link #registerRemoteControlClient()}.
+     */
+    private static void initializeRemoteControlRegistrationMethods() {
+        try {
+            if (registerMediaButtonEventReceiver == null) {
+                registerMediaButtonEventReceiver = AudioManager.class.getMethod(
+                        "registerMediaButtonEventReceiver",
+                        new Class[]{
+                                ComponentName.class
+                        }
+                );
+            }
+            if (unregisterMediaButtonEventReceiver == null) {
+                unregisterMediaButtonEventReceiver = AudioManager.class.getMethod(
+                        "unregisterMediaButtonEventReceiver",
+                        new Class[]{
+                                ComponentName.class
+                        }
+                );
+            }
+        } catch (NoSuchMethodException nsme) {
+            /* Aww we're not 2.2 */
+        }
+    }
+
+    /**
      * If streaming mode is activated this will setup the Android mediaPlayer
      * framework, register the media button events, register the remote control
      * client then setup and the framework streaming.
      */
     public void beginStreaming() {
         // just to be sure, we do not want to start when we're not supposed to
-        if (!((MPDApplication) getApplication()).getApplicationState().streamingMode)
+        if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
             return;
+        }
 
         isPaused = false;
         buffering = true;
@@ -238,8 +257,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
         registerMediaButtonEvent();
         registerRemoteControlClient();
 
-        if (mediaPlayer == null)
+        if (mediaPlayer == null) {
             return;
+        }
 
         try {
             mediaPlayer.reset();
@@ -303,7 +323,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
                             .getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
                     getResources()
                             .getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
-                    true));
+                    true
+            ));
 
             return (Tools.decodeSampledBitmapFromPath(coverArtPath[0],
                     (int) Tools.convertDpToPixel(200, this),
@@ -365,8 +386,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public void onCompletion(MediaPlayer mp) {
         Message msg = delayedStopHandler.obtainMessage();
         delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY); // Don't suck
-                                                                // the battery
-                                                                // too much
+        // the battery
+        // too much
         MPDApplication app = (MPDApplication) getApplication();
 
         MPDStatus statusMpd = null;
@@ -457,8 +478,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
         unregisterMediaButtonEvent();
         unregisterRemoteControlClient();
 
-        if (audioManager != null)
+        if (audioManager != null) {
             audioManager.abandonAudioFocus(this);
+        }
 
         if (mediaPlayer != null) {
             mediaPlayer.stop();
@@ -545,8 +567,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * keeping the notification showing.
      */
     public void pauseStreaming() {
-        if (!isPlaying)
+        if (!isPlaying) {
             return;
+        }
 
         isPlaying = false;
         isPaused = true;
@@ -587,8 +610,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * before registering the {@link #registerRemoteControlClient()}.
      */
     private void registerMediaButtonEvent() {
-        if (registerMediaButtonEventReceiver == null)
+        if (registerMediaButtonEventReceiver == null) {
             return;
+        }
 
         try {
             registerMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
@@ -716,7 +740,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
                 .setContentIntent(
                         PendingIntent.getActivity(this, 0,
                                 new Intent("com.namelessdev.mpdroid.PLAYBACK_VIEWER")
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0
+                        )
+                );
 
         /** Setup the media player. */
         Music actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
@@ -770,17 +796,21 @@ public class StreamingService extends Service implements StatusChangeListener, O
                                 this, 41,
                                 new Intent(this, StreamingService.class).setAction(CMD_REMOTE)
                                         .putExtra(CMD_COMMAND, CMD_STOP),
-                                PendingIntent.FLAG_CANCEL_CURRENT));
+                                PendingIntent.FLAG_CANCEL_CURRENT
+                        )
+                );
             }
         } else {
-            setMusicState(isPaused ? RemoteControlClient.PLAYSTATE_PAUSED : RemoteControlClient.PLAYSTATE_PLAYING);
+            setMusicState(isPaused ? RemoteControlClient.PLAYSTATE_PAUSED
+                    : RemoteControlClient.PLAYSTATE_PLAYING);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 notificationBuilder.addAction(R.drawable.ic_appwidget_music_prev, "", PendingIntent
                         .getService(this, 11,
                                 new Intent(this, StreamingService.class).setAction(CMD_REMOTE)
                                         .putExtra(CMD_COMMAND, CMD_PREV),
-                                PendingIntent.FLAG_CANCEL_CURRENT));
+                                PendingIntent.FLAG_CANCEL_CURRENT
+                        ));
                 notificationBuilder.addAction(
                         isPaused ? R.drawable.ic_appwidget_music_play
                                 : R.drawable.ic_appwidget_music_pause,
@@ -791,12 +821,15 @@ public class StreamingService extends Service implements StatusChangeListener, O
                                 new Intent(this,
                                         StreamingService.class).setAction(CMD_REMOTE).putExtra(
                                         CMD_COMMAND, CMD_PLAYPAUSE),
-                                PendingIntent.FLAG_CANCEL_CURRENT));
+                                PendingIntent.FLAG_CANCEL_CURRENT
+                        )
+                );
                 notificationBuilder.addAction(R.drawable.ic_appwidget_music_next, "", PendingIntent
                         .getService(this, 31,
                                 new Intent(this, StreamingService.class).setAction(CMD_REMOTE)
                                         .putExtra(CMD_COMMAND, CMD_NEXT),
-                                PendingIntent.FLAG_CANCEL_CURRENT));
+                                PendingIntent.FLAG_CANCEL_CURRENT
+                        ));
             }
         }
 
@@ -851,8 +884,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
      */
     public void stopStreaming() {
         prevMpdState = "";
-        if (mediaPlayer == null)
+        if (mediaPlayer == null) {
             return;
+        }
         mediaPlayer.stop();
         stopForeground(true);
     }
@@ -868,8 +902,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * Unregisters the registered media button event receiver intents.
      */
     private void unregisterMediaButtonEvent() {
-        if (unregisterMediaButtonEventReceiver == null)
+        if (unregisterMediaButtonEventReceiver == null) {
             return;
+        }
 
         try {
             unregisterMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
