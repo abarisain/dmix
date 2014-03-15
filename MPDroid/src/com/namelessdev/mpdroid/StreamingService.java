@@ -401,6 +401,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         if (mediaPlayer != null) {
             mediaPlayer.stop();
+            mediaPlayer.reset();
             mediaPlayer.release();
             mediaPlayer = null;
         }
