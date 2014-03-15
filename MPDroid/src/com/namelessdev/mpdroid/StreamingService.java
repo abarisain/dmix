@@ -25,7 +25,6 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -45,8 +44,6 @@ import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * StreamingService hooks Android's audio framework to MPD's streaming server to
@@ -89,17 +86,10 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     public static boolean isServiceRunning = false;
 
-    /** Methods to enable and disable MPDroid to control media buttons. */
-    private static Method registerMediaButtonEventReceiver;
-
-    private static Method unregisterMediaButtonEventReceiver;
-
     private MediaPlayer mediaPlayer;
 
     private AudioManager audioManager;
 
-    private ComponentName remoteControlResponder;
-    
     /** This field will contain the URL of the MPD server streaming source */
     private String streamSource;
 
@@ -200,8 +190,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         isPaused = false;
         isBuffering(true);
-
-        registerMediaButtonEvent();
 
         if (mediaPlayer == null) {
             return;
@@ -378,11 +366,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         mediaPlayer.setOnErrorListener(this);
         mediaPlayer.setOnInfoListener(this);
 
-        remoteControlResponder = new ComponentName(getPackageName(),
-                RemoteControlReceiver.class.getName());
-
-        registerMediaButtonEvent();
-
         if (audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
             Toast.makeText(this, R.string.audioFocusFailed, Toast.LENGTH_LONG).show();
@@ -405,7 +388,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     @Override
     public void onDestroy() {
         isServiceRunning = false;
-        unregisterMediaButtonEvent();
         endStreamNotification();
 
         if (audioManager != null) {
@@ -533,26 +515,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public void randomChanged(boolean random) {
     }
 
-    /**
-     * Register the media button event receiver intents, which is a requirement
-     * before registering the {@link #registerRemoteControlClient()}.
-     */
-    private void registerMediaButtonEvent() {
-        if (registerMediaButtonEventReceiver == null) {
-            return;
-        }
-
-        try {
-            registerMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void repeatChanged(boolean repeating) {
     }
@@ -613,27 +575,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         prevMpdState = "";
 
-    }
-
-    /**
-     * Unregisters the registered media button event receiver intents.
-     */
-    private void unregisterMediaButtonEvent() {
-        if (unregisterMediaButtonEventReceiver == null) {
-            return;
-        }
-
-        try {
-            unregisterMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
