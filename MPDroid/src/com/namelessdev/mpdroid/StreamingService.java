@@ -24,7 +24,6 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.SuppressLint;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,7 +36,6 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.media.RemoteControlClient;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -62,12 +60,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         OnCompletionListener,
         OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener,
         OnAudioFocusChangeListener {
-
-    public static final int STREAMINGSERVICE_STATUS = 1;
-
-    public static final int STREAMINGSERVICE_PAUSED = 2;
-
-    public static final int STREAMINGSERVICE_STOPPED = 3;
 
     public static final String CMD_REMOTE = "com.namelessdev.mpdroid.REMOTE_COMMAND";
 
@@ -107,7 +99,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private AudioManager audioManager;
 
     private ComponentName remoteControlResponder;
-
+    
     /** This field will contain the URL of the MPD server streaming source */
     private String streamSource;
 
@@ -186,9 +178,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
      */
     private Integer lastStartID;
 
-    /** Field to control remoteControlClient */
-    private RemoteControlClient remoteControlClient = null;
-
     /**
      * Get the status of the streaming service.
      *
@@ -196,35 +185,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
      */
     public static Boolean getStreamingServiceStatus() {
         return isServiceRunning;
-    }
-
-    /**
-     * Initializes registerMediaButtonReceiver and
-     * unregisterMediaButtonEventReceiver as is required before the
-     * RemoteControlClient can be registered through
-     * {@link #registerRemoteControlClient()}.
-     */
-    private static void initializeRemoteControlRegistrationMethods() {
-        try {
-            if (registerMediaButtonEventReceiver == null) {
-                registerMediaButtonEventReceiver = AudioManager.class.getMethod(
-                        "registerMediaButtonEventReceiver",
-                        new Class[]{
-                                ComponentName.class
-                        }
-                );
-            }
-            if (unregisterMediaButtonEventReceiver == null) {
-                unregisterMediaButtonEventReceiver = AudioManager.class.getMethod(
-                        "unregisterMediaButtonEventReceiver",
-                        new Class[]{
-                                ComponentName.class
-                        }
-                );
-            }
-        } catch (NoSuchMethodException nsme) {
-            /* Aww we're not 2.2 */
-        }
     }
 
     /**
@@ -242,7 +202,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         isBuffering(true);
 
         registerMediaButtonEvent();
-        registerRemoteControlClient();
 
         if (mediaPlayer == null) {
             return;
@@ -422,10 +381,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
         remoteControlResponder = new ComponentName(getPackageName(),
                 RemoteControlReceiver.class.getName());
 
-        initializeRemoteControlRegistrationMethods();
-
         registerMediaButtonEvent();
-        registerRemoteControlClient();
 
         if (audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
@@ -449,9 +405,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     @Override
     public void onDestroy() {
         isServiceRunning = false;
-        setMusicState(RemoteControlClient.PLAYSTATE_STOPPED);
         unregisterMediaButtonEvent();
-        unregisterRemoteControlClient();
         endStreamNotification();
 
         if (audioManager != null) {
@@ -599,34 +553,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
     }
 
-    /**
-     * Builds the media button intent.
-     */
-    private void registerRemoteControlClient() {
-        // build the PendingIntent for the remote control client
-        Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        mediaButtonIntent.setComponent(remoteControlResponder);
-        PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0,
-                mediaButtonIntent, 0);
-
-        // create and register the remote control client
-        remoteControlClient = new RemoteControlClient(mediaPendingIntent);
-        (remoteControlClient)
-                .setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
-                        | RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
-                        | RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
-
-        audioManager.registerRemoteControlClient(remoteControlClient);
-    }
-
     @Override
     public void repeatChanged(boolean repeating) {
-    }
-
-    private void setMusicState(int state) {
-        if (remoteControlClient != null) {
-            (remoteControlClient).setPlaybackState(state);
-        }
     }
 
     @Override
@@ -705,12 +633,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
             e.printStackTrace();
         } catch (NullPointerException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void unregisterRemoteControlClient() {
-        if (remoteControlClient != null) {
-            audioManager.unregisterRemoteControlClient(remoteControlClient);
         }
     }
 

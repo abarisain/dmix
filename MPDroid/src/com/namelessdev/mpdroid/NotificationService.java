@@ -423,6 +423,37 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     /**
+     * Unregisters the registered media button event receiver intents.
+     */
+    private void unregisterMediaButtonEvent() {
+        /** TODO: Make sure this is doing the right thing */
+        /*if (unregisterMediaButtonEventReceiver == null) {
+            return;
+        }*/
+
+        mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+        /*
+        try {
+            unregisterMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        */
+    }
+
+    private void unregisterRemoteControlClient() {
+        if (mRemoteControlClient != null) {
+            mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
+        }
+    }
+
+    /**
      * Releases resources used by the service for playback. This includes the "foreground service"
      * status and notification, the wake locks and possibly the MediaPlayer.
      */
