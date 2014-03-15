@@ -96,6 +96,12 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     public static final String ACTION_SET_VOLUME = "SET_VOLUME";
 
+    public static final String STREAM_BUFFERING_BEGIN = "BUFFERING_BEGIN";
+
+    public static final String STREAM_BUFFERING_END = "BUFFERING_END";
+
+    public static final String ACTION_STREAMING_END = "STREAMING_END";
+
     // The tag we put on debug messages
     final static String TAG = "NotificationService";
 
@@ -132,6 +138,20 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     Notification mNotification = null;
 
     MPDApplication app;
+
+    /**
+     * A temporary hack to work around the fact that beginStreaming is called over
+     * and over.
+     */
+    private boolean beginStreamingHack = false;
+
+    private boolean mediaPlayerServiceIsBuffering = false;
+
+    /**
+     * If something started the notification by another class and
+     * not user input, store it here.
+     */
+    private boolean notificationAutomaticallyGenerated = false;
 
     private Bitmap mAlbumCover = null;
 
@@ -175,6 +195,42 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
         if (action == null) {
             return START_NOT_STICKY;
+        }
+
+        /** Let the notification know we're streaming.. */
+        if (action.equals(STREAM_BUFFERING_BEGIN)) {
+
+            /**
+             * TODO: Remove this awful if() hack. Make beginStreaming
+             * stop being called over and over.
+             * */
+            if (!beginStreamingHack) {
+                /** Does the notification currently exist? */
+                if (mRemoteControlClient == null) {
+                    notificationAutomaticallyGenerated = true;
+                } else {
+                    notificationAutomaticallyGenerated = false;
+                }
+                beginStreamingHack = true;
+            }
+
+            mediaPlayerServiceIsBuffering = true;
+
+            /** Conveniently enough, this will start the notification */
+            action = ACTION_UPDATE_INFO;
+
+        } else if (action.equals(STREAM_BUFFERING_END)) {
+
+            mediaPlayerServiceIsBuffering = false;
+            action = ACTION_UPDATE_INFO;
+
+        }
+
+        /** If we opened the notification, close it up. */
+        if (action.equals(ACTION_STREAMING_END) && notificationAutomaticallyGenerated) {
+            action = ACTION_CLOSE_NOTIFICATION;
+            beginStreamingHack = false;
+            notificationAutomaticallyGenerated = false;
         }
 
         switch (action) {
@@ -491,8 +547,14 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             contentView = mNotification.contentView;
         }
 
-        contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
-        contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
+        /** When streaming, move things down (hopefully, very) temporarily. */
+        if (mediaPlayerServiceIsBuffering) {
+            contentView.setTextViewText(R.id.notificationTitle, getString(R.string.buffering));
+            contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getTitle());
+        } else {
+            contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
+            contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
+        }
 
         contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
         contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
@@ -513,9 +575,16 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             contentView = mNotification.bigContentView;
         }
 
-        contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
-        contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
-        contentView.setTextViewText(R.id.notificationAlbum, mCurrentMusic.getAlbum());
+        /** When streaming, move things down (hopefully, very) temporarily. */
+        if (mediaPlayerServiceIsBuffering) {
+            contentView.setTextViewText(R.id.notificationTitle, getString(R.string.buffering));
+            contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getTitle());
+            contentView.setTextViewText(R.id.notificationAlbum, mCurrentMusic.getArtist());
+        } else {
+            contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
+            contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
+            contentView.setTextViewText(R.id.notificationAlbum, mCurrentMusic.getAlbum());
+        }
 
         contentView.setOnClickPendingIntent(R.id.notificationPrev, piPrev);
         contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
