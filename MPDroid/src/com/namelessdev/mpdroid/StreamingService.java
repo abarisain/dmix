@@ -446,16 +446,18 @@ public class StreamingService extends Service implements StatusChangeListener, O
             return 0;
         }
 
-        if (intent.getAction().equals("com.namelessdev.mpdroid.START_STREAMING")) {
+        String intentAction = intent.getAction();
+
+        if (intentAction.equals("com.namelessdev.mpdroid.START_STREAMING")) {
             beginStreaming();
-        } else if (intent.getAction().equals("com.namelessdev.mpdroid.STOP_STREAMING")) {
+        } else if (intentAction.equals("com.namelessdev.mpdroid.STOP_STREAMING")) {
             stopStreaming();
-        } else if (intent.getAction().equals("com.namelessdev.mpdroid.RESET_STREAMING")) {
+        } else if (intentAction.equals("com.namelessdev.mpdroid.RESET_STREAMING")) {
             stopStreaming();
             beginStreaming();
-        } else if (intent.getAction().equals("com.namelessdev.mpdroid.DIE")) {
+        } else if (intentAction.equals("com.namelessdev.mpdroid.DIE")) {
             die();
-        } else if (intent.getAction().equals(CMD_REMOTE)) {
+        } else if (intentAction.equals(CMD_REMOTE)) {
             String cmd = intent.getStringExtra(CMD_COMMAND);
             if (cmd.equals(CMD_NEXT)) {
                 next();
