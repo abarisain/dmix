@@ -99,9 +99,6 @@ public class StreamingService extends Service implements
     /** This field will contain the URL of the MPD server streaming source */
     private String streamSource;
 
-    /** Is the Android media framework buffering the stream? */
-    private Boolean buffering;
-
     private String prevMpdState;
 
     /** Is MPD playing? */
@@ -117,7 +114,7 @@ public class StreamingService extends Service implements
     private Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (isPlaying || isPaused || buffering) {
+            if (isPlaying || isPaused) {
                 return;
             }
             die();
@@ -190,6 +187,7 @@ public class StreamingService extends Service implements
             return;
         }
 
+        isPlaying = true;
         isPaused = false;
 
         if (mediaPlayer == null) {
@@ -416,7 +414,6 @@ public class StreamingService extends Service implements
         // Buffering done
         endBuffering();
         isPlaying = true;
-
         prevMpdState = "";
         mediaPlayer.start();
     }
