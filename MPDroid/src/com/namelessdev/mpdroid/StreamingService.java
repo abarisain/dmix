@@ -187,7 +187,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         }
 
         isPaused = false;
-        isBuffering(true);
 
         if (mediaPlayer == null) {
             return;
@@ -202,7 +201,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
             /**
              * TODO: Notify the user
              */
-            isBuffering(false);
+            endBuffering();
             isPlaying = false;
         } catch (IllegalStateException e) {
             // wtf what state ?
@@ -233,18 +232,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
     }
 
     /**
-     * This will send a message to the NotificationService to let it know the stream
-     * isbbuffering, so it will inform the user via the notification itself.
+     * Send a message to the NotificationService to let it know to end the buffering banner.
      */
-    private void isBuffering(boolean _buffering) {
-        Log.d(TAG, "StreamingService.isBuffering()");
-        buffering = _buffering;
+    private void endBuffering() {
         Intent i = new Intent(this, NotificationService.class);
-        if (buffering) {
-            i.setAction(NotificationService.STREAM_BUFFERING_BEGIN);
-        } else {
-            i.setAction(NotificationService.STREAM_BUFFERING_END);
-        }
+        i.setAction(NotificationService.STREAM_BUFFERING_END);
         this.startService(i);
     }
 
@@ -349,7 +341,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         isServiceRunning = true;
         mediaPlayer = new MediaPlayer();
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        isBuffering(true);
         prevMpdState = "";
         isPlaying = true;
         isPaused = false;
@@ -430,7 +421,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onPrepared()");
         // Buffering done
-        isBuffering(false);
+        endBuffering();
         isPlaying = true;
 
         prevMpdState = "";
@@ -496,7 +487,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
         isPlaying = false;
         isPaused = true;
-        isBuffering(false);
+        endBuffering();
 
         /** If the Android media framework crashes, try to stop it earlier. */
         if (mediaPlayer != null) {

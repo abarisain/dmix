@@ -96,8 +96,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     public static final String ACTION_SET_VOLUME = "SET_VOLUME";
 
-    public static final String STREAM_BUFFERING_BEGIN = "BUFFERING_BEGIN";
-
     public static final String STREAM_BUFFERING_END = "BUFFERING_END";
 
     public static final String ACTION_STREAMING_END = "STREAMING_END";
@@ -197,8 +195,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             return START_NOT_STICKY;
         }
 
-        /** Let the notification know we're streaming.. */
-        if (action.equals(STREAM_BUFFERING_BEGIN)) {
+        /** START_STREAMING == begin buffering. */
+        if (action.equals("com.namelessdev.mpdroid.START_STREAMING")) {
 
             /**
              * TODO: Remove this awful if() hack. Make beginStreaming
