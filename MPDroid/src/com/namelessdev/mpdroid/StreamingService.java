@@ -29,10 +29,8 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
-import android.media.MediaPlayer.OnInfoListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
 import android.os.IBinder;
@@ -52,11 +50,17 @@ import java.io.IOException;
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
  */
-
-public class StreamingService extends Service implements StatusChangeListener, OnPreparedListener,
+public class StreamingService extends Service implements
+        /**
+         * OnInfoListener is not used because it is broken (never gets called, ever)..
+         * OnBufferingUpdateListener is not used because it depends on a stream completion time.
+         */
+        ConnectionListener,
+        OnAudioFocusChangeListener,
         OnCompletionListener,
-        OnBufferingUpdateListener, OnErrorListener, OnInfoListener, ConnectionListener,
-        OnAudioFocusChangeListener {
+        OnErrorListener,
+        OnPreparedListener,
+        StatusChangeListener {
 
     public static final String CMD_REMOTE = "com.namelessdev.mpdroid.REMOTE_COMMAND";
 
@@ -280,10 +284,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         return null;
     }
 
-    @Override
-    public void onBufferingUpdate(MediaPlayer mp, int percent) {
-    }
-
     /**
      * This will be called when the end of the stream is reached during
      * playback.
@@ -346,11 +346,9 @@ public class StreamingService extends Service implements StatusChangeListener, O
         isPaused = false;
         lastStartID = 0;
 
-        mediaPlayer.setOnBufferingUpdateListener(this);
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnErrorListener(this);
-        mediaPlayer.setOnInfoListener(this);
 
         if (audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
@@ -406,11 +404,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "StreamingService.onError()");
         pauseStreaming();
-        return false;
-    }
-
-    @Override
-    public boolean onInfo(MediaPlayer mp, int what, int extra) {
         return false;
     }
 
