@@ -218,6 +218,54 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         return START_NOT_STICKY; // Means we started the service, but don't want it to restart in case it's killed.
     }
 
+    final void sendSimpleMpdCommand(final String command) {
+        new Thread(
+                new Runnable() {
+                    @Override
+                    final public void run() {
+
+                        final MPDApplication app = (MPDApplication) getApplication();
+                        if (app == null) {
+                            return;
+                        }
+
+                        final MPD mpd = app.oMPDAsyncHelper.oMPD;
+                        if (mpd == null) {
+                            return;
+                        }
+
+                        try {
+                            switch (command) {
+                                case ACTION_PAUSE:
+                                    mpd.pause();
+                                    break;
+                                case ACTION_PLAY:
+                                    String state = mpd.getStatus().getState();
+                                    if (!MPDStatus.MPD_STATE_PLAYING.equals(state)) {
+                                        mpd.play();
+                                    }
+                                    break;
+                                case ACTION_STOP:
+                                    mpd.stop();
+                                    break;
+                                case ACTION_SKIP:
+                                    mpd.next();
+                                    break;
+                                case ACTION_PREVIOUS:
+                                    mpd.previous();
+                                    break;
+                                case ACTION_REWIND:
+                                    mpd.seek(0);
+                                    break;
+                            }
+                        } catch (MPDServerException e) {
+                            Log.w(TAG, "Failed to send a simple MPD command.", e);
+                        }
+                    }
+                }
+        ).start();
+    }
+
     void processTogglePlaybackRequest() {
         new AsyncTask<MPDApplication, Void, Boolean>() {
             @Override
@@ -245,40 +293,12 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     void processPlayRequest() {
         tryToGetAudioFocus();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final MPD mpd = getMpdApplication().oMPDAsyncHelper.oMPD;
-                    String state = mpd.getStatus().getState();
-                    if (!MPDStatus.MPD_STATE_PLAYING.equals(state)) {
-                        mpd.play();
-                    }
-                } catch (MPDServerException e) {
-                    Log.w(MPDApplication.TAG, e.getMessage());
-                }
-            }
-        }).start();
-
+        sendSimpleMpdCommand(ACTION_PLAY);
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
     }
 
     void processPauseRequest() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    getMpdApplication();
-                    if (app != null) {
-                        app.oMPDAsyncHelper.oMPD.pause();
-                    }
-                } catch (MPDServerException e) {
-                    Log.w(MPDApplication.TAG, e.getMessage());
-                }
-            }
-        }).start();
-
+        sendSimpleMpdCommand(ACTION_PAUSE);
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_PAUSED);
     }
 
@@ -292,19 +312,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     void processRewindRequest() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final MPDApplication app = (MPDApplication) getApplication();
-                    if (app != null) {
-                        app.oMPDAsyncHelper.oMPD.seek(0);
-                    }
-                } catch (MPDServerException e) {
-                    Log.w(MPDApplication.TAG, e.getMessage());
-                }
-            }
-        }).start();
+        sendSimpleMpdCommand(ACTION_REWIND);
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_REWINDING);
 
         final Intent service = new Intent(this, NotificationService.class);
@@ -313,19 +321,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     void processPreviousRequest() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final MPDApplication app = (MPDApplication) getApplication();
-                    if (app != null) {
-                        app.oMPDAsyncHelper.oMPD.previous();
-                    }
-                } catch (MPDServerException e) {
-                    Log.w(MPDApplication.TAG, e.getMessage());
-                }
-            }
-        }).start();
+        sendSimpleMpdCommand(ACTION_PREVIOUS);
 
         final Intent service = new Intent(this, NotificationService.class);
         service.setAction(ACTION_UPDATE_INFO);
@@ -334,37 +330,12 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     void processSkipRequest() {
         tryToGetAudioFocus();
-
-        getMpdApplication();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (app != null) {
-                        app.oMPDAsyncHelper.oMPD.next();
-                    }
-                } catch (MPDServerException e) {
-                    Log.w(MPDApplication.TAG, e.getMessage());
-                }
-            }
-        }).start();
+        sendSimpleMpdCommand(ACTION_SKIP);
         triggerFutureUpdate();
     }
 
     void processStopRequest() {
-        final MPDApplication app = (MPDApplication) getApplication();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (app != null) {
-                        app.oMPDAsyncHelper.oMPD.stop();
-                    }
-                } catch (MPDServerException e) {
-                    Log.w(MPDApplication.TAG, e.getMessage());
-                }
-            }
-        }).start();
+        sendSimpleMpdCommand(ACTION_STOP);
 
         // let go of all resources...
         relaxResources();
