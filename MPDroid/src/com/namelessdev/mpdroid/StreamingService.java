@@ -249,6 +249,11 @@ public class StreamingService extends Service implements
         this.startService(i);
     }
 
+    /**
+     * A JMPDComm callback to be invoked during library state changes.
+     *
+     * @param updating true when updating, false when not updating.
+     */
     @Override
     public void libraryStateChanged(boolean updating) {
     }
@@ -262,7 +267,7 @@ public class StreamingService extends Service implements
         try {
             mpd.next();
         } catch (MPDServerException e) {
-
+            /** Do nothing. */
         }
         stopStreaming();
         beginStreaming();
@@ -290,8 +295,9 @@ public class StreamingService extends Service implements
     }
 
     /**
-     * This will be called when the end of the stream is reached during
-     * playback.
+     * A MediaPlayer callback to be invoked when playback of a media source has completed.
+     *
+     * @param mp the MediaPlayer that reached the end of the file
      */
     @Override
     public void onCompletion(MediaPlayer mp) {
@@ -405,6 +411,16 @@ public class StreamingService extends Service implements
         super.onDestroy();
     }
 
+    /**
+     * A MediaPlayer callback to be invoked when there has been an error during an asynchronous
+     * operation (other errors will throw exceptions at method call time).
+     *
+     * @param mp    the MediaPlayer the error pertains to.
+     * @param what  the type of error that has occurred.
+     * @param extra an extra code, specific to the error. Typically implementation dependent.
+     * @return True if the method handled the error, false if it didn't. Returning false, or not
+     * having an OnErrorListener at all, will cause the OnCompletionListener to be called.
+     */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "StreamingService.onError()");
@@ -413,7 +429,7 @@ public class StreamingService extends Service implements
     }
 
     /**
-     * This will be called when MPDroid is ready to stream the MPD playback.
+     * A MediaPlayer callback to be invoked when the media source is ready for playback.
      */
     @Override
     public void onPrepared(MediaPlayer mp) {
@@ -425,6 +441,21 @@ public class StreamingService extends Service implements
         mediaPlayer.start();
     }
 
+    /**
+     * Called by the system every time a client explicitly starts the service
+     * by calling startService(Intent).
+     *
+     * @param intent  The Intent supplied to startService(Intent), as given. This may be null if
+     *                the
+     *                service is being restarted after its process has gone away, and it had
+     *                previously returned anything except START_STICKY_COMPATIBILITY.
+     * @param flags   Additional data about this start request. Currently either 0,
+     *                START_FLAG_REDELIVERY, or START_FLAG_RETRY.
+     * @param startId A unique integer representing this specific request to start. Use with
+     *                stopSelfResult(int).
+     * @return The return value indicates what semantics the system should use for the service's
+     * current started state.
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "StreamingService.onStartCommand()");
