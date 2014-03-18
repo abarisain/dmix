@@ -190,15 +190,11 @@ public class StreamingService extends Service implements
         isPlaying = true;
         isPaused = false;
 
-        if (mediaPlayer == null) {
-            return;
-        }
+        mediaPlayer.reset();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         try {
-            mediaPlayer.reset();
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setDataSource(streamSource);
-            mediaPlayer.prepareAsync();
         } catch (IOException e) {
             /**
              * TODO: Notify the user
@@ -209,6 +205,8 @@ public class StreamingService extends Service implements
             // wtf what state ?
             isPlaying = false;
         }
+
+        mediaPlayer.prepareAsync();
     }
 
     @Override
