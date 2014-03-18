@@ -314,18 +314,12 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     void processRewindRequest() {
         sendSimpleMpdCommand(ACTION_REWIND);
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_REWINDING);
-
-        final Intent service = new Intent(this, NotificationService.class);
-        service.setAction(ACTION_UPDATE_INFO);
-        startService(service);
+        processUpdateInfo(null);
     }
 
     void processPreviousRequest() {
         sendSimpleMpdCommand(ACTION_PREVIOUS);
-
-        final Intent service = new Intent(this, NotificationService.class);
-        service.setAction(ACTION_UPDATE_INFO);
-        startService(service);
+        processUpdateInfo(null);
     }
 
     void processSkipRequest() {
@@ -378,10 +372,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                final Intent service = new Intent(NotificationService.this,
-                        NotificationService.class);
-                service.setAction(ACTION_UPDATE_INFO);
-                startService(service);
+                processUpdateInfo(null);
             }
         }, UPDATE_INFO_NEAR_FUTURE_DELAY);
     }
