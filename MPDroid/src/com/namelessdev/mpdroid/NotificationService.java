@@ -180,26 +180,39 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
         if (action == null) {
             return START_NOT_STICKY;
-        } else if (action.equals(ACTION_TOGGLE_PLAYBACK)) {
-            processTogglePlaybackRequest();
-        } else if (action.equals(ACTION_PLAY)) {
-            processPlayRequest();
-        } else if (action.equals(ACTION_PAUSE)) {
-            processPauseRequest();
-        } else if (action.equals(ACTION_SKIP)) {
-            processSkipRequest();
-        } else if (action.equals(ACTION_STOP)) {
-            processStopRequest();
-        } else if (action.equals(ACTION_SHOW_NOTIFICATION)) {
-            processShowNotificationRequest();
-        } else if (action.equals(ACTION_CLOSE_NOTIFICATION)) {
-            processCloseNotificationRequest();
-        } else if (action.equals(ACTION_REWIND)) {
-            processRewindRequest();
-        } else if (action.equals(ACTION_PREVIOUS)) {
-            processPreviousRequest();
-        } else if (action.equals(ACTION_UPDATE_INFO)) {
-            processUpdateInfo((MusicParcelable) intent.getParcelableExtra(EXTRA_CURRENT_MUSIC));
+        }
+
+        switch (action) {
+            case ACTION_CLOSE_NOTIFICATION:
+                processCloseNotificationRequest();
+                break;
+            case ACTION_PAUSE:
+                processPauseRequest();
+                break;
+            case ACTION_PLAY:
+                processPlayRequest();
+                break;
+            case ACTION_PREVIOUS:
+                processPreviousRequest();
+                break;
+            case ACTION_REWIND:
+                processRewindRequest();
+                break;
+            case ACTION_SHOW_NOTIFICATION:
+                processShowNotificationRequest();
+                break;
+            case ACTION_SKIP:
+                processSkipRequest();
+                break;
+            case ACTION_STOP:
+                processStopRequest();
+                break;
+            case ACTION_TOGGLE_PLAYBACK:
+                processTogglePlaybackRequest();
+                break;
+            case ACTION_UPDATE_INFO:
+                processUpdateInfo((MusicParcelable) intent.getParcelableExtra(EXTRA_CURRENT_MUSIC));
+                break;
         }
 
         return START_NOT_STICKY; // Means we started the service, but don't want it to restart in case it's killed.
