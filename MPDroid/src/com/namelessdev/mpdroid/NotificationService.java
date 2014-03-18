@@ -139,22 +139,17 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     private int mPreviousState = -1;
 
-    private MPDApplication getMpdApplication() {
-        if (app == null) {
-            app = (MPDApplication) getApplication();
-        }
-        return app;
-    }
-
     @Override
     public void onCreate() {
         Log.d(TAG, "Creating service");
 
+        app = (MPDApplication) getApplication();
+
         //TODO: Acquire a network wakelock here if the user wants us to !
         //Otherwise we'll just shut down on screen off and reconnect on screen on
         //Tons of work ahead
-        getMpdApplication().addConnectionLock(this);
-        getMpdApplication().oMPDAsyncHelper.addStatusChangeListener(this);
+        app.addConnectionLock(this);
+        app.oMPDAsyncHelper.addStatusChangeListener(this);
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -223,12 +218,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
                 new Runnable() {
                     @Override
                     final public void run() {
-
-                        final MPDApplication app = (MPDApplication) getApplication();
-                        if (app == null) {
-                            return;
-                        }
-
                         final MPD mpd = app.oMPDAsyncHelper.oMPD;
                         if (mpd == null) {
                             return;
@@ -288,7 +277,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
                     processPlayRequest();
                 }
             }
-        }.execute((MPDApplication) getApplication());
+        }.execute(app);
     }
 
     void processPlayRequest() {
@@ -383,8 +372,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
      */
     void relaxResources() {
         Log.d(TAG, "Removing connection lock");
-        getMpdApplication().removeConnectionLock(this);
-        getMpdApplication().oMPDAsyncHelper.removeStatusChangeListener(this);
+        app.removeConnectionLock(this);
+        app.oMPDAsyncHelper.removeStatusChangeListener(this);
         stopForeground(true);
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
             mAlbumCover.recycle();
@@ -428,18 +417,15 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
         //TODO: load this from a background thread
         if (mCurrentMusic == null) {
-            final MPDApplication app = (MPDApplication) getApplication();
-            if (app != null) {
-                try {
-                    final MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-                    final int songPos = status.getSongPos();
-                    if (songPos >= 0) {
-                        mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-                    }
-                } catch (MPDServerException e) {
-                    Log.w("NotificationService",
-                            "MPDServerException playing next song: " + e.getMessage());
+            try {
+                final MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+                final int songPos = status.getSongPos();
+                if (songPos >= 0) {
+                    mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
                 }
+            } catch (MPDServerException e) {
+                Log.w("NotificationService",
+                        "MPDServerException playing next song: " + e.getMessage());
             }
         }
 
@@ -462,7 +448,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             if (mCurrentMusic != null) {
                 // Check if we have a sdcard cover cache for this song
                 // Maybe find a more efficient way
-                final MPDApplication app = (MPDApplication) getApplication();
                 final SharedPreferences settings = PreferenceManager
                         .getDefaultSharedPreferences(app);
                 if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
