@@ -476,11 +476,6 @@ public class StreamingService extends Service implements
         isPlaying = false;
         isPaused = true;
         endBuffering();
-
-        /** If the Android media framework crashes, try to stop it earlier. */
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-        }
     }
 
     @Override
