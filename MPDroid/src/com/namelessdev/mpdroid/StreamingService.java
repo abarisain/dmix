@@ -97,8 +97,6 @@ public class StreamingService extends Service implements
      */
     private static final int IDLE_DELAY = 60000;
 
-    public static boolean isServiceRunning = false;
-
     MPDApplication app;
 
     private MediaPlayer mediaPlayer;
@@ -173,15 +171,6 @@ public class StreamingService extends Service implements
      * streaming service.
      */
     private Integer lastStartID;
-
-    /**
-     * Get the status of the streaming service.
-     *
-     * @return bool
-     */
-    public static Boolean getStreamingServiceStatus() {
-        return isServiceRunning;
-    }
 
     /**
      * If streaming mode is activated this will setup the Android mediaPlayer
@@ -349,7 +338,6 @@ public class StreamingService extends Service implements
             return;
         }
 
-        isServiceRunning = true;
         mediaPlayer = new MediaPlayer();
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         prevMpdState = "";
@@ -382,7 +370,6 @@ public class StreamingService extends Service implements
     @Override
     public void onDestroy() {
         Log.d(TAG, "StreamingSerice.onDestroy()");
-        isServiceRunning = false;
 
         delayedStopHandler.removeCallbacksAndMessages(null);
 
