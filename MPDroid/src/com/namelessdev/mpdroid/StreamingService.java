@@ -167,6 +167,17 @@ public class StreamingService extends Service implements
     };
 
     /**
+     * Set up a handler for an Android MediaPlayer bug, for more
+     * information, see the target in beginStreaming().
+     */
+    private Handler delayedPlayHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            mediaPlayer.prepareAsync();
+        }
+    };
+
+    /**
      * Field containing the ID used to stopSelfResult() which will stop the
      * streaming service.
      */
@@ -204,7 +215,23 @@ public class StreamingService extends Service implements
             isPlaying = false;
         }
 
-        mediaPlayer.prepareAsync();
+        /**
+         * With MediaPlayer, there is a racy bug which affects, minimally, Android KitKat and lower.
+         * If mediaPlayer.prepareAsync() is called too soon after mediaPlayer.setDataSource(), and
+         * after the initial mediaPlayer.play(), general and non-specific errors are usually emitted
+         * for the first few 100 milliseconds.
+         *
+         * Sometimes, these errors result in nagging Log errors, sometimes these errors result in
+         * unrecoverable errors. This handler sets up a 1.5 second delay between
+         * mediaPlayer.setDataSource() and mediaPlayer.AsyncPrepare() whether first play after
+         * service start or not.
+         *
+         * The magic number here can be adjusted if there are any more problems. I have witnessed
+         * these errors occur at 750ms, but never higher. It's worth doubling, even in optimal
+         * conditions, stream buffering is pretty slow anyhow. Adjust if necessary.
+         */
+        Message msg = delayedPlayHandler.obtainMessage();
+        delayedPlayHandler.sendMessageDelayed(msg, 1500);
     }
 
     @Override
@@ -292,35 +319,10 @@ public class StreamingService extends Service implements
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onCompletion()");
         Message msg = delayedStopHandler.obtainMessage();
-        delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY); // Don't suck
-        // the battery
-        // too much
+        delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
 
-        MPDStatus statusMpd = null;
-        try {
-            statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
-        } catch (MPDServerException e) {
-            // TODO: Properly handle exception for getStatus() failure.
-        }
-
-        if (statusMpd == null) {
-            return;
-        }
-
-        String state = statusMpd.getState();
-        if (state == null) {
-            return;
-        }
-
-        if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
-            // TODO Stop resuming if no 3G. There's no point. Add something that
-            // says "ok we're waiting for 3G/wifi !"
-            beginStreaming();
-        } else {
-            // Somethings happening, like crappy network or MPD just stopped..
-            prevMpdState = state;
-            die();
-        }
+        // Somethings happening, like crappy network or MPD just stopped..
+        die();
     }
 
     public void onCreate() {
