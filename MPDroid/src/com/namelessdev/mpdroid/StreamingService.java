@@ -113,7 +113,7 @@ public class StreamingService extends Service implements
 
     /** Keep track when mediaPlayer is preparing a stream */
     private boolean preparingStreaming = false;
-    
+
     /**
      * isPaused is required (along with isPlaying) so the service doesn't start
      * when it's not wanted.
@@ -419,8 +419,9 @@ public class StreamingService extends Service implements
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "StreamingService.onError()");
-        pauseStreaming();
-        return false;
+        stopStreaming();
+        beginStreaming();
+        return true;
     }
 
     /**
