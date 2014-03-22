@@ -111,6 +111,9 @@ public class StreamingService extends Service implements
     /** Is MPD playing? */
     private boolean isPlaying;
 
+    /** Keep track when mediaPlayer is preparing a stream */
+    private boolean preparingStreaming = false;
+    
     /**
      * isPaused is required (along with isPlaying) so the service doesn't start
      * when it's not wanted.
@@ -191,11 +194,13 @@ public class StreamingService extends Service implements
     public void beginStreaming() {
         Log.d(TAG, "StreamingService.beginStreaming()");
         // just to be sure, we do not want to start when we're not supposed to
-        if (mediaPlayer == null ||
+        if (mediaPlayer == null || preparingStreaming || mediaPlayer.isPlaying() ||
                 !app.getApplicationState().streamingMode) {
+            Log.d(TAG, "beginStreaming() called while preparation already in progress.");
             return;
         }
 
+        preparingStreaming = true;
         isPlaying = true;
         isPaused = false;
 
@@ -213,6 +218,7 @@ public class StreamingService extends Service implements
         } catch (IllegalStateException e) {
             // wtf what state ?
             isPlaying = false;
+            preparingStreaming = false;
         }
 
         /**
@@ -428,6 +434,7 @@ public class StreamingService extends Service implements
         isPlaying = true;
         prevMpdState = "";
         mediaPlayer.start();
+        preparingStreaming = false;
     }
 
     /**
