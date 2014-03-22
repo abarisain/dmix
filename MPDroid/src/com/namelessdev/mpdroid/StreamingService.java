@@ -393,7 +393,9 @@ public class StreamingService extends Service implements
         }
 
         if (mediaPlayer != null) {
-            mediaPlayer.stop();
+            if(mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
             mediaPlayer.reset();
             mediaPlayer.release();
             mediaPlayer = null;
