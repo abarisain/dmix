@@ -669,18 +669,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         i.setAction(StreamingService.ACTION_START);
                         this.startService(i);
 
-                        /**
-                         * Send a message to NotificationService to let it know
-                         * to update the notification with the "Buffering" banner.
-                         */
-                        i = new Intent(this, NotificationService.class);
-                        i.setAction(StreamingService.ACTION_START);
-                        this.startService(i);
-
                         ((MPDApplication) this.getApplication()).getApplicationState().streamingMode
                                 = true;
-                        // Toast.makeText(this, "MPD Streaming Started",
-                        // Toast.LENGTH_SHORT).show();
                     }
                 }
                 return true;

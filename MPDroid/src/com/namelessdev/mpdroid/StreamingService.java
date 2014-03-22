@@ -200,6 +200,8 @@ public class StreamingService extends Service implements
             return;
         }
 
+        sendIntent(NotificationService.STREAM_BUFFERING_BEGIN, NotificationService.class);
+
         preparingStreaming = true;
         isPlaying = true;
         isPaused = false;
@@ -262,13 +264,20 @@ public class StreamingService extends Service implements
         stopSelfResult(lastStartID);
     }
 
+    /** A method to send a quick message to another class. */
+    private void sendIntent(String msg, Class dest) {
+        Log.d(TAG, "Sending intent " + msg + " to " + dest + ".");
+        Intent i = new Intent(this, dest);
+        i.setAction(msg);
+        this.startService(i);
+    }
+
     /**
      * Send a message to the NotificationService to let it know to end the buffering banner.
      */
     private void endBuffering() {
-        Intent i = new Intent(this, NotificationService.class);
-        i.setAction(NotificationService.STREAM_BUFFERING_END);
-        this.startService(i);
+        Log.d(TAG, "StreamingService.endBuffering()");
+        sendIntent(NotificationService.STREAM_BUFFERING_END, NotificationService.class);
     }
 
     /**
@@ -379,11 +388,6 @@ public class StreamingService extends Service implements
 
         delayedStopHandler.removeCallbacksAndMessages(null);
 
-        /** Send a message to the NotificationService that streaming is ending */
-        Intent i = new Intent(this, NotificationService.class);
-        i.setAction(NotificationService.ACTION_STREAMING_END);
-        this.startService(i);
-
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         app.oMPDAsyncHelper.removeConnectionListener(this);
@@ -393,8 +397,8 @@ public class StreamingService extends Service implements
         }
 
         if (mediaPlayer != null) {
-            if(mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
+            if (mediaPlayer.isPlaying()) {
+                stopStreaming();
             }
             mediaPlayer.reset();
             mediaPlayer.release();
@@ -430,9 +434,7 @@ public class StreamingService extends Service implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onPrepared()");
-        // Buffering done
-        endBuffering();
-        isPlaying = true;
+        sendIntent(NotificationService.STREAM_BUFFERING_END, NotificationService.class);
         prevMpdState = "";
         mediaPlayer.start();
         preparingStreaming = false;
@@ -487,10 +489,10 @@ public class StreamingService extends Service implements
                         prev();
                         break;
                     case CMD_PLAYPAUSE:
-                        if (!isPaused) {
-                            stopStreaming();
-                        } else {
+                        if (isPaused) {
                             beginStreaming();
+                        } else {
+                            stopStreaming();
                         }
                         break;
                     case CMD_PAUSE:
@@ -583,6 +585,9 @@ public class StreamingService extends Service implements
             return;
         }
         mediaPlayer.stop();
+
+        /** Send a message to the NotificationService that streaming is ending */
+        sendIntent(NotificationService.ACTION_STREAMING_END, NotificationService.class);
     }
 
     @Override

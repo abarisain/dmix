@@ -96,6 +96,8 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     public static final String ACTION_SET_VOLUME = "SET_VOLUME";
 
+    public static final String STREAM_BUFFERING_BEGIN = "BUFFERING_BEGIN";
+
     public static final String STREAM_BUFFERING_END = "BUFFERING_END";
 
     public static final String ACTION_STREAMING_END = "STREAMING_END";
@@ -136,14 +138,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     MPDApplication app;
 
     private Music mCurrentMusic = null;
-
-    private Music mPreviousMusic = null;
-
-    /**
-     * A temporary hack to work around the fact that beginStreaming is called over
-     * and over.
-     */
-    private boolean beginStreamingHack = false;
 
     private boolean mediaPlayerServiceIsBuffering = false;
 
@@ -197,21 +191,13 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             return START_NOT_STICKY;
         }
 
-        /** START_STREAMING == begin buffering. */
-        if (action.equals(StreamingService.ACTION_START)) {
+        if (action.equals(STREAM_BUFFERING_BEGIN)) {
 
-            /**
-             * TODO: Remove this awful if() hack. Make beginStreaming
-             * stop being called over and over.
-             * */
-            if (!beginStreamingHack) {
-                /** Does the notification currently exist? */
-                if (mRemoteControlClient == null) {
-                    notificationAutomaticallyGenerated = true;
-                } else {
-                    notificationAutomaticallyGenerated = false;
-                }
-                beginStreamingHack = true;
+            /** Does the notification currently exist? */
+            if (mRemoteControlClient == null) {
+                notificationAutomaticallyGenerated = true;
+            } else if (!notificationAutomaticallyGenerated) {
+                notificationAutomaticallyGenerated = false;
             }
 
             mediaPlayerServiceIsBuffering = true;
@@ -229,7 +215,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         /** If we opened the notification, close it up. */
         if (action.equals(ACTION_STREAMING_END) && notificationAutomaticallyGenerated) {
             action = ACTION_CLOSE_NOTIFICATION;
-            beginStreamingHack = false;
             notificationAutomaticallyGenerated = false;
         }
 
