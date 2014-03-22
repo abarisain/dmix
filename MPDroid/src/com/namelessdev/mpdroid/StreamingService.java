@@ -291,8 +291,6 @@ public class StreamingService extends Service implements
         } catch (MPDServerException e) {
             /** Do nothing. */
         }
-        stopStreaming();
-        beginStreaming();
     }
 
     /**
@@ -524,8 +522,6 @@ public class StreamingService extends Service implements
         } catch (MPDServerException e) {
 
         }
-        stopStreaming();
-        beginStreaming();
     }
 
     @Override
