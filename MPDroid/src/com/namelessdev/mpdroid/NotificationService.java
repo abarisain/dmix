@@ -101,7 +101,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     public static final String ACTION_STREAMING_END = "STREAMING_END";
 
     // The tag we put on debug messages
-    final static String TAG = "NotificationService";
+    private final static String TAG = "NotificationService";
 
     /**
      * How many milliseconds in the future we need to trigger an update when we just skipped
@@ -112,9 +112,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     // The ID we use for the notification (the onscreen alert that appears at the notification
     // area at the top of the screen as an icon -- and as text as well if the user expands the
     // notification area).
-    final int NOTIFICATION_ID = 1;
-
-    Music mCurrentMusic = null, mPreviousMusic = null;
+    private final int NOTIFICATION_ID = 1;
 
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
@@ -136,6 +134,10 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     Notification mNotification = null;
 
     MPDApplication app;
+
+    private Music mCurrentMusic = null;
+
+    private Music mPreviousMusic = null;
 
     /**
      * A temporary hack to work around the fact that beginStreaming is called over
@@ -563,7 +565,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             updateRemoteControlClient(state);
         }
 
-        mPreviousMusic = mCurrentMusic;
         mPreviousState = state;
     }
 

@@ -97,7 +97,7 @@ public class StreamingService extends Service implements
      */
     private static final int IDLE_DELAY = 60000;
 
-    MPDApplication app;
+    private MPDApplication app;
 
     private MediaPlayer mediaPlayer;
 
@@ -191,7 +191,7 @@ public class StreamingService extends Service implements
      * framework, register the media button events, register the remote control
      * client then setup and the framework streaming.
      */
-    public void beginStreaming() {
+    private void beginStreaming() {
         Log.d(TAG, "StreamingService.beginStreaming()");
         // just to be sure, we do not want to start when we're not supposed to
         if (mediaPlayer == null || preparingStreaming || mediaPlayer.isPlaying() ||
@@ -255,7 +255,7 @@ public class StreamingService extends Service implements
     /**
      * This turns streaming mode off and stops the StreamingService.
      */
-    public void die() {
+    private void die() {
         Log.d(TAG, "StreamingService.die()");
         onDestroy();
 
@@ -283,7 +283,7 @@ public class StreamingService extends Service implements
     /**
      * This sends the next command to MPD, stops and resumes streaming.
      */
-    public void next() {
+    private void next() {
         Log.d(TAG, "StreamingService.next()");
         MPD mpd = app.oMPDAsyncHelper.oMPD;
         try {
@@ -514,7 +514,7 @@ public class StreamingService extends Service implements
      * interrupting event this will stop the Android mediaPlayer framework while
      * keeping the notification showing.
      */
-    public void pauseStreaming() {
+    private void pauseStreaming() {
         Log.d(TAG, "StreamingService.pauseStreaming()");
         if (!isPlaying) {
             return;
@@ -532,7 +532,7 @@ public class StreamingService extends Service implements
     /**
      * This sends the previous command to MPD, stops and resumes streaming.
      */
-    public void prev() {
+    private void prev() {
         Log.d(TAG, "StreamingService.prev()");
         MPD mpd = app.oMPDAsyncHelper.oMPD;
         try {
@@ -588,13 +588,13 @@ public class StreamingService extends Service implements
      * This stops the streaming, turns streaming mode off and stops the
      * StreamingService.
      */
-    public void stop() {
+    private void stop() {
         Log.d(TAG, "StreamingService.stop()");
         stopStreaming();
         die();
     }
 
-    public void stopStreaming() {
+    private void stopStreaming() {
         Log.d(TAG, "StreamingService.stopStreaming()");
         prevMpdState = "";
         if (mediaPlayer == null) {
