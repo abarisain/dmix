@@ -33,12 +33,12 @@ public class RemoteControlReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action.equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
+        if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
             Intent i = new Intent(context, StreamingService.class);
             i.setAction(StreamingService.CMD_REMOTE);
             i.putExtra(StreamingService.CMD_COMMAND, StreamingService.CMD_STOP);
             context.startService(i);
-        } else if (action.equals(Intent.ACTION_MEDIA_BUTTON)) {
+        } else if (Intent.ACTION_MEDIA_BUTTON.equals(action)) {
             KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             if (event == null) {
                 return;
