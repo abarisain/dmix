@@ -148,7 +148,7 @@ public class StreamingService extends Service implements
                 int ringvolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
                 if (ringvolume > 0 && isPlaying) {
                     isPaused = true;
-                    pauseStreaming();
+                    stopStreaming();
                 }
             } else if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
                 // pause the music while a conversation is in progress
@@ -156,7 +156,7 @@ public class StreamingService extends Service implements
                     return;
                 }
                 isPaused = (isPaused || isPlaying) && (app.getApplicationState().streamingMode);
-                pauseStreaming();
+                stopStreaming();
             } else if (state == TelephonyManager.CALL_STATE_IDLE) {
                 // Resume playback only if music was playing when the call was
                 // answered
@@ -488,13 +488,13 @@ public class StreamingService extends Service implements
                         break;
                     case CMD_PLAYPAUSE:
                         if (!isPaused) {
-                            pauseStreaming();
+                            stopStreaming();
                         } else {
                             beginStreaming();
                         }
                         break;
                     case CMD_PAUSE:
-                        pauseStreaming();
+                        stopStreaming();
                         break;
                     case CMD_STOP:
                         stop();
@@ -507,22 +507,6 @@ public class StreamingService extends Service implements
          * stopped, so return sticky.
          */
         return START_STICKY;
-    }
-
-    /**
-     * If streaming is playing, then streaming is paused, due to user command or
-     * interrupting event this will stop the Android mediaPlayer framework while
-     * keeping the notification showing.
-     */
-    private void pauseStreaming() {
-        Log.d(TAG, "StreamingService.pauseStreaming()");
-        if (!isPlaying) {
-            return;
-        }
-
-        isPlaying = false;
-        isPaused = true;
-        endBuffering();
     }
 
     @Override
