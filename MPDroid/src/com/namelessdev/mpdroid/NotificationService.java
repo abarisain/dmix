@@ -135,6 +135,12 @@ public class NotificationService extends Service implements StatusChangeListener
      */
     private boolean notificationAutomaticallyGenerated = false;
 
+    /**
+     * This tracks notificationAutomaticallyGenerated and doesn't allow
+     * it to be reset until after the stream ends.
+     */
+    private boolean isNotificationAutomaticallyGeneratedSet = false;
+
     private Bitmap mAlbumCover = null;
 
     private String mAlbumCoverPath;
@@ -179,10 +185,13 @@ public class NotificationService extends Service implements StatusChangeListener
         if (action.equals(StreamingService.ACTION_BUFFERING_BEGIN)) {
 
             /** Does the notification currently exist? */
-            if (mRemoteControlClient == null) {
-                notificationAutomaticallyGenerated = true;
-            } else if (!notificationAutomaticallyGenerated) {
-                notificationAutomaticallyGenerated = false;
+            if (!isNotificationAutomaticallyGeneratedSet) {
+                if (mNotification == null) {
+                    notificationAutomaticallyGenerated = true;
+                } else if (!notificationAutomaticallyGenerated) {
+                    notificationAutomaticallyGenerated = false;
+                }
+                isNotificationAutomaticallyGeneratedSet = true;
             }
 
             mediaPlayerServiceIsBuffering = true;
@@ -201,6 +210,7 @@ public class NotificationService extends Service implements StatusChangeListener
         if (action.equals(StreamingService.ACTION_STOP) && notificationAutomaticallyGenerated) {
             action = ACTION_CLOSE_NOTIFICATION;
             notificationAutomaticallyGenerated = false;
+            isNotificationAutomaticallyGeneratedSet = false;
         }
 
         switch (action) {
