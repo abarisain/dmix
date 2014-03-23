@@ -81,7 +81,7 @@ public class StreamingService extends Service implements
      */
     private static final int IDLE_DELAY = 60000;
 
-    TelephonyManager mTelephonyManager = null;
+    private TelephonyManager mTelephonyManager = null;
 
     private MPDApplication app;
 
@@ -105,7 +105,7 @@ public class StreamingService extends Service implements
      * Setup for the method which allows MPDroid to override behavior during
      * phone events.
      */
-    private PhoneStateListener phoneStateListener = new PhoneStateListener() {
+    final private PhoneStateListener phoneStateListener = new PhoneStateListener() {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             if (!app.getApplicationState().streamingMode) {
@@ -137,7 +137,7 @@ public class StreamingService extends Service implements
     };
 
     /** Set up the message handler. */
-    private Handler delayedStopHandler = new Handler() {
+    final private Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (isPlaying) {
@@ -153,6 +153,9 @@ public class StreamingService extends Service implements
             sendIntent(ACTION_STOP, NotificationService.class);
         }
     };
+
+    /** Keep track of the number of errors encountered. */
+    private int errorIterator = 0;
 
     /** Keep track when mediaPlayer is preparing a stream */
     private boolean preparingStreaming = false;
@@ -440,6 +443,20 @@ public class StreamingService extends Service implements
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "StreamingService.onError()");
+        final int MAX_ERROR = 4;
+
+        if (errorIterator > 0) {
+            Log.d(TAG, "Error occurred while streaming, this is try #" + errorIterator
+                    + ", will attempt up to " + MAX_ERROR + " times.");
+        }
+
+        /** This keeps from continuous errors and battery draining. */
+        if (errorIterator > MAX_ERROR) {
+            die();
+        }
+
+        /** beginStreaming() will never start otherwise. */
+        preparingStreaming = false;
 
         /** Either way we need to stop streaming. */
         stopStreaming();
@@ -448,6 +465,7 @@ public class StreamingService extends Service implements
         if (isPlaying) {
             beginStreaming();
         }
+        errorIterator += 1;
         return true;
     }
 
@@ -461,6 +479,7 @@ public class StreamingService extends Service implements
         prevMpdState = "";
         mediaPlayer.start();
         preparingStreaming = false;
+        errorIterator = 0; /** Reset the error iterator */
     }
 
     /**
