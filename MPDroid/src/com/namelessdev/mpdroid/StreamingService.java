@@ -527,11 +527,10 @@ public class StreamingService extends Service implements
 
     private void stopStreaming() {
         Log.d(TAG, "StreamingService.stopStreaming()");
-        prevMpdState = "";
-        if (mediaPlayer == null) {
-            return;
+
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
         }
-        mediaPlayer.stop();
 
         /** Send a message to the NotificationService that streaming is ending */
         sendIntent(NotificationService.ACTION_STREAMING_END, NotificationService.class);
