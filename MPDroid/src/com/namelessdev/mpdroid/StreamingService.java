@@ -308,6 +308,14 @@ public class StreamingService extends Service implements
          * but there might be some things to clean up.
          */
         stopStreaming();
+
+        /**
+         * If MPD is restarted during streaming, onCompletion() will be called.
+         * onStateChange() won't be called. If we still detect playing, restart the stream.
+         */
+        if (isPlaying) {
+            beginStreaming();
+        }
     }
 
     public void onCreate() {
