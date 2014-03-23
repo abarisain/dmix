@@ -57,7 +57,7 @@ import android.widget.RemoteViews;
  * {@link MainMenuActivity}, which signal the service to perform specific operations: Play, Pause,
  * Rewind, Skip, etc.
  */
-public class NotificationService extends Service implements MusicFocusable, StatusChangeListener {
+public class NotificationService extends Service implements StatusChangeListener {
 
     // These are the Intent actions that we are prepared to handle.
     // Notice: they currently are a shortcut to the ones in StreamingService so that the code changes to NowPlayingFragment would be minimal.
@@ -116,12 +116,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     // notification area).
     private final int NOTIFICATION_ID = 1;
 
-    // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
-    // If not available, this will be null. Always check for null before using!
-    AudioFocusHelper mAudioFocusHelper = null;
-
-    AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
-
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
     RemoteControlClient mRemoteControlClient;
@@ -167,9 +161,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-
-        // Create the Audio Focus Helper
-        mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
 
         // Use the media button APIs (if available) to register ourselves for media button events
         mMediaButtonReceiverComponent = new ComponentName(this, RemoteControlReceiver.class);
@@ -322,7 +313,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     void processPlayRequest() {
-        tryToGetAudioFocus();
         sendSimpleMpdCommand(ACTION_PLAY);
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
     }
@@ -353,7 +343,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     void processSkipRequest() {
-        tryToGetAudioFocus();
         sendSimpleMpdCommand(ACTION_SKIP);
         triggerFutureUpdate();
     }
@@ -363,7 +352,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
         // let go of all resources...
         relaxResources();
-        giveUpAudioFocus();
 
         // Tell any remote controls that our playback state is 'paused'.
         if (mRemoteControlClient != null) {
@@ -375,14 +363,12 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     }
 
     void processShowNotificationRequest() {
-        tryToGetAudioFocus();
         processUpdateInfo(null);
     }
 
     void processCloseNotificationRequest() {
         // let go of all resources...
         relaxResources();
-        giveUpAudioFocus();
 
         // Tell any remote controls that our playback state is 'paused'.
         if (mRemoteControlClient != null) {
@@ -453,20 +439,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         }
     }
 
-    void giveUpAudioFocus() {
-        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper
-                .abandonFocus()) {
-            mAudioFocus = AudioFocus.NoFocusNoDuck;
-        }
-    }
-
-    void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null && mAudioFocusHelper
-                .requestFocus()) {
-            mAudioFocus = AudioFocus.Focused;
-        }
-    }
-
     void updatePlayingInfo(int state) {
         Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState
                 + "), music=" + mCurrentMusic + ")");
@@ -507,7 +479,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
                 mNotificationManager.cancel(NOTIFICATION_ID);
             }
             relaxResources();
-            giveUpAudioFocus();
             stopSelf();
         }
         // Otherwise, update notification & lockscreen widget
@@ -711,21 +682,10 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         Log.d(TAG, "Updated remote client with state " + state + " for music " + mCurrentMusic);
     }
 
-    public void onGainedAudioFocus() {
-        //Toast.makeText(this, "gained audio focus.", Toast.LENGTH_SHORT).show();
-        mAudioFocus = AudioFocus.Focused;
-    }
-
-    public void onLostAudioFocus(boolean canDuck) {
-        //Toast.makeText(this, "lost audio focus." + (canDuck ? "can duck" : "no duck"), Toast.LENGTH_SHORT).show();
-        mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck : AudioFocus.NoFocusNoDuck;
-    }
-
     @Override
     public void onDestroy() {
         // Service is being killed, so make sure we release our resources
         relaxResources();
-        giveUpAudioFocus();
     }
 
     @Override
@@ -783,12 +743,5 @@ public class NotificationService extends Service implements MusicFocusable, Stat
     @Override
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
         // We do not care about that event
-    }
-
-    // do we have audio focus?
-    enum AudioFocus {
-        NoFocusNoDuck,    // we don't have audio focus, and can't duck
-        NoFocusCanDuck,   // we don't have focus, but can play at a low volume ("ducking")
-        Focused           // we have full audio focus
     }
 }
