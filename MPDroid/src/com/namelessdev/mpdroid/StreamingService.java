@@ -186,6 +186,19 @@ public class StreamingService extends Service implements
      */
     private Integer lastStartID;
 
+    private String getState() {
+        Log.d(TAG, "getState()");
+        String state = null;
+
+        try {
+            state = app.oMPDAsyncHelper.oMPD.getStatus().getState();
+        } catch (MPDServerException e) {
+            Log.w(TAG, "Failed to get the current MPD state.", e);
+        }
+
+        return state;
+    }
+
     /**
      * If streaming mode is activated this will setup the Android mediaPlayer
      * framework, register the media button events, register the remote control
@@ -203,8 +216,6 @@ public class StreamingService extends Service implements
         sendIntent(NotificationService.STREAM_BUFFERING_BEGIN, NotificationService.class);
 
         preparingStreaming = true;
-        isPlaying = true;
-        isPaused = false;
 
         mediaPlayer.reset();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -356,8 +367,6 @@ public class StreamingService extends Service implements
         mediaPlayer = new MediaPlayer();
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         prevMpdState = "";
-        isPlaying = true;
-        isPaused = false;
         lastStartID = 0;
 
         mediaPlayer.setOnCompletionListener(this);
@@ -380,6 +389,10 @@ public class StreamingService extends Service implements
                 + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":"
                 + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/"
                 + app.oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming;
+
+        /** Seed the prevMpdState, onStatusUpdate() will keep it up-to-date afterwards. */
+        prevMpdState = getState();
+        isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(prevMpdState);
     }
 
     @Override
@@ -538,29 +551,18 @@ public class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.stateChanged()");
         Message msg = delayedStopHandler.obtainMessage();
         delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
-        MPDStatus statusMpd = null;
-        try {
-            statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
-        } catch (MPDServerException e) {
-            // TODO: Properly handle exception for getStatus() failure.
-        }
 
-        if (statusMpd == null) {
-            return;
-        }
-
-        String state = statusMpd.getState();
+        final String state = mpdStatus.getState();
         if (state == null || state.equals(prevMpdState)) {
             return;
         }
 
-        if (state.equals(MPDStatus.MPD_STATE_PLAYING)) {
-            isPaused = false;
+        isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(state);
+        prevMpdState = state;
+
+        if (isPlaying) {
             beginStreaming();
-            isPlaying = true;
         } else {
-            prevMpdState = state;
-            isPlaying = false;
             stopStreaming();
         }
     }
