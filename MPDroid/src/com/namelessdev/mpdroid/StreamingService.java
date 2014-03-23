@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
@@ -301,19 +300,6 @@ public class StreamingService extends Service implements
     }
 
     /**
-     * This sends the next command to MPD, stops and resumes streaming.
-     */
-    private void next() {
-        Log.d(TAG, "StreamingService.next()");
-        MPD mpd = app.oMPDAsyncHelper.oMPD;
-        try {
-            mpd.next();
-        } catch (MPDServerException e) {
-            /** Do nothing. */
-        }
-    }
-
-    /**
      * Handle the change of volume if a notification, or any other kind of
      * interrupting audio event.
      */
@@ -491,27 +477,6 @@ public class StreamingService extends Service implements
             case ACTION_STOP:
                 stopStreaming();
                 break;
-            case CMD_REMOTE:
-                String cmd = intent.getStringExtra(CMD_COMMAND);
-
-                switch (cmd) {
-                    case CMD_NEXT:
-                        next();
-                        break;
-                    case CMD_PREV:
-                        prev();
-                        break;
-                    case CMD_PLAYPAUSE:
-                        if (isPaused) {
-                            beginStreaming();
-                        } else {
-                            stopStreaming();
-                        }
-                        break;
-                    case CMD_PAUSE:
-                        stopStreaming();
-                        break;
-                }
         }
 
         /**
@@ -523,19 +488,6 @@ public class StreamingService extends Service implements
 
     @Override
     public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
-    }
-
-    /**
-     * This sends the previous command to MPD, stops and resumes streaming.
-     */
-    private void prev() {
-        Log.d(TAG, "StreamingService.prev()");
-        MPD mpd = app.oMPDAsyncHelper.oMPD;
-        try {
-            mpd.previous();
-        } catch (MPDServerException e) {
-
-        }
     }
 
     @Override
