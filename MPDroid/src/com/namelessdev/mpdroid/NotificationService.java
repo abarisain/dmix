@@ -62,48 +62,42 @@ public class NotificationService extends Service implements StatusChangeListener
     // These are the Intent actions that we are prepared to handle.
     // Notice: they currently are a shortcut to the ones in StreamingService so that the code changes to NowPlayingFragment would be minimal.
     // TODO: change this?
-    public static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.NotificationService";
 
-    public static final String ACTION_UPDATE_INFO = FULLY_QUALIFIED_NAME + ".UPDATE_INFO";
+    private final static String TAG = "NotificationService";
+
+    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
+
+    public static final String ACTION_UPDATE_INFO = FULLY_QUALIFIED_NAME + "UPDATE_INFO";
 
     public static final String ACTION_SHOW_NOTIFICATION = FULLY_QUALIFIED_NAME
-            + ".SHOW_NOTIFICATION";
+            + "SHOW_NOTIFICATION";
 
     public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME
-            + ".CLOSE_NOTIFICATION";
+            + "CLOSE_NOTIFICATION";
 
     /**
      * Extra information passed to the intent bundle: the currently playing {@link
      * org.a0z.mpd.Music}
      */
-    public static final String EXTRA_CURRENT_MUSIC = FULLY_QUALIFIED_NAME + ".CurrentMusic";
+    public static final String EXTRA_CURRENT_MUSIC = FULLY_QUALIFIED_NAME + "CurrentMusic";
 
-    public static final String ACTION_TOGGLE_PLAYBACK = StreamingService.CMD_PLAYPAUSE;
+    public static final String ACTION_TOGGLE_PLAYBACK = FULLY_QUALIFIED_NAME + "PLAY_PAUSE";
 
-    public static final String ACTION_PLAY = StreamingService.CMD_PLAY;
+    public static final String ACTION_PLAY = FULLY_QUALIFIED_NAME + "PLAY";
 
-    public static final String ACTION_PAUSE = StreamingService.CMD_PAUSE;
+    public static final String ACTION_PAUSE = FULLY_QUALIFIED_NAME + "PAUSE";
 
-    public static final String ACTION_STOP = StreamingService.CMD_STOP;
+    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + "STOP";
 
-    public static final String ACTION_SKIP = StreamingService.CMD_NEXT;
+    public static final String ACTION_NEXT = FULLY_QUALIFIED_NAME + "NEXT";
 
-    public static final String ACTION_REWIND = "REWIND";
+    public static final String ACTION_REWIND = FULLY_QUALIFIED_NAME + "REWIND";
 
-    public static final String ACTION_PREVIOUS = StreamingService.CMD_PREV;
+    public static final String ACTION_PREVIOUS = FULLY_QUALIFIED_NAME + "PREVIOUS";
 
-    public static final String ACTION_MUTE = "MUTE";
+    public static final String ACTION_MUTE = FULLY_QUALIFIED_NAME + "MUTE";
 
-    public static final String ACTION_SET_VOLUME = "SET_VOLUME";
-
-    public static final String STREAM_BUFFERING_BEGIN = "BUFFERING_BEGIN";
-
-    public static final String STREAM_BUFFERING_END = "BUFFERING_END";
-
-    public static final String ACTION_STREAMING_END = "STREAMING_END";
-
-    // The tag we put on debug messages
-    private final static String TAG = "NotificationService";
+    public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
     /**
      * How many milliseconds in the future we need to trigger an update when we just skipped
@@ -182,7 +176,7 @@ public class NotificationService extends Service implements StatusChangeListener
             return START_NOT_STICKY;
         }
 
-        if (action.equals(STREAM_BUFFERING_BEGIN)) {
+        if (action.equals(StreamingService.ACTION_BUFFERING_BEGIN)) {
 
             /** Does the notification currently exist? */
             if (mRemoteControlClient == null) {
@@ -196,7 +190,7 @@ public class NotificationService extends Service implements StatusChangeListener
             /** Conveniently enough, this will start the notification */
             action = ACTION_UPDATE_INFO;
 
-        } else if (action.equals(STREAM_BUFFERING_END)) {
+        } else if (action.equals(StreamingService.ACTION_BUFFERING_END)) {
 
             mediaPlayerServiceIsBuffering = false;
             action = ACTION_UPDATE_INFO;
@@ -204,7 +198,7 @@ public class NotificationService extends Service implements StatusChangeListener
         }
 
         /** If we opened the notification, close it up. */
-        if (action.equals(ACTION_STREAMING_END) && notificationAutomaticallyGenerated) {
+        if (action.equals(StreamingService.ACTION_STOP) && notificationAutomaticallyGenerated) {
             action = ACTION_CLOSE_NOTIFICATION;
             notificationAutomaticallyGenerated = false;
         }
@@ -228,7 +222,7 @@ public class NotificationService extends Service implements StatusChangeListener
             case ACTION_SHOW_NOTIFICATION:
                 processShowNotificationRequest();
                 break;
-            case ACTION_SKIP:
+            case ACTION_NEXT:
                 processSkipRequest();
                 break;
             case ACTION_STOP:
@@ -269,7 +263,7 @@ public class NotificationService extends Service implements StatusChangeListener
                                 case ACTION_STOP:
                                     mpd.stop();
                                     break;
-                                case ACTION_SKIP:
+                                case ACTION_NEXT:
                                     mpd.next();
                                     break;
                                 case ACTION_PREVIOUS:
@@ -343,7 +337,7 @@ public class NotificationService extends Service implements StatusChangeListener
     }
 
     void processSkipRequest() {
-        sendSimpleMpdCommand(ACTION_SKIP);
+        sendSimpleMpdCommand(ACTION_NEXT);
         triggerFutureUpdate();
     }
 
@@ -604,7 +598,7 @@ public class NotificationService extends Service implements StatusChangeListener
         prev.setAction(ACTION_PREVIOUS);
         final PendingIntent piPrev = PendingIntent.getService(this, 0, prev, 0);
         final Intent next = new Intent(this, NotificationService.class);
-        next.setAction(NotificationService.ACTION_SKIP);
+        next.setAction(NotificationService.ACTION_NEXT);
         final PendingIntent piNext = PendingIntent.getService(this, 0, next, 0);
         final Intent closeNotification = new Intent(this, NotificationService.class);
         closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);

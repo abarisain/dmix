@@ -34,9 +34,8 @@ public class RemoteControlReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
-            Intent i = new Intent(context, StreamingService.class);
-            i.setAction(StreamingService.CMD_REMOTE);
-            i.putExtra(StreamingService.CMD_COMMAND, StreamingService.CMD_STOP);
+            Intent i = new Intent(context, NotificationService.class);
+            i.setAction(NotificationService.ACTION_STOP);
             context.startService(i);
         } else if (Intent.ACTION_MEDIA_BUTTON.equals(action)) {
             KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
@@ -48,29 +47,22 @@ public class RemoteControlReceiver extends BroadcastReceiver {
             String command = null;
             switch (keycode) {
                 case KeyEvent.KEYCODE_MEDIA_STOP:
-                    command = StreamingService.CMD_STOP;
+                    command = NotificationService.ACTION_STOP;
                     break;
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    command = StreamingService.CMD_PLAYPAUSE;
+                    command = NotificationService.ACTION_TOGGLE_PLAYBACK;
                     break;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    command = StreamingService.CMD_NEXT;
+                    command = NotificationService.ACTION_NEXT;
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    command = StreamingService.CMD_PREV;
+                    command = NotificationService.ACTION_PREVIOUS;
                     break;
             }
             if (command != null) {
                 if (eventAction == KeyEvent.ACTION_DOWN) {
-                    Intent i = new Intent(context, StreamingService.class);
-                    i.setAction(StreamingService.CMD_REMOTE);
-                    i.putExtra(StreamingService.CMD_COMMAND, command);
-                    context.startService(i);
-
-                    // Start the remote control service too (TODO: shouldn't
-                    // start if currently streaming)
-                    i = new Intent(context, NotificationService.class);
+                    Intent i = new Intent(context, NotificationService.class);
                     i.setAction(command);
                     context.startService(i);
                 }

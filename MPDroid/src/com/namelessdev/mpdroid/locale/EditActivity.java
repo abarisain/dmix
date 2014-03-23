@@ -82,7 +82,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
         items.add(new ActionItem(NotificationService.ACTION_REWIND, getString(R.string.rewind)));
         items.add(
                 new ActionItem(NotificationService.ACTION_PREVIOUS, getString(R.string.previous)));
-        items.add(new ActionItem(NotificationService.ACTION_SKIP, getString(R.string.next)));
+        items.add(new ActionItem(NotificationService.ACTION_NEXT, getString(R.string.next)));
         items.add(new ActionItem(NotificationService.ACTION_MUTE,
                 getString(R.string.mute)));
         items.add(new ActionItem(NotificationService.ACTION_SET_VOLUME,

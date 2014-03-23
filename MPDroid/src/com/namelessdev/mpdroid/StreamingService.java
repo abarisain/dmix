@@ -61,34 +61,19 @@ public class StreamingService extends Service implements
         OnPreparedListener,
         StatusChangeListener {
 
+    private static final String TAG = "StreamingService";
 
-    public static final String ACTION_DIE = "com.namelessdev.mpdroid.DIE";
+    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
 
-    public static final String ACTION_START = "com.namelessdev.mpdroid.START_STREAMING";
+    public static final String ACTION_DIE = FULLY_QUALIFIED_NAME + "DIE";
 
-    public static final String ACTION_STOP = "com.namelessdev.mpdroid.STOP_STREAMING";
+    public static final String ACTION_START = FULLY_QUALIFIED_NAME + "START_STREAMING";
 
-    public static final String ACTION_RESET = "com.namelessdev.mpdroid.RESET_STREAMING";
+    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + "STOP_STREAMING";
 
-    public static final String CMD_REMOTE = "com.namelessdev.mpdroid.REMOTE_COMMAND";
+    public static final String ACTION_BUFFERING_BEGIN = FULLY_QUALIFIED_NAME + "BUFFERING_BEGIN";
 
-    public static final String CMD_COMMAND = "COMMAND";
-
-    public static final String CMD_PAUSE = "PAUSE";
-
-    public static final String CMD_STOP = "STOP";
-
-    public static final String CMD_PLAY = "PLAY";
-
-    public static final String CMD_PLAYPAUSE = "PLAYPAUSE";
-
-    public static final String CMD_PREV = "PREV";
-
-    public static final String CMD_NEXT = "NEXT";
-
-    public static final String CMD_DIE = "DIE"; // Just in case
-
-    static final String TAG = "MPDroidStreamingService";
+    public static final String ACTION_BUFFERING_END = FULLY_QUALIFIED_NAME + "BUFFERING_END";
 
     /**
      * How long to wait before queuing the message into the current handler
@@ -111,26 +96,6 @@ public class StreamingService extends Service implements
 
     /** Is MPD playing? */
     private boolean isPlaying;
-
-    /** Keep track when mediaPlayer is preparing a stream */
-    private boolean preparingStreaming = false;
-
-    /**
-     * isPaused is required (along with isPlaying) so the service doesn't start
-     * when it's not wanted.
-     */
-    private boolean isPaused;
-
-    /** Set up the message handler. */
-    private Handler delayedStopHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (isPlaying || isPaused) {
-                return;
-            }
-            die();
-        }
-    };
 
     /**
      * Setup for the method which allows MPDroid to override behavior during
@@ -164,6 +129,26 @@ public class StreamingService extends Service implements
                     }
                     break;
             }
+        }
+    };
+
+    /** Keep track when mediaPlayer is preparing a stream */
+    private boolean preparingStreaming = false;
+
+    /**
+     * isPaused is required (along with isPlaying) so the service doesn't start
+     * when it's not wanted.
+     */
+    private boolean isPaused;
+
+    /** Set up the message handler. */
+    private Handler delayedStopHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (isPlaying || isPaused) {
+                return;
+            }
+            die();
         }
     };
 
@@ -211,7 +196,7 @@ public class StreamingService extends Service implements
             return;
         }
 
-        sendIntent(NotificationService.STREAM_BUFFERING_BEGIN, NotificationService.class);
+        sendIntent(ACTION_BUFFERING_BEGIN, NotificationService.class);
 
         preparingStreaming = true;
 
@@ -224,7 +209,7 @@ public class StreamingService extends Service implements
             /**
              * TODO: Notify the user
              */
-            endBuffering();
+            sendIntent(ACTION_BUFFERING_END, NotificationService.class);
             isPlaying = false;
         } catch (IllegalStateException e) {
             // wtf what state ?
@@ -279,14 +264,6 @@ public class StreamingService extends Service implements
         Intent i = new Intent(this, dest);
         i.setAction(msg);
         this.startService(i);
-    }
-
-    /**
-     * Send a message to the NotificationService to let it know to end the buffering banner.
-     */
-    private void endBuffering() {
-        Log.d(TAG, "StreamingService.endBuffering()");
-        sendIntent(NotificationService.STREAM_BUFFERING_END, NotificationService.class);
     }
 
     /**
@@ -438,7 +415,7 @@ public class StreamingService extends Service implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onPrepared()");
-        sendIntent(NotificationService.STREAM_BUFFERING_END, NotificationService.class);
+        sendIntent(ACTION_BUFFERING_END, NotificationService.class);
         prevMpdState = "";
         mediaPlayer.start();
         preparingStreaming = false;
@@ -471,10 +448,6 @@ public class StreamingService extends Service implements
         switch (intent.getAction()) {
             case ACTION_DIE:
                 die();
-                break;
-            case ACTION_RESET:
-                stopStreaming();
-                beginStreaming();
                 break;
             case ACTION_START:
                 beginStreaming();
@@ -532,7 +505,7 @@ public class StreamingService extends Service implements
         }
 
         /** Send a message to the NotificationService that streaming is ending */
-        sendIntent(NotificationService.ACTION_STREAMING_END, NotificationService.class);
+        sendIntent(ACTION_STOP, NotificationService.class);
     }
 
     @Override
