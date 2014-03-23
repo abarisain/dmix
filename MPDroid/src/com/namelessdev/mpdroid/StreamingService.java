@@ -81,11 +81,15 @@ public class StreamingService extends Service implements
      */
     private static final int IDLE_DELAY = 60000;
 
+    TelephonyManager mTelephonyManager = null;
+
     private MPDApplication app;
 
     private MediaPlayer mediaPlayer;
 
     private AudioManager audioManager;
+
+    private Handler delayedPlayHandler = null;
 
     /** This field will contain the URL of the MPD server streaming source */
     private String streamSource;
@@ -132,36 +136,26 @@ public class StreamingService extends Service implements
         }
     };
 
-    /** Keep track when mediaPlayer is preparing a stream */
-    private boolean preparingStreaming = false;
-
-    /**
-     * isPaused is required (along with isPlaying) so the service doesn't start
-     * when it's not wanted.
-     */
-    private boolean isPaused;
-
     /** Set up the message handler. */
     private Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (isPlaying || isPaused) {
+            if (isPlaying) {
                 return;
             }
-            die();
+            windDownResources();
+
+            /**
+             * Give the user time (60 seconds) to toggle the play button.
+             * Send a message to the NotificationService to release the
+             * notification if it was generated for StreamingService.
+             */
+            sendIntent(ACTION_STOP, NotificationService.class);
         }
     };
 
-    /**
-     * Set up a handler for an Android MediaPlayer bug, for more
-     * information, see the target in beginStreaming().
-     */
-    private Handler delayedPlayHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            mediaPlayer.prepareAsync();
-        }
-    };
+    /** Keep track when mediaPlayer is preparing a stream */
+    private boolean preparingStreaming = false;
 
     /**
      * Field containing the ID used to stopSelfResult() which will stop the
@@ -190,10 +184,18 @@ public class StreamingService extends Service implements
     private void beginStreaming() {
         Log.d(TAG, "StreamingService.beginStreaming()");
         // just to be sure, we do not want to start when we're not supposed to
-        if (mediaPlayer == null || preparingStreaming || mediaPlayer.isPlaying() ||
+        if (preparingStreaming || !isPlaying ||
                 !app.getApplicationState().streamingMode) {
-            Log.d(TAG, "beginStreaming() called while preparation already in progress.");
+            Log.d(TAG, "beginStreaming return called early.");
             return;
+        } else if (mediaPlayer == null) {
+            windUpResources();
+
+            if (mediaPlayer == null) {
+                Log.d(TAG,
+                        "mediaPlayer null after attempt to populate, returning beginStreaming().");
+                return;
+            }
         }
 
         sendIntent(ACTION_BUFFERING_BEGIN, NotificationService.class);
@@ -304,11 +306,12 @@ public class StreamingService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onCompletion()");
-        Message msg = delayedStopHandler.obtainMessage();
-        delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
 
-        // Somethings happening, like crappy network or MPD just stopped..
-        die();
+        /**
+         * Streaming should already be stopped at this point,
+         * but there might be some things to clean up.
+         */
+        stopStreaming();
     }
 
     public void onCreate() {
@@ -317,36 +320,21 @@ public class StreamingService extends Service implements
 
         app = (MPDApplication) getApplication();
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
         /** If streaming mode is not enabled, return */
         if (app == null || !app.getApplicationState().streamingMode) {
             stopSelf();
             return;
         }
 
-        mediaPlayer = new MediaPlayer();
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        prevMpdState = "";
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         lastStartID = 0;
-
-        mediaPlayer.setOnCompletionListener(this);
-        mediaPlayer.setOnPreparedListener(this);
-        mediaPlayer.setOnErrorListener(this);
-
-        if (audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
-            Toast.makeText(this, R.string.audioFocusFailed, Toast.LENGTH_LONG).show();
-            stopStreaming();
-        }
-
-        TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        tmgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
         app.oMPDAsyncHelper.addStatusChangeListener(this);
         app.oMPDAsyncHelper.addConnectionListener(this);
         app.setActivity(this);
+
         streamSource = "http://"
                 + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":"
                 + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/"
@@ -355,6 +343,65 @@ public class StreamingService extends Service implements
         /** Seed the prevMpdState, onStatusUpdate() will keep it up-to-date afterwards. */
         prevMpdState = getState();
         isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(prevMpdState);
+    }
+
+    /**
+     * This happens at the beginning of beginStreaming() to populate all
+     * necessary resources for handling the MediaPlayer stream.
+     */
+    private void windUpResources() {
+        Log.d(TAG, "Winding up resources.");
+
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+            /**
+             * If we can't gain audio focus, let the user know and prior to acquiring resources.
+             */
+            Log.w(TAG, getText(R.string.audioFocusFailed).toString());
+            Toast.makeText(this, R.string.audioFocusFailed, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setOnCompletionListener(this);
+        mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnErrorListener(this);
+
+        /**
+         * Set up a handler for an Android MediaPlayer bug, for more
+         * information, see the target in beginStreaming().
+         */
+        delayedPlayHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                mediaPlayer.prepareAsync();
+            }
+        };
+    }
+
+    public void windDownResources() {
+        Log.d(TAG, "Winding down resources.");
+        if (audioManager != null) {
+            audioManager.abandonAudioFocus(this);
+        }
+
+        if (delayedPlayHandler != null) {
+            delayedPlayHandler.removeCallbacksAndMessages(null);
+        }
+
+        if (mTelephonyManager != null) {
+            mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+        }
+
+        if (mediaPlayer != null) {
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     @Override
@@ -367,18 +414,13 @@ public class StreamingService extends Service implements
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         app.oMPDAsyncHelper.removeConnectionListener(this);
 
-        if (audioManager != null) {
-            audioManager.abandonAudioFocus(this);
-        }
-
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
                 stopStreaming();
             }
-            mediaPlayer.reset();
-            mediaPlayer.release();
-            mediaPlayer = null;
         }
+
+        windDownResources();
 
         app.unsetActivity(this);
         app.getApplicationState().streamingMode = false;
@@ -479,8 +521,6 @@ public class StreamingService extends Service implements
     @Override
     public void stateChanged(MPDStatus mpdStatus, String oldState) {
         Log.d(TAG, "StreamingService.stateChanged()");
-        Message msg = delayedStopHandler.obtainMessage();
-        delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
 
         final String state = mpdStatus.getState();
         if (state == null || state.equals(prevMpdState)) {
@@ -504,8 +544,9 @@ public class StreamingService extends Service implements
             mediaPlayer.stop();
         }
 
-        /** Send a message to the NotificationService that streaming is ending */
-        sendIntent(ACTION_STOP, NotificationService.class);
+        /** Wind down resources in 60 seconds, if still idle. */
+        Message msg = delayedStopHandler.obtainMessage();
+        delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
     }
 
     @Override
