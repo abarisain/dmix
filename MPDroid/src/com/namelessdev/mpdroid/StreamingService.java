@@ -144,13 +144,6 @@ public class StreamingService extends Service implements
                 return;
             }
             windDownResources();
-
-            /**
-             * Give the user time (60 seconds) to toggle the play button.
-             * Send a message to the NotificationService to release the
-             * notification if it was generated for StreamingService.
-             */
-            sendIntent(ACTION_STOP, NotificationService.class);
         }
     };
 
@@ -392,6 +385,14 @@ public class StreamingService extends Service implements
             audioManager.abandonAudioFocus(this);
         }
 
+        /**
+         * If die()ing this will occur immediately, otherwise,
+         * give the user time (60 seconds) to toggle the play button.
+         * Send a message to the NotificationService to release the
+         * notification if it was generated for StreamingService.
+         */
+        sendIntent(ACTION_STOP, NotificationService.class);
+
         if (delayedPlayHandler != null) {
             delayedPlayHandler.removeCallbacksAndMessages(null);
         }
@@ -401,6 +402,10 @@ public class StreamingService extends Service implements
         }
 
         if (mediaPlayer != null) {
+            /** This won't happened with delayed handler, but it can with die/destroy. */
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
             mediaPlayer.reset();
             mediaPlayer.release();
             mediaPlayer = null;
@@ -416,12 +421,6 @@ public class StreamingService extends Service implements
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         app.oMPDAsyncHelper.removeConnectionListener(this);
-
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                stopStreaming();
-            }
-        }
 
         windDownResources();
 
