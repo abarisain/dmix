@@ -422,8 +422,14 @@ public class StreamingService extends Service implements
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "StreamingService.onError()");
+
+        /** Either way we need to stop streaming. */
         stopStreaming();
-        beginStreaming();
+
+        /** onError will often happen if we stop in the middle of preparing. */
+        if (isPlaying) {
+            beginStreaming();
+        }
         return true;
     }
 
