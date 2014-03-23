@@ -107,6 +107,8 @@ public class StreamingService extends Service implements
 
     private String prevMpdState;
 
+    private boolean streamingStoppedForCall = false;
+
     /** Is MPD playing? */
     private boolean isPlaying;
 
@@ -142,28 +144,25 @@ public class StreamingService extends Service implements
                 return;
             }
 
-            if (state == TelephonyManager.CALL_STATE_RINGING) {
-                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                int ringvolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
-                if (ringvolume > 0 && isPlaying) {
-                    isPaused = true;
-                    stopStreaming();
-                }
-            } else if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
-                // pause the music while a conversation is in progress
-                if (!isPlaying) {
-                    return;
-                }
-                isPaused = (isPaused || isPlaying) && (app.getApplicationState().streamingMode);
-                stopStreaming();
-            } else if (state == TelephonyManager.CALL_STATE_IDLE) {
-                // Resume playback only if music was playing when the call was
-                // answered
-                if (isPaused) {
-                    // resume play back only if music was playing
-                    // when the call was answered
-                    beginStreaming();
-                }
+            switch (state) {
+                case TelephonyManager.CALL_STATE_RINGING:
+                    final int ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
+                    if (ringVolume == 0) {
+                        break;
+                    } /** Otherwise, continue */
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    if (isPlaying) {
+                        streamingStoppedForCall = true;
+                        stopStreaming();
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_IDLE:
+                    // Resume playback only if music was playing when the call was answered
+                    if (streamingStoppedForCall) {
+                        beginStreaming();
+                        streamingStoppedForCall = false;
+                    }
+                    break;
             }
         }
     };
