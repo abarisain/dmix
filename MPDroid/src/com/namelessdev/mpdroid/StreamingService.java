@@ -140,10 +140,9 @@ public class StreamingService extends Service implements
     final private Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (isPlaying) {
-                return;
+            if (!isPlaying) {
+                windDownResources();
             }
-            windDownResources();
         }
     };
 
@@ -550,17 +549,16 @@ public class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.stateChanged()");
 
         final String state = mpdStatus.getState();
-        if (state == null || state.equals(prevMpdState)) {
-            return;
-        }
 
-        isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(state);
-        prevMpdState = state;
+        if (state != null && !state.equals(prevMpdState)) {
+            isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(state);
+            prevMpdState = state;
 
-        if (isPlaying) {
-            beginStreaming();
-        } else {
-            stopStreaming();
+            if (isPlaying) {
+                beginStreaming();
+            } else {
+                stopStreaming();
+            }
         }
     }
 
