@@ -652,26 +652,19 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             case R.id.GMM_Stream:
                 if (app.getApplicationState().streamingMode) {
                     i = new Intent(this, StreamingService.class);
-                    i.setAction(StreamingService.ACTION_DIE);
+                    this.stopService(i);
+                    app.getApplicationState().streamingMode = false;
+                } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
+
+                    /**
+                     * Send a message to StreamingService class to
+                     * let it know to begin buffering
+                     */
+                    i = new Intent(this, StreamingService.class);
+                    i.setAction(StreamingService.ACTION_START);
                     this.startService(i);
-                    ((MPDApplication) this.getApplication()).getApplicationState().streamingMode
-                            = false;
-                    // Toast.makeText(this, "MPD Streaming Stopped",
-                    // Toast.LENGTH_SHORT).show();
-                } else {
-                    if (app.oMPDAsyncHelper.oMPD.isConnected()) {
 
-                        /**
-                         * Send a message to StreamingService class to
-                         * let it know to begin buffering
-                         */
-                        i = new Intent(this, StreamingService.class);
-                        i.setAction(StreamingService.ACTION_START);
-                        this.startService(i);
-
-                        ((MPDApplication) this.getApplication()).getApplicationState().streamingMode
-                                = true;
-                    }
+                    app.getApplicationState().streamingMode = true;
                 }
                 return true;
             case R.id.GMM_bonjour:
