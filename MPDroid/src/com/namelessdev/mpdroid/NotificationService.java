@@ -110,8 +110,6 @@ public class NotificationService extends Service implements StatusChangeListener
     // notification area).
     private final int NOTIFICATION_ID = 1;
 
-    // our RemoteControlClient object, which will use remote control APIs available in
-    // SDK level >= 14, if they're available.
     RemoteControlClient mRemoteControlClient;
 
     // The component name of MusicIntentReceiver, for use with media button and remote control APIs
@@ -463,7 +461,6 @@ public class NotificationService extends Service implements StatusChangeListener
             mAudioManager.registerRemoteControlClient(mRemoteControlClient);
         }
 
-        //TODO: load this from a background thread
         if (mCurrentMusic == null) {
             try {
                 final MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
@@ -600,26 +597,34 @@ public class NotificationService extends Service implements StatusChangeListener
         stackBuilder.addParentStack(MainMenuActivity.class);
         stackBuilder.addNextIntent(musicPlayerActivity);
 
-        // Build notification actions
+        /** Build notification media player button actions */
+        /** playPause */
         final Intent playPause = new Intent(this, NotificationService.class);
         playPause.setAction(NotificationService.ACTION_TOGGLE_PLAYBACK);
         final PendingIntent piPlayPause = PendingIntent.getService(this, 0, playPause, 0);
+        /** playPause icon state */
+        final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PAUSED
+                ? R.drawable.ic_media_play : R.drawable.ic_media_pause;
+
+        /** Previous */
         final Intent prev = new Intent(this, NotificationService.class);
         prev.setAction(ACTION_PREVIOUS);
         final PendingIntent piPrev = PendingIntent.getService(this, 0, prev, 0);
+
+        /** Next */
         final Intent next = new Intent(this, NotificationService.class);
         next.setAction(NotificationService.ACTION_NEXT);
         final PendingIntent piNext = PendingIntent.getService(this, 0, next, 0);
+
+        /** Close Notification */
         final Intent closeNotification = new Intent(this, NotificationService.class);
         closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
         final PendingIntent piCloseNotification = PendingIntent
                 .getService(this, 0, closeNotification, 0);
-        PendingIntent piClick = stackBuilder.getPendingIntent(0,
-                PendingIntent.FLAG_UPDATE_CURRENT); // click on notification itself
 
-        // Set notification play/pause icon state
-        final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PLAYING
-                ? R.drawable.ic_media_pause : R.drawable.ic_media_play;
+        /** Notification click action */
+        PendingIntent piClick = stackBuilder.getPendingIntent(0,
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Create the views
         RemoteViews collapsedNotification = buildCollapsedNotification(piPlayPause, piNext,

@@ -154,11 +154,15 @@ public class StreamingService extends Service implements
     private boolean preparingStreaming = false;
 
     /**
-     * Field containing the ID used to stopSelfResult() which will stop the
-     * streaming service.
+     * Field containing the ID used to stopSelfResult() which will stop the streaming service.
      */
     private Integer lastStartID;
 
+    /**
+     * getState is a convenience method to safely retrieve a state object.
+     *
+     * @return A current state object.
+     */
     private String getState() {
         Log.d(TAG, "getState()");
         String state = null;
@@ -276,6 +280,8 @@ public class StreamingService extends Service implements
     /**
      * Handle the change of volume if a notification, or any other kind of
      * interrupting audio event.
+     *
+     * @param focusChange The type of focus change.
      */
     @Override
     public void onAudioFocusChange(int focusChange) {
@@ -297,7 +303,7 @@ public class StreamingService extends Service implements
     /**
      * A MediaPlayer callback to be invoked when playback of a media source has completed.
      *
-     * @param mp the MediaPlayer that reached the end of the file
+     * @param mp The MediaPlayer object that reached the end of the stream.
      */
     @Override
     public void onCompletion(MediaPlayer mp) {
@@ -387,6 +393,10 @@ public class StreamingService extends Service implements
         };
     }
 
+    /**
+     * windDownResources occurs after a delay or during onDestroy() to
+     * clean up resources and give up focus to the phone and sound.
+     */
     public void windDownResources() {
         Log.d(TAG, "Winding down resources.");
         if (audioManager != null) {
@@ -437,13 +447,14 @@ public class StreamingService extends Service implements
         super.onDestroy();
     }
 
+
     /**
      * A MediaPlayer callback to be invoked when there has been an error during an asynchronous
      * operation (other errors will throw exceptions at method call time).
      *
-     * @param mp    the MediaPlayer the error pertains to.
-     * @param what  the type of error that has occurred.
-     * @param extra an extra code, specific to the error. Typically implementation dependent.
+     * @param mp    The current mediaPlayer.
+     * @param what  The type of error that has occurred.
+     * @param extra An extra code, specific to the error. Typically implementation dependent.
      * @return True if the method handled the error, false if it didn't. Returning false, or not
      * having an OnErrorListener at all, will cause the OnCompletionListener to be called.
      */
@@ -477,7 +488,9 @@ public class StreamingService extends Service implements
     }
 
     /**
-     * A MediaPlayer callback to be invoked when the media source is ready for playback.
+     * A MediaPlayer callback used when the media file is ready for playback.
+     *
+     * @param mp The MediaPlayer that is ready for playback.
      */
     @Override
     public void onPrepared(MediaPlayer mp) {
@@ -490,19 +503,8 @@ public class StreamingService extends Service implements
     }
 
     /**
-     * Called by the system every time a client explicitly starts the service
-     * by calling startService(Intent).
-     *
-     * @param intent  The Intent supplied to startService(Intent), as given. This may be null if
-     *                the
-     *                service is being restarted after its process has gone away, and it had
-     *                previously returned anything except START_STICKY_COMPATIBILITY.
-     * @param flags   Additional data about this start request. Currently either 0,
-     *                START_FLAG_REDELIVERY, or START_FLAG_RETRY.
-     * @param startId A unique integer representing this specific request to start. Use with
-     *                stopSelfResult(int).
-     * @return The return value indicates what semantics the system should use for the service's
-     * current started state.
+     * Called by the system every time a client explicitly
+     * starts the service by calling startService(Intent).
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -544,6 +546,12 @@ public class StreamingService extends Service implements
     public void repeatChanged(boolean repeating) {
     }
 
+    /**
+     * A JMPDComm callback which is invoked on MPD status change.
+     *
+     * @param mpdStatus MPDStatus after event.
+     * @param oldState  Previous state.
+     */
     @Override
     public void stateChanged(MPDStatus mpdStatus, String oldState) {
         Log.d(TAG, "StreamingService.stateChanged()");
@@ -577,7 +585,6 @@ public class StreamingService extends Service implements
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        Log.d(TAG, "StreamingService.trackChanged()");
         prevMpdState = "";
     }
 
