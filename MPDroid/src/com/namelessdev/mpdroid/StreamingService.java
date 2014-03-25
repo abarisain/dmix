@@ -318,7 +318,6 @@ public class StreamingService extends Service implements
 
     public void onCreate() {
         Log.d(TAG, "StreamingService.onCreate()");
-        super.onCreate();
 
         app = (MPDApplication) getApplication();
 
@@ -436,7 +435,6 @@ public class StreamingService extends Service implements
 
         app.unsetActivity(this);
         app.getApplicationState().streamingMode = false;
-        super.onDestroy();
     }
 
 
