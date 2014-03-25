@@ -65,8 +65,6 @@ public class StreamingService extends Service implements
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
 
-    public static final String ACTION_DIE = FULLY_QUALIFIED_NAME + "DIE";
-
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + "START_STREAMING";
 
     public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + "STOP_STREAMING";
@@ -153,11 +151,6 @@ public class StreamingService extends Service implements
     private boolean preparingStreaming = false;
 
     /**
-     * Field containing the ID used to stopSelfResult() which will stop the streaming service.
-     */
-    private Integer lastStartID;
-
-    /**
      * getState is a convenience method to safely retrieve a state object.
      *
      * @return A current state object.
@@ -242,16 +235,6 @@ public class StreamingService extends Service implements
     public void connectionSucceeded(String message) {
     }
 
-    /**
-     * This turns streaming mode off and stops the StreamingService.
-     */
-    private void die() {
-        Log.d(TAG, "StreamingService.die()");
-        onDestroy();
-
-        stopSelfResult(lastStartID);
-    }
-
     /** A method to send a quick message to another class. */
     private void sendIntent(String msg, Class dest) {
         Log.d(TAG, "Sending intent " + msg + " to " + dest + ".");
@@ -330,8 +313,6 @@ public class StreamingService extends Service implements
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        lastStartID = 0;
-
         app.oMPDAsyncHelper.addStatusChangeListener(this);
         app.oMPDAsyncHelper.addConnectionListener(this);
         app.setActivity(this);
@@ -385,7 +366,7 @@ public class StreamingService extends Service implements
     }
 
     /**
-     * windDownResources occurs after a delay or during onDestroy() to
+     * windDownResources occurs after a delay or during stopSelf() to
      * clean up resources and give up focus to the phone and sound.
      */
     public void windDownResources() {
@@ -395,7 +376,7 @@ public class StreamingService extends Service implements
         }
 
         /**
-         * If die()ing this will occur immediately, otherwise,
+         * If stopSelf() this will occur immediately, otherwise,
          * give the user time (60 seconds) to toggle the play button.
          * Send a message to the NotificationService to release the
          * notification if it was generated for StreamingService.
@@ -411,7 +392,7 @@ public class StreamingService extends Service implements
         }
 
         if (mediaPlayer != null) {
-            /** This won't happened with delayed handler, but it can with die/destroy. */
+            /** This won't happened with delayed handler, but it can with stopSelf(). */
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
             }
@@ -460,7 +441,7 @@ public class StreamingService extends Service implements
 
         /** This keeps from continuous errors and battery draining. */
         if (errorIterator > MAX_ERROR) {
-            die();
+            stopSelf();
         }
 
         /** beginStreaming() will never start otherwise. */
@@ -499,16 +480,12 @@ public class StreamingService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "StreamingService.onStartCommand()");
-        lastStartID = startId;
         if (!app.getApplicationState().streamingMode) {
-            stopSelfResult(lastStartID);
+            stopSelf();
             return 0;
         }
 
         switch (intent.getAction()) {
-            case ACTION_DIE:
-                die();
-                break;
             case ACTION_START:
                 beginStreaming();
                 break;
