@@ -357,7 +357,7 @@ public class NotificationService extends Service implements StatusChangeListener
 
     void updatePlayingInfo(int state) {
         Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState
-                + "), music=" + mCurrentMusic + ")");
+                + ")");
 
         // Create the remote control client
         if (mRemoteControlClient == null) {
