@@ -580,10 +580,6 @@ public class NotificationService extends Service implements StatusChangeListener
             builder.setContent(collapsedNotification);
 
             builder.setStyle(new NotificationCompat.BigTextStyle());
-//            builder.setStyle(new Notification.BigTextStyle().bigText(mCurrentMusic.getArtist()).setBigContentTitle(mCurrentMusic.getTitle()));
-//            builder.addAction(R.drawable.ic_media_previous, "", piPrev);
-//            builder.addAction(playPauseResId, "", piPlayPause);
-//            builder.addAction(R.drawable.ic_media_next, "", piNext);
 
             mNotification = builder.build();
         }
