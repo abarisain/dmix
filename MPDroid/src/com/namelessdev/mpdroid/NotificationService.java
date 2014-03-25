@@ -364,7 +364,7 @@ public class NotificationService extends Service implements StatusChangeListener
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
             intent.setComponent(mMediaButtonReceiverComponent);
             mRemoteControlClient = new RemoteControlClient(PendingIntent
-                    .getBroadcast(getApplicationContext() /*context*/, 0 /*requestCode, ignored*/,
+                    .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/,
                             intent /*intent*/, 0 /*flags*/));
             mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                     RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
