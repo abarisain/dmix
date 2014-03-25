@@ -213,7 +213,7 @@ public class NotificationService extends Service implements StatusChangeListener
 
         switch (action) {
             case ACTION_CLOSE_NOTIFICATION:
-                processCloseNotificationRequest();
+                stopSelf();
                 break;
             case ACTION_PAUSE:
                 processPauseRequest();
@@ -247,49 +247,49 @@ public class NotificationService extends Service implements StatusChangeListener
         return START_NOT_STICKY; // Means we started the service, but don't want it to restart in case it's killed.
     }
 
-    final void sendSimpleMpdCommand(final String command) {
-        new Thread(
-                new Runnable() {
-                    @Override
-                    final public void run() {
-                        final MPD mpd = app.oMPDAsyncHelper.oMPD;
-                        if (mpd == null) {
-                            return;
-                        }
+    private void sendSimpleMpdCommand(final String command) {
+        new Thread(new Runnable() {
+            @Override
+            final public void run() {
 
-                        try {
-                            switch (command) {
-                                case ACTION_PAUSE:
-                                    mpd.pause();
-                                    break;
-                                case ACTION_PLAY:
-                                    String state = mpd.getStatus().getState();
-                                    if (!MPDStatus.MPD_STATE_PLAYING.equals(state)) {
-                                        mpd.play();
-                                    }
-                                    break;
-                                case ACTION_STOP:
-                                    mpd.stop();
-                                    break;
-                                case ACTION_NEXT:
-                                    mpd.next();
-                                    break;
-                                case ACTION_PREVIOUS:
-                                    mpd.previous();
-                                    break;
-                                case ACTION_REWIND:
-                                    mpd.seek(0);
-                                    break;
-                            }
-                        } catch (MPDServerException e) {
-                            Log.w(TAG, "Failed to send a simple MPD command.", e);
-                        }
-                    }
+                final MPD mpd = app.oMPDAsyncHelper.oMPD;
+                if (mpd == null) {
+                    return;
                 }
+
+                try {
+                    switch (command) {
+                        case ACTION_PAUSE:
+                            mpd.pause();
+                            break;
+                        case ACTION_PLAY:
+                            String state = mpd.getStatus().getState();
+                            if (!MPDStatus.MPD_STATE_PLAYING.equals(state)) {
+                                mpd.play();
+                            }
+                            break;
+                        case ACTION_STOP:
+                            mpd.stop();
+                            break;
+                        case ACTION_NEXT:
+                            mpd.next();
+                            break;
+                        case ACTION_PREVIOUS:
+                            mpd.previous();
+                            break;
+                        case ACTION_REWIND:
+                            mpd.seek(0);
+                            break;
+                    }
+                } catch (MPDServerException e) {
+                    Log.w(TAG, "Failed to send a simple MPD command.", e);
+                }
+            }
+        }
         ).start();
     }
 
-    void processTogglePlaybackRequest() {
+    private void processTogglePlaybackRequest() {
         new AsyncTask<MPDApplication, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(MPDApplication... params) {
@@ -351,34 +351,11 @@ public class NotificationService extends Service implements StatusChangeListener
 
     void processStopRequest() {
         sendSimpleMpdCommand(ACTION_STOP);
-
-        // let go of all resources...
-        relaxResources();
-
-        // Tell any remote controls that our playback state is 'paused'.
-        if (mRemoteControlClient != null) {
-            mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-        }
-
-        // service is no longer necessary. Will be started again if needed.
         stopSelf();
     }
 
     void processShowNotificationRequest() {
         processUpdateInfo(null);
-    }
-
-    void processCloseNotificationRequest() {
-        // let go of all resources...
-        relaxResources();
-
-        // Tell any remote controls that our playback state is 'paused'.
-        if (mRemoteControlClient != null) {
-            mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-        }
-
-        // service is no longer necessary. Will be started again if needed.
-        stopSelf();
     }
 
     /**
@@ -393,52 +370,6 @@ public class NotificationService extends Service implements StatusChangeListener
                 processUpdateInfo(null);
             }
         }, UPDATE_INFO_NEAR_FUTURE_DELAY);
-    }
-
-    /**
-     * Unregisters the registered media button event receiver intents.
-     */
-    private void unregisterMediaButtonEvent() {
-        /** TODO: Make sure this is doing the right thing */
-        /*if (unregisterMediaButtonEventReceiver == null) {
-            return;
-        }*/
-
-        mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
-        /*
-        try {
-            unregisterMediaButtonEventReceiver.invoke(audioManager, remoteControlResponder);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-        */
-    }
-
-    private void unregisterRemoteControlClient() {
-        if (mRemoteControlClient != null) {
-            mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
-        }
-    }
-
-    /**
-     * Releases resources used by the service for playback. This includes the "foreground service"
-     * status and notification, the wake locks and possibly the MediaPlayer.
-     */
-    void relaxResources() {
-        Log.d(TAG, "Removing connection lock");
-        app.removeConnectionLock(this);
-        app.oMPDAsyncHelper.removeStatusChangeListener(this);
-        stopForeground(true);
-        if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-            mAlbumCover.recycle();
-            mAlbumCover = null;
-        }
     }
 
     void updatePlayingInfo(int state) {
@@ -476,10 +407,6 @@ public class NotificationService extends Service implements StatusChangeListener
 
         // Clear everything if we stopped
         if (state == RemoteControlClient.PLAYSTATE_STOPPED) {
-            if (mNotificationManager != null) {
-                mNotificationManager.cancel(NOTIFICATION_ID);
-            }
-            relaxResources();
             stopSelf();
         }
         // Otherwise, update notification & lockscreen widget
@@ -693,8 +620,29 @@ public class NotificationService extends Service implements StatusChangeListener
 
     @Override
     public void onDestroy() {
-        // Service is being killed, so make sure we release our resources
-        relaxResources();
+        Log.d(TAG, "Removing connection lock");
+        app.removeConnectionLock(this);
+        app.oMPDAsyncHelper.removeStatusChangeListener(this);
+        stopForeground(true);
+
+        if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
+            mAlbumCover.recycle();
+        }
+
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(NOTIFICATION_ID);
+        }
+
+        if (mAudioManager != null) {
+            if (mRemoteControlClient != null) {
+                mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
+                mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
+            }
+
+            if (mMediaButtonReceiverComponent != null) {
+                mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+            }
+        }
     }
 
     @Override
