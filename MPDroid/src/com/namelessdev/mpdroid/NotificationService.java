@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.models.MusicParcelable;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
@@ -74,12 +73,6 @@ public class NotificationService extends Service implements StatusChangeListener
 
     public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME
             + "CLOSE_NOTIFICATION";
-
-    /**
-     * Extra information passed to the intent bundle: the currently playing {@link
-     * org.a0z.mpd.Music}
-     */
-    public static final String EXTRA_CURRENT_MUSIC = FULLY_QUALIFIED_NAME + "CurrentMusic";
 
     public static final String ACTION_TOGGLE_PLAYBACK = FULLY_QUALIFIED_NAME + "PLAY_PAUSE";
 
@@ -240,7 +233,7 @@ public class NotificationService extends Service implements StatusChangeListener
                 processTogglePlaybackRequest();
                 break;
             case ACTION_UPDATE_INFO:
-                processUpdateInfo((MusicParcelable) intent.getParcelableExtra(EXTRA_CURRENT_MUSIC));
+                updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
                 break;
         }
 
@@ -324,24 +317,14 @@ public class NotificationService extends Service implements StatusChangeListener
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_PAUSED);
     }
 
-    void processUpdateInfo(MusicParcelable music) {
-        Log.d(TAG, "parcelable=" + music + " mCurrentMusic=" + mCurrentMusic);
-        if (mCurrentMusic != null && (mCurrentMusic).equals(music)) {
-            return;
-        }
-        mCurrentMusic = music;
-        updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
-    }
-
     void processRewindRequest() {
         sendSimpleMpdCommand(ACTION_REWIND);
         updatePlayingInfo(RemoteControlClient.PLAYSTATE_REWINDING);
-        processUpdateInfo(null);
     }
 
     void processPreviousRequest() {
         sendSimpleMpdCommand(ACTION_PREVIOUS);
-        processUpdateInfo(null);
+        updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
     }
 
     void processSkipRequest() {
@@ -355,7 +338,7 @@ public class NotificationService extends Service implements StatusChangeListener
     }
 
     void processShowNotificationRequest() {
-        processUpdateInfo(null);
+        updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
     }
 
     /**
@@ -367,7 +350,7 @@ public class NotificationService extends Service implements StatusChangeListener
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                processUpdateInfo(null);
+                updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
             }
         }, UPDATE_INFO_NEAR_FUTURE_DELAY);
     }
