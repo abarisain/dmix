@@ -392,42 +392,39 @@ public class NotificationService extends Service implements StatusChangeListener
         if (state == RemoteControlClient.PLAYSTATE_STOPPED) {
             stopSelf();
         }
-        // Otherwise, update notification & lockscreen widget
-        else {
-            if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-                mAlbumCover.recycle();
-            }
 
-            // The code below is copied from StreamingService (thanks! :P)
-            if (mCurrentMusic != null) {
-                // Check if we have a sdcard cover cache for this song
-                // Maybe find a more efficient way
-                final SharedPreferences settings = PreferenceManager
-                        .getDefaultSharedPreferences(app);
-                if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
-                    final CachedCover cache = new CachedCover(app);
-                    final String[] coverArtPath;
-                    try {
-                        coverArtPath = cache.getCoverUrl(mCurrentMusic.getAlbumInfo());
-                        if (coverArtPath != null && coverArtPath.length > 0
-                                && coverArtPath[0] != null) {
-                            mAlbumCoverPath = coverArtPath[0];
-                            mAlbumCover = Tools
-                                    .decodeSampledBitmapFromPath(coverArtPath[0], getResources()
-                                                    .getDimensionPixelSize(
-                                                            android.R.dimen.notification_large_icon_width),
-                                            getResources()
-                                                    .getDimensionPixelSize(
-                                                            android.R.dimen.notification_large_icon_height),
-                                            true
-                                    );
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        // Otherwise, update notification & lockscreen widget
+
+        // The code below is copied from StreamingService (thanks! :P)
+        if (mCurrentMusic != null) {
+            // Check if we have a sdcard cover cache for this song
+            // Maybe find a more efficient way
+            final SharedPreferences settings = PreferenceManager
+                    .getDefaultSharedPreferences(app);
+            if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
+                final CachedCover cache = new CachedCover(app);
+                String[] coverArtPath = null;
+
+                try {
+                    coverArtPath = cache.getCoverUrl(mCurrentMusic.getAlbumInfo());
+                } catch (Exception e) {
+                    Log.d(TAG, "Failed to get the cover URL from the cache.", e);
+                }
+
+                if (coverArtPath != null && coverArtPath.length > 0
+                        && coverArtPath[0] != null) {
+                    mAlbumCoverPath = coverArtPath[0];
+                    mAlbumCover = Tools
+                            .decodeSampledBitmapFromPath(coverArtPath[0], getResources()
+                                            .getDimensionPixelSize(
+                                                    android.R.dimen.notification_large_icon_width),
+                                    getResources()
+                                            .getDimensionPixelSize(
+                                                    android.R.dimen.notification_large_icon_height),
+                                    true
+                            );
                 }
             }
-
             updateNotification(state);
             updateRemoteControlClient(state);
         }
