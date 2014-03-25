@@ -403,8 +403,6 @@ public class NotificationService extends Service implements MusicFocusable,
         }
 
         // Otherwise, update notification & lockscreen widget
-
-        // The code below is copied from StreamingService (thanks! :P)
         if (mCurrentMusic != null) {
             // Check if we have a sdcard cover cache for this song
             // Maybe find a more efficient way
@@ -421,7 +419,10 @@ public class NotificationService extends Service implements MusicFocusable,
                 }
 
                 if (coverArtPath != null && coverArtPath.length > 0
-                        && coverArtPath[0] != null) {
+                        && coverArtPath[0] != null && !coverArtPath[0].equals(mAlbumCoverPath)) {
+                    if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
+                        mAlbumCover.recycle();
+                    }
                     mAlbumCoverPath = coverArtPath[0];
                     mAlbumCover = Tools
                             .decodeSampledBitmapFromPath(coverArtPath[0], getResources()
