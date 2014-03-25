@@ -41,7 +41,6 @@ import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -92,12 +91,6 @@ public class NotificationService extends Service implements StatusChangeListener
 
     public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
-    /**
-     * How many milliseconds in the future we need to trigger an update when we just skipped
-     * forward/backward a song
-     */
-    private static final long UPDATE_INFO_NEAR_FUTURE_DELAY = 500;
-
     // The ID we use for the notification (the onscreen alert that appears at the notification
     // area at the top of the screen as an icon -- and as text as well if the user expands the
     // notification area).
@@ -143,6 +136,11 @@ public class NotificationService extends Service implements StatusChangeListener
         Log.d(TAG, "Creating service");
 
         app = (MPDApplication) getApplication();
+
+        if (app == null) {
+            /** Should never happen but it's possible. */
+            stopSelf();
+        }
 
         //TODO: Acquire a network wakelock here if the user wants us to !
         //Otherwise we'll just shut down on screen off and reconnect on screen on
@@ -209,31 +207,30 @@ public class NotificationService extends Service implements StatusChangeListener
                 stopSelf();
                 break;
             case ACTION_PAUSE:
-                processPauseRequest();
+                sendSimpleMpdCommand(ACTION_PAUSE);
                 break;
             case ACTION_PLAY:
-                processPlayRequest();
+                sendSimpleMpdCommand(ACTION_PLAY);
                 break;
             case ACTION_PREVIOUS:
-                processPreviousRequest();
+                sendSimpleMpdCommand(ACTION_PREVIOUS);
                 break;
             case ACTION_REWIND:
-                processRewindRequest();
-                break;
-            case ACTION_SHOW_NOTIFICATION:
-                processShowNotificationRequest();
+                sendSimpleMpdCommand(ACTION_REWIND);
                 break;
             case ACTION_NEXT:
-                processSkipRequest();
+                sendSimpleMpdCommand(ACTION_NEXT);
                 break;
             case ACTION_STOP:
-                processStopRequest();
+                sendSimpleMpdCommand(ACTION_STOP);
+                stopSelf();
                 break;
             case ACTION_TOGGLE_PLAYBACK:
                 processTogglePlaybackRequest();
                 break;
+            case ACTION_SHOW_NOTIFICATION:
             case ACTION_UPDATE_INFO:
-                updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
+                updatePlayingInfo();
                 break;
         }
 
@@ -299,63 +296,45 @@ public class NotificationService extends Service implements StatusChangeListener
             @Override
             protected void onPostExecute(Boolean shouldPause) {
                 if (shouldPause) {
-                    processPauseRequest();
+                    sendSimpleMpdCommand(ACTION_PAUSE);
                 } else {
-                    processPlayRequest();
+                    sendSimpleMpdCommand(ACTION_PLAY);
                 }
             }
         }.execute(app);
     }
 
-    void processPlayRequest() {
-        sendSimpleMpdCommand(ACTION_PLAY);
-        updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
-    }
-
-    void processPauseRequest() {
-        sendSimpleMpdCommand(ACTION_PAUSE);
-        updatePlayingInfo(RemoteControlClient.PLAYSTATE_PAUSED);
-    }
-
-    void processRewindRequest() {
-        sendSimpleMpdCommand(ACTION_REWIND);
-        updatePlayingInfo(RemoteControlClient.PLAYSTATE_REWINDING);
-    }
-
-    void processPreviousRequest() {
-        sendSimpleMpdCommand(ACTION_PREVIOUS);
-        updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
-    }
-
-    void processSkipRequest() {
-        sendSimpleMpdCommand(ACTION_NEXT);
-        triggerFutureUpdate();
-    }
-
-    void processStopRequest() {
-        sendSimpleMpdCommand(ACTION_STOP);
-        stopSelf();
-    }
-
-    void processShowNotificationRequest() {
-        updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
-    }
-
     /**
-     * Launch the service again with action {@link #ACTION_UPDATE_INFO} in a near future
+     * Overload method for updatePlayingInfo(int) for when the current state is unknown.
      */
-    private void triggerFutureUpdate() {
-        // Don't updatePlayingInfo right now, but rather trigger an update in a small delay
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                updatePlayingInfo(RemoteControlClient.PLAYSTATE_PLAYING);
+    private void updatePlayingInfo() {
+        Log.d(TAG, "updatePlayingInfo()");
+
+        MPDStatus mpdStatus;
+        String mpdState;
+        try {
+            mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus();
+        } catch (MPDServerException e) {
+            Log.d(TAG, "Couldn't get the status to updatePlayingInfo()");
+            return;
+        }
+
+        if (mpdStatus == null) {
+            Log.d(TAG, "mpdStatus was null, could not updatePlayingInfo().");
+        } else {
+            mpdState = mpdStatus.getState();
+
+            if (mpdState == null) {
+                Log.d(TAG, "mpdState was null in updatePlayingInfo().");
+            } else {
+                updatePlayingInfo(mpdState.equals(MPDStatus.MPD_STATE_PLAYING) ?
+                        RemoteControlClient.PLAYSTATE_PLAYING
+                        : RemoteControlClient.PLAYSTATE_PAUSED);
             }
-        }, UPDATE_INFO_NEAR_FUTURE_DELAY);
+        }
     }
 
-    void updatePlayingInfo(int state) {
+    private void updatePlayingInfo(int state) {
         Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState
                 + ")");
 
@@ -376,15 +355,20 @@ public class NotificationService extends Service implements StatusChangeListener
         }
 
         if (mCurrentMusic == null) {
+            MPDStatus status = null;
             try {
-                final MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
+                status = app.oMPDAsyncHelper.oMPD.getStatus();
+            } catch (MPDServerException e) {
+                Log.w(TAG, "Exception while getting status.", e);
+            }
+
+            if (status == null) {
+                Log.w(TAG, "Received null status in updatePlayingInfo().");
+            } else {
                 final int songPos = status.getSongPos();
                 if (songPos >= 0) {
                     mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
                 }
-            } catch (MPDServerException e) {
-                Log.w("NotificationService",
-                        "MPDServerException playing next song: " + e.getMessage());
             }
         }
 
@@ -657,15 +641,19 @@ public class NotificationService extends Service implements StatusChangeListener
 
     @Override
     public void stateChanged(MPDStatus mpdStatus, String oldState) {
-        updatePlayingInfo(mpdStatus.getState().equals(MPDStatus.MPD_STATE_PLAYING) ?
-                RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+        if (mpdStatus == null) {
+            Log.w(TAG, "Null mpdStatus received in stateChanged");
+        } else {
+            updatePlayingInfo(mpdStatus.getState().equals(MPDStatus.MPD_STATE_PLAYING) ?
+                    RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+        }
     }
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        if (mpdStatus.getPlaylistLength() == 0) {
-            updatePlayingInfo(RemoteControlClient.PLAYSTATE_STOPPED);
-        } else {
+        if (mpdStatus == null) {
+            Log.w(TAG, "Null mpdStatus receieved in trackChanged");
+        } else if (mpdStatus.getPlaylistLength() != 0) {
             final int songPos = mpdStatus.getSongPos();
             if (songPos >= 0) {
                 mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
