@@ -683,11 +683,19 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
                 return true;
             case R.id.GMM_ShowNotification:
-                i = new Intent(this, NotificationService.class);
-                i.setAction(NotificationService.ACTION_SHOW_NOTIFICATION);
-                this.startService(i);
-                return true;
+                if (app.getApplicationState().notificationMode) {
+                    i = new Intent(this, NotificationService.class);
+                    this.stopService(i);
 
+                    app.getApplicationState().notificationMode = false;
+                } else {
+                    i = new Intent(this, NotificationService.class);
+                    i.setAction(NotificationService.ACTION_SHOW_NOTIFICATION);
+                    this.startService(i);
+
+                    app.getApplicationState().notificationMode = true;
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -723,7 +731,20 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 menu.removeItem(CONNECT);
             }
         }
+
+        MenuItem i = menu.findItem(R.id.GMM_ShowNotification);
+        if (app.getApplicationState().streamingMode) {
+            menu.findItem(R.id.GMM_ShowNotification).setCheckable(false);
+            menu.findItem(R.id.GMM_ShowNotification).setChecked(true);
+        } else {
+            menu.findItem(R.id.GMM_ShowNotification).setCheckable(true);
+        }
+
+        setMenuChecked(menu.findItem(R.id.GMM_ShowNotification),
+                app.getApplicationState().notificationMode);
+
         setMenuChecked(menu.findItem(R.id.GMM_Stream), app.getApplicationState().streamingMode);
+
         final MPDStatus mpdStatus = app.getApplicationState().currentMpdStatus;
         if (mpdStatus != null) {
             setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());

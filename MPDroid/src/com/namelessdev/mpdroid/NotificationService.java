@@ -643,6 +643,7 @@ public class NotificationService extends Service implements StatusChangeListener
                 mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
             }
         }
+        app.getApplicationState().notificationMode = false;
     }
 
     @Override
