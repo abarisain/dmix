@@ -106,11 +106,6 @@ public class StreamingService extends Service implements
     final private PhoneStateListener phoneStateListener = new PhoneStateListener() {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
-            if (!app.getApplicationState().streamingMode) {
-                stopSelf();
-                return;
-            }
-
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
                     final int ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
