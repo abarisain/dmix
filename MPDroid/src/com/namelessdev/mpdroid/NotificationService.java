@@ -123,12 +123,6 @@ public class NotificationService extends Service implements MusicFocusable,
      */
     private boolean notificationAutomaticallyGenerated = false;
 
-    /**
-     * This tracks notificationAutomaticallyGenerated and doesn't allow
-     * it to be reset until after the stream ends.
-     */
-    private boolean isNotificationAutomaticallyGeneratedSet = false;
-
     private Bitmap mAlbumCover = null;
 
     private String mAlbumCoverPath;
@@ -177,34 +171,31 @@ public class NotificationService extends Service implements MusicFocusable,
             return START_NOT_STICKY;
         }
 
-        if (action.equals(StreamingService.ACTION_BUFFERING_BEGIN)) {
-
-            /** Does the notification currently exist? */
-            if (!isNotificationAutomaticallyGeneratedSet) {
-                if (mNotification == null) {
-                    notificationAutomaticallyGenerated = true;
-                } else if (!notificationAutomaticallyGenerated) {
-                    notificationAutomaticallyGenerated = false;
-                }
-                isNotificationAutomaticallyGeneratedSet = true;
-            }
-
-            mediaPlayerServiceIsBuffering = true;
-
-            action = ACTION_SHOW_NOTIFICATION;
-
-        } else if (action.equals(StreamingService.ACTION_BUFFERING_END)) {
-
-            mediaPlayerServiceIsBuffering = false;
-            action = ACTION_UPDATE_INFO;
-
+        /**
+         * The only way this happens is if something other
+         * than the MainMenu 'Streaming' is checked.
+         */
+        if (!app.getApplicationState().notificationMode) {
+            notificationAutomaticallyGenerated = true;
+            app.getApplicationState().notificationMode = true;
         }
 
-        /** If we opened the notification, close it up. */
-        if (action.equals(StreamingService.ACTION_STOP) && notificationAutomaticallyGenerated) {
-            action = ACTION_CLOSE_NOTIFICATION;
-            notificationAutomaticallyGenerated = false;
-            isNotificationAutomaticallyGeneratedSet = false;
+        /** StreamingService switches first. */
+        switch (action) {
+            case StreamingService.ACTION_BUFFERING_BEGIN:
+                mediaPlayerServiceIsBuffering = true;
+                action = ACTION_SHOW_NOTIFICATION;
+                break;
+            case StreamingService.ACTION_BUFFERING_END:
+                mediaPlayerServiceIsBuffering = false;
+                action = ACTION_UPDATE_INFO;
+                break;
+            case StreamingService.ACTION_STOP:
+                if (notificationAutomaticallyGenerated) {
+                    notificationAutomaticallyGenerated = false;
+                    action = ACTION_CLOSE_NOTIFICATION;
+                }
+                break;
         }
 
         switch (action) {
