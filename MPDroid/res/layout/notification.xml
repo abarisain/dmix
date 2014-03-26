@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="64dp" >
+    android:layout_height="64dp">
 
     <ImageView
         android:id="@+id/notificationIcon"
@@ -14,12 +14,13 @@
         android:src="@drawable/icon_bw" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/notificationMetadata"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/notificationPlayPause"
         android:layout_toRightOf="@+id/notificationIcon"
-        android:orientation="vertical" >
+        android:layout_toLeftOf="@+id/notificationButtons"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/notificationTitle"
@@ -42,40 +43,42 @@
             android:textAppearance="?android:textAppearanceSmall" />
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/notificationPlayPause"
-        style="@style/PlayerSmallButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+    <LinearLayout
+        android:id="@+id/notificationButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_toLeftOf="@+id/notificationNext"
-        android:contentDescription="@string/nowPlaying"
-        android:src="@drawable/ic_media_pause" />
-
-    <ImageView
-        android:id="@+id/notificationNext"
-        style="@style/PlayerSmallButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_toLeftOf="@+id/notificationClose"
-        android:contentDescription="@string/playNext"
-        android:src="@drawable/ic_media_next" />
-
-    <ImageView
-        android:id="@+id/notificationClose"
-        style="@style/PlayerSmallButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp"
-        android:contentDescription="@string/stop"
-        android:src="@drawable/ic_close_notification" />
+        android:orientation="horizontal">
 
+        <ImageView
+            android:id="@+id/notificationPlayPause"
+            style="@style/PlayerSmallButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/nowPlaying"
+            android:src="@drawable/ic_media_pause" />
+
+        <ImageView
+            android:id="@+id/notificationNext"
+            style="@style/PlayerSmallButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/playNext"
+            android:src="@drawable/ic_media_next" />
+
+        <ImageView
+            android:id="@+id/notificationClose"
+            style="@style/PlayerSmallButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/stop"
+            android:src="@drawable/ic_close_notification" />
+    </LinearLayout>
 </RelativeLayout>

@@ -46,6 +46,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 /**
@@ -460,7 +461,13 @@ public class NotificationService extends Service implements MusicFocusable,
 
         contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
         contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
-        contentView.setOnClickPendingIntent(R.id.notificationClose, piCloseNotification);
+
+        /** If in streaming, the notification should be persistent. */
+        if (app.getApplicationState().streamingMode) {
+            contentView.setViewVisibility(R.id.notificationClose, View.GONE);
+        } else {
+            contentView.setOnClickPendingIntent(R.id.notificationClose, piCloseNotification);
+        }
 
         contentView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
 
@@ -491,7 +498,13 @@ public class NotificationService extends Service implements MusicFocusable,
         contentView.setOnClickPendingIntent(R.id.notificationPrev, piPrev);
         contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
         contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
-        contentView.setOnClickPendingIntent(R.id.notificationClose, piCloseNotification);
+
+        /** If streaming, the notification should be persistent. */
+        if (app.getApplicationState().streamingMode) {
+            contentView.setViewVisibility(R.id.notificationClose, View.GONE);
+        } else {
+            contentView.setOnClickPendingIntent(R.id.notificationClose, piCloseNotification);
+        }
 
         contentView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
 
@@ -534,10 +547,12 @@ public class NotificationService extends Service implements MusicFocusable,
         final PendingIntent piNext = PendingIntent.getService(this, 0, next, 0);
 
         /** Close Notification */
-        final Intent closeNotification = new Intent(this, NotificationService.class);
-        closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
-        final PendingIntent piCloseNotification = PendingIntent
-                .getService(this, 0, closeNotification, 0);
+        PendingIntent piCloseNotification = null;
+        if (!app.getApplicationState().streamingMode) {
+            final Intent closeNotification = new Intent(this, NotificationService.class);
+            closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
+            piCloseNotification = PendingIntent.getService(this, 0, closeNotification, 0);
+        }
 
         /** Notification click action */
         PendingIntent piClick = stackBuilder.getPendingIntent(0,
