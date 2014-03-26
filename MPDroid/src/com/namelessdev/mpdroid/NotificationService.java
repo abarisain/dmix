@@ -432,7 +432,7 @@ public class NotificationService extends Service implements MusicFocusable,
                                     getResources()
                                             .getDimensionPixelSize(
                                                     android.R.dimen.notification_large_icon_height),
-                                    true
+                                    false
                             );
                 }
             }
