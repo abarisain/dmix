@@ -130,8 +130,6 @@ public class NotificationService extends Service implements MusicFocusable,
 
     private String mAlbumCoverPath;
 
-    private int mPreviousState = -1;
-
     @Override
     public void onCreate() {
         Log.d(TAG, "Creating service");
@@ -230,7 +228,7 @@ public class NotificationService extends Service implements MusicFocusable,
             case ACTION_SHOW_NOTIFICATION:
                 tryToGetAudioFocus();
             case ACTION_UPDATE_INFO:
-                updatePlayingInfo();
+                updatePlayingInfo(null);
                 break;
         }
 
@@ -334,38 +332,33 @@ public class NotificationService extends Service implements MusicFocusable,
     }
 
     /**
-     * Overload method for updatePlayingInfo(int) for when the current state is unknown.
+     * A simple method to return a status with error logging.
+     *
+     * @return An MPDStatus object.
      */
-    private void updatePlayingInfo() {
-        Log.d(TAG, "updatePlayingInfo()");
-
-        MPDStatus mpdStatus;
-        String mpdState;
+    private MPDStatus getStatus() {
+        MPDStatus mpdStatus = null;
         try {
             mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus();
         } catch (MPDServerException e) {
-            Log.d(TAG, "Couldn't get the status to updatePlayingInfo()");
-            return;
+            Log.d(TAG, "Couldn't get the status to updatePlayingInfo()", e);
         }
 
         if (mpdStatus == null) {
             Log.d(TAG, "mpdStatus was null, could not updatePlayingInfo().");
-        } else {
-            mpdState = mpdStatus.getState();
-
-            if (mpdState == null) {
-                Log.d(TAG, "mpdState was null in updatePlayingInfo().");
-            } else {
-                updatePlayingInfo(mpdState.equals(MPDStatus.MPD_STATE_PLAYING) ?
-                        RemoteControlClient.PLAYSTATE_PLAYING
-                        : RemoteControlClient.PLAYSTATE_PAUSED);
-            }
         }
+
+        return mpdStatus;
     }
 
-    private void updatePlayingInfo(int state) {
-        Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState
-                + ")");
+    private void updatePlayingInfo(final MPDStatus _mpdStatus) {
+        Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
+
+        final MPDStatus mpdStatus = _mpdStatus == null ? getStatus() : _mpdStatus;
+
+        final int state = MPDStatus.MPD_STATE_PLAYING.equals(mpdStatus.getState()) ?
+                RemoteControlClient.PLAYSTATE_PLAYING
+                : RemoteControlClient.PLAYSTATE_PAUSED;
 
         if (mRemoteControlClient == null) {
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
@@ -382,21 +375,11 @@ public class NotificationService extends Service implements MusicFocusable,
             mAudioManager.registerRemoteControlClient(mRemoteControlClient);
         }
 
+        /** Update the current playing song. */
         if (mCurrentMusic == null) {
-            MPDStatus status = null;
-            try {
-                status = app.oMPDAsyncHelper.oMPD.getStatus();
-            } catch (MPDServerException e) {
-                Log.w(TAG, "Exception while getting status.", e);
-            }
-
-            if (status == null) {
-                Log.w(TAG, "Received null status in updatePlayingInfo().");
-            } else {
-                final int songPos = status.getSongPos();
-                if (songPos >= 0) {
-                    mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-                }
+            final int songPos = mpdStatus.getSongPos();
+            if (songPos >= 0) {
+                mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             }
         }
 
@@ -713,8 +696,7 @@ public class NotificationService extends Service implements MusicFocusable,
             } else if (MPDStatus.MPD_STATE_PLAYING.equals(mpdStatus.getState())) {
                 tryToGetAudioFocus();
             }
-            updatePlayingInfo(mpdStatus.getState().equals(MPDStatus.MPD_STATE_PLAYING) ?
-                    RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+            updatePlayingInfo(mpdStatus);
         }
     }
 
@@ -727,8 +709,7 @@ public class NotificationService extends Service implements MusicFocusable,
             if (songPos >= 0) {
                 mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             }
-            updatePlayingInfo(mpdStatus.getState().equals(MPDStatus.MPD_STATE_PLAYING) ?
-                    RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+            updatePlayingInfo(mpdStatus);
         }
     }
 
