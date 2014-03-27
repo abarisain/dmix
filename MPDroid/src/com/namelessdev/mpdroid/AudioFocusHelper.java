@@ -36,26 +36,27 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
     // we have full audio focus
     public final static int FOCUSED = 2;
 
+    /** Audio focus management */
     private final static String TAG = "AudioFocusHelper";
 
-    AudioManager mAM;
+    private final AudioManager mAM;
 
-    MusicFocusable mFocusable;
+    private final MusicFocusable mFocusable;
 
-    public AudioFocusHelper(Context ctx, MusicFocusable focusable) {
+    protected AudioFocusHelper(Context ctx, MusicFocusable focusable) {
         mAM = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         mFocusable = focusable;
     }
 
     /** Requests audio focus. Returns whether request was successful or not. */
-    public boolean requestFocus() {
+    final protected boolean requestFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
                 mAM.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                         AudioManager.AUDIOFOCUS_GAIN);
     }
 
     /** Abandons audio focus. Returns whether request was successful or not. */
-    public boolean abandonFocus() {
+    final public boolean abandonFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAM.abandonAudioFocus(this);
     }
 
@@ -63,7 +64,7 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
      * Called by AudioManager on audio focus changes. We implement this by calling our
      * MusicFocusable appropriately to relay the message.
      */
-    public void onAudioFocusChange(int focusChange) {
+    final public void onAudioFocusChange(int focusChange) {
         if (mFocusable == null) {
             return;
         }

@@ -58,7 +58,7 @@ import android.widget.RemoteViews;
  * {@link MainMenuActivity}, which signal the service to perform specific operations: Play, Pause,
  * Rewind, Skip, etc.
  */
-public class NotificationService extends Service implements MusicFocusable,
+final public class NotificationService extends Service implements MusicFocusable,
         StatusChangeListener {
 
     private final static String TAG = "NotificationService";
@@ -96,25 +96,25 @@ public class NotificationService extends Service implements MusicFocusable,
     // notification area).
     private final int NOTIFICATION_ID = 1;
 
-    RemoteControlClient mRemoteControlClient;
+    private RemoteControlClient mRemoteControlClient = null;
 
     // The component name of MusicIntentReceiver, for use with media button and remote control APIs
-    ComponentName mMediaButtonReceiverComponent;
+    private ComponentName mMediaButtonReceiverComponent = null;
 
     /**
      * If not available, this will be null. Always check for null before using
      */
-    AudioFocusHelper mAudioFocusHelper = null;
+    private AudioFocusHelper mAudioFocusHelper = null;
 
-    int mAudioFocus = AudioFocusHelper.NO_FOCUS_NO_DUCK;
+    private int mAudioFocus = AudioFocusHelper.NO_FOCUS_NO_DUCK;
 
-    AudioManager mAudioManager;
+    private AudioManager mAudioManager = null;
 
-    NotificationManager mNotificationManager;
+    private NotificationManager mNotificationManager = null;
 
-    Notification mNotification = null;
+    private Notification mNotification = null;
 
-    MPDApplication app;
+    private MPDApplication app = null;
 
     private Music mCurrentMusic = null;
 
@@ -128,7 +128,7 @@ public class NotificationService extends Service implements MusicFocusable,
 
     private Bitmap mAlbumCover = null;
 
-    private String mAlbumCoverPath;
+    private String mAlbumCoverPath = null;
 
     @Override
     public void onCreate() {
@@ -143,7 +143,7 @@ public class NotificationService extends Service implements MusicFocusable,
 
         mAudioFocusHelper = new AudioFocusHelper(app, this);
 
-        //TODO: Acquire a network wakelock here if the user wants us to !
+        //TODO: Acquire a network wake lock here if the user wants us to !
         //Otherwise we'll just shut down on screen off and reconnect on screen on
         //Tons of work ahead
         app.addConnectionLock(this);
@@ -155,6 +155,9 @@ public class NotificationService extends Service implements MusicFocusable,
         // Use the media button APIs (if available) to register ourselves for media button events
         mMediaButtonReceiverComponent = new ComponentName(this, RemoteControlReceiver.class);
         mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+
+        /** We want this on as much as possible */
+        tryToGetAudioFocus();
     }
 
     /**
@@ -195,6 +198,8 @@ public class NotificationService extends Service implements MusicFocusable,
                 if (notificationAutomaticallyGenerated) {
                     notificationAutomaticallyGenerated = false;
                     action = ACTION_CLOSE_NOTIFICATION;
+                } else { /** Turn off persistent notification. */
+                    action = ACTION_UPDATE_INFO;
                 }
                 break;
         }
@@ -285,7 +290,7 @@ public class NotificationService extends Service implements MusicFocusable,
                 try {
                     state = params[0].oMPDAsyncHelper.oMPD.getStatus().getState();
                 } catch (MPDServerException e) {
-                    Log.w(MPDApplication.TAG, e.getMessage());
+                    Log.w(TAG, "Failed to get the current state for toggle.", e);
                 }
                 return MPDStatus.MPD_STATE_PLAYING.equals(state) || MPDStatus.MPD_STATE_PAUSED
                         .equals(state);
@@ -302,7 +307,7 @@ public class NotificationService extends Service implements MusicFocusable,
         }.execute(app);
     }
 
-    void giveUpAudioFocus() {
+    private void giveUpAudioFocus() {
         Log.d(TAG, "Giving up audio focus.");
         if (mAudioFocus == AudioFocusHelper.FOCUSED && mAudioFocusHelper != null
                 && mAudioFocusHelper
@@ -320,12 +325,12 @@ public class NotificationService extends Service implements MusicFocusable,
         }
     }
 
-    public void onGainedAudioFocus() {
+    final public void onGainedAudioFocus() {
         Log.d(TAG, "Gained audio focus.");
         mAudioFocus = AudioFocusHelper.FOCUSED;
     }
 
-    public void onLostAudioFocus(boolean canDuck) {
+    final public void onLostAudioFocus(boolean canDuck) {
         Log.d(TAG, "Lost audio focus.");
         mAudioFocus = canDuck ? AudioFocusHelper.NO_FOCUS_CAN_DUCK
                 : AudioFocusHelper.NO_FOCUS_NO_DUCK;
@@ -597,9 +602,9 @@ public class NotificationService extends Service implements MusicFocusable,
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void setBigContentView(Notification notif, RemoteViews view) {
+    private void setBigContentView(Notification notification, RemoteViews view) {
         if (view != null) {
-            notif.bigContentView = view;
+            notification.bigContentView = view;
         }
     }
 
@@ -608,7 +613,7 @@ public class NotificationService extends Service implements MusicFocusable,
      *
      * @param state The new current playing state
      */
-    private void updateRemoteControlClient(int state) {
+    private void updateRemoteControlClient(final int state) {
         mRemoteControlClient.editMetadata(true) //
                 .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, mCurrentMusic.getArtist()) //
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum()) //
