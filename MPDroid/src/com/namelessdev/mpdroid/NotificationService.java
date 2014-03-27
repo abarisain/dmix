@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -35,6 +36,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
@@ -405,39 +407,61 @@ public class NotificationService extends Service implements MusicFocusable,
 
         // Otherwise, update notification & lockscreen widget
         if (mCurrentMusic != null) {
-            // Check if we have a sdcard cover cache for this song
-            // Maybe find a more efficient way
-            final SharedPreferences settings = PreferenceManager
-                    .getDefaultSharedPreferences(app);
+            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+
             if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
-                final CachedCover cache = new CachedCover(app);
-                String[] coverArtPath = null;
-
-                try {
-                    coverArtPath = cache.getCoverUrl(mCurrentMusic.getAlbumInfo());
-                } catch (Exception e) {
-                    Log.d(TAG, "Failed to get the cover URL from the cache.", e);
-                }
-
-                if (coverArtPath != null && coverArtPath.length > 0
-                        && coverArtPath[0] != null && !coverArtPath[0].equals(mAlbumCoverPath)) {
-                    if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-                        mAlbumCover.recycle();
-                    }
-                    mAlbumCoverPath = coverArtPath[0];
-                    mAlbumCover = Tools
-                            .decodeSampledBitmapFromPath(coverArtPath[0], getResources()
-                                            .getDimensionPixelSize(
-                                                    android.R.dimen.notification_large_icon_width),
-                                    getResources()
-                                            .getDimensionPixelSize(
-                                                    android.R.dimen.notification_large_icon_height),
-                                    false
-                            );
-                }
-            }
+                updateAlbumCoverWithCached();
+            } /** TODO: Add no cache option */
             updateNotification(state);
             updateRemoteControlClient(state);
+        }
+    }
+
+    private String retrieveCoverArtPath() {
+        final ICoverRetriever cache = new CachedCover(app);
+        String coverArtPath = null;
+        String[] coverArtPaths = null;
+
+        try {
+            coverArtPaths = cache.getCoverUrl(mCurrentMusic.getAlbumInfo());
+        } catch (Exception e) {
+            Log.d(TAG, "Failed to get the cover URL from the cache.", e);
+        }
+
+        if (coverArtPaths != null && coverArtPaths.length > 0) {
+            coverArtPath = coverArtPaths[0];
+        }
+        return coverArtPath;
+    }
+
+    private void updateAlbumCoverWithCached() {
+        final String coverArtPath = retrieveCoverArtPath();
+
+        if (coverArtPath != null && !coverArtPath.equals(mAlbumCoverPath)) {
+            if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
+                mAlbumCover.recycle();
+            }
+
+            mAlbumCoverPath = coverArtPath;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                /**
+                 * Don't resize; it WOULD be nice to use the standard 64x64 large notification
+                 * size here, but KitKat and MPDroid allow fullscreen lock screen AlbumArt and
+                 * 64x64 looks pretty bad on a higher DPI device.
+                 */
+                /** TODO: Maybe inBitmap stuff here? */
+                mAlbumCover = BitmapFactory.decodeFile(coverArtPath);
+            } else {
+                mAlbumCover = Tools
+                        .decodeSampledBitmapFromPath(coverArtPath, getResources()
+                                        .getDimensionPixelSize(
+                                                android.R.dimen.notification_large_icon_width),
+                                getResources()
+                                        .getDimensionPixelSize(
+                                                android.R.dimen.notification_large_icon_height),
+                                false
+                        );
+            }
         }
     }
 
