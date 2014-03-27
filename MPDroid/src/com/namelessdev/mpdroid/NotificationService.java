@@ -55,11 +55,8 @@ import android.widget.RemoteViews;
  * {@link MainMenuActivity}, which signal the service to perform specific operations: Play, Pause,
  * Rewind, Skip, etc.
  */
-public class NotificationService extends Service implements StatusChangeListener {
-
-    // These are the Intent actions that we are prepared to handle.
-    // Notice: they currently are a shortcut to the ones in StreamingService so that the code changes to NowPlayingFragment would be minimal.
-    // TODO: change this?
+public class NotificationService extends Service implements MusicFocusable,
+        StatusChangeListener {
 
     private final static String TAG = "NotificationService";
 
@@ -101,6 +98,13 @@ public class NotificationService extends Service implements StatusChangeListener
     // The component name of MusicIntentReceiver, for use with media button and remote control APIs
     ComponentName mMediaButtonReceiverComponent;
 
+    /**
+     * If not available, this will be null. Always check for null before using
+     */
+    AudioFocusHelper mAudioFocusHelper = null;
+
+    int mAudioFocus = AudioFocusHelper.NO_FOCUS_NO_DUCK;
+
     AudioManager mAudioManager;
 
     NotificationManager mNotificationManager;
@@ -141,6 +145,8 @@ public class NotificationService extends Service implements StatusChangeListener
             /** Should never happen but it's possible. */
             stopSelf();
         }
+
+        mAudioFocusHelper = new AudioFocusHelper(app, this);
 
         //TODO: Acquire a network wakelock here if the user wants us to !
         //Otherwise we'll just shut down on screen off and reconnect on screen on
@@ -185,8 +191,7 @@ public class NotificationService extends Service implements StatusChangeListener
 
             mediaPlayerServiceIsBuffering = true;
 
-            /** Conveniently enough, this will start the notification */
-            action = ACTION_UPDATE_INFO;
+            action = ACTION_SHOW_NOTIFICATION;
 
         } else if (action.equals(StreamingService.ACTION_BUFFERING_END)) {
 
@@ -229,6 +234,7 @@ public class NotificationService extends Service implements StatusChangeListener
                 processTogglePlaybackRequest();
                 break;
             case ACTION_SHOW_NOTIFICATION:
+                tryToGetAudioFocus();
             case ACTION_UPDATE_INFO:
                 updatePlayingInfo();
                 break;
@@ -304,6 +310,35 @@ public class NotificationService extends Service implements StatusChangeListener
         }.execute(app);
     }
 
+    void giveUpAudioFocus() {
+        Log.d(TAG, "Giving up audio focus.");
+        if (mAudioFocus == AudioFocusHelper.FOCUSED && mAudioFocusHelper != null
+                && mAudioFocusHelper
+                .abandonFocus()) {
+            mAudioFocus = AudioFocusHelper.NO_FOCUS_NO_DUCK;
+        }
+    }
+
+    private void tryToGetAudioFocus() {
+        if (mAudioFocus != AudioFocusHelper.FOCUSED && mAudioFocusHelper != null
+                && mAudioFocusHelper
+                .requestFocus()) {
+            Log.d(TAG, "Trying to gain audio focus.");
+            mAudioFocus = AudioFocusHelper.FOCUSED;
+        }
+    }
+
+    public void onGainedAudioFocus() {
+        Log.d(TAG, "Gained audio focus.");
+        mAudioFocus = AudioFocusHelper.FOCUSED;
+    }
+
+    public void onLostAudioFocus(boolean canDuck) {
+        Log.d(TAG, "Lost audio focus.");
+        mAudioFocus = canDuck ? AudioFocusHelper.NO_FOCUS_CAN_DUCK
+                : AudioFocusHelper.NO_FOCUS_NO_DUCK;
+    }
+
     /**
      * Overload method for updatePlayingInfo(int) for when the current state is unknown.
      */
@@ -338,7 +373,6 @@ public class NotificationService extends Service implements StatusChangeListener
         Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState
                 + ")");
 
-        // Create the remote control client
         if (mRemoteControlClient == null) {
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
             intent.setComponent(mMediaButtonReceiverComponent);
@@ -593,6 +627,8 @@ public class NotificationService extends Service implements StatusChangeListener
             mNotificationManager.cancel(NOTIFICATION_ID);
         }
 
+        giveUpAudioFocus();
+
         if (mAudioManager != null) {
             if (mRemoteControlClient != null) {
                 mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
@@ -611,9 +647,6 @@ public class NotificationService extends Service implements StatusChangeListener
         return null;
     }
 
-    /**
-     * StatusChangeListener methods
-     */
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
         //TODO : Probably do something here
@@ -644,6 +677,11 @@ public class NotificationService extends Service implements StatusChangeListener
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in stateChanged");
         } else {
+            if (MPDStatus.MPD_STATE_STOPPED.equals(mpdStatus.getState())) {
+                stopSelf();
+            } else if (MPDStatus.MPD_STATE_PLAYING.equals(mpdStatus.getState())) {
+                tryToGetAudioFocus();
+            }
             updatePlayingInfo(mpdStatus.getState().equals(MPDStatus.MPD_STATE_PLAYING) ?
                     RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
         }
@@ -652,13 +690,14 @@ public class NotificationService extends Service implements StatusChangeListener
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         if (mpdStatus == null) {
-            Log.w(TAG, "Null mpdStatus receieved in trackChanged");
+            Log.w(TAG, "Null mpdStatus received in trackChanged");
         } else if (mpdStatus.getPlaylistLength() != 0) {
             final int songPos = mpdStatus.getSongPos();
             if (songPos >= 0) {
                 mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             }
-            stateChanged(mpdStatus, null);
+            updatePlayingInfo(mpdStatus.getState().equals(MPDStatus.MPD_STATE_PLAYING) ?
+                    RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
         }
     }
 

@@ -38,7 +38,6 @@ import android.os.StrictMode;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -330,15 +329,6 @@ public class StreamingService extends Service implements
         Log.d(TAG, "Winding up resources.");
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
-            /**
-             * If we can't gain audio focus, let the user know and prior to acquiring resources.
-             */
-            Log.w(TAG, getText(R.string.audioFocusFailed).toString());
-            Toast.makeText(this, R.string.audioFocusFailed, Toast.LENGTH_LONG).show();
-            return;
-        }
 
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -366,9 +356,6 @@ public class StreamingService extends Service implements
      */
     public void windDownResources() {
         Log.d(TAG, "Winding down resources.");
-        if (audioManager != null) {
-            audioManager.abandonAudioFocus(this);
-        }
 
         /**
          * If stopSelf() this will occur immediately, otherwise,
