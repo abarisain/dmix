@@ -383,12 +383,6 @@ public class NotificationService extends Service implements MusicFocusable,
             }
         }
 
-        // Clear everything if we stopped
-        if (state == RemoteControlClient.PLAYSTATE_STOPPED) {
-            stopSelf();
-        }
-
-        // Otherwise, update notification & lockscreen widget
         if (mCurrentMusic != null) {
             final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
