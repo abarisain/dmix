@@ -256,10 +256,7 @@ final public class NotificationService extends Service implements MusicFocusable
                             mpd.pause();
                             break;
                         case ACTION_PLAY:
-                            String state = mpd.getStatus().getState();
-                            if (!MPDStatus.MPD_STATE_PLAYING.equals(state)) {
-                                mpd.play();
-                            }
+                            mpd.play();
                             break;
                         case ACTION_STOP:
                             mpd.stop();
