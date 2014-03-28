@@ -92,15 +92,18 @@ final public class NotificationService extends Service implements MusicFocusable
 
     public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
-    private static PendingIntent notificationPlay = null;
+    /** Pre-built PendingIntent actions */
+    private static PendingIntent notificationClick = null;
 
-    private static PendingIntent notificationPause = null;
-
-    private static PendingIntent notificationPrevious = null;
+    private static PendingIntent notificationClose = null;
 
     private static PendingIntent notificationNext = null;
 
-    private static PendingIntent notificationClose = null;
+    private static PendingIntent notificationPause = null;
+
+    private static PendingIntent notificationPlay = null;
+
+    private static PendingIntent notificationPrevious = null;
 
     // The ID we use for the notification (the onscreen alert that appears at the notification
     // area at the top of the screen as an icon -- and as text as well if the user expands the
@@ -141,33 +144,26 @@ final public class NotificationService extends Service implements MusicFocusable
 
     private String mAlbumCoverPath = null;
 
+    private static PendingIntent buildStaticPendingIntent(Context context, String action) {
+        final Intent intent = new Intent(context, NotificationService.class);
+        intent.setAction(action);
+        return PendingIntent.getService(context, 0, intent, 0);
+    }
+
     private static void buildStaticPendingIntents(Context context) {
+        /** Build click action */
+        final Intent musicPlayerActivity = new Intent(context, MainMenuActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addParentStack(MainMenuActivity.class);
+        stackBuilder.addNextIntent(musicPlayerActivity);
+        notificationClick = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         /** Build notification media player button actions */
-        /** Play */
-        final Intent play = new Intent(context, NotificationService.class);
-        play.setAction(ACTION_PLAY);
-        notificationPlay = PendingIntent.getService(context, 0, play, 0);
-
-        /** Pause */
-        final Intent pause = new Intent(context, NotificationService.class);
-        pause.setAction(ACTION_PAUSE);
-        notificationPause = PendingIntent.getService(context, 0, pause, 0);
-
-        /** Previous */
-        final Intent prev = new Intent(context, NotificationService.class);
-        prev.setAction(ACTION_PREVIOUS);
-        notificationPrevious = PendingIntent.getService(context, 0, prev, 0);
-
-        /** Next */
-        final Intent next = new Intent(context, NotificationService.class);
-        next.setAction(NotificationService.ACTION_NEXT);
-        notificationNext = PendingIntent.getService(context, 0, next, 0);
-
-        /** Close Notification */
-        final Intent closeNotification = new Intent(context, NotificationService.class);
-        closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
-        notificationClose = PendingIntent.getService(context, 0, closeNotification, 0);
+        notificationClose = buildStaticPendingIntent(context, ACTION_CLOSE_NOTIFICATION);
+        notificationNext = buildStaticPendingIntent(context, ACTION_NEXT);
+        notificationPause = buildStaticPendingIntent(context, ACTION_PAUSE);
+        notificationPlay = buildStaticPendingIntent(context, ACTION_PLAY);
+        notificationPrevious = buildStaticPendingIntent(context, ACTION_PREVIOUS);
     }
 
     @Override
@@ -487,74 +483,88 @@ final public class NotificationService extends Service implements MusicFocusable
         }
     }
 
-    private RemoteViews buildCollapsedNotification(PendingIntent piPlayPause, PendingIntent piNext,
-            PendingIntent piCloseNotification, int playPauseResId) {
-        final RemoteViews contentView;
-        if (mNotification == null || mNotification.contentView == null) {
-            contentView = new RemoteViews(getPackageName(), R.layout.notification);
-        } else {
-            contentView = mNotification.contentView;
-        }
-
-        /** When streaming, move things down (hopefully, very) temporarily. */
-        if (mediaPlayerServiceIsBuffering) {
-            contentView.setTextViewText(R.id.notificationTitle, getString(R.string.buffering));
-            contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getTitle());
-        } else {
-            contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
-            contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
-        }
-
-        contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
-        contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
+    /**
+     * This method builds the base, otherwise known as the collapsed notification. The expanded
+     * notification builds upon this method.
+     *
+     * @param resultView The RemoteView to begin with, be it new or from the current notification.
+     * @param state      The current RemoteControlClient state.
+     * @return The base, otherwise known as, collapsed notification resources for RemoteViews.
+     */
+    private RemoteViews buildBaseNotification(final RemoteViews resultView, final int state) {
+        final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PAUSED
+                ? R.drawable.ic_media_play : R.drawable.ic_media_pause;
 
         /** If in streaming, the notification should be persistent. */
         if (app.getApplicationState().streamingMode) {
-            contentView.setViewVisibility(R.id.notificationClose, View.GONE);
+            resultView.setViewVisibility(R.id.notificationClose, View.GONE);
         } else {
-            contentView.setOnClickPendingIntent(R.id.notificationClose, piCloseNotification);
+            resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
+            resultView.setOnClickPendingIntent(R.id.notificationClose, notificationClose);
         }
 
-        contentView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
-
-        return contentView;
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private RemoteViews buildExpandedNotification(PendingIntent piPrev, PendingIntent piPlayPause,
-            PendingIntent piNext, PendingIntent piCloseNotification, int playPauseResId) {
-        final RemoteViews contentView;
-        if (mNotification == null || mNotification.bigContentView == null) {
-            contentView = new RemoteViews(getPackageName(), R.layout.notification_big);
+        if (state == RemoteControlClient.FLAG_KEY_MEDIA_PAUSE) {
+            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, notificationPlay);
         } else {
-            contentView = mNotification.bigContentView;
+            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, notificationPause);
         }
 
         /** When streaming, move things down (hopefully, very) temporarily. */
         if (mediaPlayerServiceIsBuffering) {
-            contentView.setTextViewText(R.id.notificationTitle, getString(R.string.buffering));
-            contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getTitle());
-            contentView.setTextViewText(R.id.notificationAlbum, mCurrentMusic.getArtist());
+            resultView.setTextViewText(R.id.notificationTitle, getString(R.string.buffering));
+            resultView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getTitle());
         } else {
-            contentView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
-            contentView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
-            contentView.setTextViewText(R.id.notificationAlbum, mCurrentMusic.getAlbum());
+            resultView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
+            resultView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
         }
 
-        contentView.setOnClickPendingIntent(R.id.notificationPrev, piPrev);
-        contentView.setOnClickPendingIntent(R.id.notificationPlayPause, piPlayPause);
-        contentView.setOnClickPendingIntent(R.id.notificationNext, piNext);
+        resultView.setOnClickPendingIntent(R.id.notificationNext, notificationNext);
+        resultView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
 
-        /** If streaming, the notification should be persistent. */
-        if (app.getApplicationState().streamingMode) {
-            contentView.setViewVisibility(R.id.notificationClose, View.GONE);
+        return resultView;
+    }
+
+    private RemoteViews buildCollapsedNotification(final int state) {
+        RemoteViews resultView;
+
+        if (mNotification == null || mNotification.contentView == null) {
+            resultView = buildBaseNotification(
+                    new RemoteViews(getPackageName(), R.layout.notification), state);
         } else {
-            contentView.setOnClickPendingIntent(R.id.notificationClose, piCloseNotification);
+            resultView = buildBaseNotification(mNotification.contentView, state);
         }
 
-        contentView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
+        return resultView;
+    }
 
-        return contentView;
+    /**
+     * buildExpandedNotification builds upon the collapsed notification resources to create
+     * the resources necessary for the expanded notification RemoteViews.
+     *
+     * @param state The current RemoteControlClient state.
+     * @return The expanded notification RemoteViews.
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private RemoteViews buildExpandedNotification(final int state) {
+        final RemoteViews resultView;
+
+        if (mNotification == null || mNotification.bigContentView == null) {
+            resultView = buildBaseNotification(
+                    new RemoteViews(getPackageName(), R.layout.notification_big), state);
+        } else {
+            resultView = buildBaseNotification(mNotification.bigContentView, state);
+        }
+
+        /** When streaming, move things down (hopefully, very) temporarily. */
+        if (mediaPlayerServiceIsBuffering) {
+            resultView.setTextViewText(R.id.notificationAlbum, mCurrentMusic.getArtist());
+        } else {
+            resultView.setTextViewText(R.id.notificationAlbum, mCurrentMusic.getAlbum());
+        }
+
+        resultView.setOnClickPendingIntent(R.id.notificationPrev, notificationPrevious);
+
+        return resultView;
     }
 
     /**
@@ -566,56 +576,11 @@ final public class NotificationService extends Service implements MusicFocusable
         Log.d(TAG, "update notification: " + mCurrentMusic.getArtist() + " - " + mCurrentMusic
                 .getTitle() + ", state: " + state);
 
-        // Build a virtual task stack
-        final Intent musicPlayerActivity = new Intent(getApplicationContext(),
-                MainMenuActivity.class);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MainMenuActivity.class);
-        stackBuilder.addNextIntent(musicPlayerActivity);
-
-        /** Build notification media player button actions */
-        /** playPause */
-        final Intent playPause = new Intent(this, NotificationService.class);
-        int playPauseResId;
-        /** We already know the current updated state, don't toggle. */
-        if (state == RemoteControlClient.PLAYSTATE_PAUSED) {
-            playPause.setAction(NotificationService.ACTION_PLAY);
-            playPauseResId = R.drawable.ic_media_play;
-        } else {
-            playPause.setAction(NotificationService.ACTION_PAUSE);
-            playPauseResId = R.drawable.ic_media_pause;
-        }
-        final PendingIntent piPlayPause = PendingIntent.getService(this, 0, playPause, 0);
-
-        /** Previous */
-        final Intent prev = new Intent(this, NotificationService.class);
-        prev.setAction(ACTION_PREVIOUS);
-        final PendingIntent piPrev = PendingIntent.getService(this, 0, prev, 0);
-
-        /** Next */
-        final Intent next = new Intent(this, NotificationService.class);
-        next.setAction(NotificationService.ACTION_NEXT);
-        final PendingIntent piNext = PendingIntent.getService(this, 0, next, 0);
-
-        /** Close Notification */
-        PendingIntent piCloseNotification = null;
-        if (!app.getApplicationState().streamingMode) {
-            final Intent closeNotification = new Intent(this, NotificationService.class);
-            closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
-            piCloseNotification = PendingIntent.getService(this, 0, closeNotification, 0);
-        }
-
-        /** Notification click action */
-        PendingIntent piClick = stackBuilder.getPendingIntent(0,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
         // Create the views
-        RemoteViews collapsedNotification = buildCollapsedNotification(piPlayPause, piNext,
-                piCloseNotification, playPauseResId);
+        RemoteViews collapsedNotification = buildCollapsedNotification(state);
         RemoteViews expandedNotification = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            expandedNotification = buildExpandedNotification(piPrev, piPlayPause, piNext,
-                    piCloseNotification, playPauseResId);
+            expandedNotification = buildExpandedNotification(state);
         }
 
         // Set notification icon, if we have one
@@ -632,7 +597,7 @@ final public class NotificationService extends Service implements MusicFocusable
         if (mNotification == null) {
             final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
             builder.setSmallIcon(R.drawable.icon_bw);
-            builder.setContentIntent(piClick);
+            builder.setContentIntent(notificationClick);
             builder.setContent(collapsedNotification);
 
             builder.setStyle(new NotificationCompat.BigTextStyle());
