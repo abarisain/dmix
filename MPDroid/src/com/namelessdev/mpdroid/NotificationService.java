@@ -33,6 +33,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -91,6 +92,16 @@ final public class NotificationService extends Service implements MusicFocusable
 
     public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
+    private static PendingIntent notificationPlay = null;
+
+    private static PendingIntent notificationPause = null;
+
+    private static PendingIntent notificationPrevious = null;
+
+    private static PendingIntent notificationNext = null;
+
+    private static PendingIntent notificationClose = null;
+
     // The ID we use for the notification (the onscreen alert that appears at the notification
     // area at the top of the screen as an icon -- and as text as well if the user expands the
     // notification area).
@@ -130,6 +141,35 @@ final public class NotificationService extends Service implements MusicFocusable
 
     private String mAlbumCoverPath = null;
 
+    private static void buildStaticPendingIntents(Context context) {
+
+        /** Build notification media player button actions */
+        /** Play */
+        final Intent play = new Intent(context, NotificationService.class);
+        play.setAction(ACTION_PLAY);
+        notificationPlay = PendingIntent.getService(context, 0, play, 0);
+
+        /** Pause */
+        final Intent pause = new Intent(context, NotificationService.class);
+        pause.setAction(ACTION_PAUSE);
+        notificationPause = PendingIntent.getService(context, 0, pause, 0);
+
+        /** Previous */
+        final Intent prev = new Intent(context, NotificationService.class);
+        prev.setAction(ACTION_PREVIOUS);
+        notificationPrevious = PendingIntent.getService(context, 0, prev, 0);
+
+        /** Next */
+        final Intent next = new Intent(context, NotificationService.class);
+        next.setAction(NotificationService.ACTION_NEXT);
+        notificationNext = PendingIntent.getService(context, 0, next, 0);
+
+        /** Close Notification */
+        final Intent closeNotification = new Intent(context, NotificationService.class);
+        closeNotification.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
+        notificationClose = PendingIntent.getService(context, 0, closeNotification, 0);
+    }
+
     @Override
     public void onCreate() {
         Log.d(TAG, "Creating service");
@@ -158,6 +198,9 @@ final public class NotificationService extends Service implements MusicFocusable
 
         /** We want this on as much as possible */
         tryToGetAudioFocus();
+
+        /** Build the non-dynamic intent actions */
+        buildStaticPendingIntents(this);
     }
 
     /**
@@ -535,7 +578,7 @@ final public class NotificationService extends Service implements MusicFocusable
         final Intent playPause = new Intent(this, NotificationService.class);
         int playPauseResId;
         /** We already know the current updated state, don't toggle. */
-        if(state == RemoteControlClient.PLAYSTATE_PAUSED) {
+        if (state == RemoteControlClient.PLAYSTATE_PAUSED) {
             playPause.setAction(NotificationService.ACTION_PLAY);
             playPauseResId = R.drawable.ic_media_play;
         } else {
