@@ -533,11 +533,16 @@ final public class NotificationService extends Service implements MusicFocusable
         /** Build notification media player button actions */
         /** playPause */
         final Intent playPause = new Intent(this, NotificationService.class);
-        playPause.setAction(NotificationService.ACTION_TOGGLE_PLAYBACK);
+        int playPauseResId;
+        /** We already know the current updated state, don't toggle. */
+        if(state == RemoteControlClient.PLAYSTATE_PAUSED) {
+            playPause.setAction(NotificationService.ACTION_PLAY);
+            playPauseResId = R.drawable.ic_media_play;
+        } else {
+            playPause.setAction(NotificationService.ACTION_PAUSE);
+            playPauseResId = R.drawable.ic_media_pause;
+        }
         final PendingIntent piPlayPause = PendingIntent.getService(this, 0, playPause, 0);
-        /** playPause icon state */
-        final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PAUSED
-                ? R.drawable.ic_media_play : R.drawable.ic_media_pause;
 
         /** Previous */
         final Intent prev = new Intent(this, NotificationService.class);
