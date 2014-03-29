@@ -469,7 +469,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
 
     void updatePlayingInfo(int state) {
         Log.d(TAG, "update playing info: state=" + state + " (previous state: " + mPreviousState
-                + "), music=" + mCurrentMusic + " (previous music: " + mPreviousMusic + ")");
+                + "), music=" + mCurrentMusic + ")");
 
         // Create the remote control client
         if (mRemoteControlClient == null) {
@@ -549,8 +549,6 @@ public class NotificationService extends Service implements MusicFocusable, Stat
             updateNotification(state);
             updateRemoteControlClient(state);
         }
-
-        mPreviousState = state;
     }
 
     private RemoteViews buildCollapsedNotification(PendingIntent piPlayPause, PendingIntent piNext,
