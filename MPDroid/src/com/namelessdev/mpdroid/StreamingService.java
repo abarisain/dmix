@@ -23,7 +23,6 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -111,7 +110,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private boolean isPaused;
 
     /** Set up the message handler. */
-    @SuppressLint("HandlerLeak")
     private Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -385,6 +383,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public void onDestroy() {
         Log.d(TAG, "StreamingSerice.onDestroy()");
         isServiceRunning = false;
+
+        delayedStopHandler.removeCallbacksAndMessages(null);
 
         /** Send a message to the NotificationService that streaming is ending */
         Intent i = new Intent(this, NotificationService.class);
