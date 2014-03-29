@@ -314,7 +314,7 @@ public class StreamingService extends Service implements
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             mediaPlayer.setVolume(1f, 1f);
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            stop();
+            stopStreaming();
         }
     }
 
@@ -367,7 +367,7 @@ public class StreamingService extends Service implements
         if (audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
             Toast.makeText(this, R.string.audioFocusFailed, Toast.LENGTH_LONG).show();
-            stop();
+            stopStreaming();
         }
 
         TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -498,9 +498,6 @@ public class StreamingService extends Service implements
                     case CMD_PAUSE:
                         stopStreaming();
                         break;
-                    case CMD_STOP:
-                        stop();
-                        break;
                 }
         }
 
@@ -566,16 +563,6 @@ public class StreamingService extends Service implements
             isPlaying = false;
             stopStreaming();
         }
-    }
-
-    /**
-     * This stops the streaming, turns streaming mode off and stops the
-     * StreamingService.
-     */
-    private void stop() {
-        Log.d(TAG, "StreamingService.stop()");
-        stopStreaming();
-        die();
     }
 
     private void stopStreaming() {
