@@ -207,16 +207,9 @@ public class StreamingService extends Service implements
 
         try {
             mediaPlayer.setDataSource(streamSource);
-        } catch (IOException e) {
-            /**
-             * TODO: Notify the user
-             */
-            sendIntent(ACTION_BUFFERING_END, NotificationService.class);
-            isPlaying = false;
-        } catch (IllegalStateException e) {
-            // wtf what state ?
-            isPlaying = false;
-            preparingStreaming = false;
+        } catch (IOException | IllegalStateException e) {
+            Log.e(TAG, "Failed to set the MediaPlayer data source for " + streamSource, e);
+            windDownResources();
         }
 
         /**
