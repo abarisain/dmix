@@ -16,17 +16,6 @@
 
 package com.namelessdev.mpdroid.library;
 
-import static android.util.Log.d;
-import static android.util.Log.e;
-
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -40,11 +29,22 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import static android.util.Log.d;
+import static android.util.Log.e;
 
 public class PlaylistEditActivity extends MPDroidListActivity implements StatusChangeListener,
         OnClickListener {
@@ -182,6 +182,12 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        MPDApplication app = (MPDApplication) getApplication();
+        app.oMPDAsyncHelper.removeStatusChangeListener(this);
+    }
     /**
      * Marks the selected item for deletion
      */
