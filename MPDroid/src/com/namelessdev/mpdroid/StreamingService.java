@@ -386,6 +386,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
         i.setAction(NotificationService.ACTION_STREAMING_END);
         this.startService(i);
 
+        /** Remove the current MPD listeners */
+        MPDApplication app = (MPDApplication) getApplication();
+        app.oMPDAsyncHelper.removeStatusChangeListener(this);
+        app.oMPDAsyncHelper.removeConnectionListener(this);
+
         if (audioManager != null) {
             audioManager.abandonAudioFocus(this);
         }
