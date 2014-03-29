@@ -62,6 +62,15 @@ public class StreamingService extends Service implements
         OnPreparedListener,
         StatusChangeListener {
 
+
+    public static final String ACTION_DIE = "com.namelessdev.mpdroid.DIE";
+
+    public static final String ACTION_START = "com.namelessdev.mpdroid.START_STREAMING";
+
+    public static final String ACTION_STOP = "com.namelessdev.mpdroid.STOP_STREAMING";
+
+    public static final String ACTION_RESET = "com.namelessdev.mpdroid.RESET_STREAMING";
+
     public static final String CMD_REMOTE = "com.namelessdev.mpdroid.REMOTE_COMMAND";
 
     public static final String CMD_COMMAND = "COMMAND";
@@ -425,34 +434,44 @@ public class StreamingService extends Service implements
             return 0;
         }
 
-        String intentAction = intent.getAction();
+        switch (intent.getAction()) {
+            case ACTION_DIE:
+                die();
+                break;
+            case ACTION_RESET:
+                stopStreaming();
+                beginStreaming();
+                break;
+            case ACTION_START:
+                beginStreaming();
+                break;
+            case ACTION_STOP:
+                stopStreaming();
+                break;
+            case CMD_REMOTE:
+                String cmd = intent.getStringExtra(CMD_COMMAND);
 
-        if (intentAction.equals("com.namelessdev.mpdroid.START_STREAMING")) {
-            beginStreaming();
-        } else if (intentAction.equals("com.namelessdev.mpdroid.STOP_STREAMING")) {
-            stopStreaming();
-        } else if (intentAction.equals("com.namelessdev.mpdroid.RESET_STREAMING")) {
-            stopStreaming();
-            beginStreaming();
-        } else if (intentAction.equals("com.namelessdev.mpdroid.DIE")) {
-            die();
-        } else if (intentAction.equals(CMD_REMOTE)) {
-            String cmd = intent.getStringExtra(CMD_COMMAND);
-            if (cmd.equals(CMD_NEXT)) {
-                next();
-            } else if (cmd.equals(CMD_PREV)) {
-                prev();
-            } else if (cmd.equals(CMD_PLAYPAUSE)) {
-                if (!isPaused) {
-                    pauseStreaming();
-                } else {
-                    beginStreaming();
+                switch (cmd) {
+                    case CMD_NEXT:
+                        next();
+                        break;
+                    case CMD_PREV:
+                        prev();
+                        break;
+                    case CMD_PLAYPAUSE:
+                        if (!isPaused) {
+                            pauseStreaming();
+                        } else {
+                            beginStreaming();
+                        }
+                        break;
+                    case CMD_PAUSE:
+                        pauseStreaming();
+                        break;
+                    case CMD_STOP:
+                        stop();
+                        break;
                 }
-            } else if (cmd.equals(CMD_PAUSE)) {
-                pauseStreaming();
-            } else if (cmd.equals(CMD_STOP)) {
-                stop();
-            }
         }
 
         /**

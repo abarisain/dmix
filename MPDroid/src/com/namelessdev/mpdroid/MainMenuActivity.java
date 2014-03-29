@@ -652,7 +652,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             case R.id.GMM_Stream:
                 if (app.getApplicationState().streamingMode) {
                     i = new Intent(this, StreamingService.class);
-                    i.setAction("com.namelessdev.mpdroid.DIE");
+                    i.setAction(StreamingService.ACTION_DIE);
                     this.startService(i);
                     ((MPDApplication) this.getApplication()).getApplicationState().streamingMode
                             = false;
@@ -666,7 +666,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                          * let it know to begin buffering
                          */
                         i = new Intent(this, StreamingService.class);
-                        i.setAction("com.namelessdev.mpdroid.START_STREAMING");
+                        i.setAction(StreamingService.ACTION_START);
                         this.startService(i);
 
                         /**
@@ -674,7 +674,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                          * to update the notification with the "Buffering" banner.
                          */
                         i = new Intent(this, NotificationService.class);
-                        i.setAction("com.namelessdev.mpdroid.START_STREAMING");
+                        i.setAction(StreamingService.ACTION_START);
                         this.startService(i);
 
                         ((MPDApplication) this.getApplication()).getApplicationState().streamingMode

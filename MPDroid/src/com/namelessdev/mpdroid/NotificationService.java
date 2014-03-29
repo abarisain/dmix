@@ -196,7 +196,7 @@ public class NotificationService extends Service implements MusicFocusable, Stat
         }
 
         /** START_STREAMING == begin buffering. */
-        if (action.equals("com.namelessdev.mpdroid.START_STREAMING")) {
+        if (action.equals(StreamingService.ACTION_START)) {
 
             /**
              * TODO: Remove this awful if() hack. Make beginStreaming

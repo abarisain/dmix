@@ -97,7 +97,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     }).start();
                     if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
-                        i.setAction("com.namelessdev.mpdroid.DIE");
+                        i.setAction(StreamingService.ACTION_DIE);
                         activity.startService(i);
                         ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
                     }
@@ -115,7 +115,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     }).start();
                     if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
-                        i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
+                        i.setAction(StreamingService.ACTION_RESET);
                         activity.startService(i);
                     }
                     break;
@@ -133,7 +133,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
                     if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                         i = new Intent(app, StreamingService.class);
-                        i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
+                        i.setAction(StreamingService.ACTION_RESET);
                         activity.startService(i);
                     }
                     break;
@@ -189,7 +189,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         Intent i;
                         if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
                             i = new Intent(app, StreamingService.class);
-                            i.setAction("com.namelessdev.mpdroid.STOP_STREAMING");
+                            i.setAction(StreamingService.ACTION_STOP);
                             activity.startService(i);
                         }
                         break;
