@@ -224,17 +224,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public void connectionSucceeded(String message) {
     }
 
-    private void endStreamNotification() {
-        Intent i = new Intent(this, NotificationService.class);
-        i.setAction(NotificationService.ACTION_STREAMING_END);
-        this.startService(i);
-    }
-
     /**
      * This turns streaming mode off and stops the StreamingService.
      */
     public void die() {
-        endStreamNotification();
+        onDestroy();
 
         ((MPDApplication) getApplication()).getApplicationState().streamingMode = false;
         stopSelfResult(lastStartID);
@@ -386,7 +380,11 @@ public class StreamingService extends Service implements StatusChangeListener, O
     @Override
     public void onDestroy() {
         isServiceRunning = false;
-        endStreamNotification();
+
+        /** Send a message to the NotificationService that streaming is ending */
+        Intent i = new Intent(this, NotificationService.class);
+        i.setAction(NotificationService.ACTION_STREAMING_END);
+        this.startService(i);
 
         if (audioManager != null) {
             audioManager.abandonAudioFocus(this);
@@ -558,9 +556,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         die();
     }
 
-    /**
-     * Stops the playback after the MPD has been stopped.
-     */
     public void stopStreaming() {
         prevMpdState = "";
         if (mediaPlayer == null) {
