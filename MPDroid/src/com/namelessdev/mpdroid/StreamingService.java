@@ -86,6 +86,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     public static boolean isServiceRunning = false;
 
+    MPDApplication app;
+
     private MediaPlayer mediaPlayer;
 
     private AudioManager audioManager;
@@ -126,12 +128,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     private PhoneStateListener phoneStateListener = new PhoneStateListener() {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
-            MPDApplication app = (MPDApplication) getApplication();
-            if (app == null) {
-                return;
-            }
-
-            if (!(app).getApplicationState().streamingMode) {
+            if (!app.getApplicationState().streamingMode) {
                 stopSelf();
                 return;
             }
@@ -184,7 +181,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
      */
     public void beginStreaming() {
         // just to be sure, we do not want to start when we're not supposed to
-        if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
+        if (mediaPlayer == null ||
+                !app.getApplicationState().streamingMode) {
             return;
         }
 
@@ -257,7 +255,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * This sends the next command to MPD, stops and resumes streaming.
      */
     public void next() {
-        MPDApplication app = (MPDApplication) getApplication();
         MPD mpd = app.oMPDAsyncHelper.oMPD;
         try {
             mpd.next();
@@ -302,7 +299,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY); // Don't suck
         // the battery
         // too much
-        MPDApplication app = (MPDApplication) getApplication();
 
         MPDStatus statusMpd = null;
         try {
@@ -334,11 +330,13 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public void onCreate() {
         super.onCreate();
 
+        app = (MPDApplication) getApplication();
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         /** If streaming mode is not enabled, return */
-        if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
+        if (app == null || !app.getApplicationState().streamingMode) {
             stopSelf();
             return;
         }
@@ -367,7 +365,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         tmgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
-        MPDApplication app = (MPDApplication) getApplication();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
         app.oMPDAsyncHelper.addConnectionListener(this);
         app.setActivity(this);
@@ -387,7 +384,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         this.startService(i);
 
         /** Remove the current MPD listeners */
-        MPDApplication app = (MPDApplication) getApplication();
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         app.oMPDAsyncHelper.removeConnectionListener(this);
 
@@ -401,7 +397,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
             mediaPlayer = null;
         }
 
-        MPDApplication app = (MPDApplication) getApplication();
         app.unsetActivity(this);
         app.getApplicationState().streamingMode = false;
         super.onDestroy();
@@ -433,7 +428,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         lastStartID = startId;
-        if (!((MPDApplication) getApplication()).getApplicationState().streamingMode) {
+        if (!app.getApplicationState().streamingMode) {
             stopSelfResult(lastStartID);
             return 0;
         }
@@ -501,7 +496,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * This sends the previous command to MPD, stops and resumes streaming.
      */
     public void prev() {
-        MPDApplication app = (MPDApplication) getApplication();
         MPD mpd = app.oMPDAsyncHelper.oMPD;
         try {
             mpd.previous();
@@ -524,7 +518,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
     public void stateChanged(MPDStatus mpdStatus, String oldState) {
         Message msg = delayedStopHandler.obtainMessage();
         delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
-        MPDApplication app = (MPDApplication) getApplication();
         MPDStatus statusMpd = null;
         try {
             statusMpd = app.oMPDAsyncHelper.oMPD.getStatus();
