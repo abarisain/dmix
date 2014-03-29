@@ -231,7 +231,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
         Log.d(TAG, "StreamingService.die()");
         onDestroy();
 
-        ((MPDApplication) getApplication()).getApplicationState().streamingMode = false;
         stopSelfResult(lastStartID);
     }
 
