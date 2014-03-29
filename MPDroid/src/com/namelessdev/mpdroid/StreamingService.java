@@ -47,7 +47,7 @@ import java.io.IOException;
 
 /**
  * StreamingService hooks Android's audio framework to MPD's streaming server to
- * allow local audio playback, audio metadata parsing and cover art retrieving.
+ * allow local audio playback.
  *
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
@@ -288,8 +288,6 @@ public class StreamingService extends Service implements StatusChangeListener, O
             stop();
         }
     }
-
-    /** Beyond here are stubs. */
 
     @Override
     public IBinder onBind(Intent intent) {
