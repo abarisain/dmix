@@ -4,7 +4,9 @@ import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -40,16 +42,29 @@ public class SimpleLibraryActivity extends MPDFragmentActivity implements ILibra
 		Fragment rootFragment = null;
 		Intent intent = getIntent();
 		if (Intent.ACTION_SEND.equals(intent.getAction()) || intent.getBooleanExtra("streams", false)) {
-			StreamsFragment sf;
-			rootFragment = sf = new StreamsFragment();
-			try {
-				Bundle extras = intent.getExtras();
-				String url = extras.getString(Intent.EXTRA_TEXT);
-				scala.Tuple2<String,String> stream = YouTube.resolve(url);
-				sf.addStream(stream._1, stream._2, -1, this);
-			} catch(Exception e) {
-				Log.e(e);
-			}
+			final Activity activity = this;
+			final StreamsFragment sf = new StreamsFragment();
+			rootFragment = sf;
+			new AsyncTask<Intent, Integer, scala.Tuple2<String,String>>() {
+				protected scala.Tuple2<String,String> doInBackground(Intent... intents) {
+					try {
+						Bundle extras = intents[0].getExtras();
+						String url = extras.getString(Intent.EXTRA_TEXT);
+						return YouTube.resolve(url);
+					} catch(Exception e) {
+						Log.e(e);
+						return null;
+					}
+				}
+				protected void onPostExecute(scala.Tuple2<String,String> stream) {
+					try {
+						if (stream != null)
+							sf.addStream(stream._1, stream._2, -1, activity);
+					} catch(Exception e) {
+						Log.e(e);
+					}
+				}
+			}.execute(intent);
 		} else {
 			targetElement = intent.getParcelableExtra(EXTRA_ALBUM);
 			if (targetElement == null)
