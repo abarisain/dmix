@@ -41,6 +41,7 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -180,6 +181,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * client then setup and the framework streaming.
      */
     public void beginStreaming() {
+        Log.d(TAG, "StreamingService.beginStreaming()");
         // just to be sure, we do not want to start when we're not supposed to
         if (mediaPlayer == null ||
                 !app.getApplicationState().streamingMode) {
@@ -226,6 +228,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * This turns streaming mode off and stops the StreamingService.
      */
     public void die() {
+        Log.d(TAG, "StreamingService.die()");
         onDestroy();
 
         ((MPDApplication) getApplication()).getApplicationState().streamingMode = false;
@@ -237,6 +240,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * isbbuffering, so it will inform the user via the notification itself.
      */
     private void isBuffering(boolean _buffering) {
+        Log.d(TAG, "StreamingService.isBuffering()");
         buffering = _buffering;
         Intent i = new Intent(this, NotificationService.class);
         if (buffering) {
@@ -255,6 +259,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * This sends the next command to MPD, stops and resumes streaming.
      */
     public void next() {
+        Log.d(TAG, "StreamingService.next()");
         MPD mpd = app.oMPDAsyncHelper.oMPD;
         try {
             mpd.next();
@@ -271,6 +276,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      */
     @Override
     public void onAudioFocusChange(int focusChange) {
+        Log.d(TAG, "StreamingService.onAudioFocusChange()");
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
             mediaPlayer.setVolume(0.2f, 0.2f);
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
@@ -295,6 +301,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      */
     @Override
     public void onCompletion(MediaPlayer mp) {
+        Log.d(TAG, "StreamingService.onCompletion()");
         Message msg = delayedStopHandler.obtainMessage();
         delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY); // Don't suck
         // the battery
@@ -328,6 +335,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
     }
 
     public void onCreate() {
+        Log.d(TAG, "StreamingService.onCreate()");
         super.onCreate();
 
         app = (MPDApplication) getApplication();
@@ -376,6 +384,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "StreamingSerice.onDestroy()");
         isServiceRunning = false;
 
         /** Send a message to the NotificationService that streaming is ending */
@@ -404,6 +413,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        Log.d(TAG, "StreamingService.onError()");
         pauseStreaming();
         return false;
     }
@@ -418,15 +428,18 @@ public class StreamingService extends Service implements StatusChangeListener, O
      */
     @Override
     public void onPrepared(MediaPlayer mp) {
+        Log.d(TAG, "StreamingService.onPrepared()");
         // Buffering done
         isBuffering(false);
         isPlaying = true;
+
         prevMpdState = "";
         mediaPlayer.start();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "StreamingService.onStartCommand()");
         lastStartID = startId;
         if (!app.getApplicationState().streamingMode) {
             stopSelfResult(lastStartID);
@@ -474,6 +487,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * keeping the notification showing.
      */
     public void pauseStreaming() {
+        Log.d(TAG, "StreamingService.pauseStreaming()");
         if (!isPlaying) {
             return;
         }
@@ -496,6 +510,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * This sends the previous command to MPD, stops and resumes streaming.
      */
     public void prev() {
+        Log.d(TAG, "StreamingService.prev()");
         MPD mpd = app.oMPDAsyncHelper.oMPD;
         try {
             mpd.previous();
@@ -516,6 +531,7 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     @Override
     public void stateChanged(MPDStatus mpdStatus, String oldState) {
+        Log.d(TAG, "StreamingService.stateChanged()");
         Message msg = delayedStopHandler.obtainMessage();
         delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
         MPDStatus statusMpd = null;
@@ -550,11 +566,13 @@ public class StreamingService extends Service implements StatusChangeListener, O
      * StreamingService.
      */
     public void stop() {
+        Log.d(TAG, "StreamingService.stop()");
         stopStreaming();
         die();
     }
 
     public void stopStreaming() {
+        Log.d(TAG, "StreamingService.stopStreaming()");
         prevMpdState = "";
         if (mediaPlayer == null) {
             return;
@@ -564,8 +582,8 @@ public class StreamingService extends Service implements StatusChangeListener, O
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+        Log.d(TAG, "StreamingService.trackChanged()");
         prevMpdState = "";
-
     }
 
     @Override
