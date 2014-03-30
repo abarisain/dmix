@@ -467,7 +467,6 @@ public class StreamingService extends Service implements
     public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onPrepared()");
         sendIntent(ACTION_BUFFERING_END, NotificationService.class);
-        prevMpdState = "";
         mediaPlayer.start();
         preparingStreaming = false;
         errorIterator = 0; /** Reset the error iterator */
@@ -551,7 +550,6 @@ public class StreamingService extends Service implements
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        prevMpdState = "";
     }
 
     @Override
