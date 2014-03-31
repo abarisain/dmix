@@ -44,7 +44,9 @@ import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -92,6 +94,13 @@ final public class NotificationService extends Service implements MusicFocusable
 
     public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
+    /**
+     * This is the idle delay for shutting down this service after inactivity (in milliseconds).
+     * This idle is also longer than StreamingService to avoid being unnecessarily brought
+     * up to shut right back down.
+     */
+    private static final int IDLE_DELAY = 600000;
+
     /** Pre-built PendingIntent actions */
     private static PendingIntent notificationClick = null;
 
@@ -109,6 +118,14 @@ final public class NotificationService extends Service implements MusicFocusable
     // area at the top of the screen as an icon -- and as text as well if the user expands the
     // notification area).
     private final int NOTIFICATION_ID = 1;
+
+    /** Set up the message handler. */
+    final private Handler delayedStopHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            stopSelf();
+        }
+    };
 
     private RemoteControlClient mRemoteControlClient = null;
 
@@ -642,6 +659,8 @@ final public class NotificationService extends Service implements MusicFocusable
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         stopForeground(true);
 
+        delayedStopHandler.removeCallbacksAndMessages(null);
+
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
             mAlbumCover.recycle();
         }
@@ -700,10 +719,18 @@ final public class NotificationService extends Service implements MusicFocusable
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in stateChanged");
         } else {
-            if (MPDStatus.MPD_STATE_STOPPED.equals(mpdStatus.getState())) {
-                stopSelf();
-            } else if (MPDStatus.MPD_STATE_PLAYING.equals(mpdStatus.getState())) {
-                tryToGetAudioFocus();
+            switch (mpdStatus.getState()) {
+                case MPDStatus.MPD_STATE_PLAYING:
+                    /** If we have a message in the queue, remove it. */
+                    delayedStopHandler.removeCallbacksAndMessages(null);
+                    tryToGetAudioFocus();
+                    break;
+                case MPDStatus.MPD_STATE_PAUSED:
+                case MPDStatus.MPD_STATE_STOPPED:
+                    /** Call stopSelf() in IDLE_DELAY, if still idle. */
+                    Message msg = delayedStopHandler.obtainMessage();
+                    delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
+                    break;
             }
             updatePlayingInfo(mpdStatus);
         }
