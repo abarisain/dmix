@@ -99,8 +99,6 @@ final public class NotificationService extends Service implements MusicFocusable
     private static final int IDLE_DELAY = 600000;
 
     /** Pre-built PendingIntent actions */
-    private static PendingIntent notificationClick = null;
-
     private static PendingIntent notificationClose = null;
 
     private static PendingIntent notificationNext = null;
@@ -177,19 +175,35 @@ final public class NotificationService extends Service implements MusicFocusable
      * @param context The current context.
      */
     private static void buildStaticPendingIntents(Context context) {
-        /** Build click action */
-        final Intent musicPlayerActivity = new Intent(context, MainMenuActivity.class);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(MainMenuActivity.class);
-        stackBuilder.addNextIntent(musicPlayerActivity);
-        notificationClick = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
         /** Build notification media player button actions */
         notificationClose = buildStaticPendingIntent(context, ACTION_CLOSE_NOTIFICATION);
         notificationNext = buildStaticPendingIntent(context, ACTION_NEXT);
         notificationPause = buildStaticPendingIntent(context, ACTION_PAUSE);
         notificationPlay = buildStaticPendingIntent(context, ACTION_PLAY);
         notificationPrevious = buildStaticPendingIntent(context, ACTION_PREVIOUS);
+    }
+
+    /**
+     * This builds the static bits of a new collapsed notification
+     *
+     * @param context The current context.
+     * @return Returns a notification builder object.
+     */
+    private static NotificationCompat.Builder buildStaticCollapsedNotification(Context context) {
+        /** Build the click PendingIntent */
+        final Intent musicPlayerActivity = new Intent(context, MainMenuActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addParentStack(MainMenuActivity.class);
+        stackBuilder.addNextIntent(musicPlayerActivity);
+        final PendingIntent notificationClick = stackBuilder.getPendingIntent(0,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        builder.setSmallIcon(R.drawable.icon_bw);
+        builder.setContentIntent(notificationClick);
+        builder.setStyle(new NotificationCompat.BigTextStyle());
+
+        return builder;
     }
 
     /**
@@ -581,14 +595,9 @@ final public class NotificationService extends Service implements MusicFocusable
      * @return The collapsed notification resources for RemoteViews.
      */
     private NotificationCompat.Builder buildNewCollapsedNotification(final int state) {
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.drawable.icon_bw);
-        builder.setContentIntent(notificationClick);
-        builder.setStyle(new NotificationCompat.BigTextStyle());
-
         final RemoteViews resultView = buildBaseNotification(
                 new RemoteViews(getPackageName(), R.layout.notification), state);
-        return builder.setContent(resultView);
+        return buildStaticCollapsedNotification(this).setContent(resultView);
     }
 
     /**
