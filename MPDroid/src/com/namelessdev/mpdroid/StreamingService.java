@@ -99,8 +99,6 @@ final public class StreamingService extends Service implements
     /** This field will contain the URL of the MPD server streaming source */
     private String streamSource = null;
 
-    private String prevMpdState = null;
-
     private boolean streamingStoppedForCall = false;
 
     /** Is MPD playing? */
@@ -317,9 +315,7 @@ final public class StreamingService extends Service implements
                 + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/"
                 + app.oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming;
 
-        /** Seed the prevMpdState, onStatusUpdate() will keep it up-to-date afterwards. */
-        prevMpdState = getState();
-        isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(prevMpdState);
+        isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getState());
     }
 
     /**
@@ -519,7 +515,6 @@ final public class StreamingService extends Service implements
                     stopStreaming();
                     break;
             }
-            prevMpdState = state;
         }
     }
 
