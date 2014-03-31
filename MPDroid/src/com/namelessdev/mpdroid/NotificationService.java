@@ -467,7 +467,7 @@ final public class NotificationService extends Service implements MusicFocusable
             if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
                 updateAlbumCoverWithCached();
             } /** TODO: Add no cache option */
-            updateNotification(state);
+            setupNotification(state);
             updateRemoteControlClient(state);
         }
     }
@@ -567,6 +567,10 @@ final public class NotificationService extends Service implements MusicFocusable
         resultView.setOnClickPendingIntent(R.id.notificationNext, notificationNext);
         resultView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
 
+        if (mAlbumCover != null) {
+            resultView.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+        }
+
         return resultView;
     }
 
@@ -576,17 +580,15 @@ final public class NotificationService extends Service implements MusicFocusable
      * @param state The current RemoteControlClient state.
      * @return The collapsed notification resources for RemoteViews.
      */
-    private RemoteViews buildCollapsedNotification(final int state) {
-        RemoteViews resultView;
+    private NotificationCompat.Builder buildNewCollapsedNotification(final int state) {
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.icon_bw);
+        builder.setContentIntent(notificationClick);
+        builder.setStyle(new NotificationCompat.BigTextStyle());
 
-        if (mNotification == null || mNotification.contentView == null) {
-            resultView = buildBaseNotification(
-                    new RemoteViews(getPackageName(), R.layout.notification), state);
-        } else {
-            resultView = buildBaseNotification(mNotification.contentView, state);
-        }
-
-        return resultView;
+        final RemoteViews resultView = buildBaseNotification(
+                new RemoteViews(getPackageName(), R.layout.notification), state);
+        return builder.setContent(resultView);
     }
 
     /**
@@ -601,11 +603,12 @@ final public class NotificationService extends Service implements MusicFocusable
         final RemoteViews resultView;
 
         if (mNotification == null || mNotification.bigContentView == null) {
-            resultView = buildBaseNotification(
-                    new RemoteViews(getPackageName(), R.layout.notification_big), state);
+            resultView = new RemoteViews(getPackageName(), R.layout.notification_big);
         } else {
-            resultView = buildBaseNotification(mNotification.bigContentView, state);
+            resultView = mNotification.bigContentView;
         }
+
+        buildBaseNotification(resultView, state);
 
         /** When streaming, move things down (hopefully, very) temporarily. */
         if (mediaPlayerServiceIsBuffering) {
@@ -620,58 +623,42 @@ final public class NotificationService extends Service implements MusicFocusable
     }
 
     /**
-     * Update the notification.
+     * Build a new notification or perform an update on an existing notification.
      *
      * @param state The new current playing state
      */
-    private void updateNotification(int state) {
+    private void setupNotification(final int state) {
         Log.d(TAG, "update notification: " + mCurrentMusic.getArtist() + " - " + mCurrentMusic
                 .getTitle() + ", state: " + state);
 
-        // Create the views
-        RemoteViews collapsedNotification = buildCollapsedNotification(state);
+        NotificationCompat.Builder builder = null;
         RemoteViews expandedNotification = null;
+
+        /** These have a very specific order. */
+        if (mNotification == null || mNotification.contentView == null) {
+            builder = buildNewCollapsedNotification(state);
+        } else {
+            buildBaseNotification(mNotification.contentView, state);
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             expandedNotification = buildExpandedNotification(state);
         }
 
-        // Set notification icon, if we have one
-        if (mAlbumCover != null) {
-            collapsedNotification
-                    .setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
-            if (expandedNotification != null) {
-                expandedNotification
-                        .setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
-            }
-        }
-
-        // Finish the notification
-        if (mNotification == null) {
-            final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setSmallIcon(R.drawable.icon_bw);
-            builder.setContentIntent(notificationClick);
-            builder.setContent(collapsedNotification);
-
-            builder.setStyle(new NotificationCompat.BigTextStyle());
-
+        if (builder != null) {
             mNotification = builder.build();
         }
 
-        setBigContentView(mNotification, expandedNotification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mNotification.bigContentView = expandedNotification;
+        }
 
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
         startForeground(NOTIFICATION_ID, mNotification);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void setBigContentView(Notification notification, RemoteViews view) {
-        if (view != null) {
-            notification.bigContentView = view;
-        }
-    }
-
     /**
-     * Update the remote controls
+     * Update the remote controls.
      *
      * @param state The current playing RemoteControlClient state.
      */
