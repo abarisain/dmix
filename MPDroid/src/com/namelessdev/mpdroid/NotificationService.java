@@ -281,7 +281,6 @@ final public class NotificationService extends Service implements MusicFocusable
                 break;
             case ACTION_STOP:
                 sendSimpleMpdCommand(ACTION_STOP);
-                stopSelf();
                 break;
             case ACTION_TOGGLE_PLAYBACK:
                 processTogglePlaybackRequest();
