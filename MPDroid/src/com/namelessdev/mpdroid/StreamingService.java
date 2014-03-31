@@ -73,10 +73,18 @@ final public class StreamingService extends Service implements
     public static final String ACTION_BUFFERING_END = FULLY_QUALIFIED_NAME + "BUFFERING_END";
 
     /**
-     * How long to wait before queuing the message into the current handler
-     * queue.
+     * This is the idle delay for shutting down this service after inactivity (in milliseconds).
      */
-    private static final int IDLE_DELAY = 60000;
+    private static final int IDLE_DELAY = 210000;
+
+    /** Set up the message handler. */
+    final private Handler delayedStopHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d("TAG", "Winding down resource by delay");
+            windDownResources();
+        }
+    };
 
     private TelephonyManager mTelephonyManager = null;
 
@@ -128,16 +136,6 @@ final public class StreamingService extends Service implements
         }
     };
 
-    /** Set up the message handler. */
-    final private Handler delayedStopHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (!isPlaying) {
-                windDownResources();
-            }
-        }
-    };
-
     /** Keep track of the number of errors encountered. */
     private int errorIterator = 0;
 
@@ -183,6 +181,9 @@ final public class StreamingService extends Service implements
                 return;
             }
         }
+
+        /** Stop any timers that might have been set. */
+        delayedStopHandler.removeCallbacksAndMessages(null);
 
         sendIntent(ACTION_BUFFERING_BEGIN, NotificationService.class);
 
@@ -506,15 +507,19 @@ final public class StreamingService extends Service implements
 
         final String state = mpdStatus.getState();
 
-        if (state != null && !state.equals(prevMpdState)) {
-            isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(state);
-            prevMpdState = state;
-
-            if (isPlaying) {
-                beginStreaming();
-            } else {
-                stopStreaming();
+        if (state != null) {
+            switch (state) {
+                case MPDStatus.MPD_STATE_PLAYING:
+                    isPlaying = true;
+                    beginStreaming();
+                    break;
+                case MPDStatus.MPD_STATE_STOPPED:
+                case MPDStatus.MPD_STATE_PAUSED:
+                    isPlaying = false;
+                    stopStreaming();
+                    break;
             }
+            prevMpdState = state;
         }
     }
 
@@ -525,7 +530,7 @@ final public class StreamingService extends Service implements
             mediaPlayer.stop();
         }
 
-        /** Wind down resources in 60 seconds, if still idle. */
+        /** windDownResources() in IDLE_DELAY, if still idle. */
         Message msg = delayedStopHandler.obtainMessage();
         delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
     }
