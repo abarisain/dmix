@@ -236,11 +236,7 @@ final public class NotificationService extends Service implements MusicFocusable
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
-        // Use the media button APIs (if available) to register ourselves for media button events
-        mMediaButtonReceiverComponent = new ComponentName(this, RemoteControlReceiver.class);
-        mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
-
-        /** We want this on as much as possible */
+        registerMediaButtons();
         tryToGetAudioFocus();
 
         /** Build the non-dynamic intent actions */
@@ -456,21 +452,6 @@ final public class NotificationService extends Service implements MusicFocusable
         final int state = MPDStatus.MPD_STATE_PLAYING.equals(mpdStatus.getState()) ?
                 RemoteControlClient.PLAYSTATE_PLAYING
                 : RemoteControlClient.PLAYSTATE_PAUSED;
-
-        if (mRemoteControlClient == null) {
-            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            intent.setComponent(mMediaButtonReceiverComponent);
-            mRemoteControlClient = new RemoteControlClient(PendingIntent
-                    .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/,
-                            intent /*intent*/, 0 /*flags*/));
-            mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
-                    RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
-                    RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
-                    RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
-                    RemoteControlClient.FLAG_KEY_MEDIA_STOP);
-
-            mAudioManager.registerRemoteControlClient(mRemoteControlClient);
-        }
 
         /** Update the current playing song. */
         if (mCurrentMusic == null) {
