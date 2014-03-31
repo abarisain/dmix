@@ -662,8 +662,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
 
                     /**
-                     * Send a message to StreamingService class to
-                     * let it know to begin buffering
+                     * Start the streaming service.
                      */
                     i = new Intent(this, StreamingService.class);
                     i.setAction(StreamingService.ACTION_START);

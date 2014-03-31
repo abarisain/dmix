@@ -55,11 +55,8 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 /**
- * Service that handles media playback. This is the Service through which we perform all the media
- * handling in our application. Upon initialization, it waits for Intents (which come from our main
- * activity,
- * {@link MainMenuActivity}, which signal the service to perform specific operations: Play, Pause,
- * Rewind, Skip, etc.
+ * A service that handles the Notification, RemoteControlClient, MediaButtonReceiver and
+ * incoming MPD command intents.
  */
 final public class NotificationService extends Service implements MusicFocusable,
         StatusChangeListener {
@@ -161,12 +158,24 @@ final public class NotificationService extends Service implements MusicFocusable
 
     private String mAlbumCoverPath = null;
 
+    /**
+     * Build a static pending intent for use with the notification button controls.
+     *
+     * @param context The current context.
+     * @param action  The ACTION intent string.
+     * @return The pending intent.
+     */
     private static PendingIntent buildStaticPendingIntent(Context context, String action) {
         final Intent intent = new Intent(context, NotificationService.class);
         intent.setAction(action);
         return PendingIntent.getService(context, 0, intent, 0);
     }
 
+    /**
+     * A method to build all the pending intents necessary for the notification.
+     *
+     * @param context The current context.
+     */
     private static void buildStaticPendingIntents(Context context) {
         /** Build click action */
         final Intent musicPlayerActivity = new Intent(context, MainMenuActivity.class);
@@ -181,6 +190,28 @@ final public class NotificationService extends Service implements MusicFocusable
         notificationPause = buildStaticPendingIntent(context, ACTION_PAUSE);
         notificationPlay = buildStaticPendingIntent(context, ACTION_PLAY);
         notificationPrevious = buildStaticPendingIntent(context, ACTION_PREVIOUS);
+    }
+
+    /**
+     * This registers some media buttons via the RemoteControlReceiver.class which will take
+     * action by intent to this onStartCommand().
+     */
+    private void registerMediaButtons() {
+        mMediaButtonReceiverComponent = new ComponentName(this, RemoteControlReceiver.class);
+        mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+
+        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        intent.setComponent(mMediaButtonReceiverComponent);
+        mRemoteControlClient = new RemoteControlClient(PendingIntent
+                .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/,
+                        intent /*intent*/, 0 /*flags*/));
+        mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+                RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+                RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
+                RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
+                RemoteControlClient.FLAG_KEY_MEDIA_STOP);
+
+        mAudioManager.registerRemoteControlClient(mRemoteControlClient);
     }
 
     @Override
@@ -295,6 +326,11 @@ final public class NotificationService extends Service implements MusicFocusable
         return START_NOT_STICKY; // Means we started the service, but don't want it to restart in case it's killed.
     }
 
+    /**
+     * A simple method to safely send a command to MPD.
+     *
+     * @param command An ACTION intent.
+     */
     private void sendSimpleMpdCommand(final String command) {
         new Thread(new Runnable() {
             @Override
@@ -408,6 +444,10 @@ final public class NotificationService extends Service implements MusicFocusable
         return mpdStatus;
     }
 
+    /**
+     * This method will update the current playing track, notification views,
+     * the RemoteControlClient & the cover art.
+     */
     private void updatePlayingInfo(final MPDStatus _mpdStatus) {
         Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
 
@@ -451,6 +491,11 @@ final public class NotificationService extends Service implements MusicFocusable
         }
     }
 
+    /**
+     * This method retrieves a path to an album cover bitmap from the cache.
+     *
+     * @return String A path to a cached album cover bitmap.
+     */
     private String retrieveCoverArtPath() {
         final ICoverRetriever cache = new CachedCover(app);
         String coverArtPath = null;
@@ -468,6 +513,10 @@ final public class NotificationService extends Service implements MusicFocusable
         return coverArtPath;
     }
 
+    /**
+     * This method updates mAlbumCover if it is different than currently playing, if cache is
+     * enabled.
+     */
     private void updateAlbumCoverWithCached() {
         final String coverArtPath = retrieveCoverArtPath();
 
@@ -501,7 +550,7 @@ final public class NotificationService extends Service implements MusicFocusable
 
     /**
      * This method builds the base, otherwise known as the collapsed notification. The expanded
-     * notification builds upon this method.
+     * notification method builds upon this method.
      *
      * @param resultView The RemoteView to begin with, be it new or from the current notification.
      * @param state      The current RemoteControlClient state.
@@ -540,6 +589,12 @@ final public class NotificationService extends Service implements MusicFocusable
         return resultView;
     }
 
+    /**
+     * This generates the collapsed notification from base.
+     *
+     * @param state The current RemoteControlClient state.
+     * @return The collapsed notification resources for RemoteViews.
+     */
     private RemoteViews buildCollapsedNotification(final int state) {
         RemoteViews resultView;
 
@@ -637,7 +692,7 @@ final public class NotificationService extends Service implements MusicFocusable
     /**
      * Update the remote controls
      *
-     * @param state The new current playing state
+     * @param state The current playing RemoteControlClient state.
      */
     private void updateRemoteControlClient(final int state) {
         mRemoteControlClient.editMetadata(true) //
