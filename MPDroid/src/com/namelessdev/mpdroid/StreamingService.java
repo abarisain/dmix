@@ -178,8 +178,12 @@ final public class StreamingService extends Service implements
      * client then setup and the framework streaming.
      */
     private void tryToStream() {
-        if (preparingStreaming || !isPlaying || !app.getApplicationState().streamingMode) {
-            Log.d(TAG, "Not ready to stream.");
+        if (preparingStreaming) {
+            Log.d(TAG, "A stream is already being prepared.");
+        } else if (!isPlaying) {
+            Log.d(TAG, "MPD is not currently playing, can't stream.");
+        } else if (!app.getApplicationState().streamingMode) {
+            Log.d(TAG, "streamingMode is not currently active, won't stream.");
         } else {
             beginStreaming();
         }
@@ -191,18 +195,11 @@ final public class StreamingService extends Service implements
             windUpResources();
         }
 
+        final int ASYNC_IDLE = 1500;
         preparingStreaming = true;
         stopControlHandlers();
 
-        mediaPlayer.reset();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-        try {
-            mediaPlayer.setDataSource(streamSource);
-        } catch (IOException | IllegalStateException e) {
-            Log.e(TAG, "Failed to set the MediaPlayer data source for " + streamSource, e);
-            windDownResources();
-        }
+        sendIntent(ACTION_BUFFERING_BEGIN, NotificationService.class);
 
         /**
          * With MediaPlayer, there is a racy bug which affects, minimally, Android KitKat and lower.
@@ -218,9 +215,26 @@ final public class StreamingService extends Service implements
          * The magic number here can be adjusted if there are any more problems. I have witnessed
          * these errors occur at 750ms, but never higher. It's worth doubling, even in optimal
          * conditions, stream buffering is pretty slow anyhow. Adjust if necessary.
+         *
+         * This order is very specific and if interrupted can cause big problems.
          */
-        Message msg = delayedPlayHandler.obtainMessage();
-        delayedPlayHandler.sendMessageDelayed(msg, 1500);
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setDataSource(streamSource);
+            Message msg = delayedPlayHandler.obtainMessage();
+            delayedPlayHandler.sendMessageDelayed(msg, ASYNC_IDLE); /** Go to onPrepared() */
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to set the MediaPlayer data source for " + streamSource, e);
+            windDownResources();
+        } catch (IllegalStateException e) {
+            Log.e(TAG,
+                    "This is typically caused by a change in the server state during stream preparation.",
+                    e);
+            windDownResources();
+        } finally {
+            delayedPlayHandler.removeCallbacksAndMessages(delayedPlayHandler);
+        }
     }
 
     @Override
@@ -350,16 +364,6 @@ final public class StreamingService extends Service implements
     private void windDownResources() {
         Log.d(TAG, "Winding down resources.");
 
-        /**
-         * If stopSelf() this will occur immediately, otherwise,
-         * give the user time (60 seconds) to toggle the play button.
-         * Send a message to the NotificationService to release the
-         * notification if it was generated for StreamingService.
-         */
-        sendIntent(ACTION_STOP, NotificationService.class);
-
-        delayedPlayHandler.removeCallbacksAndMessages(delayedPlayHandler);
-
         if (mTelephonyManager != null) {
             mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
         }
@@ -382,6 +386,7 @@ final public class StreamingService extends Service implements
             Log.d(TAG,
                     "Stream had an error, trying to re-initiate streaming, try: " + errorIterator);
             errorIterator += 1;
+            preparingStreaming = false;
             tryToStream();
         } else {
             /**
@@ -392,7 +397,6 @@ final public class StreamingService extends Service implements
              * StreamingService.
              */
             sendIntent(ACTION_STOP, NotificationService.class);
-            preparingStreaming = false;
         }
     }
 
@@ -460,10 +464,20 @@ final public class StreamingService extends Service implements
     @Override
     final public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onPrepared()");
-        sendIntent(ACTION_BUFFERING_END, NotificationService.class);
-        mediaPlayer.start();
+
+        /**
+         * Not to be playing here is unlikely but it's a race we need to avoid.
+         */
+        if (isPlaying) {
+            sendIntent(ACTION_BUFFERING_END, NotificationService.class);
+            mediaPlayer.start();
+        } else {
+            /** Because preparingStreaming is still set, this will reset the stream. */
+            stopStreaming();
+        }
+
         preparingStreaming = false;
-        errorIterator = 0; /** Reset the error iterator */
+        errorIterator = 0; /** Reset the error iterator. */
     }
 
     /**
@@ -527,6 +541,13 @@ final public class StreamingService extends Service implements
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
                 case MPDStatus.MPD_STATE_PAUSED:
+                    /**
+                     * If in the middle of stream preparation, "Buffering…" notification message
+                     * is likely.
+                     */
+                    if (preparingStreaming) {
+                        sendIntent(ACTION_BUFFERING_END, NotificationService.class);
+                    }
                     isPlaying = false;
                     stopStreaming();
                     break;
