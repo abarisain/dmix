@@ -72,19 +72,30 @@ final public class StreamingService extends Service implements
 
     public static final String ACTION_BUFFERING_END = FULLY_QUALIFIED_NAME + "BUFFERING_END";
 
-    /**
-     * This is the idle delay for shutting down this service after inactivity (in milliseconds).
-     */
-    private static final int IDLE_DELAY = 210000;
-
-    /** Set up the message handler. */
     final private Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.d("TAG", "Winding down resource by delay");
+            Log.d(TAG, "Stopping self by handler delay.");
+            stopSelf();
+        }
+    };
+
+    final private Handler delayedPlayHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            mediaPlayer.prepareAsync();
+        }
+    };
+
+    final private Handler delayedWindDownHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d("TAG", "Winding down resource by delay.");
             windDownResources();
         }
     };
+
+    private boolean serviceControlHandlersActive = false;
 
     private TelephonyManager mTelephonyManager = null;
 
@@ -93,8 +104,6 @@ final public class StreamingService extends Service implements
     private MediaPlayer mediaPlayer = null;
 
     private AudioManager audioManager = null;
-
-    private Handler delayedPlayHandler = null;
 
     /** This field will contain the URL of the MPD server streaming source */
     private String streamSource = null;
@@ -140,6 +149,11 @@ final public class StreamingService extends Service implements
     /** Keep track when mediaPlayer is preparing a stream */
     private boolean preparingStreaming = false;
 
+    private static void setupHandler(final Handler delayedHandler, final int DELAY) {
+        Message msg = delayedHandler.obtainMessage();
+        delayedHandler.sendMessageDelayed(msg, DELAY);
+    }
+
     /**
      * getState is a convenience method to safely retrieve a state object.
      *
@@ -180,12 +194,8 @@ final public class StreamingService extends Service implements
             }
         }
 
-        /** Stop any timers that might have been set. */
-        delayedStopHandler.removeCallbacksAndMessages(null);
-
-        sendIntent(ACTION_BUFFERING_BEGIN, NotificationService.class);
-
         preparingStreaming = true;
+        stopControlHandlers();
 
         mediaPlayer.reset();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -334,17 +344,6 @@ final public class StreamingService extends Service implements
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnErrorListener(this);
-
-        /**
-         * Set up a handler for an Android MediaPlayer bug, for more
-         * information, see the target in beginStreaming().
-         */
-        delayedPlayHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                mediaPlayer.prepareAsync();
-            }
-        };
     }
 
     /**
@@ -362,9 +361,7 @@ final public class StreamingService extends Service implements
          */
         sendIntent(ACTION_STOP, NotificationService.class);
 
-        if (delayedPlayHandler != null) {
-            delayedPlayHandler.removeCallbacksAndMessages(null);
-        }
+        delayedPlayHandler.removeCallbacksAndMessages(delayedPlayHandler);
 
         if (mTelephonyManager != null) {
             mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
@@ -379,13 +376,34 @@ final public class StreamingService extends Service implements
             mediaPlayer.release();
             mediaPlayer = null;
         }
+
+        /**
+         * If we got here due to an exception, try to stream
+         * again until the error iterator runs out.
+         */
+        if (preparingStreaming) {
+            Log.d(TAG,
+                    "Stream had an error, trying to re-initiate streaming, try: " + errorIterator);
+            errorIterator += 1;
+            beginStreaming();
+        } else {
+            /**
+             * If stopSelf() this will occur immediately, otherwise,
+             * give the user time (WIND_DOWN_IDLE_DELAY) to toggle the
+             * play button. Send a message to the NotificationService
+             * to release the notification if it was generated for
+             * StreamingService.
+             */
+            sendIntent(ACTION_STOP, NotificationService.class);
+            preparingStreaming = false;
+        }
     }
 
     @Override
     final public void onDestroy() {
         Log.d(TAG, "StreamingService.onDestroy()");
 
-        delayedStopHandler.removeCallbacksAndMessages(null);
+        stopControlHandlers();
 
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
@@ -506,6 +524,7 @@ final public class StreamingService extends Service implements
         if (state != null) {
             switch (state) {
                 case MPDStatus.MPD_STATE_PLAYING:
+                    stopControlHandlers();
                     isPlaying = true;
                     beginStreaming();
                     break;
@@ -525,9 +544,34 @@ final public class StreamingService extends Service implements
             mediaPlayer.stop();
         }
 
-        /** windDownResources() in IDLE_DELAY, if still idle. */
-        Message msg = delayedStopHandler.obtainMessage();
-        delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
+        setupServiceControlHandlers();
+    }
+
+    private void stopControlHandlers() {
+        if (serviceControlHandlersActive) {
+            Log.d(TAG, "Removing control handlers");
+            delayedWindDownHandler.removeCallbacksAndMessages(null);
+            delayedStopHandler.removeCallbacksAndMessages(null);
+            serviceControlHandlersActive = false;
+        }
+    }
+
+    private void setupServiceControlHandlers() {
+        if (!serviceControlHandlersActive) {
+            Log.d(TAG, "Setting up control handlers");
+            final int STOP_IDLE_DELAY = 900000; /** 15 minutes */
+            final int WIND_DOWN_IDLE_DELAY = 210000; /** 3.5 minutes  */
+            /**
+             * Wind down handler, this gives the user time to come back and click on the
+             * notification.
+             */
+            setupHandler(delayedWindDownHandler, WIND_DOWN_IDLE_DELAY);
+            /**
+             * Stop handler so we don't annoy the user when they forget to turn streamingMode off.
+             */
+            setupHandler(delayedStopHandler, STOP_IDLE_DELAY);
+            serviceControlHandlersActive = true;
+        }
     }
 
     @Override
