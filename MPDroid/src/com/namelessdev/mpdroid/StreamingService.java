@@ -135,7 +135,7 @@ final public class StreamingService extends Service implements
                 case TelephonyManager.CALL_STATE_IDLE:
                     // Resume playback only if music was playing when the call was answered
                     if (streamingStoppedForCall) {
-                        beginStreaming();
+                        tryToStream();
                         streamingStoppedForCall = false;
                     }
                     break;
@@ -177,21 +177,18 @@ final public class StreamingService extends Service implements
      * framework, register the media button events, register the remote control
      * client then setup and the framework streaming.
      */
+    private void tryToStream() {
+        if (preparingStreaming || !isPlaying || !app.getApplicationState().streamingMode) {
+            Log.d(TAG, "Not ready to stream.");
+        } else {
+            beginStreaming();
+        }
+    }
+
     private void beginStreaming() {
         Log.d(TAG, "StreamingService.beginStreaming()");
-        // just to be sure, we do not want to start when we're not supposed to
-        if (preparingStreaming || !isPlaying ||
-                !app.getApplicationState().streamingMode) {
-            Log.d(TAG, "beginStreaming return called early.");
-            return;
-        } else if (mediaPlayer == null) {
+        if (mediaPlayer == null) {
             windUpResources();
-
-            if (mediaPlayer == null) {
-                Log.d(TAG,
-                        "mediaPlayer null after attempt to populate, returning beginStreaming().");
-                return;
-            }
         }
 
         preparingStreaming = true;
@@ -298,7 +295,7 @@ final public class StreamingService extends Service implements
          * onStateChange() won't be called. If we still detect playing, restart the stream.
          */
         if (isPlaying) {
-            beginStreaming();
+            tryToStream();
         }
     }
 
@@ -385,7 +382,7 @@ final public class StreamingService extends Service implements
             Log.d(TAG,
                     "Stream had an error, trying to re-initiate streaming, try: " + errorIterator);
             errorIterator += 1;
-            beginStreaming();
+            tryToStream();
         } else {
             /**
              * If stopSelf() this will occur immediately, otherwise,
@@ -449,7 +446,7 @@ final public class StreamingService extends Service implements
 
         /** onError will often happen if we stop in the middle of preparing. */
         if (isPlaying) {
-            beginStreaming();
+            tryToStream();
         }
         errorIterator += 1;
         return true;
@@ -483,7 +480,7 @@ final public class StreamingService extends Service implements
 
         switch (intent.getAction()) {
             case ACTION_START:
-                beginStreaming();
+                tryToStream();
                 break;
             case ACTION_STOP:
                 stopStreaming();
@@ -526,7 +523,7 @@ final public class StreamingService extends Service implements
                 case MPDStatus.MPD_STATE_PLAYING:
                     stopControlHandlers();
                     isPlaying = true;
-                    beginStreaming();
+                    tryToStream();
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
                 case MPDStatus.MPD_STATE_PAUSED:
