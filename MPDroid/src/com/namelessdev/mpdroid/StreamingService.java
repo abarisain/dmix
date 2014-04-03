@@ -105,9 +105,6 @@ final public class StreamingService extends Service implements
 
     private AudioManager audioManager = null;
 
-    /** This field will contain the URL of the MPD server streaming source */
-    private String streamSource = null;
-
     private boolean streamingStoppedForCall = false;
 
     /** Is MPD playing? */
@@ -195,6 +192,7 @@ final public class StreamingService extends Service implements
             windUpResources();
         }
 
+        final String streamSource = getStreamSource();
         final int ASYNC_IDLE = 1500;
         preparingStreaming = true;
         stopControlHandlers();
@@ -225,7 +223,7 @@ final public class StreamingService extends Service implements
             Message msg = delayedPlayHandler.obtainMessage();
             delayedPlayHandler.sendMessageDelayed(msg, ASYNC_IDLE); /** Go to onPrepared() */
         } catch (IOException e) {
-            Log.e(TAG, "Failed to set the MediaPlayer data source for " + streamSource, e);
+            Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
             windDownResources();
         } catch (IllegalStateException e) {
             Log.e(TAG,
@@ -331,12 +329,14 @@ final public class StreamingService extends Service implements
         app.oMPDAsyncHelper.addConnectionListener(this);
         app.setActivity(this);
 
-        streamSource = "http://"
+        isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getState());
+    }
+
+    private String getStreamSource() {
+        return "http://"
                 + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":"
                 + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/"
                 + app.oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming;
-
-        isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getState());
     }
 
     /**
