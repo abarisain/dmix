@@ -287,17 +287,15 @@ final public class NotificationService extends Service implements MusicFocusable
                 mediaPlayerServiceIsBuffering = true;
                 action = ACTION_SHOW_NOTIFICATION;
                 break;
-            case StreamingService.ACTION_BUFFERING_END:
-                mediaPlayerServiceIsBuffering = false;
-                action = ACTION_UPDATE_INFO;
-                break;
             case StreamingService.ACTION_STOP:
                 if (notificationAutomaticallyGenerated) {
                     notificationAutomaticallyGenerated = false;
                     action = ACTION_CLOSE_NOTIFICATION;
-                } else { /** Turn off persistent notification. */
-                    action = ACTION_UPDATE_INFO;
-                }
+                    break;
+                } /** Else break through to turn off persistent notification. */
+            case StreamingService.ACTION_BUFFERING_END:
+                mediaPlayerServiceIsBuffering = false;
+                action = ACTION_UPDATE_INFO;
                 break;
         }
 
