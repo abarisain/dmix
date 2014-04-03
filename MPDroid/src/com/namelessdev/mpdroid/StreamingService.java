@@ -316,10 +316,8 @@ final public class StreamingService extends Service implements
 
         app = (MPDApplication) getApplication();
 
-        /** If streaming mode is not enabled, return */
         if (app == null || !app.getApplicationState().streamingMode) {
             stopSelf();
-            return;
         }
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -489,7 +487,6 @@ final public class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.onStartCommand()");
         if (!app.getApplicationState().streamingMode) {
             stopSelf();
-            return 0;
         }
 
         switch (intent.getAction()) {
