@@ -16,8 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
-
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
@@ -53,7 +51,6 @@ final public class StreamingService extends Service implements
          * OnInfoListener is not used because it is broken (never gets called, ever)..
          * OnBufferingUpdateListener is not used because it depends on a stream completion time.
          */
-        ConnectionListener,
         OnAudioFocusChangeListener,
         OnCompletionListener,
         OnErrorListener,
@@ -236,15 +233,7 @@ final public class StreamingService extends Service implements
     }
 
     @Override
-    public void connectionFailed(String message) {
-    }
-
-    @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-    }
-
-    @Override
-    public void connectionSucceeded(String message) {
     }
 
     /** A method to send a quick message to another class. */
@@ -324,7 +313,6 @@ final public class StreamingService extends Service implements
         StrictMode.setThreadPolicy(policy);
 
         app.oMPDAsyncHelper.addStatusChangeListener(this);
-        app.oMPDAsyncHelper.addConnectionListener(this);
         app.setActivity(this);
 
         isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getState());
@@ -406,7 +394,6 @@ final public class StreamingService extends Service implements
 
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
-        app.oMPDAsyncHelper.removeConnectionListener(this);
 
         windDownResources();
 
