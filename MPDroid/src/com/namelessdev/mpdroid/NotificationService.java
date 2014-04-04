@@ -574,6 +574,11 @@ final public class NotificationService extends Service implements MusicFocusable
     private RemoteViews buildBaseNotification(final RemoteViews resultView, final int state) {
         final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PAUSED
                 ? R.drawable.ic_media_play : R.drawable.ic_media_pause;
+        String title = mCurrentMusic.getTitle();
+
+        if (title == null) {
+            title = mCurrentMusic.getFilename();
+        }
 
         /** If in streaming, the notification should be persistent. */
         if (app.getApplicationState().streamingMode && !streamingServiceWoundDown) {
@@ -592,9 +597,9 @@ final public class NotificationService extends Service implements MusicFocusable
         /** When streaming, move things down (hopefully, very) temporarily. */
         if (mediaPlayerServiceIsBuffering) {
             resultView.setTextViewText(R.id.notificationTitle, getString(R.string.buffering));
-            resultView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getTitle());
+            resultView.setTextViewText(R.id.notificationArtist, title);
         } else {
-            resultView.setTextViewText(R.id.notificationTitle, mCurrentMusic.getTitle());
+            resultView.setTextViewText(R.id.notificationTitle, title);
             resultView.setTextViewText(R.id.notificationArtist, mCurrentMusic.getArtist());
         }
 
