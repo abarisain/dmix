@@ -470,10 +470,22 @@ final public class NotificationService extends Service implements MusicFocusable
         Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
 
         final MPDStatus mpdStatus = _mpdStatus == null ? getStatus() : _mpdStatus;
+        int state = -1;
 
-        final int state = MPDStatus.MPD_STATE_PLAYING.equals(mpdStatus.getState()) ?
-                RemoteControlClient.PLAYSTATE_PLAYING
-                : RemoteControlClient.PLAYSTATE_PAUSED;
+        if (mediaPlayerServiceIsBuffering) {
+            state = RemoteControlClient.PLAYSTATE_BUFFERING;
+        } else {
+            switch (mpdStatus.getState()) {
+                case MPDStatus.MPD_STATE_PLAYING:
+                    state = RemoteControlClient.PLAYSTATE_PLAYING;
+                    break;
+                case MPDStatus.MPD_STATE_STOPPED:
+                    state = RemoteControlClient.PLAYSTATE_STOPPED;
+                    break;
+                default:
+                    state = RemoteControlClient.PLAYSTATE_PAUSED;
+            }
+        }
 
         /** Update the current playing song. */
         if (mCurrentMusic == null) {
