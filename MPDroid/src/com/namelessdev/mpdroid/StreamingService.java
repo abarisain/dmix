@@ -61,9 +61,12 @@ final public class StreamingService extends Service implements
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
 
+    public static final String ACTION_NOTIFICATION_STOP = FULLY_QUALIFIED_NAME
+            + "NOTIFICATION_STOP";
+
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + "START_STREAMING";
 
-    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + "STOP_STREAMING";
+    public static final String ACTION_STREAMING_STOP = FULLY_QUALIFIED_NAME + "STOP_STREAMING";
 
     public static final String ACTION_BUFFERING_BEGIN = FULLY_QUALIFIED_NAME + "BUFFERING_BEGIN";
 
@@ -382,7 +385,7 @@ final public class StreamingService extends Service implements
              * to release the notification if it was generated for
              * StreamingService.
              */
-            sendIntent(ACTION_STOP, NotificationService.class);
+            sendIntent(ACTION_NOTIFICATION_STOP, NotificationService.class);
         }
     }
 
@@ -480,7 +483,7 @@ final public class StreamingService extends Service implements
             case ACTION_START:
                 tryToStream();
                 break;
-            case ACTION_STOP:
+            case ACTION_STREAMING_STOP:
                 stopStreaming();
                 break;
         }
@@ -545,6 +548,8 @@ final public class StreamingService extends Service implements
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
         }
+
+        sendIntent(ACTION_STREAMING_STOP, NotificationService.class);
 
         setupServiceControlHandlers();
     }

@@ -147,6 +147,11 @@ final public class NotificationService extends Service implements MusicFocusable
     private boolean mediaPlayerServiceIsBuffering = false;
 
     /**
+     * This tracks if the streamingService is up, but is not active (it's wound down).
+     */
+    private boolean streamingServiceWoundDown = false;
+
+    /**
      * If something started the notification by another class and
      * not user input, store it here.
      */
@@ -281,20 +286,25 @@ final public class NotificationService extends Service implements MusicFocusable
             app.getApplicationState().notificationMode = true;
         }
 
-        /** StreamingService switches first. */
+        /** Start with giving the fields default values, then set them if not default */
+        streamingServiceWoundDown = false;
+        mediaPlayerServiceIsBuffering = false;
         switch (action) {
             case StreamingService.ACTION_BUFFERING_BEGIN:
                 mediaPlayerServiceIsBuffering = true;
                 action = ACTION_SHOW_NOTIFICATION;
                 break;
-            case StreamingService.ACTION_STOP:
+            case StreamingService.ACTION_NOTIFICATION_STOP:
+                streamingServiceWoundDown = true;
+                action = ACTION_UPDATE_INFO;
+                break;
+            case StreamingService.ACTION_STREAMING_STOP:
                 if (notificationAutomaticallyGenerated) {
                     notificationAutomaticallyGenerated = false;
                     action = ACTION_CLOSE_NOTIFICATION;
                     break;
                 } /** Else break through to turn off persistent notification. */
             case StreamingService.ACTION_BUFFERING_END:
-                mediaPlayerServiceIsBuffering = false;
                 action = ACTION_UPDATE_INFO;
                 break;
         }
@@ -554,7 +564,7 @@ final public class NotificationService extends Service implements MusicFocusable
                 ? R.drawable.ic_media_play : R.drawable.ic_media_pause;
 
         /** If in streaming, the notification should be persistent. */
-        if (app.getApplicationState().streamingMode) {
+        if (app.getApplicationState().streamingMode && !streamingServiceWoundDown) {
             resultView.setViewVisibility(R.id.notificationClose, View.GONE);
         } else {
             resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
