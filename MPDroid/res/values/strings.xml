@@ -261,7 +261,7 @@
 
     <string name="locale_select_action">Pick the action to run</string>
 
-    <string name="showNotification">Show notification</string>
+    <string name="showNotification">Notification</string>
     <string name="closeNotification">Close notification</string>
     <string name="togglePlayback">Toggle playback</string>
     <string name="pause">Pause</string>

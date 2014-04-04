@@ -261,7 +261,7 @@
 
     <string name="locale_select_action">실행 선택하기</string>
 
-    <string name="showNotification">알림 열기</string>
+    <string name="showNotification">알림</string>
     <string name="closeNotification">알림 닫기</string>
     <string name="togglePlayback">연주 켰다 끄기</string>
     <string name="pause">잠시 멈춤</string>
