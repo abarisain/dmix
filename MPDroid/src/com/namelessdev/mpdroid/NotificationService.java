@@ -680,12 +680,18 @@ final public class NotificationService extends Service implements MusicFocusable
      * @param state The current playing RemoteControlClient state.
      */
     private void updateRemoteControlClient(final int state) {
-        mRemoteControlClient.editMetadata(true) //
-                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, mCurrentMusic.getArtist()) //
-                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum()) //
-                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle()) //
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, mCurrentMusic.getTime()) //
-                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover) //
+        mRemoteControlClient.editMetadata(true)
+                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum())
+                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                        mCurrentMusic.getAlbumArtist())
+                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, mCurrentMusic.getArtist())
+                .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                        mCurrentMusic.getTrack())
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER, mCurrentMusic.getDisc())
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                        mCurrentMusic.getTime() * 1000)
+                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle())
+                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover)
                 .apply();
         mRemoteControlClient.setPlaybackState(state);
         Log.d(TAG, "Updated remote client with state " + state + " for music " + mCurrentMusic);
