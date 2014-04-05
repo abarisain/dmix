@@ -274,6 +274,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
             }, 5000);
         } else {
+            /**
+             * This is a workaround for the upcoming workaround.
+             */
+            stopService(new Intent(this, NotificationService.class));
+            stopService(new Intent(this, StreamingService.class));
             /*
              * Nasty force quit, should shutdown everything nicely but there
              * just too many async tasks maybe I'll correctly implement
@@ -652,22 +657,18 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             case R.id.GMM_Stream:
                 if (app.getApplicationState().streamingMode) {
                     i = new Intent(this, StreamingService.class);
-                    i.setAction("com.namelessdev.mpdroid.DIE");
+                    this.stopService(i);
+                    app.getApplicationState().streamingMode = false;
+                } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
+
+                    /**
+                     * Start the streaming service.
+                     */
+                    i = new Intent(this, StreamingService.class);
+                    i.setAction(StreamingService.ACTION_START);
                     this.startService(i);
-                    ((MPDApplication) this.getApplication()).getApplicationState().streamingMode
-                            = false;
-                    // Toast.makeText(this, "MPD Streaming Stopped",
-                    // Toast.LENGTH_SHORT).show();
-                } else {
-                    if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                        i = new Intent(this, StreamingService.class);
-                        i.setAction("com.namelessdev.mpdroid.START_STREAMING");
-                        this.startService(i);
-                        ((MPDApplication) this.getApplication()).getApplicationState().streamingMode
-                                = true;
-                        // Toast.makeText(this, "MPD Streaming Started",
-                        // Toast.LENGTH_SHORT).show();
-                    }
+
+                    app.getApplicationState().streamingMode = true;
                 }
                 return true;
             case R.id.GMM_bonjour:
@@ -686,11 +687,19 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
                 return true;
             case R.id.GMM_ShowNotification:
-                i = new Intent(this, NotificationService.class);
-                i.setAction(NotificationService.ACTION_SHOW_NOTIFICATION);
-                this.startService(i);
-                return true;
+                if (app.getApplicationState().notificationMode) {
+                    i = new Intent(this, NotificationService.class);
+                    this.stopService(i);
 
+                    app.getApplicationState().notificationMode = false;
+                } else {
+                    i = new Intent(this, NotificationService.class);
+                    i.setAction(NotificationService.ACTION_SHOW_NOTIFICATION);
+                    this.startService(i);
+
+                    app.getApplicationState().notificationMode = true;
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -726,7 +735,21 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 menu.removeItem(CONNECT);
             }
         }
+
+        /** If in streamingMode don't allow a checkbox in the menu. */
+        MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
+        if(notificationItem != null) {
+            if (app.getApplicationState().streamingMode) {
+                notificationItem.setVisible(false);
+            } else {
+                notificationItem.setVisible(true);
+            }
+            
+            setMenuChecked(notificationItem, app.getApplicationState().notificationMode);
+        }
+
         setMenuChecked(menu.findItem(R.id.GMM_Stream), app.getApplicationState().streamingMode);
+
         final MPDStatus mpdStatus = app.getApplicationState().currentMpdStatus;
         if (mpdStatus != null) {
             setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());

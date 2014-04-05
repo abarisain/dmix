@@ -18,6 +18,7 @@
         android:title="@string/consumeMode"></item>
     <item
         android:id="@+id/GMM_ShowNotification"
+        android:checkable="true"
         android:orderInCategory="1"
         android:title="@string/showNotification"></item>
     <item

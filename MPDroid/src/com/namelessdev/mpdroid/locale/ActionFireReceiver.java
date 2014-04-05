@@ -90,7 +90,7 @@ public class ActionFireReceiver extends BroadcastReceiver {
                                 case NotificationService.ACTION_PREVIOUS:
                                     mpd.previous();
                                     break;
-                                case NotificationService.ACTION_SKIP:
+                                case NotificationService.ACTION_NEXT:
                                     mpd.next();
                                     break;
                                 case NotificationService.ACTION_TOGGLE_PLAYBACK:

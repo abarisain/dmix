@@ -82,6 +82,7 @@ public class MPDStatusMonitor extends Thread {
     public void run() {
         // initialize value cache
         int oldSong = -1;
+        int oldSongId = -1;
         int oldPlaylistVersion = -1;
         long oldElapsedTime = -1;
         String oldState = "";
@@ -157,51 +158,64 @@ public class MPDStatusMonitor extends Thread {
                         }
 
                         // song
-                        if (connectionStateChanged || oldSong != status.getSongPos()) {
-                            for (StatusChangeListener listener : statusChangedListeners)
+                        /**
+                         * songId is used here, otherwise, once consume mode is enabled getSongPos
+                         * would never iterate without manual user playlist queue intervention and
+                         * trackChanged() would never be called.
+                         */
+                        if (connectionStateChanged || oldSongId != status.getSongId()) {
+                            for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.trackChanged(status, oldSong);
+                            }
                             oldSong = status.getSongPos();
+                            oldSongId = status.getSongId();
                         }
 
                         // time
                         if (connectionStateChanged || oldElapsedTime != status.getElapsedTime()) {
-                            for (TrackPositionListener listener : trackPositionChangedListeners)
+                            for (TrackPositionListener listener : trackPositionChangedListeners) {
                                 listener.trackPositionChanged(status);
+                            }
                             oldElapsedTime = status.getElapsedTime();
                         }
 
                         // state
                         if (connectionStateChanged || !oldState.equals(status.getState())) {
-                            for (StatusChangeListener listener : statusChangedListeners)
+                            for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.stateChanged(status, oldState);
+                            }
                             oldState = status.getState();
                         }
 
                         // volume
                         if (connectionStateChanged || oldVolume != status.getVolume()) {
-                            for (StatusChangeListener listener : statusChangedListeners)
+                            for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.volumeChanged(status, oldVolume);
+                            }
                             oldVolume = status.getVolume();
                         }
 
                         // repeat
                         if (connectionStateChanged || oldRepeat != status.isRepeat()) {
-                            for (StatusChangeListener listener : statusChangedListeners)
+                            for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.repeatChanged(status.isRepeat());
+                            }
                             oldRepeat = status.isRepeat();
                         }
 
                         // volume
                         if (connectionStateChanged || oldRandom != status.isRandom()) {
-                            for (StatusChangeListener listener : statusChangedListeners)
+                            for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.randomChanged(status.isRandom());
+                            }
                             oldRandom = status.isRandom();
                         }
 
                         // update database
                         if (connectionStateChanged || oldUpdating != status.isUpdating()) {
-                            for (StatusChangeListener listener : statusChangedListeners)
+                            for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.libraryStateChanged(status.isUpdating());
+                            }
                             oldUpdating = status.isUpdating();
                         }
                     }

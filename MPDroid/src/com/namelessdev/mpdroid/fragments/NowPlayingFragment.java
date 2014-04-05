@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.StreamingService;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
@@ -95,12 +94,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                             }
                         }
                     }).start();
-                    if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
-                        i = new Intent(app, StreamingService.class);
-                        i.setAction("com.namelessdev.mpdroid.DIE");
-                        activity.startService(i);
-                        ((MPDApplication) activity.getApplication()).getApplicationState().streamingMode = false;
-                    }
                     break;
                 case R.id.next:
                     new Thread(new Runnable() {
@@ -113,11 +106,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                             }
                         }
                     }).start();
-                    if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
-                        i = new Intent(app, StreamingService.class);
-                        i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-                        activity.startService(i);
-                    }
                     break;
                 case R.id.prev:
                     new Thread(new Runnable() {
@@ -130,12 +118,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                             }
                         }
                     }).start();
-
-                    if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
-                        i = new Intent(app, StreamingService.class);
-                        i.setAction("com.namelessdev.mpdroid.RESET_STREAMING");
-                        activity.startService(i);
-                    }
                     break;
                 case R.id.playpause:
                     /**
@@ -186,12 +168,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         // Implements the ability to stop playing (may be useful
                         // for streams)
                         mpd.stop();
-                        Intent i;
-                        if (((MPDApplication) activity.getApplication()).getApplicationState().streamingMode) {
-                            i = new Intent(app, StreamingService.class);
-                            i.setAction("com.namelessdev.mpdroid.STOP_STREAMING");
-                            activity.startService(i);
-                        }
                         break;
                     default:
                         return false;

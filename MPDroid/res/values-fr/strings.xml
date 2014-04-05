@@ -234,7 +234,7 @@
     <string name="about_libraries">Bibliothèques</string>
 
     <string name="locale_select_action">Sélectionnez l\'action à effectuer</string>
-    <string name="showNotification">Afficher la notification</string>
+    <string name="showNotification">Notification</string>
     <string name="closeNotification">Fermer la notification</string>
     <string name="togglePlayback">Alterner le status de la lecture</string>
     <string name="pause">Pause</string>

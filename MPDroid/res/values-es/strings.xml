@@ -262,7 +262,7 @@
 
     <string name="locale_select_action">Elija la acción a seguir</string>
 
-    <string name="showNotification">Mostrar notificación</string>
+    <string name="showNotification">Notificación</string>
     <string name="closeNotification">Cerrar notificación</string>
     <string name="togglePlayback">Alternar reproducción</string>
     <string name="pause">Pausar</string>

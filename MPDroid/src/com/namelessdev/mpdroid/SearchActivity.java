@@ -16,6 +16,18 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
+import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.SearchResultDataBinder;
+
+import org.a0z.mpd.Album;
+import org.a0z.mpd.Artist;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
@@ -37,18 +49,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
-import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
-import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
-import com.namelessdev.mpdroid.tools.Tools;
-import com.namelessdev.mpdroid.views.SearchResultDataBinder;
-
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -344,6 +344,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         updateList();
         getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        app.oMPDAsyncHelper.removeAsyncExecListener(this);
     }
 
     @Override

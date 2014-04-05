@@ -16,7 +16,12 @@
 
 package com.namelessdev.mpdroid;
 
-import static android.util.Log.w;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.tools.SettingsHelper;
+
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatus;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,22 +39,18 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
-import com.namelessdev.mpdroid.tools.SettingsHelper;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.util.Log.w;
+
 public class MPDApplication extends Application implements ConnectionListener {
 
     public class ApplicationState {
         public boolean streamingMode = false;
+        public boolean notificationMode = false;
         public boolean settingsShown = false;
         public boolean warningShown = false;
         public MPDStatus currentMpdStatus = null;

@@ -22,28 +22,41 @@ import android.media.AudioManager;
 /**
  * Convenience class to deal with audio focus. This class deals with everything related to audio
  * focus: it can request and abandon focus, and will intercept focus change events and deliver
- * them to a MusicFocusable interface (which, in our case, is implemented by {@link NotificationService}).
- *
- * This class can only be used on SDK level 8 and above, since it uses API features that are not
- * available on previous SDK's.
+ * them to a MusicFocusable interface (which, in our case, is implemented by {@link
+ * NotificationService}).
  */
 public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener {
-    AudioManager mAM;
-    MusicFocusable mFocusable;
 
-    public AudioFocusHelper(Context ctx, MusicFocusable focusable) {
+    // we don't have audio focus, and can't duck
+    public final static int NO_FOCUS_NO_DUCK = 0;
+
+    // we don't have focus, but can play at a low volume ("ducking")
+    public final static int NO_FOCUS_CAN_DUCK = 1;
+
+    // we have full audio focus
+    public final static int FOCUSED = 2;
+
+    /** Audio focus management */
+    private final static String TAG = "AudioFocusHelper";
+
+    private final AudioManager mAM;
+
+    private final MusicFocusable mFocusable;
+
+    protected AudioFocusHelper(Context ctx, MusicFocusable focusable) {
         mAM = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         mFocusable = focusable;
     }
 
     /** Requests audio focus. Returns whether request was successful or not. */
-    public boolean requestFocus() {
+    final protected boolean requestFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
-            mAM.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+                mAM.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+                        AudioManager.AUDIOFOCUS_GAIN);
     }
 
     /** Abandons audio focus. Returns whether request was successful or not. */
-    public boolean abandonFocus() {
+    final public boolean abandonFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAM.abandonAudioFocus(this);
     }
 
@@ -51,8 +64,10 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
      * Called by AudioManager on audio focus changes. We implement this by calling our
      * MusicFocusable appropriately to relay the message.
      */
-    public void onAudioFocusChange(int focusChange) {
-        if (mFocusable == null) return;
+    final public void onAudioFocusChange(int focusChange) {
+        if (mFocusable == null) {
+            return;
+        }
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 mFocusable.onGainedAudioFocus();
@@ -64,7 +79,7 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 mFocusable.onLostAudioFocus(true);
                 break;
-             default:
+            default:
         }
     }
 }

@@ -239,7 +239,7 @@
     <string name="about_authors">Autoren</string>
     <string name="about_libraries">Programmbibliotheken</string>
 
-    <string name="showNotification">Benachrichtigung zeigen</string>
+    <string name="showNotification">Benachrichtigung</string>
     <string name="closeNotification">Benachrichtigung schließen</string>
     <string name="togglePlayback">Wiedergabe</string>
     <string name="pause">Pause</string>
