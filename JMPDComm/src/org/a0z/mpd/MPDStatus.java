@@ -1,5 +1,7 @@
 package org.a0z.mpd;
 
+import android.util.Log;
+
 /**
  * Class representing MPD Server status.
  *
@@ -27,6 +29,8 @@ public class MPDStatus {
      * MPD State: unknown.
      */
     public static final String MPD_STATE_UNKNOWN = "unknown";
+
+    private static final String TAG = "org.a0z.mpd.MPDStatus";
 
     private int playlistVersion;
 
@@ -388,6 +392,8 @@ public class MPDStatus {
                     this.updating = true;
                     break;
                 default:
+                    Log.d(TAG, "Status was sent an unknown response line:" + lines[1] +
+                            "from: " + lines[0]);
             }
         }
     }
