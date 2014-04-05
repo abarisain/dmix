@@ -289,72 +289,90 @@ public class MPDStatus {
         }
 
         for (String line : response) {
-            try {
-                if (line.startsWith("volume:")) {
-                    this.volume = Integer.parseInt(line.substring("volume: ".length()));
-                } else if (line.startsWith("bitrate:")) {
-                    this.bitrate = Long.parseLong(line.substring("bitrate: ".length()));
-                } else if (line.startsWith("playlist:")) {
-                    this.playlistVersion = Integer.parseInt(line.substring("playlist: ".length()));
-                } else if (line.startsWith("playlistlength:")) {
-                    this.playlistLength = Integer.parseInt(line.substring("playlistlength: "
-                            .length()));
-                } else if (line.startsWith("song:")) {
-                    this.song = Integer.parseInt(line.substring("song: ".length()));
-                } else if (line.startsWith("songid:")) {
-                    this.songId = Integer.parseInt(line.substring("songid: ".length()));
-                } else if (line.startsWith("repeat:")) {
-                    this.repeat = "1".equals(line.substring("repeat: ".length()));
-                } else if (line.startsWith("random:")) {
-                    this.random = "1".equals(line.substring("random: ".length()));
-                } else if (line.startsWith("state:")) {
-                    String state = line.substring("state: ".length());
+            String[] lines = line.split(": ");
 
-                    if (MPD_STATE_PAUSED.equals(state)) {
-                        this.state = MPD_STATE_PAUSED;
-                    } else if (MPD_STATE_PLAYING.equals(state)) {
-                        this.state = MPD_STATE_PLAYING;
-                    } else if (MPD_STATE_STOPPED.equals(state)) {
-                        this.state = MPD_STATE_STOPPED;
-                    } else {
-                        this.state = MPD_STATE_UNKNOWN;
-                    }
-                } else if (line.startsWith("error:")) {
-                    this.error = line.substring("error: ".length());
-                } else if (line.startsWith("time:")) {
-                    String[] time = line.substring("time: ".length()).split(":");
-                    elapsedTime = Long.parseLong(time[0]);
-                    totalTime = Long.parseLong(time[1]);
-                } else if (line.startsWith("audio:")) {
-                    String[] audio = line.substring("audio: ".length()).split(":");
+            switch (lines[0]) {
+                case "audio":
+                    final String[] audio = lines[1].split(":");
+
                     try {
-                        sampleRate = Integer.parseInt(audio[0]);
-                        bitsPerSample = Integer.parseInt(audio[1]);
-                        channels = Integer.parseInt(audio[2]);
+                        this.sampleRate = Integer.parseInt(audio[0]);
+                        this.bitsPerSample = Integer.parseInt(audio[1]);
+                        this.channels = Integer.parseInt(audio[2]);
                     } catch (NumberFormatException e) {
                         // Sometimes mpd sends "?" as a sampleRate or
                         // bitsPerSample, etc ... hotfix for a bugreport I had.
                     }
-                } else if (line.startsWith("xfade:")) {
-                    this.crossfade = Integer.parseInt(line.substring("xfade: ".length()));
-                } else if (line.startsWith("updating_db:")) {
-                    this.updating = true;
-                } else if (line.startsWith("nextsong:")) {
-                    this.nextSong = Integer.parseInt(line.substring("nextsong: ".length()));
-                } else if (line.startsWith("nextsongid:")) {
-                    this.nextSongId = Integer.parseInt(line.substring("nextsongid: ".length()));
-                } else if (line.startsWith("consume:")) {
-                    this.consume = "1".equals(line.substring("consume: ".length()));
-                } else if (line.startsWith("single:")) {
-                    this.single = "1".equals(line.substring("single: ".length()));
-                }
-                // TODO : Write else block that doesn't flood logcat.
+                    break;
+                case "bitrate":
+                    this.bitrate = Long.parseLong(lines[1]);
+                    break;
+                case "consume":
+                    this.consume = "1".equals(lines[1]);
+                    break;
+                case "error":
+                    this.error = lines[1];
+                    break;
+                case "nextsong":
+                    this.nextSong = Integer.parseInt(lines[1]);
+                    break;
+                case "nextsongid":
+                    this.nextSongId = Integer.parseInt(lines[1]);
+                    break;
+                case "playlist":
+                    this.playlistVersion = Integer.parseInt(lines[1]);
+                    break;
+                case "playlistlength":
+                    this.playlistLength = Integer.parseInt(lines[1]);
+                    break;
+                case "random":
+                    this.random = "1".equals(lines[1]);
+                    break;
+                case "repeat":
+                    this.repeat = "1".equals(lines[1]);
+                    break;
+                case "single":
+                    this.single = "1".equals(lines[1]);
+                    break;
+                case "song":
+                    this.song = Integer.parseInt(lines[1]);
+                    break;
+                case "songid":
+                    this.songId = Integer.parseInt(lines[1]);
+                    break;
+                case "state":
+                    switch (lines[1]) {
+                        case MPD_STATE_PAUSED:
+                            this.state = MPD_STATE_PAUSED;
+                            break;
+                        case MPD_STATE_PLAYING:
+                            this.state = MPD_STATE_PLAYING;
+                            break;
+                        case MPD_STATE_STOPPED:
+                            this.state = MPD_STATE_STOPPED;
+                            break;
+                        default:
+                            this.state = MPD_STATE_UNKNOWN;
+                            break;
+                    }
+                    break;
+                case "time":
+                    final String[] time = lines[1].split(":");
 
-            } catch (RuntimeException e) {
-                // Do nothing, these should be harmless
-                e.printStackTrace();
+                    this.elapsedTime = Long.parseLong(time[0]);
+                    this.totalTime = Long.parseLong(time[1]);
+                    break;
+                case "volume":
+                    this.volume = Integer.parseInt(lines[1]);
+                    break;
+                case "xfade":
+                    this.crossfade = Integer.parseInt(lines[1]);
+                    break;
+                case "updating_db":
+                    this.updating = true;
+                    break;
+                default:
             }
         }
     }
-
 }
