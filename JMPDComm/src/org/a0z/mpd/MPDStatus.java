@@ -1,7 +1,5 @@
 package org.a0z.mpd;
 
-import java.util.List;
-
 /**
  * Class representing MPD Server status.
  *
@@ -52,9 +50,9 @@ public class MPDStatus {
 
     private boolean consume;
 
-    private String state;
+    private String state = null;
 
-    private String error;
+    private String error = null;
 
     private long elapsedTime;
 
@@ -73,6 +71,10 @@ public class MPDStatus {
     private int channels;
 
     MPDStatus() {
+        single = false;
+        consume = false;
+        nextSong = 0;
+        nextSongId = 0;
         volume = 0;
         bitrate = 0;
         playlistVersion = 0;
@@ -81,8 +83,6 @@ public class MPDStatus {
         songId = 0;
         repeat = false;
         random = false;
-        state = null;
-        error = null;
         elapsedTime = 0;
         totalTime = 0;
         crossfade = 0;
@@ -97,7 +97,7 @@ public class MPDStatus {
      *
      * @return current track bitrate.
      */
-    public long getBitrate() {
+    final public long getBitrate() {
         return bitrate;
     }
 
@@ -106,7 +106,7 @@ public class MPDStatus {
      *
      * @return bits resolution from playing song.
      */
-    public int getBitsPerSample() {
+    final public int getBitsPerSample() {
         return bitsPerSample;
     }
 
@@ -115,7 +115,7 @@ public class MPDStatus {
      *
      * @return number of channels from playing song.
      */
-    public int getChannels() {
+    final public int getChannels() {
         return channels;
     }
 
@@ -124,7 +124,7 @@ public class MPDStatus {
      *
      * @return current cross-fade time in seconds.
      */
-    public int getCrossfade() {
+    final public int getCrossfade() {
         return crossfade;
     }
 
@@ -133,7 +133,7 @@ public class MPDStatus {
      *
      * @return current track elapsed time.
      */
-    public long getElapsedTime() {
+    final public long getElapsedTime() {
         return elapsedTime;
     }
 
@@ -142,15 +142,15 @@ public class MPDStatus {
      *
      * @return error message.
      */
-    public String getError() {
+    final public String getError() {
         return error;
     }
 
-    public int getNextSongId() {
+    final public int getNextSongId() {
         return nextSongId;
     }
 
-    public int getNextSongPos() {
+    final public int getNextSongPos() {
         return nextSong;
     }
 
@@ -159,7 +159,7 @@ public class MPDStatus {
      *
      * @return the length of the playlist.
      */
-    public int getPlaylistLength() {
+    final public int getPlaylistLength() {
         return playlistLength;
     }
 
@@ -168,7 +168,7 @@ public class MPDStatus {
      *
      * @return playlist version.
      */
-    public int getPlaylistVersion() {
+    final public int getPlaylistVersion() {
         return playlistVersion;
     }
 
@@ -177,7 +177,7 @@ public class MPDStatus {
      *
      * @return sample rate from playing song.
      */
-    public int getSampleRate() {
+    final public int getSampleRate() {
         return sampleRate;
     }
 
@@ -186,7 +186,7 @@ public class MPDStatus {
      *
      * @return current song playlist id.
      */
-    public int getSongId() {
+    final public int getSongId() {
         return songId;
     }
 
@@ -195,7 +195,7 @@ public class MPDStatus {
      *
      * @return current song playlist number.
      */
-    public int getSongPos() {
+    final public int getSongPos() {
         return song;
     }
 
@@ -205,7 +205,7 @@ public class MPDStatus {
      *
      * @return player state.
      */
-    public String getState() {
+    final public String getState() {
         return state;
     }
 
@@ -214,7 +214,7 @@ public class MPDStatus {
      *
      * @return current track total time.
      */
-    public long getTotalTime() {
+    final public long getTotalTime() {
         return totalTime;
     }
 
@@ -223,11 +223,11 @@ public class MPDStatus {
      *
      * @return volume.
      */
-    public int getVolume() {
+    final public int getVolume() {
         return volume;
     }
 
-    public boolean isConsume() {
+    final public boolean isConsume() {
         return consume;
     }
 
@@ -236,7 +236,7 @@ public class MPDStatus {
      *
      * @return true if random is enabled, false if random is disabled
      */
-    public boolean isRandom() {
+    final public boolean isRandom() {
         return random;
     }
 
@@ -245,11 +245,11 @@ public class MPDStatus {
      *
      * @return true if repeat is enabled, false if repeat is disabled.
      */
-    public boolean isRepeat() {
+    final public boolean isRepeat() {
         return repeat;
     }
 
-    public boolean isSingle() {
+    final public boolean isSingle() {
         return single;
     }
 
@@ -258,7 +258,7 @@ public class MPDStatus {
      *
      * @return the process id of any database update task.
      */
-    public boolean isUpdating() {
+    final public boolean isUpdating() {
         return updating;
     }
 
@@ -268,12 +268,28 @@ public class MPDStatus {
      * @return a string representation of the object.
      * @see java.lang.Object#toString()
      */
-    public String toString() {
-        return "volume: " + volume + ", bitrate: " + bitrate + ", playlist: " + playlistVersion
-                + ", playlistLength: " + playlistLength
-                + ", song: " + song + ", songid: " + songId + ", repeat: " + repeat + ", random: "
-                + random + ", state: " + state + ", error: "
-                + error + ", elapsedTime: " + elapsedTime + ", totalTime: " + totalTime;
+    final public String toString() {
+        return "bitsPerSample: " + bitsPerSample +
+                ", bitrate: " + bitrate +
+                ", channels: " + channels +
+                ", consume: " + consume +
+                ", crossfade: " + crossfade +
+                ", elapsedTime: " + elapsedTime +
+                ", error: " + error +
+                ", nextSong: " + nextSong +
+                ", nextSongId: " + nextSongId +
+                ", playlist: " + playlistVersion +
+                ", playlistLength: " + playlistLength +
+                ", random: " + random +
+                ", repeat: " + repeat +
+                ", sampleRate: " + sampleRate +
+                ", single: " + single +
+                ", song: " + song +
+                ", songid: " + songId +
+                ", state: " + state +
+                ", totalTime: " + totalTime +
+                ", updating: " + updating +
+                ", volume: " + volume;
     }
 
     /**
@@ -281,7 +297,7 @@ public class MPDStatus {
      *
      * @param response The response from the server.
      */
-    public void updateStatus(List<String> response) {
+    final public void updateStatus(Iterable<String> response) {
         // reset values
         this.updating = false;
         if (response == null) {
