@@ -62,11 +62,13 @@ final public class StreamingService extends Service implements
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
 
+    /** Kills (or hides) the notification if StreamingService started it. */
     public static final String ACTION_NOTIFICATION_STOP = FULLY_QUALIFIED_NAME
             + "NOTIFICATION_STOP";
 
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + "START_STREAMING";
 
+    /** Keeps the notification alive, but puts it in non-streaming status. */
     public static final String ACTION_STREAMING_STOP = FULLY_QUALIFIED_NAME + "STOP_STREAMING";
 
     public static final String ACTION_BUFFERING_BEGIN = FULLY_QUALIFIED_NAME + "BUFFERING_BEGIN";
@@ -85,14 +87,6 @@ final public class StreamingService extends Service implements
         @Override
         public void handleMessage(Message msg) {
             mediaPlayer.prepareAsync();
-        }
-    };
-
-    final private Handler delayedWindDownHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            Log.d("TAG", "Winding down resource by delay.");
-            windDownResources();
         }
     };
 
@@ -148,11 +142,6 @@ final public class StreamingService extends Service implements
 
     /** Keep track when mediaPlayer is preparing a stream */
     private boolean preparingStreaming = false;
-
-    private static void setupHandler(final Handler delayedHandler, final int DELAY) {
-        Message msg = delayedHandler.obtainMessage();
-        delayedHandler.sendMessageDelayed(msg, DELAY);
-    }
 
     /**
      * getState is a convenience method to safely retrieve a state object.
@@ -395,15 +384,6 @@ final public class StreamingService extends Service implements
             errorIterator += 1;
             preparingStreaming = false;
             tryToStream();
-        } else {
-            /**
-             * If stopSelf() this will occur immediately, otherwise,
-             * give the user time (WIND_DOWN_IDLE_DELAY) to toggle the
-             * play button. Send a message to the NotificationService
-             * to release the notification if it was generated for
-             * StreamingService.
-             */
-            sendIntent(ACTION_NOTIFICATION_STOP, NotificationService.class);
         }
     }
 
@@ -417,6 +397,8 @@ final public class StreamingService extends Service implements
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
 
         windDownResources();
+
+        sendIntent(ACTION_NOTIFICATION_STOP, NotificationService.class);
 
         app.unsetActivity(this);
         app.getApplicationState().streamingMode = false;
@@ -569,13 +551,13 @@ final public class StreamingService extends Service implements
 
         sendIntent(ACTION_STREAMING_STOP, NotificationService.class);
 
+        windDownResources();
         setupServiceControlHandlers();
     }
 
     private void stopControlHandlers() {
         if (serviceControlHandlersActive) {
             Log.d(TAG, "Removing control handlers");
-            delayedWindDownHandler.removeCallbacksAndMessages(null);
             delayedStopHandler.removeCallbacksAndMessages(null);
             serviceControlHandlersActive = false;
         }
@@ -584,17 +566,12 @@ final public class StreamingService extends Service implements
     private void setupServiceControlHandlers() {
         if (!serviceControlHandlersActive) {
             Log.d(TAG, "Setting up control handlers");
-            final int STOP_IDLE_DELAY = 900000; /** 15 minutes */
-            final int WIND_DOWN_IDLE_DELAY = 210000; /** 3.5 minutes  */
-            /**
-             * Wind down handler, this gives the user time to come back and click on the
-             * notification.
-             */
-            setupHandler(delayedWindDownHandler, WIND_DOWN_IDLE_DELAY);
+            final int STOP_IDLE_DELAY = 600000; /** 10 minutes */
             /**
              * Stop handler so we don't annoy the user when they forget to turn streamingMode off.
              */
-            setupHandler(delayedStopHandler, STOP_IDLE_DELAY);
+            final Message msg = delayedStopHandler.obtainMessage();
+            delayedStopHandler.sendMessageDelayed(msg, STOP_IDLE_DELAY);
             serviceControlHandlersActive = true;
         }
     }
