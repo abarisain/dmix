@@ -739,6 +739,16 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             }
         }
 
+        final MenuItem saveItem = menu.findItem(R.id.PLM_Save);
+        final MenuItem clearItem = menu.findItem(R.id.PLM_Clear);
+        if (!isDualPaneMode && nowPlayingPager != null && nowPlayingPager.getCurrentItem() == 0) {
+            saveItem.setVisible(false);
+            clearItem.setVisible(false);
+        } else {
+            saveItem.setVisible(true);
+            clearItem.setVisible(true);
+        }
+
         /** If in streamingMode don't allow a checkbox in the menu. */
         MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
         if(notificationItem != null) {
