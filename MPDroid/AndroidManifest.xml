@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <!-- Cover art cache -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Wake Lock for Streaming -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name="com.namelessdev.mpdroid.MPDApplication"

@@ -32,6 +32,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.StrictMode;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -106,6 +107,8 @@ final public class StreamingService extends Service implements
     private AudioManager audioManager = null;
 
     private boolean streamingStoppedForCall = false;
+
+    private PowerManager.WakeLock mWakeLock = null;
 
     /** Is MPD playing? */
     private boolean isPlaying = false;
@@ -335,6 +338,14 @@ final public class StreamingService extends Service implements
     private void windUpResources() {
         Log.d(TAG, "Winding up resources.");
 
+        if (mWakeLock == null) {
+            final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
+            mWakeLock.setReferenceCounted(false);
+        }
+
+        mWakeLock.acquire();
+
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -352,6 +363,13 @@ final public class StreamingService extends Service implements
      */
     private void windDownResources() {
         Log.d(TAG, "Winding down resources.");
+
+        /**
+         * Make sure that the first thing we do is releasing the wake lock
+         */
+        if (mWakeLock != null) {
+            mWakeLock.release();
+        }
 
         if (mTelephonyManager != null) {
             mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
