@@ -258,6 +258,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 super.onBackPressed();
                 return;
             }
+        } else {
+            switchMode(DisplayMode.MODE_LIBRARY);
+            return;
         }
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
