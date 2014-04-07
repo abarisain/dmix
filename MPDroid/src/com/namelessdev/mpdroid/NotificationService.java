@@ -800,7 +800,7 @@ final public class NotificationService extends Service implements MusicFocusable
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in trackChanged");
-        } else if (mpdStatus.getPlaylistLength() != 0) {
+        } else {
             final int songPos = mpdStatus.getSongPos();
             if (songPos >= 0) {
                 mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
