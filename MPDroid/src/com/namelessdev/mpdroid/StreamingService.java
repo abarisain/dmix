@@ -62,11 +62,13 @@ final public class StreamingService extends Service implements
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
 
+    /** Kills (or hides) the notification if StreamingService started it. */
     public static final String ACTION_NOTIFICATION_STOP = FULLY_QUALIFIED_NAME
             + "NOTIFICATION_STOP";
 
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + "START_STREAMING";
 
+    /** Keeps the notification alive, but puts it in non-streaming status. */
     public static final String ACTION_STREAMING_STOP = FULLY_QUALIFIED_NAME + "STOP_STREAMING";
 
     public static final String ACTION_BUFFERING_BEGIN = FULLY_QUALIFIED_NAME + "BUFFERING_BEGIN";
@@ -85,14 +87,6 @@ final public class StreamingService extends Service implements
         @Override
         public void handleMessage(Message msg) {
             mediaPlayer.prepareAsync();
-        }
-    };
-
-    final private Handler delayedWindDownHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            Log.d("TAG", "Winding down resource by delay.");
-            windDownResources();
         }
     };
 
@@ -129,7 +123,7 @@ final public class StreamingService extends Service implements
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                     if (isPlaying) {
                         streamingStoppedForCall = true;
-                        stopStreaming();
+                        windDownResources(ACTION_STREAMING_STOP);
                     }
                     break;
                 case TelephonyManager.CALL_STATE_IDLE:
@@ -148,11 +142,6 @@ final public class StreamingService extends Service implements
 
     /** Keep track when mediaPlayer is preparing a stream */
     private boolean preparingStreaming = false;
-
-    private static void setupHandler(final Handler delayedHandler, final int DELAY) {
-        Message msg = delayedHandler.obtainMessage();
-        delayedHandler.sendMessageDelayed(msg, DELAY);
-    }
 
     /**
      * getState is a convenience method to safely retrieve a state object.
@@ -227,12 +216,12 @@ final public class StreamingService extends Service implements
             delayedPlayHandler.sendMessageDelayed(msg, ASYNC_IDLE); /** Go to onPrepared() */
         } catch (IOException e) {
             Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
-            windDownResources();
+            windDownResources(ACTION_STREAMING_STOP);
         } catch (IllegalStateException e) {
             Log.e(TAG,
                     "This is typically caused by a change in the server state during stream preparation.",
                     e);
-            windDownResources();
+            windDownResources(ACTION_STREAMING_STOP);
         } finally {
             delayedPlayHandler.removeCallbacksAndMessages(delayedPlayHandler);
         }
@@ -273,7 +262,7 @@ final public class StreamingService extends Service implements
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             mediaPlayer.setVolume(1f, 1f);
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            stopStreaming();
+            windDownResources(ACTION_STREAMING_STOP);
         }
     }
 
@@ -292,17 +281,14 @@ final public class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.onCompletion()");
 
         /**
-         * Streaming should already be stopped at this point,
-         * but there might be some things to clean up.
-         */
-        stopStreaming();
-
-        /**
          * If MPD is restarted during streaming, onCompletion() will be called.
          * onStateChange() won't be called. If we still detect playing, restart the stream.
          */
         if (isPlaying) {
             tryToStream();
+        } else {
+            /** The only way we make it here is with an empty playlist. */
+            windDownResources(ACTION_NOTIFICATION_STOP);
         }
     }
 
@@ -319,7 +305,7 @@ final public class StreamingService extends Service implements
         StrictMode.setThreadPolicy(policy);
 
         app.oMPDAsyncHelper.addStatusChangeListener(this);
-        app.setActivity(this);
+        app.addConnectionLock(this);
 
         isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getState());
     }
@@ -340,7 +326,7 @@ final public class StreamingService extends Service implements
 
         if (mWakeLock == null) {
             final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
             mWakeLock.setReferenceCounted(false);
         }
 
@@ -361,8 +347,16 @@ final public class StreamingService extends Service implements
      * windDownResources occurs after a delay or during stopSelf() to
      * clean up resources and give up focus to the phone and sound.
      */
-    private void windDownResources() {
+    private void windDownResources(String action) {
         Log.d(TAG, "Winding down resources.");
+
+        if (ACTION_STREAMING_STOP.equals(action)) {
+            setupServiceControlHandlers();
+        }
+
+        if (action != null) {
+            sendIntent(action, NotificationService.class);
+        }
 
         /**
          * Make sure that the first thing we do is releasing the wake lock
@@ -376,7 +370,6 @@ final public class StreamingService extends Service implements
         }
 
         if (mediaPlayer != null) {
-            /** This won't happened with delayed handler, but it can with stopSelf(). */
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
             }
@@ -395,15 +388,6 @@ final public class StreamingService extends Service implements
             errorIterator += 1;
             preparingStreaming = false;
             tryToStream();
-        } else {
-            /**
-             * If stopSelf() this will occur immediately, otherwise,
-             * give the user time (WIND_DOWN_IDLE_DELAY) to toggle the
-             * play button. Send a message to the NotificationService
-             * to release the notification if it was generated for
-             * StreamingService.
-             */
-            sendIntent(ACTION_NOTIFICATION_STOP, NotificationService.class);
         }
     }
 
@@ -416,9 +400,9 @@ final public class StreamingService extends Service implements
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
 
-        windDownResources();
+        windDownResources(ACTION_NOTIFICATION_STOP);
 
-        app.unsetActivity(this);
+        app.removeConnectionLock(this);
         app.getApplicationState().streamingMode = false;
     }
 
@@ -452,7 +436,7 @@ final public class StreamingService extends Service implements
         preparingStreaming = false;
 
         /** Either way we need to stop streaming. */
-        stopStreaming();
+        windDownResources(ACTION_STREAMING_STOP);
 
         /** onError will often happen if we stop in the middle of preparing. */
         if (isPlaying) {
@@ -479,7 +463,7 @@ final public class StreamingService extends Service implements
             mediaPlayer.start();
         } else {
             /** Because preparingStreaming is still set, this will reset the stream. */
-            stopStreaming();
+            windDownResources(ACTION_STREAMING_STOP);
         }
 
         preparingStreaming = false;
@@ -502,7 +486,7 @@ final public class StreamingService extends Service implements
                 tryToStream();
                 break;
             case ACTION_STREAMING_STOP:
-                stopStreaming();
+                windDownResources(ACTION_STREAMING_STOP);
                 break;
         }
 
@@ -553,29 +537,20 @@ final public class StreamingService extends Service implements
                     if (preparingStreaming) {
                         sendIntent(ACTION_BUFFERING_END, NotificationService.class);
                     }
+
+                    /** If the playlistLength is == 0, let onCompletion handle it. */
+                    if (mpdStatus.getPlaylistLength() != 0) {
+                        windDownResources(ACTION_STREAMING_STOP);
+                    }
                     isPlaying = false;
-                    stopStreaming();
                     break;
             }
         }
     }
 
-    private void stopStreaming() {
-        Log.d(TAG, "StreamingService.stopStreaming()");
-
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-        }
-
-        sendIntent(ACTION_STREAMING_STOP, NotificationService.class);
-
-        setupServiceControlHandlers();
-    }
-
     private void stopControlHandlers() {
         if (serviceControlHandlersActive) {
             Log.d(TAG, "Removing control handlers");
-            delayedWindDownHandler.removeCallbacksAndMessages(null);
             delayedStopHandler.removeCallbacksAndMessages(null);
             serviceControlHandlersActive = false;
         }
@@ -584,17 +559,12 @@ final public class StreamingService extends Service implements
     private void setupServiceControlHandlers() {
         if (!serviceControlHandlersActive) {
             Log.d(TAG, "Setting up control handlers");
-            final int STOP_IDLE_DELAY = 900000; /** 15 minutes */
-            final int WIND_DOWN_IDLE_DELAY = 210000; /** 3.5 minutes  */
-            /**
-             * Wind down handler, this gives the user time to come back and click on the
-             * notification.
-             */
-            setupHandler(delayedWindDownHandler, WIND_DOWN_IDLE_DELAY);
+            final int STOP_IDLE_DELAY = 600000; /** 10 minutes */
             /**
              * Stop handler so we don't annoy the user when they forget to turn streamingMode off.
              */
-            setupHandler(delayedStopHandler, STOP_IDLE_DELAY);
+            final Message msg = delayedStopHandler.obtainMessage();
+            delayedStopHandler.sendMessageDelayed(msg, STOP_IDLE_DELAY);
             serviceControlHandlersActive = true;
         }
     }

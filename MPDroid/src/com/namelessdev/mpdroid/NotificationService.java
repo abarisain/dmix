@@ -91,13 +91,6 @@ final public class NotificationService extends Service implements MusicFocusable
 
     public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
-    /**
-     * This is the idle delay for shutting down this service after inactivity (in milliseconds).
-     * This idle is also longer than StreamingService to avoid being unnecessarily brought
-     * up to shut right back down.
-     */
-    private static final int IDLE_DELAY = 600000;
-
     /** Pre-built PendingIntent actions */
     private static PendingIntent notificationClose = null;
 
@@ -294,11 +287,11 @@ final public class NotificationService extends Service implements MusicFocusable
                 mediaPlayerServiceIsBuffering = true;
                 action = ACTION_SHOW_NOTIFICATION;
                 break;
-            case StreamingService.ACTION_NOTIFICATION_STOP:
+            case StreamingService.ACTION_STREAMING_STOP:
                 streamingServiceWoundDown = true;
                 action = ACTION_UPDATE_INFO;
                 break;
-            case StreamingService.ACTION_STREAMING_STOP:
+            case StreamingService.ACTION_NOTIFICATION_STOP:
                 if (notificationAutomaticallyGenerated) {
                     notificationAutomaticallyGenerated = false;
                     action = ACTION_CLOSE_NOTIFICATION;
@@ -789,7 +782,15 @@ final public class NotificationService extends Service implements MusicFocusable
                     break;
                 case MPDStatus.MPD_STATE_PAUSED:
                 case MPDStatus.MPD_STATE_STOPPED:
-                    /** Call stopSelf() in IDLE_DELAY, if still idle. */
+                    if (mpdStatus.getPlaylistLength() == 0) {
+                        stopSelf();
+                    }
+                    /**
+                     * This is the idle delay for shutting down this service after inactivity
+                     * (in milliseconds). This idle is also longer than StreamingService to
+                     * avoid being unnecessarily brought up to shut right back down.
+                     */
+                    final int IDLE_DELAY = 630000; /** 10 Minutes 30 Seconds */
                     Message msg = delayedStopHandler.obtainMessage();
                     delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
                     break;
@@ -802,7 +803,7 @@ final public class NotificationService extends Service implements MusicFocusable
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in trackChanged");
-        } else if (mpdStatus.getPlaylistLength() != 0) {
+        } else {
             final int songPos = mpdStatus.getSongPos();
             if (songPos >= 0) {
                 mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
