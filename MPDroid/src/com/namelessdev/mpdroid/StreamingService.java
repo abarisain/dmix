@@ -281,17 +281,14 @@ final public class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.onCompletion()");
 
         /**
-         * Streaming should already be stopped at this point,
-         * but there might be some things to clean up.
-         */
-        stopStreaming();
-
-        /**
          * If MPD is restarted during streaming, onCompletion() will be called.
          * onStateChange() won't be called. If we still detect playing, restart the stream.
          */
         if (isPlaying) {
             tryToStream();
+        } else {
+            /** The only way we make it here is with an empty playlist. */
+            stopStreaming();
         }
     }
 
@@ -535,8 +532,12 @@ final public class StreamingService extends Service implements
                     if (preparingStreaming) {
                         sendIntent(ACTION_BUFFERING_END, NotificationService.class);
                     }
+
+                    /** If the playlistLength is == 0, let onCompletion handle it. */
+                    if (mpdStatus.getPlaylistLength() != 0) {
+                        stopStreaming();
+                    }
                     isPlaying = false;
-                    stopStreaming();
                     break;
             }
         }
