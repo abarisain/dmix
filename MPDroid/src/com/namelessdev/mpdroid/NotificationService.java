@@ -782,6 +782,9 @@ final public class NotificationService extends Service implements MusicFocusable
                     break;
                 case MPDStatus.MPD_STATE_PAUSED:
                 case MPDStatus.MPD_STATE_STOPPED:
+                    if (mpdStatus.getPlaylistLength() == 0) {
+                        stopSelf();
+                    }
                     /**
                      * This is the idle delay for shutting down this service after inactivity
                      * (in milliseconds). This idle is also longer than StreamingService to
