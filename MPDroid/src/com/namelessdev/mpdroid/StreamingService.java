@@ -262,7 +262,7 @@ final public class StreamingService extends Service implements
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             mediaPlayer.setVolume(1f, 1f);
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            windDownResources(ACTION_STREAMING_STOP);
+            sendIntent(NotificationService.ACTION_PAUSE, NotificationService.class);
         }
     }
 
@@ -301,6 +301,8 @@ final public class StreamingService extends Service implements
             stopSelf();
         }
 
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
@@ -325,14 +327,12 @@ final public class StreamingService extends Service implements
         Log.d(TAG, "Winding up resources.");
 
         if (mWakeLock == null) {
-            final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+            final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
             mWakeLock.setReferenceCounted(false);
         }
 
         mWakeLock.acquire();
-
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -397,6 +397,10 @@ final public class StreamingService extends Service implements
 
         stopControlHandlers();
 
+        if (audioManager != null) {
+            audioManager.abandonAudioFocus(this);
+        }
+
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
 
@@ -454,11 +458,13 @@ final public class StreamingService extends Service implements
     @Override
     final public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onPrepared()");
+        final int focusResult = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN);
 
         /**
          * Not to be playing here is unlikely but it's a race we need to avoid.
          */
-        if (isPlaying) {
+        if (isPlaying && focusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             sendIntent(ACTION_BUFFERING_END, NotificationService.class);
             mediaPlayer.start();
         } else {

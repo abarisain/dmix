@@ -416,11 +416,15 @@ final public class NotificationService extends Service implements MusicFocusable
     }
 
     private void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocusHelper.FOCUSED && mAudioFocusHelper != null
-                && mAudioFocusHelper
-                .requestFocus()) {
-            Log.d(TAG, "Trying to gain audio focus.");
-            mAudioFocus = AudioFocusHelper.FOCUSED;
+        if (mAudioFocus != AudioFocusHelper.FOCUSED &&
+                mAudioFocusHelper != null) {
+            if (app.getApplicationState().streamingMode && !streamingServiceWoundDown) {
+                Log.d(TAG, "Ignoring audio focus, streamingMode has focus");
+            } else {
+                mAudioFocusHelper.requestFocus();
+                Log.d(TAG, "Trying to gain audio focus.");
+                mAudioFocus = AudioFocusHelper.FOCUSED;
+            }
         }
     }
 
@@ -545,8 +549,8 @@ final public class NotificationService extends Service implements MusicFocusable
             } else {
                 mAlbumCover = Tools
                         .decodeSampledBitmapFromPath(coverArtPath, getResources()
-                                        .getDimensionPixelSize(
-                                                android.R.dimen.notification_large_icon_width),
+                                .getDimensionPixelSize(
+                                        android.R.dimen.notification_large_icon_width),
                                 getResources()
                                         .getDimensionPixelSize(
                                                 android.R.dimen.notification_large_icon_height),
