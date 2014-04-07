@@ -58,8 +58,7 @@ import android.widget.RemoteViews;
  * A service that handles the Notification, RemoteControlClient, MediaButtonReceiver and
  * incoming MPD command intents.
  */
-final public class NotificationService extends Service implements MusicFocusable,
-        StatusChangeListener {
+final public class NotificationService extends Service implements StatusChangeListener {
 
     private final static String TAG = "NotificationService";
 
@@ -120,14 +119,9 @@ final public class NotificationService extends Service implements MusicFocusable
     // The component name of MusicIntentReceiver, for use with media button and remote control APIs
     private ComponentName mMediaButtonReceiverComponent = null;
 
-    /**
-     * If not available, this will be null. Always check for null before using
-     */
-    private AudioFocusHelper mAudioFocusHelper = null;
-
-    private int mAudioFocus = AudioFocusHelper.NO_FOCUS_NO_DUCK;
-
     private AudioManager mAudioManager = null;
+
+    private boolean isAudioFocusedOnThis = false;
 
     private NotificationManager mNotificationManager = null;
 
@@ -237,8 +231,6 @@ final public class NotificationService extends Service implements MusicFocusable
             stopSelf();
         }
 
-        mAudioFocusHelper = new AudioFocusHelper(app, this);
-
         //TODO: Acquire a network wake lock here if the user wants us to !
         //Otherwise we'll just shut down on screen off and reconnect on screen on
         //Tons of work ahead
@@ -300,6 +292,14 @@ final public class NotificationService extends Service implements MusicFocusable
             case StreamingService.ACTION_BUFFERING_END:
                 action = ACTION_UPDATE_INFO;
                 break;
+        }
+
+        /** If a local user begins mpdroid again by intent, try to regain audio focus. */
+        switch (action) {
+            case ACTION_PLAY:
+            case ACTION_NEXT:
+            case ACTION_PREVIOUS:
+                tryToGetAudioFocus();
         }
 
         switch (action) {
@@ -406,37 +406,19 @@ final public class NotificationService extends Service implements MusicFocusable
         }.execute(app);
     }
 
-    private void giveUpAudioFocus() {
-        Log.d(TAG, "Giving up audio focus.");
-        if (mAudioFocus == AudioFocusHelper.FOCUSED && mAudioFocusHelper != null
-                && mAudioFocusHelper
-                .abandonFocus()) {
-            mAudioFocus = AudioFocusHelper.NO_FOCUS_NO_DUCK;
-        }
-    }
-
+    /**
+     * We try to get audio focus, but don't really try too hard.
+     * We just want the lock screen cover art.
+     */
     private void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocusHelper.FOCUSED &&
-                mAudioFocusHelper != null) {
-            if (app.getApplicationState().streamingMode && !streamingServiceWoundDown) {
-                Log.d(TAG, "Ignoring audio focus, streamingMode has focus");
-            } else {
-                mAudioFocusHelper.requestFocus();
-                Log.d(TAG, "Trying to gain audio focus.");
-                mAudioFocus = AudioFocusHelper.FOCUSED;
-            }
+        if ((streamingServiceWoundDown || !app.getApplicationState().streamingMode) &&
+                !isAudioFocusedOnThis) {
+            Log.d(TAG, "requesting audio focus");
+            final int result = mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN);
+
+            isAudioFocusedOnThis = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         }
-    }
-
-    final public void onGainedAudioFocus() {
-        Log.d(TAG, "Gained audio focus.");
-        mAudioFocus = AudioFocusHelper.FOCUSED;
-    }
-
-    final public void onLostAudioFocus(boolean canDuck) {
-        Log.d(TAG, "Lost audio focus.");
-        mAudioFocus = canDuck ? AudioFocusHelper.NO_FOCUS_CAN_DUCK
-                : AudioFocusHelper.NO_FOCUS_NO_DUCK;
     }
 
     /**
@@ -467,7 +449,7 @@ final public class NotificationService extends Service implements MusicFocusable
         Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
 
         final MPDStatus mpdStatus = _mpdStatus == null ? getStatus() : _mpdStatus;
-        int state = -1;
+        int state;
 
         if (mediaPlayerServiceIsBuffering) {
             state = RemoteControlClient.PLAYSTATE_BUFFERING;
@@ -728,8 +710,6 @@ final public class NotificationService extends Service implements MusicFocusable
             mNotificationManager.cancel(NOTIFICATION_ID);
         }
 
-        giveUpAudioFocus();
-
         if (mAudioManager != null) {
             if (mRemoteControlClient != null) {
                 mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
@@ -739,6 +719,8 @@ final public class NotificationService extends Service implements MusicFocusable
             if (mMediaButtonReceiverComponent != null) {
                 mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
             }
+
+            mAudioManager.abandonAudioFocus(null);
         }
         app.getApplicationState().notificationMode = false;
     }
