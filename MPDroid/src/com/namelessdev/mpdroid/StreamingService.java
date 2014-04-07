@@ -305,7 +305,7 @@ final public class StreamingService extends Service implements
         StrictMode.setThreadPolicy(policy);
 
         app.oMPDAsyncHelper.addStatusChangeListener(this);
-        app.setActivity(this);
+        app.addConnectionLock(this);
 
         isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getState());
     }
@@ -397,7 +397,7 @@ final public class StreamingService extends Service implements
 
         sendIntent(ACTION_NOTIFICATION_STOP, NotificationService.class);
 
-        app.unsetActivity(this);
+        app.removeConnectionLock(this);
         app.getApplicationState().streamingMode = false;
     }
 
