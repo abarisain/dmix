@@ -123,7 +123,7 @@ final public class StreamingService extends Service implements
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                     if (isPlaying) {
                         streamingStoppedForCall = true;
-                        stopStreaming();
+                        windDownResources(ACTION_STREAMING_STOP);
                     }
                     break;
                 case TelephonyManager.CALL_STATE_IDLE:
@@ -216,12 +216,12 @@ final public class StreamingService extends Service implements
             delayedPlayHandler.sendMessageDelayed(msg, ASYNC_IDLE); /** Go to onPrepared() */
         } catch (IOException e) {
             Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
-            windDownResources();
+            windDownResources(ACTION_STREAMING_STOP);
         } catch (IllegalStateException e) {
             Log.e(TAG,
                     "This is typically caused by a change in the server state during stream preparation.",
                     e);
-            windDownResources();
+            windDownResources(ACTION_STREAMING_STOP);
         } finally {
             delayedPlayHandler.removeCallbacksAndMessages(delayedPlayHandler);
         }
@@ -262,7 +262,7 @@ final public class StreamingService extends Service implements
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             mediaPlayer.setVolume(1f, 1f);
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            stopStreaming();
+            windDownResources(ACTION_STREAMING_STOP);
         }
     }
 
@@ -288,7 +288,7 @@ final public class StreamingService extends Service implements
             tryToStream();
         } else {
             /** The only way we make it here is with an empty playlist. */
-            stopStreaming();
+            windDownResources(ACTION_NOTIFICATION_STOP);
         }
     }
 
@@ -347,8 +347,16 @@ final public class StreamingService extends Service implements
      * windDownResources occurs after a delay or during stopSelf() to
      * clean up resources and give up focus to the phone and sound.
      */
-    private void windDownResources() {
+    private void windDownResources(String action) {
         Log.d(TAG, "Winding down resources.");
+
+        if (ACTION_STREAMING_STOP.equals(action)) {
+            setupServiceControlHandlers();
+        }
+
+        if (action != null) {
+            sendIntent(action, NotificationService.class);
+        }
 
         /**
          * Make sure that the first thing we do is releasing the wake lock
@@ -362,7 +370,6 @@ final public class StreamingService extends Service implements
         }
 
         if (mediaPlayer != null) {
-            /** This won't happened with delayed handler, but it can with stopSelf(). */
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
             }
@@ -393,9 +400,7 @@ final public class StreamingService extends Service implements
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
 
-        windDownResources();
-
-        sendIntent(ACTION_NOTIFICATION_STOP, NotificationService.class);
+        windDownResources(ACTION_NOTIFICATION_STOP);
 
         app.removeConnectionLock(this);
         app.getApplicationState().streamingMode = false;
@@ -431,7 +436,7 @@ final public class StreamingService extends Service implements
         preparingStreaming = false;
 
         /** Either way we need to stop streaming. */
-        stopStreaming();
+        windDownResources(ACTION_STREAMING_STOP);
 
         /** onError will often happen if we stop in the middle of preparing. */
         if (isPlaying) {
@@ -458,7 +463,7 @@ final public class StreamingService extends Service implements
             mediaPlayer.start();
         } else {
             /** Because preparingStreaming is still set, this will reset the stream. */
-            stopStreaming();
+            windDownResources(ACTION_STREAMING_STOP);
         }
 
         preparingStreaming = false;
@@ -481,7 +486,7 @@ final public class StreamingService extends Service implements
                 tryToStream();
                 break;
             case ACTION_STREAMING_STOP:
-                stopStreaming();
+                windDownResources(ACTION_STREAMING_STOP);
                 break;
         }
 
@@ -535,25 +540,12 @@ final public class StreamingService extends Service implements
 
                     /** If the playlistLength is == 0, let onCompletion handle it. */
                     if (mpdStatus.getPlaylistLength() != 0) {
-                        stopStreaming();
+                        windDownResources(ACTION_STREAMING_STOP);
                     }
                     isPlaying = false;
                     break;
             }
         }
-    }
-
-    private void stopStreaming() {
-        Log.d(TAG, "StreamingService.stopStreaming()");
-
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-        }
-
-        sendIntent(ACTION_STREAMING_STOP, NotificationService.class);
-
-        windDownResources();
-        setupServiceControlHandlers();
     }
 
     private void stopControlHandlers() {
