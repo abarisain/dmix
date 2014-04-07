@@ -31,7 +31,6 @@ So, the current roadmap is:
 
 ####1.1  
 
- - [ ] Add Pending notification for controlling your server outside of MPDroid
  - [ ] Make MPDroid configurable for multiple servers (Better implementation than the hackish WLAN based one)
  - [ ] Add Bonjour support
  - [ ] Rework Streams storage
