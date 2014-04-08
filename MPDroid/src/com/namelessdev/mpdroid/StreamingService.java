@@ -266,13 +266,26 @@ final public class StreamingService extends Service implements
      */
     @Override
     final public void onAudioFocusChange(int focusChange) {
-        Log.d(TAG, "StreamingService.onAudioFocusChange()");
-        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-            mediaPlayer.setVolume(0.2f, 0.2f);
-        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            mediaPlayer.setVolume(1f, 1f);
-        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            sendIntent(NotificationService.ACTION_PAUSE, NotificationService.class);
+        Log.d(TAG, "StreamingService.onAudioFocusChange() with " + focusChange);
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                if (mediaPlayer.isPlaying()) {
+                    Log.d(TAG, "Regaining after ducked transient loss.");
+                    mediaPlayer.setVolume(1f, 1f);
+                } else if (!preparingStreaming) {
+                    Log.d(TAG, "Coming out of transient loss.");
+                    mediaPlayer.start();
+                }
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                sendIntent(NotificationService.ACTION_PAUSE, NotificationService.class);
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                mediaPlayer.pause();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                mediaPlayer.setVolume(0.2f, 0.2f);
+                break;
         }
     }
 
