@@ -383,6 +383,10 @@ final public class StreamingService extends Service implements
             mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
         }
 
+        if (audioManager != null) {
+            audioManager.abandonAudioFocus(this);
+        }
+
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
@@ -410,10 +414,6 @@ final public class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.onDestroy()");
 
         stopControlHandlers();
-
-        if (audioManager != null) {
-            audioManager.abandonAudioFocus(this);
-        }
 
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
