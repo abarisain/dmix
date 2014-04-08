@@ -442,10 +442,6 @@ final public class StreamingService extends Service implements
         /** Either way we need to stop streaming. */
         windDownResources(ACTION_STREAMING_STOP);
 
-        /** onError will often happen if we stop in the middle of preparing. */
-        if (isPlaying) {
-            tryToStream();
-        }
         errorIterator += 1;
         return true;
     }
