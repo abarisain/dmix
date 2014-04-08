@@ -726,6 +726,7 @@ public class CoverManager {
                         d(CoverManager.class.getSimpleName(),
                                 "Cover downloaded for " + coverInfo.getAlbum() + " from " + url
                                         + ", size=" + coverBytes.length);
+                    break;
                 }
             } catch (Exception e) {
                 w(CoverManager.class.getSimpleName(), "Cover get bytes failure : " + e);
