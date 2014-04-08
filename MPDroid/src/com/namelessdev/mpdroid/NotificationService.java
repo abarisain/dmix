@@ -147,11 +147,7 @@ final public class NotificationService extends Service implements StatusChangeLi
     private long lastKnownElapsed = 0l;
 
     /**
-     * This tracks if the streamingService is up, but is not active (it's wound down).
-     */
-    private boolean streamingServiceWoundDown = false;
-
-    /**
+     *Service: Don't rely on intents for important status updating.
      * If something started the notification by another class and
      * not user input, store it here.
      */
@@ -292,16 +288,12 @@ final public class NotificationService extends Service implements StatusChangeLi
         }
 
         /** Start with giving the fields default values, then set them if not default */
-        streamingServiceWoundDown = false;
         mediaPlayerServiceIsBuffering = false;
         switch (action) {
             case StreamingService.ACTION_BUFFERING_BEGIN:
                 mediaPlayerServiceIsBuffering = true;
+            case StreamingService.ACTION_STREAMING_STOP: /** Regain audio focus. */
                 action = ACTION_SHOW_NOTIFICATION;
-                break;
-            case StreamingService.ACTION_STREAMING_STOP:
-                streamingServiceWoundDown = true;
-                action = ACTION_UPDATE_INFO;
                 break;
             case StreamingService.ACTION_NOTIFICATION_STOP:
                 if (notificationAutomaticallyGenerated) {
@@ -480,8 +472,8 @@ final public class NotificationService extends Service implements StatusChangeLi
      * We just want the lock screen cover art.
      */
     private void tryToGetAudioFocus() {
-        if ((streamingServiceWoundDown || !app.getApplicationState().streamingMode) &&
-                !isAudioFocusedOnThis) {
+        if ((!app.getApplicationState().streamingMode || StreamingService.isWoundDown())
+                && !isAudioFocusedOnThis) {
             Log.d(TAG, "requesting audio focus");
             final int result = mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN);
@@ -652,7 +644,7 @@ final public class NotificationService extends Service implements StatusChangeLi
         }
 
         /** If in streaming, the notification should be persistent. */
-        if (app.getApplicationState().streamingMode && !streamingServiceWoundDown) {
+        if (app.getApplicationState().streamingMode && !StreamingService.isWoundDown()) {
             resultView.setViewVisibility(R.id.notificationClose, View.GONE);
         } else {
             resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);

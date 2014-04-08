@@ -75,6 +75,8 @@ final public class StreamingService extends Service implements
 
     public static final String ACTION_BUFFERING_END = FULLY_QUALIFIED_NAME + "BUFFERING_END";
 
+    private static boolean serviceWoundDown = false;
+
     final private Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -106,6 +108,14 @@ final public class StreamingService extends Service implements
 
     /** Is MPD playing? */
     private boolean isPlaying = false;
+
+    public static boolean isWoundDown() {
+        return serviceWoundDown;
+    }
+
+    private static void serviceWoundDown(boolean value) {
+        serviceWoundDown = value;
+    }
 
     /**
      * Setup for the method which allows MPDroid to override behavior during
@@ -326,6 +336,8 @@ final public class StreamingService extends Service implements
     private void windUpResources() {
         Log.d(TAG, "Winding up resources.");
 
+        serviceWoundDown(false);
+
         if (mWakeLock == null) {
             final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -349,6 +361,8 @@ final public class StreamingService extends Service implements
      */
     private void windDownResources(String action) {
         Log.d(TAG, "Winding down resources.");
+
+        serviceWoundDown(true);
 
         if (ACTION_STREAMING_STOP.equals(action)) {
             setupServiceControlHandlers();
