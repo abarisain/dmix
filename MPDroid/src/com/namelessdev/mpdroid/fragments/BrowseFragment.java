@@ -225,6 +225,12 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        app.oMPDAsyncHelper.removeAsyncExecListener(this);
+    }
+
+    @Override
     public void onDestroyView() {
         // help out the GC; imitated from ListFragment source
         loadingView = null;
