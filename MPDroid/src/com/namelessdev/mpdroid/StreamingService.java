@@ -320,7 +320,7 @@ final public class StreamingService extends Service implements
 
         app = (MPDApplication) getApplication();
 
-        if (app == null || !app.getApplicationState().streamingMode) {
+        if (app == null) {
             stopSelf();
         }
 
@@ -506,9 +506,6 @@ final public class StreamingService extends Service implements
     @Override
     final public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "StreamingService.onStartCommand()");
-        if (!app.getApplicationState().streamingMode) {
-            stopSelf();
-        }
 
         switch (intent.getAction()) {
             case ACTION_START:
