@@ -308,8 +308,11 @@ final public class StreamingService extends Service implements
         if (isPlaying) {
             tryToStream();
         } else {
-            /** The only way we make it here is with an empty playlist. */
-            windDownResources(ACTION_NOTIFICATION_STOP);
+            /**
+             * The only way we make it here is with an empty playlist. Don't send a
+             * message to the notification, it already knows to stop on empty playlist.
+             */
+            windDownResources(null);
         }
     }
 

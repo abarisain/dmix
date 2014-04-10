@@ -679,7 +679,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     app.getApplicationState().notificationMode = false;
                 } else {
                     startService(NotificationService.class,
-                            NotificationService.ACTION_SHOW_NOTIFICATION);
+                            NotificationService.ACTION_OPEN_NOTIFICATION);
 
                     app.getApplicationState().notificationMode = true;
                 }
@@ -776,10 +776,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             clearItem.setVisible(true);
         }
 
-        /** If in streamingMode don't allow a checkbox in the menu. */
+        /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
         MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
         if(notificationItem != null) {
-            if (app.getApplicationState().streamingMode) {
+            if (app.getApplicationState().streamingMode ||
+                    app.getApplicationState().persistentNotification) {
                 notificationItem.setVisible(false);
             } else {
                 notificationItem.setVisible(true);
@@ -815,6 +816,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         super.onStart();
         MPDApplication app = (MPDApplication) getApplicationContext();
         app.setActivity(this);
+
+        if(app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
+            app.getApplicationState().persistentNotification = true;
+            app.getApplicationState().notificationMode = true;
+            startService(NotificationService.class, NotificationService.ACTION_OPEN_NOTIFICATION);
+        }
     }
 
     @Override

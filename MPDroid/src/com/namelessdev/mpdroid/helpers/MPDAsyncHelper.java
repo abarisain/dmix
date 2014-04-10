@@ -184,6 +184,7 @@ public class MPDAsyncHelper extends Handler {
         public String sServerStreaming;
         public int iPortStreaming;
         public String sSuffixStreaming = "";
+        public boolean persistentNotification = false;
 
         public String getConnectionStreamingServer() {
             return conInfo.sServerStreaming == null ? sServer : sServerStreaming;

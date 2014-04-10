@@ -87,7 +87,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
                 getString(R.string.mute)));
         items.add(new ActionItem(NotificationService.ACTION_SET_VOLUME,
                 getString(R.string.setVolume)));
-        items.add(new ActionItem(NotificationService.ACTION_SHOW_NOTIFICATION,
+        items.add(new ActionItem(NotificationService.ACTION_OPEN_NOTIFICATION,
                 getString(R.string.showNotification)));
         items.add(new ActionItem(NotificationService.ACTION_CLOSE_NOTIFICATION,
                 getString(R.string.closeNotification)));

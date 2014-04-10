@@ -126,6 +126,8 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
                 "password", wifiSSID));
         oMPDAsyncHelper.getConnectionSettings().sServerStreaming = getStringSetting(getStringWithSSID(
                 "hostnameStreaming", wifiSSID));
+        oMPDAsyncHelper.getConnectionSettings().persistentNotification = getBooleanSetting(
+                getStringWithSSID("persistentNotification", wifiSSID));
         oMPDAsyncHelper.getConnectionSettings().iPortStreaming = getIntegerSetting(
                 getStringWithSSID("portStreaming", wifiSSID), DEFAULT_STREAMING_PORT);
         oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming = getStringSetting(getStringWithSSID(

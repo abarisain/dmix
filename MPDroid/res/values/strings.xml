@@ -280,5 +280,7 @@
     <string name="iconDescription">Project Icon</string>
     <string name="artistTagToUse">Tag to use for artists listing</string>
     <string name="artistTagToUseDescription">Select the tag used for populating the Artists list. Useful for hiding artists that only star in compilations.</string>
+    <string name="persistentNotification">Persistent Notification</string>
+    <string name="persistentNotificationDescription">Set the notification to stay on for this network</string>
 
 </resources>

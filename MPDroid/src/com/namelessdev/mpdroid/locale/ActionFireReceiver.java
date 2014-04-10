@@ -44,9 +44,9 @@ public class ActionFireReceiver extends BroadcastReceiver {
         final String action = bundle.getString(EditActivity.BUNDLE_ACTION_STRING);
 
         switch (action) {
-            case NotificationService.ACTION_SHOW_NOTIFICATION:
+            case NotificationService.ACTION_OPEN_NOTIFICATION:
                 final Intent i = new Intent(context, NotificationService.class);
-                i.setAction(NotificationService.ACTION_SHOW_NOTIFICATION);
+                i.setAction(NotificationService.ACTION_OPEN_NOTIFICATION);
                 context.startService(i);
                 break;
             case NotificationService.ACTION_CLOSE_NOTIFICATION:

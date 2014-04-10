@@ -66,14 +66,21 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
 
-    private static final String ACTION_UPDATE_INFO = FULLY_QUALIFIED_NAME + "UPDATE_INFO";
-
-    public static final String ACTION_SHOW_NOTIFICATION = FULLY_QUALIFIED_NAME
-            + "SHOW_NOTIFICATION";
-
+    /**
+     * This will close the notification, no matter the notification state.
+     */
     public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME
             + "CLOSE_NOTIFICATION";
 
+    /**
+     * This readies the notification in accordance with the current state.
+     */
+    public static final String ACTION_OPEN_NOTIFICATION = FULLY_QUALIFIED_NAME
+            + "NOTIFICATION_OPEN";
+
+    /**
+     * The following are server actions
+     */
     public static final String ACTION_TOGGLE_PLAYBACK = FULLY_QUALIFIED_NAME + "PLAY_PAUSE";
 
     public static final String ACTION_PLAY = FULLY_QUALIFIED_NAME + "PLAY";
@@ -109,10 +116,21 @@ final public class NotificationService extends Service implements StatusChangeLi
     private final int NOTIFICATION_ID = 1;
 
     /** Set up the message handler. */
-    final private Handler delayedStopHandler = new Handler() {
+    private final Handler delayedPauseHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
-            stopSelf();
+        public void handleMessage(final Message msg) {
+            super.handleMessage(msg);
+            shutdownNotification();
+        }
+    };
+
+    private final Handler delayedDisconnectionHandler = new Handler() {
+        @Override
+        public void handleMessage(final Message msg) {
+            super.handleMessage(msg);
+            if (!app.oMPDAsyncHelper.oMPD.isConnected()) {
+                shutdownNotification();
+            }
         }
     };
 
@@ -134,6 +152,8 @@ final public class NotificationService extends Service implements StatusChangeLi
     private Music mCurrentMusic = null;
 
     private boolean mediaPlayerServiceIsBuffering = false;
+
+    private boolean serviceHandlerActive = false;
 
     /**
      * Last time the status was refreshed
@@ -278,28 +298,37 @@ final public class NotificationService extends Service implements StatusChangeLi
         if (action == null) {
             Log.e(TAG, "NotificationService started without action, stopping...");
             action = ACTION_CLOSE_NOTIFICATION;
-        } else if (!app.getApplicationState().notificationMode &&
-                app.getApplicationState().streamingMode) {
-            notificationAutomaticallyGenerated = true;
-            app.getApplicationState().notificationMode = true;
         }
 
-        /** Start with giving the fields default values, then set them if not default */
+        /**
+         * This translates StreamingService requests into NotificationService requests,
+         * sometimes, depending on the current NotificationService state.
+         */
         mediaPlayerServiceIsBuffering = false;
         switch (action) {
             case StreamingService.ACTION_BUFFERING_BEGIN:
+                /** If the notification was requested by StreamingService, set it here. */
+                if (!app.getApplicationState().notificationMode &&
+                        app.getApplicationState().streamingMode) {
+                    notificationAutomaticallyGenerated = true;
+                    app.getApplicationState().notificationMode = true;
+                }
                 mediaPlayerServiceIsBuffering = true;
-            case StreamingService.ACTION_STREAMING_STOP: /** Regain audio focus. */
-                action = ACTION_SHOW_NOTIFICATION;
-                break;
-            case StreamingService.ACTION_NOTIFICATION_STOP:
-                if (notificationAutomaticallyGenerated) {
-                    notificationAutomaticallyGenerated = false;
-                    action = ACTION_CLOSE_NOTIFICATION;
-                    break;
-                } /** Else break through to turn off persistent notification. */
+                /** Break Through */
             case StreamingService.ACTION_BUFFERING_END:
-                action = ACTION_UPDATE_INFO;
+            case StreamingService.ACTION_STREAMING_STOP:
+                action = ACTION_OPEN_NOTIFICATION;
+                break;
+            case StreamingService.ACTION_NOTIFICATION_STOP: /** StreamingService _requests_ stop */
+                if (notificationAutomaticallyGenerated &&
+                        !app.getApplicationState().persistentNotification) {
+                    action = ACTION_CLOSE_NOTIFICATION;
+
+                    notificationAutomaticallyGenerated = false;
+                } else {
+                    tryToGetAudioFocus();
+                    action = ACTION_OPEN_NOTIFICATION;
+                }
                 break;
             case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
                 if (app.getApplicationState().streamingMode ||
@@ -310,9 +339,6 @@ final public class NotificationService extends Service implements StatusChangeLi
         }
 
         switch (action) {
-            case ACTION_CLOSE_NOTIFICATION:
-                stopSelf();
-                break;
             case ACTION_NEXT:
             case ACTION_PREVIOUS:
                 tryToGetAudioFocus(); /** break through */
@@ -320,23 +346,24 @@ final public class NotificationService extends Service implements StatusChangeLi
             case ACTION_PLAY:
             case ACTION_REWIND:
             case ACTION_STOP:
-                if(app.oMPDAsyncHelper != null) {
+                if (app.oMPDAsyncHelper != null) {
                     sendSimpleMpdCommand(action);
                 }
                 break;
-            case ACTION_TOGGLE_PLAYBACK:
-                processTogglePlaybackRequest();
+            case ACTION_OPEN_NOTIFICATION:
+                stateChanged(getStatus(), null);
                 break;
-            case ACTION_SHOW_NOTIFICATION:
-                tryToGetAudioFocus(); /** break through */
-            case ACTION_UPDATE_INFO:
-                updatePlayingInfo(null);
+            case ACTION_CLOSE_NOTIFICATION:
+                app.getApplicationState().persistentNotification = false;
+                app.getApplicationState().notificationMode = false;
+                stopSelf();
                 break;
             default:
                 if (!app.getApplicationState().notificationMode) {
                     Log.e(TAG,
-                            "Please report this: NotificationService opened by something when it shouldn't be and taking no action: "
-                                    + action);
+                            "Please report this: NotificationService opened by something when it " +
+                                    "shouldn't be and taking no action: " + action
+                    );
                     stopSelf();
                 }
                 break;
@@ -355,10 +382,10 @@ final public class NotificationService extends Service implements StatusChangeLi
     }
 
     /**
-     * A simple method to enable lock screen seeking on 4.3 and upper
+     * A simple method to enable lock screen seeking on 4.3 and higher.
      *
-     * @param controlFlags        The control flags you set beforehand, so that we can add our
-     *                            required flag
+     * @param controlFlags The control flags you set beforehand, so that we can add our
+     *                     required flag
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void enableSeeking(int controlFlags) {
@@ -562,12 +589,9 @@ final public class NotificationService extends Service implements StatusChangeLi
             lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
         }
 
-        /** Update the current playing song. */
-        if (mCurrentMusic == null && mpdStatus != null) {
+        if (mpdStatus != null) {
             final int songPos = mpdStatus.getSongPos();
-            if (songPos >= 0) {
-                mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-            }
+            mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
         }
 
         if (mCurrentMusic != null) {
@@ -756,6 +780,14 @@ final public class NotificationService extends Service implements StatusChangeLi
         startForeground(NOTIFICATION_ID, mNotification);
     }
 
+    private void shutdownNotification() {
+        if (app.getApplicationState().persistentNotification) {
+            windDownResources();
+        } else {
+            stopSelf();
+        }
+    }
+
     /**
      * Update the remote controls.
      *
@@ -787,21 +819,36 @@ final public class NotificationService extends Service implements StatusChangeLi
         Log.d(TAG, "Updated remote client with state " + state + " for music " + mCurrentMusic);
     }
 
+    /**
+     * Used when persistent notification is enabled in
+     * leu of selfStop() and used during selfStop().
+     */
+    private void windDownResources() {
+        Log.d(TAG, "windDownResources()");
+        stopForeground(true);
+
+        if(mAudioManager != null) {
+            mAudioManager.abandonAudioFocus(null);
+        }
+
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(NOTIFICATION_ID);
+        }
+    }
+
     @Override
     public void onDestroy() {
         Log.d(TAG, "Removing connection lock");
         app.removeConnectionLock(this);
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
-        stopForeground(true);
+        delayedPauseHandler.removeCallbacksAndMessages(null);
 
-        delayedStopHandler.removeCallbacksAndMessages(null);
+        app.getApplicationState().notificationMode = false;
+
+        windDownResources();
 
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
             mAlbumCover.recycle();
-        }
-
-        if (mNotificationManager != null) {
-            mNotificationManager.cancel(NOTIFICATION_ID);
         }
 
         if (mAudioManager != null) {
@@ -816,7 +863,6 @@ final public class NotificationService extends Service implements StatusChangeLi
 
             mAudioManager.abandonAudioFocus(null);
         }
-        app.getApplicationState().notificationMode = false;
     }
 
     @Override
@@ -827,7 +873,14 @@ final public class NotificationService extends Service implements StatusChangeLi
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
         if (connected) {
-            stateChanged(getStatus(), null);
+            if (app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
+                stateChanged(getStatus(), null);
+            }
+        } else {
+            final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
+
+            final Message msg = delayedDisconnectionHandler.obtainMessage();
+            delayedDisconnectionHandler.sendMessageDelayed(msg, idleDelay);
         }
     }
 
@@ -838,10 +891,15 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     @Override
     public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
-        // We do not care about that event
+        /**
+         * This is required because streams will emit a playlist (current queue) event as the
+         * metadata will change while the same audio file is playing (no track change).
+         */
+        if (mCurrentMusic != null && mCurrentMusic.isStream()) {
+            updatePlayingInfo(mpdStatus);
+        }
     }
 
-    @Override
     public void randomChanged(boolean random) {
         // We do not care about that event
     }
@@ -849,6 +907,25 @@ final public class NotificationService extends Service implements StatusChangeLi
     @Override
     public void repeatChanged(boolean repeating) {
         // We do not care about that event
+    }
+
+    /**
+     * This is the idle delay for shutting down this service after inactivity
+     * (in milliseconds). This idle is also longer than StreamingService to
+     * avoid being unnecessarily brought up to shut right back down.
+     */
+    private void setupServiceHandler() {
+        final long idleDelay = 630000L; /** 10 Minutes 30 Seconds */
+        final Message msg = delayedPauseHandler.obtainMessage();
+        serviceHandlerActive = true;
+        delayedPauseHandler.sendMessageDelayed(msg, idleDelay);
+    }
+
+    /** Kills any active service handlers. */
+    private void stopServiceHandler() {
+        /** If we have a message in the queue, remove it. */
+        delayedPauseHandler.removeCallbacksAndMessages(null);
+        serviceHandlerActive = false; /** No notification if stopped or paused. */
     }
 
     @Override
@@ -861,42 +938,33 @@ final public class NotificationService extends Service implements StatusChangeLi
             lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
-                    /** If we have a message in the queue, remove it. */
-                    delayedStopHandler.removeCallbacksAndMessages(null);
+                    stopServiceHandler();
                     tryToGetAudioFocus();
+                    updatePlayingInfo(mpdStatus);
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
-                    if (mpdStatus.getPlaylistLength() == 0) {
+                    if (app.getApplicationState().persistentNotification) {
+                        windDownResources(); /** Hide immediately, requires user intervention */
+                    } else {
                         stopSelf();
-                    } /** Break through */
+                    }
+                    break;
                 case MPDStatus.MPD_STATE_PAUSED:
-                    /**
-                     * This is the idle delay for shutting down this service after inactivity
-                     * (in milliseconds). This idle is also longer than StreamingService to
-                     * avoid being unnecessarily brought up to shut right back down.
-                     */
-                    final int IDLE_DELAY = 630000; /** 10 Minutes 30 Seconds */
-                    Message msg = delayedStopHandler.obtainMessage();
-                    delayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
+                    if (!serviceHandlerActive) {
+                        setupServiceHandler();
+                        updatePlayingInfo(mpdStatus);
+                    }
                     break;
             }
-            updatePlayingInfo(mpdStatus);
         }
     }
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        if (mpdStatus == null) {
-            Log.w(TAG, "Null mpdStatus received in trackChanged");
-        } else {
-            lastStatusRefresh = new Date().getTime();
-            lastKnownElapsed = 0l;
-            final int songPos = mpdStatus.getSongPos();
-            if (songPos >= 0) {
-                mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-            }
-            updatePlayingInfo(mpdStatus);
-        }
+        lastStatusRefresh = new Date().getTime();
+        lastKnownElapsed = 0L;
+
+        updatePlayingInfo(mpdStatus);
     }
 
     @Override
