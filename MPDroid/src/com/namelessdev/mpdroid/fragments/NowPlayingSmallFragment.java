@@ -322,7 +322,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void stateChanged(MPDStatus status, String oldState) {
-        if (isDetached())
+        if (!isAdded())
             return;
         app.getApplicationState().currentMpdStatus = status;
         if (status.getState() != null && buttonPlayPause != null) {
