@@ -54,6 +54,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import java.util.Date;
+
 /**
  * A service that handles the Notification, RemoteControlClient, MediaButtonReceiver and
  * incoming MPD command intents.
@@ -134,6 +136,17 @@ final public class NotificationService extends Service implements StatusChangeLi
     private boolean mediaPlayerServiceIsBuffering = false;
 
     /**
+     * Last time the status was refreshed
+     */
+    private long lastStatusRefresh = 0l;
+
+    /**
+     * What was the eplased time (in ms) when the last status refresh happened ?
+     * Use this for guessing the eplased time for the lockscreen
+     */
+    private long lastKnownEplased = 0l;
+
+    /**
      * This tracks if the streamingService is up, but is not active (it's wound down).
      */
     private boolean streamingServiceWoundDown = false;
@@ -211,11 +224,18 @@ final public class NotificationService extends Service implements StatusChangeLi
         mRemoteControlClient = new RemoteControlClient(PendingIntent
                 .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/,
                         intent /*intent*/, 0 /*flags*/));
-        mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+
+        final int controlFlags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                 RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
                 RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
                 RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
-                RemoteControlClient.FLAG_KEY_MEDIA_STOP);
+                RemoteControlClient.FLAG_KEY_MEDIA_STOP;
+
+        mRemoteControlClient.setTransportControlFlags(controlFlags);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            enableSeeking(mRemoteControlClient, controlFlags);
+        }
 
         mAudioManager.registerRemoteControlClient(mRemoteControlClient);
     }
@@ -338,6 +358,56 @@ final public class NotificationService extends Service implements StatusChangeLi
     }
 
     /**
+     * A seimple method to enable lockscreen seeking on 4.3 and upper
+     * @param remoteControlClient The remote control client to configure
+     * @param controlFlags The control flags you set beforehand, so that we can add our required flag
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    private void enableSeeking(RemoteControlClient remoteControlClient, int controlFlags) {
+        mRemoteControlClient.setTransportControlFlags(controlFlags |
+                RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
+
+            /* Allows Android to show the song position */
+        mRemoteControlClient.setOnGetPlaybackPositionListener(new RemoteControlClient.OnGetPlaybackPositionListener() {
+            /**
+             * Android's callback that queries us for the eplased time
+             * Here, we are guessing the eplased time using the last time we updated the eplased time
+             * and its value at the time.
+             * @return The guessed song position
+             */
+            @Override
+            public long onGetPlaybackPosition() {
+                Log.e(TAG, "Android asked for position " + lastKnownEplased + (new Date().getTime() - lastStatusRefresh));
+                // If we don't know the position, return a negative value as per the API spec
+                if (lastStatusRefresh <= 0l) {
+                    return -1l;
+                }
+                return lastKnownEplased + (new Date().getTime() - lastStatusRefresh);
+            }
+
+        });
+
+            /* Allows Android to seek */
+        mRemoteControlClient.setPlaybackPositionUpdateListener(new RemoteControlClient.OnPlaybackPositionUpdateListener() {
+            /**
+             * Android's callback for when the user seeks using the remote control
+             * @param newPositionMs The position in MS where we should seek
+             */
+            @Override
+            public void onPlaybackPositionUpdate(long newPositionMs) {
+                if (app != null) {
+                    try {
+                        app.oMPDAsyncHelper.oMPD.seek(newPositionMs / 1000);
+                        mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING, newPositionMs, 1.0f);
+                    } catch (MPDServerException e) {
+                        Log.e(TAG, "Could not seek", e);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * A simple method to safely send a command to MPD.
      *
      * @param command An ACTION intent.
@@ -450,6 +520,16 @@ final public class NotificationService extends Service implements StatusChangeLi
 
         final MPDStatus mpdStatus = _mpdStatus == null ? getStatus() : _mpdStatus;
         int state;
+
+        if (lastStatusRefresh <= 0l) {
+            /**
+             * Only update the refresh date and eplased time if it is the first start to
+             * make sure we have initial data, but updateStatus and trackChanged will take care
+             * of that afterwards.
+             */
+            lastStatusRefresh = new Date().getTime();
+            lastKnownEplased = mpdStatus.getElapsedTime()*1000;
+        }
 
         if (mediaPlayerServiceIsBuffering) {
             state = RemoteControlClient.PLAYSTATE_BUFFERING;
@@ -689,7 +769,13 @@ final public class NotificationService extends Service implements StatusChangeLi
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle())
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover)
                 .apply();
-        mRemoteControlClient.setPlaybackState(state);
+
+        // Notify of the eplased time if on 4.3 or upper
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mRemoteControlClient.setPlaybackState(state, lastKnownEplased, 1.0f);
+        } else {
+            mRemoteControlClient.setPlaybackState(state);
+        }
         Log.d(TAG, "Updated remote client with state " + state + " for music " + mCurrentMusic);
     }
 
@@ -760,6 +846,9 @@ final public class NotificationService extends Service implements StatusChangeLi
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in stateChanged");
         } else {
+            lastStatusRefresh = new Date().getTime();
+            // MPD's eplased time is in seconds, convert to milliseconds
+            lastKnownEplased = mpdStatus.getElapsedTime()*1000;
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
                     /** If we have a message in the queue, remove it. */
@@ -790,6 +879,8 @@ final public class NotificationService extends Service implements StatusChangeLi
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in trackChanged");
         } else {
+            lastStatusRefresh = new Date().getTime();
+            lastKnownEplased = 0l;
             final int songPos = mpdStatus.getSongPos();
             if (songPos >= 0) {
                 mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
@@ -802,4 +893,5 @@ final public class NotificationService extends Service implements StatusChangeLi
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
         // We do not care about that event
     }
+
 }
