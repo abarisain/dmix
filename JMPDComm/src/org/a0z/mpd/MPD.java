@@ -25,6 +25,8 @@ import java.util.List;
  */
 public class MPD {
 
+    private final static String TAG = "org.a0z.mpd.MPD";
+
     protected MPDConnection mpdConnection;
     protected MPDConnection mpdIdleConnection;
 
@@ -1004,7 +1006,11 @@ public class MPD {
                 throw new MPDConnectionException("MPD Connection is not established");
             }
             List<String> response = mpdStatusConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
-            mpdStatus.updateStatus(response);
+            if(response == null) {
+                Log.w(TAG, "No status response from the MPD server.");
+            } else {
+                mpdStatus.updateStatus(response);
+            }
         }
         return mpdStatus;
     }

@@ -304,9 +304,6 @@ public class MPDStatus {
     final public void updateStatus(Iterable<String> response) {
         // reset values
         this.updating = false;
-        if (response == null) {
-            return;
-        }
 
         for (String line : response) {
             String[] lines = line.split(": ");
