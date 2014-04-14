@@ -32,74 +32,74 @@ public class MPDStatus {
 
     private static final String TAG = "org.a0z.mpd.MPDStatus";
 
-    private int playlistVersion;
+    private int bitsPerSample;
 
-    private int playlistLength;
+    private long bitrate;
 
-    private int song;
-
-    private int songId;
-
-    private int nextSong;
-
-    private int nextSongId;
-
-    private boolean repeat;
-
-    private boolean random;
-
-    private boolean updating;
-
-    private boolean single;
+    private int channels;
 
     private boolean consume;
 
-    private String state = null;
-
-    private String error = null;
+    private int crossfade;
 
     private long elapsedTime;
 
     private float elapsedTimeHighResolution;
 
-    private long totalTime;
-
-    private int crossfade;
-
-    private int volume;
-
-    private long bitrate;
-
-    private int sampleRate;
-
-    private int bitsPerSample;
-
-    private int channels;
+    private String error = null;
 
     private float mixRampDB;
 
+    private int nextSong;
+
+    private int nextSongId;
+
+    private int playlistVersion;
+
+    private int playlistLength;
+
+    private boolean random;
+
+    private boolean repeat;
+
+    private int sampleRate;
+
+    private boolean single;
+
+    private int song;
+
+    private int songId;
+
+    private String state = null;
+
+    private long totalTime;
+
+    private boolean updating;
+
+    private int volume;
+
     MPDStatus() {
-        single = false;
+        bitrate = 0;
+        bitsPerSample = 0;
+        channels = 0;
         consume = false;
+        crossfade = 0;
+        elapsedTime = 0;
+        elapsedTimeHighResolution = 0;
         nextSong = 0;
         nextSongId = 0;
-        volume = 0;
-        bitrate = 0;
-        playlistVersion = 0;
+        mixRampDB = 0;
         playlistLength = 0;
+        playlistVersion = 0;
+        random = false;
+        repeat = false;
+        single = false;
         song = 0;
         songId = 0;
-        repeat = false;
-        random = false;
-        elapsedTime = 0;
+        volume = 0;
         totalTime = 0;
-        crossfade = 0;
         sampleRate = 0;
-        channels = 0;
-        bitsPerSample = 0;
         updating = false;
-        mixRampDB = 0;
-        elapsedTimeHighResolution = 0;
     }
 
     /**
