@@ -37,6 +37,7 @@ import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -645,7 +646,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return true;
         }
 
-        Intent i;
         final MPDApplication app = (MPDApplication) this.getApplication();
         final MPD mpd = app.oMPDAsyncHelper.oMPD;
 
@@ -659,17 +659,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 return true;
             case R.id.GMM_Stream:
                 if (app.getApplicationState().streamingMode) {
-                    i = new Intent(this, StreamingService.class);
+                    final Intent i = new Intent(this, StreamingService.class);
                     this.stopService(i);
+
                     app.getApplicationState().streamingMode = false;
                 } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-
-                    /**
-                     * Start the streaming service.
-                     */
-                    i = new Intent(this, StreamingService.class);
-                    i.setAction(StreamingService.ACTION_START);
-                    this.startService(i);
+                    startService(NotificationService.class, null);
+                    startService(StreamingService.class, StreamingService.ACTION_START);
 
                     app.getApplicationState().streamingMode = true;
                 }
@@ -691,14 +687,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 return true;
             case R.id.GMM_ShowNotification:
                 if (app.getApplicationState().notificationMode) {
-                    i = new Intent(this, NotificationService.class);
+                    final Intent i = new Intent(this, NotificationService.class);
                     this.stopService(i);
 
                     app.getApplicationState().notificationMode = false;
                 } else {
-                    i = new Intent(this, NotificationService.class);
-                    i.setAction(NotificationService.ACTION_SHOW_NOTIFICATION);
-                    this.startService(i);
+                    startService(NotificationService.class,
+                            NotificationService.ACTION_SHOW_NOTIFICATION);
 
                     app.getApplicationState().notificationMode = true;
                 }
@@ -706,7 +701,32 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
 
+    /**
+     * Enables and starts a service.
+     *
+     * @param serviceClass The class of the service to start.
+     * @param intentAction The starting intent action name. If null, the service
+     *               will be enabled but not started.
+     */
+    private void startService(final Class<?> serviceClass, final String intentAction) {
+        final PackageManager packageManager = getPackageManager();
+        final Intent intent = new Intent(this, serviceClass);
+
+        if (packageManager != null) {
+            if (PackageManager.COMPONENT_ENABLED_STATE_ENABLED !=
+                    packageManager.getApplicationEnabledSetting(this.getPackageName())) {
+
+                packageManager.setComponentEnabledSetting(intent.getComponent(),
+                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                        PackageManager.DONT_KILL_APP);
+            }
+            if (intentAction != null) {
+                intent.setAction(intentAction);
+                this.startService(intent);
+            }
+        }
     }
 
     @Override

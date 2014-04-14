@@ -75,6 +75,8 @@ final public class StreamingService extends Service implements
 
     public static final String ACTION_BUFFERING_END = FULLY_QUALIFIED_NAME + "BUFFERING_END";
 
+    private static boolean serviceWoundDown = false;
+
     final private Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -106,6 +108,14 @@ final public class StreamingService extends Service implements
 
     /** Is MPD playing? */
     private boolean isPlaying = false;
+
+    public static boolean isWoundDown() {
+        return serviceWoundDown;
+    }
+
+    private static void serviceWoundDown(boolean value) {
+        serviceWoundDown = value;
+    }
 
     /**
      * Setup for the method which allows MPDroid to override behavior during
@@ -256,13 +266,26 @@ final public class StreamingService extends Service implements
      */
     @Override
     final public void onAudioFocusChange(int focusChange) {
-        Log.d(TAG, "StreamingService.onAudioFocusChange()");
-        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-            mediaPlayer.setVolume(0.2f, 0.2f);
-        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            mediaPlayer.setVolume(1f, 1f);
-        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            sendIntent(NotificationService.ACTION_PAUSE, NotificationService.class);
+        Log.d(TAG, "StreamingService.onAudioFocusChange() with " + focusChange);
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                if (mediaPlayer.isPlaying()) {
+                    Log.d(TAG, "Regaining after ducked transient loss.");
+                    mediaPlayer.setVolume(1f, 1f);
+                } else if (!preparingStreaming) {
+                    Log.d(TAG, "Coming out of transient loss.");
+                    mediaPlayer.start();
+                }
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                sendIntent(NotificationService.ACTION_PAUSE, NotificationService.class);
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                mediaPlayer.pause();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                mediaPlayer.setVolume(0.2f, 0.2f);
+                break;
         }
     }
 
@@ -297,7 +320,7 @@ final public class StreamingService extends Service implements
 
         app = (MPDApplication) getApplication();
 
-        if (app == null || !app.getApplicationState().streamingMode) {
+        if (app == null) {
             stopSelf();
         }
 
@@ -326,6 +349,8 @@ final public class StreamingService extends Service implements
     private void windUpResources() {
         Log.d(TAG, "Winding up resources.");
 
+        serviceWoundDown(false);
+
         if (mWakeLock == null) {
             final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -350,6 +375,8 @@ final public class StreamingService extends Service implements
     private void windDownResources(String action) {
         Log.d(TAG, "Winding down resources.");
 
+        serviceWoundDown(true);
+
         if (ACTION_STREAMING_STOP.equals(action)) {
             setupServiceControlHandlers();
         }
@@ -367,6 +394,10 @@ final public class StreamingService extends Service implements
 
         if (mTelephonyManager != null) {
             mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+        }
+
+        if (audioManager != null) {
+            audioManager.abandonAudioFocus(this);
         }
 
         if (mediaPlayer != null) {
@@ -396,10 +427,6 @@ final public class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.onDestroy()");
 
         stopControlHandlers();
-
-        if (audioManager != null) {
-            audioManager.abandonAudioFocus(this);
-        }
 
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
@@ -479,9 +506,6 @@ final public class StreamingService extends Service implements
     @Override
     final public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "StreamingService.onStartCommand()");
-        if (!app.getApplicationState().streamingMode) {
-            stopSelf();
-        }
 
         switch (intent.getAction()) {
             case ACTION_START:

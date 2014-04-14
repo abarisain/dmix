@@ -141,17 +141,13 @@ final public class NotificationService extends Service implements StatusChangeLi
     private long lastStatusRefresh = 0l;
 
     /**
-     * What was the elapsed time (in ms) when the last status refresh happened ?
-     * Use this for guessing the elapsed time for the lockscreen
+     * What was the elapsed time (in ms) when the last status refresh happened?
+     * Use this for guessing the elapsed time for the lock screen.
      */
     private long lastKnownElapsed = 0l;
 
     /**
-     * This tracks if the streamingService is up, but is not active (it's wound down).
-     */
-    private boolean streamingServiceWoundDown = false;
-
-    /**
+     * Service: Don't rely on intents for important status updating.
      * If something started the notification by another class and
      * not user input, store it here.
      */
@@ -292,16 +288,12 @@ final public class NotificationService extends Service implements StatusChangeLi
         }
 
         /** Start with giving the fields default values, then set them if not default */
-        streamingServiceWoundDown = false;
         mediaPlayerServiceIsBuffering = false;
         switch (action) {
             case StreamingService.ACTION_BUFFERING_BEGIN:
                 mediaPlayerServiceIsBuffering = true;
+            case StreamingService.ACTION_STREAMING_STOP: /** Regain audio focus. */
                 action = ACTION_SHOW_NOTIFICATION;
-                break;
-            case StreamingService.ACTION_STREAMING_STOP:
-                streamingServiceWoundDown = true;
-                action = ACTION_UPDATE_INFO;
                 break;
             case StreamingService.ACTION_NOTIFICATION_STOP:
                 if (notificationAutomaticallyGenerated) {
@@ -311,6 +303,11 @@ final public class NotificationService extends Service implements StatusChangeLi
                 } /** Else break through to turn off persistent notification. */
             case StreamingService.ACTION_BUFFERING_END:
                 action = ACTION_UPDATE_INFO;
+                break;
+            case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
+                if(app.getApplicationState().streamingMode) {
+                    action = ACTION_PAUSE;
+                }
                 break;
         }
 
@@ -354,13 +351,19 @@ final public class NotificationService extends Service implements StatusChangeLi
                 break;
         }
 
-        return START_NOT_STICKY; // Means we started the service, but don't want it to restart in case it's killed.
+        /**
+         * Means we started the service, but don't want
+         * it to restart in case it's killed.
+         */
+        return START_NOT_STICKY;
     }
 
     /**
-     * A seimple method to enable lockscreen seeking on 4.3 and upper
+     * A simple method to enable lock screen seeking on 4.3 and upper
+     *
      * @param remoteControlClient The remote control client to configure
-     * @param controlFlags The control flags you set beforehand, so that we can add our required flag
+     * @param controlFlags        The control flags you set beforehand, so that we can add our
+     *                            required flag
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void enableSeeking(RemoteControlClient remoteControlClient, int controlFlags) {
@@ -368,42 +371,48 @@ final public class NotificationService extends Service implements StatusChangeLi
                 RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
 
         /* Allows Android to show the song position */
-        mRemoteControlClient.setOnGetPlaybackPositionListener(new RemoteControlClient.OnGetPlaybackPositionListener() {
-            /**
-             * Android's callback that queries us for the eplased time
-             * Here, we are guessing the eplased time using the last time we updated the eplased time
-             * and its value at the time.
-             * @return The guessed song position
-             */
-            @Override
-            public long onGetPlaybackPosition() {
-                // If we don't know the position, return a negative value as per the API spec
-                if (lastStatusRefresh <= 0l) {
-                    return -1l;
-                }
-                return lastKnownElapsed + (new Date().getTime() - lastStatusRefresh);
-            }
+        mRemoteControlClient.setOnGetPlaybackPositionListener(
+                new RemoteControlClient.OnGetPlaybackPositionListener() {
+                    /**
+                     * Android's callback that queries us for the elapsed time
+                     * Here, we are guessing the elapsed time using the last time we
+                     * updated the elapsed time and its value at the time.
+                     *
+                     * @return The guessed song position
+                     */
+                    @Override
+                    public long onGetPlaybackPosition() {
+                        // If we don't know the position, return a negative value as per the API spec
+                        if (lastStatusRefresh <= 0l) {
+                            return -1l;
+                        }
+                        return lastKnownElapsed + (new Date().getTime() - lastStatusRefresh);
+                    }
 
-        });
+                }
+        );
 
         /* Allows Android to seek */
-        mRemoteControlClient.setPlaybackPositionUpdateListener(new RemoteControlClient.OnPlaybackPositionUpdateListener() {
-            /**
-             * Android's callback for when the user seeks using the remote control
-             * @param newPositionMs The position in MS where we should seek
-             */
-            @Override
-            public void onPlaybackPositionUpdate(long newPositionMs) {
-                if (app != null) {
-                    try {
-                        app.oMPDAsyncHelper.oMPD.seek(newPositionMs / 1000);
-                        mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()), newPositionMs, 1.0f);
-                    } catch (MPDServerException e) {
-                        Log.e(TAG, "Could not seek", e);
+        mRemoteControlClient.setPlaybackPositionUpdateListener(
+                new RemoteControlClient.OnPlaybackPositionUpdateListener() {
+                    /**
+                     * Android's callback for when the user seeks using the remote control
+                     * @param newPositionMs The position in MS where we should seek
+                     */
+                    @Override
+                    public void onPlaybackPositionUpdate(long newPositionMs) {
+                        if (app != null) {
+                            try {
+                                app.oMPDAsyncHelper.oMPD.seek(newPositionMs / 1000);
+                                mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
+                                        newPositionMs, 1.0f);
+                            } catch (MPDServerException e) {
+                                Log.e(TAG, "Could not seek", e);
+                            }
+                        }
                     }
                 }
-            }
-        });
+        );
     }
 
     /**
@@ -480,8 +489,8 @@ final public class NotificationService extends Service implements StatusChangeLi
      * We just want the lock screen cover art.
      */
     private void tryToGetAudioFocus() {
-        if ((streamingServiceWoundDown || !app.getApplicationState().streamingMode) &&
-                !isAudioFocusedOnThis) {
+        if ((!app.getApplicationState().streamingMode || StreamingService.isWoundDown())
+                && !isAudioFocusedOnThis) {
             Log.d(TAG, "requesting audio focus");
             final int result = mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN);
@@ -512,6 +521,7 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     /**
      * Get the RemoteControlClient status for the corresponding MPDStatus
+     *
      * @param mpdStatus MPDStatus to parse
      * @return state to give to RemoteControlClient
      */
@@ -548,12 +558,12 @@ final public class NotificationService extends Service implements StatusChangeLi
 
         if (lastStatusRefresh <= 0l) {
             /**
-             * Only update the refresh date and eplased time if it is the first start to
+             * Only update the refresh date and elapsed time if it is the first start to
              * make sure we have initial data, but updateStatus and trackChanged will take care
              * of that afterwards.
              */
             lastStatusRefresh = new Date().getTime();
-            lastKnownElapsed = mpdStatus.getElapsedTime()*1000;
+            lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
         }
 
         state = getRemoteState(mpdStatus);
@@ -623,8 +633,8 @@ final public class NotificationService extends Service implements StatusChangeLi
             } else {
                 mAlbumCover = Tools
                         .decodeSampledBitmapFromPath(coverArtPath, getResources()
-                                .getDimensionPixelSize(
-                                        android.R.dimen.notification_large_icon_width),
+                                        .getDimensionPixelSize(
+                                                android.R.dimen.notification_large_icon_width),
                                 getResources()
                                         .getDimensionPixelSize(
                                                 android.R.dimen.notification_large_icon_height),
@@ -652,7 +662,7 @@ final public class NotificationService extends Service implements StatusChangeLi
         }
 
         /** If in streaming, the notification should be persistent. */
-        if (app.getApplicationState().streamingMode && !streamingServiceWoundDown) {
+        if (app.getApplicationState().streamingMode && !StreamingService.isWoundDown()) {
             resultView.setViewVisibility(R.id.notificationClose, View.GONE);
         } else {
             resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
@@ -782,7 +792,7 @@ final public class NotificationService extends Service implements StatusChangeLi
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover)
                 .apply();
 
-        // Notify of the eplased time if on 4.3 or upper
+        /** Notify of the elapsed time if on 4.3 or higher */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mRemoteControlClient.setPlaybackState(state, lastKnownElapsed, 1.0f);
         } else {
@@ -859,19 +869,19 @@ final public class NotificationService extends Service implements StatusChangeLi
             Log.w(TAG, "Null mpdStatus received in stateChanged");
         } else {
             lastStatusRefresh = new Date().getTime();
-            // MPD's eplased time is in seconds, convert to milliseconds
-            lastKnownElapsed = mpdStatus.getElapsedTime()*1000;
+            // MPDs elapsed time is in seconds, convert to milliseconds
+            lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
                     /** If we have a message in the queue, remove it. */
                     delayedStopHandler.removeCallbacksAndMessages(null);
                     tryToGetAudioFocus();
                     break;
-                case MPDStatus.MPD_STATE_PAUSED:
                 case MPDStatus.MPD_STATE_STOPPED:
                     if (mpdStatus.getPlaylistLength() == 0) {
                         stopSelf();
-                    }
+                    } /** Break through */
+                case MPDStatus.MPD_STATE_PAUSED:
                     /**
                      * This is the idle delay for shutting down this service after inactivity
                      * (in milliseconds). This idle is also longer than StreamingService to
@@ -905,5 +915,4 @@ final public class NotificationService extends Service implements StatusChangeLi
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
         // We do not care about that event
     }
-
 }

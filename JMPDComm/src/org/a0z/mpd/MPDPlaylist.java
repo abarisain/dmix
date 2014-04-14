@@ -18,6 +18,9 @@ import java.util.List;
  * @version $Id: MPDPlaylist.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPDPlaylist extends AbstractStatusChangeListener {
+
+    private static final String TAG = "org.a0z.mpd.MPDPlaylist";
+
     public static final String MPD_CMD_PLAYLIST_ADD = "add";
     public static final String MPD_CMD_PLAYLIST_CLEAR = "clear";
     public static final String MPD_CMD_PLAYLIST_DELETE = "rm";
@@ -84,6 +87,49 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
         this.mpd.getMpdConnection().sendCommandQueue();
         this.refresh();
+    }
+
+    /**
+     * Remove all songs except for the currently playing.
+     */
+    public void crop() {
+        String state = null;
+        int currentTrackId = 0;
+
+        try {
+            state = this.mpd.getStatus().getState();
+            currentTrackId = this.mpd.getStatus().getSongId();
+        } catch (MPDServerException e) {
+            Log.w(TAG, "Failed to get some MPD status components.", e);
+        }
+
+        switch (state) {
+            case MPDStatus.MPD_STATE_PLAYING:
+            case MPDStatus.MPD_STATE_PAUSED:
+                final int playlistLength = list.size();
+                final int remove[] = new int[(playlistLength - 1)];
+
+                if (playlistLength > 0) {
+                    if (currentTrackId != 0) {
+                        try {
+                            move(currentTrackId, 0);
+                        } catch (MPDServerException e) {
+                            Log.d("MPD.java", "Failed to move the current track to 0.", e);
+                        }
+                    }
+
+                    for (int i = 0; i < (playlistLength - 1); i++) {
+                        remove[i] = (i + 1);
+                    }
+
+                    try {
+                        removeByIndex(remove);
+                    } catch (MPDServerException e) {
+                        Log.d("MPD.java", "Failed to remove from the playlist for cropping.", e);
+                    }
+                }
+                break;
+        }
     }
 
     /**

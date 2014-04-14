@@ -1,12 +1,12 @@
 
 package org.a0z.mpd;
 
-import android.content.Context;
-import android.util.Log;
-
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.content.Context;
+import android.util.Log;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -24,6 +24,8 @@ import java.util.List;
  * @version $Id: MPD.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPD {
+
+    private final static String TAG = "org.a0z.mpd.MPD";
 
     protected MPDConnection mpdConnection;
     protected MPDConnection mpdIdleConnection;
@@ -195,37 +197,39 @@ public class MPD {
     /**
      * Adds songs to the queue. It is possible to request a clear of the current
      * one, and to start the playback once done.
-     * 
+     *
      * @param runnable The runnable that will be responsible of inserting the
-     *            songs into the queue
-     * @param replace If true, clears the queue before inserting
-     * @param play If true, starts playing once added
-     * @throws MPDServerException
+     *                 songs into the queue
+     * @param replace  If true, replaces the entire playlist queue with the added files
+     * @param play     If true, starts playing once added
      */
     public void add(Runnable runnable, boolean replace, boolean play) throws MPDServerException {
-        int oldSize = 0;
-        String status = null;
+        int playPos = 0;
+        final boolean isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getStatus().getState());
+
         if (replace) {
-            status = getStatus().getState();
-            stop();
-            getPlaylist().clear();
+            if (isPlaying) {
+                playPos = 1;
+                getPlaylist().crop();
+            } else {
+                getPlaylist().clear();
+            }
         } else if (play) {
-            oldSize = getPlaylist().size();
+            playPos = getPlaylist().size();
         }
 
         runnable.run();
 
-        if (replace) {
-            if (play || MPDStatus.MPD_STATE_PLAYING.equals(status)) {
-                play();
-            }
-        } else if (play) {
+        if (play || (replace && isPlaying)) {
+            skipToPosition(playPos);
+        }
+
+        /** Finally, clean up the last playing song. */
+        if (replace && isPlaying) {
             try {
-                int id = getPlaylist().getByIndex(oldSize).getSongId();
-                skipToId(id);
-                play();
-            } catch (NullPointerException e) {
-                // If song adding fails, don't crash !
+                getPlaylist().removeByIndex(0);
+            } catch (MPDServerException e) {
+                Log.d(TAG, "Remove by index failed.", e);
             }
         }
     }
@@ -1004,7 +1008,11 @@ public class MPD {
                 throw new MPDConnectionException("MPD Connection is not established");
             }
             List<String> response = mpdStatusConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
-            mpdStatus.updateStatus(response);
+            if(response == null) {
+                Log.w(TAG, "No status response from the MPD server.");
+            } else {
+                mpdStatus.updateStatus(response);
+            }
         }
         return mpdStatus;
     }
