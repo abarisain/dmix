@@ -141,8 +141,8 @@ final public class NotificationService extends Service implements StatusChangeLi
     private long lastStatusRefresh = 0l;
 
     /**
-     * What was the elapsed time (in ms) when the last status refresh happened ?
-     * Use this for guessing the elapsed time for the lockscreen
+     * What was the elapsed time (in ms) when the last status refresh happened?
+     * Use this for guessing the elapsed time for the lock screen.
      */
     private long lastKnownElapsed = 0l;
 
@@ -350,7 +350,7 @@ final public class NotificationService extends Service implements StatusChangeLi
     }
 
     /**
-     * A seimple method to enable lockscreen seeking on 4.3 and upper
+     * A simple method to enable lock screen seeking on 4.3 and upper
      * @param remoteControlClient The remote control client to configure
      * @param controlFlags The control flags you set beforehand, so that we can add our required flag
      */
@@ -362,8 +362,8 @@ final public class NotificationService extends Service implements StatusChangeLi
         /* Allows Android to show the song position */
         mRemoteControlClient.setOnGetPlaybackPositionListener(new RemoteControlClient.OnGetPlaybackPositionListener() {
             /**
-             * Android's callback that queries us for the eplased time
-             * Here, we are guessing the eplased time using the last time we updated the eplased time
+             * Android's callback that queries us for the elapsed time
+             * Here, we are guessing the elapsed time using the last time we updated the elapsed time
              * and its value at the time.
              * @return The guessed song position
              */
@@ -540,7 +540,7 @@ final public class NotificationService extends Service implements StatusChangeLi
 
         if (lastStatusRefresh <= 0l) {
             /**
-             * Only update the refresh date and eplased time if it is the first start to
+             * Only update the refresh date and elapsed time if it is the first start to
              * make sure we have initial data, but updateStatus and trackChanged will take care
              * of that afterwards.
              */
@@ -774,7 +774,7 @@ final public class NotificationService extends Service implements StatusChangeLi
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover)
                 .apply();
 
-        // Notify of the eplased time if on 4.3 or upper
+        /** Notify of the elapsed time if on 4.3 or higher */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mRemoteControlClient.setPlaybackState(state, lastKnownElapsed, 1.0f);
         } else {
@@ -851,7 +851,7 @@ final public class NotificationService extends Service implements StatusChangeLi
             Log.w(TAG, "Null mpdStatus received in stateChanged");
         } else {
             lastStatusRefresh = new Date().getTime();
-            // MPD's eplased time is in seconds, convert to milliseconds
+            // MPDs elapsed time is in seconds, convert to milliseconds
             lastKnownElapsed = mpdStatus.getElapsedTime()*1000;
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
