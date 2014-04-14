@@ -79,27 +79,17 @@ public class MPDStatus {
     private int volume;
 
     MPDStatus() {
-        bitrate = 0;
-        bitsPerSample = 0;
-        channels = 0;
+        resetValues();
+
+        /** These are in every status update. */
         consume = false;
-        crossfade = 0;
-        elapsedTime = 0;
-        elapsedTimeHighResolution = 0;
-        nextSong = 0;
-        nextSongId = 0;
         mixRampDB = 0;
         playlistLength = 0;
         playlistVersion = 0;
         random = false;
         repeat = false;
         single = false;
-        song = 0;
-        songId = 0;
         volume = 0;
-        totalTime = 0;
-        sampleRate = 0;
-        updating = false;
     }
 
     /**
@@ -282,6 +272,29 @@ public class MPDStatus {
     }
 
     /**
+     * These values are not necessarily reset by a response
+     * and must be reset prior to response parsing.
+     */
+    private void resetValues() {
+        bitrate = 0;
+        bitsPerSample = 0;
+        channels = 0;
+        crossfade = 0;
+        elapsedTime = 0;
+        elapsedTimeHighResolution = 0;
+        //noinspection AssignmentToNull
+        error = null;
+        nextSong = 0;
+        nextSongId = 0;
+        sampleRate = 0;
+        song = 0;
+        songId = 0;
+        totalTime = 0;
+        updating = false;
+        volume = 0;
+    }
+
+    /**
      * Retrieves a string representation of the object.
      *
      * @return a string representation of the object.
@@ -319,8 +332,7 @@ public class MPDStatus {
      * @param response The response from the server.
      */
     final public void updateStatus(Iterable<String> response) {
-        // reset values
-        this.updating = false;
+        resetValues();
 
         for (String line : response) {
             String[] lines = line.split(": ");
