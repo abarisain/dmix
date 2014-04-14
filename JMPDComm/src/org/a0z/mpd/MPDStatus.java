@@ -60,6 +60,8 @@ public class MPDStatus {
 
     private long elapsedTime;
 
+    private float elapsedTimeHighResolution;
+
     private long totalTime;
 
     private int crossfade;
@@ -73,6 +75,8 @@ public class MPDStatus {
     private int bitsPerSample;
 
     private int channels;
+
+    private float mixRampDB;
 
     MPDStatus() {
         single = false;
@@ -94,6 +98,8 @@ public class MPDStatus {
         channels = 0;
         bitsPerSample = 0;
         updating = false;
+        mixRampDB = 0;
+        elapsedTimeHighResolution = 0;
     }
 
     /**
@@ -139,6 +145,15 @@ public class MPDStatus {
      */
     final public long getElapsedTime() {
         return elapsedTime;
+    }
+
+    /**
+     * Retrieves current track time with a higher resolution.
+     *
+     * @return Current track time (high resolution).
+     */
+    final public float getElapsedTimeHighResolution() {
+        return elapsedTimeHighResolution;
     }
 
     /**
@@ -279,9 +294,11 @@ public class MPDStatus {
                 ", consume: " + consume +
                 ", crossfade: " + crossfade +
                 ", elapsedTime: " + elapsedTime +
+                ", elapsedTimeHighResolution" + elapsedTimeHighResolution +
                 ", error: " + error +
                 ", nextSong: " + nextSong +
                 ", nextSongId: " + nextSongId +
+                ", mixRampDB: " + mixRampDB +
                 ", playlist: " + playlistVersion +
                 ", playlistLength: " + playlistLength +
                 ", random: " + random +
@@ -327,8 +344,14 @@ public class MPDStatus {
                 case "consume":
                     this.consume = "1".equals(lines[1]);
                     break;
+                case "elapsed":
+                    this.elapsedTimeHighResolution = Float.parseFloat(lines[1]);
+                    break;
                 case "error":
                     this.error = lines[1];
+                    break;
+                case "mixrampdb":
+                    this.mixRampDB = Float.parseFloat(lines[1]);
                     break;
                 case "nextsong":
                     this.nextSong = Integer.parseInt(lines[1]);
