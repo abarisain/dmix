@@ -147,7 +147,7 @@ final public class NotificationService extends Service implements StatusChangeLi
     private long lastKnownElapsed = 0l;
 
     /**
-     *Service: Don't rely on intents for important status updating.
+     * Service: Don't rely on intents for important status updating.
      * If something started the notification by another class and
      * not user input, store it here.
      */
@@ -346,13 +346,19 @@ final public class NotificationService extends Service implements StatusChangeLi
                 break;
         }
 
-        return START_NOT_STICKY; // Means we started the service, but don't want it to restart in case it's killed.
+        /**
+         * Means we started the service, but don't want
+         * it to restart in case it's killed.
+         */
+        return START_NOT_STICKY;
     }
 
     /**
      * A simple method to enable lock screen seeking on 4.3 and upper
+     *
      * @param remoteControlClient The remote control client to configure
-     * @param controlFlags The control flags you set beforehand, so that we can add our required flag
+     * @param controlFlags        The control flags you set beforehand, so that we can add our
+     *                            required flag
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void enableSeeking(RemoteControlClient remoteControlClient, int controlFlags) {
@@ -360,42 +366,48 @@ final public class NotificationService extends Service implements StatusChangeLi
                 RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
 
         /* Allows Android to show the song position */
-        mRemoteControlClient.setOnGetPlaybackPositionListener(new RemoteControlClient.OnGetPlaybackPositionListener() {
-            /**
-             * Android's callback that queries us for the elapsed time
-             * Here, we are guessing the elapsed time using the last time we updated the elapsed time
-             * and its value at the time.
-             * @return The guessed song position
-             */
-            @Override
-            public long onGetPlaybackPosition() {
-                // If we don't know the position, return a negative value as per the API spec
-                if (lastStatusRefresh <= 0l) {
-                    return -1l;
-                }
-                return lastKnownElapsed + (new Date().getTime() - lastStatusRefresh);
-            }
+        mRemoteControlClient.setOnGetPlaybackPositionListener(
+                new RemoteControlClient.OnGetPlaybackPositionListener() {
+                    /**
+                     * Android's callback that queries us for the elapsed time
+                     * Here, we are guessing the elapsed time using the last time we
+                     * updated the elapsed time and its value at the time.
+                     *
+                     * @return The guessed song position
+                     */
+                    @Override
+                    public long onGetPlaybackPosition() {
+                        // If we don't know the position, return a negative value as per the API spec
+                        if (lastStatusRefresh <= 0l) {
+                            return -1l;
+                        }
+                        return lastKnownElapsed + (new Date().getTime() - lastStatusRefresh);
+                    }
 
-        });
+                }
+        );
 
         /* Allows Android to seek */
-        mRemoteControlClient.setPlaybackPositionUpdateListener(new RemoteControlClient.OnPlaybackPositionUpdateListener() {
-            /**
-             * Android's callback for when the user seeks using the remote control
-             * @param newPositionMs The position in MS where we should seek
-             */
-            @Override
-            public void onPlaybackPositionUpdate(long newPositionMs) {
-                if (app != null) {
-                    try {
-                        app.oMPDAsyncHelper.oMPD.seek(newPositionMs / 1000);
-                        mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()), newPositionMs, 1.0f);
-                    } catch (MPDServerException e) {
-                        Log.e(TAG, "Could not seek", e);
+        mRemoteControlClient.setPlaybackPositionUpdateListener(
+                new RemoteControlClient.OnPlaybackPositionUpdateListener() {
+                    /**
+                     * Android's callback for when the user seeks using the remote control
+                     * @param newPositionMs The position in MS where we should seek
+                     */
+                    @Override
+                    public void onPlaybackPositionUpdate(long newPositionMs) {
+                        if (app != null) {
+                            try {
+                                app.oMPDAsyncHelper.oMPD.seek(newPositionMs / 1000);
+                                mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
+                                        newPositionMs, 1.0f);
+                            } catch (MPDServerException e) {
+                                Log.e(TAG, "Could not seek", e);
+                            }
+                        }
                     }
                 }
-            }
-        });
+        );
     }
 
     /**
@@ -504,6 +516,7 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     /**
      * Get the RemoteControlClient status for the corresponding MPDStatus
+     *
      * @param mpdStatus MPDStatus to parse
      * @return state to give to RemoteControlClient
      */
@@ -545,7 +558,7 @@ final public class NotificationService extends Service implements StatusChangeLi
              * of that afterwards.
              */
             lastStatusRefresh = new Date().getTime();
-            lastKnownElapsed = mpdStatus.getElapsedTime()*1000;
+            lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
         }
 
         state = getRemoteState(mpdStatus);
@@ -615,8 +628,8 @@ final public class NotificationService extends Service implements StatusChangeLi
             } else {
                 mAlbumCover = Tools
                         .decodeSampledBitmapFromPath(coverArtPath, getResources()
-                                .getDimensionPixelSize(
-                                        android.R.dimen.notification_large_icon_width),
+                                        .getDimensionPixelSize(
+                                                android.R.dimen.notification_large_icon_width),
                                 getResources()
                                         .getDimensionPixelSize(
                                                 android.R.dimen.notification_large_icon_height),
@@ -852,7 +865,7 @@ final public class NotificationService extends Service implements StatusChangeLi
         } else {
             lastStatusRefresh = new Date().getTime();
             // MPDs elapsed time is in seconds, convert to milliseconds
-            lastKnownElapsed = mpdStatus.getElapsedTime()*1000;
+            lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
                     /** If we have a message in the queue, remove it. */
@@ -897,5 +910,4 @@ final public class NotificationService extends Service implements StatusChangeLi
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
         // We do not care about that event
     }
-
 }
