@@ -35,7 +35,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
             Intent i = new Intent(context, NotificationService.class);
-            i.setAction(NotificationService.ACTION_STOP);
+            i.setAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
             context.startService(i);
         } else if (Intent.ACTION_MEDIA_BUTTON.equals(action)) {
             KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);

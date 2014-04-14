@@ -304,6 +304,11 @@ final public class NotificationService extends Service implements StatusChangeLi
             case StreamingService.ACTION_BUFFERING_END:
                 action = ACTION_UPDATE_INFO;
                 break;
+            case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
+                if(app.getApplicationState().streamingMode) {
+                    action = ACTION_PAUSE;
+                }
+                break;
         }
 
         /** If a local user begins mpdroid again by intent, try to regain audio focus. */
