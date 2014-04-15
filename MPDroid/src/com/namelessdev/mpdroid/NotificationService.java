@@ -830,7 +830,9 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        //TODO : Probably do something here
+        if (connected) {
+            stateChanged(getStatus(), null);
+        }
     }
 
     @Override
