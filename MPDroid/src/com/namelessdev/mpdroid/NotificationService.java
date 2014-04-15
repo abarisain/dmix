@@ -541,6 +541,7 @@ final public class NotificationService extends Service implements StatusChangeLi
                     break;
                 default:
                     state = RemoteControlClient.PLAYSTATE_PAUSED;
+                    break;
             }
         }
         return state;
@@ -650,10 +651,6 @@ final public class NotificationService extends Service implements StatusChangeLi
      */
     private RemoteViews buildBaseNotification(final RemoteViews resultView) {
         String title = mCurrentMusic.getTitle();
-
-        if (title == null) {
-            title = mCurrentMusic.getFilename();
-        }
 
         /** If in streaming, the notification should be persistent. */
         if (app.getApplicationState().streamingMode && !StreamingService.isWoundDown()) {
