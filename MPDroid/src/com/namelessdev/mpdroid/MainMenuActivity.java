@@ -278,17 +278,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
             }, 5000);
         } else {
-            /**
-             * This is a workaround for the upcoming workaround.
-             */
-            stopService(new Intent(this, NotificationService.class));
-            stopService(new Intent(this, StreamingService.class));
-            /*
-             * Nasty force quit, should shutdown everything nicely but there
-             * just too many async tasks maybe I'll correctly implement
-             * app.terminateApplication();
-             */
-            System.exit(0);
+            finish();
         }
     }
 
