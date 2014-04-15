@@ -278,11 +278,8 @@ final public class NotificationService extends Service implements StatusChangeLi
             return START_NOT_STICKY;
         }
 
-        /**
-         * The only way this happens is if something other
-         * than the MainMenu 'Streaming' is checked.
-         */
-        if (!app.getApplicationState().notificationMode) {
+        if (!app.getApplicationState().notificationMode &&
+                app.getApplicationState().streamingMode) {
             notificationAutomaticallyGenerated = true;
             app.getApplicationState().notificationMode = true;
         }
