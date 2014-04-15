@@ -554,9 +554,8 @@ final public class NotificationService extends Service implements StatusChangeLi
         Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
 
         final MPDStatus mpdStatus = _mpdStatus == null ? getStatus() : _mpdStatus;
-        int state;
 
-        if (lastStatusRefresh <= 0l) {
+        if (lastStatusRefresh <= 0l && mpdStatus != null) {
             /**
              * Only update the refresh date and elapsed time if it is the first start to
              * make sure we have initial data, but updateStatus and trackChanged will take care
@@ -566,10 +565,8 @@ final public class NotificationService extends Service implements StatusChangeLi
             lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
         }
 
-        state = getRemoteState(mpdStatus);
-
         /** Update the current playing song. */
-        if (mCurrentMusic == null) {
+        if (mCurrentMusic == null && mpdStatus != null) {
             final int songPos = mpdStatus.getSongPos();
             if (songPos >= 0) {
                 mCurrentMusic = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
@@ -582,8 +579,8 @@ final public class NotificationService extends Service implements StatusChangeLi
             if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
                 updateAlbumCoverWithCached();
             } /** TODO: Add no cache option */
-            setupNotification(state);
-            updateRemoteControlClient(state);
+            setupNotification();
+            updateRemoteControlClient(mpdStatus);
         }
     }
 
@@ -649,12 +646,9 @@ final public class NotificationService extends Service implements StatusChangeLi
      * notification method builds upon this method.
      *
      * @param resultView The RemoteView to begin with, be it new or from the current notification.
-     * @param state      The current RemoteControlClient state.
      * @return The base, otherwise known as, collapsed notification resources for RemoteViews.
      */
-    private RemoteViews buildBaseNotification(final RemoteViews resultView, final int state) {
-        final int playPauseResId = state == RemoteControlClient.PLAYSTATE_PAUSED
-                ? R.drawable.ic_media_play : R.drawable.ic_media_pause;
+    private RemoteViews buildBaseNotification(final RemoteViews resultView) {
         String title = mCurrentMusic.getTitle();
 
         if (title == null) {
@@ -669,10 +663,12 @@ final public class NotificationService extends Service implements StatusChangeLi
             resultView.setOnClickPendingIntent(R.id.notificationClose, notificationClose);
         }
 
-        if (state == RemoteControlClient.FLAG_KEY_MEDIA_PAUSE) {
-            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, notificationPlay);
-        } else {
+        if (MPDStatus.MPD_STATE_PLAYING.equals(getStatus().getState())) {
             resultView.setOnClickPendingIntent(R.id.notificationPlayPause, notificationPause);
+            resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_pause);
+        } else {
+            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, notificationPlay);
+            resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_play);
         }
 
         /** When streaming, move things down (hopefully, very) temporarily. */
@@ -685,7 +681,6 @@ final public class NotificationService extends Service implements StatusChangeLi
         }
 
         resultView.setOnClickPendingIntent(R.id.notificationNext, notificationNext);
-        resultView.setImageViewResource(R.id.notificationPlayPause, playPauseResId);
 
         if (mAlbumCover != null) {
             resultView.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
@@ -697,12 +692,11 @@ final public class NotificationService extends Service implements StatusChangeLi
     /**
      * This generates the collapsed notification from base.
      *
-     * @param state The current RemoteControlClient state.
      * @return The collapsed notification resources for RemoteViews.
      */
-    private NotificationCompat.Builder buildNewCollapsedNotification(final int state) {
+    private NotificationCompat.Builder buildNewCollapsedNotification() {
         final RemoteViews resultView = buildBaseNotification(
-                new RemoteViews(getPackageName(), R.layout.notification), state);
+                new RemoteViews(getPackageName(), R.layout.notification));
         return buildStaticCollapsedNotification(this).setContent(resultView);
     }
 
@@ -710,11 +704,10 @@ final public class NotificationService extends Service implements StatusChangeLi
      * buildExpandedNotification builds upon the collapsed notification resources to create
      * the resources necessary for the expanded notification RemoteViews.
      *
-     * @param state The current RemoteControlClient state.
      * @return The expanded notification RemoteViews.
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private RemoteViews buildExpandedNotification(final int state) {
+    private RemoteViews buildExpandedNotification() {
         final RemoteViews resultView;
 
         if (mNotification == null || mNotification.bigContentView == null) {
@@ -723,7 +716,7 @@ final public class NotificationService extends Service implements StatusChangeLi
             resultView = mNotification.bigContentView;
         }
 
-        buildBaseNotification(resultView, state);
+        buildBaseNotification(resultView);
 
         /** When streaming, move things down (hopefully, very) temporarily. */
         if (mediaPlayerServiceIsBuffering) {
@@ -739,25 +732,23 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     /**
      * Build a new notification or perform an update on an existing notification.
-     *
-     * @param state The new current playing state
      */
-    private void setupNotification(final int state) {
+    private void setupNotification() {
         Log.d(TAG, "update notification: " + mCurrentMusic.getArtist() + " - " + mCurrentMusic
-                .getTitle() + ", state: " + state);
+                .getTitle());
 
         NotificationCompat.Builder builder = null;
         RemoteViews expandedNotification = null;
 
         /** These have a very specific order. */
         if (mNotification == null || mNotification.contentView == null) {
-            builder = buildNewCollapsedNotification(state);
+            builder = buildNewCollapsedNotification();
         } else {
-            buildBaseNotification(mNotification.contentView, state);
+            buildBaseNotification(mNotification.contentView);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            expandedNotification = buildExpandedNotification(state);
+            expandedNotification = buildExpandedNotification();
         }
 
         if (builder != null) {
@@ -775,9 +766,11 @@ final public class NotificationService extends Service implements StatusChangeLi
     /**
      * Update the remote controls.
      *
-     * @param state The current playing RemoteControlClient state.
+     * @param mpdStatus The current server status object.
      */
-    private void updateRemoteControlClient(final int state) {
+    private void updateRemoteControlClient(final MPDStatus mpdStatus) {
+        final int state = getRemoteState(mpdStatus);
+
         mRemoteControlClient.editMetadata(true)
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum())
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
