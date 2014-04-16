@@ -89,9 +89,4 @@ public class StringsUtils {
             return null;
         }
     }
-
-    public static String trim(String text) {
-        return text == null ? text : text.trim();
-    }
-
 }
