@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem.OnMenuItemClickListener;
@@ -55,6 +56,8 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         OnRefreshListener {
 
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 50;
+
+    private static final String TAG = "BrowseFragment";
 
     protected int iJobID = -1;
 
@@ -226,8 +229,12 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     @Override
     public void onDestroy() {
+        try {
+            app.oMPDAsyncHelper.removeAsyncExecListener(this);
+        } catch (Exception e) {
+            Log.e(TAG, "Error while destroying BrowseFragment", e);
+        }
         super.onDestroy();
-        app.oMPDAsyncHelper.removeAsyncExecListener(this);
     }
 
     @Override
