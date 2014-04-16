@@ -274,11 +274,11 @@ final public class NotificationService extends Service implements StatusChangeLi
 
         Log.d(TAG, "received command, action=" + action + " from intent: " + intent);
 
+        /** An action must be submitted to start this service. */
         if (action == null) {
-            return START_NOT_STICKY;
-        }
-
-        if (!app.getApplicationState().notificationMode &&
+            Log.e(TAG, "NotificationService started without action, stopping...");
+            action = ACTION_CLOSE_NOTIFICATION;
+        } else if (!app.getApplicationState().notificationMode &&
                 app.getApplicationState().streamingMode) {
             notificationAutomaticallyGenerated = true;
             app.getApplicationState().notificationMode = true;
@@ -302,7 +302,7 @@ final public class NotificationService extends Service implements StatusChangeLi
                 action = ACTION_UPDATE_INFO;
                 break;
             case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
-                if(app.getApplicationState().streamingMode) {
+                if (app.getApplicationState().streamingMode) {
                     action = ACTION_PAUSE;
                 }
                 break;
@@ -346,6 +346,19 @@ final public class NotificationService extends Service implements StatusChangeLi
             case ACTION_UPDATE_INFO:
                 updatePlayingInfo(null);
                 break;
+            default:
+                if (!app.getApplicationState().notificationMode) {
+                    Log.e(TAG,
+                            "Please report this: NotificationService opened by something when it shouldn't be and taking no action: "
+                                    + action);
+                    stopSelf();
+                }
+                break;
+        }
+
+        if (!app.getApplicationState().notificationMode) {
+            Log.w(TAG, "NotificationService opened by something, action was taken: " + action);
+            stopSelf();
         }
 
         /**
