@@ -1108,28 +1108,42 @@ public class MPD {
     }
 
     /**
+     * Parse the response from tag list command for album artists.
+     *
+     * @param response The album artist list response from the MPD server database.
+     * @param substring The substring from the response to remove.
+     * @param sortInsensitive Whether to sort insensitively.
+     * @return Returns a parsed album artist list.
+     */
+    private static List<String> parseResponse(final Collection<String> response,
+            final String substring, final boolean sortInsensitive) {
+        final List<String> result = new ArrayList<>(response.size());
+        for (final String line : response) {
+            result.add(line.substring((substring + ": ").length()));
+        }
+        if (sortInsensitive) {
+            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
+        } else {
+            Collections.sort(result);
+        }
+        return result;
+    }
+
+    /**
      * List all album artist names from database.
      * 
      * @return album artist names from database.
      * @throws MPDServerException if an error occur while contacting server.
      */
-    public List<String> listAlbumArtists(boolean sortInsensitive) throws MPDServerException {
-        if (!isConnected())
+    public List<String> listAlbumArtists(final boolean sortInsensitive) throws MPDServerException {
+        if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
+        }
 
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ALBUM_ARTIST);
 
-        ArrayList<String> result = new ArrayList<String>();
-        for (String s : response) {
-            String name = s.substring("albumartist: ".length());
-            result.add(name);
-        }
-        if (sortInsensitive)
-            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-        else
-            Collections.sort(result);
-        return result;
+        return parseResponse(response, "albumartist", sortInsensitive);
     }
 
     public List<String> listAlbumArtists(Genre genre) throws MPDServerException {
@@ -1144,23 +1158,15 @@ public class MPD {
      */
     public List<String> listAlbumArtists(Genre genre, boolean sortInsensitive)
             throws MPDServerException {
-        if (!isConnected())
+        if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
+        }
 
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ALBUM_ARTIST, MPDCommand.MPD_TAG_GENRE,
                 genre.getName());
 
-        ArrayList<String> result = new ArrayList<String>();
-        for (String s : response) {
-            String name = s.substring("albumartist: ".length());
-            result.add(name);
-        }
-        if (sortInsensitive)
-            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-        else
-            Collections.sort(result);
-        return result;
+        return parseResponse(response, "albumartist", sortInsensitive);
     }
 
     public List<String[]> listAlbumArtists(List<Album> albums) throws MPDServerException {
@@ -1370,23 +1376,15 @@ public class MPD {
      * @return artist names from database.
      * @throws MPDServerException if an error occur while contacting server.
      */
-    public List<String> listArtists(boolean sortInsensitive) throws MPDServerException {
-        if (!isConnected())
+    public List<String> listArtists(final boolean sortInsensitive) throws MPDServerException {
+        if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
+        }
 
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST);
 
-        ArrayList<String> result = new ArrayList<String>();
-        for (String s : response) {
-            result.add(s.substring("Artist: ".length()));
-        }
-        if (sortInsensitive)
-            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-        else
-            Collections.sort(result);
-
-        return result;
+        return parseResponse(response, "Artist", sortInsensitive);
     }
 
     /*
@@ -1451,25 +1449,16 @@ public class MPD {
      * @return artist names from database.
      * @throws MPDServerException if an error occur while contacting server.
      */
-    public List<String> listArtists(String genre, boolean sortInsensitive)
+    public List<String> listArtists(final String genre, final boolean sortInsensitive)
             throws MPDServerException {
-        if (!isConnected())
+        if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
+        }
 
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST, MPDCommand.MPD_TAG_GENRE, genre);
 
-        ArrayList<String> result = new ArrayList<String>();
-        for (String s : response) {
-            String name = s.substring("Artist: ".length());
-            result.add(name);
-        }
-        if (sortInsensitive)
-            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-        else
-            Collections.sort(result);
-
-        return result;
+        return parseResponse(response, "Artist", sortInsensitive);
     }
 
     /**
@@ -1489,24 +1478,15 @@ public class MPD {
      * @return artist names from database.
      * @throws MPDServerException if an error occur while contacting server.
      */
-    public List<String> listGenres(boolean sortInsensitive) throws MPDServerException {
-        if (!isConnected())
+    public List<String> listGenres(final boolean sortInsensitive) throws MPDServerException {
+        if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
+        }
 
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_GENRE);
 
-        ArrayList<String> result = new ArrayList<String>();
-        for (String s : response) {
-            String name = s.substring("Genre: ".length());
-            result.add(name);
-        }
-        if (sortInsensitive)
-            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-        else
-            Collections.sort(result);
-
-        return result;
+        return parseResponse(response, "Genre", sortInsensitive);
     }
 
     public void movePlaylistSong(String playlistName, int from, int to) throws MPDServerException {
