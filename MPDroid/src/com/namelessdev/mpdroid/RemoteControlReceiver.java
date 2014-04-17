@@ -23,29 +23,25 @@ import android.media.AudioManager;
 import android.view.KeyEvent;
 
 /**
- * RemoteControlReceiver receives media player button stuff. Most of the code is
- * taken from Google's music app.
- * 
+ * RemoteControlReceiver receives media player button stuff. Most of
+ * the code was taken from the Android Open Source Project music app.
+ *
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
  */
 public class RemoteControlReceiver extends BroadcastReceiver {
+
     @Override
-    public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
+    final public void onReceive(final Context context, final Intent intent) {
+        final String action = intent.getAction();
+        final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+        String command = null;
+
         if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
-            Intent i = new Intent(context, NotificationService.class);
-            i.setAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-            context.startService(i);
-        } else if (Intent.ACTION_MEDIA_BUTTON.equals(action)) {
-            KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-            if (event == null) {
-                return;
-            }
-            int keycode = event.getKeyCode();
-            int eventAction = event.getAction();
-            String command = null;
-            switch (keycode) {
+            command = AudioManager.ACTION_AUDIO_BECOMING_NOISY;
+        } else if (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
+                Intent.ACTION_MEDIA_BUTTON.equals(action)) {
+            switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_MEDIA_STOP:
                     command = NotificationService.ACTION_STOP;
                     break;
@@ -60,13 +56,11 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     command = NotificationService.ACTION_PREVIOUS;
                     break;
             }
-            if (command != null) {
-                if (eventAction == KeyEvent.ACTION_DOWN) {
-                    Intent i = new Intent(context, NotificationService.class);
-                    i.setAction(command);
-                    context.startService(i);
-                }
-            }
+        }
+        if (command != null) {
+            Intent i = new Intent(context, NotificationService.class);
+            i.setAction(command);
+            context.startService(i);
         }
     }
 }
