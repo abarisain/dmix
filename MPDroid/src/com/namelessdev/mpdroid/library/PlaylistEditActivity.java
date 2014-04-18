@@ -184,9 +184,9 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         MPDApplication app = (MPDApplication) getApplication();
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
+        super.onDestroy();
     }
     /**
      * Marks the selected item for deletion
