@@ -66,7 +66,7 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
 
-    public static final String ACTION_UPDATE_INFO = FULLY_QUALIFIED_NAME + "UPDATE_INFO";
+    private static final String ACTION_UPDATE_INFO = FULLY_QUALIFIED_NAME + "UPDATE_INFO";
 
     public static final String ACTION_SHOW_NOTIFICATION = FULLY_QUALIFIED_NAME
             + "SHOW_NOTIFICATION";
@@ -230,7 +230,7 @@ final public class NotificationService extends Service implements StatusChangeLi
         mRemoteControlClient.setTransportControlFlags(controlFlags);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            enableSeeking(mRemoteControlClient, controlFlags);
+            enableSeeking(controlFlags);
         }
 
         mAudioManager.registerRemoteControlClient(mRemoteControlClient);
@@ -357,12 +357,11 @@ final public class NotificationService extends Service implements StatusChangeLi
     /**
      * A simple method to enable lock screen seeking on 4.3 and upper
      *
-     * @param remoteControlClient The remote control client to configure
      * @param controlFlags        The control flags you set beforehand, so that we can add our
      *                            required flag
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void enableSeeking(RemoteControlClient remoteControlClient, int controlFlags) {
+    private void enableSeeking(int controlFlags) {
         mRemoteControlClient.setTransportControlFlags(controlFlags |
                 RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
 
@@ -378,13 +377,17 @@ final public class NotificationService extends Service implements StatusChangeLi
                      */
                     @Override
                     public long onGetPlaybackPosition() {
-                        // If we don't know the position, return a negative value as per the API spec
-                        if (lastStatusRefresh <= 0l) {
-                            return -1l;
-                        }
-                        return lastKnownElapsed + (new Date().getTime() - lastStatusRefresh);
-                    }
+                        /**
+                         * If we don't know the position, return
+                         * a negative value as per the API spec.
+                         */
+                        long result = -1l;
 
+                        if (lastStatusRefresh > 0l) {
+                            result = lastKnownElapsed + (new Date().getTime() - lastStatusRefresh);
+                        }
+                        return result;
+                    }
                 }
         );
 
