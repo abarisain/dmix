@@ -442,6 +442,25 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         oCoverAsyncHelper.downloadCover(albumInfo, true);
     }
 
+    /**
+     * This enables or disables the volume, depending on the volume given by the server.
+     *
+     * @param volume The current volume value.
+     */
+    private void toggleVolumeBar(final int volume) {
+        final int OUTPUT_VOLUME_UNSUPPORTED = -1;
+
+        if (volume == OUTPUT_VOLUME_UNSUPPORTED) {
+            progressBarVolume.setEnabled(false);
+            progressBarVolume.setVisibility(View.GONE);
+            volumeIcon.setVisibility(View.GONE);
+        } else {
+            progressBarVolume.setEnabled(true);
+            progressBarVolume.setVisibility(View.VISIBLE);
+            volumeIcon.setVisibility(View.VISIBLE);
+        }
+    }
+
     private PlaylistFragment getPlaylistFragment() {
         PlaylistFragment playlistFragment;
         playlistFragment = (PlaylistFragment) activity.getSupportFragmentManager()
@@ -970,21 +989,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         setShuffleButton(status.isRandom());
         setRepeatButton(status.isRepeat());
 
-        if (status.getVolume() == -1)
-        {
-            // volume is -1 when output device does not support
-            // a volume control, e.g. Optical Output
-            progressBarVolume.setEnabled(false);
-            progressBarVolume.setVisibility(View.GONE);
-            volumeIcon.setVisibility(View.GONE);
-        }
-        else
-        {
-            progressBarVolume.setEnabled(true);
-            progressBarVolume.setVisibility(View.VISIBLE);
-            volumeIcon.setVisibility(View.VISIBLE);
-        }
-
         // Update audio properties
         if (audioNameText != null && currentSong != null) {
             StringBuffer sb = new StringBuffer();
@@ -1030,7 +1034,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-        progressBarVolume.setProgress(mpdStatus.getVolume());
+        final int volume = mpdStatus.getVolume();
+
+        toggleVolumeBar(volume);
+        progressBarVolume.setProgress(volume);
     }
 
 }
