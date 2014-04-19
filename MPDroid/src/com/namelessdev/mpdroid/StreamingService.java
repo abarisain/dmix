@@ -104,8 +104,6 @@ final public class StreamingService extends Service implements
 
     private boolean streamingStoppedForCall = false;
 
-    private PowerManager.WakeLock mWakeLock = null;
-
     /** Is MPD playing? */
     private boolean isPlaying = false;
 
@@ -351,14 +349,6 @@ final public class StreamingService extends Service implements
 
         serviceWoundDown(false);
 
-        if (mWakeLock == null) {
-            final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-            mWakeLock.setReferenceCounted(false);
-        }
-
-        mWakeLock.acquire();
-
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
@@ -366,6 +356,7 @@ final public class StreamingService extends Service implements
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnErrorListener(this);
+        mediaPlayer.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
     }
 
     /**
@@ -383,13 +374,6 @@ final public class StreamingService extends Service implements
 
         if (action != null) {
             sendIntent(action, NotificationService.class);
-        }
-
-        /**
-         * Make sure that the first thing we do is releasing the wake lock
-         */
-        if (mWakeLock != null) {
-            mWakeLock.release();
         }
 
         if (mTelephonyManager != null) {
