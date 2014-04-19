@@ -309,41 +309,26 @@ final public class NotificationService extends Service implements StatusChangeLi
                 break;
         }
 
-        /** If a local user begins mpdroid again by intent, try to regain audio focus. */
-        switch (action) {
-            case ACTION_PLAY:
-            case ACTION_NEXT:
-            case ACTION_PREVIOUS:
-                tryToGetAudioFocus();
-        }
-
         switch (action) {
             case ACTION_CLOSE_NOTIFICATION:
                 stopSelf();
                 break;
-            case ACTION_PAUSE:
-                sendSimpleMpdCommand(ACTION_PAUSE);
-                break;
-            case ACTION_PLAY:
-                sendSimpleMpdCommand(ACTION_PLAY);
-                break;
-            case ACTION_PREVIOUS:
-                sendSimpleMpdCommand(ACTION_PREVIOUS);
-                break;
-            case ACTION_REWIND:
-                sendSimpleMpdCommand(ACTION_REWIND);
-                break;
             case ACTION_NEXT:
-                sendSimpleMpdCommand(ACTION_NEXT);
-                break;
+            case ACTION_PREVIOUS:
+                tryToGetAudioFocus(); /** break through */
+            case ACTION_PAUSE:
+            case ACTION_PLAY:
+            case ACTION_REWIND:
             case ACTION_STOP:
-                sendSimpleMpdCommand(ACTION_STOP);
+                if(app.oMPDAsyncHelper != null) {
+                    sendSimpleMpdCommand(action);
+                }
                 break;
             case ACTION_TOGGLE_PLAYBACK:
                 processTogglePlaybackRequest();
                 break;
             case ACTION_SHOW_NOTIFICATION:
-                tryToGetAudioFocus();
+                tryToGetAudioFocus(); /** break through */
             case ACTION_UPDATE_INFO:
                 updatePlayingInfo(null);
                 break;
@@ -437,9 +422,6 @@ final public class NotificationService extends Service implements StatusChangeLi
             final public void run() {
 
                 final MPD mpd = app.oMPDAsyncHelper.oMPD;
-                if (mpd == null) {
-                    return;
-                }
 
                 try {
                     switch (command) {
