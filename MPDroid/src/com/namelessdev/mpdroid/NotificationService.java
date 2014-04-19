@@ -302,7 +302,8 @@ final public class NotificationService extends Service implements StatusChangeLi
                 action = ACTION_UPDATE_INFO;
                 break;
             case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
-                if (app.getApplicationState().streamingMode) {
+                if (app.getApplicationState().streamingMode ||
+                        "127.0.0.1".equals(app.oMPDAsyncHelper.getConnectionSettings().sServer)) {
                     action = ACTION_PAUSE;
                 }
                 break;
