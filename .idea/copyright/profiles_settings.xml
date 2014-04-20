@@ -1,7 +1,11 @@
 <component name="CopyrightManager">
-  <settings default="Apache">
+  <settings default="">
     <module2copyright>
-      <element module="Project Files" copyright="Apache" />
+      <element module="MPDroid" copyright="Apache" />
+      <element module="JMPDComm" copyright="2-Clause BSD" />
+      <element module="StringComparator" copyright="3-Clause BSD (StringComparator)" />
+      <element module="AndroidSlidingUpPanel" copyright="Apache" />
+      <element module="WeakLinkedList" copyright="Apache (WeakLinkedList)" />
     </module2copyright>
   </settings>
 </component>

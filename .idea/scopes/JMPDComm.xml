@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="JMPDComm" pattern="src[JMPDComm]:*..*&amp;&amp;!src[JMPDComm]:org.a0z.mpd.StringComparators" />
+</component>

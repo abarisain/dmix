@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="WeakLinkedList" pattern="src[MPDroid]:com.namelessdev.mpdroid.tools.WeakLinkedList" />
+</component>
