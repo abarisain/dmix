@@ -77,6 +77,8 @@ public class MPDStatus {
 
     private float mixRampDB;
 
+    private float mixRampDelay;
+
     private int nextSong;
 
     private int nextSongId;
@@ -111,6 +113,7 @@ public class MPDStatus {
         /** These are in every status update. */
         consume = false;
         mixRampDB = 0;
+        mixRampDelay = 0;
         playlistLength = 0;
         playlistVersion = 0;
         random = false;
@@ -339,6 +342,7 @@ public class MPDStatus {
                 ", nextSong: " + nextSong +
                 ", nextSongId: " + nextSongId +
                 ", mixRampDB: " + mixRampDB +
+                ", mixRampDelay: " + mixRampDelay +
                 ", playlist: " + playlistVersion +
                 ", playlistLength: " + playlistLength +
                 ", random: " + random +
@@ -391,6 +395,9 @@ public class MPDStatus {
                     break;
                 case "mixrampdb":
                     this.mixRampDB = Float.parseFloat(lines[1]);
+                    break;
+                case "mixrampdelay":
+                    this.mixRampDelay = Float.parseFloat(lines[1]);
                     break;
                 case "nextsong":
                     this.nextSong = Integer.parseInt(lines[1]);
@@ -452,7 +459,7 @@ public class MPDStatus {
                     break;
                 default:
                     Log.d(TAG, "Status was sent an unknown response line:" + lines[1] +
-                            "from: " + lines[0]);
+                            " from: " + lines[0]);
             }
         }
     }
