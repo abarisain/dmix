@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="AndroidSlidingUpPanel" pattern="src[AndroidSlidingUpPanel]:*..*" />
+</component>

@@ -348,8 +348,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         app.oMPDAsyncHelper.removeAsyncExecListener(this);
+        super.onDestroy();
     }
 
     @Override

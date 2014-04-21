@@ -278,17 +278,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
             }, 5000);
         } else {
-            /**
-             * This is a workaround for the upcoming workaround.
-             */
-            stopService(new Intent(this, NotificationService.class));
-            stopService(new Intent(this, StreamingService.class));
-            /*
-             * Nasty force quit, should shutdown everything nicely but there
-             * just too many async tasks maybe I'll correctly implement
-             * app.terminateApplication();
-             */
-            System.exit(0);
+            finish();
         }
     }
 
@@ -659,9 +649,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 return true;
             case R.id.GMM_Stream:
                 if (app.getApplicationState().streamingMode) {
-                    final Intent i = new Intent(this, StreamingService.class);
-                    this.stopService(i);
-
+                    stopService(StreamingService.class);
                     app.getApplicationState().streamingMode = false;
                 } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
                     startService(NotificationService.class, null);
@@ -687,9 +675,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 return true;
             case R.id.GMM_ShowNotification:
                 if (app.getApplicationState().notificationMode) {
-                    final Intent i = new Intent(this, NotificationService.class);
-                    this.stopService(i);
-
+                    stopService(NotificationService.class);
                     app.getApplicationState().notificationMode = false;
                 } else {
                     startService(NotificationService.class,
@@ -724,8 +710,29 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             }
             if (intentAction != null) {
                 intent.setAction(intentAction);
-                this.startService(intent);
+                super.startService(intent);
             }
+        }
+    }
+
+    /**
+     * Disables and stops a service.
+     *
+     * @param serviceClass The class of the service to stop.
+     */
+    private void stopService(final Class<?> serviceClass) {
+        final PackageManager packageManager = getPackageManager();
+        final Intent intent = new Intent(this, serviceClass);
+
+        if (packageManager != null) {
+            if (PackageManager.COMPONENT_ENABLED_STATE_DISABLED !=
+                    packageManager.getApplicationEnabledSetting(this.getPackageName())) {
+
+                packageManager.setComponentEnabledSetting(intent.getComponent(),
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        PackageManager.DONT_KILL_APP);
+            }
+            super.stopService(intent);
         }
     }
 

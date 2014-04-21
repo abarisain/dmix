@@ -1,3 +1,30 @@
+/*
+ * Copyright (C) 2004 Felipe Gustavo de Almeida
+ * Copyright (C) 2010-2014 The MPDroid Project
+ *
+ * All Rights Reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice,this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package org.a0z.mpd;
 
 import android.util.Log;
@@ -50,6 +77,8 @@ public class MPDStatus {
 
     private float mixRampDB;
 
+    private float mixRampDelay;
+
     private int nextSong;
 
     private int nextSongId;
@@ -84,6 +113,7 @@ public class MPDStatus {
         /** These are in every status update. */
         consume = false;
         mixRampDB = 0;
+        mixRampDelay = 0;
         playlistLength = 0;
         playlistVersion = 0;
         random = false;
@@ -312,6 +342,7 @@ public class MPDStatus {
                 ", nextSong: " + nextSong +
                 ", nextSongId: " + nextSongId +
                 ", mixRampDB: " + mixRampDB +
+                ", mixRampDelay: " + mixRampDelay +
                 ", playlist: " + playlistVersion +
                 ", playlistLength: " + playlistLength +
                 ", random: " + random +
@@ -364,6 +395,9 @@ public class MPDStatus {
                     break;
                 case "mixrampdb":
                     this.mixRampDB = Float.parseFloat(lines[1]);
+                    break;
+                case "mixrampdelay":
+                    this.mixRampDelay = Float.parseFloat(lines[1]);
                     break;
                 case "nextsong":
                     this.nextSong = Integer.parseInt(lines[1]);
@@ -425,7 +459,7 @@ public class MPDStatus {
                     break;
                 default:
                     Log.d(TAG, "Status was sent an unknown response line:" + lines[1] +
-                            "from: " + lines[0]);
+                            " from: " + lines[0]);
             }
         }
     }

@@ -20,32 +20,36 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.util.Log;
 import android.view.KeyEvent;
 
 /**
- * RemoteControlReceiver receives media player button stuff. Most of the code is
- * taken from Google's music app.
- * 
+ * RemoteControlReceiver receives media player button stuff. Most of
+ * the code was taken from the Android Open Source Project music app.
+ *
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
  */
 public class RemoteControlReceiver extends BroadcastReceiver {
+
+    private final static String TAG = "com.namelessdev.mpdroid.RemoteControlReceiver";
+
     @Override
-    public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
+    final public void onReceive(final Context context, final Intent intent) {
+        final String action = intent.getAction();
+        final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+        String command = null;
+
+        Log.d(TAG, "Intent: " + intent + " received with context: " + context + " with action: "
+                + action);
+
         if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
-            Intent i = new Intent(context, NotificationService.class);
-            i.setAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-            context.startService(i);
-        } else if (Intent.ACTION_MEDIA_BUTTON.equals(action)) {
-            KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-            if (event == null) {
-                return;
-            }
-            int keycode = event.getKeyCode();
-            int eventAction = event.getAction();
-            String command = null;
-            switch (keycode) {
+            command = AudioManager.ACTION_AUDIO_BECOMING_NOISY;
+        } else if (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
+                Intent.ACTION_MEDIA_BUTTON.equals(action)) {
+            final int eventKeyCode = event.getKeyCode();
+            Log.d(TAG, "with keycode: " + eventKeyCode);
+            switch (eventKeyCode) {
                 case KeyEvent.KEYCODE_MEDIA_STOP:
                     command = NotificationService.ACTION_STOP;
                     break;
@@ -60,13 +64,11 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     command = NotificationService.ACTION_PREVIOUS;
                     break;
             }
-            if (command != null) {
-                if (eventAction == KeyEvent.ACTION_DOWN) {
-                    Intent i = new Intent(context, NotificationService.class);
-                    i.setAction(command);
-                    context.startService(i);
-                }
-            }
+        }
+        if (command != null) {
+            Intent i = new Intent(context, NotificationService.class);
+            i.setAction(command);
+            context.startService(i);
         }
     }
 }
