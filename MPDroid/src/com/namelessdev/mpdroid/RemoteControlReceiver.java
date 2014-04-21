@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.util.Log;
 import android.view.KeyEvent;
 
 /**
@@ -31,17 +32,24 @@ import android.view.KeyEvent;
  */
 public class RemoteControlReceiver extends BroadcastReceiver {
 
+    private final static String TAG = "com.namelessdev.mpdroid.RemoteControlReceiver";
+
     @Override
     final public void onReceive(final Context context, final Intent intent) {
         final String action = intent.getAction();
         final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
         String command = null;
 
+        Log.d(TAG, "Intent: " + intent + " received with context: " + context + " with action: "
+                + action);
+
         if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
             command = AudioManager.ACTION_AUDIO_BECOMING_NOISY;
         } else if (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
                 Intent.ACTION_MEDIA_BUTTON.equals(action)) {
-            switch (event.getKeyCode()) {
+            final int eventKeyCode = event.getKeyCode();
+            Log.d(TAG, "with keycode: " + eventKeyCode);
+            switch (eventKeyCode) {
                 case KeyEvent.KEYCODE_MEDIA_STOP:
                     command = NotificationService.ACTION_STOP;
                     break;
