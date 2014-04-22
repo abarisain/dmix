@@ -149,16 +149,15 @@ public class MPDStatusMonitor extends Thread {
                             if (change.startsWith("changed: database")) {
                                 dbChanged = true;
                                 statusChanged = true;
-                                break;
-                            } else if (change.startsWith("changed: update")) {
-                                dbChanged = true;
                             } else if (change.startsWith("changed: playlist")
+                                    || change.startsWith("changed: update")
                                     || change.startsWith("changed: player") ||
                                     change.startsWith("changed: mixer")
                                     || change.startsWith("changed: output")
                                     || change.startsWith("changed: options")) {
                                 statusChanged = true;
                             }
+
                             if (dbChanged && statusChanged) {
                                 break;
                             }
