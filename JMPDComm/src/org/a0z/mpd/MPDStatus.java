@@ -29,6 +29,8 @@ package org.a0z.mpd;
 
 import android.util.Log;
 
+import java.util.regex.Pattern;
+
 /**
  * Class representing MPD Server status.
  *
@@ -302,6 +304,17 @@ public class MPDStatus {
     }
 
     /**
+     * This is a regular expression pattern matcher
+     * for the MPD protocol delimiter ": ".
+     */
+    private final static Pattern MPD_DELIMITER = Pattern.compile(": ");
+
+    /**
+     * The time response has it's own delimiter.
+     */
+    private final static Pattern COMMA_DELIMITER = Pattern.compile(":");
+
+    /**
      * These values are not necessarily reset by a response
      * and must be reset prior to response parsing.
      */
@@ -337,7 +350,7 @@ public class MPDStatus {
                 ", consume: " + consume +
                 ", crossfade: " + crossfade +
                 ", elapsedTime: " + elapsedTime +
-                ", elapsedTimeHighResolution" + elapsedTimeHighResolution +
+                ", elapsedTimeHighResolution: " + elapsedTimeHighResolution +
                 ", error: " + error +
                 ", nextSong: " + nextSong +
                 ", nextSongId: " + nextSongId +
@@ -366,11 +379,11 @@ public class MPDStatus {
         resetValues();
 
         for (String line : response) {
-            String[] lines = line.split(": ");
+            String[] lines = MPD_DELIMITER.split(line);
 
             switch (lines[0]) {
                 case "audio":
-                    final String[] audio = lines[1].split(":");
+                    final String[] audio = COMMA_DELIMITER.split(lines[1]);
 
                     try {
                         this.sampleRate = Integer.parseInt(audio[0]);
@@ -443,7 +456,7 @@ public class MPDStatus {
                     }
                     break;
                 case "time":
-                    final String[] time = lines[1].split(":");
+                    final String[] time = COMMA_DELIMITER.split(lines[1]);
 
                     this.elapsedTime = Long.parseLong(time[0]);
                     this.totalTime = Long.parseLong(time[1]);
