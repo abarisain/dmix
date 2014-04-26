@@ -42,7 +42,6 @@ import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -50,6 +49,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -60,11 +60,11 @@ import java.util.Date;
  * A service that handles the Notification, RemoteControlClient, MediaButtonReceiver and
  * incoming MPD command intents.
  */
-final public class NotificationService extends Service implements StatusChangeListener {
+public final class NotificationService extends Service implements StatusChangeListener {
 
-    private final static String TAG = "NotificationService";
+    private static final String TAG = "NotificationService";
 
-    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
+    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + '.';
 
     /**
      * This will close the notification, no matter the notification state.
@@ -113,7 +113,7 @@ final public class NotificationService extends Service implements StatusChangeLi
     // The ID we use for the notification (the onscreen alert that appears at the notification
     // area at the top of the screen as an icon -- and as text as well if the user expands the
     // notification area).
-    private final int NOTIFICATION_ID = 1;
+    private static final int NOTIFICATION_ID = 1;
 
     /** Set up the message handler. */
     private final Handler delayedPauseHandler = new Handler() {
@@ -158,13 +158,13 @@ final public class NotificationService extends Service implements StatusChangeLi
     /**
      * Last time the status was refreshed
      */
-    private long lastStatusRefresh = 0l;
+    private long lastStatusRefresh = 0L;
 
     /**
      * What was the elapsed time (in ms) when the last status refresh happened?
      * Use this for guessing the elapsed time for the lock screen.
      */
-    private long lastKnownElapsed = 0l;
+    private long lastKnownElapsed = 0L;
 
     /**
      * Service: Don't rely on intents for important status updating.
@@ -184,7 +184,8 @@ final public class NotificationService extends Service implements StatusChangeLi
      * @param action  The ACTION intent string.
      * @return The pending intent.
      */
-    private static PendingIntent buildStaticPendingIntent(Context context, String action) {
+    private static PendingIntent buildStaticPendingIntent(final Context context,
+            final String action) {
         final Intent intent = new Intent(context, NotificationService.class);
         intent.setAction(action);
         return PendingIntent.getService(context, 0, intent, 0);
@@ -195,7 +196,7 @@ final public class NotificationService extends Service implements StatusChangeLi
      *
      * @param context The current context.
      */
-    private static void buildStaticPendingIntents(Context context) {
+    private static void buildStaticPendingIntents(final Context context) {
         /** Build notification media player button actions */
         notificationClose = buildStaticPendingIntent(context, ACTION_CLOSE_NOTIFICATION);
         notificationNext = buildStaticPendingIntent(context, ACTION_NEXT);
@@ -210,10 +211,11 @@ final public class NotificationService extends Service implements StatusChangeLi
      * @param context The current context.
      * @return Returns a notification builder object.
      */
-    private static NotificationCompat.Builder buildStaticCollapsedNotification(Context context) {
+    private static NotificationCompat.Builder buildStaticCollapsedNotification(
+            final Context context) {
         /** Build the click PendingIntent */
         final Intent musicPlayerActivity = new Intent(context, MainMenuActivity.class);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainMenuActivity.class);
         stackBuilder.addNextIntent(musicPlayerActivity);
         final PendingIntent notificationClick = stackBuilder.getPendingIntent(0,
@@ -235,7 +237,7 @@ final public class NotificationService extends Service implements StatusChangeLi
         mMediaButtonReceiverComponent = new ComponentName(this, RemoteControlReceiver.class);
         mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
 
-        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        final Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         intent.setComponent(mMediaButtonReceiverComponent);
         mRemoteControlClient = new RemoteControlClient(PendingIntent
                 .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/,
@@ -258,6 +260,7 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     @Override
     public void onCreate() {
+        super.onCreate();
         Log.d(TAG, "Creating service");
 
         app = (MPDApplication) getApplication();
@@ -289,7 +292,8 @@ final public class NotificationService extends Service implements StatusChangeLi
      * Intent's action, which specifies what is being requested of us.
      */
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(final Intent intent, final int flags, final int startId) {
+        super.onStartCommand(intent, flags, startId);
         String action = intent.getAction();
 
         Log.d(TAG, "received command, action=" + action + " from intent: " + intent);
@@ -314,7 +318,7 @@ final public class NotificationService extends Service implements StatusChangeLi
                     app.getApplicationState().notificationMode = true;
                 }
                 mediaPlayerServiceIsBuffering = true;
-                /** Break Through */
+                /** Fall Through */
             case StreamingService.ACTION_BUFFERING_END:
             case StreamingService.ACTION_STREAMING_STOP:
                 action = ACTION_OPEN_NOTIFICATION;
@@ -336,12 +340,22 @@ final public class NotificationService extends Service implements StatusChangeLi
                     action = ACTION_PAUSE;
                 }
                 break;
+            case ACTION_TOGGLE_PLAYBACK:
+                if (MPDStatus.MPD_STATE_PLAYING.equals(getStatus().getState())) {
+                    action = ACTION_PAUSE;
+                } else {
+                    action = ACTION_PLAY;
+                }
+                break;
+            default:
+                break;
         }
 
         switch (action) {
             case ACTION_NEXT:
             case ACTION_PREVIOUS:
-                tryToGetAudioFocus(); /** break through */
+                tryToGetAudioFocus();
+                /** fall through */
             case ACTION_PAUSE:
             case ACTION_PLAY:
             case ACTION_REWIND:
@@ -388,7 +402,7 @@ final public class NotificationService extends Service implements StatusChangeLi
      *                     required flag
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void enableSeeking(int controlFlags) {
+    private void enableSeeking(final int controlFlags) {
         mRemoteControlClient.setTransportControlFlags(controlFlags |
                 RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
 
@@ -408,10 +422,10 @@ final public class NotificationService extends Service implements StatusChangeLi
                          * If we don't know the position, return
                          * a negative value as per the API spec.
                          */
-                        long result = -1l;
+                        long result = -1L;
 
-                        if (lastStatusRefresh > 0l) {
-                            result = lastKnownElapsed + (new Date().getTime() - lastStatusRefresh);
+                        if (lastStatusRefresh > 0L) {
+                            result = lastKnownElapsed + new Date().getTime() - lastStatusRefresh;
                         }
                         return result;
                     }
@@ -426,13 +440,14 @@ final public class NotificationService extends Service implements StatusChangeLi
                      * @param newPositionMs The position in MS where we should seek
                      */
                     @Override
-                    public void onPlaybackPositionUpdate(long newPositionMs) {
+                    public void onPlaybackPositionUpdate(final long newPositionMs) {
                         if (app != null) {
                             try {
-                                app.oMPDAsyncHelper.oMPD.seek(newPositionMs / 1000);
+                                app.oMPDAsyncHelper.oMPD.seek(newPositionMs /
+                                        DateUtils.SECOND_IN_MILLIS);
                                 mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
                                         newPositionMs, 1.0f);
-                            } catch (MPDServerException e) {
+                            } catch (final MPDServerException e) {
                                 Log.e(TAG, "Could not seek", e);
                             }
                         }
@@ -449,7 +464,7 @@ final public class NotificationService extends Service implements StatusChangeLi
     private void sendSimpleMpdCommand(final String command) {
         new Thread(new Runnable() {
             @Override
-            final public void run() {
+            public final void run() {
 
                 final MPD mpd = app.oMPDAsyncHelper.oMPD;
 
@@ -471,40 +486,17 @@ final public class NotificationService extends Service implements StatusChangeLi
                             mpd.previous();
                             break;
                         case ACTION_REWIND:
-                            mpd.seek(0);
+                            mpd.seek(0L);
+                            break;
+                        default:
                             break;
                     }
-                } catch (MPDServerException e) {
+                } catch (final MPDServerException e) {
                     Log.w(TAG, "Failed to send a simple MPD command.", e);
                 }
             }
         }
         ).start();
-    }
-
-    private void processTogglePlaybackRequest() {
-        new AsyncTask<MPDApplication, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(MPDApplication... params) {
-                String state = null;
-                try {
-                    state = params[0].oMPDAsyncHelper.oMPD.getStatus().getState();
-                } catch (MPDServerException e) {
-                    Log.w(TAG, "Failed to get the current state for toggle.", e);
-                }
-                return MPDStatus.MPD_STATE_PLAYING.equals(state) || MPDStatus.MPD_STATE_PAUSED
-                        .equals(state);
-            }
-
-            @Override
-            protected void onPostExecute(Boolean shouldPause) {
-                if (shouldPause) {
-                    sendSimpleMpdCommand(ACTION_PAUSE);
-                } else {
-                    sendSimpleMpdCommand(ACTION_PLAY);
-                }
-            }
-        }.execute(app);
     }
 
     /**
@@ -531,7 +523,7 @@ final public class NotificationService extends Service implements StatusChangeLi
         MPDStatus mpdStatus = null;
         try {
             mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus();
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
             Log.d(TAG, "Couldn't get the status to updatePlayingInfo()", e);
         }
 
@@ -549,7 +541,8 @@ final public class NotificationService extends Service implements StatusChangeLi
      * @return state to give to RemoteControlClient
      */
     private int getRemoteState(final MPDStatus mpdStatus) {
-        int state;
+        final int state;
+
         if (mpdStatus == null) {
             state = RemoteControlClient.PLAYSTATE_ERROR;
         } else if (mediaPlayerServiceIsBuffering) {
@@ -574,19 +567,19 @@ final public class NotificationService extends Service implements StatusChangeLi
      * This method will update the current playing track, notification views,
      * the RemoteControlClient & the cover art.
      */
-    private void updatePlayingInfo(final MPDStatus _mpdStatus) {
+    private void updatePlayingInfo(final MPDStatus status) {
         Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
 
-        final MPDStatus mpdStatus = _mpdStatus == null ? getStatus() : _mpdStatus;
+        final MPDStatus mpdStatus = status == null ? getStatus() : status;
 
-        if (lastStatusRefresh <= 0l && mpdStatus != null) {
+        if (lastStatusRefresh <= 0L && mpdStatus != null) {
             /**
              * Only update the refresh date and elapsed time if it is the first start to
              * make sure we have initial data, but updateStatus and trackChanged will take care
              * of that afterwards.
              */
             lastStatusRefresh = new Date().getTime();
-            lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
+            lastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.MINUTE_IN_MILLIS;
         }
 
         if (mpdStatus != null) {
@@ -617,7 +610,7 @@ final public class NotificationService extends Service implements StatusChangeLi
 
         try {
             coverArtPaths = cache.getCoverUrl(mCurrentMusic.getAlbumInfo());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Log.d(TAG, "Failed to get the cover URL from the cache.", e);
         }
 
@@ -670,7 +663,7 @@ final public class NotificationService extends Service implements StatusChangeLi
      * @return The base, otherwise known as, collapsed notification resources for RemoteViews.
      */
     private RemoteViews buildBaseNotification(final RemoteViews resultView) {
-        String title = mCurrentMusic.getTitle();
+        final String title = mCurrentMusic.getTitle();
 
         /** If in streaming, the notification should be persistent. */
         if (app.getApplicationState().streamingMode && !StreamingService.isWoundDown()) {
@@ -802,10 +795,11 @@ final public class NotificationService extends Service implements StatusChangeLi
                         mCurrentMusic.getAlbumArtist())
                 .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, mCurrentMusic.getArtist())
                 .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
-                        mCurrentMusic.getTrack())
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER, mCurrentMusic.getDisc())
+                        (long) mCurrentMusic.getTrack())
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                        (long) mCurrentMusic.getDisc())
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                        mCurrentMusic.getTime() * 1000)
+                        mCurrentMusic.getTime() * DateUtils.MINUTE_IN_MILLIS)
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle())
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover)
                 .apply();
@@ -838,6 +832,7 @@ final public class NotificationService extends Service implements StatusChangeLi
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         Log.d(TAG, "Removing connection lock");
         app.removeConnectionLock(this);
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
@@ -866,12 +861,12 @@ final public class NotificationService extends Service implements StatusChangeLi
     }
 
     @Override
-    public IBinder onBind(Intent arg0) {
+    public IBinder onBind(final Intent intent) {
         return null;
     }
 
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
         if (connected) {
             if (app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
                 stateChanged(getStatus(), null);
@@ -885,12 +880,11 @@ final public class NotificationService extends Service implements StatusChangeLi
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
-        // We do not care about that event
+    public void libraryStateChanged(final boolean updating) {
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
         /**
          * This is required because streams will emit a playlist (current queue) event as the
          * metadata will change while the same audio file is playing (no track change).
@@ -900,13 +894,12 @@ final public class NotificationService extends Service implements StatusChangeLi
         }
     }
 
-    public void randomChanged(boolean random) {
-        // We do not care about that event
+    @Override
+    public void randomChanged(final boolean random) {
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
-        // We do not care about that event
+    public void repeatChanged(final boolean repeating) {
     }
 
     /**
@@ -929,13 +922,13 @@ final public class NotificationService extends Service implements StatusChangeLi
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
+    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in stateChanged");
         } else {
             lastStatusRefresh = new Date().getTime();
             // MPDs elapsed time is in seconds, convert to milliseconds
-            lastKnownElapsed = mpdStatus.getElapsedTime() * 1000;
+            lastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.MINUTE_IN_MILLIS;
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
                     stopServiceHandler();
@@ -955,12 +948,14 @@ final public class NotificationService extends Service implements StatusChangeLi
                         updatePlayingInfo(mpdStatus);
                     }
                     break;
+                default:
+                    break;
             }
         }
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         lastStatusRefresh = new Date().getTime();
         lastKnownElapsed = 0L;
 
@@ -968,7 +963,6 @@ final public class NotificationService extends Service implements StatusChangeLi
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-        // We do not care about that event
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 }
