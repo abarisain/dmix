@@ -323,6 +323,9 @@ public final class NotificationService extends Service implements StatusChangeLi
             case StreamingService.ACTION_STREAMING_STOP:
                 action = ACTION_OPEN_NOTIFICATION;
                 break;
+            case StreamingService.ACTION_BUFFERING_ERROR:
+                updatePlayingInfo(getStatus());
+                break;
             case StreamingService.ACTION_NOTIFICATION_STOP: /** StreamingService _requests_ stop */
                 if (notificationAutomaticallyGenerated &&
                         !app.getApplicationState().persistentNotification) {

@@ -75,6 +75,8 @@ public final class StreamingService extends Service implements
 
     public static final String ACTION_BUFFERING_END = FULLY_QUALIFIED_NAME + "BUFFERING_END";
 
+    public static final String ACTION_BUFFERING_ERROR = FULLY_QUALIFIED_NAME + "BUFFERING_ERROR";
+
     private static boolean serviceWoundDown = false;
 
     private final Handler delayedStopHandler = new Handler() {
@@ -105,6 +107,8 @@ public final class StreamingService extends Service implements
     private AudioManager audioManager = null;
 
     private boolean streamingStoppedForCall = false;
+
+    private boolean activeBufferingError = false;
 
     /** Is MPD playing? */
     private boolean isPlaying = false;
@@ -181,7 +185,7 @@ public final class StreamingService extends Service implements
      * client then setup and the framework streaming.
      */
     private void tryToStream() {
-        if (preparingStreaming) {
+        if (preparingStreaming && !activeBufferingError) {
             Log.d(TAG, "A stream is already being prepared.");
         } else if (!isPlaying) {
             Log.d(TAG, "MPD is not currently playing, can't stream.");
@@ -198,6 +202,7 @@ public final class StreamingService extends Service implements
             windUpResources();
         }
 
+        serviceWoundDown(false);
         final String streamSource = getStreamSource();
         final long ASYNC_IDLE = 1500L;
         preparingStreaming = true;
@@ -230,12 +235,12 @@ public final class StreamingService extends Service implements
             delayedPlayHandler.sendMessageDelayed(msg, ASYNC_IDLE); /** Go to onPrepared() */
         } catch (final IOException e) {
             Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
-            windDownResources(ACTION_STREAMING_STOP);
+            windDownResources(ACTION_BUFFERING_ERROR);
         } catch (final IllegalStateException e) {
             Log.e(TAG,
                     "This is typically caused by a change in the server state during stream preparation.",
                     e);
-            windDownResources(ACTION_STREAMING_STOP);
+            windDownResources(ACTION_BUFFERING_ERROR);
         } finally {
             delayedPlayHandler.removeCallbacksAndMessages(delayedPlayHandler);
         }
@@ -363,10 +368,10 @@ public final class StreamingService extends Service implements
     private void windUpResources() {
         Log.d(TAG, "Winding up resources.");
 
-        serviceWoundDown(false);
-
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+        activeBufferingError = true;
 
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
@@ -404,21 +409,23 @@ public final class StreamingService extends Service implements
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
             }
-            mediaPlayer.reset();
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
 
-        /**
-         * If we got here due to an exception, try to stream
-         * again until the error iterator runs out.
-         */
-        if (preparingStreaming) {
-            Log.d(TAG,
-                    "Stream had an error, trying to re-initiate streaming, try: " + errorIterator);
-            errorIterator += 1;
-            preparingStreaming = false;
-            tryToStream();
+            /**
+             * Cannot run reset/release when buffering, MediaPlayer will ANR or crash MPDroid, at
+             * least on Android 4.4.2. Worst case, not resetting may cause a stale buffer to play at
+             * the beginning and restart buffering; not perfect, but this is a pretty good solution.
+             */
+            if (preparingStreaming) {
+                if (ACTION_BUFFERING_ERROR.equals(action)) {
+                    activeBufferingError = true;
+                }
+                delayedPlayHandler.removeCallbacksAndMessages(null);
+
+            } else {
+                mediaPlayer.reset();
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
         }
     }
 
@@ -565,7 +572,7 @@ public final class StreamingService extends Service implements
                      * is likely.
                      */
                     if (preparingStreaming) {
-                        sendIntent(ACTION_BUFFERING_END, NotificationService.class);
+                        windDownResources(ACTION_BUFFERING_ERROR);
                     }
 
                     /** If the playlistLength is == 0, let onCompletion handle it. */
