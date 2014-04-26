@@ -32,10 +32,10 @@ import android.view.KeyEvent;
  */
 public class RemoteControlReceiver extends BroadcastReceiver {
 
-    private final static String TAG = "com.namelessdev.mpdroid.RemoteControlReceiver";
+    private static final String TAG = "com.namelessdev.mpdroid.RemoteControlReceiver";
 
     @Override
-    final public void onReceive(final Context context, final Intent intent) {
+    public final void onReceive(final Context context, final Intent intent) {
         final String action = intent.getAction();
         final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
         String command = null;
@@ -63,12 +63,14 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
                     command = NotificationService.ACTION_PREVIOUS;
                     break;
+                default:
+                    break;
             }
         }
         if (command != null) {
-            Intent i = new Intent(context, NotificationService.class);
-            i.setAction(command);
-            context.startService(i);
+            final Intent notificationServiceIntent = new Intent(context, NotificationService.class);
+            notificationServiceIntent.setAction(command);
+            context.startService(notificationServiceIntent);
         }
     }
 }
