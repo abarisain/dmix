@@ -471,7 +471,10 @@ public final class NotificationService extends Service implements StatusChangeLi
                 try {
                     switch (command) {
                         case ACTION_PAUSE:
-                            mpd.pause();
+                            if (!MPDStatus.MPD_STATE_PAUSED.equals(
+                                    app.oMPDAsyncHelper.oMPD.getStatus().getState())) {
+                                mpd.pause();
+                            }
                             break;
                         case ACTION_PLAY:
                             mpd.play();
