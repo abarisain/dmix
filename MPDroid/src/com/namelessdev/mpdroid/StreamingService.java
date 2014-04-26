@@ -47,7 +47,7 @@ import java.io.IOException;
  * @author Arnaud Barisain Monrose (Dream_Team)
  * @version $Id: $
  */
-final public class StreamingService extends Service implements
+public final class StreamingService extends Service implements
         /**
          * OnInfoListener is not used because it is broken (never gets called, ever)..
          * OnBufferingUpdateListener is not used because it depends on a stream completion time.
@@ -60,7 +60,7 @@ final public class StreamingService extends Service implements
 
     private static final String TAG = "StreamingService";
 
-    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + ".";
+    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + '.';
 
     /** Kills (or hides) the notification if StreamingService started it. */
     public static final String ACTION_NOTIFICATION_STOP = FULLY_QUALIFIED_NAME
@@ -77,17 +77,19 @@ final public class StreamingService extends Service implements
 
     private static boolean serviceWoundDown = false;
 
-    final private Handler delayedStopHandler = new Handler() {
+    private final Handler delayedStopHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(final Message msg) {
+            super.handleMessage(msg);
             Log.d(TAG, "Stopping self by handler delay.");
             stopSelf();
         }
     };
 
-    final private Handler delayedPlayHandler = new Handler() {
+    private final Handler delayedPlayHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(final Message msg) {
+            super.handleMessage(msg);
             mediaPlayer.prepareAsync();
         }
     };
@@ -111,7 +113,7 @@ final public class StreamingService extends Service implements
         return serviceWoundDown;
     }
 
-    private static void serviceWoundDown(boolean value) {
+    private static void serviceWoundDown(final boolean value) {
         serviceWoundDown = value;
     }
 
@@ -119,15 +121,17 @@ final public class StreamingService extends Service implements
      * Setup for the method which allows MPDroid to override behavior during
      * phone events.
      */
-    final private PhoneStateListener phoneStateListener = new PhoneStateListener() {
+    private final PhoneStateListener phoneStateListener = new PhoneStateListener() {
         @Override
-        public void onCallStateChanged(int state, String incomingNumber) {
+        public void onCallStateChanged(final int state, final String incomingNumber) {
+            super.onCallStateChanged(state, incomingNumber);
+
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
                     final int ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
                     if (ringVolume == 0) {
                         break;
-                    } /** Otherwise, continue */
+                    } /** Fall Through */
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                     if (isPlaying) {
                         streamingStoppedForCall = true;
@@ -140,6 +144,8 @@ final public class StreamingService extends Service implements
                         tryToStream();
                         streamingStoppedForCall = false;
                     }
+                    break;
+                default:
                     break;
             }
         }
@@ -162,7 +168,7 @@ final public class StreamingService extends Service implements
 
         try {
             state = app.oMPDAsyncHelper.oMPD.getStatus().getState();
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
             Log.w(TAG, "Failed to get the current MPD state.", e);
         }
 
@@ -193,7 +199,7 @@ final public class StreamingService extends Service implements
         }
 
         final String streamSource = getStreamSource();
-        final int ASYNC_IDLE = 1500;
+        final long ASYNC_IDLE = 1500L;
         preparingStreaming = true;
         stopControlHandlers();
 
@@ -220,12 +226,12 @@ final public class StreamingService extends Service implements
             mediaPlayer.reset();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setDataSource(streamSource);
-            Message msg = delayedPlayHandler.obtainMessage();
+            final Message msg = delayedPlayHandler.obtainMessage();
             delayedPlayHandler.sendMessageDelayed(msg, ASYNC_IDLE); /** Go to onPrepared() */
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
             windDownResources(ACTION_STREAMING_STOP);
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
             Log.e(TAG,
                     "This is typically caused by a change in the server state during stream preparation.",
                     e);
@@ -236,15 +242,15 @@ final public class StreamingService extends Service implements
     }
 
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
     }
 
     /** A method to send a quick message to another class. */
-    private void sendIntent(String msg, Class destination) {
-        Log.d(TAG, "Sending intent " + msg + " to " + destination + ".");
-        Intent i = new Intent(this, destination);
-        i.setAction(msg);
-        this.startService(i);
+    private void sendIntent(final String msg, final Class destination) {
+        Log.d(TAG, "Sending intent " + msg + " to " + destination + '.');
+        final Intent intent = new Intent(this, destination);
+        intent.setAction(msg);
+        startService(intent);
     }
 
     /**
@@ -253,7 +259,7 @@ final public class StreamingService extends Service implements
      * @param updating true when updating, false when not updating.
      */
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(final boolean updating) {
     }
 
     /**
@@ -263,13 +269,15 @@ final public class StreamingService extends Service implements
      * @param focusChange The type of focus change.
      */
     @Override
-    final public void onAudioFocusChange(int focusChange) {
+    public final void onAudioFocusChange(final int focusChange) {
         Log.d(TAG, "StreamingService.onAudioFocusChange() with " + focusChange);
+        final float DUCK_VOLUME = 0.2f;
+
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 if (mediaPlayer.isPlaying()) {
                     Log.d(TAG, "Regaining after ducked transient loss.");
-                    mediaPlayer.setVolume(1f, 1f);
+                    mediaPlayer.setVolume(1.0f, 1.0f);
                 } else if (!preparingStreaming) {
                     Log.d(TAG, "Coming out of transient loss.");
                     mediaPlayer.start();
@@ -282,13 +290,15 @@ final public class StreamingService extends Service implements
                 mediaPlayer.pause();
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                mediaPlayer.setVolume(0.2f, 0.2f);
+                mediaPlayer.setVolume(DUCK_VOLUME, DUCK_VOLUME);
+                break;
+            default:
                 break;
         }
     }
 
     @Override
-    final public IBinder onBind(Intent intent) {
+    public final IBinder onBind(final Intent intent) {
         return null;
     }
 
@@ -298,7 +308,7 @@ final public class StreamingService extends Service implements
      * @param mp The MediaPlayer object that reached the end of the stream.
      */
     @Override
-    final public void onCompletion(MediaPlayer mp) {
+    public final void onCompletion(final MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onCompletion()");
 
         /**
@@ -316,8 +326,10 @@ final public class StreamingService extends Service implements
         }
     }
 
-    final public void onCreate() {
+    @Override
+    public final void onCreate() {
         Log.d(TAG, "StreamingService.onCreate()");
+        super.onCreate();
 
         app = (MPDApplication) getApplication();
 
@@ -327,7 +339,8 @@ final public class StreamingService extends Service implements
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        final StrictMode.ThreadPolicy policy =
+                new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         app.oMPDAsyncHelper.addStatusChangeListener(this);
@@ -338,8 +351,8 @@ final public class StreamingService extends Service implements
 
     private String getStreamSource() {
         return "http://"
-                + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ":"
-                + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + "/"
+                + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ':'
+                + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + '/'
                 + app.oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming;
     }
 
@@ -366,7 +379,7 @@ final public class StreamingService extends Service implements
      * windDownResources occurs after a delay or during stopSelf() to
      * clean up resources and give up focus to the phone and sound.
      */
-    private void windDownResources(String action) {
+    private void windDownResources(final String action) {
         Log.d(TAG, "Winding down resources.");
 
         serviceWoundDown(true);
@@ -410,8 +423,9 @@ final public class StreamingService extends Service implements
     }
 
     @Override
-    final public void onDestroy() {
+    public final void onDestroy() {
         Log.d(TAG, "StreamingService.onDestroy()");
+        super.onDestroy();
 
         stopControlHandlers();
 
@@ -436,7 +450,7 @@ final public class StreamingService extends Service implements
      * having an OnErrorListener at all, will cause the OnCompletionListener to be called.
      */
     @Override
-    final public boolean onError(MediaPlayer mp, int what, int extra) {
+    public final boolean onError(final MediaPlayer mp, final int what, final int extra) {
         Log.d(TAG, "StreamingService.onError()");
         final int MAX_ERROR = 4;
 
@@ -466,7 +480,7 @@ final public class StreamingService extends Service implements
      * @param mp The MediaPlayer that is ready for playback.
      */
     @Override
-    final public void onPrepared(MediaPlayer mp) {
+    public final void onPrepared(final MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onPrepared()");
         final int focusResult = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN);
@@ -491,8 +505,9 @@ final public class StreamingService extends Service implements
      * starts the service by calling startService(Intent).
      */
     @Override
-    final public int onStartCommand(Intent intent, int flags, int startId) {
+    public final int onStartCommand(final Intent intent, final int flags, final int startId) {
         Log.d(TAG, "StreamingService.onStartCommand()");
+        super.onStartCommand(intent, flags, startId);
 
         switch (intent.getAction()) {
             case ACTION_START:
@@ -500,6 +515,8 @@ final public class StreamingService extends Service implements
                 break;
             case ACTION_STREAMING_STOP:
                 windDownResources(ACTION_STREAMING_STOP);
+                break;
+            default:
                 break;
         }
 
@@ -511,15 +528,15 @@ final public class StreamingService extends Service implements
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
     }
 
     @Override
-    public void randomChanged(boolean random) {
+    public void randomChanged(final boolean random) {
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
+    public void repeatChanged(final boolean repeating) {
     }
 
     /**
@@ -529,7 +546,7 @@ final public class StreamingService extends Service implements
      * @param oldState  Previous state.
      */
     @Override
-    final public void stateChanged(MPDStatus mpdStatus, String oldState) {
+    public final void stateChanged(final MPDStatus mpdStatus, final String oldState) {
         Log.d(TAG, "StreamingService.stateChanged()");
 
         final String state = mpdStatus.getState();
@@ -557,6 +574,8 @@ final public class StreamingService extends Service implements
                     }
                     isPlaying = false;
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -572,7 +591,7 @@ final public class StreamingService extends Service implements
     private void setupServiceControlHandlers() {
         if (!serviceControlHandlersActive) {
             Log.d(TAG, "Setting up control handlers");
-            final int STOP_IDLE_DELAY = 600000; /** 10 minutes */
+            final long STOP_IDLE_DELAY = 600000L; /** 10 minutes */
             /**
              * Stop handler so we don't annoy the user when they forget to turn streamingMode off.
              */
@@ -583,10 +602,10 @@ final public class StreamingService extends Service implements
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 }
