@@ -819,7 +819,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } catch (Exception e) {
             e.printStackTrace();
         }
-        updateStatus(null);
 
         // Update the cover on resume (when you update the current cover from
         // the library activity)
