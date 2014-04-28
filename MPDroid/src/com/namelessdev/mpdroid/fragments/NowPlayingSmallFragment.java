@@ -214,13 +214,12 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        if (isDetached() || songTitle == null || songArtist == null)
-            return;
-        connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD
-                .isConnected();
-        if (connected) {
-            songTitle.setText(getResources().getString(R.string.noSongInfo));
-            songArtist.setText("");
+        if (connected && isAdded()) {
+            new updateTrackInfoAsync().execute((MPDStatus[]) null);
+            if (songTitle != null && songArtist != null) {
+                songTitle.setText(getResources().getString(R.string.noSongInfo));
+                songArtist.setText("");
+            }
         } else {
             songTitle.setText(getResources().getString(R.string.notConnected));
             songArtist.setText("");
@@ -291,10 +290,17 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if(app.oMPDAsyncHelper.oMPD.isConnected()) {
+            new updateTrackInfoAsync().execute((MPDStatus[]) null);
+        }
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
-        new updateTrackInfoAsync().execute((MPDStatus[]) null);
     }
 
     @Override
@@ -305,12 +311,13 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
-        if (!isDetached() && actSong != null && actSong.isStream()) {
+        if (!isDetached() && actSong != null && actSong.isStream() &&
+                app.oMPDAsyncHelper.oMPD.isConnected()) {
             /**
              * If the current song is a stream, the metadata can change in place, and that will only
              * change the playlist, not the track, so, update if we detect a stream.
              */
-            new updateTrackInfoAsync().execute((MPDStatus[]) null);
+            new updateTrackInfoAsync().execute(mpdStatus);
         }
     }
 
@@ -339,9 +346,11 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         }
     }
 
-    @Override
+   @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        new updateTrackInfoAsync().execute(mpdStatus);
+        if(app.oMPDAsyncHelper.oMPD.isConnected()) {
+            new updateTrackInfoAsync().execute(mpdStatus);
+        }
     }
 
     public void updateCover(AlbumInfo albumInfo) {

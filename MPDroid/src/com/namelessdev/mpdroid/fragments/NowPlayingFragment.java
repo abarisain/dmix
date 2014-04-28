@@ -425,18 +425,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         view.setVisibility(sharedPreferences.getBoolean(property, false) ? View.VISIBLE : View.GONE);
     }
 
-    public void checkConnected() {
-        connected = ((MPDApplication) activity.getApplication()).oMPDAsyncHelper.oMPD.isConnected();
-        if (connected) {
+    @Override
+    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+        if(connected) {
             songNameText.setText(activity.getResources().getString(R.string.noSongInfo));
+            updateTrackInfo();
         } else {
             songNameText.setText(activity.getResources().getString(R.string.notConnected));
         }
-    }
-
-    @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        checkConnected();
     }
 
     private void downloadCover(AlbumInfo albumInfo) {
@@ -1092,7 +1088,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     public void updateTrackInfo(MPDStatus status) {
-        new updateTrackInfoAsync().execute(status);
+        if(app.oMPDAsyncHelper.oMPD.isConnected()) {
+            new updateTrackInfoAsync().execute(status);
+        }
     }
 
     /**
