@@ -181,31 +181,34 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     }
 
+    /**
+     * This class runs a timer to keep the time elapsed since last track elapsed time updated for
+     * the purpose of keeping the track progress up to date without continual server polling.
+     */
     private class PosTimerTask extends TimerTask {
-        Date date = new Date();
-        long start = 0;
-        long elapsed = 0;
 
-        public PosTimerTask(long start) {
-            this.start = start;
+        private final long timerStartTime;
+
+        private long startTrackTime = 0L;
+
+        private long totalTrackTime = 0L;
+
+        private long elapsedTime = 0L;
+
+        private PosTimerTask(final long start, final long total) {
+            super();
+            this.startTrackTime = start;
+            this.totalTrackTime = total;
+            this.timerStartTime = new Date().getTime();
         }
 
         @Override
         public void run() {
-            Date now = new Date();
-            elapsed = start + ((now.getTime() - date.getTime()) / 1000);
-            progressBarTrack.setProgress((int) elapsed);
-            if (currentSong != null && !currentSong.isStream()) {
-                elapsed = elapsed > lastSongTime ? lastSongTime : elapsed;
-            }
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    trackTime.setText(timeToString(elapsed));
-                    trackTotalTime.setText(timeToString(lastSongTime));
-                }
-            });
-            lastElapsedTime = elapsed;
+            final long elapsedSinceTimerStart = new Date().getTime() - timerStartTime;
+
+            elapsedTime = startTrackTime + elapsedSinceTimerStart / THOUSAND_MILLISECONDS;
+
+            updateTrackProgress(elapsedTime, totalTrackTime);
         }
     }
 
@@ -247,7 +250,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 String album = null;
                 String date = null;
 
-                int songMax = 0;
                 boolean noSong = actSong == null || status.getPlaylistLength() == 0;
                 if (noSong) {
                     currentSong = null;
@@ -263,7 +265,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         album = "";
                     }
                     artist = actSong.getArtist();
-                    songMax = (int) actSong.getTime();
                     date = "";
 
                 } else {
@@ -275,7 +276,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     title = actSong.getTitle();
                     album = actSong.getAlbum();
                     date = Long.toString(actSong.getDate());
-                    songMax = (int) actSong.getTime();
                 }
 
                 albumartist = albumartist == null ? "" : albumartist;
@@ -293,7 +293,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     artistNameText.setText(albumartist + " / " + artist);
                 songNameText.setText(title);
                 albumNameText.setText(album);
-                progressBarTrack.setMax(songMax);
                 yearNameText.setText(date);
 
                 updateStatus(status);
@@ -316,14 +315,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 artistNameText.setText("");
                 songNameText.setText(R.string.noSongInfo);
                 albumNameText.setText("");
-                progressBarTrack.setMax(0);
                 yearNameText.setText("");
                 audioNameText.setText("");
             }
         }
     }
 
-    public static final String PREFS_NAME = "mpdroid.properties";
+    private static final String TAG = "com.namelessdev.mpdroid.NowPlayingFragment";
+
+    private static final long THOUSAND_MILLISECONDS = 1000L;
     private static final boolean DEBUG = false;
     private static final int POPUP_ARTIST = 0;
     private static final int POPUP_ALBUMARTIST = 1;
@@ -360,13 +360,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public static final int FILES = 3;
     private SeekBar progressBarVolume = null;
 
-    private SeekBar progressBarTrack = null;
+    private SeekBar seekBarTrack = null;
     private TextView trackTime = null;
     private TextView trackTotalTime = null;
 
     private CoverAsyncHelper oCoverAsyncHelper = null;
-    long lastSongTime = 0;
-    long lastElapsedTime = 0;
 
     private AlbumCoverDownloadListener coverArtListener;
 
@@ -468,10 +466,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return playlistFragment;
     }
 
-    public SeekBar getProgressBarTrack() {
-        return progressBarTrack;
-    }
-
     @Override
     public void libraryStateChanged(boolean updating) {
         // TODO Auto-generated method stub
@@ -533,7 +527,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         repeatButton = (ImageButton) view.findViewById(R.id.repeat);
 
         progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
-        progressBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
+        seekBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
         volumeIcon = (ImageView) view.findViewById(R.id.volume_icon);
 
         trackTime = (TextView) view.findViewById(R.id.trackTime);
@@ -681,25 +675,25 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         });
 
-        progressBarTrack.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
-
+        seekBarTrack.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(final SeekBar seekBar, final int progress,
+                    final boolean fromUser) {
             }
 
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
-
+            @Override
+            public void onStartTrackingTouch(final SeekBar seekBar) {
             }
 
+            @Override
             public void onStopTrackingTouch(final SeekBar seekBar) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            app.oMPDAsyncHelper.oMPD.seek(seekBar.getProgress());
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
+                            app.oMPDAsyncHelper.oMPD.seek((long) seekBar.getProgress());
+                        } catch (final MPDServerException e) {
+                            Log.e(TAG, "Failed to seek using the progress bar.", e);
                         }
                     }
                 }).start();
@@ -920,16 +914,18 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private void startPosTimer(long start) {
+    private void startPosTimer(final long start, final long total) {
         stopPosTimer();
         posTimer = new Timer();
-        posTimerTask = new PosTimerTask(start);
-        posTimer.scheduleAtFixedRate(posTimerTask, 0, 1000);
+        posTimerTask = new PosTimerTask(start, total);
+        posTimer.scheduleAtFixedRate(posTimerTask, 0L, THOUSAND_MILLISECONDS);
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
-        updateStatus(mpdStatus);
+    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
+        if (activity != null) {
+            updateStatus(mpdStatus);
+        }
     }
 
     private void stopPosTimer() {
@@ -939,14 +935,51 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
+    /**
+     * Toggle the track progress bar. Sets it up for when it's necessary, hides it otherwise. This
+     * should be called only when the track changes, for position changes, startPosTimer() is
+     * sufficient.
+     *
+     * @param status A current {@code MPDStatus} object.
+     */
+    private void toggleTrackProgress(final MPDStatus status) {
+        final long totalTime = status.getTotalTime();
+
+        if (totalTime == 0) {
+            trackTime.setVisibility(View.GONE);
+            trackTotalTime.setVisibility(View.GONE);
+            seekBarTrack.setVisibility(View.GONE);
+        } else {
+            final long elapsedTime = status.getElapsedTime();
+
+            if(MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
+                startPosTimer(elapsedTime, totalTime);
+            } else {
+                stopPosTimer();
+                updateTrackProgress(elapsedTime, totalTime);
+            }
+
+            seekBarTrack.setMax((int) totalTime);
+
+            trackTime.setVisibility(View.VISIBLE);
+            trackTotalTime.setVisibility(View.VISIBLE);
+            seekBarTrack.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         updateTrackInfo(mpdStatus);
     }
 
     @Override
-    public void trackPositionChanged(MPDStatus status) {
-        startPosTimer(status.getElapsedTime());
+    public void trackPositionChanged(final MPDStatus status) {
+        if (activity != null && status != null) {
+            final long totalTime = status.getTotalTime();
+            final long elapsedTime = status.getElapsedTime();
+
+            startPosTimer(elapsedTime, totalTime);
+        }
     }
 
     private void updatePlaylistCovers(AlbumInfo albumInfo) {
@@ -958,8 +991,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void updateStatus(MPDStatus status) {
-        if (activity == null)
-            return;
         if (status == null) {
             status = app.getApplicationState().currentMpdStatus;
             if (status == null)
@@ -967,25 +998,18 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else {
             app.getApplicationState().currentMpdStatus = status;
         }
-        lastElapsedTime = status.getElapsedTime();
-        lastSongTime = status.getTotalTime();
-        trackTime.setText(timeToString(lastElapsedTime));
-        trackTotalTime.setText(timeToString(lastSongTime));
-        progressBarTrack.setProgress((int) status.getElapsedTime());
-        if (status.getState() != null) {
 
-            if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
-                startPosTimer(status.getElapsedTime());
-                ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-                button.setImageDrawable(activity.getResources().getDrawable(
-                        lightTheme ? R.drawable.ic_media_pause_light : R.drawable.ic_media_pause));
-            } else {
-                stopPosTimer();
-                ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-                button.setImageDrawable(activity.getResources().getDrawable(
-                        lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play));
-            }
+        toggleTrackProgress(status);
+
+        final ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
+        if (MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
+            button.setImageDrawable(activity.getResources().getDrawable(
+                lightTheme ? R.drawable.ic_media_pause_light : R.drawable.ic_media_pause));
+        } else {
+            button.setImageDrawable(activity.getResources().getDrawable(
+                lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play));
         }
+
         setShuffleButton(status.isRandom());
         setRepeatButton(status.isRepeat());
 
@@ -1030,6 +1054,26 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     public void updateTrackInfo(MPDStatus status) {
         new updateTrackInfoAsync().execute(status);
+    }
+
+    /**
+     * Update the track progress numbers and track {@code SeekBar} object.
+     *
+     * @param elapsed The current track elapsed time.
+     * @param totalTrackTime The current track total time.
+     */
+    private void updateTrackProgress(final long elapsed, final long totalTrackTime) {
+        /** In case the total track time is flawed. */
+        final long elapsedTime = elapsed > totalTrackTime ? totalTrackTime : elapsed;
+        seekBarTrack.setProgress((int) elapsedTime);
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                trackTime.setText(timeToString(elapsedTime));
+                trackTotalTime.setText(timeToString(totalTrackTime));
+            }
+        });
     }
 
     @Override
