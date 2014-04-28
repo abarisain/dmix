@@ -52,7 +52,6 @@ import android.widget.TextView;
 public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener {
 
     public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
-        Music actSong = null;
         MPDStatus status = null;
 
         @Override
@@ -157,6 +156,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     private String lastArtist = "";
     private String lastAlbum = "";
     private boolean showAlbumArtist;
+
+    private Music actSong = null;
 
     private boolean lightTheme;
 
@@ -303,12 +304,14 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
-        if (isDetached())
-            return;
-        // If the playlist changed but not the song position in the playlist
-        // We end up being desynced. Update the current song.
-        new updateTrackInfoAsync().execute((MPDStatus[]) null);
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+        if (!isDetached() && actSong != null && actSong.isStream()) {
+            /**
+             * If the current song is a stream, the metadata can change in place, and that will only
+             * change the playlist, not the track, so, update if we detect a stream.
+             */
+            new updateTrackInfoAsync().execute((MPDStatus[]) null);
+        }
     }
 
     @Override

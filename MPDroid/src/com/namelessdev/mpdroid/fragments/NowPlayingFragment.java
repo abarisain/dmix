@@ -866,13 +866,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
-        // If the playlist changed but not the song position in the playlist
-        // We end up being desynced. Update the current song.
-        try {
-            updateTrackInfo();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+        /**
+         * If the current song is a stream, the metadata can change in place, and that will only
+         * change the playlist, not the track, so, update if we detect a stream.
+         */
+        if (currentSong != null && currentSong.isStream()) {
+            updateTrackInfo(mpdStatus);
         }
     }
 
