@@ -358,9 +358,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public static final int ALBUMS = 4;
 
     public static final int FILES = 3;
-    private SeekBar progressBarVolume = null;
+
 
     private SeekBar seekBarTrack = null;
+
+    private SeekBar seekBarVolume = null;
+
     private TextView trackTime = null;
     private TextView trackTotalTime = null;
 
@@ -440,25 +443,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         oCoverAsyncHelper.downloadCover(albumInfo, true);
     }
 
-    /**
-     * This enables or disables the volume, depending on the volume given by the server.
-     *
-     * @param volume The current volume value.
-     */
-    private void toggleVolumeBar(final int volume) {
-        final int OUTPUT_VOLUME_UNSUPPORTED = -1;
-
-        if (volume == OUTPUT_VOLUME_UNSUPPORTED) {
-            progressBarVolume.setEnabled(false);
-            progressBarVolume.setVisibility(View.GONE);
-            volumeIcon.setVisibility(View.GONE);
-        } else {
-            progressBarVolume.setEnabled(true);
-            progressBarVolume.setVisibility(View.VISIBLE);
-            volumeIcon.setVisibility(View.VISIBLE);
-        }
-    }
-
     private PlaylistFragment getPlaylistFragment() {
         PlaylistFragment playlistFragment;
         playlistFragment = (PlaylistFragment) activity.getSupportFragmentManager()
@@ -525,7 +509,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         shuffleButton = (ImageButton) view.findViewById(R.id.shuffle);
         repeatButton = (ImageButton) view.findViewById(R.id.repeat);
 
-        progressBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
+        seekBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
         seekBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
         volumeIcon = (ImageView) view.findViewById(R.id.volume_icon);
 
@@ -631,7 +615,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             });
         }
 
-        progressBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        seekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
 
@@ -971,6 +955,25 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
+    /**
+     * This enables or disables the volume, depending on the volume given by the server.
+     *
+     * @param volume The current volume value.
+     */
+    private void toggleVolumeBar(final int volume) {
+        final int OUTPUT_VOLUME_UNSUPPORTED = -1;
+
+        if (volume == OUTPUT_VOLUME_UNSUPPORTED) {
+            seekBarVolume.setEnabled(false);
+            seekBarVolume.setVisibility(View.GONE);
+            volumeIcon.setVisibility(View.GONE);
+        } else {
+            seekBarVolume.setEnabled(true);
+            seekBarVolume.setVisibility(View.VISIBLE);
+            volumeIcon.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
         updateTrackInfo(mpdStatus);
@@ -1117,7 +1120,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final int volume = mpdStatus.getVolume();
 
         toggleVolumeBar(volume);
-        progressBarVolume.setProgress(volume);
+        seekBarVolume.setProgress(volume);
     }
 
 }
