@@ -316,7 +316,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 songNameText.setText(R.string.noSongInfo);
                 albumNameText.setText("");
                 yearNameText.setText("");
-                audioNameText.setText("");
             }
         }
     }
@@ -339,11 +338,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private boolean showAlbumArtist;
     private TextView songNameText;
     private TextView albumNameText;
-    private TextView audioNameText;
+    private TextView audioNameText = null;
     private TextView yearNameText;
     private ImageButton shuffleButton = null;
     private ImageButton repeatButton = null;
     private ImageButton stopButton = null;
+    private boolean isAudioNameTextEnabled = false;
     private boolean shuffleCurrent = false;
     private boolean repeatCurrent = false;
     private View songInfo = null;
@@ -515,7 +515,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         albumNameText = (TextView) view.findViewById(R.id.albumName);
         songNameText = (TextView) view.findViewById(R.id.songName);
         audioNameText = (TextView) view.findViewById(R.id.audioName);
-        applyViewVisibility(settings, audioNameText, "enableAudioText");
         yearNameText = (TextView) view.findViewById(R.id.yearName);
         applyViewVisibility(settings, yearNameText, "enableAlbumYearText");
         artistNameText.setSelected(true);
@@ -812,6 +811,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         // to.
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
         showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
+        isAudioNameTextEnabled = settings.getBoolean("enableAudioText", false);
 
         // Just to make sure that we do actually get an update.
         try {
@@ -838,7 +838,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else if (key.equals("enableAlbumYearText")) {
             applyViewVisibility(sharedPreferences, yearNameText, key);
         } else if (key.equals("enableAudioText")) {
-            applyViewVisibility(sharedPreferences, audioNameText, key);
+            isAudioNameTextEnabled = sharedPreferences.getBoolean(key, false);
+            try {
+                updateAudioNameText(app.oMPDAsyncHelper.oMPD.getStatus());
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Could not get a current status.", e);
+            }
         }
     }
 
@@ -1013,24 +1018,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         setShuffleButton(status.isRandom());
         setRepeatButton(status.isRepeat());
 
-        // Update audio properties
-        if (audioNameText != null && currentSong != null) {
-            StringBuffer sb = new StringBuffer();
-            String extension = getExtension(currentSong.getFullpath());
-
-            if (!isEmpty(extension)) {
-                sb.append(extension.toUpperCase());
-                sb.append(" | ");
-            }
-
-            sb.append(status.getBitrate());
-            sb.append(" kbps | ");
-            sb.append(status.getBitsPerSample());
-            sb.append(" bits | ");
-            sb.append(status.getSampleRate() / 1000);
-            sb.append(" khz");
-            audioNameText.setText(sb.toString());
-        }
+        updateAudioNameText(status);
 
         // Update the popup menus
         if (currentSong != null) {
@@ -1045,6 +1033,63 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             songInfo.setOnTouchListener(currentSong.isStream() ? popupMenuStreamTouchListener : popupMenuTouchListener);
         } else {
             songInfo.setOnTouchListener(null);
+        }
+    }
+
+    /**
+     * This will update the audioNameText (extra track information) field.
+     *
+     * @param status An {@code MPDStatus} object.
+     */
+    private void updateAudioNameText(final MPDStatus status) {
+        String optionalTrackInfo = null;
+        final String state = status.getState();
+
+        if(currentSong != null && isAudioNameTextEnabled &&
+                !MPDStatus.MPD_STATE_STOPPED.equals(state)) {
+            final String extension = getExtension(currentSong.getFullpath()).toUpperCase();
+            final long bitRate = status.getBitrate();
+            final int bitsPerSample = status.getBitsPerSample();
+            final int sampleRate = status.getSampleRate();
+
+            /**
+             * Check each individual bit of info, the sever can give
+             * out empty (and buggy) information from time to time.
+             */
+            if (!extension.isEmpty()) {
+                optionalTrackInfo = extension;
+            }
+
+            /** The server can give out buggy (and empty) information from time to time. */
+            if (bitRate > 0L) {
+                if (optionalTrackInfo != null) {
+                    optionalTrackInfo += " | ";
+                }
+                optionalTrackInfo += bitRate + "kbps";
+            }
+
+            if (bitsPerSample > 0) {
+                if (optionalTrackInfo != null) {
+                    optionalTrackInfo += " | ";
+                }
+                optionalTrackInfo += bitsPerSample + "bits";
+            }
+
+            if (sampleRate > 1000) {
+                if (optionalTrackInfo != null) {
+                    optionalTrackInfo += " | ";
+                }
+                optionalTrackInfo += sampleRate / 1000 + "khz";
+            }
+
+            if (optionalTrackInfo != null) {
+                audioNameText.setText(optionalTrackInfo);
+                audioNameText.setVisibility(View.VISIBLE);
+            }
+        }
+
+        if(optionalTrackInfo == null || currentSong == null) {
+            audioNameText.setVisibility(View.GONE);
         }
     }
 
