@@ -927,7 +927,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
-        if (activity != null) {
+        if (activity != null && mpdStatus != null) {
             updateStatus(mpdStatus);
         }
     }
@@ -994,15 +994,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private void updateStatus(MPDStatus status) {
-        if (status == null) {
-            status = app.getApplicationState().currentMpdStatus;
-            if (status == null)
-                return;
-        } else {
-            app.getApplicationState().currentMpdStatus = status;
-        }
-
+    private void updateStatus(final MPDStatus status) {
         toggleTrackProgress(status);
 
         final ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
