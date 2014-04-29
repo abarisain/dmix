@@ -55,16 +55,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         }
     }
 
-    /**
-     * Used to indicate this <code>Music</code> is a stream.
-     */
-    public static final int STREAM = 1;
-
-    /**
-     * Used to indicate this <code>Music</code> is a file.
-     */
-    public static final int FILE = 0;
-
     // excluded artist names : in lower case
     private static final List<String> ARTIST_BLACK_LIST = Arrays.asList("various artists",
             "various artist");
@@ -435,23 +425,6 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public String getFullpath() {
         return fullpath;
-    }
-
-    /**
-     * Returns <code>Music.FILE</code> if this <code>Music</code> is a file and
-     * <code>Music.STREAM</code> if it's a stream.
-     *
-     * @return <code>Music.FILE</code> if this <code>Music</code> is a file and
-     * <code>Music.STREAM</code> if it's a stream.
-     * @see Music#FILE
-     * @see Music#STREAM
-     */
-    public int getMedia() {
-        if (this.getFullpath().indexOf("://") == -1) {
-            return FILE;
-        } else {
-            return STREAM;
-        }
     }
 
     /**
