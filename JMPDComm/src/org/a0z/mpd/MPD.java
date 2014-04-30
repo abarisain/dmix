@@ -344,7 +344,7 @@ public class MPD {
     }
 
     public void addToPlaylist(String playlistName, Music music) throws MPDServerException {
-        final ArrayList<Music> songs = new ArrayList<>();
+        final Collection<Music> songs = new ArrayList<>(1);
         songs.add(music);
         addToPlaylist(playlistName, songs);
     }
@@ -541,7 +541,10 @@ public class MPD {
         if (albumartists == null || albumartists.size() != albums.size()) {
             return;
         }
-        List<Album> splitalbums = new ArrayList<>();
+
+        /** Split albums are rare, let it allocate as needed. */
+        @SuppressWarnings("CollectionWithoutInitialCapacity")
+        final Collection<Album> splitalbums = new ArrayList<>();
         int i = 0;
         for (Album a : albums) {
             String[] aartists = albumartists.get(i);
@@ -655,7 +658,7 @@ public class MPD {
             return getAllAlbums(trackCountNeeded);
         }
         List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
-        List<Album> albums = new ArrayList<>();
+        List<Album> albums = new ArrayList<>(albumNames.size());
 
         if (null == albumNames || albumNames.isEmpty()) {
             return albums;
@@ -686,7 +689,7 @@ public class MPD {
      * @return all Albums
      */
     public List<Album> getAllAlbums(boolean trackCountNeeded) throws MPDServerException {
-        List<Album> albums = new ArrayList<>();
+        List<Album> albums = new ArrayList<Album>();
         // Use MPD 0.19's album grouping feature if available.
         if (mpdConnection.isAlbumGroupingSupported()) {
             albums.addAll(listAllAlbumsGrouped(false));
@@ -710,7 +713,7 @@ public class MPD {
 
     public List<Artist> getArtists(boolean useAlbumArtist) throws MPDServerException {
         List<String> artistNames = useAlbumArtist ? listAlbumArtists() : listArtists(true);
-        List<Artist> artists = new ArrayList<>();
+        final List<Artist> artists = new ArrayList<>(artistNames.size());
 
         if (null != artistNames && !artistNames.isEmpty()) {
             for (String artist : artistNames) {
@@ -731,7 +734,7 @@ public class MPD {
     public List<Artist> getArtists(Genre genre, boolean useAlbumArtist) throws MPDServerException {
         List<String> artistNames = useAlbumArtist ? listAlbumArtists(genre) : listArtists(
                 genre.getName(), true);
-        List<Artist> artists = new ArrayList<>();
+        final List<Artist> artists = new ArrayList<>(artistNames.size());
 
         if (null != artistNames && !artistNames.isEmpty()) {
             for (String artist : artistNames) {
@@ -841,7 +844,7 @@ public class MPD {
         List<Genre> genres = null;
 
         if (null != genreNames && !genreNames.isEmpty()) {
-            genres = new ArrayList<>();
+            genres = new ArrayList<>(genreNames.size());
             for (String genre : genreNames) {
                 genres.add(new Genre(genre));
             }
@@ -944,8 +947,8 @@ public class MPD {
             throw new MPDServerException("MPD Connection is not established");
         }
 
-        List<Item> result = new ArrayList<>();
         List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
+        final List<Item> result = new ArrayList<>(response.size());
         for (String line : response) {
             if (line.startsWith("playlist")) {
                 String name = line.substring("playlist: ".length());
@@ -1032,7 +1035,7 @@ public class MPD {
 
     public List<Music> getSongs(Artist artist) throws MPDServerException {
         List<Album> albums = getAlbums(artist, false);
-        List<Music> songs = new ArrayList<>();
+        final List<Music> songs = new ArrayList<>(albums.size());
         for (Album a : albums) {
             songs.addAll(getSongs(a));
         }
@@ -1269,7 +1272,7 @@ public class MPD {
                 mpdConnection.sendCommand
                         (listAlbumsCommand(artist, useAlbumArtist));
 
-        ArrayList<String> result = new ArrayList<>();
+        final List<String> result = new ArrayList<>(response.size());
         for (String line : response) {
             String name = line.substring("Album: ".length());
             if (name.length() > 0) {
@@ -1420,9 +1423,9 @@ public class MPD {
         if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
         }
-        ArrayList<String[]> result = new ArrayList<>();
+
         if (albums == null) {
-            return result;
+            return new ArrayList<>(0);
         }
         for (Album a : albums) {
             // When adding album artist to existing artist check that the artist
@@ -1444,14 +1447,15 @@ public class MPD {
         }
 
         List<String[]> responses = mpdConnection.sendCommandQueueSeparated();
+        final List<String[]> result = new ArrayList<>(responses.size());
 
         for (String[] r : responses) {
-            ArrayList<String> albumresult = new ArrayList<>();
+            final ArrayList<String> albumResult = new ArrayList<>(r.length);
             for (String s : r) {
                 String name = s.substring((albumArtist ? "AlbumArtist: " : "Artist: ").length());
-                albumresult.add(name);
+                albumResult.add(name);
             }
-            result.add(albumresult.toArray(new String[albumresult.size()]));
+            result.add(albumResult.toArray(new String[albumResult.size()]));
         }
         return result;
     }

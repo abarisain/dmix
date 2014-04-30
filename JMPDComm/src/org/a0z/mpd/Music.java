@@ -74,7 +74,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public static List<Music> getMusicFromList(List<String> response, boolean sort) {
-        ArrayList<Music> result = new ArrayList<>();
+        final List<Music> result = new ArrayList<>(response.size());
         LinkedList<String> lineCache = new LinkedList<>();
 
         for (String line : response) {
