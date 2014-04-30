@@ -33,7 +33,7 @@ public class StringsUtils {
 
     /**
      * Convert byte array to hex string.
-     * 
+     *
      * @param data Target data array.
      * @return Hex string.
      */
@@ -47,10 +47,11 @@ public class StringsUtils {
             int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
             int two_halfs = 0;
             do {
-                if ((0 <= halfbyte) && (halfbyte <= 9))
+                if ((0 <= halfbyte) && (halfbyte <= 9)) {
                     buffer.append((char) ('0' + halfbyte));
-                else
+                } else {
                     buffer.append((char) ('a' + (halfbyte - 10)));
+                }
                 halfbyte = data[byteIndex] & 0x0F;
             } while (two_halfs++ < 1);
         }
@@ -71,12 +72,12 @@ public class StringsUtils {
 
     /**
      * Gets the hash value from the specified string.
-     * 
+     *
      * @param value Target string value to get hash from.
      * @return the hash from string.
      */
     public static final String getHashFromString(String value) {
-        if (value == null || value.length() == 0) {
+        if (value == null || value.isEmpty()) {
             return null;
         }
 

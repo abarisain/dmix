@@ -34,7 +34,8 @@ import java.util.regex.Pattern;
  * Represents a playlist in the database
  */
 public class PlaylistFile extends Item implements FilesystemTreeEntry {
-    private String fullpath;
+
+    private final String fullpath;
 
     public PlaylistFile(String path) {
         fullpath = path;

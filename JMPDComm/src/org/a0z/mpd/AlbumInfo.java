@@ -33,9 +33,13 @@ import static org.a0z.mpd.StringsUtils.getHashFromString;
 public class AlbumInfo {
 
     protected String artist = "";
+
     protected String album = "";
+
     protected String path = "";
+
     protected String filename = "";
+
     private static final String INVALID_ALBUM_KEY = "INVALID_ALBUM_KEY";
 
     public AlbumInfo() {
@@ -69,17 +73,21 @@ public class AlbumInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         AlbumInfo albumInfo = (AlbumInfo) o;
 
-        if (album != null ? !album.equals(albumInfo.album) : albumInfo.album != null)
+        if (album != null ? !album.equals(albumInfo.album) : albumInfo.album != null) {
             return false;
-        if (artist != null ? !artist.equals(albumInfo.artist) : albumInfo.artist != null)
+        }
+        if (artist != null ? !artist.equals(albumInfo.artist) : albumInfo.artist != null) {
             return false;
+        }
 
         return true;
     }

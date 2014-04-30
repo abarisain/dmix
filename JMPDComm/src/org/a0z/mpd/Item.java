@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 public abstract class Item implements Comparable<Item> {
+
     public static final Collator defaultCollator = Collator.getInstance(Locale.getDefault());
 
     /*
@@ -72,7 +73,7 @@ public abstract class Item implements Comparable<Item> {
         // return sort().compareToIgnoreCase(o.sort());
     }
 
-    abstract public String getName();
+    public abstract String getName();
 
     public String info() {
         return toString();

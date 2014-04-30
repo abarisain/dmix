@@ -27,12 +27,11 @@
 
 package org.a0z.mpd;
 
-import android.util.Log;
-
 import org.a0z.mpd.event.AbstractStatusChangeListener;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -47,24 +46,41 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     private static final String TAG = "org.a0z.mpd.MPDPlaylist";
 
     public static final String MPD_CMD_PLAYLIST_ADD = "add";
+
     public static final String MPD_CMD_PLAYLIST_CLEAR = "clear";
+
     public static final String MPD_CMD_PLAYLIST_DELETE = "rm";
+
     public static final String MPD_CMD_PLAYLIST_LIST = "playlistid";
+
     public static final String MPD_CMD_PLAYLIST_CHANGES = "plchanges";
+
     public static final String MPD_CMD_PLAYLIST_LOAD = "load";
+
     public static final String MPD_CMD_PLAYLIST_MOVE = "move";
+
     public static final String MPD_CMD_PLAYLIST_MOVE_ID = "moveid";
+
     public static final String MPD_CMD_PLAYLIST_REMOVE = "delete";
+
     public static final String MPD_CMD_PLAYLIST_REMOVE_ID = "deleteid";
+
     public static final String MPD_CMD_PLAYLIST_SAVE = "save";
+
     public static final String MPD_CMD_PLAYLIST_SHUFFLE = "shuffle";
+
     public static final String MPD_CMD_PLAYLIST_SWAP = "swap";
+
     public static final String MPD_CMD_PLAYLIST_SWAP_ID = "swapid";
 
-    private MPD mpd;
-    private MusicList list;
+    private final MPD mpd;
+
+    private final MusicList list;
+
     private int lastPlaylistVersion = -1;
+
     private boolean firstRefresh = true;
+
     private static final boolean DEBUG = false;
 
     /**
@@ -91,7 +107,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * Adds a stream to playlist.
      *
      * @param url stream URL
-     * @throws MPDServerException
      */
     public void addStream(String url) throws MPDServerException, MPDClientException {
         this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, url);
@@ -99,16 +114,17 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     }
 
     /**
-     * Adds a <code>Collection</code> of <code>Music</code> to playlist.
+     * Adds a {@code Collection} of {@code Music} to playlist.
      *
-     * @param c <code>Collection</code> of <code>Music</code> to be added to
-     *            playlist.
+     * @param c {@code Collection} of {@code Music} to be added to
+     *          playlist.
      * @throws MPDServerException if an error occur while contacting server.
      * @see Music
      */
     public void addAll(Collection<Music> c) throws MPDServerException {
-        for (Music m : c)
+        for (Music m : c) {
             this.mpd.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_ADD, m.getFullpath());
+        }
 
         this.mpd.getMpdConnection().sendCommandQueue();
         this.refresh();
@@ -179,9 +195,9 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     }
 
     /**
-     * Retrieves all songs as an <code>List</code> of <code>Music</code>.
+     * Retrieves all songs as an {@code List} of {@code Music}.
      *
-     * @return all songs as an <code>List</code> of <code>Music</code>.
+     * @return all songs as an {@code List} of {@code Music}.
      * @see Music
      */
     public List<Music> getMusicList() {
@@ -200,10 +216,10 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     }
 
     /**
-     * Moves song with specified id to position <code>to</code>.
+     * Moves song with specified id to position {@code to}.
      *
      * @param songId Id of the song to be moved.
-     * @param to target position of the song to be moved.
+     * @param to     target position of the song to be moved.
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void move(int songId, int to) throws MPDServerException {
@@ -213,10 +229,10 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     }
 
     /**
-     * Moves song at position <code>from</code> to position <code>to</code>.
+     * Moves song at position {@code from} to position {@code to}.
      *
      * @param from current position of the song to be moved.
-     * @param to target position of the song to be moved.
+     * @param to   target position of the song to be moved.
      * @throws MPDServerException if an error occur while contacting server.
      * @see #move(int, int)
      */
@@ -242,12 +258,12 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     }
 
     /**
-     * Reload playlist content. <code>refresh</code> has better performance and
+     * Reload playlist content. {@code refresh} has better performance and
      * is more server friendly, use it whenever possible.
      *
-     * @see #refresh(int)
-     * @throws MPDServerException if an error occur while contacting server.
      * @return current playlist version.
+     * @throws MPDServerException if an error occur while contacting server.
+     * @see #refresh(int)
      */
     private int refresh() throws MPDServerException {
         if (firstRefresh) {
@@ -271,8 +287,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * Do incremental update of playlist contents.
      *
      * @param playlistVersion last read playlist version
-     * @throws MPDServerException if an error occur while contacting server.
      * @return current playlist version.
+     * @throws MPDServerException if an error occur while contacting server.
      */
     private int refresh(int playlistVersion) throws MPDServerException {
         // TODO should be atomic
@@ -283,12 +299,13 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
         int newLength = status.getPlaylistLength();
         int oldLength = this.list.size();
-        List<Music> newPlaylist = new ArrayList<Music>(newLength + 1);
+        List<Music> newPlaylist = new ArrayList<>(newLength + 1);
 
         newPlaylist.addAll(this.list.subList(0, newLength < oldLength ? newLength : oldLength));
 
-        for (int i = newLength - oldLength; i > 0; i--)
+        for (int i = newLength - oldLength; i > 0; i--) {
             newPlaylist.add(null);
+        }
 
         for (Music song : changes) {
             if (newPlaylist.size() > song.getPos() && song.getPos() > -1) {
@@ -305,7 +322,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     /**
      * Removes album of given ID from playlist.
      *
-     * @param songsId entries positions.
+     * @param songId entries positions.
      * @throws MPDServerException if an error occur while contacting server.
      * @see #removeById(int[])
      */
@@ -315,7 +332,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         String artist = "";
         String album = "";
         boolean usingAlbumArtist = true;
-        for (Music song : songs)
+        for (Music song : songs) {
             if (song.getSongId() == songId) {
                 artist = song.getAlbumArtist();
                 if (artist == null || artist.equals("")) {
@@ -325,13 +342,16 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                 album = song.getAlbum();
                 break;
             }
-        if (artist == null || album == null)
+        }
+        if (artist == null || album == null) {
             return;
-        if (DEBUG)
+        }
+        if (DEBUG) {
             Log.d("MPD", "Remove album " + album + " of " + artist);
+        }
 
         int num = 0;
-        for (Music song : songs)
+        for (Music song : songs) {
             if (album.equals(song.getAlbum())) {
                 if (usingAlbumArtist && artist.equals(song.getAlbumArtist()) ||
                         !usingAlbumArtist && artist.equals(song.getArtist())) {
@@ -342,8 +362,10 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                     num++;
                 }
             }
-        if (DEBUG)
+        }
+        if (DEBUG) {
             Log.d("MPD", "Removed " + num + " songs");
+        }
         this.mpd.getMpdConnection().sendCommandQueue();
     }
 
@@ -366,13 +388,15 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void removeById(int[] songIds) throws MPDServerException {
-        for (int id : songIds)
+        for (int id : songIds) {
             this.mpd.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_REMOVE_ID,
                     Integer.toString(id));
+        }
         this.mpd.getMpdConnection().sendCommandQueue();
 
-        for (int id : songIds)
+        for (int id : songIds) {
             list.removeById(id);
+        }
     }
 
     /**
@@ -397,13 +421,15 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     public void removeByIndex(int[] songs) throws MPDServerException {
         java.util.Arrays.sort(songs);
 
-        for (int i = songs.length - 1; i >= 0; i--)
+        for (int i = songs.length - 1; i >= 0; i--) {
             this.mpd.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_REMOVE,
                     Integer.toString(songs[i]));
+        }
         this.mpd.getMpdConnection().sendCommandQueue();
 
-        for (int i = songs.length - 1; i >= 0; i--)
+        for (int i = songs.length - 1; i >= 0; i--) {
             list.removeByIndex(songs[i]);
+        }
     }
 
     /**

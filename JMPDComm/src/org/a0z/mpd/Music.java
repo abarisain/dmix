@@ -74,12 +74,12 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public static List<Music> getMusicFromList(List<String> response, boolean sort) {
-        ArrayList<Music> result = new ArrayList<Music>();
-        LinkedList<String> lineCache = new LinkedList<String>();
+        ArrayList<Music> result = new ArrayList<>();
+        LinkedList<String> lineCache = new LinkedList<>();
 
         for (String line : response) {
             if (line.startsWith("file: ")) {
-                if (lineCache.size() != 0) {
+                if (!lineCache.isEmpty()) {
                     result.add(new Music(lineCache));
                     lineCache.clear();
                 }
@@ -87,7 +87,7 @@ public class Music extends Item implements FilesystemTreeEntry {
             lineCache.add(line);
         }
 
-        if (lineCache.size() != 0) {
+        if (!lineCache.isEmpty()) {
             result.add(new Music(lineCache));
         }
 
@@ -99,7 +99,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     private static boolean isEmpty(String s) {
-        return null == s || 0 == s.length();
+        return null == s || s.isEmpty();
     }
 
     public static boolean isValidArtist(String artist) {
@@ -563,7 +563,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public boolean haveTitle() {
-        return null != title && title.length() > 0;
+        return null != title && !title.isEmpty();
     }
 
     public boolean isStream() {
@@ -672,9 +672,9 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     /**
      * Copies, artist, album, title, time, totalTracks and track from another
-     * <code>music</code>.
+     * {@code music}.
      *
-     * @param other <code>Music</code> to copy data from.
+     * @param other {@code Music} to copy data from.
      */
     void update(Music other) {
         this.setArtist(other.getArtist());

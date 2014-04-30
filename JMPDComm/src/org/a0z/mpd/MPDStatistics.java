@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * Class representing MPD Server statistics.
- * 
+ *
  * @author Felipe Gustavo de Almeida
  * @version $Id: MPDStatistics.java 2614 2004-11-11 18:46:31Z galmeida $
  */
@@ -41,11 +41,17 @@ public class MPDStatistics {
     private static final int MILLI_TO_SEC = 1000;
 
     private long artists = -1;
+
     private long albums = -1;
+
     private long songs = -1;
+
     private long uptime = -1;
+
     private Date dbUpdate = null;
+
     private long playtime = -1;
+
     private long dbPlaytime = -1;
 
     MPDStatistics(List<String> response) {
@@ -71,7 +77,7 @@ public class MPDStatistics {
 
     /**
      * Retrieves total number of albums.
-     * 
+     *
      * @return total number of albums.
      */
     public long getAlbums() {
@@ -80,7 +86,7 @@ public class MPDStatistics {
 
     /**
      * Retrieves total number of artists.
-     * 
+     *
      * @return total number of artists.
      */
     public long getArtists() {
@@ -90,9 +96,9 @@ public class MPDStatistics {
     /**
      * Retrieves the amount of time mpd would take to play every song in the db
      * once.
-     * 
+     *
      * @return Retrieves the amount of time (in seconds) mpd would take to play
-     *         every song in the db once.
+     * every song in the db once.
      */
     public long getDbPlaytime() {
         return dbPlaytime;
@@ -100,7 +106,7 @@ public class MPDStatistics {
 
     /**
      * Retrieves last database update time.
-     * 
+     *
      * @return last database update time.
      */
     public Date getDbUpdate() {
@@ -109,7 +115,7 @@ public class MPDStatistics {
 
     /**
      * Retrieves time mpd has been playing music.
-     * 
+     *
      * @return how long mpd has been actually playing music in seconds.
      */
     public long getPlaytime() {
@@ -118,7 +124,7 @@ public class MPDStatistics {
 
     /**
      * Retrieves total number of songs.
-     * 
+     *
      * @return total number of songs.
      */
     public long getSongs() {
@@ -127,7 +133,7 @@ public class MPDStatistics {
 
     /**
      * Retrieves server uptime.
-     * 
+     *
      * @return server uptime.
      */
     public long getUptime() {
@@ -136,9 +142,8 @@ public class MPDStatistics {
 
     /**
      * Retrieves a string representation of the object.
-     * 
+     *
      * @return a string representation of the object.
-     * @see java.lang.Object#toString()
      */
     public String toString() {
         return "artists: " + this.artists + " albums: " + this.albums + " songs: " + this.songs

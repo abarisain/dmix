@@ -33,11 +33,15 @@ import android.os.Parcelable;
 import java.util.Locale;
 
 public class Artist extends Item implements Parcelable {
+
     public static String singleAlbumFormat = "%1 Album";
+
     public static String multipleAlbumsFormat = "%1 Albums";
 
     private final String name;
+
     private final String sort;
+
     // private final boolean isVa;
     private final int albumCount;
 

@@ -44,7 +44,7 @@ public class MPDNoResponseException extends MPDConnectionException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
      */
     public MPDNoResponseException(String message) {
@@ -53,9 +53,9 @@ public class MPDNoResponseException extends MPDConnectionException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
-     * @param cause cause of this exception.
+     * @param cause   cause of this exception.
      */
     public MPDNoResponseException(String message, Throwable cause) {
         super(message, cause);
@@ -63,7 +63,7 @@ public class MPDNoResponseException extends MPDConnectionException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param cause cause of this exception.
      */
     public MPDNoResponseException(Throwable cause) {

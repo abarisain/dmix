@@ -29,7 +29,7 @@ package org.a0z.mpd.exception;
 
 /**
  * Thrown when server sends an unexpected or invalid message.
- * 
+ *
  * @author Felipe Gustavo de Almeida
  * @version $Id$
  */
@@ -46,7 +46,7 @@ public class InvalidResponseException extends RuntimeException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
      */
     public InvalidResponseException(String message) {
@@ -55,9 +55,9 @@ public class InvalidResponseException extends RuntimeException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
-     * @param cause cause of this exception.
+     * @param cause   cause of this exception.
      */
     public InvalidResponseException(String message, Throwable cause) {
         super(message, cause);
@@ -65,7 +65,7 @@ public class InvalidResponseException extends RuntimeException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param cause cause of this exception.
      */
     public InvalidResponseException(Throwable cause) {

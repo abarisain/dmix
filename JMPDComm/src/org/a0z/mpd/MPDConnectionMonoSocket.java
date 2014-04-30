@@ -36,13 +36,15 @@ import java.net.Socket;
 
 /**
  * Class representing a connection to MPD Server.
- * 
+ *
  * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDConnectionMonoSocket extends MPDConnection {
 
     private Socket socket;
+
     private InputStreamReader inputStream;
+
     private OutputStreamWriter outputStream;
 
     MPDConnectionMonoSocket(InetAddress server, int port, String password, int readWriteTimeout)

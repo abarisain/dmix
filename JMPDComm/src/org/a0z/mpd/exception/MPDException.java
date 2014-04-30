@@ -44,7 +44,7 @@ public class MPDException extends Exception {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
      */
     public MPDException(String message) {
@@ -53,9 +53,9 @@ public class MPDException extends Exception {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
-     * @param cause cause of this exception.
+     * @param cause   cause of this exception.
      */
     public MPDException(String message, Throwable cause) {
         super(message, cause);
@@ -63,7 +63,7 @@ public class MPDException extends Exception {
 
     /**
      * Constructor.
-     * 
+     *
      * @param cause cause of this exception.
      */
     public MPDException(Throwable cause) {

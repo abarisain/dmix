@@ -37,23 +37,23 @@ import java.util.List;
  */
 public class MusicList {
 
-    private HashMap<Integer, Music> map;
+    private final HashMap<Integer, Music> map;
 
-    private List<Music> list;
+    private final List<Music> list;
 
     /**
      * Constructor.
      */
     public MusicList() {
-        map = new HashMap<Integer, Music>();
+        map = new HashMap<>();
         list = Collections.synchronizedList(new ArrayList<Music>());
     }
 
     /**
-     * Constructs a new <code>MusicList</code> containing all music from
-     * <code>list</code>.
-     * 
-     * @param list a <code>MusicList</code>
+     * Constructs a new {@code MusicList} containing all music from
+     * {@code list}.
+     *
+     * @param list a {@code MusicList}
      */
     public MusicList(MusicList list) {
         this();
@@ -61,36 +61,38 @@ public class MusicList {
     }
 
     /**
-     * Adds music to <code>MusicList</code>.
-     * 
+     * Adds music to {@code MusicList}.
+     *
      * @param music music to be added.
      */
     public void add(Music music) {
-        if (getById(music.getSongId()) != null)
+        if (getById(music.getSongId()) != null) {
             throw new IllegalArgumentException("Music is already on list");
+        }
 
         // add it to the map and at the right position to the list
         map.put(Integer.valueOf(music.getSongId()), music);
-        while (list.size() < (music.getPos() + 1))
+        while (list.size() < (music.getPos() + 1)) {
             list.add(null);
+        }
         list.set(music.getPos(), music);
     }
 
     /**
-     * Adds all Musics from <code>playlist</code> to this <code>MusicList</code>
+     * Adds all Musics from {@code playlist} to this {@code MusicList}
      * .
-     * 
-     * @param playlist <code>Collection</code> of <code>Music</code> to be added
-     *            to this <code>MusicList</code>.
-     * @throws ClassCastException when <code>playlist</code> contains elements
-     *             not assignable to <code>Music</code>.
+     *
+     * @param playlist {@code Collection} of {@code Music} to be added
+     *                 to this {@code MusicList}.
+     * @throws ClassCastException when {@code playlist} contains elements
+     *                            not assignable to {@code Music}.
      */
     public void addAll(List<Music> playlist) throws ClassCastException {
         list.addAll(playlist);
     }
 
     /**
-     * Removes all musics from this <code>MusicList</code>.
+     * Removes all musics from this {@code MusicList}.
      */
     public void clear() {
         list.clear();
@@ -99,10 +101,10 @@ public class MusicList {
 
     /**
      * Retrieves a music by its songId.
-     * 
+     *
      * @param songId songId from the music to be retrieved.
-     * @return a Music with given songId or <code>null</code> if it is not
-     *         present on this <code>MusicList</code>.
+     * @return a Music with given songId or {@code null} if it is not
+     * present on this {@code MusicList}.
      */
     public Music getById(int songId) {
         return map.get(Integer.valueOf(songId));
@@ -110,34 +112,35 @@ public class MusicList {
 
     /**
      * Retrieves a music by its position on playlist.
-     * 
+     *
      * @param index position of the music to be retrieved.
-     * @return a Music with given position or <code>null</code> if it is not
-     *         present on this <code>MusicList</code>.
+     * @return a Music with given position or {@code null} if it is not
+     * present on this {@code MusicList}.
      */
     public Music getByIndex(int index) {
-        if (index < 0 || list.size() <= index)
+        if (index < 0 || list.size() <= index) {
             return null;
+        }
 
         return list.get(index);
     }
 
     /**
-     * Retrieves a List containing all musics from this <code>MusicList</code>.
-     * 
+     * Retrieves a List containing all musics from this {@code MusicList}.
+     *
      * @return Retrieves a List containing all musics from this
-     *         <code>MusicList</code>.
+     * {@code MusicList}.
      */
     public List<Music> getMusic() {
         return list;
     }
 
     /**
-     * Remove music with given <code>songId</code> from this
-     * <code>MusicList</code>, if it is present.
-     * 
-     * @param songId songId of the <code>Music</code> to be removed from this
-     *            <code>MusicList</code>.
+     * Remove music with given {@code songId} from this
+     * {@code MusicList}, if it is present.
+     *
+     * @param songId songId of the {@code Music} to be removed from this
+     *               {@code MusicList}.
      */
     public void removeById(int songId) {
         Music music = getById(songId);
@@ -149,11 +152,11 @@ public class MusicList {
     }
 
     /**
-     * Removes music at <code>position</code> from this <code>MusicList</code>,
+     * Removes music at {@code position} from this {@code MusicList},
      * if it is present.
-     * 
-     * @param index position of the <code>Music</code> to be removed from this
-     *            <code>MusicList</code>.
+     *
+     * @param index position of the {@code Music} to be removed from this
+     *              {@code MusicList}.
      */
     public void removeByIndex(int index) {
         Music music = getByIndex(index);
@@ -165,22 +168,22 @@ public class MusicList {
     }
 
     /**
-     * Retrieves this <code>MusicList</code> size.
-     * 
-     * @return <code>MusicList</code> size.
+     * Retrieves this {@code MusicList} size.
+     *
+     * @return {@code MusicList} size.
      */
     public int size() {
         return list.size();
     }
 
     /**
-     * Retrieves a <code>List</code> with selected slice from this
-     * <code>MusicList</code>.
-     * 
+     * Retrieves a {@code List} with selected slice from this
+     * {@code MusicList}.
+     *
      * @param fromIndex first index (included).
-     * @param toIndex last index (not included).
-     * @return a <code>List</code> with selected slice from this
-     *         <code>MusicList</code>.
+     * @param toIndex   last index (not included).
+     * @return a {@code List} with selected slice from this
+     * {@code MusicList}.
      * @see List#subList(int, int)
      */
     public List<Music> subList(int fromIndex, int toIndex) {

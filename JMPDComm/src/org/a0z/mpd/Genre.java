@@ -33,6 +33,7 @@ import android.os.Parcelable;
 public class Genre extends Item implements Parcelable {
 
     private final String name;
+
     private final String sort;
 
     // private final boolean isVa;
