@@ -335,7 +335,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         for (Music song : songs) {
             if (song.getSongId() == songId) {
                 artist = song.getAlbumArtist();
-                if (artist == null || artist.equals("")) {
+                if (artist == null || artist.isEmpty()) {
                     usingAlbumArtist = false;
                     artist = song.getArtist();
                 }
@@ -513,10 +513,10 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        final StringBuffer sb = new StringBuffer(list.toString().length());
         for (Music m : list.getMusic()) {
             sb.append(m.toString());
-            sb.append("\n");
+            sb.append('\n');
         }
         return sb.toString();
     }

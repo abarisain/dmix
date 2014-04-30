@@ -104,7 +104,7 @@ public class Artist extends Item implements Parcelable {
      * text for display Item.toString() returns mainText()
      */
     public String mainText() {
-        return (name.equals("") ?
+        return (name.isEmpty() ?
                 MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_artist) :
                 name);
     }

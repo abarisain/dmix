@@ -550,7 +550,7 @@ public class MPD {
             String[] aartists = albumartists.get(i);
             if (aartists.length > 0) {
                 Arrays.sort(aartists); // make sure "" is the first one
-                if (!"".equals(aartists[0])) { // one albumartist, fix this
+                if (aartists[0] != null && !aartists[0].isEmpty()) { // one albumartist, fix this
                     // album
                     a.setArtist(new Artist(aartists[0]));
                     a.setHasAlbumArtist(true);
@@ -880,11 +880,11 @@ public class MPD {
 
         int[] version = mpdIdleConnection.getMpdVersion();
 
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer(version.length);
         for (int i = 0; i < version.length; i++) {
             sb.append(version[i]);
             if (i < (version.length - 1)) {
-                sb.append(".");
+                sb.append('.');
             }
         }
         return sb.toString();

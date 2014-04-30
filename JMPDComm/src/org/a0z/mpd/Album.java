@@ -172,7 +172,7 @@ public class Album extends Item implements Parcelable {
         return (artist == null ? "null" : artist.info()) +
                 (hasAlbumArtist() ? " (AA)" : "") +
                 " // " + name +
-                ("".equals(path) ? "" : " (" + path + ")");
+                (path != null && path.isEmpty() ? "" : " (" + path + ')');
     }
 
     /*
@@ -180,7 +180,7 @@ public class Album extends Item implements Parcelable {
      */
     @Override
     public String mainText() {
-        return (name.equals("") ?
+        return (name.isEmpty() ?
                 MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album) :
                 name);
     }

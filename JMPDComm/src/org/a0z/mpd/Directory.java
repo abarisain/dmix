@@ -200,7 +200,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      */
     public String getFullpath() {
         if (getParent() != null && getParent().getParent() != null) {
-            return getParent().getFullpath() + "/" + getFilename();
+            return getParent().getFullpath() + '/' + getFilename();
         } else {
             return getFilename();
         }

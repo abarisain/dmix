@@ -40,7 +40,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -88,7 +88,7 @@ public abstract class MPDConnection {
                     this.setSentToServer(false);
                     handleConnectionFailure(result, ex0);
                     if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
-                        result.setResult(Arrays.asList("changed: playlist"));
+                        result.setResult(Collections.singletonList("changed: playlist"));
                     }
                 } catch (MPDServerException ex1) {
                     // Avoid getting in an infinite loop if an error occurred in the password cmd
@@ -538,7 +538,7 @@ public abstract class MPDConnection {
     }
 
     List<String> sendCommandQueue(boolean withSeparator) throws MPDServerException {
-        String commandstr = (withSeparator ? MPD_CMD_START_BULK_OK : MPD_CMD_START_BULK) + "\n";
+        String commandstr = (withSeparator ? MPD_CMD_START_BULK_OK : MPD_CMD_START_BULK) + '\n';
         for (MPDCommand command : commandQueue) {
             commandstr += command.toString();
         }

@@ -392,7 +392,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return filename.
      */
     public String getFilename() {
-        int pos = fullpath.lastIndexOf("/");
+        int pos = fullpath.lastIndexOf('/');
         if (pos == -1 || pos == fullpath.length() - 1) {
             return fullpath;
         } else {
@@ -445,7 +445,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         if (fullpath == null) {
             return null;
         }
-        int pos = fullpath.lastIndexOf("/");
+        int pos = fullpath.lastIndexOf('/');
         if (pos == -1) {
             return null;
         } else {

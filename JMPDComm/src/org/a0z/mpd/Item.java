@@ -60,13 +60,13 @@ public abstract class Item implements Comparable<Item> {
     @Override
     public int compareTo(Item o) {
         // sort "" behind everything else
-        if ("".equals(sortText())) {
-            if ("".equals(o.sortText())) {
+        if (sortText() != null && sortText().isEmpty()) {
+            if (o.sortText() != null && o.sortText().isEmpty()) {
                 return 0;
             }
             return 1;
         }
-        if ("".equals(o.sortText())) {
+        if (o.sortText() != null && o.sortText().isEmpty()) {
             return -1;
         }
         return defaultCollator.compare(sortText(), o.sortText());

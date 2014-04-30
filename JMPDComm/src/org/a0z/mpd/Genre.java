@@ -77,7 +77,7 @@ public class Genre extends Item implements Parcelable {
      */
     @Override
     public String mainText() {
-        return (name.equals("") ?
+        return (name.isEmpty() ?
                 MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_genre) :
                 name);
     }

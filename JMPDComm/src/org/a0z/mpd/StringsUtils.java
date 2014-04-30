@@ -42,7 +42,7 @@ public class StringsUtils {
             return null;
         }
 
-        final StringBuffer buffer = new StringBuffer();
+        final StringBuffer buffer = new StringBuffer(data.length);
         for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
             int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
             int two_halfs = 0;

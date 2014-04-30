@@ -31,6 +31,7 @@ import android.util.Log;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class MPDCommand {
 
@@ -190,19 +191,23 @@ public class MPDCommand {
         this.synchronous = synchronous;
     }
 
+    private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
+
     public String toString() {
-        StringBuffer outBuf = new StringBuffer();
+        final int argsLength = args.toString().length();
+        final int approximateLength = argsLength + argsLength * (command.length() + 10);
+        final StringBuffer outBuf = new StringBuffer(approximateLength);
         outBuf.append(command);
         for (String arg : args) {
             if (arg == null) {
                 continue;
             }
-            arg = arg.replaceAll("\"", "\\\\\"");
+            arg = QUOTATION_DELIMITER.matcher(arg).replaceAll("\\\\\"");
             outBuf.append(" \"");
             outBuf.append(arg);
-            outBuf.append("\"");
+            outBuf.append('"');
         }
-        outBuf.append("\n");
+        outBuf.append('\n');
         final String outString = outBuf.toString();
         if (DEBUG) {
             Log.d("JMPDComm", "Mpd command : "
