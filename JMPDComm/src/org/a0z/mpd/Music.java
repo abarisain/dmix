@@ -107,20 +107,32 @@ public class Music extends Item implements FilesystemTreeEntry {
                 && artist.length() < MAX_ARTIST_NAME_LENGTH;
     }
 
-    public static String timeToString(long seconds) {
-        if (seconds < 0) {
-            seconds = 0;
+    /**
+     * This method takes seconds and converts it into HH:MM:SS
+     *
+     * @param totalSeconds Seconds to convert to a string.
+     * @return Returns time formatted from the {@code totalSeconds} in format HH:MM:SS.
+     */
+    public static String timeToString(final long totalSeconds) {
+        long seconds = totalSeconds < 0L ? 0L : totalSeconds;
+        final String result;
+
+        final long secondsInHour = 3600L;
+        final long secondsInMinute = 60L;
+
+        final long hours = seconds / secondsInHour;
+        seconds -= secondsInHour * hours;
+
+        final long minutes = seconds / secondsInMinute;
+        seconds -= minutes * secondsInMinute;
+
+        if (hours == 0) {
+            result = String.format("%02d:%02d", minutes, seconds);
+        } else {
+            result = String.format("%02d:%02d:%02d", hours, minutes, seconds);
         }
 
-        long hours = seconds / 3600;
-        seconds -= 3600 * hours;
-        long minutes = seconds / 60;
-        seconds -= minutes * 60;
-        if (hours == 0) {
-            return String.format("%02d:%02d", minutes, seconds);
-        } else {
-            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
-        }
+        return result;
     }
 
     private String album = "";
