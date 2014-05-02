@@ -582,16 +582,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         return null != fullpath && fullpath.contains("://");
     }
 
-    /**
-     * Retrieves a string representation of the object.
-     *
-     * @return a string representation of the object.
-     * @see java.lang.Object#toString()
-     */
-    /*
-     * public String toString() { return track + " - " + album + " - " + artist
-     * + " - " + title + " (" + fullpath + ")"; }
-     */
     @Override
     public String mainText() {
         return getTitle();
@@ -681,6 +671,8 @@ public class Music extends Item implements FilesystemTreeEntry {
     public String subText() {
         return timeToString(time);
     }
+
+    /** Do not implement toString(), JMPDComm is dependent on the implementation in Item.java. */
 
     /**
      * Copies, artist, album, title, time, totalTracks and track from another
