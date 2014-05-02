@@ -16,20 +16,20 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import static android.util.Log.d;
-import static android.util.Log.e;
-import static com.namelessdev.mpdroid.helpers.CoverManager.getCoverFileName;
-
-import android.graphics.Bitmap;
-import android.os.Environment;
-
 import com.namelessdev.mpdroid.MPDApplication;
 
 import org.a0z.mpd.AlbumInfo;
 
+import android.graphics.Bitmap;
+import android.os.Environment;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import static android.util.Log.d;
+import static android.util.Log.e;
+import static com.namelessdev.mpdroid.helpers.CoverManager.getCoverFileName;
 
 public class CachedCover implements ICoverRetriever {
 
@@ -43,39 +43,21 @@ public class CachedCover implements ICoverRetriever {
     }
 
     public void clear() {
-        final String cacheFolderPath = getAbsoluteCoverFolderPath();
-        if (cacheFolderPath == null)
-            return;
-        final File cacheFolder = new File(cacheFolderPath);
-        if (!cacheFolder.exists()) {
-            return;
-        }
-        File[] files = cacheFolder.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                // No need to take care of subfolders, there won't be any.
-                // (Or at least any that MPDroid cares about)
-                f.delete();
-            }
-        }
+        delete(null);
     }
 
-    public void delete(AlbumInfo albumInfo) {
-        final String cacheFolderPath = getAbsoluteCoverFolderPath();
-        if (cacheFolderPath == null)
-            return;
-        final File cacheFolder = new File(cacheFolderPath);
-        if (!cacheFolder.exists()) {
-            return;
-        }
-        File[] files = cacheFolder.listFiles();
+    public void delete(final AlbumInfo albumInfo) {
+        final File[] files = getAllCachedCoverFiles();
+
         if (files != null) {
-            for (File f : files) {
+            for (final File file : files) {
                 // No need to take care of subfolders, there won't be any.
                 // (Or at least any that MPDroid cares about)
-                if (getCoverFileName(albumInfo).equals(f.getName())) {
-                    d(CachedCover.class.getSimpleName(), "Deleting cover : " + f.getName());
-                    f.delete();
+                if (albumInfo != null && getCoverFileName(albumInfo).equals(file.getName())) {
+                    d(CachedCover.class.getSimpleName(), "Deleting cover : " + file.getName());
+                }
+                if (albumInfo == null || getCoverFileName(albumInfo).equals(file.getName())) {
+                    file.delete();
                 }
             }
         }
@@ -95,19 +77,35 @@ public class CachedCover implements ICoverRetriever {
         return getAbsoluteCoverFolderPath() + getCoverFileName(albumInfo);
     }
 
-    public long getCacheUsage() {
-        long size = 0;
-        final String cacheDir = getAbsoluteCoverFolderPath();
-        if (null != cacheDir && 0 != cacheDir.length()) {
-            File[] files = new File(cacheDir).listFiles();
-            if (null != files) {
-                for (File file : files) {
-                    if (file.isFile()) {
-                        size += file.length();
-                    }
-                }
+    /**
+     * Just as the name says, gets a list of all cached cover files.
+     *
+     * @return A array of cached cover files.
+     */
+    private File[] getAllCachedCoverFiles() {
+        final String cacheFolderPath = getAbsoluteCoverFolderPath();
+        File[] result = null;
+
+        if (cacheFolderPath != null) {
+            final File cacheFolder = new File(cacheFolderPath);
+            if (cacheFolder.exists()) {
+                result = cacheFolder.listFiles();
             }
         }
+
+        return result;
+    }
+
+    public long getCacheUsage() {
+        long size = 0L;
+        final File[] files = getAllCachedCoverFiles();
+
+        if (files != null) {
+            for (final File file : files) {
+                size += file.length();
+            }
+        }
+
         return size;
     }
 
