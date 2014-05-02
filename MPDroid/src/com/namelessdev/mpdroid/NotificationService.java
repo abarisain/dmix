@@ -885,8 +885,14 @@ public final class NotificationService extends Service implements StatusChangeLi
         }
     }
 
+    /**
+     * A JMPDComm callback to be invoked during library state changes.
+     *
+     * @param updating true when updating, false when not updating.
+     * @param dbChanged true when the server database has been updated, false otherwise.
+     */
     @Override
-    public void libraryStateChanged(final boolean updating) {
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
     @Override

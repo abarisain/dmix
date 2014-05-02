@@ -61,7 +61,7 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
 
     }
 

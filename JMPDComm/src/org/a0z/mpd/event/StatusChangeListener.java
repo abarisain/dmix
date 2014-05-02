@@ -47,8 +47,9 @@ public interface StatusChangeListener {
      * Called when the MPD server update database starts and stops.
      *
      * @param updating true when updating, false when not updating.
+     * @param dbChanged After update, if the database has changed, this will be true else false.
      */
-    void libraryStateChanged(boolean updating);
+    void libraryStateChanged(boolean updating, boolean dbChanged);
 
     /**
      * Called when playlist changes on MPD server.

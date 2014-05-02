@@ -94,7 +94,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
         // TODO Auto-generated method stub
 
     }

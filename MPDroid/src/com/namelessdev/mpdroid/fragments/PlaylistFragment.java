@@ -219,7 +219,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
         // TODO Auto-generated method stub
 
     }

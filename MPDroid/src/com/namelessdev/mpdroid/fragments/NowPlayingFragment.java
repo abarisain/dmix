@@ -450,7 +450,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
         // TODO Auto-generated method stub
 
     }

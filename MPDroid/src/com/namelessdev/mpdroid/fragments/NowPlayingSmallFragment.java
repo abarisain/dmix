@@ -231,7 +231,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
     }
 
     @Override

@@ -16,12 +16,6 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
@@ -32,6 +26,12 @@ import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 
 import java.net.UnknownHostException;
 import java.util.Collection;
@@ -126,9 +126,9 @@ public class MPDAsyncHelper extends Handler {
         }
 
         @Override
-        public void libraryStateChanged(boolean updating) {
-            MPDAsyncHelper.this.obtainMessage(EVENT_UPDATESTATE, Tools.toObjectArray(updating))
-                    .sendToTarget();
+        public void libraryStateChanged(boolean updating, boolean dbChanged) {
+            MPDAsyncHelper.this.obtainMessage(EVENT_UPDATESTATE, Tools.toObjectArray(updating,
+                    dbChanged)).sendToTarget();
         }
 
         @Override
@@ -338,7 +338,7 @@ public class MPDAsyncHelper extends Handler {
                     break;
                 case EVENT_UPDATESTATE:
                     for (StatusChangeListener listener : statusChangedListeners)
-                        listener.libraryStateChanged((Boolean) args[0]);
+                        listener.libraryStateChanged((Boolean) args[0], (Boolean) args[1]);
                     break;
                 case EVENT_VOLUME:
                     for (StatusChangeListener listener : statusChangedListeners)

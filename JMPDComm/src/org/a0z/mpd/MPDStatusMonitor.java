@@ -238,7 +238,7 @@ public class MPDStatusMonitor extends Thread {
                         // update database
                         if (connectionStateChanged || oldUpdating != status.isUpdating()) {
                             for (StatusChangeListener listener : statusChangedListeners) {
-                                listener.libraryStateChanged(status.isUpdating());
+                                listener.libraryStateChanged(status.isUpdating(), dbChanged);
                             }
                             oldUpdating = status.isUpdating();
                         }
