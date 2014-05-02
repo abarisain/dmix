@@ -412,8 +412,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
         if(connected) {
+            forceStatusUpdate();
             songNameText.setText(activity.getResources().getString(R.string.noSongInfo));
-            updateTrackInfo();
         } else {
             songNameText.setText(activity.getResources().getString(R.string.notConnected));
         }
@@ -421,6 +421,25 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private void downloadCover(AlbumInfo albumInfo) {
         oCoverAsyncHelper.downloadCover(albumInfo, true);
+    }
+
+    /**
+     * This is a very important block. This should be used exclusively in onResume() and/or in
+     * connectedStateChanged(). These should be the only two places in the non-library code that
+     * will require a forced status update, as our idle status monitor will otherwise take care of
+     * any other updates.
+     *
+     * This SHOULD NOT be used elsewhere unless you know exactly what you're doing.
+     */
+    private void forceStatusUpdate() {
+        MPDStatus mpdStatus = null;
+        try {
+            mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus(true);
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to seed the status.", e);
+        }
+
+        updateTrackInfo(mpdStatus);
     }
 
     private PlaylistFragment getPlaylistFragment() {
@@ -771,17 +790,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onResume() {
         super.onResume();
-        // Annoyingly this seems to be run when the app starts the first time
-        // to.
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
         showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
         isAudioNameTextEnabled = settings.getBoolean("enableAudioText", false);
 
-        // Just to make sure that we do actually get an update.
-        try {
-            updateTrackInfo();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (app.oMPDAsyncHelper.oMPD.isConnected()) {
+            forceStatusUpdate();
         }
 
         // Update the cover on resume (when you update the current cover from
