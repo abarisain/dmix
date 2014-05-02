@@ -299,8 +299,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 if (noSong || actSong.isStream()) {
                     lastArtist = artist;
                     lastAlbum = album;
-                    trackTime.setText(timeToString(0));
-                    trackTotalTime.setText(timeToString(0));
+                    trackTime.setText(Music.timeToString(0L));
+                    trackTotalTime.setText(Music.timeToString(0L));
                     downloadCover(new AlbumInfo(artist, album));
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
                     // coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
@@ -377,22 +377,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     public static final int VOLUME_STEP = 5;
     private static final int ANIMATION_DURATION_MSEC = 1000;
-
-    private static String timeToString(long seconds) {
-        if (seconds < 0) {
-            seconds = 0;
-        }
-
-        long hours = seconds / 3600;
-        seconds -= 3600 * hours;
-        long minutes = seconds / 60;
-        seconds -= minutes * 60;
-        if (hours == 0) {
-            return String.format("%02d:%02d", minutes, seconds);
-        } else {
-            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
-        }
-    }
 
     private ButtonEventHandler buttonEventHandler;
     @SuppressWarnings("unused")
@@ -1107,8 +1091,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         handler.post(new Runnable() {
             @Override
             public void run() {
-                trackTime.setText(timeToString(elapsedTime));
-                trackTotalTime.setText(timeToString(totalTrackTime));
+                trackTime.setText(Music.timeToString(elapsedTime));
+                trackTotalTime.setText(Music.timeToString(totalTrackTime));
             }
         });
     }
