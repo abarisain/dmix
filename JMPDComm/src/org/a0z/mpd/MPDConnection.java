@@ -31,8 +31,11 @@ import static android.util.Log.e;
 import static android.util.Log.w;
 
 import org.a0z.mpd.exception.MPDConnectionException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,6 +59,8 @@ import java.util.concurrent.Executors;
  */
 public abstract class MPDConnection {
     class MpdCallable extends MPDCommand implements Callable<MPDCommandResult> {
+
+        public static final String TAG = "MPDCallable";
 
         private int retry = 0;
 
@@ -94,6 +99,24 @@ public abstract class MPDConnection {
                 }
                 retryable = isRetryable(command) || !this.isSentToServer();
                 retry++;
+
+                // If we do not retry, try at least to restore the connection later.
+                if (!retryable) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(500);
+                                innerConnect();
+                                refreshAllConnections();
+                            } catch (MPDException e) {
+                                Log.e(TAG, "Error while reconnecting after failed connection", e);
+                            } catch (InterruptedException e1) {
+                                // We don't care about this one.
+                            }
+                        }
+                    }).start();
+                }
             }
 
             if (result.getResult() == null) {
@@ -249,17 +272,11 @@ public abstract class MPDConnection {
     protected abstract Socket getSocket();
 
     private void handleConnectionFailure(MPDCommandResult result, MPDServerException ex) {
+        result.setLastexception(ex);
         try {
-            result.setLastexception(ex);
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                // Nothing to do
-            }
-            innerConnect();
-            refreshAllConnections();
-        } catch (MPDServerException e) {
-            result.setLastexception(e);
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            // Nothing to do
         }
     }
 
