@@ -336,16 +336,18 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void stateChanged(MPDStatus status, String oldState) {
-        if (!isAdded())
-            return;
-        app.getApplicationState().currentMpdStatus = status;
-        if (status.getState() != null && buttonPlayPause != null) {
-            if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
-                buttonPlayPause.setImageDrawable(getResources().getDrawable(
-                        lightTheme ? R.drawable.ic_media_pause_light : R.drawable.ic_media_pause));
-            } else {
-                buttonPlayPause.setImageDrawable(getResources().getDrawable(
-                        lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play));
+        if (isAdded()) {
+            app.getApplicationState().currentMpdStatus = status;
+            if (status != null && buttonPlayPause != null) {
+                if (MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
+                    buttonPlayPause.setImageDrawable(getResources().getDrawable(
+                            lightTheme ? R.drawable.ic_media_pause_light
+                                    : R.drawable.ic_media_pause));
+                } else {
+                    buttonPlayPause.setImageDrawable(getResources().getDrawable(
+                            lightTheme ? R.drawable.ic_media_play_light
+                                    : R.drawable.ic_media_play));
+                }
             }
         }
     }
