@@ -621,8 +621,7 @@ public class MPD {
         } else { // only get albums without albumartist
             return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
                     MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                    MPDCommand.MPD_TAG_ARTIST, album.getArtist().getName(),
-                    MPDCommand.MPD_TAG_ALBUM_ARTIST, "");
+                    MPDCommand.MPD_TAG_ARTIST, album.getArtist().getName());
         }
     }
 
@@ -1014,8 +1013,7 @@ public class MPD {
         } else {
             return new MPDCommand(MPDCommand.MPD_CMD_FIND,
                     MPDCommand.MPD_TAG_ALBUM, albumname,
-                    MPDCommand.MPD_TAG_ARTIST, artistname,
-                    MPDCommand.MPD_TAG_ALBUM_ARTIST, "");
+                    MPDCommand.MPD_TAG_ARTIST, artistname);
         }
     }
 
