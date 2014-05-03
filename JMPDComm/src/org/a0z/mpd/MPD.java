@@ -657,29 +657,27 @@ public class MPD {
         if (artist == null) {
             return getAllAlbums(trackCountNeeded);
         }
-        List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
-        List<Album> albums = new ArrayList<>(albumNames.size());
+        final List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
+        final List<Album> albums = new ArrayList<>(albumNames.size());
 
-        if (null == albumNames || albumNames.isEmpty()) {
-            return albums;
-        }
+        if (!albumNames.isEmpty()) {
+            for (final String album : albumNames) {
+                albums.add(new Album(album, artist, useAlbumArtist));
+            }
+            if (!useAlbumArtist) {
+                fixAlbumArtists(albums);
+            }
 
-        for (String album : albumNames) {
-            albums.add(new Album(album, artist, useAlbumArtist));
-        }
-        if (!useAlbumArtist) {
-            fixAlbumArtists(albums);
-        }
+            // after fixing albumartists
+            if (MPD.showAlbumTrackCount() && trackCountNeeded || MPD.sortAlbumsByYear()) {
+                getAlbumDetails(albums, MPD.sortAlbumsByYear());
+            }
+            if (!MPD.sortAlbumsByYear()) {
+                addAlbumPaths(albums);
+            }
 
-        // after fixing albumartists
-        if (((MPD.showAlbumTrackCount() && trackCountNeeded) || MPD.sortAlbumsByYear())) {
-            getAlbumDetails(albums, MPD.sortAlbumsByYear());
+            Collections.sort(albums);
         }
-        if (!MPD.sortAlbumsByYear()) {
-            addAlbumPaths(albums);
-        }
-
-        Collections.sort(albums);
         return albums;
     }
 
@@ -688,18 +686,20 @@ public class MPD {
      * @param trackCountNeeded Do we need the track count ?
      * @return all Albums
      */
-    public List<Album> getAllAlbums(boolean trackCountNeeded) throws MPDServerException {
-        List<Album> albums = new ArrayList<Album>();
+    public List<Album> getAllAlbums(final boolean trackCountNeeded) throws MPDServerException {
+        final List<Album> albums;
         // Use MPD 0.19's album grouping feature if available.
         if (mpdConnection.isAlbumGroupingSupported()) {
-            albums.addAll(listAllAlbumsGrouped(false));
+            albums = listAllAlbumsGrouped(false);
         } else {
-            List<String> albumNames = listAlbums();
-            if (null == albumNames || albumNames.isEmpty()) {
-                return albums; // empty list
-            }
-            for (String album : albumNames) {
-                albums.add(new Album(album, null));
+            final List<String> albumNames = listAlbums();
+            if (null != albumNames && !albumNames.isEmpty()) {
+                albums = new ArrayList<>(albumNames.size());
+                for (final String album : albumNames) {
+                    albums.add(new Album(album, null));
+                }
+            } else {
+                albums = new ArrayList<>(0);
             }
         }
 
