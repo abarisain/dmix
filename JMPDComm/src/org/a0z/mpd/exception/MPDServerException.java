@@ -118,7 +118,7 @@ public class MPDServerException extends MPDException {
             }
         } catch (Exception e) {
             Log.e(TAG, "Error while extracting MPDServerException error code. ACK line : "
-                    + getAckLine());
+                    + getAckLine(), e);
         }
         return errorKind;
     }
