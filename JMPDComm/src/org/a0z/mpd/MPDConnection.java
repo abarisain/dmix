@@ -90,7 +90,10 @@ public abstract class MPDConnection {
                         result.setResult(Arrays.asList("changed: playlist"));
                     }
                 } catch (MPDServerException ex1) {
-                    handleConnectionFailure(result, ex1);
+                    // Avoid getting in an infinite loop if an error occured in the password cmd
+                    if (ex1.getErrorKind() != MPDServerException.ErrorKind.PASSWORD) {
+                        handleConnectionFailure(result, ex1);
+                    }
                 }
                 retryable = isRetryable(command) || !this.isSentToServer();
                 retry++;
