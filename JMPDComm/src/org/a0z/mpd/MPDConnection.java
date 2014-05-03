@@ -150,9 +150,12 @@ public abstract class MPDConnection {
     private int maxThreads;
     protected boolean cancelled = false;
 
+    private boolean albumGroupingSupported = false;
+
     private final static int MAX_CONNECT_RETRY = 3;
 
     private final static int MAX_REQUEST_RETRY = 3;
+
 
     static List<String[]> separatedQueueResults(List<String> lines) {
         List<String[]> result = new ArrayList<String[]>();
@@ -300,6 +303,13 @@ public abstract class MPDConnection {
                     setInputStream(new InputStreamReader(getSocket().getInputStream()));
                 }
 
+                // MPD 0.19 supports album grouping
+                if (result[0] > 0 || result[1] >= 19) {
+                    albumGroupingSupported = true;
+                } else {
+                    albumGroupingSupported = false;
+                }
+
                 if (password != null) {
                     password(password);
                 }
@@ -377,6 +387,10 @@ public abstract class MPDConnection {
         } catch (IOException e) {
             throw new MPDConnectionException(e);
         }
+    }
+
+    public boolean isAlbumGroupingSupported() {
+        return albumGroupingSupported;
     }
 
     public boolean isConnected() {
