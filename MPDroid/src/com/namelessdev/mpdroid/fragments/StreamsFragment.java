@@ -24,6 +24,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.Xml;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -218,6 +219,7 @@ public class StreamsFragment extends BrowseFragment {
         try {
             loadStreams(getActivity().openFileInput(FILE_NAME), false);
         } catch (FileNotFoundException e) {
+            Log.e("Streams", "Error while loading local streams", e);
         }
     }
 
@@ -234,6 +236,7 @@ public class StreamsFragment extends BrowseFragment {
             connection = (HttpURLConnection) u.openConnection();
             loadStreams(new GZIPInputStream(connection.getInputStream()), true);
         } catch (IOException e) {
+            Log.e("Streams", "Error while server streams", e);
         } finally {
             if (null != connection) {
                 connection.disconnect();
@@ -244,7 +247,7 @@ public class StreamsFragment extends BrowseFragment {
     private void loadStreams() {
         streams = new ArrayList<Stream>();
         loadLocalStreams();
-        loadServerStreams();
+        //loadServerStreams();
         Collections.sort(streams);
         items = streams;
     }
@@ -266,6 +269,7 @@ public class StreamsFragment extends BrowseFragment {
                 eventType = xpp.next();
             }
         } catch (Exception e) {
+            Log.e("Streams", "Error while loading streams", e);
         }
     }
 
