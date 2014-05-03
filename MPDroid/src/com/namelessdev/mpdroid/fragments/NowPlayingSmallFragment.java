@@ -296,7 +296,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onResume() {
         super.onResume();
-        if(app.oMPDAsyncHelper.oMPD.isConnected()) {
+        if(app.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
             new updateTrackInfoAsync().execute((MPDStatus[]) null);
         }
     }
@@ -315,7 +315,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
-        if (!isDetached() && actSong != null && actSong.isStream() &&
+        if (isAdded() && actSong != null && actSong.isStream() &&
                 app.oMPDAsyncHelper.oMPD.isConnected()) {
             /**
              * If the current song is a stream, the metadata can change in place, and that will only
@@ -352,7 +352,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
    @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        if(app.oMPDAsyncHelper.oMPD.isConnected()) {
+        if(app.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
             new updateTrackInfoAsync().execute(mpdStatus);
         }
     }
