@@ -72,7 +72,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     protected List<? extends Item> items = null;
 
-    protected MPDApplication app = null;
+    protected MPDApplication app = MPDApplication.getInstance();
     protected View loadingView;
     protected TextView loadingTextView;
     protected View noResultView;
@@ -144,7 +144,6 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        app = (MPDApplication) getActivity().getApplicationContext();
         try {
             Activity activity = this.getActivity();
             ActionBar actionBar = activity.getActionBar();
