@@ -34,6 +34,8 @@ import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -134,6 +136,9 @@ public abstract class MPDConnection {
             this.result = result;
         }
     }
+
+    public static final String TAG = "MPDConnection";
+
     private static final int CONNECTION_TIMEOUT = 10000;
     public static final String MPD_RESPONSE_ERR = "ACK";
     private static final String MPD_RESPONSE_OK = "OK";
@@ -549,7 +554,10 @@ public abstract class MPDConnection {
     }
 
     private void writeToServer(MPDCommand command) throws IOException {
-        getOutputStream().write(command.toString());
+        final String cmdString = command.toString();
+        // Uncomment for extreme command debugging
+        //Log.v(TAG, "Sending MPDCommand : " + cmdString);
+        getOutputStream().write(cmdString);
         getOutputStream().flush();
         command.setSentToServer(true);
     }
