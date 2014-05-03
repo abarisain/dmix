@@ -638,7 +638,8 @@ public class MPD {
     public List<Album> getAlbums(Artist artist, boolean trackCountNeeded,
             boolean useAlbumArtist) throws MPDServerException {
         if (artist == null) {
-            return getAllAlbums(trackCountNeeded, useAlbumArtist);
+            // Always use album artists for all albums. The argument is here for easy changing.
+            return getAllAlbums(trackCountNeeded, true);
         }
         List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
         List<Album> albums = new ArrayList<Album>();

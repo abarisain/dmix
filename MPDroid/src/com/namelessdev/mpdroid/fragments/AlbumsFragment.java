@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid.fragments;
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
@@ -29,7 +28,6 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -95,22 +93,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         try {
-            final SharedPreferences settings = PreferenceManager
-                    .getDefaultSharedPreferences(MPDApplication.getInstance());
-            switch (settings.getString(LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE,
-                    LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
-                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
-                default:
-                    items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountPossiblyDisplayed);
-                    break;
-                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
-                    items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountPossiblyDisplayed, true);
-                    break;
-                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
-                    items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountPossiblyDisplayed, false);
-                    break;
-            }
-
+            items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountPossiblyDisplayed);
             if (genre != null) { // filter albums not in genre
                 for (int i = items.size() - 1; i >= 0; i--) {
                     if (!app.oMPDAsyncHelper.oMPD.albumInGenre((Album) items.get(i), genre)) {
