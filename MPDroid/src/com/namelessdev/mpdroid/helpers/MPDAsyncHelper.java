@@ -45,6 +45,8 @@ import java.util.Collection;
  */
 public class MPDAsyncHelper extends Handler {
 
+    public static final String TAG = "MPDAsyncHelper";
+
     // Interface for callback when Asynchronous operations are finished
     public interface AsyncExecListener {
         public void asyncExecSucceeded(int jobID);
@@ -82,10 +84,8 @@ public class MPDAsyncHelper extends Handler {
                             MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTSUCCEEDED)
                                     .sendToTarget();
                         }
-                    } catch (MPDServerException e) {
-                        MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED,
-                                Tools.toObjectArray(e.getMessage())).sendToTarget();
-                    } catch (UnknownHostException e) {
+                    } catch (MPDServerException | UnknownHostException e) {
+                        Log.e(TAG, "Error while connecting to the server", e);
                         MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED,
                                 Tools.toObjectArray(e.getMessage())).sendToTarget();
                     }
