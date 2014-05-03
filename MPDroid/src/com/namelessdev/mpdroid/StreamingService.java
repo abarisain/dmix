@@ -96,6 +96,8 @@ public final class StreamingService extends Service implements
         }
     };
 
+    private boolean finalSong = false;
+
     private boolean serviceControlHandlersActive = false;
 
     private TelephonyManager mTelephonyManager = null;
@@ -537,6 +539,8 @@ public final class StreamingService extends Service implements
 
     @Override
     public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+        /** Detect the final song and let the streaming complete rather than abrupt cut off. */
+        finalSong = mpdStatus != null && mpdStatus.getNextSongPos() == -1;
     }
 
     @Override
@@ -567,6 +571,11 @@ public final class StreamingService extends Service implements
                     tryToStream();
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
+                    /** Detect final song and let onCompletion handle it */
+                    if (finalSong || mpdStatus.getPlaylistLength() == 0) {
+                        break;
+                    }
+                    /** Fall Through */
                 case MPDStatus.MPD_STATE_PAUSED:
                     /**
                      * If in the middle of stream preparation, "Buffering…" notification message
@@ -574,10 +583,7 @@ public final class StreamingService extends Service implements
                      */
                     if (preparingStreaming) {
                         windDownResources(ACTION_BUFFERING_ERROR);
-                    }
-
-                    /** If the playlistLength is == 0, let onCompletion handle it. */
-                    if (mpdStatus.getPlaylistLength() != 0) {
+                    } else {
                         windDownResources(ACTION_STREAMING_STOP);
                     }
                     isPlaying = false;

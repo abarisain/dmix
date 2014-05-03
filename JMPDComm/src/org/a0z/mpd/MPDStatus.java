@@ -328,7 +328,7 @@ public class MPDStatus {
         elapsedTimeHighResolution = 0.0f;
         //noinspection AssignmentToNull
         error = null;
-        nextSong = 0;
+        nextSong = -1;
         nextSongId = 0;
         sampleRate = 0;
         song = 0;
