@@ -21,6 +21,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -68,7 +69,7 @@ public class ArtistsFragment extends BrowseFragment {
     protected void asyncUpdate() {
         try {
             final SharedPreferences settings = PreferenceManager
-                    .getDefaultSharedPreferences(getActivity().getApplication());
+                    .getDefaultSharedPreferences(MPDApplication.getInstance());
             switch (settings.getString(LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE,
                     LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
