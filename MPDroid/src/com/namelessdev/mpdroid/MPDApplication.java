@@ -75,6 +75,8 @@ public class MPDApplication extends Application implements ConnectionListener {
         }
     }
 
+    private static MPDApplication instance;
+
     public static final String TAG = "MPDroid";
     private static final long DISCONNECT_TIMER = 15000;
     public MPDAsyncHelper oMPDAsyncHelper = null;
@@ -89,6 +91,10 @@ public class MPDApplication extends Application implements ConnectionListener {
     private Timer disconnectSheduler;
 
     public static final int SETTINGS = 5;
+
+    public static MPDApplication getInstance() {
+        return instance;
+    }
 
     private void cancelDisconnectSheduler() {
         disconnectSheduler.cancel();
@@ -249,6 +255,7 @@ public class MPDApplication extends Application implements ConnectionListener {
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         Log.d(MPDApplication.TAG, "onCreate Application");
         init(this);
     }
