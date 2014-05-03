@@ -639,7 +639,7 @@ public class MPD {
     public List<Album> getAlbums(Artist artist, boolean trackCountNeeded,
             boolean useAlbumArtist) throws MPDServerException {
         if (artist == null) {
-            return getAllAlbums(trackCountNeeded);
+            return getAllAlbums(trackCountNeeded, useAlbumArtist);
         }
         List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
         List<Album> albums = new ArrayList<Album>();
@@ -668,17 +668,35 @@ public class MPD {
     }
 
     /**
+     * Get all albums (if there is no artist specified for filtering)
+     * @param trackCountNeeded Do we need the track count ?
      * @return all Albums
      */
     public List<Album> getAllAlbums(boolean trackCountNeeded) throws MPDServerException {
-        List<String> albumNames = listAlbums();
+        return getAllAlbums(trackCountNeeded, false);
+    }
+
+    /**
+     * Get all albums (if there is no artist specified for filtering)
+     * @param trackCountNeeded Do we need the track count ?
+     * @param useAlbumArtist Use "AlbumArtist" instead of "Artist" (if applicable)
+     * @return all Albums
+     */
+    public List<Album> getAllAlbums(boolean trackCountNeeded, boolean useAlbumArtist) throws MPDServerException {
         List<Album> albums = new ArrayList<Album>();
-        if (null == albumNames || albumNames.isEmpty()) {
-            return albums; // empty list
+        // Use MPD 0.19's album grouping feature if available.
+        if (mpdConnection.isAlbumGroupingSupported()) {
+            albums.addAll(listAllAlbumsGrouped(false, useAlbumArtist));
+        } else {
+            List<String> albumNames = listAlbums();
+            if (null == albumNames || albumNames.isEmpty()) {
+                return albums; // empty list
+            }
+            for (String album : albumNames) {
+                albums.add(new Album(album, null));
+            }
         }
-        for (String album : albumNames) {
-            albums.add(new Album(album, null));
-        }
+
         Collections.sort(albums);
         return albums;
     }
@@ -1233,6 +1251,61 @@ public class MPD {
         } else {
             return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
         }
+    }
+
+    /**
+     * List all albums grouped by Artist/AlbumArtist
+     *
+     * @param useAlbumArtist use AlbumArtist instead of Artist
+     * @param includeUnknownAlbum include an entry for albums with no artists
+     * @return <code>Collection</code> with all albums present in database, with their artist.
+     * @throws MPDServerException if an error occur while contacting server.
+     */
+    public List<Album> listAllAlbumsGrouped(boolean useAlbumArtist,
+            boolean includeUnknownAlbum) throws MPDServerException {
+        if (!isConnected())
+            throw new MPDServerException("MPD Connection is not established");
+
+        List<String> response =
+                mpdConnection.sendCommand
+                        (listAllAlbumsGroupedCommand(useAlbumArtist));
+
+        final String artistResponse = useAlbumArtist ? "AlbumArtist: " : "Artist: ";
+        final String albumResponse = "Album: ";
+
+        ArrayList<Album> result = new ArrayList<>();
+        Album currentAlbum = null;
+        for (String line : response) {
+            if (line.startsWith(artistResponse)) {
+                // Don't make the check with the other so we don't waste time doing string
+                // comparisons for nothing.
+                if (currentAlbum != null) {
+                    currentAlbum.setArtist(new Artist(line.substring(artistResponse.length())));
+                }
+            } else if (line.startsWith(albumResponse)) {
+                String name = line.substring(albumResponse.length());
+                if (name.length() > 0 || includeUnknownAlbum) {
+                    currentAlbum = new Album(name, null);
+                    result.add(currentAlbum);
+                } else {
+                    currentAlbum = null;
+                }
+            }
+        }
+
+        Collections.sort(result);
+
+        return result;
+    }
+
+    /*
+     * get raw command String for listAllAlbumsGrouped
+     */
+    public MPDCommand listAllAlbumsGroupedCommand(boolean useAlbumArtist) {
+        final String artistTag = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
+                MPDCommand.MPD_TAG_ARTIST;
+        return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM,
+                MPDCommand.MPD_CMD_GROUP, artistTag);
     }
 
     /**

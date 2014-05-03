@@ -49,6 +49,7 @@ public class MPDCommand {
     public static final String MPD_CMD_LISTALLINFO = "listallinfo";
     public static final String MPD_CMD_LISTPLAYLISTS = "listplaylists";
     public static final String MPD_CMD_LSDIR = "lsinfo";
+    public static final String MPD_CMD_GROUP = "group";
     public static final String MPD_CMD_NEXT = "next";
     public static final String MPD_CMD_PAUSE = "pause";
     public static final String MPD_CMD_PASSWORD = "password";
