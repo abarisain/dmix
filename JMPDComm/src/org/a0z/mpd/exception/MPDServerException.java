@@ -27,6 +27,8 @@
 
 package org.a0z.mpd.exception;
 
+import org.a0z.mpd.MPDConnection;
+
 import android.util.Log;
 
 import java.util.regex.Matcher;
@@ -44,9 +46,7 @@ public class MPDServerException extends MPDException {
 
     private static final String TAG = "MPDServerException";
 
-    private String ackLine;
-
-    private final static Pattern ACK_CODE_PATTERN = Pattern.compile("[0-9]+");
+    private final static Pattern ACK_CODE_PATTERN = Pattern.compile("([0-9]+)");
 
     public enum ErrorKind {
         PASSWORD,
@@ -66,8 +66,7 @@ public class MPDServerException extends MPDException {
      * @param message exception message.
      */
     public MPDServerException(String message) {
-        super("Server error:" + message);
-        this.ackLine = message;
+        super(message);
     }
 
     /**
@@ -77,8 +76,7 @@ public class MPDServerException extends MPDException {
      * @param cause cause of this exception.
      */
     public MPDServerException(String message, Throwable cause) {
-        super("Server error:" + message, cause);
-        this.ackLine = message;
+        super(message, cause);
     }
 
     /**
@@ -91,15 +89,6 @@ public class MPDServerException extends MPDException {
     }
 
     /**
-     * Get the MPD error that happened (after "ACK");
-     *
-     * @return MPD's Error message
-     */
-    public String getAckLine() {
-        return ackLine;
-    }
-
-    /**
      * Parse the error kind from the ACK like and return it
      * Matches the return code using MPD's ack.h
      * Note : Only used errors are supported for the time being.
@@ -107,18 +96,22 @@ public class MPDServerException extends MPDException {
      * @return The error kind
      */
     public ErrorKind getErrorKind() {
-        int errorNumber = 5;
+        int errorNumber;
         ErrorKind errorKind = ErrorKind.UNKOWN;
-        try {
-            final Matcher matcher = ACK_CODE_PATTERN.matcher(getAckLine());
-            errorNumber = Integer.parseInt(matcher.group(0));
-            switch (errorNumber) {
-                case 5:
-                    errorKind = ErrorKind.PASSWORD;
+        if (getMessage() != null && getMessage().startsWith(MPDConnection.MPD_RESPONSE_ERR)) {
+            try {
+                final Matcher matcher = ACK_CODE_PATTERN.matcher(getMessage());
+                if (matcher.find()) {
+                    errorNumber = Integer.parseInt(matcher.group(1));
+                    switch (errorNumber) {
+                        case 3:
+                            errorKind = ErrorKind.PASSWORD;
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error while extracting MPDServerException error code. ACK line : "
+                        + getMessage(), e);
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Error while extracting MPDServerException error code. ACK line : "
-                    + getAckLine(), e);
         }
         return errorKind;
     }

@@ -93,6 +93,9 @@ public abstract class MPDConnection {
                     // Avoid getting in an infinite loop if an error occured in the password cmd
                     if (ex1.getErrorKind() != MPDServerException.ErrorKind.PASSWORD) {
                         handleConnectionFailure(result, ex1);
+                    } else {
+                        result.setLastexception(new MPDServerException(
+                                "Wrong password"));
                     }
                 }
                 retryable = isRetryable(command) || !this.isSentToServer();
@@ -132,7 +135,7 @@ public abstract class MPDConnection {
         }
     }
     private static final int CONNECTION_TIMEOUT = 10000;
-    private static final String MPD_RESPONSE_ERR = "ACK";
+    public static final String MPD_RESPONSE_ERR = "ACK";
     private static final String MPD_RESPONSE_OK = "OK";
     private static final String MPD_CMD_START_BULK = "command_list_begin";
     private static final String MPD_CMD_START_BULK_OK = "command_list_ok_begin";
@@ -318,8 +321,7 @@ public abstract class MPDConnection {
                 }
                 return result;
             } else if (line.startsWith(MPD_RESPONSE_ERR)) {
-                throw new MPDServerException("Server error: "
-                        + line.substring(MPD_RESPONSE_ERR.length()));
+                throw new MPDServerException(line);
             } else {
                 throw new MPDServerException("Bogus response from server");
             }
@@ -457,10 +459,9 @@ public abstract class MPDConnection {
 
                 if (line.contains("permission")) {
                     throw new MPDConnectionException("MPD Permission failure : "
-                            + line.substring(MPD_RESPONSE_ERR.length()));
+                            + line);
                 } else {
-                    throw new MPDServerException("Server error: "
-                            + line.substring(MPD_RESPONSE_ERR.length()));
+                    throw new MPDServerException(line);
                 }
             }
             result.add(line);
