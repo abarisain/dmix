@@ -16,11 +16,6 @@
 
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.view.View;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -33,13 +28,18 @@ import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.view.View;
+
 import java.util.List;
 
 public class AlbumGridDataBinder extends AlbumDataBinder {
     SharedPreferences settings;
 
     public AlbumGridDataBinder(MPDApplication app, boolean isLightTheme) {
-        super(app, isLightTheme);
+        super(isLightTheme);
         settings = PreferenceManager.getDefaultSharedPreferences(app);
     }
 
@@ -57,7 +57,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         final Album album = (Album) item;
 
         // Caching must be switch on to use this view
-        final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
+        final CoverAsyncHelper coverHelper = new CoverAsyncHelper(settings);
         final int height = holder.albumCover.getHeight();
         // If the list is not displayed yet, the height is 0. This is a problem,
         // so set a fallback one.

@@ -460,15 +460,14 @@ public class CoverManager {
         return albumInfo.getKey() + ".jpg";
     }
 
-    public synchronized static CoverManager getInstance(MPDApplication app,
-            SharedPreferences settings) {
+    public synchronized static CoverManager getInstance(SharedPreferences settings) {
         if (instance == null) {
-            instance = new CoverManager(app, settings);
+            instance = new CoverManager(settings);
         }
         return instance;
     }
 
-    private MPDApplication app = null;
+    private final MPDApplication app = MPDApplication.getInstance();
     private SharedPreferences settings = null;
     private static CoverManager instance = null;
     private BlockingDeque<CoverInfo> requests = new LinkedBlockingDeque<CoverInfo>();
@@ -493,8 +492,7 @@ public class CoverManager {
 
     private Set<String> notFoundAlbumKeys;
 
-    private CoverManager(MPDApplication app, SharedPreferences settings) {
-        this.app = app;
+    private CoverManager(SharedPreferences settings) {
         this.settings = settings;
 
         requestExecutor.submit(new RequestProcessorTask());
@@ -1026,13 +1024,13 @@ public class CoverManager {
         for (int i = 0; i < whichCoverRetrievers.size(); i++) {
             switch (whichCoverRetrievers.get(i)) {
                 case CACHE:
-                    this.coverRetrievers[i] = new CachedCover(app);
+                    this.coverRetrievers[i] = new CachedCover();
                     break;
                 case LASTFM:
                     this.coverRetrievers[i] = new LastFMCover();
                     break;
                 case LOCAL:
-                    this.coverRetrievers[i] = new LocalCover(this.app, this.settings);
+                    this.coverRetrievers[i] = new LocalCover(this.settings);
                     break;
                 case GRACENOTE:
                     if (GracenoteCover.isClientIdAvailable(settings)) {

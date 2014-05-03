@@ -54,7 +54,7 @@ public class DeezerCover extends AbstractWebCover {
             }
 
         } catch (Exception e) {
-            Log.e(DeezerCover.class.toString(), "Failed to get cover URL from Deeze");
+            Log.e(DeezerCover.class.toString(), "Failed to get cover URL from Deezer");
         }
 
         return new String[0];

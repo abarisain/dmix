@@ -101,7 +101,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     public static final int ADDNREPLACEPLAY = 3;
 
     public static final int ADDNPLAY = 2;
-    private MPDApplication app;
     private ArrayList<Artist> arrayArtistsResults;
     private ArrayList<Album> arrayAlbumsResults;
 
@@ -271,8 +270,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        app = (MPDApplication) getApplication();
-
         setContentView(R.layout.search_results);
 
         SearchResultsPagerAdapter adapter = new SearchResultsPagerAdapter();
@@ -410,7 +407,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public boolean onMenuItemClick(final android.view.MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        final MPDApplication app = (MPDApplication) getApplication();
         ArrayList<?> targetArray;
         switch (pager.getCurrentItem()) {
             default:
@@ -466,14 +462,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public void onStart() {
         super.onStart();
-        MPDApplication app = (MPDApplication) getApplicationContext();
         app.setActivity(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        MPDApplication app = (MPDApplication) getApplicationContext();
         app.unsetActivity(this);
     }
 

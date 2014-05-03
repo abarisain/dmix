@@ -145,7 +145,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         }
     }
 
-    private MPDApplication app;
+    private final MPDApplication app = MPDApplication.getInstance();
     private CoverAsyncHelper coverHelper;
     private TextView songTitle;
 
@@ -237,7 +237,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        app = (MPDApplication) activity.getApplication();
         lightTheme = app.isLightThemeSelected();
     }
 
@@ -263,7 +262,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
         showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
 
-        coverHelper = new CoverAsyncHelper(app, settings);
+        coverHelper = new CoverAsyncHelper(settings);
         coverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = coverArt.getViewTreeObserver();
         vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {

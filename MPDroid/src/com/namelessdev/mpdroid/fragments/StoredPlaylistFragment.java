@@ -16,15 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListAdapter;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
@@ -37,11 +28,20 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListAdapter;
+
 public class StoredPlaylistFragment extends BrowseFragment {
     private static final String EXTRA_PLAYLIST_NAME = "playlist";
 
     private String playlistName;
-    private MPDApplication app;
+    final private MPDApplication app = MPDApplication.getInstance();
 
     public StoredPlaylistFragment() {
         super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -88,7 +88,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     protected ListAdapter getCustomListAdapter() {
         if (items != null) {
             return new ArrayAdapter(getActivity(),
-                    new StoredPlaylistDataBinder(app, app.isLightThemeSelected()), items);
+                    new StoredPlaylistDataBinder(app.isLightThemeSelected()), items);
         }
         return super.getCustomListAdapter();
     }
@@ -111,7 +111,6 @@ public class StoredPlaylistFragment extends BrowseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        app = (MPDApplication) getActivity().getApplication();
     }
 
     @Override

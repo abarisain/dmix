@@ -390,7 +390,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private Timer posTimer = null;
     private TimerTask posTimerTask = null;
 
-    private MPDApplication app;
+    private final MPDApplication app = MPDApplication.getInstance();
 
     private FragmentActivity activity;
 
@@ -475,7 +475,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        app = (MPDApplication) activity.getApplication();
         lightTheme = app.isLightThemeSelected();
         handler = new Handler();
         setHasOptionsMenu(false);
@@ -545,7 +544,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         });
 
-        oCoverAsyncHelper = new CoverAsyncHelper(app, settings);
+        oCoverAsyncHelper = new CoverAsyncHelper(settings);
         // Scale cover images down to screen width
         oCoverAsyncHelper.setCoverMaxSizeFromScreen(activity);
         oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());
@@ -762,14 +761,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
 
             case POPUP_COVER_BLACKLIST:
-                CoverManager.getInstance(app,
+                CoverManager.getInstance(
                         PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(
                         currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo());
                 updatePlaylistCovers(currentSong.getAlbumInfo());
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
-                CoverManager.getInstance(app,
+                CoverManager.getInstance(
                         PreferenceManager.getDefaultSharedPreferences(activity)).clear(
                         currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo()); // Update the

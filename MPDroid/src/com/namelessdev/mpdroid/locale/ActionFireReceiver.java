@@ -33,7 +33,7 @@ public class ActionFireReceiver extends BroadcastReceiver {
 
     private static final String TAG = "MPDroid Locale Plugin";
 
-    private MPDApplication app;
+    private final MPDApplication app = MPDApplication.getInstance();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -112,7 +112,6 @@ public class ActionFireReceiver extends BroadcastReceiver {
     }
 
     private MPD connectToMPD(Context context) {
-        app = new MPDApplication();
         app.init(context);
         app.addConnectionLock(this);
         app.connect();
@@ -120,9 +119,6 @@ public class ActionFireReceiver extends BroadcastReceiver {
     }
 
     private void closeMPDConnection() {
-        if (app == null) {
-            return;
-        }
         app.removeConnectionLock(this);
         // Seems required since I can't exit the dedicated process properly yet
         System.exit(0);

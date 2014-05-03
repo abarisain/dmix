@@ -16,17 +16,17 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.os.Handler;
-import android.os.Message;
-import android.util.DisplayMetrics;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
+
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Message;
+import android.util.DisplayMetrics;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -50,7 +50,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         COVER_NOT_FOUND_MESSAGE.what = EVENT_COVER_NOT_FOUND;
     }
 
-    private MPDApplication app = null;
+    private MPDApplication app = MPDApplication.getInstance();
     private SharedPreferences settings = null;
 
     private int coverMaxSize = MAX_SIZE;
@@ -58,8 +58,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
     private Collection<CoverDownloadListener> coverDownloadListener;
 
-    public CoverAsyncHelper(MPDApplication app, SharedPreferences settings) {
-        this.app = app;
+    public CoverAsyncHelper(SharedPreferences settings) {
         this.settings = settings;
 
         coverDownloadListener = new LinkedList<CoverDownloadListener>();
@@ -97,7 +96,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
             COVER_NOT_FOUND_MESSAGE.obj = info;
             handleMessage(COVER_NOT_FOUND_MESSAGE);
         } else {
-            CoverManager.getInstance(app, settings).addCoverRequest(info);
+            CoverManager.getInstance(settings).addCoverRequest(info);
         }
 
     }
@@ -176,7 +175,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     }
 
     public void setCoverRetrieversFromPreferences() {
-        CoverManager.getInstance(app, settings).setCoverRetrieversFromPreferences();
+        CoverManager.getInstance(settings).setCoverRetrieversFromPreferences();
     }
 
     @Override

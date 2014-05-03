@@ -102,7 +102,7 @@ public final class StreamingService extends Service implements
 
     private TelephonyManager mTelephonyManager = null;
 
-    private MPDApplication app = null;
+    private final MPDApplication app = MPDApplication.getInstance();
 
     private MediaPlayer mediaPlayer = null;
 
@@ -338,12 +338,6 @@ public final class StreamingService extends Service implements
     public final void onCreate() {
         Log.d(TAG, "StreamingService.onCreate()");
         super.onCreate();
-
-        app = (MPDApplication) getApplication();
-
-        if (app == null) {
-            stopSelf();
-        }
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 

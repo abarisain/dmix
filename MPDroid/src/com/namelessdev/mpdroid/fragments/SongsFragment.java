@@ -16,6 +16,23 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.ArrayAdapter;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverInfo;
+import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.SongDataBinder;
+
+import org.a0z.mpd.Album;
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.Item;
+import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.PopupMenuCompat;
@@ -36,23 +53,6 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.ArrayAdapter;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverInfo;
-import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.tools.Tools;
-import com.namelessdev.mpdroid.views.SongDataBinder;
-
-import org.a0z.mpd.Album;
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-
 public class SongsFragment extends BrowseFragment {
 
     private static final String EXTRA_ALBUM = "album";
@@ -71,6 +71,8 @@ public class SongsFragment extends BrowseFragment {
     ImageButton albumMenu;
     PopupMenu popupMenu;
     private PopupMenu coverPopupMenu;
+
+    final MPDApplication app = MPDApplication.getInstance();
 
     public SongsFragment() {
         super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -234,10 +236,9 @@ public class SongsFragment extends BrowseFragment {
             albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
         }
 
-        final MPDApplication app = (MPDApplication) getActivity().getApplication();
         coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt,
                 coverArtProgress, app.isLightThemeSelected(), false);
-        coverHelper = new CoverAsyncHelper(app,
+        coverHelper = new CoverAsyncHelper(
                 PreferenceManager.getDefaultSharedPreferences(getActivity()));
         coverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = coverArt.getViewTreeObserver();
@@ -315,18 +316,15 @@ public class SongsFragment extends BrowseFragment {
                 switch (item.getGroupId()) {
                     case POPUP_COVER_BLACKLIST:
                         CoverManager.getInstance(
-                                app,
-                                PreferenceManager.getDefaultSharedPreferences(app
-                                        .getApplicationContext())).markWrongCover(
-                                album.getAlbumInfo());
+                                PreferenceManager.getDefaultSharedPreferences(app))
+                                .markWrongCover(album.getAlbumInfo());
                         updateCover(album.getAlbumInfo());
                         updateNowPlayingSmallFragment(album.getAlbumInfo());
                         break;
                     case POPUP_COVER_SELECTIVE_CLEAN:
                         CoverManager.getInstance(
-                                app,
-                                PreferenceManager.getDefaultSharedPreferences(app
-                                        .getApplicationContext())).clear(album.getAlbumInfo());
+                                PreferenceManager.getDefaultSharedPreferences(app))
+                                .clear(album.getAlbumInfo());
                         updateCover(album.getAlbumInfo());
                         updateNowPlayingSmallFragment(album.getAlbumInfo());
                         break;

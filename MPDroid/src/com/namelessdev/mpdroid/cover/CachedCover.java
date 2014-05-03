@@ -33,13 +33,10 @@ import static com.namelessdev.mpdroid.helpers.CoverManager.getCoverFileName;
 
 public class CachedCover implements ICoverRetriever {
 
-    private MPDApplication application;
+    private final MPDApplication app = MPDApplication.getInstance();
     private static final String FOLDER_SUFFIX = "/covers/";
 
-    public CachedCover(MPDApplication context) {
-        if (context == null)
-            throw new RuntimeException("Context cannot be null");
-        application = context;
+    public CachedCover() {
     }
 
     public void clear() {
@@ -64,14 +61,14 @@ public class CachedCover implements ICoverRetriever {
     }
 
     public String getAbsoluteCoverFolderPath() {
-        final File cacheDir = application.getExternalCacheDir();
+        final File cacheDir = app.getExternalCacheDir();
         if (cacheDir == null)
             return null;
         return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
     }
 
     public String getAbsolutePathForSong(AlbumInfo albumInfo) {
-        final File cacheDir = application.getExternalCacheDir();
+        final File cacheDir = app.getExternalCacheDir();
         if (cacheDir == null)
             return null;
         return getAbsoluteCoverFolderPath() + getCoverFileName(albumInfo);

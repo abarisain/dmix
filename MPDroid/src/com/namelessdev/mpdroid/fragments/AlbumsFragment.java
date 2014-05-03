@@ -16,18 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.ContextMenu;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListAdapter;
-import android.widget.ProgressBar;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -44,6 +32,18 @@ import org.a0z.mpd.Genre;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListAdapter;
+import android.widget.ProgressBar;
 
 public class AlbumsFragment extends BrowseFragment {
     private static final String EXTRA_ARTIST = "artist";
@@ -109,7 +109,7 @@ public class AlbumsFragment extends BrowseFragment {
     protected ListAdapter getCustomListAdapter() {
         if (items != null) {
             return new ArrayIndexerAdapter(getActivity(),
-                    new AlbumDataBinder(app, app.isLightThemeSelected()), items);
+                    new AlbumDataBinder(app.isLightThemeSelected()), items);
         }
         return super.getCustomListAdapter();
     }
@@ -177,16 +177,14 @@ public class AlbumsFragment extends BrowseFragment {
         switch (item.getGroupId()) {
             case POPUP_COVER_BLACKLIST:
                 album = (Album) items.get((int) info.id);
-                CoverManager.getInstance(app,
-                        PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext()))
+                CoverManager.getInstance(PreferenceManager.getDefaultSharedPreferences(app))
                         .markWrongCover(album.getAlbumInfo());
                 refreshCover(info.targetView, album.getAlbumInfo());
                 updateNowPlayingSmallFragment(album.getAlbumInfo());
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 album = (Album) items.get((int) info.id);
-                CoverManager.getInstance(app,
-                        PreferenceManager.getDefaultSharedPreferences(app.getApplicationContext()))
+                CoverManager.getInstance(PreferenceManager.getDefaultSharedPreferences(app))
                         .clear(album.getAlbumInfo());
                 refreshCover(info.targetView, album.getAlbumInfo());
                 updateNowPlayingSmallFragment(album.getAlbumInfo());

@@ -16,14 +16,6 @@
 
 package com.namelessdev.mpdroid.library;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
-
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -32,6 +24,14 @@ import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.preference.PreferenceActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +39,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
     private SeparatedListAdapter adapter;
     private ArrayList<Object> tabList;
+    private final MPDApplication app = MPDApplication.getInstance();
 
     public DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
 
@@ -101,20 +102,17 @@ public class LibraryTabsSettings extends PreferenceActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        MPDApplication app = (MPDApplication) getApplicationContext();
         app.setActivity(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        MPDApplication app = (MPDApplication) getApplicationContext();
         app.unsetActivity(this);
     }
 
     private void saveSettings() {
-        LibraryTabsUtil.saveCurrentLibraryTabs(this.getApplicationContext(),
-                getVisibleTabs());
+        LibraryTabsUtil.saveCurrentLibraryTabs(app, getVisibleTabs());
     }
 
     @Override
@@ -143,7 +141,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
         // get a list of all currently visible tabs
         ArrayList<String> currentTabs = LibraryTabsUtil.
-                getCurrentLibraryTabs(this.getApplicationContext());
+                getCurrentLibraryTabs(app);
 
         // create a list of all currently hidden tabs
         ArrayList<String> hiddenTabs = new ArrayList<String>();

@@ -28,35 +28,41 @@ public class MPDroidActivities {
     @SuppressLint("Registered")
     public static class MPDroidActivity extends Activity {
 
+        protected final MPDApplication app = MPDApplication.getInstance();
+
         @Override
-        protected void onCreate(Bundle arg0) {
-            super.onCreate(arg0);
-            applyTheme(this, (MPDApplication) getApplication());
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            applyTheme(this);
         }
     }
 
     @SuppressLint("Registered")
     public static class MPDroidFragmentActivity extends FragmentActivity {
 
+        protected final MPDApplication app = MPDApplication.getInstance();
+
         @Override
-        protected void onCreate(Bundle arg0) {
-            super.onCreate(arg0);
-            applyTheme(this, (MPDApplication) getApplication());
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            applyTheme(this);
         }
     }
 
     @SuppressLint("Registered")
     public static class MPDroidListActivity extends ListActivity {
 
+        protected final MPDApplication app = MPDApplication.getInstance();
+
         @Override
-        protected void onCreate(Bundle arg0) {
-            super.onCreate(arg0);
-            applyTheme(this, (MPDApplication) getApplication());
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            applyTheme(this);
         }
     }
 
-    private static void applyTheme(Activity activity, MPDApplication app) {
-        final boolean lightTheme = app.isLightThemeSelected();
+    private static void applyTheme(Activity activity) {
+        final boolean lightTheme = MPDApplication.getInstance().isLightThemeSelected();
         int themeID = R.style.AppTheme;
         if (activity instanceof MainMenuActivity) {
             if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean(

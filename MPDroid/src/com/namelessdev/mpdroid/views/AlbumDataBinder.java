@@ -16,14 +16,6 @@
 
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -36,12 +28,22 @@ import org.a0z.mpd.Artist;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.Music;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import java.util.List;
 
 public class AlbumDataBinder extends BaseDataBinder {
 
-    public AlbumDataBinder(MPDApplication app, boolean isLightTheme) {
-        super(app, isLightTheme);
+    private final MPDApplication app = MPDApplication.getInstance();
+
+    public AlbumDataBinder(boolean isLightTheme) {
+        super(isLightTheme);
     }
 
     @Override
@@ -106,7 +108,7 @@ public class AlbumDataBinder extends BaseDataBinder {
             holder.albumCover.setVisibility(View.GONE);
         } else {
             holder.albumCover.setVisibility(View.VISIBLE);
-            final CoverAsyncHelper coverHelper = new CoverAsyncHelper(app, settings);
+            final CoverAsyncHelper coverHelper = new CoverAsyncHelper(settings);
             final int height = holder.albumCover.getHeight();
             // If the list is not displayed yet, the height is 0. This is a
             // problem, so set a fallback one.

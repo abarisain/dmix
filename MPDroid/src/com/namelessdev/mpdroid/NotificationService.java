@@ -147,7 +147,7 @@ public final class NotificationService extends Service implements StatusChangeLi
 
     private Notification mNotification = null;
 
-    private MPDApplication app = null;
+    private final MPDApplication app = MPDApplication.getInstance();
 
     private Music mCurrentMusic = null;
 
@@ -262,13 +262,6 @@ public final class NotificationService extends Service implements StatusChangeLi
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Creating service");
-
-        app = (MPDApplication) getApplication();
-
-        if (app == null) {
-            /** Should never happen but it's possible. */
-            stopSelf();
-        }
 
         //TODO: Acquire a network wake lock here if the user wants us to !
         //Otherwise we'll just shut down on screen off and reconnect on screen on
@@ -439,21 +432,22 @@ public final class NotificationService extends Service implements StatusChangeLi
         mRemoteControlClient.setPlaybackPositionUpdateListener(
                 new RemoteControlClient.OnPlaybackPositionUpdateListener() {
                     /**
-                     * Android's callback for when the user seeks using the remote control
+                     * Android's callback for when the user seeks using the remote
+                     * control.
+                     *
                      * @param newPositionMs The position in MS where we should seek
                      */
                     @Override
                     public void onPlaybackPositionUpdate(final long newPositionMs) {
-                        if (app != null) {
-                            try {
-                                app.oMPDAsyncHelper.oMPD.seek(newPositionMs /
-                                        DateUtils.SECOND_IN_MILLIS);
-                                mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
-                                        newPositionMs, 1.0f);
-                            } catch (final MPDServerException e) {
-                                Log.e(TAG, "Could not seek", e);
-                            }
+                        try {
+                            app.oMPDAsyncHelper.oMPD.seek(newPositionMs /
+                                    DateUtils.SECOND_IN_MILLIS);
+                            mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
+                                    newPositionMs, 1.0f);
+                        } catch (final MPDServerException e) {
+                            Log.e(TAG, "Could not seek", e);
                         }
+
                     }
                 }
         );
@@ -610,7 +604,7 @@ public final class NotificationService extends Service implements StatusChangeLi
      * @return String A path to a cached album cover bitmap.
      */
     private String retrieveCoverArtPath() {
-        final ICoverRetriever cache = new CachedCover(app);
+        final ICoverRetriever cache = new CachedCover();
         String coverArtPath = null;
         String[] coverArtPaths = null;
 

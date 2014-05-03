@@ -56,7 +56,7 @@ public class LibraryFragment extends Fragment {
                 fragment = new ArtistsFragment().init(null);
             } else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
                 final SharedPreferences settings = PreferenceManager
-                        .getDefaultSharedPreferences(getActivity().getApplication());
+                        .getDefaultSharedPreferences(app);
                 if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                     fragment = new AlbumsGridFragment(null);
                 } else {
@@ -94,6 +94,7 @@ public class LibraryFragment extends Fragment {
     public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
     public static final String PREFERENCE_ARTIST_TAG_TO_USE_ARTIST = "artist";
     public static final String PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST = "albumartist";
+    private final MPDApplication app = MPDApplication.getInstance();
 
     /**
      * The {@link ViewPager} that will host the section contents.
