@@ -686,7 +686,7 @@ public class MPD {
         List<Album> albums = new ArrayList<Album>();
         // Use MPD 0.19's album grouping feature if available.
         if (mpdConnection.isAlbumGroupingSupported()) {
-            albums.addAll(listAllAlbumsGrouped(false, useAlbumArtist));
+            albums.addAll(listAllAlbumsGrouped(useAlbumArtist, false));
         } else {
             List<String> albumNames = listAlbums();
             if (null == albumNames || albumNames.isEmpty()) {
@@ -1286,6 +1286,7 @@ public class MPD {
                 String name = line.substring(albumResponse.length());
                 if (name.length() > 0 || includeUnknownAlbum) {
                     currentAlbum = new Album(name, null);
+                    currentAlbum.setHasAlbumArtist(useAlbumArtist);
                     result.add(currentAlbum);
                 } else {
                     currentAlbum = null;
