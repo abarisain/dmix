@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
@@ -56,8 +57,7 @@ public class LibraryFragment extends Fragment {
             } else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
                 final SharedPreferences settings = PreferenceManager
                         .getDefaultSharedPreferences(getActivity().getApplication());
-                if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true) &&
-                        settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_CACHE, false)) {
+                if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                     fragment = new AlbumsGridFragment(null);
                 } else {
                     fragment = new AlbumsFragment(null);
