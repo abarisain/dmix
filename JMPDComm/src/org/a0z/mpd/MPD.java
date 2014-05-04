@@ -772,39 +772,43 @@ public class MPD {
      * @see Music
      * @see Directory
      */
-    public List<FilesystemTreeEntry> getDir(String path) throws MPDServerException {
+    public List<FilesystemTreeEntry> getDir(final String path) throws MPDServerException {
         if (!isConnected()) {
             throw new MPDServerException("MPD Connection is not established");
         }
 
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
+        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
 
-        LinkedList<String> lineCache = new LinkedList<>();
-        LinkedList<FilesystemTreeEntry> result = new LinkedList<>();
+        final LinkedList<String> lineCache = new LinkedList<>();
+        final LinkedList<FilesystemTreeEntry> result = new LinkedList<>();
 
         // Read the response backwards so it is easier to parse
         for (int i = response.size() - 1; i >= 0; i--) {
-            String line = response.get(i);
 
             // If we hit anything we know is an item, consume the linecache
-            if (line.startsWith("playlist: ")) {
-                line = line.substring("playlist: ".length());
-                result.add(new PlaylistFile(line));
-                lineCache.clear();
-            } else if (line.startsWith("directory: ")) {
-                line = line.substring("directory: ".length());
-                result.add(rootDirectory.makeDirectory(line));
-                lineCache.clear();
-            } else if (line.startsWith("file: ")) {
-                // Music requires this line to be cached too.
-                // It could be done every time but it would be a waste to add and clear immediately
-                // when we're parsing a playlist or a directory
-                lineCache.add(line);
-                result.add(new Music(lineCache));
-                lineCache.clear();
-            } else {
-                // We're in something unsupported or in an item description, cache the lines
-                lineCache.add(line);
+            final String line = response.get(i);
+            final String[] lines = StringsUtils.MPD_DELIMITER.split(line);
+            switch (lines[0]) {
+                case "directory":
+                    result.add(rootDirectory.makeDirectory(lines[1]));
+                    lineCache.clear();
+                    break;
+                case "file":
+                    // Music requires this line to be cached too.
+                    // It could be done every time but it would be a waste to add and
+                    // clear immediately when we're parsing a playlist or a directory
+                    lineCache.add(line);
+                    result.add(new Music(lineCache));
+                    lineCache.clear();
+                    break;
+                case "playlist":
+                    result.add(new PlaylistFile(lines[1]));
+                    lineCache.clear();
+                    break;
+                default:
+                    // We're in something unsupported or in an item description, cache the lines
+                    lineCache.add(line);
+                    break;
             }
         }
 
