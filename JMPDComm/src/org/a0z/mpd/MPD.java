@@ -301,14 +301,14 @@ public class MPD {
     }
 
     protected void addAlbumPaths(List<Album> albums) {
-        if (albums == null || albums.size() == 0) {
+        if (albums == null || albums.isEmpty()) {
             return;
         }
 
         for (Album a : albums) {
             try {
                 List<Music> songs = getFirstTrack(a);
-                if (songs.size() > 0) {
+                if (!songs.isEmpty()) {
                     a.setPath(songs.get(0).getPath());
                 }
             } catch (MPDServerException e) {
@@ -382,7 +382,7 @@ public class MPD {
                         (artist == null ? "" : artist.getName()),
                         MPDCommand.MPD_TAG_GENRE, genre.getName()
                 ));
-        return (response.size() > 0);
+        return (!response.isEmpty());
     }
 
     /**
@@ -530,7 +530,7 @@ public class MPD {
      * album lists
      */
     protected void fixAlbumArtists(List<Album> albums) {
-        if (albums == null || albums.size() == 0) {
+        if (albums == null || albums.isEmpty()) {
             return;
         }
         List<String[]> albumartists = null;
@@ -906,7 +906,7 @@ public class MPD {
         LinkedList<String> lineCache = new LinkedList<>();
         for (String line : response) {
             if (line.startsWith("outputid: ")) {
-                if (lineCache.size() != 0) {
+                if (!lineCache.isEmpty()) {
                     result.add(new MPDOutput(lineCache));
                     lineCache.clear();
                 }
@@ -914,7 +914,7 @@ public class MPD {
             lineCache.add(line);
         }
 
-        if (lineCache.size() != 0) {
+        if (!lineCache.isEmpty()) {
             result.add(new MPDOutput(lineCache));
         }
 
@@ -1275,7 +1275,7 @@ public class MPD {
         final List<String> result = new ArrayList<>(response.size());
         for (String line : response) {
             String name = line.substring("Album: ".length());
-            if (name.length() > 0) {
+            if (!name.isEmpty()) {
                 result.add(name);
             } else {
                 foundSongWithoutAlbum = true;
@@ -1360,7 +1360,7 @@ public class MPD {
                 }
             } else if (line.startsWith(albumResponse)) {
                 String name = line.substring(albumResponse.length());
-                if (name.length() > 0 || includeUnknownAlbum) {
+                if (!name.isEmpty() || includeUnknownAlbum) {
                     currentAlbum = new Album(name, null);
                     currentAlbum.setHasAlbumArtist(useAlbumArtist);
                     result.add(currentAlbum);

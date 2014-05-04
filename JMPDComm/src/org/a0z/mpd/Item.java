@@ -80,7 +80,7 @@ public abstract class Item implements Comparable<Item> {
     }
 
     public boolean isUnknown() {
-        return getName().length() == 0;
+        return getName().isEmpty();
     }
 
     public String mainText() {
