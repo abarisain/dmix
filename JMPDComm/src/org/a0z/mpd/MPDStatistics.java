@@ -38,21 +38,21 @@ import java.util.List;
  */
 public class MPDStatistics {
 
-    private static final int MILLI_TO_SEC = 1000;
+    private static final long MILLI_TO_SEC = 1000L;
 
-    private long artists = -1;
+    private long artists = -1L;
 
-    private long albums = -1;
+    private long albums = -1L;
 
-    private long songs = -1;
+    private long songs = -1L;
 
-    private long uptime = -1;
+    private long uptime = -1L;
 
     private Date dbUpdate = null;
 
-    private long playtime = -1;
+    private long playtime = -1L;
 
-    private long dbPlaytime = -1;
+    private long dbPlaytime = -1L;
 
     MPDStatistics(List<String> response) {
         for (String line : response) {

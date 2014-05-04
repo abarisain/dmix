@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class MPDStatusMonitor extends Thread {
 
-    private final int delay;
+    private final long delay;
 
     private final MPD mpd;
 
@@ -58,7 +58,7 @@ public class MPDStatusMonitor extends Thread {
      * @param mpd   MPD server to monitor.
      * @param delay status query interval.
      */
-    public MPDStatusMonitor(MPD mpd, int delay) {
+    public MPDStatusMonitor(MPD mpd, long delay) {
         super("MPDStatusMonitor");
 
         this.mpd = mpd;
@@ -108,7 +108,7 @@ public class MPDStatusMonitor extends Thread {
         int oldSong = -1;
         int oldSongId = -1;
         int oldPlaylistVersion = -1;
-        long oldElapsedTime = -1;
+        long oldElapsedTime = -1L;
         String oldState = "";
         int oldVolume = -1;
         boolean oldUpdating = false;
@@ -253,7 +253,7 @@ public class MPDStatusMonitor extends Thread {
             }
             try {
                 synchronized (this) {
-                    this.wait(this.delay);
+                    this.wait(delay);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

@@ -91,7 +91,7 @@ public class MPDAsyncHelper extends Handler {
                     }
                     break;
                 case EVENT_STARTMONITOR:
-                    oMonitor = new MPDStatusMonitor(oMPD, 500);
+                    oMonitor = new MPDStatusMonitor(oMPD, 500L);
                     oMonitor.addStatusChangeListener(this);
                     oMonitor.addTrackPositionListener(this);
                     oMonitor.start();

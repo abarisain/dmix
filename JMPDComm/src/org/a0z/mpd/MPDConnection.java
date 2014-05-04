@@ -229,7 +229,7 @@ public abstract class MPDConnection {
             } catch (MPDServerException e1) {
                 lastException = e1;
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(500L);
                 } catch (InterruptedException e) {
                     // Nothing to do
                 }
@@ -278,7 +278,7 @@ public abstract class MPDConnection {
         try {
             result.setLastexception(ex);
             try {
-                Thread.sleep(500);
+                Thread.sleep(500L);
             } catch (InterruptedException e) {
                 // Nothing to do
             }

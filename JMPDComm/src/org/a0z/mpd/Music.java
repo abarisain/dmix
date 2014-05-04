@@ -145,9 +145,9 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private int disc = -1;
 
-    private long date = -1;
+    private long date = -1L;
 
-    private long time = -1;
+    private long time = -1L;
 
     private Directory parent;
 

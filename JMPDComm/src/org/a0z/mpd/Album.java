@@ -77,15 +77,15 @@ public class Album extends Item implements Parcelable {
     }
 
     public Album(String name, Artist artist) {
-        this(name, 0, 0, 0, artist, false, "");
+        this(name, 0L, 0L, 0L, artist, false, "");
     }
 
     public Album(String name, Artist artist, boolean hasAlbumArtist) {
-        this(name, 0, 0, 0, artist, hasAlbumArtist, "");
+        this(name, 0L, 0L, 0L, artist, hasAlbumArtist, "");
     }
 
     public Album(String name, Artist artist, boolean hasAlbumArtist, String path) {
-        this(name, 0, 0, 0, artist, hasAlbumArtist, path);
+        this(name, 0L, 0L, 0L, artist, hasAlbumArtist, path);
     }
 
     public Album(String name, long songCount, long duration, long year, Artist artist,
