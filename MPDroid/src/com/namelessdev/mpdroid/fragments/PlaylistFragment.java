@@ -126,7 +126,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 viewHolder.coverHelper.addCoverDownloadListener(acd);
                 viewHolder.menuButton = convertView.findViewById(R.id.menu);
                 viewHolder.menuButton.setOnClickListener(itemMenuButtonListener);
-                viewHolder.icon = convertView.findViewById(R.id.icon);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (PlayQueueViewHolder) convertView.getTag();
@@ -136,7 +135,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
             viewHolder.artist.setText(music.getPlaylistSubLine());
             viewHolder.title.setText(music.getPlayListMainLine());
-            viewHolder.icon.setVisibility(filter == null ? View.VISIBLE : View.GONE);
             viewHolder.menuButton.setTag(music.getSongId());
             viewHolder.play.setImageResource(music.getCurrentSongIconRefID());
 

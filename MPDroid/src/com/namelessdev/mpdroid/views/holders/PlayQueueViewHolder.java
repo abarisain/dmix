@@ -28,7 +28,6 @@ public class PlayQueueViewHolder extends AbstractViewHolder {
     public TextView artist;
     public ImageView cover;
     public View menuButton;
-    public View icon;
     public CoverAsyncHelper coverHelper;
 
 }

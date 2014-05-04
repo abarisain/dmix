@@ -12,27 +12,17 @@
     android:paddingTop="4dip" >
 
     <ImageView
-        android:id="@+id/icon"
-        android:contentDescription="@string/listItemHandle"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:paddingLeft="4dip"
-        android:scaleType="center"
-        android:src="?attr/listItemHandle" android:layout_alignParentLeft="true" android:layout_marginLeft="0dp"
-        android:layout_alignParentTop="false" android:layout_marginTop="4dp" android:layout_alignParentStart="false"
-        android:layout_centerVertical="true"/>
-
-    <ImageView
         android:id="@+id/cover"
         android:contentDescription="@string/albumCover"
         android:layout_width="46dip"
         android:layout_height="46dip"
         android:layout_gravity="center"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="4dp"
         android:layout_marginRight="4dip"
-        android:src="?attr/noCoverArtIcon" android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
-        android:layout_marginTop="4dp" android:layout_toRightOf="@+id/icon"/>
+        android:src="?attr/noCoverArtIcon"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="4dp"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
