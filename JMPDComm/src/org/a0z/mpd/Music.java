@@ -169,12 +169,6 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * This is a regular expression pattern matcher
-     * for the MPD protocol delimiter ": ".
-     */
-    private static final Pattern MPD_DELIMITER = Pattern.compile(": ");
-
-    /**
      * The time response has it's own delimiter.
      */
     private static final Pattern FORWARD_SLASH_DELIMITER = Pattern.compile("/");
@@ -192,7 +186,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     Music(final List<String> response) {
         super();
         for (final String line : response) {
-            final String[] lines = MPD_DELIMITER.split(line);
+            final String[] lines = StringsUtils.MPD_DELIMITER.split(line);
 
             switch (lines[0]) {
                 case "file":

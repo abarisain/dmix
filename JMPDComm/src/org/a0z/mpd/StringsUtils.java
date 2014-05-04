@@ -28,8 +28,20 @@
 package org.a0z.mpd;
 
 import java.security.MessageDigest;
+import java.util.regex.Pattern;
 
-public class StringsUtils {
+public final class StringsUtils {
+
+    /**
+     * This is a regular expression pattern matcher for the typical MPD protocol response.
+     */
+    static final Pattern MPD_DELIMITER = Pattern.compile(": ");
+
+    private static final Pattern EXTENSION_DELIMITER = Pattern.compile("\\.");
+
+    private StringsUtils() {
+        super();
+    }
 
     /**
      * Convert byte array to hex string.
@@ -60,7 +72,7 @@ public class StringsUtils {
     }
 
     public static String getExtension(String path) {
-        String[] split = path.split("\\.");
+        String[] split = EXTENSION_DELIMITER.split(path);
         if (split.length > 1) {
             String ext = split[split.length - 1];
             if (ext.length() <= 4) {

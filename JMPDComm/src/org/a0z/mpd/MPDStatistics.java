@@ -29,7 +29,6 @@ package org.a0z.mpd;
 
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Class representing MPD Server statistics.
@@ -55,17 +54,11 @@ public class MPDStatistics {
 
     private long dbPlaytime = -1L;
 
-    /**
-     * This is a regular expression pattern matcher
-     * for the MPD protocol delimiter ": ".
-     */
-    private static final Pattern mpdDelimiter = Pattern.compile(": ");
-
     MPDStatistics(final List<String> response) {
         super();
 
         for (final String line : response) {
-            final String[] lines = mpdDelimiter.split(line);
+            final String[] lines = StringsUtils.MPD_DELIMITER.split(line);
 
             switch (lines[0]) {
                 case "albums":
