@@ -787,7 +787,8 @@ public class MPD {
 
             // If we hit anything we know is an item, consume the linecache
             final String line = response.get(i);
-            final String[] lines = StringsUtils.MPD_DELIMITER.split(line);
+            final String[] lines = StringsUtils.MPD_DELIMITER.split(line, 2);
+            
             switch (lines[0]) {
                 case "directory":
                     result.add(rootDirectory.makeDirectory(lines[1]));
