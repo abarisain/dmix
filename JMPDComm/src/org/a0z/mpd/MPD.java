@@ -1255,7 +1255,7 @@ public class MPD {
 
         for (Album artistAlbum : artistAlbums) {
             for (Album albumArtistAlbum : albumArtistAlbums) {
-                if (artistAlbum.nameEquals(albumArtistAlbum)) {
+                if (artistAlbum.getArtist() != null && artistAlbum.nameEquals(albumArtistAlbum)) {
                     albumArtistAlbum.setHasAlbumArtist(false);
                     break;
                 }
