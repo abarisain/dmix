@@ -975,7 +975,9 @@ public class MPD {
             // (mpd >=0.18 puts them in)
             String artistname = album.getArtist().getName();
             for (int i = songs.size() - 1; i >= 0; i--) {
-                if (!(artistname.equals(songs.get(i).getAlbumArtist()))) {
+                final String albumartist = songs.get(i).getAlbumArtist();
+                if (albumartist != null && !albumartist.isEmpty()
+                        && !(artistname.equals(albumartist))) {
                     songs.remove(i);
                 }
             }
