@@ -638,8 +638,7 @@ public class MPD {
     public List<Album> getAlbums(Artist artist, boolean trackCountNeeded,
             boolean useAlbumArtist) throws MPDServerException {
         if (artist == null) {
-            // Always use album artists for all albums. The argument is here for easy changing.
-            return getAllAlbums(trackCountNeeded, true);
+            return getAllAlbums(trackCountNeeded);
         }
         List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
         List<Album> albums = new ArrayList<Album>();
@@ -673,20 +672,10 @@ public class MPD {
      * @return all Albums
      */
     public List<Album> getAllAlbums(boolean trackCountNeeded) throws MPDServerException {
-        return getAllAlbums(trackCountNeeded, false);
-    }
-
-    /**
-     * Get all albums (if there is no artist specified for filtering)
-     * @param trackCountNeeded Do we need the track count ?
-     * @param useAlbumArtist Use "AlbumArtist" instead of "Artist" (if applicable)
-     * @return all Albums
-     */
-    public List<Album> getAllAlbums(boolean trackCountNeeded, boolean useAlbumArtist) throws MPDServerException {
         List<Album> albums = new ArrayList<Album>();
         // Use MPD 0.19's album grouping feature if available.
         if (mpdConnection.isAlbumGroupingSupported()) {
-            albums.addAll(listAllAlbumsGrouped(useAlbumArtist, false));
+            albums.addAll(listAllAlbumsGrouped(false));
         } else {
             List<String> albumNames = listAlbums();
             if (null == albumNames || albumNames.isEmpty()) {
@@ -1248,6 +1237,32 @@ public class MPD {
         } else {
             return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
         }
+    }
+
+    /**
+     * List all albums grouped by Artist/AlbumArtist
+     * This method queries both Artist/AlbumArtist and tries to detect if the artist is an artist
+     * or an album artist. Only the AlbumArtist query will be displayed so that the list is not
+     * cluttered.
+     *
+     * @param includeUnknownAlbum include an entry for albums with no artists
+     * @return <code>Collection</code> with all albums present in database, with their artist.
+     * @throws MPDServerException if an error occur while contacting server.
+     */
+    public List<Album> listAllAlbumsGrouped(boolean includeUnknownAlbum) throws MPDServerException {
+        List<Album> artistAlbums = listAllAlbumsGrouped(false, includeUnknownAlbum);
+        List<Album> albumArtistAlbums = listAllAlbumsGrouped(true, includeUnknownAlbum);
+
+        for (Album artistAlbum : artistAlbums) {
+            for (Album albumArtistAlbum : albumArtistAlbums) {
+                if (artistAlbum.nameEquals(albumArtistAlbum)) {
+                    albumArtistAlbum.setHasAlbumArtist(false);
+                    break;
+                }
+            }
+        }
+
+        return albumArtistAlbums;
     }
 
     /**

@@ -121,10 +121,10 @@ public class CachedMPD extends MPD
      * with cache we can afford to get the paths for all albums
      */
     @Override
-    public List<Album> getAllAlbums(boolean trackCountNeeded, boolean useAlbumArtist)
+    public List<Album> getAllAlbums(boolean trackCountNeeded)
             throws MPDServerException {
         if (!cacheOK()) {
-            return super.getAllAlbums(trackCountNeeded, useAlbumArtist);
+            return super.getAllAlbums(trackCountNeeded);
         }
         Set<Album> albums = new HashSet<Album>();
         Set<List<String>> albumset = cache.getUniqueAlbumSet();
