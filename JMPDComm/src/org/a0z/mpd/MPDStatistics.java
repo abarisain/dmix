@@ -29,6 +29,7 @@ package org.a0z.mpd;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Class representing MPD Server statistics.
@@ -54,23 +55,42 @@ public class MPDStatistics {
 
     private long dbPlaytime = -1L;
 
-    MPDStatistics(List<String> response) {
-        for (String line : response) {
-            if (line.startsWith("artists:")) {
-                this.artists = Long.parseLong(line.substring("artists: ".length()));
-            } else if (line.startsWith("albums:")) {
-                this.albums = Long.parseLong(line.substring("albums: ".length()));
-            } else if (line.startsWith("songs:")) {
-                this.songs = Long.parseLong(line.substring("songs: ".length()));
-            } else if (line.startsWith("uptime:")) {
-                this.uptime = Long.parseLong(line.substring("uptime: ".length()));
-            } else if (line.startsWith("db_update:")) {
-                this.dbUpdate = new Date(Long.parseLong(line.substring("db_update: ".length()))
-                        * MILLI_TO_SEC);
-            } else if (line.startsWith("playtime:")) {
-                this.playtime = Long.parseLong(line.substring("playtime: ".length()));
-            } else if (line.startsWith("db_playtime:")) {
-                this.dbPlaytime = Long.parseLong(line.substring("db_playtime: ".length()));
+    /**
+     * This is a regular expression pattern matcher
+     * for the MPD protocol delimiter ": ".
+     */
+    private static final Pattern mpdDelimiter = Pattern.compile(": ");
+
+    MPDStatistics(final List<String> response) {
+        super();
+
+        for (final String line : response) {
+            final String[] lines = mpdDelimiter.split(line);
+
+            switch (lines[0]) {
+                case "albums":
+                    albums = Long.parseLong(lines[1]);
+                    break;
+                case "artists":
+                    artists = Long.parseLong(lines[1]);
+                    break;
+                case "db_playtime":
+                    dbPlaytime = Long.parseLong(lines[1]);
+                    break;
+                case "db_update":
+                    dbUpdate = new Date(Long.parseLong(lines[1]) * MILLI_TO_SEC);
+                    break;
+                case "playtime:":
+                    playtime = Long.parseLong(lines[1]);
+                    break;
+                case "songs":
+                    songs = Long.parseLong(lines[1]);
+                    break;
+                case "uptime":
+                    uptime = Long.parseLong(lines[1]);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -110,7 +130,7 @@ public class MPDStatistics {
      * @return last database update time.
      */
     public Date getDbUpdate() {
-        return dbUpdate;
+        return (Date) dbUpdate.clone();
     }
 
     /**
@@ -146,9 +166,10 @@ public class MPDStatistics {
      * @return a string representation of the object.
      */
     public String toString() {
-        return "artists: " + this.artists + " albums: " + this.albums + " songs: " + this.songs
-                + " uptime: " + this.uptime
-                + " last db update: " + this.dbUpdate;
+        return "artists: " + artists +
+                ", albums: " + albums +
+                ", last db update: " + dbUpdate +
+                ", songs: " + songs +
+                ", uptime: " + uptime;
     }
-
 }
