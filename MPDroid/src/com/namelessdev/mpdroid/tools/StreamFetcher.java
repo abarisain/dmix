@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.tools;
 
+import org.a0z.mpd.Music;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -32,24 +33,6 @@ import java.util.List;
 public class StreamFetcher {
     private static class LazyHolder {
         private static final StreamFetcher instance = new StreamFetcher();
-    }
-
-    // Add stream name to fragment part of URL sent to MPD. This way, when the
-    // playqueue listing is received back from MPD, the name can be determined.
-    private static String addName(String url, String name) {
-        if (null == name || name.isEmpty()) {
-            return url;
-        }
-        String fixed = name.replace(" # ", " ");
-        fixed = fixed.replace("#", "");
-        try {
-            String path = new URL(url).getPath();
-            if (null == path || path.isEmpty()) {
-                return url + "/#" + fixed;
-            }
-        } catch (MalformedURLException e) {
-        }
-        return url + "#" + fixed;
     }
 
     public static StreamFetcher instance() {
@@ -200,22 +183,20 @@ public class StreamFetcher {
         return null;
     }
 
-    public URL get(String url, String name) throws MalformedURLException {
+    public String get(String url, String name) throws MalformedURLException {
         String parsed = null;
         if (url.startsWith("http://")) {
             parsed = check(url);
             if (null != parsed && parsed.startsWith("http://")) {
                 // If 'check' returned a http link, then see if this points to
-                // the stream
-                // or if it points to the playlist (which would point to the
-                // stream). This
-                // case is mainly for TuneIn links...
+                // the stream or if it points to the playlist (which would point
+                // to the stream). This case is mainly for TuneIn links...
                 String secondParse = check(parsed);
                 if (null != secondParse) {
                     parsed = secondParse;
                 }
             }
         }
-        return new URL(addName(null == parsed ? url : parsed, name));
+        return Music.addStreamName(null == parsed ? url : parsed, name);
     }
 }

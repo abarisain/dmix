@@ -594,7 +594,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                  new DialogInterface.OnClickListener() {
                      public void onClick(DialogInterface dialog, int whichButton) {
                          final String name = input.getText().toString().trim();
-                         if (null != name && name.length() > 0) {
+                         if (null != name && name.length() > 0 && !name.equals(MPD.STREAMS_PLAYLIST)) {
+                             // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
                              savePlaylist(name);
                          }
                      }

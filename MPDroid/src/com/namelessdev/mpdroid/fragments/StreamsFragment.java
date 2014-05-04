@@ -45,6 +45,7 @@ import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.Item;
+import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -56,6 +57,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.zip.GZIPInputStream;
@@ -73,12 +75,17 @@ public class StreamsFragment extends BrowseFragment {
                 case AlertDialog.BUTTON_NEGATIVE:
                     break;
                 case AlertDialog.BUTTON_POSITIVE:
-                    String name = items.get(itemIndex).getName();
-                    Tools.notifyUser(
-                            String.format(getResources().getString(R.string.streamDeleted), name),
-                            getActivity());
-                    items.remove(itemIndex);
-                    updateFromItems();
+                    try {
+                        app.oMPDAsyncHelper.oMPD.removeSavedStream(streams.get(itemIndex).getPos());
+                        String name = items.get(itemIndex).getName();
+                        Tools.notifyUser(
+                                String.format(getResources().getString(R.string.streamDeleted), name),
+                                getActivity());
+                        items.remove(itemIndex);
+                        streams.remove(itemIndex);
+                        updateFromItems();
+                    } catch (MPDServerException e) {
+                    }
                     break;
             }
         }
@@ -87,22 +94,23 @@ public class StreamsFragment extends BrowseFragment {
     private static class Stream extends Item {
         private String name = null;
         private String url = null;
-        private boolean onServer = false;
+        private int pos = -1;
 
-        public Stream(String name, String url, boolean onServer) {
+        public Stream(String name, String url, int pos) {
             this.name = name;
             this.url = url;
-            this.onServer = onServer;
+            this.pos = pos;
         }
 
         @Override
         public String getName() {
             return name;
         }
-
         public String getUrl() {
             return url;
         }
+        public int getPos() { return pos; }
+        public void setPos(int p) { pos=p; }
     }
 
     ArrayList<Stream> streams = new ArrayList<Stream>();
@@ -120,7 +128,7 @@ public class StreamsFragment extends BrowseFragment {
     protected void add(Item item, boolean replace, boolean play) {
         try {
             final Stream s = (Stream) item;
-            app.oMPDAsyncHelper.oMPD.add(StreamFetcher.instance().get(s.getUrl(), s.getName()),
+            app.oMPDAsyncHelper.oMPD.addStream(StreamFetcher.instance().get(s.getUrl(), s.getName()),
                     replace, play);
             Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
         } catch (MPDServerException e) {
@@ -142,7 +150,7 @@ public class StreamsFragment extends BrowseFragment {
      * StreamUrlToAdd is set when coming from the browser with
      * "android.intent.action.VIEW"
      */
-    public void addEdit(int idx, final String streamUrlToAdd) {
+    public void addEdit(final int idx, final String streamUrlToAdd) {
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View view = factory.inflate(R.layout.stream_dialog, null);
         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
@@ -171,12 +179,27 @@ public class StreamsFragment extends BrowseFragment {
                         String url = null == urlEdit ? null : urlEdit.getText().toString().trim();
                         if (null != name && name.length() > 0 && null != url && url.length() > 0) {
                             if (index >= 0 && index < streams.size()) {
-                                streams.remove(index);
+                                try {
+                                    int removedPos=streams.get(idx).getPos();
+                                    app.oMPDAsyncHelper.oMPD.editSavedStream(url, name, removedPos);
+                                    streams.remove(idx);
+                                    for (Stream stream : streams) {
+                                        if (stream.getPos()>removedPos) {
+                                            stream.setPos(stream.getPos()-1);
+                                        }
+                                    }
+                                    streams.add(new Stream(url, name, streams.size()));
+                                } catch (MPDServerException e) {
+                                }
+                            } else {
+                                try {
+                                    app.oMPDAsyncHelper.oMPD.saveStream(url, name);
+                                    streams.add(new Stream(url, name, streams.size()));
+                                } catch (MPDServerException e) {
+                                }
                             }
-                            streams.add(new Stream(name, url, false));
                             Collections.sort(streams);
                             items = streams;
-                            saveStreams();
                             if (streamUrlToAdd == null) {
                                 UpdateList();
                             } else {
@@ -196,13 +219,13 @@ public class StreamsFragment extends BrowseFragment {
                         }
                     }
                 }).setOnCancelListener(new OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        if (streamUrlToAdd != null) {
-                            getActivity().finish();
-                        }
-                    }
-                }).show();
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                if (streamUrlToAdd != null) {
+                    getActivity().finish();
+                }
+            }
+        }).show();
     }
 
     @Override
@@ -215,45 +238,44 @@ public class StreamsFragment extends BrowseFragment {
         return R.string.loadingStreams;
     }
 
-    private void loadLocalStreams() {
-        try {
-            loadStreams(getActivity().openFileInput(FILE_NAME), false);
-        } catch (FileNotFoundException e) {
-            Log.e("Streams", "Error while loading local streams", e);
-        }
-    }
-
-    private void loadServerStreams() {
-        HttpURLConnection connection = null;
-        try {
-            SharedPreferences settings = PreferenceManager
-                    .getDefaultSharedPreferences(getActivity());
-            String musicPath = settings.getString("musicPath", "music/");
-            String url = LocalCover.buildCoverUrl(
-                    app.oMPDAsyncHelper.getConnectionSettings().sServer, musicPath, null,
-                    SERVER_FILE_NAME);
-            URL u = new URL(url);
-            connection = (HttpURLConnection) u.openConnection();
-            loadStreams(new GZIPInputStream(connection.getInputStream()), true);
-        } catch (IOException e) {
-            Log.e("Streams", "Error while server streams", e);
-        } finally {
-            if (null != connection) {
-                connection.disconnect();
-            }
-        }
-    }
-
     private void loadStreams() {
         streams = new ArrayList<Stream>();
-        loadLocalStreams();
-        //loadServerStreams();
+
+        // Load streams stored in MPD Streams playlist...
+        List<Music> mpdStreams = null;
+        try {
+            mpdStreams = app.oMPDAsyncHelper.oMPD.getSavedStreams();
+        } catch (MPDServerException e) {
+        }
+
+        if (null!=mpdStreams) {
+            for (Music stream : mpdStreams) {
+                streams.add(new Stream(stream.getName(), stream.getFullpath(), stream.getSongId()));
+            }
+        }
+
+        // Load any OLD MPDroid streams, and also save these to MPD...
+        ArrayList<Stream> oldStreams=loadOldStreams();
+        if (null!=oldStreams) {
+            for (Stream stream : streams) {
+                if (!streams.contains(stream)) {
+                    try {
+                        app.oMPDAsyncHelper.oMPD.saveStream(stream.url, stream.name);
+                        stream.setPos(streams.size());
+                        streams.add(stream);
+                    } catch (MPDServerException e) {
+                    }
+                }
+            }
+        }
         Collections.sort(streams);
         items = streams;
     }
 
-    private void loadStreams(InputStream in, boolean fromServer) {
+    private ArrayList<Stream> loadOldStreams() {
+        ArrayList<Stream> oldStreams=null;
         try {
+            InputStream in = getActivity().openFileInput(FILE_NAME);
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser xpp = factory.newPullParser();
 
@@ -262,15 +284,23 @@ public class StreamsFragment extends BrowseFragment {
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                     if (xpp.getName().equals("stream")) {
-                        streams.add(new Stream(xpp.getAttributeValue("", "name"), xpp
-                                .getAttributeValue("", "url"), fromServer));
+                        if (null==oldStreams) {
+                            oldStreams=new ArrayList<Stream>();
+                        }
+                        oldStreams.add(new Stream(xpp.getAttributeValue("", "name"), xpp
+                                      .getAttributeValue("", "url"), -1));
                     }
                 }
                 eventType = xpp.next();
             }
+            in.close();
+            // Now remove file - all streams will be added to MPD...
+            getActivity().deleteFile(FILE_NAME);
+        } catch (FileNotFoundException e) {
         } catch (Exception e) {
             Log.e("Streams", "Error while loading streams", e);
         }
+        return oldStreams;
     }
 
     @Override
@@ -293,14 +323,12 @@ public class StreamsFragment extends BrowseFragment {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         if (info.id >= 0 && info.id < streams.size()) {
             Stream s = streams.get((int) info.id);
-            if (!s.onServer) {
-                android.view.MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0,
-                        R.string.editStream);
-                editItem.setOnMenuItemClickListener(this);
-                android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
-                        R.string.deleteStream);
-                addAndReplaceItem.setOnMenuItemClickListener(this);
-            }
+            android.view.MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0,
+                    R.string.editStream);
+            editItem.setOnMenuItemClickListener(this);
+            android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
+                    R.string.deleteStream);
+            addAndReplaceItem.setOnMenuItemClickListener(this);
         }
     }
 
@@ -361,28 +389,4 @@ public class StreamsFragment extends BrowseFragment {
                 return false;
         }
     }
-
-    private void saveStreams() {
-        XmlSerializer serializer = Xml.newSerializer();
-        try {
-            serializer.setOutput(getActivity().openFileOutput(FILE_NAME, Context.MODE_PRIVATE),
-                    "UTF-8");
-            serializer.startDocument("UTF-8", true);
-            serializer.startTag("", "streams");
-            if (null != streams) {
-                for (Stream s : streams) {
-                    if (!s.onServer) {
-                        serializer.startTag("", "stream");
-                        serializer.attribute("", "name", s.getName());
-                        serializer.attribute("", "url", s.getUrl());
-                        serializer.endTag("", "stream");
-                    }
-                }
-            }
-            serializer.endTag("", "streams");
-            serializer.flush();
-        } catch (Exception e) {
-        }
-    }
-
 }

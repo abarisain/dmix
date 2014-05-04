@@ -33,7 +33,6 @@ import org.a0z.mpd.event.AbstractStatusChangeListener;
 import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDServerException;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -94,8 +93,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * @param url stream URL
      * @throws MPDServerException
      */
-    public void add(URL url) throws MPDServerException, MPDClientException {
-        this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, url.toString());
+    public void addStream(String url) throws MPDServerException, MPDClientException {
+        this.mpd.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, url);
         this.refresh();
     }
 

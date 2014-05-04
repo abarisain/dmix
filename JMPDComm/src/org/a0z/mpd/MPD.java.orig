@@ -35,6 +35,7 @@ import android.content.Context;
 import android.util.Log;
 
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,8 +52,6 @@ import java.util.List;
 public class MPD {
 
     private final static String TAG = "org.a0z.mpd.MPD";
-
-    public static final String STREAMS_PLAYLIST = "[Radio Streams]";
 
     protected MPDConnection mpdConnection;
     protected MPDConnection mpdIdleConnection;
@@ -279,12 +278,12 @@ public class MPD {
         add(r, replace, play);
     }
 
-    public void addStream(final String stream, boolean replace, boolean play) throws MPDServerException {
+    public void add(final URL stream, boolean replace, boolean play) throws MPDServerException {
         final Runnable r = new Runnable() {
             @Override
             public void run() {
                 try {
-                    getPlaylist().addStream(stream);
+                    getPlaylist().add(stream);
                 } catch (MPDServerException | MPDClientException e) {
                     e.printStackTrace();
                 }
@@ -927,12 +926,8 @@ public class MPD {
         List<Item> result = new ArrayList<Item>();
         List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         for (String line : response) {
-            if (line.startsWith("playlist")) {
-                String name = line.substring("playlist: ".length());
-                if (null!=name && !name.equals(STREAMS_PLAYLIST)) {
-                    result.add(new Playlist(name));
-                }
-            }
+            if (line.startsWith("playlist"))
+                result.add(new Playlist(line.substring("playlist: ".length())));
         }
         if (sort)
             Collections.sort(result);
@@ -950,33 +945,6 @@ public class MPD {
         }
 
         return music;
-    }
-
-    public List<Music> getSavedStreams() throws MPDServerException {
-        String args[] = new String[1];
-        args[0] = STREAMS_PLAYLIST;
-        List<Music> music = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
-
-        for (int i = 0; i < music.size(); ++i) {
-            music.get(i).setSongId(i);
-        }
-
-        return music;
-    }
-
-    public void saveStream(String url, String name) throws MPDServerException {
-        getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
-                Music.addStreamName(url, name));
-    }
-
-    public void removeSavedStream(Integer pos) throws MPDServerException {
-        getMpdConnection().sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, STREAMS_PLAYLIST,
-                Integer.toString(pos));
-    }
-
-    public void editSavedStream(String url, String name, Integer pos) throws MPDServerException {
-        removeSavedStream(pos);
-        saveStream(url, name);
     }
 
     /**

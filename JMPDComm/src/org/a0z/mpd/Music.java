@@ -27,6 +27,8 @@
 
 package org.a0z.mpd;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -165,10 +167,7 @@ public class Music extends Item implements FilesystemTreeEntry {
             if (line.startsWith("file:")) {
                 this.fullpath = line.substring("file: ".length());
                 if(this.fullpath.contains("://")) {
-                    String n = getStreamName();
-                    if (null != n && !n.isEmpty()) {
-                        this.name = n;
-                    }
+                    extractStreamName();
                 }
             } else if (line.startsWith("Artist:")) {
                 this.artist = line.substring("Artist: ".length());
@@ -409,11 +408,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return stream's name.
      */
     public String getName() {
-        if (isEmpty(name)) {
-            return isEmpty(getStreamName()) ? getFilename() : getStreamName();
-        } else {
-            return name;
-        }
+        return isEmpty(name) ? getFilename() : name;
     }
 
     /**
@@ -475,14 +470,30 @@ public class Music extends Item implements FilesystemTreeEntry {
         return songId;
     }
 
-    private String getStreamName() {
+    private void extractStreamName() {
         if (null != fullpath && !fullpath.isEmpty()) {
             int pos = fullpath.indexOf("#");
             if (pos > 1) {
-                return fullpath.substring(pos + 1, fullpath.length());
+                name=fullpath.substring(pos + 1, fullpath.length());
+                name=name.replace("${hash}", "#");
+                fullpath=fullpath.substring(0, pos-1);
             }
         }
-        return null;
+    }
+
+    public static String addStreamName(String url, String name) {
+        if (null == name || name.isEmpty()) {
+            return url;
+        }
+        String fixed = name.replace("#", "${hash}");
+        try {
+            String path = new URL(url).getPath();
+            if (null == path || path.isEmpty()) {
+                return url + "/#" + fixed;
+            }
+        } catch (MalformedURLException e) {
+        }
+        return url + "#" + fixed;
     }
 
     /**
