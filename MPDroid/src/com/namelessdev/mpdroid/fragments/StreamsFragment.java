@@ -111,6 +111,16 @@ public class StreamsFragment extends BrowseFragment {
         }
         public int getPos() { return pos; }
         public void setPos(int p) { pos=p; }
+
+        @Override
+        public boolean equals(Object other) {
+            return this==other || (null!=other && other instanceof Stream && null!=url && url.equals(((Stream) other).url));
+        }
+
+        @Override
+        public int hashCode() {
+            return null==url ? 0 : url.hashCode();
+        }
     }
 
     ArrayList<Stream> streams = new ArrayList<Stream>();
