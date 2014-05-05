@@ -70,6 +70,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static android.text.TextUtils.isEmpty;
 import static android.util.Log.d;
@@ -478,6 +479,11 @@ public class CoverManager {
     private ExecutorService priorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService cacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
 
+    private static final Pattern TEXT_PATTERN = Pattern.compile("[^\\w .-]+");
+
+    private static final Pattern BLOCK_IN_COMBINING_DIACRITICAL_MARKS =
+            Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+
     private ExecutorService createBitmapExecutor = cacheCoverFetchExecutor;
 
     private MultiMap<CoverInfo, CoverDownloadListener> helpersByCoverInfo = new MultiMap<CoverInfo, CoverDownloadListener>();
@@ -509,15 +515,19 @@ public class CoverManager {
         this.requests.add(coverInfo);
     }
 
-    protected String cleanGetRequest(String text) {
-        String processedtext = null;
+    protected String cleanGetRequest(final CharSequence text) {
+        String processedText = null;
 
         if(text != null) {
-            processedtext = text.replaceAll("[^\\w .-]+", " ");
-            processedtext = Normalizer.normalize(processedtext, Normalizer.Form.NFD)
-                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+            processedText = TEXT_PATTERN.matcher(text).replaceAll(" ");
+
+            processedText = Normalizer.normalize(processedText, Normalizer.Form.NFD);
+
+            processedText =
+                    BLOCK_IN_COMBINING_DIACRITICAL_MARKS.matcher(processedText).replaceAll("");
         }
-        return processedtext;
+
+        return processedText;
     }
 
     public void clear() {
