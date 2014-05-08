@@ -223,7 +223,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             if (params == null) {
                 try {
                     // A recursive call doesn't seem that bad here.
-                    result = doInBackground(app.oMPDAsyncHelper.oMPD.getStatus(true));
+                    result = doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
                 } catch (MPDServerException e) {
                     Log.d(MPDApplication.TAG, "Failed to populate params in the background.", e);
                 }
