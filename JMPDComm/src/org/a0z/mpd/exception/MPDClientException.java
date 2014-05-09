@@ -31,7 +31,6 @@ package org.a0z.mpd.exception;
  * Represents an MPD Client error.
  *
  * @author Felipe Gustavo de Almeida
- * @version $Id: MPDServerException.java 2595 2004-11-11 00:21:36Z galmeida $
  */
 public class MPDClientException extends MPDException {
 

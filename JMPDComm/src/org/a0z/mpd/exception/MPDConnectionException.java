@@ -31,8 +31,7 @@ package org.a0z.mpd.exception;
  * Represents an MPD Connection error.
  *
  * @author Felipe Gustavo de Almeida
- * @version $Id: MPDConnectionException.java 2595 2004-11-11 00:21:36Z galmeida
- *          $
+ *
  */
 public class MPDConnectionException extends MPDServerException {
 

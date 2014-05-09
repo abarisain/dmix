@@ -31,7 +31,6 @@ package org.a0z.mpd.exception;
  * Thrown when server sends an unexpected or invalid message.
  *
  * @author Felipe Gustavo de Almeida
- * @version $Id$
  */
 public class InvalidResponseException extends RuntimeException {
 

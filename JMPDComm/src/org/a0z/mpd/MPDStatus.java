@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
  * Class representing MPD Server status.
  *
  * @author Felipe Gustavo de Almeida
- * @version $Id: MPDStatus.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDStatus {
 

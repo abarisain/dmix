@@ -29,7 +29,6 @@ package org.a0z.mpd.exception;
 
 /**
  * @author Felipe Gustavo de Almeida - galmeida
- * @version $Id$
  */
 public class MPDException extends Exception {
 

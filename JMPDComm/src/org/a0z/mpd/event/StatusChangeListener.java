@@ -30,7 +30,7 @@ package org.a0z.mpd.event;
 import org.a0z.mpd.MPDStatus;
 
 /**
- * @version $Id: StatusChangeListener.java 2941 2005-02-09 02:34:21Z galmeida $
+ * Implement this to get idle subsystem status updates.
  */
 public interface StatusChangeListener {
 

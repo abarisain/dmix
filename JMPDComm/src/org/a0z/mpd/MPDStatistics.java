@@ -34,7 +34,6 @@ import java.util.List;
  * Class representing MPD Server statistics.
  *
  * @author Felipe Gustavo de Almeida
- * @version $Id: MPDStatistics.java 2614 2004-11-11 18:46:31Z galmeida $
  */
 public class MPDStatistics {
 

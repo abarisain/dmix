@@ -38,8 +38,6 @@ import java.util.List;
 
 /**
  * MPD Playlist controller.
- *
- * @version $Id: MPDPlaylist.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPDPlaylist extends AbstractStatusChangeListener {
 

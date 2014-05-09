@@ -51,8 +51,6 @@ import static android.util.Log.w;
 
 /**
  * Class representing a connection to MPD Server.
- *
- * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public abstract class MPDConnection {
 

@@ -37,8 +37,6 @@ import java.util.List;
 
 /**
  * Monitors MPD Server and sends events on status changes.
- *
- * @version $Id: MPDStatusMonitor.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDStatusMonitor extends Thread {
 

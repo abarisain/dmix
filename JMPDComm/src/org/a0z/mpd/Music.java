@@ -44,7 +44,6 @@ import java.util.regex.Pattern;
  * Class representing a file/music entry in playlist.
  *
  * @author Felipe Gustavo de Almeida
- * @version $Id: Music.java 2940 2005-02-09 02:31:48Z galmeida $
  */
 public class Music extends Item implements FilesystemTreeEntry {
 

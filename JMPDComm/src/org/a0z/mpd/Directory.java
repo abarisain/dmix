@@ -40,7 +40,6 @@ import java.util.TreeSet;
  * Class representing a directory.
  *
  * @author Felipe Gustavo de Almeida
- * @version $Id: Directory.java 2614 2004-11-11 18:46:31Z galmeida $
  */
 public final class Directory extends Item implements FilesystemTreeEntry {
 

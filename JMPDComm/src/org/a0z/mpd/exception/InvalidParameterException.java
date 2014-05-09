@@ -29,7 +29,6 @@ package org.a0z.mpd.exception;
 
 /**
  * @author Felipe Gustavo de Almeida
- * @version $Id$
  */
 public class InvalidParameterException extends RuntimeException {
 

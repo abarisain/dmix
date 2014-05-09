@@ -45,8 +45,6 @@ import java.util.List;
 
 /**
  * MPD Server controller.
- *
- * @version $Id: MPD.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPD {
 

@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
  * Represents an MPD Server error.
  *
  * @author Felipe Gustavo de Almeida
- * @version $Id: MPDServerException.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPDServerException extends MPDException {
 
