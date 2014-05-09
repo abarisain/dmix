@@ -1,25 +1,43 @@
-/MPDroid/bin
-/MPDroid/gen
-/MPDroid/.classpath
-/MPDroid/local.properties
-/MPDroid/proguard
-/JMPDComm/JMPDComm.jar
-/JMPDComm/bin
-/JMPDComm/gen
-/JMPDComm/proguard
-/JMPDComm/classes
-/JMPDComm/.classpath
-/JMPDComm/local.properties
-.DS_Store
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/datasources.xml
-.idea/dataSources.ids
-.idea/dictionaries
-.idea/misc.xml
-.idea/libraries
-/gradlew*
+## .gitignore Modeled from google/iosched
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+out/
+build/
+
+# Local configuration file (sdk path, etc)
 local.properties
-**/build/
+
+# Mac OS thumbnail db
+.DS_Store
+
+# Recommended ignore from Gradle
+.idea/dataSources.*
+.idea/inspectionProfiles
+.idea/misc.xml
+.idea/tasks.xml
+.idea/workspace.xml
+
+.idea/dictionaries
+.idea/libraries
+
+*.iml
+
+# Local IDEA workspace
+.idea/workspace.xml
+
+# Gradle cache
 .gradle
-gradle
+
+# Sandbox stuff
+_sandbox
