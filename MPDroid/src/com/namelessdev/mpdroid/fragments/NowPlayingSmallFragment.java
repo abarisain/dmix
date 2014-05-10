@@ -21,12 +21,11 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverInfo;
+import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -34,7 +33,6 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -49,101 +47,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener {
+public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener,
+    UpdateTrackInfo.TrackInfoUpdate {
 
-    public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
-        MPDStatus status = null;
-
-        @Override
-        protected Boolean doInBackground(MPDStatus... params) {
-            Boolean result = false;
-
-            if (params == null) {
-                try {
-                    // A recursive call doesn't seem that bad here.
-                    result = doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
-                } catch (MPDServerException e) {
-                    Log.d(MPDApplication.TAG, "Failed to populate params in the background.", e);
-                }
-            } else if (params[0] != null) {
-                String state = params[0].getState();
-                if (state != null) {
-                    int songPos = params[0].getSongPos();
-                    if (songPos >= 0) {
-                        actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-                        status = params[0];
-                        result = true;
-                    }
-                }
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if (result != null && result) {
-                String albumartist;
-                String artist = null;
-                String artistlabel = null;
-                String title;
-                String album = null;
-                boolean noSong = actSong == null || status.getPlaylistLength() == 0;
-                if (noSong) {
-                    title = getResources().getString(R.string.noSongInfo);
-                } else {
-                    if (actSong.isStream()) {
-                        if (actSong.haveTitle()) {
-                            title = actSong.getTitle();
-                            artist = actSong.getName();
-                        } else {
-                            title = actSong.getName();
-                            artist = "";
-                        }
-                    } else {
-                        albumartist = actSong.getAlbumArtist();
-                        artist = actSong.getArtist();
-                        if (!showAlbumArtist ||
-                                albumartist == null || "".equals(albumartist) ||
-                                artist.toLowerCase().contains(albumartist.toLowerCase()))
-                            artistlabel = "" + artist;
-                        else if ("".equals(artist))
-                            artistlabel = "" + albumartist;
-                        else {
-                            artistlabel = albumartist + " / " + artist;
-                            artist = albumartist;
-                        }
-                        title = actSong.getTitle();
-                        album = actSong.getAlbum();
-                    }
-                }
-
-                artist = artist == null ? "" : artist;
-                title = title == null ? "" : title;
-                album = album == null ? "" : album;
-                artistlabel = artistlabel == null || artistlabel.equals("null") ? "" : artistlabel;
-
-                songArtist.setText(artistlabel);
-                songTitle.setText(title);
-                if (noSong || actSong.isStream()) {
-                    lastArtist = artist;
-                    lastAlbum = album;
-                    coverArtListener.onCoverNotFound(new CoverInfo(artist, album));
-                    coverHelper.downloadCover(new AlbumInfo(artist, album));
-                } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
-                    final int noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light_big
-                            : R.drawable.no_cover_art_big;
-                    coverArt.setImageResource(noCoverDrawable);
-                    coverHelper.downloadCover(actSong.getAlbumInfo());
-                    lastArtist = artist;
-                    lastAlbum = album;
-                }
-                stateChanged(status, null);
-            } else {
-                songArtist.setText("");
-                songTitle.setText(R.string.noSongInfo);
-            }
-        }
-    }
+    private static final String TAG = "com.namelessdev.mpdroid.NowPlayingSmallFragment";
 
     private final MPDApplication app = MPDApplication.getInstance();
     private CoverAsyncHelper coverHelper;
@@ -157,11 +64,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     private ImageButton buttonPrev;
     private ImageButton buttonPlayPause;
     private ImageButton buttonNext;
-    private String lastArtist = "";
-    private String lastAlbum = "";
-    private boolean showAlbumArtist;
-
-    private Music actSong = null;
 
     private boolean lightTheme;
 
@@ -218,14 +120,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        if (connected && isAdded()) {
-            new updateTrackInfoAsync().execute((MPDStatus[]) null);
-            if (songTitle != null && songArtist != null) {
-                songTitle.setText(getResources().getString(R.string.noSongInfo));
-                songArtist.setText("");
-            }
-        } else {
-            songTitle.setText(getResources().getString(R.string.notConnected));
+        if (!connected && isAdded()) {
+            songTitle.setText(R.string.notConnected);
             songArtist.setText("");
         }
     }
@@ -238,6 +134,24 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         lightTheme = app.isLightThemeSelected();
+    }
+
+    /**
+     * This is called when cover art needs to be updated due to server information change.
+     *
+     * @param albumInfo The current albumInfo
+     */
+    @Override
+    public final void onCoverUpdate(final AlbumInfo albumInfo) {
+        if (lightTheme) {
+            coverArt.setImageResource(R.drawable.no_cover_art_light_big);
+        } else {
+            coverArt.setImageResource(R.drawable.no_cover_art_big);
+        }
+
+        if(albumInfo != null) {
+            coverHelper.downloadCover(albumInfo);
+        }
     }
 
     @Override
@@ -259,8 +173,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt,
                 coverArtProgress, app.isLightThemeSelected(), false);
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
         coverHelper = new CoverAsyncHelper(settings);
         coverHelper.setCoverMaxSizeFromScreen(getActivity());
@@ -295,33 +208,36 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onResume() {
         super.onResume();
-        if(app.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
-            new updateTrackInfoAsync().execute((MPDStatus[]) null);
-        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
+        app.updateTrackInfo.addCallback(this);
     }
 
     @Override
     public void onStop() {
+        app.updateTrackInfo.removeCallback(this);
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         super.onStop();
     }
 
+    /**
+     * Called when a track information change has been detected.
+     *
+     * @param artist The artist change.
+     * @param title The title change.
+     */
+    @Override
+    public final void onTrackInfoUpdate(final CharSequence artist, final CharSequence title) {
+        songArtist.setText(artist);
+        songTitle.setText(title);
+    }
+
     @Override
     public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
-        if (isAdded() && actSong != null && actSong.isStream() &&
-                app.oMPDAsyncHelper.oMPD.isConnected()) {
-            /**
-             * If the current song is a stream, the metadata can change in place, and that will only
-             * change the playlist, not the track, so, update if we detect a stream.
-             */
-            new updateTrackInfoAsync().execute(mpdStatus);
-        }
     }
 
     @Override
@@ -353,9 +269,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
    @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        if(app.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
-            new updateTrackInfoAsync().execute(mpdStatus);
-        }
     }
 
     public void updateCover(AlbumInfo albumInfo) {
@@ -365,13 +278,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         }
     }
 
-    /**
-     * ************************** Stuff we don't care about *
-     * **************************
-     */
-
     @Override
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
     }
-
 }

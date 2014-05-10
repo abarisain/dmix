@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
@@ -81,6 +82,7 @@ public class MPDApplication extends Application implements ConnectionListener {
     public static final String TAG = "MPDroid";
     private static final long DISCONNECT_TIMER = 15000;
     public MPDAsyncHelper oMPDAsyncHelper = null;
+    public UpdateTrackInfo updateTrackInfo = null;
 
     private SettingsHelper settingsHelper = null;
     private ApplicationState state = new ApplicationState();
