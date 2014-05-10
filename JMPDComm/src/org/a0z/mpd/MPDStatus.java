@@ -100,7 +100,7 @@ public class MPDStatus {
 
     private int songId;
 
-    private String state = null;
+    private String state;
 
     private long totalTime;
 
@@ -121,6 +121,7 @@ public class MPDStatus {
         random = false;
         repeat = false;
         single = false;
+        state = MPD_STATE_UNKNOWN;
         volume = 0;
     }
 
