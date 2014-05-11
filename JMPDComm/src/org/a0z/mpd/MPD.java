@@ -980,15 +980,27 @@ public class MPD {
     }
 
     public List<Music> getSavedStreams() throws MPDServerException {
-        String args[] = new String[1];
-        args[0] = STREAMS_PLAYLIST;
-        List<Music> music = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
+        if (!isConnected())
+            throw new MPDServerException("MPD Connection is not established");
 
-        for (int i = 0; i < music.size(); ++i) {
-            music.get(i).setSongId(i);
+        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
+        for (String line : response) {
+            if (line.startsWith("playlist")) {
+                String name = line.substring("playlist: ".length());
+                if (null!=name && name.equals(STREAMS_PLAYLIST)) {
+                    String args[] = new String[1];
+                    args[0] = STREAMS_PLAYLIST;
+                    List<Music> music = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
+
+                    for (int i = 0; i < music.size(); ++i) {
+                        music.get(i).setSongId(i);
+                    }
+
+                    return music;
+                }
+            }
         }
-
-        return music;
+        return null;
     }
 
     public void saveStream(String url, String name) throws MPDServerException {
