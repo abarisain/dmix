@@ -70,6 +70,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static android.text.TextUtils.isEmpty;
 import static android.util.Log.d;
@@ -460,15 +461,14 @@ public class CoverManager {
         return albumInfo.getKey() + ".jpg";
     }
 
-    public synchronized static CoverManager getInstance(MPDApplication app,
-            SharedPreferences settings) {
+    public synchronized static CoverManager getInstance(SharedPreferences settings) {
         if (instance == null) {
-            instance = new CoverManager(app, settings);
+            instance = new CoverManager(settings);
         }
         return instance;
     }
 
-    private MPDApplication app = null;
+    private final MPDApplication app = MPDApplication.getInstance();
     private SharedPreferences settings = null;
     private static CoverManager instance = null;
     private BlockingDeque<CoverInfo> requests = new LinkedBlockingDeque<CoverInfo>();
@@ -478,6 +478,11 @@ public class CoverManager {
     private ThreadPoolExecutor coverFetchExecutor = getCoverFetchExecutor();
     private ExecutorService priorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
     private ExecutorService cacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
+
+    private static final Pattern TEXT_PATTERN = Pattern.compile("[^\\w .-]+");
+
+    private static final Pattern BLOCK_IN_COMBINING_DIACRITICAL_MARKS =
+            Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
     private ExecutorService createBitmapExecutor = cacheCoverFetchExecutor;
 
@@ -493,8 +498,7 @@ public class CoverManager {
 
     private Set<String> notFoundAlbumKeys;
 
-    private CoverManager(MPDApplication app, SharedPreferences settings) {
-        this.app = app;
+    private CoverManager(SharedPreferences settings) {
         this.settings = settings;
 
         requestExecutor.submit(new RequestProcessorTask());
@@ -511,15 +515,19 @@ public class CoverManager {
         this.requests.add(coverInfo);
     }
 
-    protected String cleanGetRequest(String text) {
-        String processedtext = null;
+    protected String cleanGetRequest(final CharSequence text) {
+        String processedText = null;
 
         if(text != null) {
-            processedtext = text.replaceAll("[^\\w .-]+", " ");
-            processedtext = Normalizer.normalize(processedtext, Normalizer.Form.NFD)
-                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+            processedText = TEXT_PATTERN.matcher(text).replaceAll(" ");
+
+            processedText = Normalizer.normalize(processedText, Normalizer.Form.NFD);
+
+            processedText =
+                    BLOCK_IN_COMBINING_DIACRITICAL_MARKS.matcher(processedText).replaceAll("");
         }
-        return processedtext;
+
+        return processedText;
     }
 
     public void clear() {
@@ -1026,13 +1034,13 @@ public class CoverManager {
         for (int i = 0; i < whichCoverRetrievers.size(); i++) {
             switch (whichCoverRetrievers.get(i)) {
                 case CACHE:
-                    this.coverRetrievers[i] = new CachedCover(app);
+                    this.coverRetrievers[i] = new CachedCover();
                     break;
                 case LASTFM:
                     this.coverRetrievers[i] = new LastFMCover();
                     break;
                 case LOCAL:
-                    this.coverRetrievers[i] = new LocalCover(this.app, this.settings);
+                    this.coverRetrievers[i] = new LocalCover(this.settings);
                     break;
                 case GRACENOTE:
                     if (GracenoteCover.isClientIdAvailable(settings)) {

@@ -28,12 +28,24 @@
 package org.a0z.mpd;
 
 import java.security.MessageDigest;
+import java.util.regex.Pattern;
 
-public class StringsUtils {
+public final class StringsUtils {
+
+    /**
+     * This is a regular expression pattern matcher for the typical MPD protocol response.
+     */
+    static final Pattern MPD_DELIMITER = Pattern.compile(": ");
+
+    private static final Pattern EXTENSION_DELIMITER = Pattern.compile("\\.");
+
+    private StringsUtils() {
+        super();
+    }
 
     /**
      * Convert byte array to hex string.
-     * 
+     *
      * @param data Target data array.
      * @return Hex string.
      */
@@ -42,15 +54,16 @@ public class StringsUtils {
             return null;
         }
 
-        final StringBuffer buffer = new StringBuffer();
+        final StringBuffer buffer = new StringBuffer(data.length);
         for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
             int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
             int two_halfs = 0;
             do {
-                if ((0 <= halfbyte) && (halfbyte <= 9))
+                if ((0 <= halfbyte) && (halfbyte <= 9)) {
                     buffer.append((char) ('0' + halfbyte));
-                else
+                } else {
                     buffer.append((char) ('a' + (halfbyte - 10)));
+                }
                 halfbyte = data[byteIndex] & 0x0F;
             } while (two_halfs++ < 1);
         }
@@ -59,7 +72,7 @@ public class StringsUtils {
     }
 
     public static String getExtension(String path) {
-        String[] split = path.split("\\.");
+        String[] split = EXTENSION_DELIMITER.split(path);
         if (split.length > 1) {
             String ext = split[split.length - 1];
             if (ext.length() <= 4) {
@@ -71,12 +84,12 @@ public class StringsUtils {
 
     /**
      * Gets the hash value from the specified string.
-     * 
+     *
      * @param value Target string value to get hash from.
      * @return the hash from string.
      */
     public static final String getHashFromString(String value) {
-        if (value == null || value.length() == 0) {
+        if (value == null || value.isEmpty()) {
             return null;
         }
 
@@ -88,9 +101,4 @@ public class StringsUtils {
             return null;
         }
     }
-
-    public static String trim(String text) {
-        return text == null ? text : text.trim();
-    }
-
 }

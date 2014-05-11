@@ -16,11 +16,6 @@
 
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.view.View;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -30,17 +25,21 @@ import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.Item;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.view.View;
+
 import java.util.List;
 
 public abstract class BaseDataBinder implements ArrayDataBinder {
 
-    MPDApplication app = null;
+    private final MPDApplication app = MPDApplication.getInstance();
     boolean lightTheme = false;
     boolean enableCache = true;
     boolean onlyDownloadOnWifi = true;
 
-    public BaseDataBinder(MPDApplication app, boolean isLightTheme) {
-        this.app = app;
+    public BaseDataBinder(boolean isLightTheme) {
         this.lightTheme = isLightTheme;
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 

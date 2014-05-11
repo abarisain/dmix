@@ -36,14 +36,14 @@ import java.net.Socket;
 
 /**
  * Class representing a connection to MPD Server.
- * 
- * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDConnectionMultiSocket extends MPDConnection {
 
-    private ThreadLocal<Socket> socket = new ThreadLocal<Socket>();
-    private ThreadLocal<InputStreamReader> inputstream = new ThreadLocal<InputStreamReader>();
-    private ThreadLocal<OutputStreamWriter> outputstream = new ThreadLocal<OutputStreamWriter>();
+    private final ThreadLocal<Socket> socket = new ThreadLocal<>();
+
+    private final ThreadLocal<InputStreamReader> inputstream = new ThreadLocal<>();
+
+    private final ThreadLocal<OutputStreamWriter> outputstream = new ThreadLocal<>();
 
     MPDConnectionMultiSocket(InetAddress server, int port, int maxConnection, String password,
             int readWriteTimeout) throws MPDServerException {

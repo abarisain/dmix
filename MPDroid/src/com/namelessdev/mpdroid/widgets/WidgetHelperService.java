@@ -16,14 +16,14 @@
 
 package com.namelessdev.mpdroid.widgets;
 
-import android.app.IntentService;
-import android.content.Intent;
-
 import com.namelessdev.mpdroid.MPDApplication;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.app.IntentService;
+import android.content.Intent;
 
 public class WidgetHelperService extends IntentService {
     static final String TAG = "MPDroidWidgetHelperService";
@@ -36,6 +36,8 @@ public class WidgetHelperService extends IntentService {
 
     private boolean playing = false;
 
+    private final MPDApplication app = MPDApplication.getInstance();
+
     public WidgetHelperService() {
         super(TAG);
     }
@@ -47,7 +49,6 @@ public class WidgetHelperService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // get MPD connection
-        MPDApplication app = (MPDApplication) getApplication();
         app.setActivity(this);
 
         // prepare values for runnable

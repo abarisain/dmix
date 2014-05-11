@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
@@ -96,8 +97,14 @@ public class ConnectionSettings extends PreferenceActivity {
         suffixStreamingPort.setKey(keyPrefix + "suffixStreaming");
         toCategory.addPreference(suffixStreamingPort);
 
-        onContentChanged();
+        CheckBoxPreference persistentNotification = new CheckBoxPreference(this);
+        persistentNotification.setDefaultValue(false);
+        persistentNotification.setTitle(R.string.persistentNotification);
+        persistentNotification.setSummary(R.string.persistentNotificationDescription);
+        persistentNotification.setKey(keyPrefix + "persistentNotification");
+        toCategory.addPreference(persistentNotification);
 
+        onContentChanged();
     }
 
     @Override

@@ -31,15 +31,23 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Album extends Item implements Parcelable {
+
     public static String singleTrackFormat = "%1 Track (%2)";
+
     public static String multipleTracksFormat = "%1 Tracks (%2)";
 
     private final String name;
+
     private long songCount;
+
     private long duration;
+
     private long year;
+
     private String path;
+
     private Artist artist;
+
     private boolean hasAlbumArtist;
 
     public static final Parcelable.Creator<Album> CREATOR =
@@ -69,15 +77,15 @@ public class Album extends Item implements Parcelable {
     }
 
     public Album(String name, Artist artist) {
-        this(name, 0, 0, 0, artist, false, "");
+        this(name, 0L, 0L, 0L, artist, false, "");
     }
 
     public Album(String name, Artist artist, boolean hasAlbumArtist) {
-        this(name, 0, 0, 0, artist, hasAlbumArtist, "");
+        this(name, 0L, 0L, 0L, artist, hasAlbumArtist, "");
     }
 
     public Album(String name, Artist artist, boolean hasAlbumArtist, String path) {
-        this(name, 0, 0, 0, artist, hasAlbumArtist, path);
+        this(name, 0L, 0L, 0L, artist, hasAlbumArtist, path);
     }
 
     public Album(String name, long songCount, long duration, long year, Artist artist,
@@ -164,7 +172,7 @@ public class Album extends Item implements Parcelable {
         return (artist == null ? "null" : artist.info()) +
                 (hasAlbumArtist() ? " (AA)" : "") +
                 " // " + name +
-                ("".equals(path) ? "" : " (" + path + ")");
+                (path != null && path.isEmpty() ? "" : " (" + path + ')');
     }
 
     /*
@@ -172,7 +180,7 @@ public class Album extends Item implements Parcelable {
      */
     @Override
     public String mainText() {
-        return (name.equals("") ?
+        return (name.isEmpty() ?
                 MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_album) :
                 name);
     }
@@ -217,8 +225,9 @@ public class Album extends Item implements Parcelable {
             construct = Long.toString(year);
         }
         if (0 != songCount) {
-            if (construct != null)
+            if (construct != null) {
                 construct += " - ";
+            }
             construct += String.format(1 == songCount ? singleTrackFormat : multipleTracksFormat,
                     songCount, Music.timeToString(duration));
         }

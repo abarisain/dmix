@@ -39,7 +39,7 @@ public abstract class AbstractStatusChangeListener implements StatusChangeListen
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
     }
 
     @Override

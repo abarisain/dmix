@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.library;
 
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidListActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -60,7 +59,6 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             }
             HashMap<String, Object> itemFrom = songlist.get(from);
             Integer songID = (Integer) itemFrom.get("songid");
-            MPDApplication app = (MPDApplication) getApplication();
             try {
                 // looks like it's not necessary
                 /*
@@ -77,7 +75,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 // }
             } catch (MPDServerException e) {
             }
-            Tools.notifyUser("Updating ...", getApplication());
+            Tools.notifyUser("Updating ...", app);
         }
     };
 
@@ -94,7 +92,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
         // TODO Auto-generated method stub
 
     }
@@ -103,7 +101,6 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.Remove:
-                MPDApplication app = (MPDApplication) getApplicationContext();
                 int count = 0;
                 try {
                     ArrayList<HashMap<String, Object>> copy = new ArrayList<HashMap<String, Object>>();
@@ -151,7 +148,6 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         if (null != playlistName && playlistName.length() > 0) {
             isPlayQueue = false;
         }
-        MPDApplication app = (MPDApplication) getApplication();
         setContentView(R.layout.playlist_editlist_activity);
         if (isPlayQueue) {
             this.setTitle(R.string.nowPlaying);
@@ -184,7 +180,6 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 
     @Override
     public void onDestroy() {
-        MPDApplication app = (MPDApplication) getApplication();
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         super.onDestroy();
     }
@@ -221,14 +216,12 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     @Override
     protected void onStart() {
         super.onStart();
-        MPDApplication app = (MPDApplication) getApplicationContext();
         app.setActivity(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        MPDApplication app = (MPDApplication) getApplicationContext();
         app.unsetActivity(this);
     }
 
@@ -274,7 +267,6 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 
     protected void update() {
         // TODO: Preserve position!!!
-        MPDApplication app = (MPDApplication) getApplicationContext();
         try {
             List<Music> musics;
             if (isPlayQueue) {

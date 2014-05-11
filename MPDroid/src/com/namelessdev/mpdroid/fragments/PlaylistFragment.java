@@ -16,8 +16,29 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import static android.text.TextUtils.isEmpty;
-import static android.util.Log.e;
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MainMenuActivity;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+import com.namelessdev.mpdroid.models.AbstractPlaylistMusic;
+import com.namelessdev.mpdroid.models.PlaylistSong;
+import com.namelessdev.mpdroid.models.PlaylistStream;
+import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
+
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.Item;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDPlaylist;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -52,48 +73,25 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 
-import com.mobeta.android.dslv.DragSortController;
-import com.mobeta.android.dslv.DragSortListView;
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MainMenuActivity;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.library.PlaylistEditActivity;
-import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
-import com.namelessdev.mpdroid.models.AbstractPlaylistMusic;
-import com.namelessdev.mpdroid.models.PlaylistSong;
-import com.namelessdev.mpdroid.models.PlaylistStream;
-import com.namelessdev.mpdroid.tools.Tools;
-import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
-
-import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+
+import static android.text.TextUtils.isEmpty;
+import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener,
         OnMenuItemClickListener {
 
     private class QueueAdapter extends ArrayAdapter {
 
-        private MPDApplication app;
         private SharedPreferences settings;
         private boolean lightTheme;
 
         public QueueAdapter(Context context, List<?> data, int resource) {
             super(context, resource, data);
 
-            app = (MPDApplication) activity.getApplication();
             settings = PreferenceManager.getDefaultSharedPreferences(app);
             lightTheme = app.isLightThemeSelected();
         }
@@ -109,7 +107,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 viewHolder.title = (TextView) convertView.findViewById(android.R.id.text1);
                 viewHolder.play = (ImageView) convertView.findViewById(R.id.picture);
                 viewHolder.cover = (ImageView) convertView.findViewById(R.id.cover);
-                viewHolder.coverHelper = new CoverAsyncHelper(app, settings);
+                viewHolder.coverHelper = new CoverAsyncHelper(settings);
                 final int height = viewHolder.cover.getHeight();
                 // If the list is not displayed yet, the height is 0. This is a
                 // problem, so set a fallback one.
@@ -154,7 +152,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     // Minimum number of songs in the queue before the fastscroll thumb is shown
     private static final int MIN_SONGS_BEFORE_FASTSCROLL = 50;
     private ArrayList<AbstractPlaylistMusic> songlist;
-    private MPDApplication app;
+    private final MPDApplication app = MPDApplication.getInstance();
     private DragSortListView list;
     private ActionMode actionMode;
     private SearchView searchView;
@@ -219,7 +217,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
         // TODO Auto-generated method stub
 
     }
@@ -228,7 +226,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         this.activity = getActivity();
-        app = (MPDApplication) activity.getApplication();
         lightTheme = app.isLightThemeSelected();
         refreshListColorCacheHint();
         if (list != null) {
@@ -397,10 +394,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         new Thread(new Runnable() {
             @Override
             public void run() {
-                MPDApplication app = (MPDApplication) activity.getApplication(); // Play
-                                                                                 // selected
-                                                                                 // Song
-
                 final Integer song = ((AbstractPlaylistMusic) l.getAdapter().getItem(position))
                         .getSongId();
                 try {
@@ -660,12 +653,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     private void refreshListColorCacheHint() {
-        if (app == null || list == null)
-            return;
-        if (app.isLightThemeSelected()) {
-            list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
-        } else {
-            list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
+        if (list != null) {
+            if (app.isLightThemeSelected()) {
+                list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
+            } else {
+                list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
+            }
         }
     }
 
@@ -704,14 +697,14 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
+                Integer songIndex = new Integer("-1");
                 try {
-                    MPD mpd = ((MPDApplication) activity.getApplication()).oMPDAsyncHelper.oMPD;
-                    return mpd.getStatus().getSongPos();
+                    songIndex = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
                 } catch (MPDServerException e) {
                     e(PlaylistFragment.class.getSimpleName(),
                             "Cannot find the current playing song position : " + e);
                 }
-                return null;
+                return songIndex;
             }
 
             @Override

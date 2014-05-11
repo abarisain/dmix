@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 public abstract class Item implements Comparable<Item> {
+
     public static final Collator defaultCollator = Collator.getInstance(Locale.getDefault());
 
     /*
@@ -59,27 +60,27 @@ public abstract class Item implements Comparable<Item> {
     @Override
     public int compareTo(Item o) {
         // sort "" behind everything else
-        if ("".equals(sortText())) {
-            if ("".equals(o.sortText())) {
+        if (sortText() != null && sortText().isEmpty()) {
+            if (o.sortText() != null && o.sortText().isEmpty()) {
                 return 0;
             }
             return 1;
         }
-        if ("".equals(o.sortText())) {
+        if (o.sortText() != null && o.sortText().isEmpty()) {
             return -1;
         }
         return defaultCollator.compare(sortText(), o.sortText());
         // return sort().compareToIgnoreCase(o.sort());
     }
 
-    abstract public String getName();
+    public abstract String getName();
 
     public String info() {
         return toString();
     }
 
     public boolean isUnknown() {
-        return getName().length() == 0;
+        return getName().isEmpty();
     }
 
     public String mainText() {

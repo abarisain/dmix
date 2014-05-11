@@ -190,8 +190,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private boolean isDualPaneMode;
 
-    private MPDApplication app;
-
     private View nowPlayingDualPane;
 
     private ViewPager nowPlayingPager;
@@ -300,7 +298,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (MPDApplication) getApplication();
 
         setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet
                 : R.layout.main_activity_nagvigation);
@@ -392,7 +389,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         fragmentManager.addOnBackStackChangedListener(this);
 
         // Get the list of the currently visible tabs
-        mTabList = LibraryTabsUtil.getCurrentLibraryTabs(this.getApplicationContext());
+        mTabList = LibraryTabsUtil.getCurrentLibraryTabs(app);
 
         ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(
                 actionBar.getThemedContext(),
@@ -558,7 +555,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-        final MPDApplication app = (MPDApplication) getApplicationContext();
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOLUME_UP:
                 new Thread(new Runnable() {
@@ -636,7 +632,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return true;
         }
 
-        final MPDApplication app = (MPDApplication) this.getApplication();
         final MPD mpd = app.oMPDAsyncHelper.oMPD;
 
         // Handle item selection
@@ -645,7 +640,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 this.onSearchRequested();
                 return true;
             case CONNECT:
-                ((MPDApplication) this.getApplication()).connect();
+                app.connect();
                 return true;
             case R.id.GMM_Stream:
                 if (app.getApplicationState().streamingMode) {
@@ -679,7 +674,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     app.getApplicationState().notificationMode = false;
                 } else {
                     startService(NotificationService.class,
-                            NotificationService.ACTION_SHOW_NOTIFICATION);
+                            NotificationService.ACTION_OPEN_NOTIFICATION);
 
                     app.getApplicationState().notificationMode = true;
                 }
@@ -754,7 +749,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void prepareNowPlayingMenu(Menu menu) {
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
-        MPDApplication app = (MPDApplication) this.getApplication();
         MPD mpd = app.oMPDAsyncHelper.oMPD;
         if (!mpd.isConnected()) {
             if (menu.findItem(CONNECT) == null) {
@@ -776,10 +770,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             clearItem.setVisible(true);
         }
 
-        /** If in streamingMode don't allow a checkbox in the menu. */
+        /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
         MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
         if(notificationItem != null) {
-            if (app.getApplicationState().streamingMode) {
+            if (app.getApplicationState().streamingMode ||
+                    app.getApplicationState().persistentNotification) {
                 notificationItem.setVisible(false);
             } else {
                 notificationItem.setVisible(true);
@@ -813,15 +808,19 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     @Override
     public void onStart() {
         super.onStart();
-        MPDApplication app = (MPDApplication) getApplicationContext();
         app.setActivity(this);
+
+        if(app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
+            app.getApplicationState().persistentNotification = true;
+            app.getApplicationState().notificationMode = true;
+            startService(NotificationService.class, NotificationService.ACTION_OPEN_NOTIFICATION);
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        MPDApplication app = (MPDApplication) getApplicationContext();
         app.unsetActivity(this);
     }
 

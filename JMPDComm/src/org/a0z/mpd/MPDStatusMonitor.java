@@ -37,49 +37,51 @@ import java.util.List;
 
 /**
  * Monitors MPD Server and sends events on status changes.
- * 
- * @version $Id: MPDStatusMonitor.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public class MPDStatusMonitor extends Thread {
-    private int delay;
-    private MPD mpd;
+
+    private final long delay;
+
+    private final MPD mpd;
+
     private boolean giveup;
 
-    private LinkedList<StatusChangeListener> statusChangedListeners;
-    private LinkedList<TrackPositionListener> trackPositionChangedListeners;
+    private final LinkedList<StatusChangeListener> statusChangedListeners;
+
+    private final LinkedList<TrackPositionListener> trackPositionChangedListeners;
 
     /**
      * Constructs a MPDStatusMonitor.
-     * 
-     * @param mpd MPD server to monitor.
+     *
+     * @param mpd   MPD server to monitor.
      * @param delay status query interval.
      */
-    public MPDStatusMonitor(MPD mpd, int delay) {
+    public MPDStatusMonitor(MPD mpd, long delay) {
         super("MPDStatusMonitor");
 
         this.mpd = mpd;
         this.delay = delay;
         this.giveup = false;
-        this.statusChangedListeners = new LinkedList<StatusChangeListener>();
-        this.trackPositionChangedListeners = new LinkedList<TrackPositionListener>();
+        this.statusChangedListeners = new LinkedList<>();
+        this.trackPositionChangedListeners = new LinkedList<>();
 
         // integrate MPD stuff into listener lists
         addStatusChangeListener(mpd.getPlaylist());
     }
 
     /**
-     * Adds a <code>StatusChangeListener</code>.
-     * 
-     * @param listener a <code>StatusChangeListener</code>.
+     * Adds a {@code StatusChangeListener}.
+     *
+     * @param listener a {@code StatusChangeListener}.
      */
     public void addStatusChangeListener(StatusChangeListener listener) {
         statusChangedListeners.add(listener);
     }
 
     /**
-     * Adds a <code>TrackPositionListener</code>.
-     * 
-     * @param listener a <code>TrackPositionListener</code>.
+     * Adds a {@code TrackPositionListener}.
+     *
+     * @param listener a {@code TrackPositionListener}.
      */
     public void addTrackPositionListener(TrackPositionListener listener) {
         trackPositionChangedListeners.add(listener);
@@ -104,7 +106,7 @@ public class MPDStatusMonitor extends Thread {
         int oldSong = -1;
         int oldSongId = -1;
         int oldPlaylistVersion = -1;
-        long oldElapsedTime = -1;
+        long oldElapsedTime = -1L;
         String oldState = "";
         int oldVolume = -1;
         boolean oldUpdating = false;
@@ -145,16 +147,15 @@ public class MPDStatusMonitor extends Thread {
                             if (change.startsWith("changed: database")) {
                                 dbChanged = true;
                                 statusChanged = true;
-                                break;
-                            } else if (change.startsWith("changed: update")) {
-                                dbChanged = true;
                             } else if (change.startsWith("changed: playlist")
+                                    || change.startsWith("changed: update")
                                     || change.startsWith("changed: player") ||
                                     change.startsWith("changed: mixer")
                                     || change.startsWith("changed: output")
                                     || change.startsWith("changed: options")) {
                                 statusChanged = true;
                             }
+
                             if (dbChanged && statusChanged) {
                                 break;
                             }
@@ -170,10 +171,11 @@ public class MPDStatusMonitor extends Thread {
                         // playlist
                         if (connectionStateChanged
                                 || (oldPlaylistVersion != status.getPlaylistVersion() && status
-                                        .getPlaylistVersion() != -1)) {
+                                .getPlaylistVersion() != -1)) {
                             // Lets update our own copy
-                            for (StatusChangeListener listener : statusChangedListeners)
+                            for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.playlistChanged(status, oldPlaylistVersion);
+                            }
                             oldPlaylistVersion = status.getPlaylistVersion();
                         }
 
@@ -234,7 +236,7 @@ public class MPDStatusMonitor extends Thread {
                         // update database
                         if (connectionStateChanged || oldUpdating != status.isUpdating()) {
                             for (StatusChangeListener listener : statusChangedListeners) {
-                                listener.libraryStateChanged(status.isUpdating());
+                                listener.libraryStateChanged(status.isUpdating(), dbChanged);
                             }
                             oldUpdating = status.isUpdating();
                         }
@@ -249,7 +251,7 @@ public class MPDStatusMonitor extends Thread {
             }
             try {
                 synchronized (this) {
-                    this.wait(this.delay);
+                    this.wait(delay);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

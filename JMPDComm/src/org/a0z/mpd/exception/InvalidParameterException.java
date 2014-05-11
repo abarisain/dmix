@@ -29,7 +29,6 @@ package org.a0z.mpd.exception;
 
 /**
  * @author Felipe Gustavo de Almeida
- * @version $Id$
  */
 public class InvalidParameterException extends RuntimeException {
 
@@ -44,7 +43,7 @@ public class InvalidParameterException extends RuntimeException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
      */
     public InvalidParameterException(String message) {
@@ -53,9 +52,9 @@ public class InvalidParameterException extends RuntimeException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
-     * @param cause cause of this exception.
+     * @param cause   cause of this exception.
      */
     public InvalidParameterException(String message, Throwable cause) {
         super(message, cause);
@@ -63,7 +62,7 @@ public class InvalidParameterException extends RuntimeException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param cause cause of this exception.
      */
     public InvalidParameterException(Throwable cause) {

@@ -23,7 +23,7 @@ import android.os.Bundle;
 
 public class SettingsActivity extends Activity implements StatusChangeListener {
 
-    private MPDApplication app;
+    private final MPDApplication app = MPDApplication.getInstance();
 
     private SettingsFragment settingsFragment;
 
@@ -31,7 +31,6 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         settingsFragment = new SettingsFragment();
-        app = (MPDApplication) getApplication();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, settingsFragment).commit();
@@ -57,11 +56,11 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        settingsFragment.onConnectionStateChanged(app, connected);
+        settingsFragment.onConnectionStateChanged();
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
 
     }
 

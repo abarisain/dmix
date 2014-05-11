@@ -37,8 +37,6 @@ public class MPDConnectionHandler extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // MPDApplication app = (MPDApplication)
-        // context.getApplicationContext();
         String action = intent.getAction();
         if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
             Log.d(MPDApplication.TAG, "WIFI-STATE:" + intent.getAction());

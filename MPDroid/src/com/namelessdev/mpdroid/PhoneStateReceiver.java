@@ -16,15 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.telephony.TelephonyManager;
-import android.util.Log;
-
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.MPDConnectionInfo;
 import com.namelessdev.mpdroid.tools.NetworkHelper;
@@ -34,11 +25,21 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.telephony.TelephonyManager;
+import android.util.Log;
+
 import java.net.UnknownHostException;
 
 public class PhoneStateReceiver extends BroadcastReceiver {
     // Used to trace when the app pauses / resumes playback
     private static final String PAUSED_MARKER = "wasPausedInCall";
+    private final MPDApplication app = MPDApplication.getInstance();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -84,9 +85,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         }
         // get configured MPD connection
         final MPDAsyncHelper oMPDAsyncHelper = new MPDAsyncHelper();
-        SettingsHelper settingsHelper = new SettingsHelper(
-                context.getApplicationContext(),
-                oMPDAsyncHelper);
+        SettingsHelper settingsHelper = new SettingsHelper(app, oMPDAsyncHelper);
         settingsHelper.updateConnectionSettings();
 
         // schedule real work

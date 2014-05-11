@@ -75,12 +75,11 @@ public class LocalCover implements ICoverRetriever {
         return uri.toString();
     }
 
-    private MPDApplication app = null;
+    private final MPDApplication app = MPDApplication.getInstance();
 
     private SharedPreferences settings = null;
 
-    public LocalCover(MPDApplication app, SharedPreferences settings) {
-        this.app = app;
+    public LocalCover(SharedPreferences settings) {
         this.settings = settings;
     }
 

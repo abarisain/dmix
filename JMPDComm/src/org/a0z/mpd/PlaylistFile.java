@@ -34,9 +34,13 @@ import java.util.regex.Pattern;
  * Represents a playlist in the database
  */
 public class PlaylistFile extends Item implements FilesystemTreeEntry {
-    private String fullpath;
 
-    public PlaylistFile(String path) {
+    private final String fullpath;
+
+    private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");
+
+    public PlaylistFile(final String path) {
+        super();
         fullpath = path;
     }
 
@@ -47,15 +51,16 @@ public class PlaylistFile extends Item implements FilesystemTreeEntry {
 
     @Override
     public String getName() {
+        String result = "";
+
         if (fullpath != null) {
-            Matcher matcher = Pattern.compile("^.*/(.+)\\.(\\w+)$").matcher(fullpath);
+            final Matcher matcher = PLAYLIST_FILE_REGEXP.matcher(fullpath);
             if (matcher.matches()) {
-                return matcher.replaceAll("[$2] $1.$2");
+                result = matcher.replaceAll("[$2] $1.$2");
             } else {
-                return fullpath;
+                result = fullpath;
             }
         }
-        return "";
+        return result;
     }
-
 }

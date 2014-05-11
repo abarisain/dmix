@@ -16,21 +16,6 @@
 
 package com.namelessdev.mpdroid.library;
 
-import android.app.ActionBar;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
-import android.support.v4.app.FragmentTransaction;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.widget.TextView;
-
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
@@ -45,6 +30,20 @@ import com.namelessdev.mpdroid.fragments.StreamsFragment;
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.app.ActionBar;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.FragmentTransaction;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.widget.TextView;
 
 public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         ILibraryFragmentActivity, OnBackStackChangedListener {
@@ -97,7 +96,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
                     if (targetElement instanceof Artist) {
                         AlbumsFragment af;
                         final SharedPreferences settings = PreferenceManager
-                                .getDefaultSharedPreferences(getApplication());
+                                .getDefaultSharedPreferences(app);
                         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                             af = new AlbumsGridFragment((Artist) targetElement);
                         } else {
@@ -140,7 +139,6 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
 
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-        final MPDApplication app = (MPDApplication) getApplicationContext();
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOLUME_UP:
                 new Thread(new Runnable() {
@@ -172,7 +170,6 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
 
     @Override
     public boolean onKeyUp(int keyCode, final KeyEvent event) {
-        final MPDApplication app = (MPDApplication) getApplicationContext();
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:

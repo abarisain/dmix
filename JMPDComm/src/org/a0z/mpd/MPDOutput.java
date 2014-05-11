@@ -33,8 +33,11 @@ import java.util.List;
  * Class representing one configured output
  */
 public class MPDOutput {
+
     private String name;
+
     private int id;
+
     private boolean enabled;
 
     MPDOutput(List<String> response) {

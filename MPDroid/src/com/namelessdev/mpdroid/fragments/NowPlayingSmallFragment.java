@@ -52,7 +52,6 @@ import android.widget.TextView;
 public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener {
 
     public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
-        Music actSong = null;
         MPDStatus status = null;
 
         @Override
@@ -129,7 +128,11 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                     lastArtist = artist;
                     lastAlbum = album;
                     coverArtListener.onCoverNotFound(new CoverInfo(artist, album));
+                    coverHelper.downloadCover(new AlbumInfo(artist, album));
                 } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
+                    final int noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light_big
+                            : R.drawable.no_cover_art_big;
+                    coverArt.setImageResource(noCoverDrawable);
                     coverHelper.downloadCover(actSong.getAlbumInfo());
                     lastArtist = artist;
                     lastAlbum = album;
@@ -142,7 +145,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         }
     }
 
-    private MPDApplication app;
+    private final MPDApplication app = MPDApplication.getInstance();
     private CoverAsyncHelper coverHelper;
     private TextView songTitle;
 
@@ -157,6 +160,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     private String lastArtist = "";
     private String lastAlbum = "";
     private boolean showAlbumArtist;
+
+    private Music actSong = null;
 
     private boolean lightTheme;
 
@@ -213,13 +218,12 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        if (isDetached() || songTitle == null || songArtist == null)
-            return;
-        connected = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD
-                .isConnected();
-        if (connected) {
-            songTitle.setText(getResources().getString(R.string.noSongInfo));
-            songArtist.setText("");
+        if (connected && isAdded()) {
+            new updateTrackInfoAsync().execute((MPDStatus[]) null);
+            if (songTitle != null && songArtist != null) {
+                songTitle.setText(getResources().getString(R.string.noSongInfo));
+                songArtist.setText("");
+            }
         } else {
             songTitle.setText(getResources().getString(R.string.notConnected));
             songArtist.setText("");
@@ -227,13 +231,12 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void libraryStateChanged(boolean updating) {
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        app = (MPDApplication) activity.getApplication();
         lightTheme = app.isLightThemeSelected();
     }
 
@@ -259,7 +262,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
         showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
 
-        coverHelper = new CoverAsyncHelper(app, settings);
+        coverHelper = new CoverAsyncHelper(settings);
         coverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = coverArt.getViewTreeObserver();
         vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -290,10 +293,17 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if(app.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
+            new updateTrackInfoAsync().execute((MPDStatus[]) null);
+        }
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
-        new updateTrackInfoAsync().execute((MPDStatus[]) null);
     }
 
     @Override
@@ -303,12 +313,15 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
-        if (isDetached())
-            return;
-        // If the playlist changed but not the song position in the playlist
-        // We end up being desynced. Update the current song.
-        new updateTrackInfoAsync().execute((MPDStatus[]) null);
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+        if (isAdded() && actSong != null && actSong.isStream() &&
+                app.oMPDAsyncHelper.oMPD.isConnected()) {
+            /**
+             * If the current song is a stream, the metadata can change in place, and that will only
+             * change the playlist, not the track, so, update if we detect a stream.
+             */
+            new updateTrackInfoAsync().execute(mpdStatus);
+        }
     }
 
     @Override
@@ -322,23 +335,27 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void stateChanged(MPDStatus status, String oldState) {
-        if (!isAdded())
-            return;
-        app.getApplicationState().currentMpdStatus = status;
-        if (status.getState() != null && buttonPlayPause != null) {
-            if (status.getState().equals(MPDStatus.MPD_STATE_PLAYING)) {
-                buttonPlayPause.setImageDrawable(getResources().getDrawable(
-                        lightTheme ? R.drawable.ic_media_pause_light : R.drawable.ic_media_pause));
-            } else {
-                buttonPlayPause.setImageDrawable(getResources().getDrawable(
-                        lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play));
+        if (isAdded()) {
+            app.getApplicationState().currentMpdStatus = status;
+            if (status != null && buttonPlayPause != null) {
+                if (MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
+                    buttonPlayPause.setImageDrawable(getResources().getDrawable(
+                            lightTheme ? R.drawable.ic_media_pause_light
+                                    : R.drawable.ic_media_pause));
+                } else {
+                    buttonPlayPause.setImageDrawable(getResources().getDrawable(
+                            lightTheme ? R.drawable.ic_media_play_light
+                                    : R.drawable.ic_media_play));
+                }
             }
         }
     }
 
-    @Override
+   @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        new updateTrackInfoAsync().execute(mpdStatus);
+        if(app.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
+            new updateTrackInfoAsync().execute(mpdStatus);
+        }
     }
 
     public void updateCover(AlbumInfo albumInfo) {

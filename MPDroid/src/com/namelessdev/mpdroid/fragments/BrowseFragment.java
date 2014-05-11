@@ -16,6 +16,14 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
+
+import org.a0z.mpd.Item;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,19 +45,11 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
-
-import org.a0z.mpd.Item;
-import org.a0z.mpd.exception.MPDServerException;
+import java.util.List;
 
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
-
-import java.util.List;
 
 public abstract class BrowseFragment extends Fragment implements OnMenuItemClickListener,
         AsyncExecListener, OnItemClickListener,
@@ -193,8 +193,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 item.setOnMenuItemClickListener(this);
 
                 try {
-                    List<Item> playlists = ((MPDApplication) getActivity().getApplication()).oMPDAsyncHelper.oMPD
-                            .getPlaylists();
+                    List<Item> playlists = app.oMPDAsyncHelper.oMPD.getPlaylists();
 
                     if (null != playlists) {
                         for (Item pl : playlists) {

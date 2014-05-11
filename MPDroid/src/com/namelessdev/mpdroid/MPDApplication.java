@@ -51,6 +51,7 @@ public class MPDApplication extends Application implements ConnectionListener {
     public class ApplicationState {
         public boolean streamingMode = false;
         public boolean notificationMode = false;
+        public boolean persistentNotification = false;
         public boolean settingsShown = false;
         public boolean warningShown = false;
         public MPDStatus currentMpdStatus = null;

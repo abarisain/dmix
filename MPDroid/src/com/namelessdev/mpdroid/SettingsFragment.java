@@ -19,6 +19,7 @@ import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatistics;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
@@ -33,6 +34,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
 import android.text.format.Formatter;
+import android.util.Log;
 
 public class SettingsFragment extends PreferenceFragment {
 
@@ -68,6 +70,9 @@ public class SettingsFragment extends PreferenceFragment {
 
     private boolean preferencesBinded;
 
+    private final MPDApplication app = MPDApplication.getInstance();
+
+    private static final String TAG = "com.namelessdev.mpdroid.SettingsFragment";
 
     public SettingsFragment() {
         preferencesBinded = false;
@@ -135,44 +140,36 @@ public class SettingsFragment extends PreferenceFragment {
         if (getActivity() == null || !preferencesBinded) {
             return;
         }
-        final MPDApplication app = (MPDApplication) getActivity().getApplication();
-        long size = new CachedCover(app).getCacheUsage();
+        long size = new CachedCover().getCacheUsage();
         final String usage = Formatter.formatFileSize(app, size);
         cacheUsage1.setSummary(usage);
         cacheUsage2.setSummary(usage);
-        onConnectionStateChanged(app, app.oMPDAsyncHelper.oMPD.isConnected());
+        onConnectionStateChanged();
     }
 
-    public void onConnectionStateChanged(final MPDApplication app, boolean connected) {
-        informationScreen.setEnabled(connected);
-        new Thread(new Runnable() {
+    public void onConnectionStateChanged() {
+        final MPD mpd = app.oMPDAsyncHelper.oMPD;
+        informationScreen.setEnabled(mpd.isConnected());
 
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    final String versionText = app.oMPDAsyncHelper.oMPD
-                            .getMpdVersion();
-                    final String artistsText = ""
-                            + app.oMPDAsyncHelper.oMPD.getStatistics()
-                            .getArtists();
-                    final String albumsText = ""
-                            + app.oMPDAsyncHelper.oMPD.getStatistics()
-                            .getAlbums();
-                    final String songsText = ""
-                            + app.oMPDAsyncHelper.oMPD.getStatistics()
-                            .getSongs();
+                    final String versionText = mpd.getMpdVersion();
+                    final MPDStatistics mpdStatistics = mpd.getStatistics();
+
                     handler.post(new Runnable() {
 
                         @Override
                         public void run() {
                             version.setSummary(versionText);
-                            artists.setSummary(artistsText);
-                            albums.setSummary(albumsText);
-                            songs.setSummary(songsText);
+                            artists.setSummary(String.valueOf(mpdStatistics.getArtists()));
+                            albums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
+                            songs.setSummary(String.valueOf(mpdStatistics.getSongs()));
                         }
                     });
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to get MPD statistics.", e);
                 }
             }
         }).start();
@@ -184,8 +181,6 @@ public class SettingsFragment extends PreferenceFragment {
         if (preference.getKey() == null) {
             return false;
         }
-
-        final MPDApplication app = (MPDApplication) getActivity().getApplication();
 
         if (preference.getKey().equals("refreshMPDDatabase")) {
             try {
@@ -202,7 +197,7 @@ public class SettingsFragment extends PreferenceFragment {
                         public void onClick(DialogInterface dialog, int which) {
                             // Todo : The covermanager must already have been
                             // initialized, get rid of the getInstance arguments
-                            CoverManager.getInstance(app, null).clear();
+                            CoverManager.getInstance(null).clear();
                             cacheUsage1.setSummary("0.00B");
                             cacheUsage2.setSummary("0.00B");
                         }

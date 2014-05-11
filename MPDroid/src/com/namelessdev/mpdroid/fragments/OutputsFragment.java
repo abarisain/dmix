@@ -36,14 +36,13 @@ import java.util.List;
 
 public class OutputsFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
-    private MPDApplication app;
+    private final MPDApplication app = MPDApplication.getInstance();
 
     private ArrayList<MPDOutput> outputs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (MPDApplication) getActivity().getApplication();
         outputs = new ArrayList<>();
     }
 

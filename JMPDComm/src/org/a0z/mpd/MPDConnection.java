@@ -27,14 +27,9 @@
 
 package org.a0z.mpd;
 
-import static android.util.Log.e;
-import static android.util.Log.w;
-
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
-
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,18 +40,20 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static android.util.Log.e;
+import static android.util.Log.w;
+
 /**
  * Class representing a connection to MPD Server.
- * 
- * @version $Id: MPDConnection.java 2941 2005-02-09 02:34:21Z galmeida $
  */
 public abstract class MPDConnection {
+
     class MpdCallable extends MPDCommand implements Callable<MPDCommandResult> {
 
         private int retry = 0;
@@ -89,15 +86,15 @@ public abstract class MPDConnection {
                     this.setSentToServer(false);
                     handleConnectionFailure(result, ex0);
                     if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
-                        result.setResult(Arrays.asList("changed: playlist"));
+                        result.setResult(Collections.singletonList("changed: playlist"));
                     }
                 } catch (MPDServerException ex1) {
-                    // Avoid getting in an infinite loop if an error occured in the password cmd
-                    if (ex1.getErrorKind() != MPDServerException.ErrorKind.PASSWORD) {
-                        handleConnectionFailure(result, ex1);
-                    } else {
+                    // Avoid getting in an infinite loop if an error occurred in the password cmd
+                    if (ex1.getErrorKind() == MPDServerException.ErrorKind.PASSWORD) {
                         result.setLastexception(new MPDServerException(
                                 "Wrong password"));
+                    } else {
+                        handleConnectionFailure(result, ex1);
                     }
                 }
                 retryable = isRetryable(command) || !this.isSentToServer();
@@ -117,7 +114,9 @@ public abstract class MPDConnection {
     }
 
     class MPDCommandResult {
+
         private MPDServerException lastexception = null;
+
         private List<String> result = null;
 
         public MPDServerException getLastexception() {
@@ -140,48 +139,59 @@ public abstract class MPDConnection {
     public static final String TAG = "MPDConnection";
 
     private static final int CONNECTION_TIMEOUT = 10000;
+
     public static final String MPD_RESPONSE_ERR = "ACK";
+
     private static final String MPD_RESPONSE_OK = "OK";
+
     private static final String MPD_CMD_START_BULK = "command_list_begin";
+
     private static final String MPD_CMD_START_BULK_OK = "command_list_ok_begin";
+
     private static final String MPD_CMD_BULK_SEP = "list_OK";
 
     private static final String MPD_CMD_END_BULK = "command_list_end";
+
     public static final String POOL_THREAD_NAME_PREFIX = "pool";
 
-    private InetAddress hostAddress;
-    private int hostPort;
+    private final InetAddress hostAddress;
+
+    private final int hostPort;
+
     private int[] mpdVersion;
 
     private List<MPDCommand> commandQueue;
-    private int readWriteTimeout;
 
-    private ExecutorService executor;
+    private final int readWriteTimeout;
 
-    private int maxThreads;
+    private final ExecutorService executor;
+
+    private final int maxThreads;
+
     protected boolean cancelled = false;
 
     private boolean albumGroupingSupported = false;
 
-    private final static int MAX_CONNECT_RETRY = 3;
+    private static final int MAX_CONNECT_RETRY = 3;
 
-    private final static int MAX_REQUEST_RETRY = 3;
+    private static final int MAX_REQUEST_RETRY = 3;
 
 
     static List<String[]> separatedQueueResults(List<String> lines) {
-        List<String[]> result = new ArrayList<String[]>();
-        ArrayList<String> lineCache = new ArrayList<String>();
+        List<String[]> result = new ArrayList<>();
+        ArrayList<String> lineCache = new ArrayList<>();
 
         for (String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
-                if (lineCache.size() != 0) {
+                if (!lineCache.isEmpty()) {
                     result.add(lineCache.toArray(new String[lineCache.size()]));
                     lineCache.clear();
                 }
-            } else
+            } else {
                 lineCache.add(line);
+            }
         }
-        if (lineCache.size() != 0) {
+        if (!lineCache.isEmpty()) {
             result.add(lineCache.toArray(new String[lineCache.size()]));
         }
         return result;
@@ -194,7 +204,7 @@ public abstract class MPDConnection {
         this.readWriteTimeout = readWriteTimeout;
         hostPort = port;
         hostAddress = server;
-        commandQueue = new ArrayList<MPDCommand>();
+        commandQueue = new ArrayList<>();
         maxThreads = maxConnections;
         executor = Executors.newFixedThreadPool(maxThreads);
         this.password = password;
@@ -205,7 +215,7 @@ public abstract class MPDConnection {
         this(server, port, readWriteTimeout, 1, password);
     }
 
-    final protected int[] connect() throws MPDServerException {
+    protected final int[] connect() throws MPDServerException {
 
         int[] result = null;
         int retry = 0;
@@ -217,7 +227,7 @@ public abstract class MPDConnection {
             } catch (MPDServerException e1) {
                 lastException = e1;
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(500L);
                 } catch (InterruptedException e) {
                     // Nothing to do
                 }
@@ -232,7 +242,7 @@ public abstract class MPDConnection {
             return result;
         } else {
             if (lastException == null) {
-                lastException = new MPDServerException("Connection request cancelled");
+                lastException = new MPDServerException("Connection request canceled");
             }
             throw new MPDServerException(lastException);
         }
@@ -266,7 +276,7 @@ public abstract class MPDConnection {
         try {
             result.setLastexception(ex);
             try {
-                Thread.sleep(500);
+                Thread.sleep(500L);
             } catch (InterruptedException e) {
                 // Nothing to do
             }
@@ -280,7 +290,7 @@ public abstract class MPDConnection {
     private int[] innerConnect() throws MPDServerException {
 
         if (getSocket() != null) { // Always release existing socket if any
-                                   // before creating a new one
+            // before creating a new one
             try {
                 innerDisconnect();
             } catch (MPDServerException e) {
@@ -302,8 +312,9 @@ public abstract class MPDConnection {
                         .split("\\.");
                 int[] result = new int[tmp.length];
 
-                for (int i = 0; i < tmp.length; i++)
+                for (int i = 0; i < tmp.length; i++) {
                     result[i] = Integer.parseInt(tmp[i]);
+                }
 
                 // Use UTF-8 when needed
                 if (result[0] > 0 || result[1] >= 10) {
@@ -337,13 +348,14 @@ public abstract class MPDConnection {
     }
 
     void innerDisconnect() throws MPDServerException {
-        if (innerIsConnected())
+        if (innerIsConnected()) {
             try {
                 getSocket().close();
                 setSocket(null);
             } catch (IOException e) {
                 throw new MPDConnectionException(e.getMessage(), e);
             }
+        }
     }
 
     public boolean innerIsConnected() {
@@ -352,7 +364,7 @@ public abstract class MPDConnection {
 
     private List<String> innerSyncedWriteAsyncRead(MPDCommand command)
             throws MPDServerException {
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
         try {
             writeToServer(command);
         } catch (IOException e) {
@@ -375,9 +387,10 @@ public abstract class MPDConnection {
 
     private List<String> innerSyncedWriteRead(MPDCommand command)
             throws MPDServerException {
-        ArrayList<String> result = new ArrayList<String>();
-        if (!isConnected())
+        ArrayList<String> result = new ArrayList<>();
+        if (!isConnected()) {
             throw new MPDConnectionException("No connection to server");
+        }
 
         // send command
         try {
@@ -389,11 +402,13 @@ public abstract class MPDConnection {
             result = readFromServer();
             return result;
         } catch (MPDConnectionException e) {
-            if (command.command.equals(MPDCommand.MPD_CMD_CLOSE))
+            if (command.command.equals(MPDCommand.MPD_CMD_CLOSE)) {
                 return result;// we sent close command, so don't care about
-                              // Exception while wrong to read response
-            else
+            }
+            // Exception while wrong to read response
+            else {
                 throw e;
+            }
         } catch (IOException e) {
             throw new MPDConnectionException(e);
         }
@@ -409,7 +424,7 @@ public abstract class MPDConnection {
 
     /**
      * Authenticate using password.
-     * 
+     *
      * @param password password.
      * @throws MPDServerException if an error occur while contacting server.
      */
@@ -452,14 +467,15 @@ public abstract class MPDConnection {
     }
 
     private ArrayList<String> readFromServer() throws MPDServerException, IOException {
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
         BufferedReader in = new BufferedReader(getInputStream(), 1024);
 
         boolean dataReaded = false;
         for (String line = in.readLine(); line != null; line = in.readLine()) {
             dataReaded = true;
-            if (line.startsWith(MPD_RESPONSE_OK))
+            if (line.startsWith(MPD_RESPONSE_OK)) {
                 break;
+            }
             if (line.startsWith(MPD_RESPONSE_ERR)) {
 
                 if (line.contains("permission")) {
@@ -520,12 +536,12 @@ public abstract class MPDConnection {
     }
 
     List<String> sendCommandQueue(boolean withSeparator) throws MPDServerException {
-        String commandstr = (withSeparator ? MPD_CMD_START_BULK_OK : MPD_CMD_START_BULK) + "\n";
+        String commandstr = (withSeparator ? MPD_CMD_START_BULK_OK : MPD_CMD_START_BULK) + '\n';
         for (MPDCommand command : commandQueue) {
             commandstr += command.toString();
         }
         commandstr += MPD_CMD_END_BULK;
-        commandQueue = new ArrayList<MPDCommand>();
+        commandQueue = new ArrayList<>();
         return sendRawCommand(new MPDCommand(commandstr));
     }
 

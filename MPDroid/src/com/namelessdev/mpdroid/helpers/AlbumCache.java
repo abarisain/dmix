@@ -16,9 +16,6 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import android.content.Context;
-import android.util.Log;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -27,6 +24,9 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDConnection;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.content.Context;
+import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

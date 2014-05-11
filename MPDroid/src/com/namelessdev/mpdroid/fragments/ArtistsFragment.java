@@ -122,7 +122,7 @@ public class ArtistsFragment extends BrowseFragment {
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
         AlbumsFragment af;
         final SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(getActivity().getApplication());
+                .getDefaultSharedPreferences(app);
         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
             af = new AlbumsGridFragment((Artist) items.get(position), genre);
         } else {

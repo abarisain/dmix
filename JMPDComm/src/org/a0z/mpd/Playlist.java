@@ -28,6 +28,7 @@
 package org.a0z.mpd;
 
 public class Playlist extends Item {
+
     private final String name;
 
     public Playlist(String name) {

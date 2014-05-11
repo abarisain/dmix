@@ -36,9 +36,8 @@ import java.util.regex.Pattern;
 
 /**
  * Represents an MPD Server error.
- * 
+ *
  * @author Felipe Gustavo de Almeida
- * @version $Id: MPDServerException.java 2716 2004-11-20 17:37:20Z galmeida $
  */
 public class MPDServerException extends MPDException {
 
@@ -46,11 +45,11 @@ public class MPDServerException extends MPDException {
 
     private static final String TAG = "MPDServerException";
 
-    private final static Pattern ACK_CODE_PATTERN = Pattern.compile("([0-9]+)");
+    private static final Pattern ACK_CODE_PATTERN = Pattern.compile("([0-9]+)");
 
     public enum ErrorKind {
         PASSWORD,
-        UNKOWN
+        UNKNOWN
     }
 
     /**
@@ -62,7 +61,7 @@ public class MPDServerException extends MPDException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
      */
     public MPDServerException(String message) {
@@ -71,9 +70,9 @@ public class MPDServerException extends MPDException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param message exception message.
-     * @param cause cause of this exception.
+     * @param cause   cause of this exception.
      */
     public MPDServerException(String message, Throwable cause) {
         super(message, cause);
@@ -81,7 +80,7 @@ public class MPDServerException extends MPDException {
 
     /**
      * Constructor.
-     * 
+     *
      * @param cause cause of this exception.
      */
     public MPDServerException(Throwable cause) {
@@ -97,7 +96,7 @@ public class MPDServerException extends MPDException {
      */
     public ErrorKind getErrorKind() {
         int errorNumber;
-        ErrorKind errorKind = ErrorKind.UNKOWN;
+        ErrorKind errorKind = ErrorKind.UNKNOWN;
         if (getMessage() != null && getMessage().startsWith(MPDConnection.MPD_RESPONSE_ERR)) {
             try {
                 final Matcher matcher = ACK_CODE_PATTERN.matcher(getMessage());
