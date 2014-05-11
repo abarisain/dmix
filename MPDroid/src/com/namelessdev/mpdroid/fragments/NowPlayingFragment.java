@@ -974,12 +974,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void trackPositionChanged(final MPDStatus status) {
-        if (activity != null && status != null) {
-            final long totalTime = status.getTotalTime();
-            final long elapsedTime = status.getElapsedTime();
-
-            startPosTimer(elapsedTime, totalTime);
-        }
+        toggleTrackProgress(status);
     }
 
     private void updatePlaylistCovers(AlbumInfo albumInfo) {
