@@ -29,7 +29,12 @@ public class PlaylistStream extends AbstractPlaylistMusic {
     }
 
     public String getPlayListMainLine() {
-        return getName().replace("." + getExtension(getName()), "");
+        // If title is given in a stream's metadata it is likely more relevant than the filename
+	if (haveTitle()) {
+            return getTitle();
+       } else {
+            return getName().replace("." + getExtension(getName()), "");
+	}
     }
 
     public String getPlaylistSubLine() {
