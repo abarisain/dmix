@@ -285,7 +285,7 @@ public class StreamsFragment extends BrowseFragment {
     private ArrayList<Stream> loadOldStreams() {
         ArrayList<Stream> oldStreams=null;
         try {
-            InputStream in = getActivity().openFileInput(FILE_NAME);
+            InputStream in = app.openFileInput(FILE_NAME);
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser xpp = factory.newPullParser();
 
@@ -305,7 +305,7 @@ public class StreamsFragment extends BrowseFragment {
             }
             in.close();
             // Now remove file - all streams will be added to MPD...
-            getActivity().deleteFile(FILE_NAME);
+            app.deleteFile(FILE_NAME);
         } catch (FileNotFoundException e) {
         } catch (Exception e) {
             Log.e("Streams", "Error while loading streams", e);
