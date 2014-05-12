@@ -105,6 +105,31 @@ public class AlbumsFragment extends BrowseFragment {
         }
     }
 
+    /**
+     * Uses CoverManager to clean up a cover.
+     *
+     * @param item The MenuItem from the user interaction.
+     * @param isWrongCover True to blacklist the cover, false otherwise.
+     */
+    private void cleanupCover(final MenuItem item, final boolean isWrongCover) {
+        final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
+                .getMenuInfo();
+
+        final Album album = (Album) items.get((int) info.id);
+        final AlbumInfo albumInfo = album.getAlbumInfo();
+
+        if(isWrongCover) {
+            CoverManager.getInstance(PreferenceManager.getDefaultSharedPreferences(app))
+                    .markWrongCover(albumInfo);
+        } else {
+            CoverManager.getInstance(PreferenceManager.getDefaultSharedPreferences(app))
+                    .clear(albumInfo);
+        }
+
+        refreshCover(info.targetView, albumInfo);
+        updateNowPlayingSmallFragment(albumInfo);
+    }
+
     @Override
     protected ListAdapter getCustomListAdapter() {
         if (items != null) {
@@ -170,29 +195,21 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
-                .getMenuInfo();
-        Album album;
+    public boolean onMenuItemClick(final MenuItem item) {
+        boolean result = false;
+
         switch (item.getGroupId()) {
             case POPUP_COVER_BLACKLIST:
-                album = (Album) items.get((int) info.id);
-                CoverManager.getInstance(PreferenceManager.getDefaultSharedPreferences(app))
-                        .markWrongCover(album.getAlbumInfo());
-                refreshCover(info.targetView, album.getAlbumInfo());
-                updateNowPlayingSmallFragment(album.getAlbumInfo());
+                cleanupCover(item, true);
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
-                album = (Album) items.get((int) info.id);
-                CoverManager.getInstance(PreferenceManager.getDefaultSharedPreferences(app))
-                        .clear(album.getAlbumInfo());
-                refreshCover(info.targetView, album.getAlbumInfo());
-                updateNowPlayingSmallFragment(album.getAlbumInfo());
+                cleanupCover(item, false);
                 break;
             default:
-                return super.onMenuItemClick(item);
+                result = super.onMenuItemClick(item);
+                break;
         }
-        return false;
+        return result;
     }
 
     @Override
