@@ -19,9 +19,9 @@ package com.namelessdev.mpdroid;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
@@ -77,27 +77,6 @@ public final class NotificationService extends Service implements StatusChangeLi
      */
     public static final String ACTION_OPEN_NOTIFICATION = FULLY_QUALIFIED_NAME
             + "NOTIFICATION_OPEN";
-
-    /**
-     * The following are server actions
-     */
-    public static final String ACTION_TOGGLE_PLAYBACK = FULLY_QUALIFIED_NAME + "PLAY_PAUSE";
-
-    public static final String ACTION_PLAY = FULLY_QUALIFIED_NAME + "PLAY";
-
-    public static final String ACTION_PAUSE = FULLY_QUALIFIED_NAME + "PAUSE";
-
-    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + "STOP";
-
-    public static final String ACTION_NEXT = FULLY_QUALIFIED_NAME + "NEXT";
-
-    public static final String ACTION_REWIND = FULLY_QUALIFIED_NAME + "REWIND";
-
-    public static final String ACTION_PREVIOUS = FULLY_QUALIFIED_NAME + "PREVIOUS";
-
-    public static final String ACTION_MUTE = FULLY_QUALIFIED_NAME + "MUTE";
-
-    public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
     /** Pre-built PendingIntent actions */
     private static PendingIntent notificationClose = null;
@@ -199,10 +178,10 @@ public final class NotificationService extends Service implements StatusChangeLi
     private static void buildStaticPendingIntents(final Context context) {
         /** Build notification media player button actions */
         notificationClose = buildStaticPendingIntent(context, ACTION_CLOSE_NOTIFICATION);
-        notificationNext = buildStaticPendingIntent(context, ACTION_NEXT);
-        notificationPause = buildStaticPendingIntent(context, ACTION_PAUSE);
-        notificationPlay = buildStaticPendingIntent(context, ACTION_PLAY);
-        notificationPrevious = buildStaticPendingIntent(context, ACTION_PREVIOUS);
+        notificationNext = buildStaticPendingIntent(context, MPDControl.ACTION_NEXT);
+        notificationPause = buildStaticPendingIntent(context, MPDControl.ACTION_PAUSE);
+        notificationPlay = buildStaticPendingIntent(context, MPDControl.ACTION_PLAY);
+        notificationPrevious = buildStaticPendingIntent(context, MPDControl.ACTION_PREVIOUS);
     }
 
     /**
@@ -333,14 +312,7 @@ public final class NotificationService extends Service implements StatusChangeLi
             case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
                 if (app.getApplicationState().streamingMode ||
                         "127.0.0.1".equals(app.oMPDAsyncHelper.getConnectionSettings().sServer)) {
-                    action = ACTION_PAUSE;
-                }
-                break;
-            case ACTION_TOGGLE_PLAYBACK:
-                if (MPDStatus.MPD_STATE_PLAYING.equals(getStatus().getState())) {
-                    action = ACTION_PAUSE;
-                } else {
-                    action = ACTION_PLAY;
+                    action = MPDControl.ACTION_PAUSE;
                 }
                 break;
             default:
@@ -348,17 +320,16 @@ public final class NotificationService extends Service implements StatusChangeLi
         }
 
         switch (action) {
-            case ACTION_NEXT:
-            case ACTION_PREVIOUS:
+            case MPDControl.ACTION_NEXT:
+            case MPDControl.ACTION_PREVIOUS:
                 tryToGetAudioFocus();
                 /** fall through */
-            case ACTION_PAUSE:
-            case ACTION_PLAY:
-            case ACTION_REWIND:
-            case ACTION_STOP:
-                if (app.oMPDAsyncHelper != null) {
-                    sendSimpleMpdCommand(action);
-                }
+            case MPDControl.ACTION_TOGGLE_PLAYBACK:
+            case MPDControl.ACTION_PAUSE:
+            case MPDControl.ACTION_PLAY:
+            case MPDControl.ACTION_REWIND:
+            case MPDControl.ACTION_STOP:
+                MPDControl.run(action);
                 break;
             case ACTION_OPEN_NOTIFICATION:
                 stateChanged(getStatus(), null);
@@ -451,52 +422,6 @@ public final class NotificationService extends Service implements StatusChangeLi
                     }
                 }
         );
-    }
-
-    /**
-     * A simple method to safely send a command to MPD.
-     *
-     * @param command An ACTION intent.
-     */
-    private void sendSimpleMpdCommand(final String command) {
-        new Thread(new Runnable() {
-            @Override
-            public final void run() {
-
-                final MPD mpd = app.oMPDAsyncHelper.oMPD;
-
-                try {
-                    switch (command) {
-                        case ACTION_PAUSE:
-                            if (!MPDStatus.MPD_STATE_PAUSED.equals(
-                                    app.oMPDAsyncHelper.oMPD.getStatus().getState())) {
-                                mpd.pause();
-                            }
-                            break;
-                        case ACTION_PLAY:
-                            mpd.play();
-                            break;
-                        case ACTION_STOP:
-                            mpd.stop();
-                            break;
-                        case ACTION_NEXT:
-                            mpd.next();
-                            break;
-                        case ACTION_PREVIOUS:
-                            mpd.previous();
-                            break;
-                        case ACTION_REWIND:
-                            mpd.seek(0L);
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (final MPDServerException e) {
-                    Log.w(TAG, "Failed to send a simple MPD command.", e);
-                }
-            }
-        }
-        ).start();
     }
 
     /**

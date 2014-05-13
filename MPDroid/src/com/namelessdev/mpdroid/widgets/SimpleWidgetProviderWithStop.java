@@ -16,13 +16,14 @@
 
 package com.namelessdev.mpdroid.widgets;
 
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.helpers.MPDControl;
+
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
-
-import com.namelessdev.mpdroid.R;
 
 public class SimpleWidgetProviderWithStop extends SimpleWidgetProvider {
     protected String TAG = "MPDroidSimpleWidgetProviderWithStop";
@@ -39,7 +40,7 @@ public class SimpleWidgetProviderWithStop extends SimpleWidgetProvider {
 
         // stop button
         intent = new Intent(context, WidgetHelperService.class);
-        intent.setAction(WidgetHelperService.CMD_STOP);
+        intent.setAction(MPDControl.ACTION_STOP);
         pendingIntent = PendingIntent.getService(context, 0, intent, 0);
         views.setOnClickPendingIntent(R.id.control_stop, pendingIntent);
     }

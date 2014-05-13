@@ -21,10 +21,10 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
@@ -69,52 +69,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     final OnClickListener buttonClickListener = new OnClickListener() {
         @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.prev:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                app.oMPDAsyncHelper.oMPD.previous();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.playpause:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                final MPD mpd = app.oMPDAsyncHelper.oMPD;
-                                final String state = mpd.getStatus().getState();
-                                if (state.equals(MPDStatus.MPD_STATE_PLAYING)
-                                        || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-                                    mpd.pause();
-                                } else {
-                                    mpd.play();
-                                }
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.next:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                app.oMPDAsyncHelper.oMPD.next();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-            }
+        public void onClick(final View v) {
+            MPDControl.run(v.getId());
         }
     };
 

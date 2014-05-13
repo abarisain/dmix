@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.helpers.MPDControl;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -51,17 +53,17 @@ public class RemoteControlReceiver extends BroadcastReceiver {
             Log.d(TAG, "with keycode: " + eventKeyCode);
             switch (eventKeyCode) {
                 case KeyEvent.KEYCODE_MEDIA_STOP:
-                    command = NotificationService.ACTION_STOP;
+                    command = MPDControl.ACTION_STOP;
                     break;
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    command = NotificationService.ACTION_TOGGLE_PLAYBACK;
+                    command = MPDControl.ACTION_TOGGLE_PLAYBACK;
                     break;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    command = NotificationService.ACTION_NEXT;
+                    command = MPDControl.ACTION_NEXT;
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    command = NotificationService.ACTION_PREVIOUS;
+                    command = MPDControl.ACTION_PREVIOUS;
                     break;
                 default:
                     break;

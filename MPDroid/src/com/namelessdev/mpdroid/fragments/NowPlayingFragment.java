@@ -22,11 +22,11 @@ import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
@@ -79,107 +79,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private class ButtonEventHandler implements Button.OnClickListener, Button.OnLongClickListener {
 
-        public void onClick(View v) {
-            final MPD mpd = app.oMPDAsyncHelper.oMPD;
-            Intent i;
-
-            switch (v.getId()) {
-                case R.id.stop:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.stop();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.next:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.next();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.prev:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.previous();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.playpause:
-                    /**
-                     * If playing or paused, just toggle state, otherwise start
-                     * playing.
-                     * 
-                     * @author slubman
-                     */
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            String state;
-                            try {
-                                state = mpd.getStatus().getState();
-                                if (state.equals(MPDStatus.MPD_STATE_PLAYING)
-                                        || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-                                    mpd.pause();
-                                } else {
-                                    mpd.play();
-                                }
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.shuffle:
-                    try {
-                        mpd.setRandom(!mpd.getStatus().isRandom());
-                    } catch (MPDServerException e) {
-                    }
-                    break;
-                case R.id.repeat:
-                    try {
-                        mpd.setRepeat(!mpd.getStatus().isRepeat());
-                    } catch (MPDServerException e) {
-                    }
-                    break;
-
-            }
+        public void onClick(final View v) {
+            MPDControl.run(v.getId());
         }
 
-        public boolean onLongClick(View v) {
-            MPD mpd = app.oMPDAsyncHelper.oMPD;
-            try {
-                switch (v.getId()) {
-                    case R.id.playpause:
-                        // Implements the ability to stop playing (may be useful
-                        // for streams)
-                        mpd.stop();
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            } catch (MPDServerException e) {
-
+        public boolean onLongClick(final View v) {
+            if(v.getId() == R.id.playpause) {
+                MPDControl.run(MPDControl.ACTION_STOP);
             }
             return true;
         }
-
     }
 
     /**
@@ -551,16 +460,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     public void run() {
                         if (lastSentVol != progress.getProgress()) {
                             lastSentVol = progress.getProgress();
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        app.oMPDAsyncHelper.oMPD.setVolume(lastSentVol);
-                                    } catch (MPDServerException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }).start();
+                            MPDControl.run(MPDControl.ACTION_SET_VOLUME, lastSentVol);
                         }
                     }
 
@@ -591,16 +491,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             @Override
             public void onStopTrackingTouch(final SeekBar seekBar) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.seek((long) seekBar.getProgress());
-                        } catch (final MPDServerException e) {
-                            Log.e(TAG, "Failed to seek using the progress bar.", e);
-                        }
-                    }
-                }).start();
+                MPDControl.run(seekBar.getProgress());
             }
         });
 

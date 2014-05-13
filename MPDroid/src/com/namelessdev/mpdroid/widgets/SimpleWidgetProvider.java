@@ -16,6 +16,10 @@
 
 package com.namelessdev.mpdroid.widgets;
 
+import com.namelessdev.mpdroid.MainMenuActivity;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.helpers.MPDControl;
+
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -24,9 +28,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
-
-import com.namelessdev.mpdroid.MainMenuActivity;
-import com.namelessdev.mpdroid.R;
 
 public class SimpleWidgetProvider extends AppWidgetProvider {
     static String TAG = "MPDroidSimpleWidgetProvider";
@@ -65,19 +66,19 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
         // prev button
         intent = new Intent(context, WidgetHelperService.class);
-        intent.setAction(WidgetHelperService.CMD_PREV);
+        intent.setAction(MPDControl.ACTION_PREVIOUS);
         pendingIntent = PendingIntent.getService(context, 0, intent, 0);
         views.setOnClickPendingIntent(R.id.control_prev, pendingIntent);
 
         // play/pause button
         intent = new Intent(context, WidgetHelperService.class);
-        intent.setAction(WidgetHelperService.CMD_PLAYPAUSE);
+        intent.setAction(MPDControl.ACTION_TOGGLE_PLAYBACK);
         pendingIntent = PendingIntent.getService(context, 0, intent, 0);
         views.setOnClickPendingIntent(R.id.control_play, pendingIntent);
 
         // next button
         intent = new Intent(context, WidgetHelperService.class);
-        intent.setAction(WidgetHelperService.CMD_NEXT);
+        intent.setAction(MPDControl.ACTION_NEXT);
         pendingIntent = PendingIntent.getService(context, 0, intent, 0);
         views.setOnClickPendingIntent(R.id.control_next, pendingIntent);
     }

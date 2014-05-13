@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
@@ -557,28 +558,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOLUME_UP:
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.next();
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                MPDControl.run(MPDControl.ACTION_NEXT);
                 return true;
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.previous();
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                MPDControl.run(MPDControl.ACTION_PREVIOUS);
                 return true;
         }
         return super.onKeyLongPress(keyCode, event);
@@ -591,6 +574,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 if (event.isTracking() && !event.isCanceled()
                         && !app.getApplicationState().streamingMode) {
+
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -657,16 +641,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 startActivity(new Intent(this, ServerListActivity.class));
                 return true;
             case R.id.GMM_Consume:
-                try {
-                    mpd.setConsume(!mpd.getStatus().isConsume());
-                } catch (MPDServerException e) {
-                }
+                MPDControl.run(MPDControl.ACTION_CONSUME);
                 return true;
             case R.id.GMM_Single:
-                try {
-                    mpd.setSingle(!mpd.getStatus().isSingle());
-                } catch (MPDServerException e) {
-                }
+                MPDControl.run(MPDControl.ACTION_SINGLE);
                 return true;
             case R.id.GMM_ShowNotification:
                 if (app.getApplicationState().notificationMode) {
