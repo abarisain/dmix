@@ -234,6 +234,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private ImageButton shuffleButton = null;
     private ImageButton repeatButton = null;
     private ImageButton stopButton = null;
+    private ImageButton buttonPlayPause = null;
     private boolean isAudioNameTextEnabled = false;
     private boolean shuffleCurrent = false;
     private boolean repeatCurrent = false;
@@ -321,6 +322,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             Log.e(TAG, "Failed to seed the status.", e);
         }
 
+        updateStatus(mpdStatus);
         updateTrackInfo(mpdStatus);
     }
 
@@ -329,6 +331,27 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         playlistFragment = (PlaylistFragment) activity.getSupportFragmentManager()
                 .findFragmentById(R.id.playlist_fragment);
         return playlistFragment;
+    }
+
+    protected static int getPlayPauseResource(final String state) {
+        final int resource;
+        final boolean isPlaying = state.equals(MPDStatus.MPD_STATE_PLAYING);
+
+        if(MPDApplication.getInstance().isLightThemeSelected()) {
+            if (isPlaying) {
+                resource = R.drawable.ic_media_pause_light;
+            } else {
+                resource = R.drawable.ic_media_play_light;
+            }
+        } else {
+            if (isPlaying) {
+                resource = R.drawable.ic_media_pause;
+            } else {
+                resource = R.drawable.ic_media_play;
+            }
+        }
+
+        return resource;
     }
 
     @Override
@@ -460,9 +483,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         button = (ImageButton) view.findViewById(R.id.prev);
         button.setOnClickListener(buttonEventHandler);
 
-        button = (ImageButton) view.findViewById(R.id.playpause);
-        button.setOnClickListener(buttonEventHandler);
-        button.setOnLongClickListener(buttonEventHandler);
+        buttonPlayPause = (ImageButton) view.findViewById(R.id.playpause);
+        buttonPlayPause.setOnClickListener(buttonEventHandler);
+        buttonPlayPause.setOnLongClickListener(buttonEventHandler);
 
         stopButton = (ImageButton) view.findViewById(R.id.stop);
         stopButton.setOnClickListener(buttonEventHandler);
@@ -903,14 +926,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void updateStatus(final MPDStatus status) {
         toggleTrackProgress(status);
 
-        final ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-        if (MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
-            button.setImageDrawable(activity.getResources().getDrawable(
-                lightTheme ? R.drawable.ic_media_pause_light : R.drawable.ic_media_pause));
-        } else {
-            button.setImageDrawable(activity.getResources().getDrawable(
-                lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play));
-        }
+        buttonPlayPause.setImageResource(getPlayPauseResource(status.getState()));
 
         setShuffleButton(status.isRandom());
         setRepeatButton(status.isRepeat());
@@ -1024,5 +1040,4 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         toggleVolumeBar(volume);
         seekBarVolume.setProgress(volume);
     }
-
 }

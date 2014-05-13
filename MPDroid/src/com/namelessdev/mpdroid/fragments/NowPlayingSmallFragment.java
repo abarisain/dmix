@@ -208,6 +208,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onResume() {
         super.onResume();
+
+        updatePlayPauseButton(null);
     }
 
     @Override
@@ -252,18 +254,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void stateChanged(MPDStatus status, String oldState) {
         if (isAdded()) {
-            app.getApplicationState().currentMpdStatus = status;
-            if (status != null && buttonPlayPause != null) {
-                if (MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
-                    buttonPlayPause.setImageDrawable(getResources().getDrawable(
-                            lightTheme ? R.drawable.ic_media_pause_light
-                                    : R.drawable.ic_media_pause));
-                } else {
-                    buttonPlayPause.setImageDrawable(getResources().getDrawable(
-                            lightTheme ? R.drawable.ic_media_play_light
-                                    : R.drawable.ic_media_play));
-                }
-            }
+            updatePlayPauseButton(status);
         }
     }
 
@@ -276,6 +267,22 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 && coverArt.getTag().equals(albumInfo.getKey())) {
             coverHelper.downloadCover(albumInfo);
         }
+    }
+
+    private void updatePlayPauseButton(final MPDStatus status) {
+        String state = null;
+
+        if(status == null) {
+            try {
+                state = app.oMPDAsyncHelper.oMPD.getStatus().getState();
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to retrieve server status.", e);
+            }
+        } else {
+            state = status.getState();
+        }
+
+        buttonPlayPause.setImageResource(NowPlayingFragment.getPlayPauseResource(state));
     }
 
     @Override
