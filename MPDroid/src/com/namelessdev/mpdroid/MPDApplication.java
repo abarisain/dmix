@@ -165,18 +165,16 @@ public class MPDApplication extends Application implements ConnectionListener {
                 ad = builder.show();
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
-                builder.setTitle(getResources().getString(R.string.connectionFailed));
+                builder.setTitle(R.string.connectionFailed);
                 builder.setMessage(
                         getResources().getString(R.string.connectionFailedMessage, message));
                 builder.setCancelable(false);
 
                 DialogClickListener oDialogClickListener = new DialogClickListener();
-                builder.setNegativeButton(getResources().getString(R.string.quit),
-                        oDialogClickListener);
-                builder.setNeutralButton(getResources().getString(R.string.settings),
-                        oDialogClickListener);
-                builder.setPositiveButton(getResources().getString(R.string.retry),
-                        oDialogClickListener);
+                builder.setNegativeButton(R.string.quit, oDialogClickListener);
+                builder.setNeutralButton(R.string.settings, oDialogClickListener);
+                builder.setPositiveButton(R.string.retry, oDialogClickListener);
+
                 try {
                     ad = builder.show();
                 } catch (BadTokenException e) {
@@ -199,7 +197,7 @@ public class MPDApplication extends Application implements ConnectionListener {
         // show connecting to server dialog
         if (currentActivity != null) {
             ad = new ProgressDialog(currentActivity);
-            ad.setTitle(getResources().getString(R.string.connecting));
+            ad.setTitle(R.string.connecting);
             ad.setMessage(getResources().getString(R.string.connectingToServer));
             ad.setCancelable(false);
             ad.setOnKeyListener(new OnKeyListener() {

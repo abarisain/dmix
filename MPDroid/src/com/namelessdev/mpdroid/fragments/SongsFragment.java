@@ -407,7 +407,7 @@ public class SongsFragment extends BrowseFragment {
             fixedAlbumInfo = getFixedAlbumInfo();
             String artist = fixedAlbumInfo.getArtist();
             if ("".equals(artist)) {
-                headerArtist.setText(getString(R.string.jmpdcomm_unknown_artist));
+                headerArtist.setText(R.string.jmpdcomm_unknown_artist);
             } else {
                 headerArtist.setText(artist);
             }

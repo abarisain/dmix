@@ -207,7 +207,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         if(connected) {
             forceStatusUpdate();
         } else {
-            songNameText.setText(activity.getResources().getString(R.string.notConnected));
+            songNameText.setText(R.string.notConnected);
         }
     }
 
@@ -310,7 +310,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         lightTheme = app.isLightThemeSelected();
         handler = new Handler();
         setHasOptionsMenu(false);
-        activity.setTitle(activity.getResources().getString(R.string.nowPlaying));
+        activity.setTitle(R.string.nowPlaying);
         activity.registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(
                 WifiManager.NETWORK_STATE_CHANGED_ACTION));
     }
@@ -495,7 +495,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         });
 
-        songNameText.setText(activity.getResources().getString(R.string.notConnected));
+        songNameText.setText(R.string.notConnected);
         Log.i(MPDApplication.TAG, "Initialization succeeded");
 
         return view;

@@ -306,7 +306,7 @@ public class StreamsFragment extends BrowseFragment {
         super.onActivityCreated(savedInstanceState);
         registerForContextMenu(list);
         UpdateList();
-        getActivity().setTitle(getResources().getString(R.string.streams));
+        getActivity().setTitle(R.string.streams);
     }
 
     @Override
@@ -354,17 +354,15 @@ public class StreamsFragment extends BrowseFragment {
                 break;
             case DELETE:
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getResources().getString(R.string.deleteStream));
+                builder.setTitle(R.string.deleteStream);
                 builder.setMessage(
                         getResources().getString(R.string.deleteStreamPrompt,
                         items.get((int) info.id).getName()));
 
                 DeleteDialogClickListener oDialogClickListener = new DeleteDialogClickListener(
                         (int) info.id);
-                builder.setNegativeButton(getResources().getString(android.R.string.no),
-                        oDialogClickListener);
-                builder.setPositiveButton(getResources().getString(R.string.deleteStream),
-                        oDialogClickListener);
+                builder.setNegativeButton(android.R.string.no, oDialogClickListener);
+                builder.setPositiveButton(R.string.deleteStream, oDialogClickListener);
                 try {
                     builder.show();
                 } catch (BadTokenException e) {

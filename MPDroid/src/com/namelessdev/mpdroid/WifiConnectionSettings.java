@@ -103,9 +103,9 @@ public class WifiConnectionSettings extends PreferenceActivity {
                 intent.putExtra("SSID", ssid);
                 pref.setIntent(intent);
                 if (WifiConfiguration.Status.CURRENT == wifi.status)
-                    pref.setSummary(getResources().getString(R.string.connected));
+                    pref.setSummary(R.string.connected);
                 else
-                    pref.setSummary(getResources().getString(R.string.notInRange));
+                    pref.setSummary(R.string.notInRange);
                 mWifibasedCategory.addPreference(pref);
             }
         }

@@ -69,8 +69,8 @@ public class AboutActivity extends Activity {
         final LayoutInflater inflater = LayoutInflater.from(this);
         final View headerView = inflater.inflate(R.layout.about_header, null, false);
         TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
-        versionInfo.setText(getResources().getString(R.string.version) + ": "
-                + getVersionName(this, Activity.class));
+        versionInfo.setText(R.string.version);
+        versionInfo.append(": " + getVersionName(this, Activity.class));
 
         listView.setHeaderDividersEnabled(false);
         listView.addHeaderView(headerView);

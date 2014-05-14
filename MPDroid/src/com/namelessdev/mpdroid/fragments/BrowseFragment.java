@@ -172,7 +172,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 android.view.MenuItem addItem = menu.add(ADD, ADD, 0, R.string.addToQueue);
                 addItem.setOnMenuItemClickListener(this);
             } else {
-                android.view.MenuItem addItem = menu.add(ADD, ADD, 0, getResources().getString(irAdd));
+                android.view.MenuItem addItem = menu.add(ADD, ADD, 0, irAdd);
                 addItem.setOnMenuItemClickListener(this);
                 android.view.MenuItem addAndReplaceItem = menu.add(ADDNREPLACE, ADDNREPLACE, 0,
                         R.string.addAndReplace);

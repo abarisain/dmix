@@ -56,11 +56,10 @@ public class PlaylistsFragment extends BrowseFragment {
                         items.remove(itemIndex);
                     } catch (MPDServerException e) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(getResources().getString(R.string.deletePlaylist));
+                        builder.setTitle(R.string.deletePlaylist);
                         builder.setMessage(
                                 getResources().getString(R.string.failedToDelete, playlist));
-                        builder.setPositiveButton(
-                                getResources().getString(android.R.string.cancel), null);
+                        builder.setPositiveButton(android.R.string.cancel, null);
 
                         try {
                             builder.show();
@@ -144,15 +143,14 @@ public class PlaylistsFragment extends BrowseFragment {
                 String playlist = items.get((int) info.id).getName();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getResources().getString(R.string.deletePlaylist));
+                builder.setTitle(R.string.deletePlaylist);
                 builder.setMessage(
                         getResources().getString(R.string.deletePlaylistPrompt, playlist));
 
                 DialogClickListener oDialogClickListener = new DialogClickListener((int) info.id);
-                builder.setNegativeButton(getResources().getString(android.R.string.no),
-                        oDialogClickListener);
-                builder.setPositiveButton(getResources().getString(R.string.deletePlaylist),
-                        oDialogClickListener);
+                builder.setNegativeButton(android.R.string.no, oDialogClickListener);
+                builder.setPositiveButton(R.string.deletePlaylist, oDialogClickListener);
+
                 try {
                     builder.show();
                 } catch (BadTokenException e) {
