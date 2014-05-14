@@ -190,6 +190,14 @@ public class MPDStatus {
         return error;
     }
 
+    public final float getMixRampDelay() {
+        return mixRampDelay;
+    }
+
+    public final float getMixRampValue() {
+        return mixRampDB;
+    }
+
     public final int getNextSongId() {
         return nextSongId;
     }
