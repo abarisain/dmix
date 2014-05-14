@@ -117,7 +117,6 @@ public class MPDStatus {
         /** These are in every status update. */
         consume = false;
         mixRampDB = 0.0f;
-        mixRampDelay = 0.0f;
         playlistLength = 0;
         playlistVersion = 0;
         random = false;
@@ -341,6 +340,7 @@ public class MPDStatus {
         elapsedTimeHighResolution = 0.0f;
         //noinspection AssignmentToNull
         error = null;
+        mixRampDelay = 0.0f;
         mixRampDisabled = false;
         nextSong = -1;
         nextSongId = 0;
