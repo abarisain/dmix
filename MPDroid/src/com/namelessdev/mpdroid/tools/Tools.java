@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid.tools;
 
+import com.namelessdev.mpdroid.MPDApplication;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -156,8 +158,12 @@ public final class Tools {
         return (str == null || "".equals(str));
     }
 
-    public static void notifyUser(String message, Context context) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    public static void notifyUser(final int resId) {
+        Toast.makeText(MPDApplication.getInstance(), resId, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void notifyUser(final String message) {
+        Toast.makeText(MPDApplication.getInstance(), message, Toast.LENGTH_SHORT).show();
     }
 
     public static int[] toIntArray(List<Integer> list) {

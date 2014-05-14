@@ -420,7 +420,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID,
                                 status.getSongPos() + 1);
                     }
-                    Tools.notifyUser("Song moved to next in list", activity);
+                    Tools.notifyUser("Song moved to next in list");
                 } catch (MPDServerException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -429,7 +429,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             case R.id.PLCX_moveFirst:
                 try { // Move song to first in playlist
                     app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, 0);
-                    Tools.notifyUser("Song moved to first in list", activity);
+                    Tools.notifyUser("Song moved to first in list");
                 } catch (MPDServerException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -440,7 +440,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
                     app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID,
                             status.getPlaylistLength() - 1);
-                    Tools.notifyUser("Song moved to last in list", activity);
+                    Tools.notifyUser("Song moved to last in list");
                 } catch (MPDServerException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -450,9 +450,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 try {
                     app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(popupSongID);
                     if (isAdded()) {
-                        Tools.notifyUser(
-                                getResources().getString(R.string.deletedSongFromPlaylist),
-                                activity);
+                        Tools.notifyUser(R.string.deletedSongFromPlaylist);
                     }
                 } catch (MPDServerException e) {
                     // TODO Auto-generated catch block
@@ -465,9 +463,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         Log.d(PlaylistFragment.class.getSimpleName(), "Remove Album " + popupSongID);
                     app.oMPDAsyncHelper.oMPD.getPlaylist().removeAlbumById(popupSongID);
                     if (isAdded()) {
-                        Tools.notifyUser(
-                                getResources().getString(R.string.deletedSongFromPlaylist),
-                                activity);
+                        Tools.notifyUser(R.string.deletedSongFromPlaylist);
                     }
                 } catch (MPDServerException e) {
                     // TODO Auto-generated catch block
@@ -518,8 +514,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
                     songlist.clear();
                     if (isAdded()) {
-                        Tools.notifyUser(getResources().getString(R.string.playlistCleared),
-                                activity);
+                        Tools.notifyUser(R.string.playlistCleared);
                     }
                     ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
                 } catch (MPDServerException e) {

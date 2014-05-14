@@ -16,16 +16,22 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.tools.StreamFetcher;
+import com.namelessdev.mpdroid.tools.Tools;
+
+import org.a0z.mpd.Item;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDServerException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.util.Xml;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,28 +45,12 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.cover.LocalCover;
-import com.namelessdev.mpdroid.tools.StreamFetcher;
-import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.Item;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
-import org.xmlpull.v1.XmlSerializer;
-
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.zip.GZIPInputStream;
+import java.util.List;
 
 public class StreamsFragment extends BrowseFragment {
     class DeleteDialogClickListener implements OnClickListener {
@@ -79,8 +69,8 @@ public class StreamsFragment extends BrowseFragment {
                         app.oMPDAsyncHelper.oMPD.removeSavedStream(streams.get(itemIndex).getPos());
                         String name = items.get(itemIndex).getName();
                         Tools.notifyUser(
-                                String.format(getResources().getString(R.string.streamDeleted), name),
-                                getActivity());
+                                String.format(getResources().getString(R.string.streamDeleted), name)
+                        );
                         items.remove(itemIndex);
                         streams.remove(itemIndex);
                         updateFromItems();
@@ -140,7 +130,7 @@ public class StreamsFragment extends BrowseFragment {
             final Stream s = (Stream) item;
             app.oMPDAsyncHelper.oMPD.addStream(StreamFetcher.instance().get(s.getUrl(), s.getName()),
                     replace, play);
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         } catch (MalformedURLException e) {

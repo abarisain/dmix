@@ -16,9 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import android.view.View;
-import android.widget.AdapterView;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -27,6 +24,9 @@ import org.a0z.mpd.Genre;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.view.View;
+import android.widget.AdapterView;
 
 public class GenresFragment extends BrowseFragment {
 
@@ -39,7 +39,7 @@ public class GenresFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(
                     app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
@@ -50,7 +50,7 @@ public class GenresFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist,
                     app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         }

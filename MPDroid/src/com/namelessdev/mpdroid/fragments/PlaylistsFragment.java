@@ -16,6 +16,14 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.tools.Tools;
+
+import org.a0z.mpd.Item;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -25,14 +33,6 @@ import android.view.View;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
-import com.namelessdev.mpdroid.library.PlaylistEditActivity;
-import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.Item;
-import org.a0z.mpd.exception.MPDServerException;
 
 public class PlaylistsFragment extends BrowseFragment {
     class DialogClickListener implements OnClickListener {
@@ -52,8 +52,8 @@ public class PlaylistsFragment extends BrowseFragment {
                         app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
                         if (isAdded()) {
                             Tools.notifyUser(String.format(
-                                    getResources().getString(R.string.playlistDeleted), playlist),
-                                    getActivity());
+                                    getResources().getString(R.string.playlistDeleted), playlist)
+                            );
                         }
                         items.remove(itemIndex);
                     } catch (MPDServerException e) {
@@ -90,8 +90,7 @@ public class PlaylistsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
             if (isAdded()) {
-                Tools.notifyUser(String.format(getResources().getString(irAdded), item),
-                        getActivity());
+                Tools.notifyUser(String.format(getResources().getString(irAdded), item));
             }
 
         } catch (MPDServerException e) {

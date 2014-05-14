@@ -75,7 +75,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 // }
             } catch (MPDServerException e) {
             }
-            Tools.notifyUser("Updating ...", app);
+            Tools.notifyUser("Updating ...");
         }
     };
 
@@ -130,7 +130,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                         ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
                     }
                     Tools.notifyUser(String.format(
-                            getResources().getString(R.string.removeCountSongs), count), this);
+                            getResources().getString(R.string.removeCountSongs), count));
                 } catch (Exception e) {
                     e("MPDroid", "General: " + e.toString());
                     update();

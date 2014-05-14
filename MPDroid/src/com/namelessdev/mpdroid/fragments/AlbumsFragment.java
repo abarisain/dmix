@@ -74,7 +74,7 @@ public class AlbumsFragment extends BrowseFragment {
     protected void add(Item item, boolean replace, boolean play) {
         try {
             app.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
@@ -84,7 +84,7 @@ public class AlbumsFragment extends BrowseFragment {
     protected void add(Item item, String playlist) {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ((Album) item));
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item), getActivity());
+            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         }

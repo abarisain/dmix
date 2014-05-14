@@ -20,7 +20,6 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.MPD;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -73,7 +72,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
             if (!coverInfo.getCoverRetriever().isCoverLocal()) {
                 String message = "\"" + coverInfo.getAlbum() + "\" cover found with "
                         + coverInfo.getCoverRetriever().getName();
-                Tools.notifyUser(message, MPD.getApplicationContext());
+                Tools.notifyUser(message);
             }
         } catch (Exception e) {
             // Nothing to do

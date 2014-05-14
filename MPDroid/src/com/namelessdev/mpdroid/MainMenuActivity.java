@@ -267,8 +267,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         final boolean exitConfirmationRequired = settings.getBoolean("enableExitConfirmation",
                 false);
         if (exitConfirmationRequired && backPressExitCount < 1) {
-            Tools.notifyUser(String.format(getResources().getString(R.string.backpressToQuit)),
-                    this);
+            Tools.notifyUser(R.string.backpressToQuit);
             backPressExitCount += 1;
             exitCounterReset.postDelayed(new Runnable() {
                 @Override
