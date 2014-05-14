@@ -68,9 +68,7 @@ public class StreamsFragment extends BrowseFragment {
                     try {
                         app.oMPDAsyncHelper.oMPD.removeSavedStream(streams.get(itemIndex).getPos());
                         String name = items.get(itemIndex).getName();
-                        Tools.notifyUser(
-                                getResources().getString(R.string.streamDeleted, name)
-                        );
+                        Tools.notifyUser(R.string.streamDeleted, name);
                         items.remove(itemIndex);
                         streams.remove(itemIndex);
                         updateFromItems();
@@ -130,7 +128,7 @@ public class StreamsFragment extends BrowseFragment {
             final Stream s = (Stream) item;
             app.oMPDAsyncHelper.oMPD.addStream(StreamFetcher.instance().get(s.getUrl(), s.getName()),
                     replace, play);
-            Tools.notifyUser(getResources().getString(irAdded, item));
+            Tools.notifyUser(irAdded, item);
         } catch (MPDServerException e) {
             e.printStackTrace();
         } catch (MalformedURLException e) {

@@ -44,7 +44,7 @@ public class ArtistsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
             if (isAdded()) {
-                Tools.notifyUser(getResources().getString(irAdded, item));
+                Tools.notifyUser(irAdded, item);
             }
         } catch (MPDServerException e) {
             e.printStackTrace();
@@ -56,7 +56,7 @@ public class ArtistsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
             if (isAdded()) {
-                Tools.notifyUser(getResources().getString(irAdded, item));
+                Tools.notifyUser(irAdded, item);
             }
         } catch (MPDServerException e) {
             e.printStackTrace();

@@ -53,9 +53,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
         Music music = (Music) item;
         try {
             app.oMPDAsyncHelper.oMPD.add(music, replace, play);
-            Tools.notifyUser(
-                    getResources().getString(R.string.songAdded, music.getTitle(), music.getName())
-            );
+            Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
         } catch (MPDServerException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -66,7 +64,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     protected void add(Item item, String playlist) {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
-            Tools.notifyUser(getResources().getString(irAdded, item));
+            Tools.notifyUser(irAdded, item);
         } catch (MPDServerException e) {
             e.printStackTrace();
         }

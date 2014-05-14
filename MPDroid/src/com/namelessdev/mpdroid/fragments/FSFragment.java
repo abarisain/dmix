@@ -62,13 +62,10 @@ public class FSFragment extends BrowseFragment {
             if (ToAdd != null) {
                 // Valid directory
                 app.oMPDAsyncHelper.oMPD.add(ToAdd, replace, play);
-                Tools.notifyUser(
-                        getResources().getString(R.string.addedDirectoryToPlaylist, item)
-                );
+                Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 app.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
-                Tools.notifyUser(getResources().getString(R.string.songAdded, item)
-                );
+                Tools.notifyUser(R.string.songAdded, item);
             }
         } catch (MPDServerException e) {
             e.printStackTrace();
@@ -82,15 +79,13 @@ public class FSFragment extends BrowseFragment {
             if (ToAdd != null) {
                 // Valid directory
                 app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
-                Tools.notifyUser(
-                        getResources().getString(R.string.addedDirectoryToPlaylist, item)
-                );
+                Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 if (item instanceof Music) {
                     ArrayList<Music> songs = new ArrayList<Music>();
                     songs.add((Music) item);
                     app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
-                    Tools.notifyUser(getResources().getString(R.string.songAdded, item));
+                    Tools.notifyUser(R.string.songAdded, item);
                 }
                 if (item instanceof PlaylistFile) {
                     app.oMPDAsyncHelper.oMPD.getPlaylist()

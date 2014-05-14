@@ -158,11 +158,17 @@ public final class Tools {
         return (str == null || "".equals(str));
     }
 
+    public static void notifyUser(final int resId, final Object... format) {
+        final String formattedString =
+                MPDApplication.getInstance().getResources().getString(resId, format);
+        Toast.makeText(MPDApplication.getInstance(), formattedString, Toast.LENGTH_SHORT).show();
+    }
+
     public static void notifyUser(final int resId) {
         Toast.makeText(MPDApplication.getInstance(), resId, Toast.LENGTH_SHORT).show();
     }
 
-    public static void notifyUser(final String message) {
+    public static void notifyUser(final CharSequence message) {
         Toast.makeText(MPDApplication.getInstance(), message, Toast.LENGTH_SHORT).show();
     }
 

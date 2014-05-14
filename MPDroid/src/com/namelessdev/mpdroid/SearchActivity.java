@@ -146,7 +146,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             } else {
                 return;
             }
-            Tools.notifyUser(getResources().getString(addedString, note));
+            Tools.notifyUser(addedString, note);
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
@@ -155,8 +155,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     protected void add(Music music, boolean replace, boolean play) {
         try {
             app.oMPDAsyncHelper.oMPD.add(music, replace, play);
-            Tools.notifyUser(getResources().getString(R.string.songAdded,
-                    music.getTitle(), music.getName()));
+            Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
         } catch (MPDServerException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

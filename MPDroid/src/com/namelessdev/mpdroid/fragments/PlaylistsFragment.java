@@ -51,9 +51,7 @@ public class PlaylistsFragment extends BrowseFragment {
                     try {
                         app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
                         if (isAdded()) {
-                            Tools.notifyUser(
-                                    getResources().getString(R.string.playlistDeleted, playlist)
-                            );
+                            Tools.notifyUser(R.string.playlistDeleted, playlist);
                         }
                         items.remove(itemIndex);
                     } catch (MPDServerException e) {
@@ -90,7 +88,7 @@ public class PlaylistsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
             if (isAdded()) {
-                Tools.notifyUser(getResources().getString(irAdded, item));
+                Tools.notifyUser(irAdded, item);
             }
 
         } catch (MPDServerException e) {
