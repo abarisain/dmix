@@ -270,16 +270,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            default:
-                break;
-        }
-
-    }
-
-    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         this.activity = (FragmentActivity) activity;
