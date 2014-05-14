@@ -129,8 +129,8 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                     if (copy.size() != songlist.size()) {
                         ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
                     }
-                    Tools.notifyUser(String.format(
-                            getResources().getString(R.string.removeCountSongs), count));
+                    Tools.notifyUser(
+                            getResources().getString(R.string.removeCountSongs, count));
                 } catch (Exception e) {
                     e("MPDroid", "General: " + e.toString());
                     update();

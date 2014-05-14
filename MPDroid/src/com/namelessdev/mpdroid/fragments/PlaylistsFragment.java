@@ -51,16 +51,16 @@ public class PlaylistsFragment extends BrowseFragment {
                     try {
                         app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
                         if (isAdded()) {
-                            Tools.notifyUser(String.format(
-                                    getResources().getString(R.string.playlistDeleted), playlist)
+                            Tools.notifyUser(
+                                    getResources().getString(R.string.playlistDeleted, playlist)
                             );
                         }
                         items.remove(itemIndex);
                     } catch (MPDServerException e) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setTitle(getResources().getString(R.string.deletePlaylist));
-                        builder.setMessage(String.format(
-                                getResources().getString(R.string.failedToDelete), playlist));
+                        builder.setMessage(
+                                getResources().getString(R.string.failedToDelete, playlist));
                         builder.setPositiveButton(
                                 getResources().getString(android.R.string.cancel), null);
 
@@ -90,7 +90,7 @@ public class PlaylistsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
             if (isAdded()) {
-                Tools.notifyUser(String.format(getResources().getString(irAdded), item));
+                Tools.notifyUser(getResources().getString(irAdded, item));
             }
 
         } catch (MPDServerException e) {
@@ -147,8 +147,8 @@ public class PlaylistsFragment extends BrowseFragment {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getResources().getString(R.string.deletePlaylist));
-                builder.setMessage(String.format(
-                        getResources().getString(R.string.deletePlaylistPrompt), playlist));
+                builder.setMessage(
+                        getResources().getString(R.string.deletePlaylistPrompt, playlist));
 
                 DialogClickListener oDialogClickListener = new DialogClickListener((int) info.id);
                 builder.setNegativeButton(getResources().getString(android.R.string.no),

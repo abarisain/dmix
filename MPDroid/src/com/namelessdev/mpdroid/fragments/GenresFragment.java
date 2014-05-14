@@ -39,7 +39,7 @@ public class GenresFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(
                     app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
+            Tools.notifyUser(getResources().getString(irAdded, item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
@@ -50,7 +50,7 @@ public class GenresFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist,
                     app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
+            Tools.notifyUser(getResources().getString(irAdded, item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         }

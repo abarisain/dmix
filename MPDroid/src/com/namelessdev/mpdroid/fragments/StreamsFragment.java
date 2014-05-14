@@ -69,7 +69,7 @@ public class StreamsFragment extends BrowseFragment {
                         app.oMPDAsyncHelper.oMPD.removeSavedStream(streams.get(itemIndex).getPos());
                         String name = items.get(itemIndex).getName();
                         Tools.notifyUser(
-                                String.format(getResources().getString(R.string.streamDeleted), name)
+                                getResources().getString(R.string.streamDeleted, name)
                         );
                         items.remove(itemIndex);
                         streams.remove(itemIndex);
@@ -130,7 +130,7 @@ public class StreamsFragment extends BrowseFragment {
             final Stream s = (Stream) item;
             app.oMPDAsyncHelper.oMPD.addStream(StreamFetcher.instance().get(s.getUrl(), s.getName()),
                     replace, play);
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
+            Tools.notifyUser(getResources().getString(irAdded, item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         } catch (MalformedURLException e) {
@@ -357,8 +357,8 @@ public class StreamsFragment extends BrowseFragment {
             case DELETE:
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getResources().getString(R.string.deleteStream));
-                builder.setMessage(String.format(
-                        getResources().getString(R.string.deleteStreamPrompt),
+                builder.setMessage(
+                        getResources().getString(R.string.deleteStreamPrompt,
                         items.get((int) info.id).getName()));
 
                 DeleteDialogClickListener oDialogClickListener = new DeleteDialogClickListener(

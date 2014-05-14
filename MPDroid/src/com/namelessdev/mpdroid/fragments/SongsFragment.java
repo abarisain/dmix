@@ -84,8 +84,7 @@ public class SongsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.add(music, replace, play);
             Tools.notifyUser(
-                    String.format(getResources().getString(R.string.songAdded, music.getTitle()),
-                            music.getName())
+                    getResources().getString(R.string.songAdded, music.getTitle(), music.getName())
             );
         } catch (MPDServerException e) {
             // TODO Auto-generated catch block
@@ -97,7 +96,7 @@ public class SongsFragment extends BrowseFragment {
     protected void add(Item item, String playlist) {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
-            Tools.notifyUser(String.format(getResources().getString(irAdded), item));
+            Tools.notifyUser(getResources().getString(irAdded, item));
         } catch (MPDServerException e) {
             e.printStackTrace();
         }
@@ -167,8 +166,8 @@ public class SongsFragment extends BrowseFragment {
 
     private String getHeaderInfoString() {
         final int count = items.size();
-        return String.format(getString(count > 1 ? R.string.tracksInfoHeaderPlural
-                : R.string.tracksInfoHeader), count,
+        return getString(count > 1 ? R.string.tracksInfoHeaderPlural
+                : R.string.tracksInfoHeader, count,
                 getTotalTimeForTrackList());
     }
 
@@ -284,8 +283,8 @@ public class SongsFragment extends BrowseFragment {
                         }
                         try {
                             app.oMPDAsyncHelper.oMPD.add(album, replace, play);
-                            Tools.notifyUser(String.format(
-                                    getResources().getString(R.string.albumAdded), album)
+                            Tools.notifyUser(
+                                    getResources().getString(R.string.albumAdded, album)
                             );
                         } catch (MPDServerException e) {
                             e.printStackTrace();

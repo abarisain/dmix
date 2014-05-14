@@ -156,8 +156,8 @@ public class MPDApplication extends Application implements ConnectionListener {
             if (currentActivity.getClass() == SettingsActivity.class) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
                 builder.setCancelable(false);
-                builder.setMessage(String.format(
-                        getResources().getString(R.string.connectionFailedMessageSetting), message));
+                builder.setMessage(
+                        getResources().getString(R.string.connectionFailedMessageSetting, message));
                 builder.setPositiveButton("OK", new OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                     }
@@ -166,8 +166,8 @@ public class MPDApplication extends Application implements ConnectionListener {
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
                 builder.setTitle(getResources().getString(R.string.connectionFailed));
-                builder.setMessage(String.format(
-                        getResources().getString(R.string.connectionFailedMessage), message));
+                builder.setMessage(
+                        getResources().getString(R.string.connectionFailedMessage, message));
                 builder.setCancelable(false);
 
                 DialogClickListener oDialogClickListener = new DialogClickListener();
