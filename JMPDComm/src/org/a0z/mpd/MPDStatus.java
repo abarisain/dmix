@@ -80,6 +80,8 @@ public class MPDStatus {
 
     private float mixRampDelay;
 
+    private boolean mixRampDisabled;
+
     private int nextSong;
 
     private int nextSongId;
@@ -274,6 +276,15 @@ public class MPDStatus {
     }
 
     /**
+     * MixRampDB can return an invalid value
+     *
+     * @return True if mixRampDB is enabled, false otherwise.
+     */
+    public final boolean isMixRampEnabled() {
+        return !mixRampDisabled;
+    }
+
+    /**
      * If random is enabled return true, return false if random is disabled.
      *
      * @return true if random is enabled, false if random is disabled
@@ -322,6 +333,7 @@ public class MPDStatus {
         elapsedTimeHighResolution = 0.0f;
         //noinspection AssignmentToNull
         error = null;
+        mixRampDisabled = false;
         nextSong = -1;
         nextSongId = 0;
         sampleRate = 0;
@@ -350,6 +362,7 @@ public class MPDStatus {
                 ", nextSongId: " + nextSongId +
                 ", mixRampDB: " + mixRampDB +
                 ", mixRampDelay: " + mixRampDelay +
+                ", mixRampDisabled: " + mixRampDisabled +
                 ", playlist: " + playlistVersion +
                 ", playlistLength: " + playlistLength +
                 ", random: " + random +
@@ -401,7 +414,15 @@ public class MPDStatus {
                     error = lines[1];
                     break;
                 case "mixrampdb":
-                    mixRampDB = Float.parseFloat(lines[1]);
+                    try {
+                        mixRampDB = Float.parseFloat(lines[1]);
+                    } catch (final NumberFormatException e) {
+                        if ("nan".equals(lines[1])) {
+                            mixRampDisabled = true;
+                        } else {
+                            Log.e(TAG, "Unexpected value from mixrampdb.", e);
+                        }
+                    }
                     break;
                 case "mixrampdelay":
                     mixRampDelay = Float.parseFloat(lines[1]);
