@@ -46,6 +46,35 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
     private static final boolean DEBUG = CoverManager.DEBUG;
 
+    private static String readInputStream(final InputStream content) {
+        final InputStreamReader inputStreamReader = new InputStreamReader(content);
+        final BufferedReader reader = new BufferedReader(inputStreamReader);
+
+        /** We have no /idea/ how large the input is going to be. */
+        //noinspection StringBufferWithoutInitialCapacity
+        final StringBuilder result = new StringBuilder();
+        String line;
+
+        try {
+            line = reader.readLine();
+            do {
+                result.append(line);
+                line = reader.readLine();
+            } while (line != null);
+        } catch (final IOException e) {
+            Log.e(TAG, "Failed to retrieve the with the buffered reader.", e);
+        } finally {
+            try {
+                inputStreamReader.close();
+                reader.close();
+            } catch (final IOException e) {
+                Log.e(TAG, "Failed to close the buffered reader.", e);
+            }
+        }
+
+        return result.toString();
+    }
+
     protected String executeGetRequest(final String rawRequest) {
         final HttpGet httpGet;
         final String httpRequest;
@@ -75,36 +104,30 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
         final URL url = CoverManager.buildURLForConnection(request);
         final HttpURLConnection connection = CoverManager.getHttpConnection(url);
-        BufferedReader br = null;
-        final StringBuilder result = new StringBuilder();
-        String line;
+        String result = null;
+        InputStream inputStream = null;
 
         if (CoverManager.urlExists(connection)) {
             /** TODO: After minSdkVersion="19" use try-with-resources here. */
             try {
-                final InputStream inputStream = connection.getInputStream();
-                br = new BufferedReader(new InputStreamReader(inputStream));
-                line = br.readLine();
-                do {
-                    result.append(line);
-                    line = br.readLine();
-                } while (line != null);
+                inputStream = connection.getInputStream();
+                result = readInputStream(inputStream);
             } catch (final IOException e) {
                 Log.e(TAG, "Failed to execute cover get request.", e);
             } finally {
                 if (connection != null) {
                     connection.disconnect();
                 }
-                if (br != null) {
-                    try {
-                        br.close();
-                    } catch (final IOException e) {
-                        Log.e(TAG, "Failed to close the buffered reader.", e);
+                try {
+                    if (inputStream != null) {
+                        inputStream.close();
                     }
+                } catch (final IOException e) {
+                    Log.e(TAG, "Failed to close input stream from get request.", e);
                 }
             }
         }
-        return result.toString();
+        return result;
     }
 
     protected String executePostRequest(final String url, final String request) {
@@ -132,14 +155,12 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     String executeRequest(final HttpUriRequest request) {
 
         final AndroidHttpClient client = prepareRequest();
-        final StringBuilder builder = new StringBuilder();
         final HttpResponse response;
         final StatusLine statusLine;
         final int statusCode;
         final HttpEntity entity;
-        final InputStream content;
-        final BufferedReader reader;
-        String line;
+        InputStream content = null;
+        String result = null;
 
         try {
             response = client.execute(request);
@@ -147,15 +168,9 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             statusCode = statusLine.getStatusCode();
 
             if (CoverManager.urlExists(statusCode)) {
-
                 entity = response.getEntity();
                 content = entity.getContent();
-                reader = new BufferedReader(new InputStreamReader(content));
-                line = reader.readLine();
-                while (line != null) {
-                    builder.append(line);
-                    line = reader.readLine();
-                }
+                result = readInputStream(content);
             } else {
                 Log.w(TAG, "Failed to download cover : HTTP status code : " + statusCode);
 
@@ -165,14 +180,21 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         } catch (final IllegalStateException e) {
             Log.e(TAG, "Illegal state exception when downloading.", e);
         } finally {
+            if (content != null) {
+                try {
+                    content.close();
+                } catch (final IOException e) {
+                    Log.e(TAG, "Failed to close the content.", e);
+                }
+            }
             if (client != null) {
                 client.close();
             }
         }
         if (DEBUG) {
-            Log.d(TAG, "Http response : " + builder);
+            Log.d(TAG, "HTTP response: " + result);
         }
-        return builder.toString();
+        return result;
     }
 
     @Override
