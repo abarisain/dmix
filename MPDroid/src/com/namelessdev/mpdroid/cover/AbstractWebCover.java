@@ -112,7 +112,6 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         String result = null;
 
         try {
-            prepareRequest();
             httpPost = new HttpPost(url);
             if (DEBUG) {
                 Log.d(TAG, "Http request : " + request);
