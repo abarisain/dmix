@@ -16,8 +16,6 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 
 import org.apache.http.HttpEntity;
@@ -25,9 +23,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
@@ -40,24 +39,26 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+@SuppressWarnings("resource")
 public abstract class AbstractWebCover implements ICoverRetriever {
 
-    private final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
-    private final static boolean DEBUG = CoverManager.DEBUG;
+    private static final String TAG = "com.namelessdev.mpdroid.AbstractWebCover";
 
-    protected String executeGetRequest(String _request) {
-        HttpGet httpGet;
-        String request;
-        String response;
+    private static final boolean DEBUG = CoverManager.DEBUG;
 
-        request = _request.replace(" ", "%20");
+    protected String executeGetRequest(final String rawRequest) {
+        final HttpGet httpGet;
+        final String httpRequest;
+        final String response;
+
+        httpRequest = rawRequest.replace(" ", "%20");
         if (DEBUG) {
-            Log.d(getName(), "Http request : " + request);
+            Log.d(TAG, "HTTP request : " + httpRequest);
         }
-        httpGet = new HttpGet(request);
+        httpGet = new HttpGet(httpRequest);
         response = executeRequest(httpGet);
 
-        if (request != null && !httpGet.isAborted()) {
+        if (httpRequest != null && !httpGet.isAborted()) {
             httpGet.abort();
         }
         return response;
@@ -66,61 +67,60 @@ public abstract class AbstractWebCover implements ICoverRetriever {
     /**
      * Use a connection instead of httpClient to be able to handle redirection
      * Redirection are needed for MusicBrainz web services.
-     * 
+     *
      * @param request The web service request
      * @return The web service response
      */
-    protected String executeGetRequestWithConnection(String request) {
+    protected String executeGetRequestWithConnection(final String request) {
 
-        URL url = CoverManager.buildURLForConnection(request);
-        HttpURLConnection connection = CoverManager.getHttpConnection(url);
+        final URL url = CoverManager.buildURLForConnection(request);
+        final HttpURLConnection connection = CoverManager.getHttpConnection(url);
         BufferedReader br = null;
-        String result = null;
+        final StringBuilder result = new StringBuilder();
         String line;
 
-        if (!CoverManager.urlExists(connection)) {
-            return null;
-        }
-
-        /** TODO: After minSdkVersion="19" use try-with-resources here. */
-        try {
-            InputStream inputStream = connection.getInputStream();
-            br = new BufferedReader(new InputStreamReader(inputStream));
-            line = br.readLine();
-            do {
-                result += line;
+        if (CoverManager.urlExists(connection)) {
+            /** TODO: After minSdkVersion="19" use try-with-resources here. */
+            try {
+                final InputStream inputStream = connection.getInputStream();
+                br = new BufferedReader(new InputStreamReader(inputStream));
                 line = br.readLine();
-            } while(line != null);
-        } catch (Exception e) {
-            Log.e(CoverAsyncHelper.class.getSimpleName(), "Failed to execute cover get request.", e);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    Log.e(MPDApplication.TAG, "Failed to close the buffered reader.", e);
+                do {
+                    result.append(line);
+                    line = br.readLine();
+                } while (line != null);
+            } catch (final IOException e) {
+                Log.e(TAG, "Failed to execute cover get request.", e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                if (br != null) {
+                    try {
+                        br.close();
+                    } catch (final IOException e) {
+                        Log.e(TAG, "Failed to close the buffered reader.", e);
+                    }
                 }
             }
         }
-        return result;
+        return result.toString();
     }
 
-    protected String executePostRequest(String url, String request) {
+    protected String executePostRequest(final String url, final String request) {
         HttpPost httpPost = null;
         String result = null;
 
         try {
             prepareRequest();
             httpPost = new HttpPost(url);
-            if (DEBUG)
-                Log.d(getName(), "Http request : " + request);
+            if (DEBUG) {
+                Log.d(TAG, "Http request : " + request);
+            }
             httpPost.setEntity(new StringEntity(request));
             result = executeRequest(httpPost);
-        } catch (UnsupportedEncodingException e) {
-            Log.e(getName(), "Cannot build the HTTP POST : " + e);
+        } catch (final UnsupportedEncodingException e) {
+            Log.e(TAG, "Cannot build the HTTP POST : " + e);
             result = "";
         } finally {
             if (request != null && httpPost != null && !httpPost.isAborted()) {
@@ -130,16 +130,16 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         return result;
     }
 
-    protected String executeRequest(HttpRequestBase request) {
+    String executeRequest(final HttpUriRequest request) {
 
-        AndroidHttpClient client = prepareRequest();
-        StringBuilder builder = new StringBuilder();
-        HttpResponse response;
-        StatusLine statusLine;
-        int statusCode;
-        HttpEntity entity;
-        InputStream content;
-        BufferedReader reader;
+        final AndroidHttpClient client = prepareRequest();
+        final StringBuilder builder = new StringBuilder();
+        final HttpResponse response;
+        final StatusLine statusLine;
+        final int statusCode;
+        final HttpEntity entity;
+        final InputStream content;
+        final BufferedReader reader;
         String line;
 
         try {
@@ -147,38 +147,47 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             statusLine = response.getStatusLine();
             statusCode = statusLine.getStatusCode();
 
-            if(CoverManager.urlExists(statusCode)) {
+            if (CoverManager.urlExists(statusCode)) {
 
                 entity = response.getEntity();
                 content = entity.getContent();
                 reader = new BufferedReader(new InputStreamReader(content));
-                while ((line = reader.readLine()) != null) {
+                line = reader.readLine();
+                while (line != null) {
                     builder.append(line);
+                    line = reader.readLine();
                 }
             } else {
-                Log.w(getName(), "Failed to download cover : HTTP status code : " + statusCode);
+                Log.w(TAG, "Failed to download cover : HTTP status code : " + statusCode);
 
             }
-        } catch (Exception e) {
-            Log.e(getName(), "Failed to download cover :" + e);
+        } catch (final IOException e) {
+            Log.e(TAG, "Failed to download cover.", e);
+        } catch (final IllegalStateException e) {
+            Log.e(TAG, "Illegal state exception when downloading.", e);
         } finally {
             if (client != null) {
                 client.close();
             }
         }
-        if (DEBUG)
-            Log.d(getName(), "Http response : " + builder);
+        if (DEBUG) {
+            Log.d(TAG, "Http response : " + builder);
+        }
         return builder.toString();
     }
 
+    @Override
     public boolean isCoverLocal() {
         return false;
     }
 
-    protected AndroidHttpClient prepareRequest() {
-        AndroidHttpClient client = AndroidHttpClient.newInstance(USER_AGENT);
-        HttpConnectionParams.setConnectionTimeout(client.getParams(), 5000);
-        HttpConnectionParams.setSoTimeout(client.getParams(), 5000);
+    AndroidHttpClient prepareRequest() {
+        final int fiveSeconds = 5000;
+        final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
+        final AndroidHttpClient client = AndroidHttpClient.newInstance(USER_AGENT);
+        final HttpParams params = client.getParams();
+        HttpConnectionParams.setConnectionTimeout(params, fiveSeconds);
+        HttpConnectionParams.setSoTimeout(params, fiveSeconds);
 
         return client;
     }
