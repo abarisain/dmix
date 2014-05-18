@@ -108,8 +108,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
         // display cover art in album listing if caching is on
         if (artist != null && album != null && enableCache) {
             // listen for new artwork to be loaded
-            final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context,
-                    holder.cover, lightTheme);
+            final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.cover);
             final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.cover
                     .getTag(R.id.AlbumCoverDownloadListener);
             if (oldAcd != null)

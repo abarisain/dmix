@@ -44,10 +44,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -86,13 +84,11 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     private class QueueAdapter extends ArrayAdapter {
 
-        private SharedPreferences settings;
         private boolean lightTheme;
 
         public QueueAdapter(Context context, List<?> data, int resource) {
             super(context, resource, data);
 
-            settings = PreferenceManager.getDefaultSharedPreferences(app);
             lightTheme = app.isLightThemeSelected();
         }
 
@@ -112,8 +108,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 // If the list is not displayed yet, the height is 0. This is a
                 // problem, so set a fallback one.
                 viewHolder.coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
-                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(activity,
-                        viewHolder.cover, lightTheme);
+                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(
+                        viewHolder.cover);
                 final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) viewHolder.cover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {

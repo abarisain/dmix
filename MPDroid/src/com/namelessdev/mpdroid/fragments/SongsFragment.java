@@ -233,8 +233,7 @@ public class SongsFragment extends BrowseFragment {
             albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
         }
 
-        coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress,
-                app.isLightThemeSelected(), false);
+        coverArtListener = new AlbumCoverDownloadListener(coverArt, coverArtProgress, false);
         coverHelper = new CoverAsyncHelper();
         coverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = coverArt.getViewTreeObserver();

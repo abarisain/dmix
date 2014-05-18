@@ -119,9 +119,8 @@ public class AlbumDataBinder extends BaseDataBinder {
             // display cover art in album listing if caching is on
             if (album.getAlbumInfo().isValid() && enableCache) {
                 // listen for new artwork to be loaded
-                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context,
-                        holder.albumCover, holder.coverArtProgress,
-                        lightTheme, false);
+                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(
+                        holder.albumCover, holder.coverArtProgress, false);
                 final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {

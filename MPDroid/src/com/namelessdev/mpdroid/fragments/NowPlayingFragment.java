@@ -371,8 +371,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         oCoverAsyncHelper.setCoverMaxSizeFromScreen(activity);
         oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());
 
-        coverArtListener = new AlbumCoverDownloadListener(activity, coverArt, coverArtProgress,
-                app.isLightThemeSelected(), true);
+        coverArtListener = new AlbumCoverDownloadListener(coverArt, coverArtProgress, true);
         oCoverAsyncHelper.addCoverDownloadListener(coverArtListener);
 
         buttonEventHandler = new ButtonEventHandler();

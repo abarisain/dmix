@@ -126,8 +126,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
         coverArt = (ImageView) view.findViewById(R.id.albumCover);
         coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-        coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt,
-                coverArtProgress, app.isLightThemeSelected(), false);
+        coverArtListener = new AlbumCoverDownloadListener(coverArt, coverArtProgress, false);
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
