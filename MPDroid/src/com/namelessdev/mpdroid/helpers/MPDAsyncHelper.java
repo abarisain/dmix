@@ -178,7 +178,7 @@ public class MPDAsyncHelper extends Handler {
     }
 
     public class MPDConnectionInfo {
-        public String sServer;
+        public String sServer = null;
         public int iPort;
         public String sPassword;
         public String sServerStreaming;

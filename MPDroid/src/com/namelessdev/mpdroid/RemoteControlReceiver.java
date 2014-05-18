@@ -30,49 +30,63 @@ import android.view.KeyEvent;
  * the code was taken from the Android Open Source Project music app.
  *
  * @author Arnaud Barisain Monrose (Dream_Team)
- * @version $Id: $
  */
 public class RemoteControlReceiver extends BroadcastReceiver {
 
     private static final String TAG = "com.namelessdev.mpdroid.RemoteControlReceiver";
 
+    private final MPDApplication app = MPDApplication.getInstance();
+
     @Override
     public final void onReceive(final Context context, final Intent intent) {
         final String action = intent.getAction();
         final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-        String command = null;
 
         Log.d(TAG, "Intent: " + intent + " received with context: " + context + " with action: "
                 + action);
 
-        if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
-            command = AudioManager.ACTION_AUDIO_BECOMING_NOISY;
-        } else if (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
+        if (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
                 Intent.ACTION_MEDIA_BUTTON.equals(action)) {
             final int eventKeyCode = event.getKeyCode();
             Log.d(TAG, "with keycode: " + eventKeyCode);
             switch (eventKeyCode) {
                 case KeyEvent.KEYCODE_MEDIA_STOP:
-                    command = MPDControl.ACTION_STOP;
+                    MPDControl.run(MPDControl.ACTION_STOP);
                     break;
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    command = MPDControl.ACTION_TOGGLE_PLAYBACK;
+                    MPDControl.run(MPDControl.ACTION_TOGGLE_PLAYBACK);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    command = MPDControl.ACTION_NEXT;
+                    MPDControl.run(MPDControl.ACTION_NEXT);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    command = MPDControl.ACTION_PREVIOUS;
+                    MPDControl.run(MPDControl.ACTION_PREVIOUS);
                     break;
                 default:
                     break;
             }
-        }
-        if (command != null) {
-            final Intent notificationServiceIntent = new Intent(context, NotificationService.class);
-            notificationServiceIntent.setAction(command);
-            context.startService(notificationServiceIntent);
+        } else {
+            switch (action) {
+                case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
+                    if (app.getApplicationState().streamingMode ||
+                            "127.0.0.1"
+                                    .equals(app.oMPDAsyncHelper.getConnectionSettings().sServer)) {
+                        MPDControl.run(MPDControl.ACTION_PAUSE);
+                    }
+                    break;
+                case NotificationService.ACTION_CLOSE_NOTIFICATION:
+                    app.getApplicationState().persistentNotification = false;
+                    app.getApplicationState().notificationMode = false;
+
+                    final Intent notificationServiceIntent
+                            = new Intent(context, NotificationService.class);
+                    context.stopService(notificationServiceIntent);
+                    break;
+                default:
+                    MPDControl.run(action);
+                    break;
+            }
         }
     }
 }

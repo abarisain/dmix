@@ -294,7 +294,7 @@ public final class StreamingService extends Service implements
                 }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
-                sendIntent(MPDControl.ACTION_PAUSE, NotificationService.class);
+                MPDControl.run(MPDControl.ACTION_PAUSE);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 mediaPlayer.pause();
