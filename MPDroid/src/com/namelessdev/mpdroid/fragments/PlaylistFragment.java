@@ -107,7 +107,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 viewHolder.title = (TextView) convertView.findViewById(android.R.id.text1);
                 viewHolder.play = (ImageView) convertView.findViewById(R.id.picture);
                 viewHolder.cover = (ImageView) convertView.findViewById(R.id.cover);
-                viewHolder.coverHelper = new CoverAsyncHelper(settings);
+                viewHolder.coverHelper = new CoverAsyncHelper();
                 final int height = viewHolder.cover.getHeight();
                 // If the list is not displayed yet, the height is 0. This is a
                 // problem, so set a fallback one.

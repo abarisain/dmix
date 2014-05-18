@@ -34,7 +34,6 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.PopupMenuCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -165,8 +164,9 @@ public class SongsFragment extends BrowseFragment {
     private String getHeaderInfoString() {
         final int count = items.size();
         return getString(count > 1 ? R.string.tracksInfoHeaderPlural
-                : R.string.tracksInfoHeader, count,
-                getTotalTimeForTrackList());
+                        : R.string.tracksInfoHeader, count,
+                getTotalTimeForTrackList()
+        );
     }
 
     @Override
@@ -233,10 +233,9 @@ public class SongsFragment extends BrowseFragment {
             albumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
         }
 
-        coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt,
-                coverArtProgress, app.isLightThemeSelected(), false);
-        coverHelper = new CoverAsyncHelper(
-                PreferenceManager.getDefaultSharedPreferences(getActivity()));
+        coverArtListener = new AlbumCoverDownloadListener(getActivity(), coverArt, coverArtProgress,
+                app.isLightThemeSelected(), false);
+        coverHelper = new CoverAsyncHelper();
         coverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = coverArt.getViewTreeObserver();
         vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -310,16 +309,12 @@ public class SongsFragment extends BrowseFragment {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getGroupId()) {
                     case POPUP_COVER_BLACKLIST:
-                        CoverManager.getInstance(
-                                PreferenceManager.getDefaultSharedPreferences(app))
-                                .markWrongCover(album.getAlbumInfo());
+                        CoverManager.getInstance().markWrongCover(album.getAlbumInfo());
                         updateCover(album.getAlbumInfo());
                         updateNowPlayingSmallFragment(album.getAlbumInfo());
                         break;
                     case POPUP_COVER_SELECTIVE_CLEAN:
-                        CoverManager.getInstance(
-                                PreferenceManager.getDefaultSharedPreferences(app))
-                                .clear(album.getAlbumInfo());
+                        CoverManager.getInstance().clear(album.getAlbumInfo());
                         updateCover(album.getAlbumInfo());
                         updateNowPlayingSmallFragment(album.getAlbumInfo());
                         break;

@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.AlbumInfo;
@@ -24,6 +25,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 
 import java.util.Collection;
@@ -50,18 +52,20 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
     private static final Message COVER_NOT_FOUND_MESSAGE;
 
+    private final MPDApplication app = MPDApplication.getInstance();
+
     static {
         COVER_NOT_FOUND_MESSAGE = new Message();
         COVER_NOT_FOUND_MESSAGE.what = EVENT_COVER_NOT_FOUND;
     }
 
-    private SharedPreferences settings = null;
+    private final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
     private final Collection<CoverDownloadListener> coverDownloadListener;
 
-    public CoverAsyncHelper(final SharedPreferences settings) {
+    public CoverAsyncHelper() {
         super();
-        this.settings = settings;
+
         coverDownloadListener = new LinkedList<>();
     }
 
@@ -95,7 +99,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         tagListenerCovers(albumInfo);
 
         if (albumInfo.isValid()) {
-            CoverManager.getInstance(settings).addCoverRequest(info);
+            CoverManager.getInstance().addCoverRequest(info);
         } else {
             COVER_NOT_FOUND_MESSAGE.obj = info;
             handleMessage(COVER_NOT_FOUND_MESSAGE);
@@ -189,7 +193,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     }
 
     public void setCoverRetrieversFromPreferences() {
-        CoverManager.getInstance(settings).setCoverRetrieversFromPreferences();
+        CoverManager.getInstance().setCoverRetrieversFromPreferences();
     }
 
     @Override

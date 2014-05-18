@@ -108,7 +108,7 @@ public class AlbumDataBinder extends BaseDataBinder {
             holder.albumCover.setVisibility(View.GONE);
         } else {
             holder.albumCover.setVisibility(View.VISIBLE);
-            final CoverAsyncHelper coverHelper = new CoverAsyncHelper(settings);
+            final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
             final int height = holder.albumCover.getHeight();
             // If the list is not displayed yet, the height is 0. This is a
             // problem, so set a fallback one.

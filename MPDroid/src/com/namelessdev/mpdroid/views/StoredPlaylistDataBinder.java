@@ -97,7 +97,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-        final CoverAsyncHelper coverHelper = new CoverAsyncHelper(settings);
+        final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
         final int height = holder.cover.getHeight();
         // If the list is not displayed yet, the height is 0. This is a problem,
         // so set a fallback one.

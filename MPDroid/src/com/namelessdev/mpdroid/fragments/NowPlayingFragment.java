@@ -366,7 +366,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         });
 
-        oCoverAsyncHelper = new CoverAsyncHelper(settings);
+        oCoverAsyncHelper = new CoverAsyncHelper();
         // Scale cover images down to screen width
         oCoverAsyncHelper.setCoverMaxSizeFromScreen(activity);
         oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());
@@ -564,16 +564,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
 
             case POPUP_COVER_BLACKLIST:
-                CoverManager.getInstance(
-                        PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(
-                        currentSong.getAlbumInfo());
+                CoverManager.getInstance().markWrongCover(currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo());
                 updatePlaylistCovers(currentSong.getAlbumInfo());
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
-                CoverManager.getInstance(
-                        PreferenceManager.getDefaultSharedPreferences(activity)).clear(
-                        currentSong.getAlbumInfo());
+                CoverManager.getInstance().clear(currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo()); // Update the
                                                            // playlist covers
                 updatePlaylistCovers(currentSong.getAlbumInfo());

@@ -131,7 +131,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-        coverHelper = new CoverAsyncHelper(settings);
+        coverHelper = new CoverAsyncHelper();
         coverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = coverArt.getViewTreeObserver();
         vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
