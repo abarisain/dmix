@@ -44,7 +44,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        if (!NetworkHelper.isLocalNetworkConnected(context)) {
+        if (!NetworkHelper.isLocalNetworkConnected()) {
             Log.d(MPDApplication.TAG, "No local network available.");
             return;
         }
@@ -85,7 +85,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         }
         // get configured MPD connection
         final MPDAsyncHelper oMPDAsyncHelper = new MPDAsyncHelper();
-        SettingsHelper settingsHelper = new SettingsHelper(app, oMPDAsyncHelper);
+        SettingsHelper settingsHelper = new SettingsHelper(oMPDAsyncHelper);
         settingsHelper.updateConnectionSettings();
 
         // schedule real work

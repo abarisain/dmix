@@ -389,7 +389,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         fragmentManager.addOnBackStackChangedListener(this);
 
         // Get the list of the currently visible tabs
-        mTabList = LibraryTabsUtil.getCurrentLibraryTabs(app);
+        mTabList = LibraryTabsUtil.getCurrentLibraryTabs();
 
         ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(
                 actionBar.getThemedContext(),

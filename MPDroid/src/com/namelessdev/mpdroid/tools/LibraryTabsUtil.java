@@ -16,11 +16,11 @@
 
 package com.namelessdev.mpdroid.tools;
 
-import android.content.Context;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
-import com.namelessdev.mpdroid.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +34,8 @@ public class LibraryTabsUtil {
     public static final String TAB_STREAMS = "streams";
     public static final String TAB_FILES = "files";
     public static final String TAB_GENRES = "genres";
+
+    private static final MPDApplication app = MPDApplication.getInstance();
 
     public static final HashMap<String, Integer> TABS = new HashMap<String, Integer>();
     static {
@@ -62,13 +64,12 @@ public class LibraryTabsUtil {
                 + LIBRARY_TABS_DELIMITER)));
     }
 
-    public static ArrayList<String> getCurrentLibraryTabs(Context context) {
-        final SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(context);
+    public static ArrayList<String> getCurrentLibraryTabs() {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
         String currentSettings = settings.getString(LIBRARY_TABS_SETTINGS_KEY, "");
         if (currentSettings.equals("")) {
             currentSettings = DEFAULT_LIBRARY_TABS;
-            resetLibraryTabs(context);
+            resetLibraryTabs();
         }
         return new ArrayList<String>(Arrays.asList(currentSettings.split("\\"
                 + LIBRARY_TABS_DELIMITER)));
@@ -95,18 +96,14 @@ public class LibraryTabsUtil {
         return TABS.get(tab);
     }
 
-    public static void saveCurrentLibraryTabs(Context context,
-            ArrayList<String> tabs) {
-        final SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(context);
-        String currentSettings = getTabsStringFromList(tabs);
+    public static void saveCurrentLibraryTabs(ArrayList<String> tabs) {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        final String currentSettings = getTabsStringFromList(tabs);
         settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, currentSettings).commit();
     }
 
-    public static void resetLibraryTabs(Context context) {
-        final SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(context);
-        settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, DEFAULT_LIBRARY_TABS)
-                .commit();
+    public static void resetLibraryTabs() {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, DEFAULT_LIBRARY_TABS).commit();
     }
 }

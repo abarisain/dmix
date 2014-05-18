@@ -16,17 +16,18 @@
 
 package com.namelessdev.mpdroid.tools;
 
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.cover.GracenoteCover;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
+
+import org.a0z.mpd.MPD;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
-
-import com.namelessdev.mpdroid.cover.GracenoteCover;
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
-
-import org.a0z.mpd.MPD;
 
 public class SettingsHelper implements OnSharedPreferenceChangeListener {
     private static final int DEFAULT_MPD_PORT = 6600;
@@ -36,14 +37,14 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
     private SharedPreferences settings;
     private MPDAsyncHelper oMPDAsyncHelper;
 
-    public SettingsHelper(Context parent, MPDAsyncHelper MPDAsyncHelper) {
+    public SettingsHelper(MPDAsyncHelper MPDAsyncHelper) {
         // Get Settings and register ourself for updates
-        settings = PreferenceManager.getDefaultSharedPreferences(parent);// getSharedPreferences("org.pmix",
-                                                                         // MODE_PRIVATE);
+        final MPDApplication app = MPDApplication.getInstance();
+        settings = PreferenceManager.getDefaultSharedPreferences(app);
         settings.registerOnSharedPreferenceChangeListener(this);
 
         // get reference on WiFi service
-        mWifiManager = (WifiManager) parent.getSystemService(Context.WIFI_SERVICE);
+        mWifiManager = (WifiManager) app.getSystemService(Context.WIFI_SERVICE);
 
         oMPDAsyncHelper = MPDAsyncHelper;
     }

@@ -275,7 +275,7 @@ public class MPDApplication extends Application implements ConnectionListener {
         oMPDAsyncHelper = new MPDAsyncHelper();
         oMPDAsyncHelper.addConnectionListener(this);
 
-        settingsHelper = new SettingsHelper(context, oMPDAsyncHelper);
+        settingsHelper = new SettingsHelper(oMPDAsyncHelper);
 
         disconnectSheduler = new Timer();
 
