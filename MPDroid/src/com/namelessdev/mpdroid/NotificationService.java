@@ -464,7 +464,7 @@ public final class NotificationService extends Service implements StatusChangeLi
              * of that afterwards.
              */
             lastStatusRefresh = new Date().getTime();
-            lastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.MINUTE_IN_MILLIS;
+            lastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.SECOND_IN_MILLIS;
         }
 
         if (mpdStatus != null) {
@@ -684,7 +684,7 @@ public final class NotificationService extends Service implements StatusChangeLi
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
                         (long) mCurrentMusic.getDisc())
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                        mCurrentMusic.getTime() * DateUtils.MINUTE_IN_MILLIS)
+                        mCurrentMusic.getTime() * DateUtils.SECOND_IN_MILLIS)
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle())
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover)
                 .apply();
@@ -819,7 +819,7 @@ public final class NotificationService extends Service implements StatusChangeLi
         } else {
             lastStatusRefresh = new Date().getTime();
             // MPDs elapsed time is in seconds, convert to milliseconds
-            lastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.MINUTE_IN_MILLIS;
+            lastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.SECOND_IN_MILLIS;
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
                     stopServiceHandler();
