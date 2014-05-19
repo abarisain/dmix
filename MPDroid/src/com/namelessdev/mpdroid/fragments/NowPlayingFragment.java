@@ -480,7 +480,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             @Override
             public void onStopTrackingTouch(final SeekBar seekBar) {
-                MPDControl.run(seekBar.getProgress());
+                MPDControl.run(MPDControl.ACTION_REWIND, seekBar.getProgress());
             }
         });
 
