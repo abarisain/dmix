@@ -22,10 +22,11 @@ import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
+import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
@@ -40,7 +41,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -74,111 +74,21 @@ import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener,
         TrackPositionListener,
-        OnSharedPreferenceChangeListener, OnMenuItemClickListener {
+        OnSharedPreferenceChangeListener, OnMenuItemClickListener,
+        UpdateTrackInfo.FullTrackInfoUpdate {
 
     private class ButtonEventHandler implements Button.OnClickListener, Button.OnLongClickListener {
 
-        public void onClick(View v) {
-            final MPD mpd = app.oMPDAsyncHelper.oMPD;
-            Intent i;
-
-            switch (v.getId()) {
-                case R.id.stop:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.stop();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.next:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.next();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.prev:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mpd.previous();
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.playpause:
-                    /**
-                     * If playing or paused, just toggle state, otherwise start
-                     * playing.
-                     * 
-                     * @author slubman
-                     */
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            String state;
-                            try {
-                                state = mpd.getStatus().getState();
-                                if (state.equals(MPDStatus.MPD_STATE_PLAYING)
-                                        || state.equals(MPDStatus.MPD_STATE_PAUSED)) {
-                                    mpd.pause();
-                                } else {
-                                    mpd.play();
-                                }
-                            } catch (MPDServerException e) {
-                                Log.w(MPDApplication.TAG, e.getMessage());
-                            }
-                        }
-                    }).start();
-                    break;
-                case R.id.shuffle:
-                    try {
-                        mpd.setRandom(!mpd.getStatus().isRandom());
-                    } catch (MPDServerException e) {
-                    }
-                    break;
-                case R.id.repeat:
-                    try {
-                        mpd.setRepeat(!mpd.getStatus().isRepeat());
-                    } catch (MPDServerException e) {
-                    }
-                    break;
-
-            }
+        public void onClick(final View v) {
+            MPDControl.run(v.getId());
         }
 
-        public boolean onLongClick(View v) {
-            MPD mpd = app.oMPDAsyncHelper.oMPD;
-            try {
-                switch (v.getId()) {
-                    case R.id.playpause:
-                        // Implements the ability to stop playing (may be useful
-                        // for streams)
-                        mpd.stop();
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            } catch (MPDServerException e) {
-
+        public boolean onLongClick(final View v) {
+            if(v.getId() == R.id.playpause) {
+                MPDControl.run(MPDControl.ACTION_STOP);
             }
             return true;
         }
-
     }
 
     /**
@@ -212,118 +122,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    public class updateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Boolean> {
-        Music actSong = null;
-        MPDStatus status = null;
-
-        @Override
-        protected Boolean doInBackground(MPDStatus... params) {
-            Boolean result = false;
-
-            if (params == null) {
-                try {
-                    // A recursive call doesn't seem that bad here.
-                    result = doInBackground(app.oMPDAsyncHelper.oMPD.getStatus());
-                } catch (MPDServerException e) {
-                    Log.d(MPDApplication.TAG, "Failed to populate params in the background.", e);
-                }
-            } else if (params[0] != null) {
-                String state = params[0].getState();
-                if (state != null) {
-                    int songPos = params[0].getSongPos();
-                    if (songPos >= 0) {
-                        actSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-                        status = params[0];
-                        result = true;
-                    }
-                }
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if (result != null && result && activity != null) {
-                String albumartist = null;
-                String artist = null;
-                String title;
-                String album = null;
-                String date = null;
-
-                boolean noSong = actSong == null || status.getPlaylistLength() == 0;
-                if (noSong) {
-                    currentSong = null;
-                    title = activity.getResources().getString(R.string.noSongInfo);
-                } else if (actSong.isStream()) {
-                    currentSong = actSong;
-                    Log.d("MPDroid", "Playing a stream");
-                    if (actSong.haveTitle()) {
-                        title = actSong.getTitle();
-                        album = actSong.getName();
-                    } else {
-                        title = actSong.getName();
-                        album = "";
-                    }
-                    artist = actSong.getArtist();
-                    date = "";
-
-                } else {
-                    currentSong = actSong;
-                    if (DEBUG)
-                        Log.d("MPDroid", "We did find an artist");
-                    albumartist = actSong.getAlbumArtist();
-                    artist = actSong.getArtist();
-                    title = actSong.getTitle();
-                    album = actSong.getAlbum();
-                    date = Long.toString(actSong.getDate());
-                }
-
-                albumartist = albumartist == null ? "" : albumartist;
-                artist = artist == null ? "" : artist;
-                title = title == null ? "" : title;
-                album = album == null ? "" : album;
-                date = date != null && date.length() > 1 && !date.startsWith("-") ? " - " + date
-                        : "";
-                if (!showAlbumArtist || "".equals(albumartist) ||
-                        artist.toLowerCase().contains(albumartist.toLowerCase()))
-                    artistNameText.setText(artist);
-                else if ("".equals(artist))
-                    artistNameText.setText(albumartist);
-                else
-                    artistNameText.setText(albumartist + " / " + artist);
-                songNameText.setText(title);
-                albumNameText.setText(album);
-                yearNameText.setText(date);
-
-                updateStatus(status);
-                if (noSong || actSong.isStream()) {
-                    lastArtist = artist;
-                    lastAlbum = album;
-                    trackTime.setText(Music.timeToString(0L));
-                    trackTotalTime.setText(Music.timeToString(0L));
-                    downloadCover(new AlbumInfo(artist, album));
-                } else if (!lastAlbum.equals(album) || !lastArtist.equals(artist)) {
-                    // coverSwitcher.setVisibility(ImageSwitcher.INVISIBLE);
-                    int noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light_big
-                            : R.drawable.no_cover_art_big;
-                    coverArt.setImageResource(noCoverDrawable);
-                    downloadCover(actSong.getAlbumInfo());
-                    lastArtist = artist;
-                    lastAlbum = album;
-                }
-            } else {
-                artistNameText.setText("");
-                songNameText.setText(R.string.noSongInfo);
-                albumNameText.setText("");
-                yearNameText.setText("");
-            }
-        }
-    }
-
     private static final String TAG = "com.namelessdev.mpdroid.NowPlayingFragment";
 
     private static final long THOUSAND_MILLISECONDS = 1000L;
-    private static final boolean DEBUG = false;
     private static final int POPUP_ARTIST = 0;
     private static final int POPUP_ALBUMARTIST = 1;
     private static final int POPUP_ALBUM = 2;
@@ -335,7 +136,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private static final int POPUP_COVER_BLACKLIST = 7;
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 8;
     private TextView artistNameText;
-    private boolean showAlbumArtist;
     private TextView songNameText;
     private TextView albumNameText;
     private TextView audioNameText = null;
@@ -343,6 +143,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private ImageButton shuffleButton = null;
     private ImageButton repeatButton = null;
     private ImageButton stopButton = null;
+    private ImageButton buttonPlayPause = null;
     private boolean isAudioNameTextEnabled = false;
     private boolean shuffleCurrent = false;
     private boolean repeatCurrent = false;
@@ -355,10 +156,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private View.OnTouchListener popupMenuStreamTouchListener = null;
 
     private ImageView volumeIcon = null;
-    public static final int ALBUMS = 4;
-
-    public static final int FILES = 3;
-
 
     private SeekBar seekBarTrack = null;
 
@@ -398,10 +195,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private boolean lightTheme;
 
-    private String lastArtist = "";
-
-    private String lastAlbum = "";
-
     private void applyViewVisibility(SharedPreferences sharedPreferences, View view, String property) {
         if (view == null) {
             return;
@@ -413,13 +206,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
         if(connected) {
             forceStatusUpdate();
-            songNameText.setText(activity.getResources().getString(R.string.noSongInfo));
         } else {
-            songNameText.setText(activity.getResources().getString(R.string.notConnected));
+            songNameText.setText(R.string.notConnected);
         }
     }
 
-    private void downloadCover(AlbumInfo albumInfo) {
+    private void downloadCover(final AlbumInfo albumInfo) {
         oCoverAsyncHelper.downloadCover(albumInfo, true);
     }
 
@@ -439,6 +231,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             Log.e(TAG, "Failed to seed the status.", e);
         }
 
+        updateStatus(mpdStatus);
         updateTrackInfo(mpdStatus);
     }
 
@@ -449,19 +242,30 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return playlistFragment;
     }
 
-    @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
-        // TODO Auto-generated method stub
+    protected static int getPlayPauseResource(final String state) {
+        final int resource;
+        final boolean isPlaying = state.equals(MPDStatus.MPD_STATE_PLAYING);
 
+        if(MPDApplication.getInstance().isLightThemeSelected()) {
+            if (isPlaying) {
+                resource = R.drawable.ic_media_pause_light;
+            } else {
+                resource = R.drawable.ic_media_play_light;
+            }
+        } else {
+            if (isPlaying) {
+                resource = R.drawable.ic_media_pause;
+            } else {
+                resource = R.drawable.ic_media_play;
+            }
+        }
+
+        return resource;
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            default:
-                break;
-        }
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
+        // TODO Auto-generated method stub
 
     }
 
@@ -472,13 +276,31 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     }
 
+    /**
+     * This is called when cover art needs to be updated due to server information change.
+     *
+     * @param albumInfo The current albumInfo
+     */
+    @Override
+    public final void onCoverUpdate(final AlbumInfo albumInfo) {
+        if (lightTheme) {
+            coverArt.setImageResource(R.drawable.no_cover_art_light_big);
+        } else {
+            coverArt.setImageResource(R.drawable.no_cover_art_big);
+        }
+
+        if(albumInfo != null) {
+            downloadCover(albumInfo);
+        }
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         lightTheme = app.isLightThemeSelected();
         handler = new Handler();
         setHasOptionsMenu(false);
-        activity.setTitle(activity.getResources().getString(R.string.nowPlaying));
+        activity.setTitle(R.string.nowPlaying);
         activity.registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(
                 WifiManager.NETWORK_STATE_CHANGED_ACTION));
     }
@@ -544,13 +366,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         });
 
-        oCoverAsyncHelper = new CoverAsyncHelper(settings);
+        oCoverAsyncHelper = new CoverAsyncHelper();
         // Scale cover images down to screen width
         oCoverAsyncHelper.setCoverMaxSizeFromScreen(activity);
         oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());
 
-        coverArtListener = new AlbumCoverDownloadListener(activity, coverArt, coverArtProgress,
-                app.isLightThemeSelected(), true);
+        coverArtListener = new AlbumCoverDownloadListener(coverArt, coverArtProgress, true);
         oCoverAsyncHelper.addCoverDownloadListener(coverArtListener);
 
         buttonEventHandler = new ButtonEventHandler();
@@ -560,9 +381,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         button = (ImageButton) view.findViewById(R.id.prev);
         button.setOnClickListener(buttonEventHandler);
 
-        button = (ImageButton) view.findViewById(R.id.playpause);
-        button.setOnClickListener(buttonEventHandler);
-        button.setOnLongClickListener(buttonEventHandler);
+        buttonPlayPause = (ImageButton) view.findViewById(R.id.playpause);
+        buttonPlayPause.setOnClickListener(buttonEventHandler);
+        buttonPlayPause.setOnLongClickListener(buttonEventHandler);
 
         stopButton = (ImageButton) view.findViewById(R.id.stop);
         stopButton.setOnClickListener(buttonEventHandler);
@@ -628,16 +449,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     public void run() {
                         if (lastSentVol != progress.getProgress()) {
                             lastSentVol = progress.getProgress();
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        app.oMPDAsyncHelper.oMPD.setVolume(lastSentVol);
-                                    } catch (MPDServerException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }).start();
+                            MPDControl.run(MPDControl.ACTION_SET_VOLUME, lastSentVol);
                         }
                     }
 
@@ -668,20 +480,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             @Override
             public void onStopTrackingTouch(final SeekBar seekBar) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.seek((long) seekBar.getProgress());
-                        } catch (final MPDServerException e) {
-                            Log.e(TAG, "Failed to seek using the progress bar.", e);
-                        }
-                    }
-                }).start();
+                MPDControl.run(seekBar.getProgress());
             }
         });
 
-        songNameText.setText(activity.getResources().getString(R.string.notConnected));
+        songNameText.setText(R.string.notConnected);
         Log.i(MPDApplication.TAG, "Initialization succeeded");
 
         return view;
@@ -706,7 +509,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void onDetach() {
         super.onDetach();
         this.activity = null;
-
     }
 
     @Override
@@ -761,16 +563,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
 
             case POPUP_COVER_BLACKLIST:
-                CoverManager.getInstance(
-                        PreferenceManager.getDefaultSharedPreferences(activity)).markWrongCover(
-                        currentSong.getAlbumInfo());
+                CoverManager.getInstance().markWrongCover(currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo());
                 updatePlaylistCovers(currentSong.getAlbumInfo());
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
-                CoverManager.getInstance(
-                        PreferenceManager.getDefaultSharedPreferences(activity)).clear(
-                        currentSong.getAlbumInfo());
+                CoverManager.getInstance().clear(currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo()); // Update the
                                                            // playlist covers
                 updatePlaylistCovers(currentSong.getAlbumInfo());
@@ -779,6 +577,25 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 return false;
         }
         return true;
+    }
+
+    /**
+     * Called when a track information change has been detected.
+     *
+     * @param updatedSong The currentSong item object.
+     * @param album The album change.
+     * @param artist The artist change.
+     * @param date The date change.
+     * @param title The title change.
+     */
+    @Override
+    public final void onTrackInfoUpdate(final Music updatedSong, final CharSequence album,
+            final CharSequence artist, final CharSequence date, final CharSequence title) {
+        currentSong = updatedSong;
+        albumNameText.setText(album);
+        artistNameText.setText(artist);
+        songNameText.setText(title);
+        yearNameText.setText(date);
     }
 
     @Override
@@ -790,17 +607,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void onResume() {
         super.onResume();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
-        showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
         isAudioNameTextEnabled = settings.getBoolean("enableAudioText", false);
 
         if (app.oMPDAsyncHelper.oMPD.isConnected()) {
             forceStatusUpdate();
-        }
-
-        // Update the cover on resume (when you update the current cover from
-        // the library activity)
-        if (currentSong != null) {
-            downloadCover(currentSong.getAlbumInfo());
         }
     }
 
@@ -826,6 +636,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onStart() {
         super.onStart();
+        app.updateTrackInfo = new UpdateTrackInfo();
+        app.updateTrackInfo.addCallback(this);
         app.oMPDAsyncHelper.addStatusChangeListener(this);
         app.oMPDAsyncHelper.addTrackPositionListener(this);
         app.setActivity(this);
@@ -834,6 +646,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onStop() {
         super.onStop();
+
+        app.updateTrackInfo.removeCallback(this);
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         app.oMPDAsyncHelper.removeTrackPositionListener(this);
         stopPosTimer();
@@ -974,12 +788,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void trackPositionChanged(final MPDStatus status) {
-        if (activity != null && status != null) {
-            final long totalTime = status.getTotalTime();
-            final long elapsedTime = status.getElapsedTime();
-
-            startPosTimer(elapsedTime, totalTime);
-        }
+        toggleTrackProgress(status);
     }
 
     private void updatePlaylistCovers(AlbumInfo albumInfo) {
@@ -993,14 +802,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void updateStatus(final MPDStatus status) {
         toggleTrackProgress(status);
 
-        final ImageButton button = (ImageButton) getView().findViewById(R.id.playpause);
-        if (MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
-            button.setImageDrawable(activity.getResources().getDrawable(
-                lightTheme ? R.drawable.ic_media_pause_light : R.drawable.ic_media_pause));
-        } else {
-            button.setImageDrawable(activity.getResources().getDrawable(
-                lightTheme ? R.drawable.ic_media_play_light : R.drawable.ic_media_play));
-        }
+        buttonPlayPause.setImageResource(getPlayPauseResource(status.getState()));
 
         setShuffleButton(status.isRandom());
         setRepeatButton(status.isRepeat());
@@ -1080,13 +882,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    public void updateTrackInfo() {
-        new updateTrackInfoAsync().execute((MPDStatus[]) null);
-    }
-
-    public void updateTrackInfo(MPDStatus status) {
-        if(app.oMPDAsyncHelper.oMPD.isConnected()) {
-            new updateTrackInfoAsync().execute(status);
+    private void updateTrackInfo(final MPDStatus status) {
+        if (app.oMPDAsyncHelper.oMPD.isConnected() && status != null && isAdded()) {
+            toggleTrackProgress(status);
+            app.updateTrackInfo.refresh(status);
         }
     }
 
@@ -1117,5 +916,4 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         toggleVolumeBar(volume);
         seekBarVolume.setProgress(volume);
     }
-
 }

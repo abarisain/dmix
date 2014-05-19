@@ -16,11 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.view.View;
-import android.widget.AdapterView;
-
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
@@ -31,6 +26,11 @@ import org.a0z.mpd.Genre;
 import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.AdapterView;
 
 public class ArtistsFragment extends BrowseFragment {
     private Genre genre = null;
@@ -44,8 +44,7 @@ public class ArtistsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
             if (isAdded()) {
-                Tools.notifyUser(String.format(getResources().getString(irAdded), item),
-                        getActivity());
+                Tools.notifyUser(irAdded, item);
             }
         } catch (MPDServerException e) {
             e.printStackTrace();
@@ -57,8 +56,7 @@ public class ArtistsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
             if (isAdded()) {
-                Tools.notifyUser(String.format(getResources().getString(irAdded), item),
-                        getActivity());
+                Tools.notifyUser(irAdded, item);
             }
         } catch (MPDServerException e) {
             e.printStackTrace();

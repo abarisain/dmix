@@ -16,14 +16,18 @@
 
 package com.namelessdev.mpdroid.tools;
 
+import com.namelessdev.mpdroid.MPDApplication;
+
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 public class NetworkHelper {
 
-    public static Boolean isLocalNetworkConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
+    private static final MPDApplication app = MPDApplication.getInstance();
+
+    public static Boolean isLocalNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) app
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm == null) {
             return false;
@@ -35,8 +39,8 @@ public class NetworkHelper {
                     .isConnected());
     }
 
-    public static boolean isNetworkConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
+    public static boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) app
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm.getActiveNetworkInfo() == null)
             return false;

@@ -108,7 +108,7 @@ public class AlbumDataBinder extends BaseDataBinder {
             holder.albumCover.setVisibility(View.GONE);
         } else {
             holder.albumCover.setVisibility(View.VISIBLE);
-            final CoverAsyncHelper coverHelper = new CoverAsyncHelper(settings);
+            final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
             final int height = holder.albumCover.getHeight();
             // If the list is not displayed yet, the height is 0. This is a
             // problem, so set a fallback one.
@@ -119,9 +119,8 @@ public class AlbumDataBinder extends BaseDataBinder {
             // display cover art in album listing if caching is on
             if (album.getAlbumInfo().isValid() && enableCache) {
                 // listen for new artwork to be loaded
-                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context,
-                        holder.albumCover, holder.coverArtProgress,
-                        lightTheme, false);
+                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(
+                        holder.albumCover, holder.coverArtProgress, false);
                 final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {

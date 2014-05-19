@@ -34,10 +34,12 @@ import java.util.List;
 
 public class AboutActivity extends Activity {
 
-    public static String getVersionName(Context context, Class<Activity> cls) {
+    private static final MPDApplication app = MPDApplication.getInstance();
+
+    public static String getVersionName(Class<Activity> cls) {
         try {
-            ComponentName comp = new ComponentName(context, cls);
-            PackageInfo pinfo = context.getPackageManager()
+            ComponentName comp = new ComponentName(app, cls);
+            PackageInfo pinfo = app.getPackageManager()
                     .getPackageInfo(comp.getPackageName(), 0);
             return pinfo.versionName + " (" + pinfo.versionCode + ")";
         } catch (android.content.pm.PackageManager.NameNotFoundException e) {
@@ -69,8 +71,8 @@ public class AboutActivity extends Activity {
         final LayoutInflater inflater = LayoutInflater.from(this);
         final View headerView = inflater.inflate(R.layout.about_header, null, false);
         TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
-        versionInfo.setText(getResources().getString(R.string.version) + ": "
-                + getVersionName(this, Activity.class));
+        versionInfo.setText(R.string.version);
+        versionInfo.append(": " + getVersionName(Activity.class));
 
         listView.setHeaderDividersEnabled(false);
         listView.addHeaderView(headerView);

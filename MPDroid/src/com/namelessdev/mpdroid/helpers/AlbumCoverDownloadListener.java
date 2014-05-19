@@ -16,7 +16,12 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import android.content.Context;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
+
+import org.a0z.mpd.AlbumInfo;
+
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,32 +30,25 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
-
-import org.a0z.mpd.AlbumInfo;
-
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
-    Context context;
     ImageView coverArt;
     ProgressBar coverArtProgress;
-    boolean lightTheme;
+    private final MPDApplication app = MPDApplication.getInstance();
+    private final boolean lightTheme = app.isLightThemeSelected();
     boolean bigCoverNotFound;
 
-    public AlbumCoverDownloadListener(Context context, ImageView coverArt, boolean lightTheme) {
-        this.context = context;
+
+
+    public AlbumCoverDownloadListener(ImageView coverArt) {
         this.coverArt = coverArt;
         this.coverArt.setVisibility(View.VISIBLE);
-        this.lightTheme = lightTheme;
         freeCoverDrawable();
     }
 
-    public AlbumCoverDownloadListener(Context context, ImageView coverArt,
-            ProgressBar coverArtProgress, boolean lightTheme,
+    public AlbumCoverDownloadListener(ImageView coverArt,
+            ProgressBar coverArtProgress,
             boolean bigCoverNotFound) {
-        this.context = context;
         this.coverArt = coverArt;
-        this.lightTheme = lightTheme;
         this.bigCoverNotFound = bigCoverNotFound;
         this.coverArt.setVisibility(View.VISIBLE);
         this.coverArtProgress = coverArtProgress;
@@ -111,7 +109,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
                 coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
             }
             freeCoverDrawable(coverArt.getDrawable());
-            coverArt.setImageDrawable(new CoverBitmapDrawable(context.getResources(), cover
+            coverArt.setImageDrawable(new CoverBitmapDrawable(app.getResources(), cover
                     .getBitmap()[0]));
             cover.setBitmap(null);
         } catch (Exception e) {

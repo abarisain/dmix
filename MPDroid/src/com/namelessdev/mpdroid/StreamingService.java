@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.helpers.MPDControl;
+
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
@@ -292,7 +294,7 @@ public final class StreamingService extends Service implements
                 }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
-                sendIntent(NotificationService.ACTION_PAUSE, NotificationService.class);
+                MPDControl.run(MPDControl.ACTION_PAUSE);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 mediaPlayer.pause();

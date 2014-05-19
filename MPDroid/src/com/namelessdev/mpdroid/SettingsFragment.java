@@ -197,7 +197,7 @@ public class SettingsFragment extends PreferenceFragment {
                         public void onClick(DialogInterface dialog, int which) {
                             // Todo : The covermanager must already have been
                             // initialized, get rid of the getInstance arguments
-                            CoverManager.getInstance(null).clear();
+                            CoverManager.getInstance().clear();
                             cacheUsage1.setSummary("0.00B");
                             cacheUsage2.setSummary("0.00B");
                         }

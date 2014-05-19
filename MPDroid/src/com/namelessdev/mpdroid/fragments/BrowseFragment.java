@@ -20,8 +20,10 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.Item;
+import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
@@ -172,7 +174,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 android.view.MenuItem addItem = menu.add(ADD, ADD, 0, R.string.addToQueue);
                 addItem.setOnMenuItemClickListener(this);
             } else {
-                android.view.MenuItem addItem = menu.add(ADD, ADD, 0, getResources().getString(irAdd));
+                android.view.MenuItem addItem = menu.add(ADD, ADD, 0, irAdd);
                 addItem.setOnMenuItemClickListener(this);
                 android.view.MenuItem addAndReplaceItem = menu.add(ADDNREPLACE, ADDNREPLACE, 0,
                         R.string.addAndReplace);
@@ -266,7 +268,22 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                                 replace = true;
                                 break;
                             case ADDNPLAY:
-                                play = true;
+                                MPDStatus status = null;
+                                try {
+                                    status = app.oMPDAsyncHelper.oMPD.getStatus();
+                                } catch (final MPDServerException e) {
+                                    Log.e(TAG, "Failed to get random state status.", e);
+                                }
+
+                                /**
+                                 * Let the user know if we're not going to play the added music.
+                                 */
+                                if(status != null && status.isRandom() &&
+                                        MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
+                                    Tools.notifyUser(R.string.notPlayingInRandomMode);
+                                } else {
+                                    play = true;
+                                }
                                 break;
                         }
                         add(items.get((int) info.id), replace, play);

@@ -16,7 +16,8 @@
 
 package com.namelessdev.mpdroid.tools;
 
-import android.content.Context;
+import com.namelessdev.mpdroid.MPDApplication;
+
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,6 +28,8 @@ import java.security.MessageDigest;
 import java.util.List;
 
 public final class Tools {
+    private static final MPDApplication app = MPDApplication.getInstance();
+
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth,
             int reqHeight) {
         // Raw height and width of image
@@ -51,8 +54,8 @@ public final class Tools {
         return inSampleSize;
     }
 
-    public static float convertDpToPixel(float dp, Context context) {
-        Resources resources = context.getResources();
+    public static float convertDpToPixel(float dp) {
+        Resources resources = app.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
         return dp * (metrics.densityDpi / 160f);
     }
@@ -156,8 +159,18 @@ public final class Tools {
         return (str == null || "".equals(str));
     }
 
-    public static void notifyUser(String message, Context context) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    public static void notifyUser(final int resId, final Object... format) {
+        final String formattedString =
+                MPDApplication.getInstance().getResources().getString(resId, format);
+        Toast.makeText(app, formattedString, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void notifyUser(final int resId) {
+        Toast.makeText(app, resId, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void notifyUser(final CharSequence message) {
+        Toast.makeText(app, message, Toast.LENGTH_SHORT).show();
     }
 
     public static int[] toIntArray(List<Integer> list) {

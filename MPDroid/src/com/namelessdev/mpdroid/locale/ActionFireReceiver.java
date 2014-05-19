@@ -18,10 +18,9 @@ package com.namelessdev.mpdroid.locale;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.NotificationService;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -56,58 +55,22 @@ public class ActionFireReceiver extends BroadcastReceiver {
                 break;
             default:
                 final MPD mpd = connectToMPD(context);
-                app.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
+                int volume = MPDControl.INVALID_INT;
+
+                if (MPDControl.ACTION_SET_VOLUME.equals(action)) {
+                    final String volumeString = bundle
+                            .getString(EditActivity.BUNDLE_ACTION_EXTRA);
+                    if (volumeString != null) {
                         try {
-                            switch (action) {
-                                case NotificationService.ACTION_SET_VOLUME:
-                                    final String volumeString = bundle
-                                            .getString(EditActivity.BUNDLE_ACTION_EXTRA);
-                                    if (volumeString != null) {
-                                        try {
-                                            mpd.setVolume(Integer.parseInt(volumeString));
-                                        } catch (NumberFormatException e) {
-                                            Log.e(TAG, "Invalid volume string : " + volumeString);
-                                        }
-                                    }
-                                    break;
-                                case NotificationService.ACTION_MUTE:
-                                    mpd.setVolume(0);
-                                    break;
-                                case NotificationService.ACTION_PAUSE:
-                                    mpd.pause();
-                                    break;
-                                case NotificationService.ACTION_PLAY:
-                                    mpd.play();
-                                    break;
-                                case NotificationService.ACTION_STOP:
-                                    mpd.stop();
-                                    break;
-                                case NotificationService.ACTION_REWIND:
-                                    mpd.seek(0l);
-                                    break;
-                                case NotificationService.ACTION_PREVIOUS:
-                                    mpd.previous();
-                                    break;
-                                case NotificationService.ACTION_NEXT:
-                                    mpd.next();
-                                    break;
-                                case NotificationService.ACTION_TOGGLE_PLAYBACK:
-                                    if (mpd.getStatus().getState()
-                                            .equals(MPDStatus.MPD_STATE_PLAYING)) {
-                                        mpd.pause();
-                                    } else {
-                                        mpd.play();
-                                    }
-                                    break;
-                            }
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
+                            volume = Integer.parseInt(volumeString);
+                        } catch (final NumberFormatException e) {
+                            Log.e(TAG, "Invalid volume string : " + volumeString, e);
                         }
-                        closeMPDConnection();
                     }
-                });
+                }
+                MPDControl.run(mpd, action, volume);
+                closeMPDConnection();
+                break;
         }
     }
 

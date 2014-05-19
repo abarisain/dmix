@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
@@ -81,6 +82,7 @@ public class MPDApplication extends Application implements ConnectionListener {
     public static final String TAG = "MPDroid";
     private static final long DISCONNECT_TIMER = 15000;
     public MPDAsyncHelper oMPDAsyncHelper = null;
+    public UpdateTrackInfo updateTrackInfo = null;
 
     private SettingsHelper settingsHelper = null;
     private ApplicationState state = new ApplicationState();
@@ -154,8 +156,8 @@ public class MPDApplication extends Application implements ConnectionListener {
             if (currentActivity.getClass() == SettingsActivity.class) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
                 builder.setCancelable(false);
-                builder.setMessage(String.format(
-                        getResources().getString(R.string.connectionFailedMessageSetting), message));
+                builder.setMessage(
+                        getResources().getString(R.string.connectionFailedMessageSetting, message));
                 builder.setPositiveButton("OK", new OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                     }
@@ -163,18 +165,16 @@ public class MPDApplication extends Application implements ConnectionListener {
                 ad = builder.show();
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
-                builder.setTitle(getResources().getString(R.string.connectionFailed));
-                builder.setMessage(String.format(
-                        getResources().getString(R.string.connectionFailedMessage), message));
+                builder.setTitle(R.string.connectionFailed);
+                builder.setMessage(
+                        getResources().getString(R.string.connectionFailedMessage, message));
                 builder.setCancelable(false);
 
                 DialogClickListener oDialogClickListener = new DialogClickListener();
-                builder.setNegativeButton(getResources().getString(R.string.quit),
-                        oDialogClickListener);
-                builder.setNeutralButton(getResources().getString(R.string.settings),
-                        oDialogClickListener);
-                builder.setPositiveButton(getResources().getString(R.string.retry),
-                        oDialogClickListener);
+                builder.setNegativeButton(R.string.quit, oDialogClickListener);
+                builder.setNeutralButton(R.string.settings, oDialogClickListener);
+                builder.setPositiveButton(R.string.retry, oDialogClickListener);
+
                 try {
                     ad = builder.show();
                 } catch (BadTokenException e) {
@@ -197,7 +197,7 @@ public class MPDApplication extends Application implements ConnectionListener {
         // show connecting to server dialog
         if (currentActivity != null) {
             ad = new ProgressDialog(currentActivity);
-            ad.setTitle(getResources().getString(R.string.connecting));
+            ad.setTitle(R.string.connecting);
             ad.setMessage(getResources().getString(R.string.connectingToServer));
             ad.setCancelable(false);
             ad.setOnKeyListener(new OnKeyListener() {
@@ -275,7 +275,7 @@ public class MPDApplication extends Application implements ConnectionListener {
         oMPDAsyncHelper = new MPDAsyncHelper();
         oMPDAsyncHelper.addConnectionListener(this);
 
-        settingsHelper = new SettingsHelper(context, oMPDAsyncHelper);
+        settingsHelper = new SettingsHelper(oMPDAsyncHelper);
 
         disconnectSheduler = new Timer();
 

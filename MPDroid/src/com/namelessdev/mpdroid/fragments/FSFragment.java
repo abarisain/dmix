@@ -16,18 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -39,6 +27,18 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.PlaylistFile;
 import org.a0z.mpd.exception.MPDServerException;
+
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,13 +62,10 @@ public class FSFragment extends BrowseFragment {
             if (ToAdd != null) {
                 // Valid directory
                 app.oMPDAsyncHelper.oMPD.add(ToAdd, replace, play);
-                Tools.notifyUser(String.format(
-                        getResources().getString(R.string.addedDirectoryToPlaylist), item),
-                        FSFragment.this.getActivity());
+                Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 app.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
-                Tools.notifyUser(getResources().getString(R.string.songAdded, item),
-                        FSFragment.this.getActivity());
+                Tools.notifyUser(R.string.songAdded, item);
             }
         } catch (MPDServerException e) {
             e.printStackTrace();
@@ -82,16 +79,13 @@ public class FSFragment extends BrowseFragment {
             if (ToAdd != null) {
                 // Valid directory
                 app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
-                Tools.notifyUser(String.format(
-                        getResources().getString(R.string.addedDirectoryToPlaylist), item),
-                        FSFragment.this.getActivity());
+                Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 if (item instanceof Music) {
                     ArrayList<Music> songs = new ArrayList<Music>();
                     songs.add((Music) item);
                     app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
-                    Tools.notifyUser(getResources().getString(R.string.songAdded, item),
-                            FSFragment.this.getActivity());
+                    Tools.notifyUser(R.string.songAdded, item);
                 }
                 if (item instanceof PlaylistFile) {
                     app.oMPDAsyncHelper.oMPD.getPlaylist()

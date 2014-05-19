@@ -19,9 +19,9 @@ package com.namelessdev.mpdroid;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
@@ -33,7 +33,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -78,37 +77,21 @@ public final class NotificationService extends Service implements StatusChangeLi
     public static final String ACTION_OPEN_NOTIFICATION = FULLY_QUALIFIED_NAME
             + "NOTIFICATION_OPEN";
 
-    /**
-     * The following are server actions
-     */
-    public static final String ACTION_TOGGLE_PLAYBACK = FULLY_QUALIFIED_NAME + "PLAY_PAUSE";
-
-    public static final String ACTION_PLAY = FULLY_QUALIFIED_NAME + "PLAY";
-
-    public static final String ACTION_PAUSE = FULLY_QUALIFIED_NAME + "PAUSE";
-
-    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + "STOP";
-
-    public static final String ACTION_NEXT = FULLY_QUALIFIED_NAME + "NEXT";
-
-    public static final String ACTION_REWIND = FULLY_QUALIFIED_NAME + "REWIND";
-
-    public static final String ACTION_PREVIOUS = FULLY_QUALIFIED_NAME + "PREVIOUS";
-
-    public static final String ACTION_MUTE = FULLY_QUALIFIED_NAME + "MUTE";
-
-    public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
-
     /** Pre-built PendingIntent actions */
-    private static PendingIntent notificationClose = null;
+    private static final PendingIntent notificationClose =
+            buildStaticPendingIntent(ACTION_CLOSE_NOTIFICATION);
 
-    private static PendingIntent notificationNext = null;
+    private static final PendingIntent notificationNext =
+            buildStaticPendingIntent(MPDControl.ACTION_NEXT);
 
-    private static PendingIntent notificationPause = null;
+    private static final PendingIntent notificationPause =
+            buildStaticPendingIntent(MPDControl.ACTION_PAUSE);
 
-    private static PendingIntent notificationPlay = null;
+    private static final PendingIntent notificationPlay =
+            buildStaticPendingIntent(MPDControl.ACTION_PLAY);
 
-    private static PendingIntent notificationPrevious = null;
+    private static final PendingIntent notificationPrevious =
+            buildStaticPendingIntent(MPDControl.ACTION_PREVIOUS);
 
     // The ID we use for the notification (the onscreen alert that appears at the notification
     // area at the top of the screen as an icon -- and as text as well if the user expands the
@@ -180,48 +163,32 @@ public final class NotificationService extends Service implements StatusChangeLi
     /**
      * Build a static pending intent for use with the notification button controls.
      *
-     * @param context The current context.
      * @param action  The ACTION intent string.
      * @return The pending intent.
      */
-    private static PendingIntent buildStaticPendingIntent(final Context context,
-            final String action) {
-        final Intent intent = new Intent(context, NotificationService.class);
+    private static PendingIntent buildStaticPendingIntent(final String action) {
+        final Intent intent = new Intent(MPDApplication.getInstance(), RemoteControlReceiver.class);
         intent.setAction(action);
-        return PendingIntent.getService(context, 0, intent, 0);
-    }
-
-    /**
-     * A method to build all the pending intents necessary for the notification.
-     *
-     * @param context The current context.
-     */
-    private static void buildStaticPendingIntents(final Context context) {
-        /** Build notification media player button actions */
-        notificationClose = buildStaticPendingIntent(context, ACTION_CLOSE_NOTIFICATION);
-        notificationNext = buildStaticPendingIntent(context, ACTION_NEXT);
-        notificationPause = buildStaticPendingIntent(context, ACTION_PAUSE);
-        notificationPlay = buildStaticPendingIntent(context, ACTION_PLAY);
-        notificationPrevious = buildStaticPendingIntent(context, ACTION_PREVIOUS);
+        return PendingIntent.getBroadcast(MPDApplication.getInstance(), 0, intent, 0);
     }
 
     /**
      * This builds the static bits of a new collapsed notification
      *
-     * @param context The current context.
      * @return Returns a notification builder object.
      */
-    private static NotificationCompat.Builder buildStaticCollapsedNotification(
-            final Context context) {
+    private static NotificationCompat.Builder buildStaticCollapsedNotification() {
         /** Build the click PendingIntent */
-        final Intent musicPlayerActivity = new Intent(context, MainMenuActivity.class);
-        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        final Intent musicPlayerActivity = new Intent(MPDApplication.getInstance(),
+                MainMenuActivity.class);
+        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(MPDApplication.getInstance());
         stackBuilder.addParentStack(MainMenuActivity.class);
         stackBuilder.addNextIntent(musicPlayerActivity);
         final PendingIntent notificationClick = stackBuilder.getPendingIntent(0,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        final NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(MPDApplication.getInstance());
         builder.setSmallIcon(R.drawable.icon_bw);
         builder.setContentIntent(notificationClick);
         builder.setStyle(new NotificationCompat.BigTextStyle());
@@ -274,9 +241,6 @@ public final class NotificationService extends Service implements StatusChangeLi
 
         registerMediaButtons();
         tryToGetAudioFocus();
-
-        /** Build the non-dynamic intent actions */
-        buildStaticPendingIntents(this);
     }
 
     /**
@@ -287,14 +251,14 @@ public final class NotificationService extends Service implements StatusChangeLi
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
-        String action = intent.getAction();
+        final String action = intent.getAction();
 
         Log.d(TAG, "received command, action=" + action + " from intent: " + intent);
 
         /** An action must be submitted to start this service. */
         if (action == null) {
             Log.e(TAG, "NotificationService started without action, stopping...");
-            action = ACTION_CLOSE_NOTIFICATION;
+            stopSelf();
         }
 
         /**
@@ -314,7 +278,7 @@ public final class NotificationService extends Service implements StatusChangeLi
                 /** Fall Through */
             case StreamingService.ACTION_BUFFERING_END:
             case StreamingService.ACTION_STREAMING_STOP:
-                action = ACTION_OPEN_NOTIFICATION;
+                stateChanged(getStatus(), null);
                 break;
             case StreamingService.ACTION_BUFFERING_ERROR:
                 updatePlayingInfo(getStatus());
@@ -322,51 +286,18 @@ public final class NotificationService extends Service implements StatusChangeLi
             case StreamingService.ACTION_NOTIFICATION_STOP: /** StreamingService _requests_ stop */
                 if (notificationAutomaticallyGenerated &&
                         !app.getApplicationState().persistentNotification) {
-                    action = ACTION_CLOSE_NOTIFICATION;
+                    app.getApplicationState().persistentNotification = false;
+                    app.getApplicationState().notificationMode = false;
+                    stopSelf();
 
                     notificationAutomaticallyGenerated = false;
                 } else {
                     tryToGetAudioFocus();
-                    action = ACTION_OPEN_NOTIFICATION;
-                }
-                break;
-            case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
-                if (app.getApplicationState().streamingMode ||
-                        "127.0.0.1".equals(app.oMPDAsyncHelper.getConnectionSettings().sServer)) {
-                    action = ACTION_PAUSE;
-                }
-                break;
-            case ACTION_TOGGLE_PLAYBACK:
-                if (MPDStatus.MPD_STATE_PLAYING.equals(getStatus().getState())) {
-                    action = ACTION_PAUSE;
-                } else {
-                    action = ACTION_PLAY;
-                }
-                break;
-            default:
-                break;
-        }
-
-        switch (action) {
-            case ACTION_NEXT:
-            case ACTION_PREVIOUS:
-                tryToGetAudioFocus();
-                /** fall through */
-            case ACTION_PAUSE:
-            case ACTION_PLAY:
-            case ACTION_REWIND:
-            case ACTION_STOP:
-                if (app.oMPDAsyncHelper != null) {
-                    sendSimpleMpdCommand(action);
+                    stateChanged(getStatus(), null);
                 }
                 break;
             case ACTION_OPEN_NOTIFICATION:
                 stateChanged(getStatus(), null);
-                break;
-            case ACTION_CLOSE_NOTIFICATION:
-                app.getApplicationState().persistentNotification = false;
-                app.getApplicationState().notificationMode = false;
-                stopSelf();
                 break;
             default:
                 if (!app.getApplicationState().notificationMode) {
@@ -451,52 +382,6 @@ public final class NotificationService extends Service implements StatusChangeLi
                     }
                 }
         );
-    }
-
-    /**
-     * A simple method to safely send a command to MPD.
-     *
-     * @param command An ACTION intent.
-     */
-    private void sendSimpleMpdCommand(final String command) {
-        new Thread(new Runnable() {
-            @Override
-            public final void run() {
-
-                final MPD mpd = app.oMPDAsyncHelper.oMPD;
-
-                try {
-                    switch (command) {
-                        case ACTION_PAUSE:
-                            if (!MPDStatus.MPD_STATE_PAUSED.equals(
-                                    app.oMPDAsyncHelper.oMPD.getStatus().getState())) {
-                                mpd.pause();
-                            }
-                            break;
-                        case ACTION_PLAY:
-                            mpd.play();
-                            break;
-                        case ACTION_STOP:
-                            mpd.stop();
-                            break;
-                        case ACTION_NEXT:
-                            mpd.next();
-                            break;
-                        case ACTION_PREVIOUS:
-                            mpd.previous();
-                            break;
-                        case ACTION_REWIND:
-                            mpd.seek(0L);
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (final MPDServerException e) {
-                    Log.w(TAG, "Failed to send a simple MPD command.", e);
-                }
-            }
-        }
-        ).start();
     }
 
     /**
@@ -707,7 +592,7 @@ public final class NotificationService extends Service implements StatusChangeLi
     private NotificationCompat.Builder buildNewCollapsedNotification() {
         final RemoteViews resultView = buildBaseNotification(
                 new RemoteViews(getPackageName(), R.layout.notification));
-        return buildStaticCollapsedNotification(this).setContent(resultView);
+        return buildStaticCollapsedNotification().setContent(resultView);
     }
 
     /**

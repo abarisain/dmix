@@ -25,7 +25,6 @@ import org.a0z.mpd.MPDConnection;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;
@@ -291,9 +290,7 @@ public class AlbumCache
         Log.d("MPD ALBUMCACHE", "Cache is NOT up to date. fetching ...");
         lastUpdate = Calendar.getInstance().getTime();
 
-        Context context = MPD.getApplicationContext();
-        Tools.notifyUser(context.getResources().getString
-                (R.string.updatingLocalAlbumCacheNote), context);
+        Tools.notifyUser(R.string.updatingLocalAlbumCacheNote);
 
         Date oldUpdate = lastUpdate;
         albumDetails = new HashMap<String, AlbumDetails>();
@@ -311,8 +308,8 @@ public class AlbumCache
             updateConnection();
             Log.d("MPD ALBUMCACHE", "disabled AlbumCache");
             Tools.notifyUser(
-                    "Error with the 'listallinfo' command. Probably you have to adjust your server's 'max_output_buffer_size'",
-                    context);
+                    "Error with the 'listallinfo' command. Probably you have to adjust your server's 'max_output_buffer_size'"
+            );
             return false;
         }
 
@@ -359,7 +356,7 @@ public class AlbumCache
                 return false;
             }
         } catch (Exception e) {
-            Tools.notifyUser("Error updating Album Cache", context);
+            Tools.notifyUser("Error updating Album Cache");
             lastUpdate = oldUpdate;
             e.printStackTrace();
             return false;

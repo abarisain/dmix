@@ -16,17 +16,18 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import static android.text.TextUtils.isEmpty;
-
-import android.content.SharedPreferences;
-import android.net.Uri;
-
 import com.namelessdev.mpdroid.MPDApplication;
 
 import org.a0z.mpd.AlbumInfo;
 
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.text.TextUtils.isEmpty;
 
 public class LocalCover implements ICoverRetriever {
 
@@ -77,10 +78,10 @@ public class LocalCover implements ICoverRetriever {
 
     private final MPDApplication app = MPDApplication.getInstance();
 
-    private SharedPreferences settings = null;
+    private final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
-    public LocalCover(SharedPreferences settings) {
-        this.settings = settings;
+    public LocalCover() {
+        super();
     }
 
     @Override

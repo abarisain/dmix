@@ -57,7 +57,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         final Album album = (Album) item;
 
         // Caching must be switch on to use this view
-        final CoverAsyncHelper coverHelper = new CoverAsyncHelper(settings);
+        final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
         final int height = holder.albumCover.getHeight();
         // If the list is not displayed yet, the height is 0. This is a problem,
         // so set a fallback one.
@@ -96,8 +96,8 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         }
 
         // listen for new artwork to be loaded
-        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(context,
-                holder.albumCover, holder.coverArtProgress, lightTheme, false);
+        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener( holder.albumCover,
+                holder.coverArtProgress, false);
         final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
                 .getTag(R.id.AlbumCoverDownloadListener);
         if (oldAcd != null)

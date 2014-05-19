@@ -226,40 +226,51 @@ public class MPD {
     }
 
     /**
-     * Adds songs to the queue. It is possible to request a clear of the current
-     * one, and to start the playback once done.
+     * Adds songs to the queue. Optionally, clears the queue prior to the addition. Optionally,
+     * play the added songs afterward.
      *
      * @param runnable The runnable that will be responsible of inserting the
-     *                 songs into the queue
-     * @param replace  If true, replaces the entire playlist queue with the added files
-     * @param play     If true, starts playing once added
+     *                 songs into the queue.
+     * @param replace  If true, replaces the entire playlist queue with the added files.
+     * @param playAfterAdd     If true, starts playing once added.
      */
-    public void add(Runnable runnable, boolean replace, boolean play) throws MPDServerException {
+    public void add(final Runnable runnable, final boolean replace, final boolean playAfterAdd)
+            throws MPDServerException {
         int playPos = 0;
-        final boolean isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getStatus().getState());
+        final MPDStatus status = getStatus();
+        final boolean isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(status.getState());
+        final boolean isConsume = status.isConsume();
+        final boolean isRandom = status.isRandom();
 
+        /** Replace */
         if (replace) {
             if (isPlaying) {
-                playPos = 1;
-                getPlaylist().crop();
+                playlist.crop();
             } else {
-                getPlaylist().clear();
+                playlist.clear();
             }
-        } else if (play) {
-            playPos = getPlaylist().size();
+        } else if (playAfterAdd && !isRandom) {
+            /** Since we didn't clear the playlist queue, we need to play the (current queue+1) */
+            playPos = playlist.size();
         }
 
+        /** Add */
         runnable.run();
 
-        if (play || (replace && isPlaying)) {
+
+        if (isPlaying) {
+            if (replace) {
+                next();
+            }
+        } else if (playAfterAdd) {
             skipToPosition(playPos);
         }
 
         /** Finally, clean up the last playing song. */
-        if (replace && isPlaying) {
+        if (replace && isPlaying && !isConsume) {
             try {
-                getPlaylist().removeByIndex(0);
-            } catch (MPDServerException e) {
+                playlist.removeByIndex(0);
+            } catch (final MPDServerException e) {
                 Log.d(TAG, "Remove by index failed.", e);
             }
         }

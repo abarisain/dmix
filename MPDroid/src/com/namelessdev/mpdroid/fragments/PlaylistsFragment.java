@@ -16,6 +16,14 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.library.PlaylistEditActivity;
+import com.namelessdev.mpdroid.tools.Tools;
+
+import org.a0z.mpd.Item;
+import org.a0z.mpd.exception.MPDServerException;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -25,14 +33,6 @@ import android.view.View;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
-import com.namelessdev.mpdroid.library.PlaylistEditActivity;
-import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.Item;
-import org.a0z.mpd.exception.MPDServerException;
 
 public class PlaylistsFragment extends BrowseFragment {
     class DialogClickListener implements OnClickListener {
@@ -51,18 +51,15 @@ public class PlaylistsFragment extends BrowseFragment {
                     try {
                         app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
                         if (isAdded()) {
-                            Tools.notifyUser(String.format(
-                                    getResources().getString(R.string.playlistDeleted), playlist),
-                                    getActivity());
+                            Tools.notifyUser(R.string.playlistDeleted, playlist);
                         }
                         items.remove(itemIndex);
                     } catch (MPDServerException e) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(getResources().getString(R.string.deletePlaylist));
-                        builder.setMessage(String.format(
-                                getResources().getString(R.string.failedToDelete), playlist));
-                        builder.setPositiveButton(
-                                getResources().getString(android.R.string.cancel), null);
+                        builder.setTitle(R.string.deletePlaylist);
+                        builder.setMessage(
+                                getResources().getString(R.string.failedToDelete, playlist));
+                        builder.setPositiveButton(android.R.string.cancel, null);
 
                         try {
                             builder.show();
@@ -90,8 +87,7 @@ public class PlaylistsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
             if (isAdded()) {
-                Tools.notifyUser(String.format(getResources().getString(irAdded), item),
-                        getActivity());
+                Tools.notifyUser(irAdded, item);
             }
 
         } catch (MPDServerException e) {
@@ -147,15 +143,14 @@ public class PlaylistsFragment extends BrowseFragment {
                 String playlist = items.get((int) info.id).getName();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getResources().getString(R.string.deletePlaylist));
-                builder.setMessage(String.format(
-                        getResources().getString(R.string.deletePlaylistPrompt), playlist));
+                builder.setTitle(R.string.deletePlaylist);
+                builder.setMessage(
+                        getResources().getString(R.string.deletePlaylistPrompt, playlist));
 
                 DialogClickListener oDialogClickListener = new DialogClickListener((int) info.id);
-                builder.setNegativeButton(getResources().getString(android.R.string.no),
-                        oDialogClickListener);
-                builder.setPositiveButton(getResources().getString(R.string.deletePlaylist),
-                        oDialogClickListener);
+                builder.setNegativeButton(android.R.string.no, oDialogClickListener);
+                builder.setPositiveButton(R.string.deletePlaylist, oDialogClickListener);
+
                 try {
                     builder.show();
                 } catch (BadTokenException e) {

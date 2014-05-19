@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.locale;
 
 import com.namelessdev.mpdroid.NotificationService;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDCommand;
 
@@ -74,18 +75,18 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
 
         final ListView list = (ListView) findViewById(R.id.listView);
         items = new ArrayList<>();
-        items.add(new ActionItem(NotificationService.ACTION_TOGGLE_PLAYBACK,
+        items.add(new ActionItem(MPDControl.ACTION_TOGGLE_PLAYBACK,
                 getString(R.string.togglePlayback)));
-        items.add(new ActionItem(NotificationService.ACTION_PLAY, getString(R.string.play)));
-        items.add(new ActionItem(NotificationService.ACTION_PAUSE, getString(R.string.pause)));
-        items.add(new ActionItem(NotificationService.ACTION_STOP, getString(R.string.stop)));
-        items.add(new ActionItem(NotificationService.ACTION_REWIND, getString(R.string.rewind)));
+        items.add(new ActionItem(MPDControl.ACTION_PLAY, getString(R.string.play)));
+        items.add(new ActionItem(MPDControl.ACTION_PAUSE, getString(R.string.pause)));
+        items.add(new ActionItem(MPDControl.ACTION_STOP, getString(R.string.stop)));
+        items.add(new ActionItem(MPDControl.ACTION_REWIND, getString(R.string.rewind)));
         items.add(
-                new ActionItem(NotificationService.ACTION_PREVIOUS, getString(R.string.previous)));
-        items.add(new ActionItem(NotificationService.ACTION_NEXT, getString(R.string.next)));
-        items.add(new ActionItem(NotificationService.ACTION_MUTE,
+                new ActionItem(MPDControl.ACTION_PREVIOUS, getString(R.string.previous)));
+        items.add(new ActionItem(MPDControl.ACTION_NEXT, getString(R.string.next)));
+        items.add(new ActionItem(MPDControl.ACTION_MUTE,
                 getString(R.string.mute)));
-        items.add(new ActionItem(NotificationService.ACTION_SET_VOLUME,
+        items.add(new ActionItem(MPDControl.ACTION_SET_VOLUME,
                 getString(R.string.setVolume)));
         items.add(new ActionItem(NotificationService.ACTION_OPEN_NOTIFICATION,
                 getString(R.string.showNotification)));
@@ -102,7 +103,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         final ActionItem item = items.get(position);
-        if (item.actionString.equals(NotificationService.ACTION_SET_VOLUME)) {
+        if (item.actionString.equals(MPDControl.ACTION_SET_VOLUME)) {
             final SeekBar seekBar = new SeekBar(this);
             final int padding = getResources()
                     .getDimensionPixelSize(R.dimen.locale_edit_seekbar_padding);

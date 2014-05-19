@@ -112,7 +112,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
     }
 
     private void saveSettings() {
-        LibraryTabsUtil.saveCurrentLibraryTabs(app, getVisibleTabs());
+        LibraryTabsUtil.saveCurrentLibraryTabs(getVisibleTabs());
     }
 
     @Override
@@ -126,7 +126,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.reset:
-                LibraryTabsUtil.resetLibraryTabs(this);
+                LibraryTabsUtil.resetLibraryTabs();
                 refreshTable();
                 return true;
             default:
@@ -141,7 +141,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
         // get a list of all currently visible tabs
         ArrayList<String> currentTabs = LibraryTabsUtil.
-                getCurrentLibraryTabs(app);
+                getCurrentLibraryTabs();
 
         // create a list of all currently hidden tabs
         ArrayList<String> hiddenTabs = new ArrayList<String>();
