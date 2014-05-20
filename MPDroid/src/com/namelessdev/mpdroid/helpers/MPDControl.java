@@ -58,7 +58,7 @@ public final class MPDControl {
 
     public static final String ACTION_PREVIOUS = FULLY_QUALIFIED_NAME + "PREVIOUS";
 
-    public static final String ACTION_REWIND = FULLY_QUALIFIED_NAME + "REWIND";
+    public static final String ACTION_SEEK = FULLY_QUALIFIED_NAME + "SEEK";
 
     public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
@@ -246,7 +246,7 @@ public final class MPDControl {
                         case ACTION_PREVIOUS:
                             mpd.previous();
                             break;
-                        case ACTION_REWIND:
+                        case ACTION_SEEK:
                             long li = l;
                             if (li == INVALID_LONG) {
                                 li = 0L;

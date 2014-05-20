@@ -80,7 +80,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
         items.add(new ActionItem(MPDControl.ACTION_PLAY, getString(R.string.play)));
         items.add(new ActionItem(MPDControl.ACTION_PAUSE, getString(R.string.pause)));
         items.add(new ActionItem(MPDControl.ACTION_STOP, getString(R.string.stop)));
-        items.add(new ActionItem(MPDControl.ACTION_REWIND, getString(R.string.rewind)));
+        items.add(new ActionItem(MPDControl.ACTION_SEEK, getString(R.string.rewind)));
         items.add(
                 new ActionItem(MPDControl.ACTION_PREVIOUS, getString(R.string.previous)));
         items.add(new ActionItem(MPDControl.ACTION_NEXT, getString(R.string.next)));
