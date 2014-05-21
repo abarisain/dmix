@@ -207,11 +207,6 @@ public final class MPDControl {
 
                 /** This switch translates for the next switch. */
                 switch (command) {
-                    case ACTION_PAUSE:
-                        if (!isPaused()) {
-                            command = ACTION_PAUSE;
-                        }
-                        break;
                     case ACTION_TOGGLE_PLAYBACK:
                         if (isPlaying()) {
                             command = ACTION_PAUSE;
@@ -238,7 +233,9 @@ public final class MPDControl {
                             mpd.next();
                             break;
                         case ACTION_PAUSE:
-                            mpd.pause();
+                            if (!isPaused()) {
+                                mpd.pause();
+                            }
                             break;
                         case ACTION_PLAY:
                             mpd.play();
