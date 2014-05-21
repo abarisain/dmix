@@ -668,30 +668,40 @@ public final class NotificationService extends Service implements Handler.Callba
      * @param mpdStatus The current server status object.
      */
     private void updateRemoteControlClient(final MPDStatus mpdStatus) {
-        final int state = getRemoteState(mpdStatus);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final int state = getRemoteState(mpdStatus);
 
-        mRemoteControlClient.editMetadata(true)
-                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum())
-                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                        mCurrentMusic.getAlbumArtist())
-                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, mCurrentMusic.getArtist())
-                .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
-                        (long) mCurrentMusic.getTrack())
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
-                        (long) mCurrentMusic.getDisc())
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                        mCurrentMusic.getTime() * DateUtils.SECOND_IN_MILLIS)
-                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle())
-                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover)
-                .apply();
+                mRemoteControlClient.editMetadata(true)
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                                mCurrentMusic.getAlbum())
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                                mCurrentMusic.getAlbumArtist())
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                                mCurrentMusic.getArtist())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                                (long) mCurrentMusic.getTrack())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                                (long) mCurrentMusic.getDisc())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                                mCurrentMusic.getTime() * DateUtils.SECOND_IN_MILLIS)
+                        .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                                mCurrentMusic.getTitle())
+                        .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
+                                mAlbumCover)
+                        .apply();
 
-        /** Notify of the elapsed time if on 4.3 or higher */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mRemoteControlClient.setPlaybackState(state, lastKnownElapsed, 1.0f);
-        } else {
-            mRemoteControlClient.setPlaybackState(state);
-        }
-        Log.d(TAG, "Updated remote client with state " + state + " for music " + mCurrentMusic);
+                /** Notify of the elapsed time if on 4.3 or higher */
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    mRemoteControlClient.setPlaybackState(state, lastKnownElapsed, 1.0f);
+                } else {
+                    mRemoteControlClient.setPlaybackState(state);
+                }
+                Log.d(TAG, "Updated remote client with state " + state + " for music "
+                        + mCurrentMusic);
+            }
+        }).start();
     }
 
     /**
