@@ -38,7 +38,6 @@ import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -618,8 +617,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return true;
         }
 
-        final MPD mpd = app.oMPDAsyncHelper.oMPD;
-
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menu_search:
@@ -633,10 +630,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     stopService(StreamingService.class);
                     app.getApplicationState().streamingMode = false;
                 } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                    startService(NotificationService.class, null);
-                    startService(StreamingService.class, StreamingService.ACTION_START);
-
                     app.getApplicationState().streamingMode = true;
+                    startService(StreamingService.class, StreamingService.ACTION_START);
                 }
                 return true;
             case R.id.GMM_bonjour:
@@ -653,10 +648,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     stopService(NotificationService.class);
                     app.getApplicationState().notificationMode = false;
                 } else {
+                    app.getApplicationState().notificationMode = true;
                     startService(NotificationService.class,
                             NotificationService.ACTION_OPEN_NOTIFICATION);
-
-                    app.getApplicationState().notificationMode = true;
                 }
                 return true;
             default:
@@ -672,21 +666,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      *               will be enabled but not started.
      */
     private void startService(final Class<?> serviceClass, final String intentAction) {
-        final PackageManager packageManager = getPackageManager();
-        final Intent intent = new Intent(this, serviceClass);
-
-        if (packageManager != null) {
-            if (PackageManager.COMPONENT_ENABLED_STATE_ENABLED !=
-                    packageManager.getApplicationEnabledSetting(this.getPackageName())) {
-
-                packageManager.setComponentEnabledSetting(intent.getComponent(),
-                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                        PackageManager.DONT_KILL_APP);
-            }
-            if (intentAction != null) {
-                intent.setAction(intentAction);
-                super.startService(intent);
-            }
+        final Intent intent = new Intent(app, serviceClass);
+        if (intentAction != null) {
+            intent.setAction(intentAction);
+            super.startService(intent);
         }
     }
 
@@ -696,19 +679,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      * @param serviceClass The class of the service to stop.
      */
     private void stopService(final Class<?> serviceClass) {
-        final PackageManager packageManager = getPackageManager();
-        final Intent intent = new Intent(this, serviceClass);
-
-        if (packageManager != null) {
-            if (PackageManager.COMPONENT_ENABLED_STATE_DISABLED !=
-                    packageManager.getApplicationEnabledSetting(this.getPackageName())) {
-
-                packageManager.setComponentEnabledSetting(intent.getComponent(),
-                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                        PackageManager.DONT_KILL_APP);
-            }
-            super.stopService(intent);
-        }
+        final Intent intent = new Intent(app, serviceClass);
+        super.stopService(intent);
     }
 
     @Override

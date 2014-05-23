@@ -92,15 +92,12 @@
             android:label="@string/warningTitle"
             android:theme="@style/AppTheme.Dialog" />
 
-        <!-- Explicit enabling required. -->
         <service
             android:name=".NotificationService"
-            android:enabled="false"
             android:exported="false" />
 
         <service
             android:name=".StreamingService"
-            android:enabled="false"
             android:exported="false" />
 
         <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >
