@@ -796,10 +796,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         super.onStart();
         app.setActivity(this);
 
-        if(app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
+        if (app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
             app.getApplicationState().persistentNotification = true;
             app.getApplicationState().notificationMode = true;
             startService(NotificationService.class, NotificationService.ACTION_OPEN_NOTIFICATION);
+        } else if (!app.getApplicationState().notificationMode) {
+            stopService(NotificationService.class);
         }
     }
 
