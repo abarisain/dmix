@@ -60,7 +60,7 @@ public final class MPDControl {
 
     public static final String ACTION_SEEK = FULLY_QUALIFIED_NAME + "SEEK";
 
-    public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
+    public static final String ACTION_VOLUME_SET = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
     public static final String ACTION_SINGLE = FULLY_QUALIFIED_NAME + "SINGLE";
 
@@ -71,6 +71,12 @@ public final class MPDControl {
     public static final String ACTION_TOGGLE_RANDOM = FULLY_QUALIFIED_NAME + "RANDOM";
 
     public static final String ACTION_TOGGLE_REPEAT = FULLY_QUALIFIED_NAME + "REPEAT";
+
+    public static final String ACTION_VOLUME_STEP_DOWN = FULLY_QUALIFIED_NAME + "VOLUME_STEP_DOWN";
+
+    public static final String ACTION_VOLUME_STEP_UP = FULLY_QUALIFIED_NAME + "VOLUME_STEP_UP";
+
+    private static final int VOLUME_STEP = 5;
 
     private static final MPDApplication app = MPDApplication.getInstance();
 
@@ -258,11 +264,6 @@ public final class MPDControl {
                             }
                             mpd.seek(li);
                             break;
-                        case ACTION_SET_VOLUME:
-                            if (l != INVALID_LONG) {
-                                mpd.setVolume((int) l);
-                            }
-                            break;
                         case ACTION_STOP:
                             mpd.stop();
                             break;
@@ -274,6 +275,17 @@ public final class MPDControl {
                             break;
                         case ACTION_TOGGLE_REPEAT:
                             mpd.setRepeat(!mpd.getStatus().isRepeat());
+                            break;
+                        case ACTION_VOLUME_SET:
+                            if (l != INVALID_LONG) {
+                                mpd.setVolume((int) l);
+                            }
+                            break;
+                        case ACTION_VOLUME_STEP_DOWN:
+                            mpd.adjustVolume(-VOLUME_STEP);
+                            break;
+                        case ACTION_VOLUME_STEP_UP:
+                            mpd.adjustVolume(VOLUME_STEP);
                             break;
                         default:
                             break;

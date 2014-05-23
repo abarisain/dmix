@@ -23,13 +23,12 @@ import com.namelessdev.mpdroid.fragments.AlbumsGridFragment;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.FSFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
-import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.Album;
 import org.a0z.mpd.Artist;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
 import android.content.Context;
@@ -138,60 +137,45 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     }
 
     @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+    public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
+        boolean result = true;
+
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOLUME_UP:
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.next();
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-                return true;
+                MPDControl.run(MPDControl.ACTION_NEXT);
+                break;
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.previous();
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-                return true;
+                MPDControl.run(MPDControl.ACTION_PREVIOUS);
+                break;
+            default:
+                result = super.onKeyLongPress(keyCode, event);
+                break;
         }
-        return super.onKeyLongPress(keyCode, event);
+
+        return result;
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, final KeyEvent event) {
-        switch (event.getKeyCode()) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (event.isTracking() && !event.isCanceled()
-                        && !app.getApplicationState().streamingMode) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                app.oMPDAsyncHelper.oMPD.adjustVolume(
-                                        event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ?
-                                                NowPlayingFragment.VOLUME_STEP
-                                                : -NowPlayingFragment.VOLUME_STEP);
-                            } catch (MPDServerException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();
-                }
-                return true;
+    public boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        boolean result = true;
+
+        if (event.isTracking() && !event.isCanceled() && !app.isLocalAudible()) {
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
+                    break;
+                default:
+                    result = super.onKeyUp(keyCode, event);
+                    break;
+            }
+        } else {
+            result = super.onKeyUp(keyCode, event);
         }
-        return super.onKeyUp(keyCode, event);
+
+        return result;
     }
 
     @Override

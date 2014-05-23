@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
-import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
 import com.namelessdev.mpdroid.helpers.MPDControl;
@@ -546,54 +545,53 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        final boolean result;
+
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             // For onKeyLongPress to work
             event.startTracking();
-            return !app.getApplicationState().streamingMode;
+            result = !app.isLocalAudible();
+        } else {
+            result = super.onKeyDown(keyCode, event);
         }
-        return super.onKeyDown(keyCode, event);
+
+        return result;
     }
 
     @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+    public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
+        boolean result = true;
+
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOLUME_UP:
                 MPDControl.run(MPDControl.ACTION_NEXT);
-                return true;
+                break;
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 MPDControl.run(MPDControl.ACTION_PREVIOUS);
-                return true;
+                break;
+            default:
+                result = super.onKeyLongPress(keyCode, event);
+                break;
         }
-        return super.onKeyLongPress(keyCode, event);
+        return result;
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, final KeyEvent event) {
-        switch (event.getKeyCode()) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (event.isTracking() && !event.isCanceled()
-                        && !app.getApplicationState().streamingMode) {
+    public final boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        boolean result = true;
 
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                app.oMPDAsyncHelper.oMPD
-                                        .adjustVolume(
-                                                event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP
-                                                        ? NowPlayingFragment.VOLUME_STEP
-                                                        : -NowPlayingFragment.VOLUME_STEP);
-                            } catch (MPDServerException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();
-                }
-                return true;
+        if (event.isTracking() && !event.isCanceled() && !app.isLocalAudible()) {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP) {
+                MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
+            } else if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
+            }
+        } else {
+            result = super.onKeyUp(keyCode, event);
         }
-        return super.onKeyUp(keyCode, event);
+
+        return result;
     }
 
     @Override

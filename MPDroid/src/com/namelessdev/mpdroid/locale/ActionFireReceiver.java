@@ -53,7 +53,7 @@ public class ActionFireReceiver extends BroadcastReceiver {
             default:
                 int volume = MPDControl.INVALID_INT;
 
-                if (MPDControl.ACTION_SET_VOLUME.equals(action)) {
+                if (MPDControl.ACTION_VOLUME_SET.equals(action)) {
                     final String volumeString = bundle
                             .getString(EditActivity.BUNDLE_ACTION_EXTRA);
                     if (volumeString != null) {

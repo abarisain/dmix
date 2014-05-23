@@ -172,7 +172,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private ProgressBar coverArtProgress;
 
-    public static final int VOLUME_STEP = 5;
     private static final int ANIMATION_DURATION_MSEC = 1000;
 
     private ButtonEventHandler buttonEventHandler;
@@ -449,7 +448,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     public void run() {
                         if (lastSentVol != progress.getProgress()) {
                             lastSentVol = progress.getProgress();
-                            MPDControl.run(MPDControl.ACTION_SET_VOLUME, lastSentVol);
+                            MPDControl.run(MPDControl.ACTION_VOLUME_SET, lastSentVol);
                         }
                     }
 
