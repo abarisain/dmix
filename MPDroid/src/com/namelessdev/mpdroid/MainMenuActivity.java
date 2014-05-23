@@ -608,54 +608,54 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        if (playlistFragment != null && playlistFragment.onOptionsItemSelected(item)) {
-            return true;
-        }
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        boolean result = true;
+        final boolean itemHandled = mDrawerToggle.onOptionsItemSelected(item) ||
+                (playlistFragment != null && playlistFragment.onOptionsItemSelected(item));
 
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.menu_search:
-                this.onSearchRequested();
-                return true;
-            case CONNECT:
-                app.connect();
-                return true;
-            case R.id.GMM_Stream:
-                if (app.getApplicationState().streamingMode) {
-                    stopService(StreamingService.class);
-                    app.getApplicationState().streamingMode = false;
-                } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                    app.getApplicationState().streamingMode = true;
-                    startService(StreamingService.class, StreamingService.ACTION_START);
-                }
-                return true;
-            case R.id.GMM_bonjour:
-                startActivity(new Intent(this, ServerListActivity.class));
-                return true;
-            case R.id.GMM_Consume:
-                MPDControl.run(MPDControl.ACTION_CONSUME);
-                return true;
-            case R.id.GMM_Single:
-                MPDControl.run(MPDControl.ACTION_SINGLE);
-                return true;
-            case R.id.GMM_ShowNotification:
-                if (app.getApplicationState().notificationMode) {
-                    stopService(NotificationService.class);
-                    app.getApplicationState().notificationMode = false;
-                } else {
-                    app.getApplicationState().notificationMode = true;
-                    startService(NotificationService.class,
-                            NotificationService.ACTION_OPEN_NOTIFICATION);
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (!itemHandled) {
+            switch (item.getItemId()) {
+                case R.id.menu_search:
+                    this.onSearchRequested();
+                    break;
+                case CONNECT:
+                    app.connect();
+                    break;
+                case R.id.GMM_Stream:
+                    if (app.getApplicationState().streamingMode) {
+                        stopService(StreamingService.class);
+                        app.getApplicationState().streamingMode = false;
+                    } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
+                        app.getApplicationState().streamingMode = true;
+                        startService(StreamingService.class, StreamingService.ACTION_START);
+                    }
+                    break;
+                case R.id.GMM_bonjour:
+                    startActivity(new Intent(this, ServerListActivity.class));
+                    break;
+                case R.id.GMM_Consume:
+                    MPDControl.run(MPDControl.ACTION_CONSUME);
+                    break;
+                case R.id.GMM_Single:
+                    MPDControl.run(MPDControl.ACTION_SINGLE);
+                    break;
+                case R.id.GMM_ShowNotification:
+                    if (app.getApplicationState().notificationMode) {
+                        stopService(NotificationService.class);
+                        app.getApplicationState().notificationMode = false;
+                    } else {
+                        app.getApplicationState().notificationMode = true;
+                        startService(NotificationService.class,
+                                NotificationService.ACTION_OPEN_NOTIFICATION);
+                    }
+                    break;
+                default:
+                    result = super.onOptionsItemSelected(item);
+                    break;
+            }
         }
+        return result;
     }
 
     /**
