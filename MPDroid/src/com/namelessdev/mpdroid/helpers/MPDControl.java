@@ -110,6 +110,10 @@ public final class MPDControl {
         run(MPDApplication.getInstance().oMPDAsyncHelper.oMPD, userCommand, (long) i);
     }
 
+    public static void run(final String userCommand, final long l) {
+        run(MPDApplication.getInstance().oMPDAsyncHelper.oMPD, userCommand, l);
+    }
+
     /**
      * An overload for the  {@code run(mpd, userCommand, long)} method which
      * translates resource id into a native command.

@@ -325,15 +325,10 @@ public final class NotificationService extends Service implements Handler.Callba
                      */
                     @Override
                     public void onPlaybackPositionUpdate(final long newPositionMs) {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.seek(newPositionMs /
-                                    DateUtils.SECOND_IN_MILLIS);
-                            mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
-                                    newPositionMs, 1.0f);
-                        } catch (final MPDServerException e) {
-                            Log.e(TAG, "Could not seek", e);
-                        }
-
+                        MPDControl.run(MPDControl.ACTION_SEEK, newPositionMs /
+                                DateUtils.SECOND_IN_MILLIS);
+                        mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
+                                newPositionMs, 1.0f);
                     }
                 }
         );
