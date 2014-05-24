@@ -23,6 +23,7 @@ import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.PlaylistControl;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.models.AbstractPlaylistMusic;
@@ -182,11 +183,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 return;
             }
             AbstractPlaylistMusic itemFrom = songlist.get(from);
-            Integer songID = itemFrom.getSongId();
-            try {
-                app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
-            } catch (MPDServerException e) {
-            }
+            final int songID = itemFrom.getSongId();
+
+            PlaylistControl.run(PlaylistControl.MOVE, songID, to);
         }
     };
 
@@ -318,17 +317,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                             }
                         }
 
-                        app.oMPDAsyncHelper.execAsync(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
-                                } catch (MPDServerException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-
+                        PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
                         mode.finish();
                         return true;
                     case R.id.menu_crop:
@@ -341,17 +330,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                             }
                         }
 
-                        app.oMPDAsyncHelper.execAsync(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
-                                } catch (MPDServerException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-
+                        PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
                         mode.finish();
                         return true;
                     default:
@@ -399,86 +378,46 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public void onListItemClick(final ListView l, View v, final int position, long id) {
+        final int song = ((AbstractPlaylistMusic) l.getAdapter().getItem(position)).getSongId();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final Integer song = ((AbstractPlaylistMusic) l.getAdapter().getItem(position))
-                        .getSongId();
-                try {
-                    app.oMPDAsyncHelper.oMPD.skipToId(song);
-                } catch (MPDServerException e) {
-                }
-            }
-        }).start();
+        PlaylistControl.run(PlaylistControl.SKIP_TO_ID, song);
     }
+
+    private static final String TAG = "com.namelessdev.mpdroid.PlaylistFragment";
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        Intent intent;
+        final Intent intent;
         AbstractPlaylistMusic music;
 
         switch (item.getItemId()) {
             case R.id.PLCX_playNext:
-                try { // Move song to next in playlist
-                    MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-                    if (popupSongID < status.getSongPos()) {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID,
-                                status.getSongPos());
-                    } else {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID,
-                                status.getSongPos() + 1);
-                    }
-                    Tools.notifyUser("Song moved to next in list");
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                PlaylistControl.run(PlaylistControl.MOVE_TO_NEXT, popupSongID);
+                Tools.notifyUser("Song moved to next in list");
                 return true;
             case R.id.PLCX_moveFirst:
-                try { // Move song to first in playlist
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, 0);
-                    Tools.notifyUser("Song moved to first in list");
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                // Move song to first in playlist
+                PlaylistControl.run(PlaylistControl.MOVE, popupSongID, 0);
+                Tools.notifyUser("Song moved to first in list");
                 return true;
             case R.id.PLCX_moveLast:
-                try { // Move song to last in playlist
-                    MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID,
-                            status.getPlaylistLength() - 1);
-                    Tools.notifyUser("Song moved to last in list");
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                PlaylistControl.run(PlaylistControl.MOVE_TO_LAST, popupSongID);
+                Tools.notifyUser("Song moved to last in list");
                 return true;
             case R.id.PLCX_removeFromPlaylist:
-                try {
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(popupSongID);
-                    if (isAdded()) {
-                        Tools.notifyUser(R.string.deletedSongFromPlaylist);
-                    }
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, popupSongID);
+
+                if (isAdded()) {
+                    Tools.notifyUser(R.string.deletedSongFromPlaylist);
                 }
                 return true;
             case R.id.PLCX_removeAlbumFromPlaylist:
-                try {
-                    if (DEBUG) {
-                        Log.d(PlaylistFragment.class.getSimpleName(),
-                                "Remove Album " + popupSongID);
-                    }
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeAlbumById(popupSongID);
-                    if (isAdded()) {
-                        Tools.notifyUser(R.string.deletedSongFromPlaylist);
-                    }
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                if (DEBUG) {
+                    Log.d(TAG, "Remove Album " + popupSongID);
+                }
+                PlaylistControl.run(PlaylistControl.REMOVE_ALBUM_BY_ID, popupSongID);
+                if (isAdded()) {
+                    Tools.notifyUser(R.string.deletedSongFromPlaylist);
                 }
                 return true;
             case R.id.PLCX_goToArtist:
@@ -521,27 +460,25 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         Intent i;
         switch (item.getItemId()) {
             case R.id.PLM_Clear:
-                try {
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
-                    songlist.clear();
-                    if (isAdded()) {
-                        Tools.notifyUser(R.string.playlistCleared);
-                    }
-                    ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                Log.e(TAG, "Playlist Clear");
+                PlaylistControl.run(PlaylistControl.CLEAR);
+                songlist.clear();
+                if (isAdded()) {
+                    Tools.notifyUser(R.string.playlistCleared);
                 }
+                ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
                 return true;
             case R.id.PLM_EditPL:
                 i = new Intent(activity, PlaylistEditActivity.class);
                 startActivity(i);
                 return true;
             case R.id.PLM_Save:
-                List<Item> plists = new ArrayList<Item>();
+                List<Item> plists;
                 try {
                     plists = app.oMPDAsyncHelper.oMPD.getPlaylists();
-                } catch (MPDServerException e) {
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to receive list of playlists.", e);
+                    plists = new ArrayList<>(0);
                 }
                 Collections.sort(plists);
                 final String[] playlistsArray = new String[plists.size() + 1];
@@ -622,16 +559,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
         // actually save:
         if (null != name && name.length() > 0) {
-            app.oMPDAsyncHelper.execAsync(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
-                    } catch (MPDServerException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            PlaylistControl.run(PlaylistControl.SAVE_PLAYLIST, name);
         }
     }
 
