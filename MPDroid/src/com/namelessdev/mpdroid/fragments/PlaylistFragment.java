@@ -179,13 +179,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     private DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
         public void drop(int from, int to) {
-            if (from == to || filter != null) {
-                return;
-            }
-            AbstractPlaylistMusic itemFrom = songlist.get(from);
-            final int songID = itemFrom.getSongId();
+            if (from != to || filter == null) {
+                AbstractPlaylistMusic itemFrom = songlist.get(from);
+                final int songID = itemFrom.getSongId();
 
-            PlaylistControl.run(PlaylistControl.MOVE, songID, to);
+                PlaylistControl.run(PlaylistControl.MOVE, songID, to);
+            }
         }
     };
 
@@ -305,6 +304,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 final ListAdapter adapter = list.getAdapter();
                 int j = 0;
                 final int positions[];
+                boolean result = true;
 
                 switch (item.getItemId()) {
                     case R.id.menu_delete:
@@ -319,7 +319,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
                         PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
                         mode.finish();
-                        return true;
+                        break;
                     case R.id.menu_crop:
                         positions = new int[list.getCount() - list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
@@ -332,10 +332,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
                         PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
                         mode.finish();
-                        return true;
+                        break;
                     default:
-                        return false;
+                        result = false;
+                        break;
                 }
+                return result;
             }
 
             @Override
@@ -386,31 +388,31 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private static final String TAG = "com.namelessdev.mpdroid.PlaylistFragment";
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
+    public boolean onMenuItemClick(final MenuItem item) {
         final Intent intent;
-        AbstractPlaylistMusic music;
+        final AbstractPlaylistMusic music;
 
         switch (item.getItemId()) {
             case R.id.PLCX_playNext:
                 PlaylistControl.run(PlaylistControl.MOVE_TO_NEXT, popupSongID);
                 Tools.notifyUser("Song moved to next in list");
-                return true;
+                break;
             case R.id.PLCX_moveFirst:
                 // Move song to first in playlist
                 PlaylistControl.run(PlaylistControl.MOVE, popupSongID, 0);
                 Tools.notifyUser("Song moved to first in list");
-                return true;
+                break;
             case R.id.PLCX_moveLast:
                 PlaylistControl.run(PlaylistControl.MOVE_TO_LAST, popupSongID);
                 Tools.notifyUser("Song moved to last in list");
-                return true;
+                break;
             case R.id.PLCX_removeFromPlaylist:
                 PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, popupSongID);
 
                 if (isAdded()) {
                     Tools.notifyUser(R.string.deletedSongFromPlaylist);
                 }
-                return true;
+                break;
             case R.id.PLCX_removeAlbumFromPlaylist:
                 if (DEBUG) {
                     Log.d(TAG, "Remove Album " + popupSongID);
@@ -419,37 +421,38 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 if (isAdded()) {
                     Tools.notifyUser(R.string.deletedSongFromPlaylist);
                 }
-                return true;
+                break;
             case R.id.PLCX_goToArtist:
                 music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getArtist())) {
-                    return true;
+                    break;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("artist", music.getArtistAsArtist());
                 startActivityForResult(intent, -1);
-                return true;
+                break;
             case R.id.PLCX_goToAlbum:
                 music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getArtist()) || isEmpty(music.getAlbum())) {
-                    return true;
+                    break;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("album", music.getAlbumAsAlbum());
                 startActivityForResult(intent, -1);
-                return true;
+                break;
             case R.id.PLCX_goToFolder:
                 music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getFullpath())) {
-                    return true;
+                    break;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("folder", music.getParent());
                 startActivityForResult(intent, -1);
-                return true;
+                break;
             default:
-                return true;
+                break;
         }
+        return true;
     }
 
     private String playlistToSave = "";
@@ -457,7 +460,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Menu actions...
+        boolean result = true;
         Intent i;
+
         switch (item.getItemId()) {
             case R.id.PLM_Clear:
                 Log.e(TAG, "Playlist Clear");
@@ -467,11 +472,11 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     Tools.notifyUser(R.string.playlistCleared);
                 }
                 ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
-                return true;
+                break;
             case R.id.PLM_EditPL:
                 i = new Intent(activity, PlaylistEditActivity.class);
                 startActivity(i);
-                return true;
+                break;
             case R.id.PLM_Save:
                 List<Item> plists;
                 try {
@@ -517,11 +522,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                                         }
                                 )
                         .create().show();
-                return true;
+                break;
             default:
-                return false;
+                result = false;
+                break;
         }
-
+        return result;
     }
 
     protected void savePlaylist(final String name) {
@@ -555,10 +561,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                                     }
                             )
                     .create().show();
-            return;
-        }
-        // actually save:
-        if (null != name && name.length() > 0) {
+        } else if (!name.isEmpty()) {
+            // actually save:
             PlaylistControl.run(PlaylistControl.SAVE_PLAYLIST, name);
         }
     }
