@@ -45,6 +45,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
@@ -110,7 +111,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 viewHolder.coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
                 final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(
                         viewHolder.cover);
-                final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) viewHolder.cover
+                final AlbumCoverDownloadListener oldAcd
+                        = (AlbumCoverDownloadListener) viewHolder.cover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {
                     oldAcd.detach();
@@ -147,17 +149,29 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     // Minimum number of songs in the queue before the fastscroll thumb is shown
     private static final int MIN_SONGS_BEFORE_FASTSCROLL = 50;
+
     private ArrayList<AbstractPlaylistMusic> songlist;
+
     private final MPDApplication app = MPDApplication.getInstance();
+
     private DragSortListView list;
+
     private ActionMode actionMode;
+
     private SearchView searchView;
+
     private String filter = null;
+
     private PopupMenu popupMenu;
+
     private Integer popupSongID;
+
     private DragSortController controller;
+
     private FragmentActivity activity;
+
     private static final boolean DEBUG = false;
+
     private int lastPlayingID = -1;
 
     private boolean lightTheme = false;
@@ -197,8 +211,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        // TODO Auto-generated method stub
-
     }
 
     private AbstractPlaylistMusic getPlaylistItemSong(int songID) {
@@ -214,8 +226,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public void libraryStateChanged(boolean updating, boolean dbChanged) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -241,7 +251,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.playlist_activity, container, false);
         searchView = (SearchView) view.findViewById(R.id.search);
         searchView.setOnQueryTextListener(new OnQueryTextListener() {
@@ -249,10 +260,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             @Override
             public boolean onQueryTextChange(String newText) {
                 filter = newText;
-                if ("".equals(newText))
+                if ("".equals(newText)) {
                     filter = null;
-                if (filter != null)
+                }
+                if (filter != null) {
                     filter = filter.toLowerCase();
+                }
                 list.setDragEnabled(filter == null);
                 update(false);
                 return false;
@@ -286,7 +299,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
             @Override
-            public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 
                 final SparseBooleanArray checkedItems = list.getCheckedItemPositions();
                 final int count = list.getCount();
@@ -295,7 +308,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 final int positions[];
 
                 switch (item.getItemId()) {
-
                     case R.id.menu_delete:
                         positions = new int[list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
@@ -348,8 +360,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             }
 
             @Override
-            public boolean onCreateActionMode(ActionMode mode, android.view.Menu menu) {
-                final android.view.MenuInflater inflater = mode.getMenuInflater();
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                final MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.mpd_queuemenu, menu);
                 return true;
             }
@@ -364,8 +376,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
                     boolean checked) {
                 final int selectCount = list.getCheckedItemCount();
-                if (selectCount == 0)
+                if (selectCount == 0) {
                     mode.finish();
+                }
                 if (selectCount == 1) {
                     mode.setTitle(R.string.actionSongSelected);
                 } else {
@@ -374,7 +387,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             }
 
             @Override
-            public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
                 actionMode = mode;
                 controller.setSortEnabled(false);
                 return false;
@@ -401,7 +414,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     @Override
-    public boolean onMenuItemClick(android.view.MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
         Intent intent;
         AbstractPlaylistMusic music;
 
@@ -455,8 +468,10 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 return true;
             case R.id.PLCX_removeAlbumFromPlaylist:
                 try {
-                    if (DEBUG)
-                        Log.d(PlaylistFragment.class.getSimpleName(), "Remove Album " + popupSongID);
+                    if (DEBUG) {
+                        Log.d(PlaylistFragment.class.getSimpleName(),
+                                "Remove Album " + popupSongID);
+                    }
                     app.oMPDAsyncHelper.oMPD.getPlaylist().removeAlbumById(popupSongID);
                     if (isAdded()) {
                         Tools.notifyUser(R.string.deletedSongFromPlaylist);
@@ -523,42 +538,48 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 startActivity(i);
                 return true;
             case R.id.PLM_Save:
-                List<Item> plists  = new ArrayList<Item>();
+                List<Item> plists = new ArrayList<Item>();
                 try {
                     plists = app.oMPDAsyncHelper.oMPD.getPlaylists();
                 } catch (MPDServerException e) {
                 }
                 Collections.sort(plists);
-                final String[] playlistsArray = new String[plists.size()+1];
+                final String[] playlistsArray = new String[plists.size() + 1];
                 for (int p = 0; p < plists.size(); p++) {
                     playlistsArray[p] = plists.get(p).getName(); // old playlists
                 }
-                playlistsArray[playlistsArray.length-1] = getResources().getString(R.string.newPlaylist); // "new playlist"
-                playlistToSave = playlistsArray[playlistsArray.length-1];
+                playlistsArray[playlistsArray.length - 1] = getResources()
+                        .getString(R.string.newPlaylist); // "new playlist"
+                playlistToSave = playlistsArray[playlistsArray.length - 1];
                 new AlertDialog.Builder(activity) // dialog with list of playlists
-                    .setTitle(R.string.playlistName)
-                    .setSingleChoiceItems
-                    (playlistsArray, playlistsArray.length-1,
-                     new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int which) {
-                             playlistToSave = playlistsArray[which];
-                         }
-                     })
-                    .setPositiveButton
-                    (android.R.string.ok,
-                     new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int whichButton) {
-                             savePlaylist(playlistToSave);
-                         }
-                     })
-                    .setNegativeButton
-                    (android.R.string.cancel,
-                     new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int whichButton) {
-                             // Do nothing.
-                         }
-                     })
-                    .create().show();
+                        .setTitle(R.string.playlistName)
+                        .setSingleChoiceItems
+                                (playlistsArray, playlistsArray.length - 1,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                playlistToSave = playlistsArray[which];
+                                            }
+                                        }
+                                )
+                        .setPositiveButton
+                                (android.R.string.ok,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                                savePlaylist(playlistToSave);
+                                            }
+                                        }
+                                )
+                        .setNegativeButton
+                                (android.R.string.cancel,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                                // Do nothing.
+                                            }
+                                        }
+                                )
+                        .create().show();
                 return true;
             default:
                 return false;
@@ -571,41 +592,46 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             // if "new playlist", show dialog with EditText for new playlist:
             final EditText input = new EditText(activity);
             new AlertDialog.Builder(activity)
-                .setTitle(R.string.newPlaylistPrompt)
-                .setView(input)
-                .setPositiveButton
-                (android.R.string.ok,
-                 new DialogInterface.OnClickListener() {
-                     public void onClick(DialogInterface dialog, int whichButton) {
-                         final String name = input.getText().toString().trim();
-                         if (null != name && name.length() > 0 && !name.equals(MPD.STREAMS_PLAYLIST)) {
-                             // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
-                             savePlaylist(name);
-                         }
-                     }
-                 })
-                .setNegativeButton
-                (android.R.string.cancel,
-                 new DialogInterface.OnClickListener() {
-                     public void onClick(DialogInterface dialog, int whichButton) {
-                         // Do nothing.
-                     }
-                 })
-                .create().show();
+                    .setTitle(R.string.newPlaylistPrompt)
+                    .setView(input)
+                    .setPositiveButton
+                            (android.R.string.ok,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                            final String name = input.getText().toString().trim();
+                                            if (null != name && name.length() > 0 && !name
+                                                    .equals(MPD.STREAMS_PLAYLIST)) {
+                                                // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
+                                                savePlaylist(name);
+                                            }
+                                        }
+                                    }
+                            )
+                    .setNegativeButton
+                            (android.R.string.cancel,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                            // Do nothing.
+                                        }
+                                    }
+                            )
+                    .create().show();
             return;
         }
         // actually save:
         if (null != name && name.length() > 0) {
             app.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
-                        }
+                @Override
+                public void run() {
+                    try {
+                        app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
+                    } catch (MPDServerException e) {
+                        e.printStackTrace();
                     }
-                });
+                }
+            });
         }
     }
 
@@ -639,8 +665,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public void randomChanged(boolean random) {
-        // TODO Auto-generated method stub
-
     }
 
     private void refreshListColorCacheHint() {
@@ -679,8 +703,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public void repeatChanged(boolean repeating) {
-        // TODO Auto-generated method stub
-
     }
 
     public void scrollToNowPlaying() {
@@ -688,7 +710,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
-                Integer songIndex = new Integer("-1");
+                Integer songIndex = Integer.valueOf(-1);
                 try {
                     songIndex = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
                 } catch (MPDServerException e) {
@@ -719,8 +741,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public void stateChanged(MPDStatus mpdStatus, String oldState) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -756,10 +776,12 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     : 0;
 
             MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
-            final ArrayList<AbstractPlaylistMusic> newSonglist = new ArrayList<AbstractPlaylistMusic>();
+            final ArrayList<AbstractPlaylistMusic> newSonglist
+                    = new ArrayList<AbstractPlaylistMusic>();
             List<Music> musics = playlist.getMusicList();
-            if (lastPlayingID == -1 || forcePlayingIDRefresh)
+            if (lastPlayingID == -1 || forcePlayingIDRefresh) {
                 lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
+            }
             // The position in the songlist of the currently played song
             int listPlayingID = -1;
             // Copy list to avoid concurrent exception
@@ -814,7 +836,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     // the opposite order or it won't show the FastScroll
                     // This is so stupid I don't even .... argh
                     if (newSonglist.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
-                        if (android.os.Build.VERSION.SDK_INT >= 19) {
+                        if (Build.VERSION.SDK_INT >= 19) {
                             // No need to enable FastScroll, this setter enables
                             // it.
                             list.setFastScrollAlwaysVisible(true);
@@ -824,7 +846,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                             list.setFastScrollAlwaysVisible(true);
                         }
                     } else {
-                        if (android.os.Build.VERSION.SDK_INT >= 19) {
+                        if (Build.VERSION.SDK_INT >= 19) {
                             list.setFastScrollAlwaysVisible(false);
                             // Default Android value
                             list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
@@ -834,8 +856,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         }
                     }
 
-                    if (actionMode != null)
+                    if (actionMode != null) {
                         actionMode.finish();
+                    }
 
                     // Restore the scroll bar position
                     if (firstVisibleElementIndex != 0 && firstVisiblePosition != 0) {
@@ -876,7 +899,5 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     @Override
     public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-        // TODO Auto-generated method stub
-
     }
 }
