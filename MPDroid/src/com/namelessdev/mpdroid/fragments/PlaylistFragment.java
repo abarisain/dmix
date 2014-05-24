@@ -60,7 +60,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -79,7 +78,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.text.TextUtils.isEmpty;
-import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener,
         OnMenuItemClickListener {
@@ -220,6 +218,17 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             }
         }
         return song;
+    }
+
+    private boolean isFiltered(final String item) {
+        final String processedItem;
+        if (item != null) {
+            processedItem = item.toLowerCase(Locale.getDefault());
+        } else {
+            processedItem = "".toLowerCase(Locale.getDefault());
+        }
+
+        return processedItem.contains(filter);
     }
 
     @Override
@@ -636,9 +645,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 Integer songIndex = Integer.valueOf(-1);
                 try {
                     songIndex = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
-                } catch (MPDServerException e) {
-                    e(PlaylistFragment.class.getSimpleName(),
-                            "Cannot find the current playing song position : " + e);
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Cannot find the current playing song position.", e);
                 }
                 return songIndex;
             }
@@ -690,120 +698,143 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         update(true);
     }
 
-    protected void update(boolean forcePlayingIDRefresh) {
-        try {
-            // Save the scroll bar position to restore it after update
-            final int firstVisibleElementIndex = list.getFirstVisiblePosition();
-            View firstVisibleItem = list.getChildAt(0);
-            final int firstVisiblePosition = (firstVisibleItem != null) ? firstVisibleItem.getTop()
-                    : 0;
+    /**
+     * Update the current playlist fragment.
+     *
+     * @param forcePlayingIDRefresh Force the current track to refresh.
+     */
+    protected void update(final boolean forcePlayingIDRefresh) {
+        // Save the scroll bar position to restore it after update
+        final MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
+        final List<Music> musics = playlist.getMusicList();
+        final ArrayList<AbstractPlaylistMusic> newSongList = new ArrayList<>(musics.size());
 
-            MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
-            final ArrayList<AbstractPlaylistMusic> newSonglist
-                    = new ArrayList<AbstractPlaylistMusic>();
-            List<Music> musics = playlist.getMusicList();
-            if (lastPlayingID == -1 || forcePlayingIDRefresh) {
+        if (lastPlayingID == -1 || forcePlayingIDRefresh) {
+            try {
                 lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to get the current song id.", e);
             }
-            // The position in the songlist of the currently played song
-            int listPlayingID = -1;
-            // Copy list to avoid concurrent exception
-            for (Music m : new ArrayList<Music>(musics)) {
-                if (m == null) {
+        }
+
+        // The position in the song list of the currently played song
+        int listPlayingID = -1;
+
+        // Copy list to avoid concurrent exception
+        for (final Music music : new ArrayList<>(musics)) {
+            if (music == null) {
+                continue;
+            }
+
+            final AbstractPlaylistMusic item;
+            if (music.isStream()) {
+                item = new PlaylistStream(music);
+            } else {
+                item = new PlaylistSong(music);
+            }
+
+            if (filter != null) {
+                if (isFiltered(item.getAlbumArtist()) || isFiltered(item.getAlbum()) ||
+                        isFiltered(item.getTitle())) {
                     continue;
                 }
-
-                AbstractPlaylistMusic item = m.isStream() ? new PlaylistStream(m)
-                        : new PlaylistSong(m);
-
-                if (filter != null) {
-                    if (!(item.getAlbumArtist() != null ? item.getAlbumArtist() : "").toLowerCase(
-                            Locale.getDefault()).contains(filter)
-                            &&
-                            !(item.getAlbum() != null ? item.getAlbum() : "").toLowerCase(
-                                    Locale.getDefault()).contains(filter)
-                            &&
-                            !(item.getTitle() != null ? item.getTitle() : "").toLowerCase(
-                                    Locale.getDefault()).contains(filter)) {
-                        continue;
-                    }
-                }
-
-                if (item.getSongId() == lastPlayingID) {
-                    item.setCurrentSongIconRefID(lightTheme ? R.drawable.ic_media_play_light
-                            : R.drawable.ic_media_play);
-                    // Lie a little. Scroll to the previous song than the one
-                    // playing. That way it shows that there are other songs
-                    // before
-                    // it
-                    listPlayingID = newSonglist.size() - 1;
-                } else {
-                    item.setCurrentSongIconRefID(0);
-                }
-                newSonglist.add(item);
             }
 
-            final int finalListPlayingID = listPlayingID;
+            if (item.getSongId() == lastPlayingID) {
+                if (lightTheme) {
+                    item.setCurrentSongIconRefID(R.drawable.ic_media_play_light);
+                } else {
+                    item.setCurrentSongIconRefID(R.drawable.ic_media_play);
+                }
 
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    final ArrayAdapter songs = new QueueAdapter(activity, newSonglist,
-                            R.layout.playlist_queue_item);
-                    setListAdapter(songs);
-                    songlist = newSonglist;
-                    songs.notifyDataSetChanged();
-                    // Note : setting the scrollbar style before setting the
-                    // fastscroll state is very important pre-KitKat, because of
-                    // a bug.
-                    // It is also very important post-KitKat because it needs
-                    // the opposite order or it won't show the FastScroll
-                    // This is so stupid I don't even .... argh
-                    if (newSonglist.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
-                        if (Build.VERSION.SDK_INT >= 19) {
-                            // No need to enable FastScroll, this setter enables
-                            // it.
-                            list.setFastScrollAlwaysVisible(true);
-                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-                        } else {
-                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-                            list.setFastScrollAlwaysVisible(true);
-                        }
+                /**
+                 * Lie a little. Scroll to the previous song than the one playing.
+                 * That way it shows that there are other songs before it.
+                 */
+                listPlayingID = newSongList.size() - 1;
+            } else {
+                item.setCurrentSongIconRefID(0);
+            }
+            newSongList.add(item);
+        }
+
+        updateScrollbar(newSongList, listPlayingID);
+    }
+
+    /**
+     * Updates the scrollbar.
+     *
+     * @param newSongList   The updated list of songs for the playlist.
+     * @param listPlayingID The current playing playlist id.
+     */
+    private void updateScrollbar(final ArrayList newSongList, final int listPlayingID) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int firstVisibleElementIndex = list.getFirstVisiblePosition();
+                final View firstVisibleItem = list.getChildAt(0);
+                final int firstVisiblePosition;
+                final ArrayAdapter songs = new QueueAdapter(activity, newSongList,
+                        R.layout.playlist_queue_item);
+
+                if (firstVisibleItem != null) {
+                    firstVisiblePosition = firstVisibleItem.getTop();
+                } else {
+                    firstVisiblePosition = 0;
+                }
+
+                setListAdapter(songs);
+                songlist = newSongList;
+                songs.notifyDataSetChanged();
+
+                /**
+                 * Note : Setting the scrollbar style before setting the fast scroll state is very
+                 * important pre-KitKat, because of a bug. It is also very important post-KitKat
+                 * because it needs the opposite order or it won't show the FastScroll.
+                 *
+                 * This is so stupid I don't even .... argh.
+                 */
+                if (newSongList.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        // No need to enable FastScroll, this setter enables
+                        // it.
+                        list.setFastScrollAlwaysVisible(true);
+                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
                     } else {
-                        if (Build.VERSION.SDK_INT >= 19) {
-                            list.setFastScrollAlwaysVisible(false);
-                            // Default Android value
-                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-                        } else {
-                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-                            list.setFastScrollAlwaysVisible(false);
-                        }
+                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+                        list.setFastScrollAlwaysVisible(true);
                     }
-
-                    if (actionMode != null) {
-                        actionMode.finish();
-                    }
-
-                    // Restore the scroll bar position
-                    if (firstVisibleElementIndex != 0 && firstVisiblePosition != 0) {
-                        list.setSelectionFromTop(firstVisibleElementIndex, firstVisiblePosition);
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        list.setFastScrollAlwaysVisible(false);
+                        // Default Android value
+                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
                     } else {
-                        // Only scroll if there is a valid song to scroll to. 0
-                        // is a valid song but does not require scroll anyway.
-                        // Also, only scroll if it's the first update. You don't
-                        // want your playlist to scroll itself while you are
-                        // looking at
-                        // other
-                        // stuff.
-                        if (finalListPlayingID > 0 && getView() != null) {
-                            setSelection(finalListPlayingID);
-                        }
+                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+                        list.setFastScrollAlwaysVisible(false);
                     }
                 }
-            });
 
-        } catch (MPDServerException e) {
-            e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
-        }
+                if (actionMode != null) {
+                    actionMode.finish();
+                }
+
+                // Restore the scroll bar position
+                if (firstVisibleElementIndex == 0 || firstVisiblePosition == 0) {
+                    /**
+                     * Only scroll if there is a valid song to scroll to. 0 is a valid song but
+                     * does not require scroll anyway. Also, only scroll if it's the first update.
+                     * You don't want your playlist to scroll itself while you are looking at other
+                     * stuff.
+                     */
+                    if (listPlayingID > 0 && getView() != null) {
+                        setSelection(listPlayingID);
+                    }
+                } else {
+                    list.setSelectionFromTop(firstVisibleElementIndex, firstVisiblePosition);
+                }
+            }
+        });
     }
 
     public void updateCover(AlbumInfo albumInfo) {
