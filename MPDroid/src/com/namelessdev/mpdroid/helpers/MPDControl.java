@@ -85,6 +85,10 @@ public final class MPDControl {
         }
     }
 
+    private MPDControl() {
+        super();
+    }
+
     /**
      * An overload method to use the standard {@code MPD}
      * object and no {@code userCommand} argument.
