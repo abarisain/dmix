@@ -610,27 +610,18 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     private void refreshPlaylistItemView(final AbstractPlaylistMusic... playlistSongs) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                return null;
-            }
+        final int start = list.getFirstVisiblePosition();
 
-            @Override
-            protected void onPostExecute(Void result) {
-                int start = list.getFirstVisiblePosition();
-                for (int i = start, j = list.getLastVisiblePosition(); i <= j; i++) {
-                    AbstractPlaylistMusic playlistMusic = (AbstractPlaylistMusic) list.getAdapter()
-                            .getItem(i);
-                    for (AbstractPlaylistMusic song : playlistSongs) {
-                        if (playlistMusic.getSongId() == song.getSongId()) {
-                            View view = list.getChildAt(i - start);
-                            list.getAdapter().getView(i, view, list);
-                        }
-                    }
+        for (int i = start; i <= list.getLastVisiblePosition(); i++) {
+            final AbstractPlaylistMusic playlistMusic =
+                    (AbstractPlaylistMusic) list.getAdapter().getItem(i);
+            for (final AbstractPlaylistMusic song : playlistSongs) {
+                if (playlistMusic.getSongId() == song.getSongId()) {
+                    final View view = list.getChildAt(i - start);
+                    list.getAdapter().getView(i, view, list);
                 }
             }
-        }.execute();
+        }
     }
 
     @Override
