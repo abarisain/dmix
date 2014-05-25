@@ -167,20 +167,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private ImageView coverArt;
 
-    private ProgressBar coverArtProgress;
-
     private static final int ANIMATION_DURATION_MSEC = 1000;
-
-    private ButtonEventHandler buttonEventHandler;
-    @SuppressWarnings("unused")
-    private boolean streamingMode;
 
     private Music currentSong = null;
     private Timer volTimer = new Timer();
     private TimerTask volTimerTask = null;
     private Handler handler;
     private Timer posTimer = null;
-    private TimerTask posTimerTask = null;
 
     private final MPDApplication app = MPDApplication.getInstance();
 
@@ -306,7 +299,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
         settings.registerOnSharedPreferenceChangeListener(this);
 
-        streamingMode = app.getApplicationState().streamingMode;
         artistNameText = (TextView) view.findViewById(R.id.artistName);
         albumNameText = (TextView) view.findViewById(R.id.albumName);
         songNameText = (TextView) view.findViewById(R.id.songName);
@@ -334,8 +326,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         fadeOut.setDuration(ANIMATION_DURATION_MSEC);
 
         coverArt = (ImageView) view.findViewById(R.id.albumCover);
-        coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-
         coverArt.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -350,10 +340,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         oCoverAsyncHelper.setCoverMaxSizeFromScreen(activity);
         oCoverAsyncHelper.setCachedCoverMaxSize(coverArt.getWidth());
 
+        final ProgressBar coverArtProgress =
+                (ProgressBar) view.findViewById(R.id.albumCoverProgress);
         coverArtListener = new AlbumCoverDownloadListener(coverArt, coverArtProgress, true);
         oCoverAsyncHelper.addCoverDownloadListener(coverArtListener);
 
-        buttonEventHandler = new ButtonEventHandler();
+        final ButtonEventHandler buttonEventHandler = new ButtonEventHandler();
         ImageButton button = (ImageButton) view.findViewById(R.id.next);
         button.setOnClickListener(buttonEventHandler);
 
@@ -729,7 +721,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void startPosTimer(final long start, final long total) {
         stopPosTimer();
         posTimer = new Timer();
-        posTimerTask = new PosTimerTask(start, total);
+        final TimerTask posTimerTask = new PosTimerTask(start, total);
         posTimer.scheduleAtFixedRate(posTimerTask, 0L, DateUtils.SECOND_IN_MILLIS);
     }
 
