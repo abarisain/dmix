@@ -317,7 +317,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 final int count = list.getCount();
                 final ListAdapter adapter = list.getAdapter();
                 int j = 0;
-                final int[] positions;
+                int[] positions = null;
                 boolean result = true;
 
                 switch (item.getItemId()) {
@@ -325,32 +325,30 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                         positions = new int[list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
                             if (checkedItems.get(i)) {
-                                positions[j] = ((Music) adapter.getItem(i))
-                                        .getSongId();
+                                positions[j] = ((Music) adapter.getItem(i)).getSongId();
                                 j++;
                             }
                         }
-
-                        PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
-                        mode.finish();
                         break;
                     case R.id.menu_crop:
                         positions = new int[list.getCount() - list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
                             if (!checkedItems.get(i)) {
-                                positions[j] = ((Music) adapter.getItem(i))
-                                        .getSongId();
+                                positions[j] = ((Music) adapter.getItem(i)).getSongId();
                                 j++;
                             }
                         }
-
-                        PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
-                        mode.finish();
                         break;
                     default:
                         result = false;
                         break;
                 }
+
+                if (j > 0) {
+                    PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
+                    mode.finish();
+                }
+
                 return result;
             }
 
