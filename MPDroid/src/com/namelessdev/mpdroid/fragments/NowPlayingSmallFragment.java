@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.fragments;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -26,6 +27,7 @@ import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -49,6 +51,8 @@ import android.widget.TextView;
 
 public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener,
     UpdateTrackInfo.TrackInfoUpdate {
+
+    private boolean forceStatusUpdate = false;
 
     private static final String TAG = "com.namelessdev.mpdroid.NowPlayingSmallFragment";
 
@@ -76,9 +80,31 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
+        if (connected && isAdded() && forceStatusUpdate) {
+            MPDStatus mpdStatus = null;
+
+            try {
+                /** Need to force an updated status here. */
+                mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus(true);
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to get an updated status object.", e);
+            }
+
+            forceStatusUpdate(mpdStatus);
+        }
+
         if (!connected && isAdded()) {
             songTitle.setText(R.string.notConnected);
             songArtist.setText("");
+        }
+    }
+
+    /**
+     * This is called in the case that nothing else is keeping the track information up to date.
+     */
+    private void forceStatusUpdate(final MPDStatus mpdStatus) {
+        if (forceStatusUpdate && mpdStatus != null) {
+            app.updateTrackInfo.refresh(mpdStatus, true);
         }
     }
 
@@ -89,6 +115,10 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
+        if (!MainMenuActivity.class.equals(activity.getClass())) {
+            forceStatusUpdate = true;
+        }
         lightTheme = app.isLightThemeSelected();
     }
 
@@ -164,7 +194,19 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     public void onResume() {
         super.onResume();
 
-        updatePlayPauseButton(null);
+        MPDStatus mpdStatus = null;
+        if(forceStatusUpdate && app.oMPDAsyncHelper.oMPD.isConnected()) {
+            try {
+                /** Need to force an updated status here. */
+                mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus(true);
+                forceStatusUpdate(mpdStatus);
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to get an updated MPDStatus object.", e);
+            }
+        }
+
+        /** mpdStatus might be null here, no problem it'll be generated in the method. */
+        updatePlayPauseButton(mpdStatus);
     }
 
     @Override
@@ -195,6 +237,18 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+        /**
+         * If the current song is a stream, the metadata can change in place, and that will only
+         * change the playlist, not the track, so, update if we detect a stream.
+         */
+        if (isAdded() && mpdStatus != null && forceStatusUpdate) {
+            final int songPos = mpdStatus.getSongPos();
+            final Music currentSong =
+                    app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+            if (currentSong != null && isAdded() && currentSong.isStream()) {
+                forceStatusUpdate(mpdStatus);
+            }
+        }
     }
 
     @Override
@@ -208,13 +262,14 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void stateChanged(MPDStatus status, String oldState) {
-        if (isAdded()) {
-            updatePlayPauseButton(status);
-        }
+        forceStatusUpdate(status);
+        updatePlayPauseButton(status);
+
     }
 
-   @Override
+    @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+        forceStatusUpdate(mpdStatus);
     }
 
     public void updateCover(AlbumInfo albumInfo) {
@@ -225,19 +280,21 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     private void updatePlayPauseButton(final MPDStatus status) {
-        String state = null;
+        if (isAdded()) {
+            String state = null;
 
-        if(status == null) {
-            try {
-                state = app.oMPDAsyncHelper.oMPD.getStatus().getState();
-            } catch (final MPDServerException e) {
-                Log.e(TAG, "Failed to retrieve server status.", e);
+            if (status == null) {
+                try {
+                    state = app.oMPDAsyncHelper.oMPD.getStatus().getState();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to retrieve server status.", e);
+                }
+            } else {
+                state = status.getState();
             }
-        } else {
-            state = status.getState();
-        }
 
-        buttonPlayPause.setImageResource(NowPlayingFragment.getPlayPauseResource(state));
+            buttonPlayPause.setImageResource(NowPlayingFragment.getPlayPauseResource(state));
+        }
     }
 
     @Override
