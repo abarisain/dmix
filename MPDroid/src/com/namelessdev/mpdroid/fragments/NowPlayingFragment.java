@@ -27,6 +27,7 @@ import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
 import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
@@ -398,7 +399,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                     }
                 }.setProgress(seekBar);
 
-                volTimer.scheduleAtFixedRate(volTimerTask, 0, 100);
+                volTimer.scheduleAtFixedRate(volTimerTask, (long) MPDCommand.MIN_VOLUME,
+                        (long) MPDCommand.MAX_VOLUME);
             }
 
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -777,9 +779,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * @param volume The current volume value.
      */
     private void toggleVolumeBar(final int volume) {
-        final int OUTPUT_VOLUME_UNSUPPORTED = -1;
-
-        if (volume == OUTPUT_VOLUME_UNSUPPORTED) {
+        if (volume < MPDCommand.MIN_VOLUME || volume > MPDCommand.MAX_VOLUME) {
             seekBarVolume.setEnabled(false);
             seekBarVolume.setVisibility(View.GONE);
             volumeIcon.setVisibility(View.GONE);
