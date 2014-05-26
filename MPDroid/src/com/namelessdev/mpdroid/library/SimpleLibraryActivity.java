@@ -131,7 +131,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             // For onKeyLongPress to work
             event.startTracking();
-            return true;
+            return !app.isLocalAudible();
         }
         return super.onKeyDown(keyCode, event);
     }
