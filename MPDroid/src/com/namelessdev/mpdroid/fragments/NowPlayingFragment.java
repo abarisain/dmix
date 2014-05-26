@@ -556,21 +556,30 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(CoverManager.PREFERENCE_CACHE) || key.equals(CoverManager.PREFERENCE_LASTFM)
-                || key.equals(CoverManager.PREFERENCE_LOCALSERVER)) {
-            oCoverAsyncHelper.setCoverRetrieversFromPreferences();
-        } else if (key.equals("enableStopButton")) {
-            applyViewVisibility(sharedPreferences, stopButton, key);
-        } else if (key.equals("enableAlbumYearText")) {
-            applyViewVisibility(sharedPreferences, yearNameText, key);
-        } else if (key.equals("enableAudioText")) {
-            isAudioNameTextEnabled = sharedPreferences.getBoolean(key, false);
-            try {
-                updateAudioNameText(app.oMPDAsyncHelper.oMPD.getStatus());
-            } catch (final MPDServerException e) {
-                Log.e(TAG, "Could not get a current status.", e);
-            }
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
+            final String key) {
+        switch(key) {
+            case CoverManager.PREFERENCE_CACHE:
+            case CoverManager.PREFERENCE_LASTFM:
+            case CoverManager.PREFERENCE_LOCALSERVER:
+                oCoverAsyncHelper.setCoverRetrieversFromPreferences();
+                break;
+            case "enableStopButton":
+                applyViewVisibility(sharedPreferences, stopButton, key);
+                break;
+            case "enableAlbumYearText":
+                applyViewVisibility(sharedPreferences, yearNameText, key);
+                break;
+            case "enableAudioText":
+                isAudioNameTextEnabled = sharedPreferences.getBoolean(key, false);
+                try {
+                    updateAudioNameText(app.oMPDAsyncHelper.oMPD.getStatus());
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Could not get a current status.", e);
+                }
+                break;
+            default:
+                break;
         }
     }
 
