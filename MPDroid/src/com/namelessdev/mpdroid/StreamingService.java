@@ -23,8 +23,10 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
@@ -34,7 +36,9 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.os.StrictMode;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -47,7 +51,6 @@ import java.io.IOException;
  * user's MPD streaming server to allow local audio playback.
  *
  * @author Arnaud Barisain Monrose (Dream_Team)
- * @version $Id: $
  */
 public final class StreamingService extends Service implements
         /**
@@ -58,28 +61,35 @@ public final class StreamingService extends Service implements
         OnCompletionListener,
         OnErrorListener,
         OnPreparedListener,
+        ServiceConnection, /** Service binder */
         StatusChangeListener {
+
+    /** Kills (or hides) the notification if StreamingService started it. */
+    public static final int REQUEST_NOTIFICATION_STOP = 1;
+
+    /** Keeps the notification alive, but puts it in non-streaming status. */
+    public static final int STREAMING_STOP = 2;
+
+    /** Let notification know it's time to display buffering banner. */
+    public static final int BUFFERING_BEGIN = 3;
+
+    /** Remove the buffering banner from the notification service. */
+    public static final int BUFFERING_END = 4;
+
+    /** Let the notification know that this service is under error conditions. */
+    public static final int BUFFERING_ERROR = 5;
+
+    /** Let notification service know this service is running minimal resources. */
+    public static final int SERVICE_WOUND_DOWN = 6;
+
+    /** Let the notification service know this service will soon be buffering. */
+    public static final int SERVICE_WOUND_UP = 7;
 
     private static final String TAG = "StreamingService";
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + '.';
 
-    /** Kills (or hides) the notification if StreamingService started it. */
-    public static final String ACTION_NOTIFICATION_STOP = FULLY_QUALIFIED_NAME
-            + "NOTIFICATION_STOP";
-
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + "START_STREAMING";
-
-    /** Keeps the notification alive, but puts it in non-streaming status. */
-    public static final String ACTION_STREAMING_STOP = FULLY_QUALIFIED_NAME + "STOP_STREAMING";
-
-    public static final String ACTION_BUFFERING_BEGIN = FULLY_QUALIFIED_NAME + "BUFFERING_BEGIN";
-
-    public static final String ACTION_BUFFERING_END = FULLY_QUALIFIED_NAME + "BUFFERING_END";
-
-    public static final String ACTION_BUFFERING_ERROR = FULLY_QUALIFIED_NAME + "BUFFERING_ERROR";
-
-    private static boolean serviceWoundDown = false;
 
     private final Handler delayedStopHandler = new Handler() {
         @Override
@@ -90,6 +100,12 @@ public final class StreamingService extends Service implements
         }
     };
 
+    /**
+     * Called as an argument to windDownResources() when a
+     * message is not required to send to bound service.
+     */
+    private static final int INVALID_INT = -1;
+
     private final Handler delayedPlayHandler = new Handler() {
         @Override
         public void handleMessage(final Message msg) {
@@ -98,13 +114,16 @@ public final class StreamingService extends Service implements
         }
     };
 
+    private final MPDApplication app = MPDApplication.getInstance();
+
+    /** Messenger for communicating with service. */
+    private Messenger serviceMessenger = null;
+
     private boolean finalSong = false;
 
     private boolean serviceControlHandlersActive = false;
 
     private TelephonyManager mTelephonyManager = null;
-
-    private final MPDApplication app = MPDApplication.getInstance();
 
     private MediaPlayer mediaPlayer = null;
 
@@ -116,14 +135,6 @@ public final class StreamingService extends Service implements
 
     /** Is MPD playing? */
     private boolean isPlaying = false;
-
-    public static boolean isWoundDown() {
-        return serviceWoundDown;
-    }
-
-    private static void serviceWoundDown(final boolean value) {
-        serviceWoundDown = value;
-    }
 
     /**
      * Setup for the method which allows MPDroid to override behavior during
@@ -143,7 +154,7 @@ public final class StreamingService extends Service implements
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                     if (isPlaying) {
                         streamingStoppedForCall = true;
-                        windDownResources(ACTION_STREAMING_STOP);
+                        windDownResources(STREAMING_STOP);
                     }
                     break;
                 case TelephonyManager.CALL_STATE_IDLE:
@@ -158,6 +169,9 @@ public final class StreamingService extends Service implements
             }
         }
     };
+
+    /** Flag indicating whether we have called bind on the service. */
+    private boolean isBoundService = false;
 
     /** Keep track of the number of errors encountered. */
     private int errorIterator = 0;
@@ -206,13 +220,13 @@ public final class StreamingService extends Service implements
             windUpResources();
         }
 
-        serviceWoundDown(false);
+        sendToBoundService(SERVICE_WOUND_UP);
         final String streamSource = getStreamSource();
         final long ASYNC_IDLE = 1500L;
         preparingStreaming = true;
         stopControlHandlers();
 
-        sendIntent(ACTION_BUFFERING_BEGIN, NotificationService.class);
+        sendToBoundService(BUFFERING_BEGIN);
 
         /**
          * With MediaPlayer, there is a racy bug which affects, minimally, Android KitKat and lower.
@@ -239,12 +253,12 @@ public final class StreamingService extends Service implements
             delayedPlayHandler.sendMessageDelayed(msg, ASYNC_IDLE); /** Go to onPrepared() */
         } catch (final IOException e) {
             Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
-            windDownResources(ACTION_BUFFERING_ERROR);
+            windDownResources(BUFFERING_ERROR);
         } catch (final IllegalStateException e) {
             Log.e(TAG,
                     "This is typically caused by a change in the server state during stream preparation.",
                     e);
-            windDownResources(ACTION_BUFFERING_ERROR);
+            windDownResources(BUFFERING_ERROR);
         } finally {
             delayedPlayHandler.removeCallbacksAndMessages(delayedPlayHandler);
         }
@@ -254,18 +268,36 @@ public final class StreamingService extends Service implements
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
     }
 
-    /** A method to send a quick message to another class. */
-    private void sendIntent(final String msg, final Class destination) {
-        Log.d(TAG, "Sending intent " + msg + " to " + destination + '.');
-        final Intent intent = new Intent(this, destination);
-        intent.setAction(msg);
-        startService(intent);
+    /**
+     * Initiates our service binding, after complete, onBindService() should be called.
+     */
+    void doBindService() {
+        /**
+         * Establish a connection with the service.  We use an explicit class name because
+         * there is no reason to be able to let other applications replace our component.
+         */
+        bindService(new Intent(this, NotificationService.class), this, Context.BIND_AUTO_CREATE);
+        isBoundService = true;
+        Log.e(TAG, "Binding.");
+    }
+
+    /**
+     * Initiates our unbinding from the bound service, after
+     * complete, onServiceDisconnected() should be called.
+     */
+    void doUnbindService() {
+        if (isBoundService) {
+            // Detach our existing connection.
+            unbindService(this);
+            isBoundService = false;
+            Log.e(TAG, "Unbinding.");
+        }
     }
 
     /**
      * A JMPDComm callback to be invoked during library state changes.
      *
-     * @param updating true when updating, false when not updating.
+     * @param updating  true when updating, false when not updating.
      * @param dbChanged true when the server database has been updated, false otherwise.
      */
     @Override
@@ -307,6 +339,12 @@ public final class StreamingService extends Service implements
         }
     }
 
+    /**
+     * We haven't implemented this yet, as we have no need for anything
+     * remote to send us anything other than service intents.
+     *
+     * @return null until implemented.
+     */
     @Override
     public final IBinder onBind(final Intent intent) {
         return null;
@@ -332,7 +370,7 @@ public final class StreamingService extends Service implements
              * The only way we make it here is with an empty playlist. Don't send a
              * message to the notification, it already knows to stop on empty playlist.
              */
-            windDownResources(null);
+            windDownResources(INVALID_INT);
         }
     }
 
@@ -340,6 +378,8 @@ public final class StreamingService extends Service implements
     public final void onCreate() {
         Log.d(TAG, "StreamingService.onCreate()");
         super.onCreate();
+
+        doBindService();
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
@@ -358,6 +398,52 @@ public final class StreamingService extends Service implements
                 + app.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ':'
                 + app.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + '/'
                 + app.oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming;
+    }
+
+    /**
+     * This is used rather than onStartCommand() to begin streaming as we depending on the Binder
+     * to send messages to NotificationService.
+     *
+     * We use this to connect the Binder to NotificationService for IPC. This is called when the
+     * connection with the service has been established, giving us the service object we can use to
+     * interact with the service.  We are communicating with our service through an IDL interface,
+     * so get a client-side representation of that from the raw service object.
+     *
+     * @param className The Class that has connected through the binder.
+     */
+    @Override
+    public void onServiceConnected(final ComponentName className, final IBinder service) {
+        serviceMessenger = new Messenger(service);
+        Log.e(TAG, "Attached.");
+        tryToStream();
+    }
+
+    /**
+     * Called when the binder to the NotificationService is disconnected.
+     *
+     * @param className The Class that has connected through the binder.
+     */
+    @Override
+    public void onServiceDisconnected(final ComponentName className) {
+        // This is called when the connection with the service has been
+        // unexpectedly disconnected -- that is, its process crashed.
+        serviceMessenger = null;
+        Log.e(TAG, "Disconnected.");
+    }
+
+    /**
+     * Send a simple message to our bound service.
+     *
+     * @param message The simple message to send to the bound service.
+     */
+    private void sendToBoundService(final int message) {
+        final Message msg = Message.obtain(null, message);
+        try {
+            serviceMessenger.send(msg);
+        } catch (final RemoteException e) {
+            Log.e(TAG, "Failed to communicate with bound service.", e);
+            isBoundService = false;
+        }
     }
 
     /**
@@ -383,17 +469,17 @@ public final class StreamingService extends Service implements
      * windDownResources occurs after a delay or during stopSelf() to
      * clean up resources and give up focus to the phone and sound.
      */
-    private void windDownResources(final String action) {
+    private void windDownResources(final int action) {
         Log.d(TAG, "Winding down resources.");
 
-        serviceWoundDown(true);
+        sendToBoundService(SERVICE_WOUND_DOWN);
 
-        if (ACTION_STREAMING_STOP.equals(action)) {
+        if (STREAMING_STOP == action) {
             setupServiceControlHandlers();
         }
 
-        if (action != null) {
-            sendIntent(action, NotificationService.class);
+        if (action != INVALID_INT) {
+            sendToBoundService(action);
         }
 
         if (mTelephonyManager != null) {
@@ -415,7 +501,7 @@ public final class StreamingService extends Service implements
              * the beginning and restart buffering; not perfect, but this is a pretty good solution.
              */
             if (preparingStreaming) {
-                if (ACTION_BUFFERING_ERROR.equals(action)) {
+                if (BUFFERING_ERROR == action) {
                     activeBufferingError = true;
                 }
                 delayedPlayHandler.removeCallbacksAndMessages(null);
@@ -438,7 +524,9 @@ public final class StreamingService extends Service implements
         /** Remove the current MPD listeners */
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
 
-        windDownResources(ACTION_NOTIFICATION_STOP);
+        windDownResources(REQUEST_NOTIFICATION_STOP);
+
+        doUnbindService();
 
         app.removeConnectionLock(this);
         app.getApplicationState().streamingMode = false;
@@ -474,7 +562,7 @@ public final class StreamingService extends Service implements
         preparingStreaming = false;
 
         /** Either way we need to stop streaming. */
-        windDownResources(ACTION_STREAMING_STOP);
+        windDownResources(STREAMING_STOP);
 
         errorIterator += 1;
         return true;
@@ -495,11 +583,11 @@ public final class StreamingService extends Service implements
          * Not to be playing here is unlikely but it's a race we need to avoid.
          */
         if (isPlaying && focusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            sendIntent(ACTION_BUFFERING_END, NotificationService.class);
+            sendToBoundService(BUFFERING_END);
             mediaPlayer.start();
         } else {
             /** Because preparingStreaming is still set, this will reset the stream. */
-            windDownResources(ACTION_STREAMING_STOP);
+            windDownResources(STREAMING_STOP);
         }
 
         preparingStreaming = false;
@@ -515,15 +603,9 @@ public final class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.onStartCommand()");
         super.onStartCommand(intent, flags, startId);
 
-        switch (intent.getAction()) {
-            case ACTION_START:
-                tryToStream();
-                break;
-            case ACTION_STREAMING_STOP:
-                windDownResources(ACTION_STREAMING_STOP);
-                break;
-            default:
-                break;
+        /** Do nothing, it'll be done when the service is bound */
+        if (!ACTION_START.equals(intent.getAction())) {
+            stopSelf(); /** Don't start if someone doesn't know the knock. */
         }
 
         /**
@@ -578,9 +660,9 @@ public final class StreamingService extends Service implements
                      * is likely.
                      */
                     if (preparingStreaming) {
-                        windDownResources(ACTION_BUFFERING_ERROR);
+                        windDownResources(BUFFERING_ERROR);
                     } else {
-                        windDownResources(ACTION_STREAMING_STOP);
+                        windDownResources(STREAMING_STOP);
                     }
                     isPlaying = false;
                     break;

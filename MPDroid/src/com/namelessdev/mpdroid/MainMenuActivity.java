@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid;
 import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
-import com.namelessdev.mpdroid.fragments.NowPlayingFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.fragments.PlaylistFragment;
 import com.namelessdev.mpdroid.helpers.MPDControl;
@@ -38,7 +37,6 @@ import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,6 +51,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.PopupMenuCompat;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -226,6 +225,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private LibraryFragment libraryFragment;
 
     private PlaylistFragment playlistFragment;
+
+    private static final String TAG = "com.namelessdev.mpdroid.MainMenuActivity";
 
     private FragmentManager fragmentManager;
 
@@ -544,54 +545,53 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        final boolean result;
+
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             // For onKeyLongPress to work
             event.startTracking();
-            return !app.getApplicationState().streamingMode;
+            result = !app.isLocalAudible();
+        } else {
+            result = super.onKeyDown(keyCode, event);
         }
-        return super.onKeyDown(keyCode, event);
+
+        return result;
     }
 
     @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+    public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
+        boolean result = true;
+
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOLUME_UP:
                 MPDControl.run(MPDControl.ACTION_NEXT);
-                return true;
+                break;
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 MPDControl.run(MPDControl.ACTION_PREVIOUS);
-                return true;
+                break;
+            default:
+                result = super.onKeyLongPress(keyCode, event);
+                break;
         }
-        return super.onKeyLongPress(keyCode, event);
+        return result;
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, final KeyEvent event) {
-        switch (event.getKeyCode()) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (event.isTracking() && !event.isCanceled()
-                        && !app.getApplicationState().streamingMode) {
+    public final boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        boolean result = true;
 
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                app.oMPDAsyncHelper.oMPD
-                                        .adjustVolume(
-                                                event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP
-                                                        ? NowPlayingFragment.VOLUME_STEP
-                                                        : -NowPlayingFragment.VOLUME_STEP);
-                            } catch (MPDServerException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();
-                }
-                return true;
+        if (event.isTracking() && !event.isCanceled() && !app.isLocalAudible()) {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP) {
+                MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
+            } else if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
+            }
+        } else {
+            result = super.onKeyUp(keyCode, event);
         }
-        return super.onKeyUp(keyCode, event);
+
+        return result;
     }
 
     @Override
@@ -606,59 +606,54 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        if (playlistFragment != null && playlistFragment.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        final MPD mpd = app.oMPDAsyncHelper.oMPD;
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        boolean result = true;
+        final boolean itemHandled = mDrawerToggle.onOptionsItemSelected(item) ||
+                (playlistFragment != null && playlistFragment.onOptionsItemSelected(item));
 
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.menu_search:
-                this.onSearchRequested();
-                return true;
-            case CONNECT:
-                app.connect();
-                return true;
-            case R.id.GMM_Stream:
-                if (app.getApplicationState().streamingMode) {
-                    stopService(StreamingService.class);
-                    app.getApplicationState().streamingMode = false;
-                } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                    startService(NotificationService.class, null);
-                    startService(StreamingService.class, StreamingService.ACTION_START);
-
-                    app.getApplicationState().streamingMode = true;
-                }
-                return true;
-            case R.id.GMM_bonjour:
-                startActivity(new Intent(this, ServerListActivity.class));
-                return true;
-            case R.id.GMM_Consume:
-                MPDControl.run(MPDControl.ACTION_CONSUME);
-                return true;
-            case R.id.GMM_Single:
-                MPDControl.run(MPDControl.ACTION_SINGLE);
-                return true;
-            case R.id.GMM_ShowNotification:
-                if (app.getApplicationState().notificationMode) {
-                    stopService(NotificationService.class);
-                    app.getApplicationState().notificationMode = false;
-                } else {
-                    startService(NotificationService.class,
-                            NotificationService.ACTION_OPEN_NOTIFICATION);
-
-                    app.getApplicationState().notificationMode = true;
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (!itemHandled) {
+            switch (item.getItemId()) {
+                case R.id.menu_search:
+                    this.onSearchRequested();
+                    break;
+                case CONNECT:
+                    app.connect();
+                    break;
+                case R.id.GMM_Stream:
+                    if (app.getApplicationState().streamingMode) {
+                        stopService(StreamingService.class);
+                        app.getApplicationState().streamingMode = false;
+                    } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
+                        app.getApplicationState().streamingMode = true;
+                        startService(StreamingService.class, StreamingService.ACTION_START);
+                    }
+                    break;
+                case R.id.GMM_bonjour:
+                    startActivity(new Intent(this, ServerListActivity.class));
+                    break;
+                case R.id.GMM_Consume:
+                    MPDControl.run(MPDControl.ACTION_CONSUME);
+                    break;
+                case R.id.GMM_Single:
+                    MPDControl.run(MPDControl.ACTION_SINGLE);
+                    break;
+                case R.id.GMM_ShowNotification:
+                    if (app.getApplicationState().notificationMode) {
+                        stopService(NotificationService.class);
+                        app.getApplicationState().notificationMode = false;
+                    } else {
+                        app.getApplicationState().notificationMode = true;
+                        startService(NotificationService.class,
+                                NotificationService.ACTION_OPEN_NOTIFICATION);
+                    }
+                    break;
+                default:
+                    result = super.onOptionsItemSelected(item);
+                    break;
+            }
         }
+        return result;
     }
 
     /**
@@ -669,21 +664,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      *               will be enabled but not started.
      */
     private void startService(final Class<?> serviceClass, final String intentAction) {
-        final PackageManager packageManager = getPackageManager();
-        final Intent intent = new Intent(this, serviceClass);
-
-        if (packageManager != null) {
-            if (PackageManager.COMPONENT_ENABLED_STATE_ENABLED !=
-                    packageManager.getApplicationEnabledSetting(this.getPackageName())) {
-
-                packageManager.setComponentEnabledSetting(intent.getComponent(),
-                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                        PackageManager.DONT_KILL_APP);
-            }
-            if (intentAction != null) {
-                intent.setAction(intentAction);
-                super.startService(intent);
-            }
+        final Intent intent = new Intent(app, serviceClass);
+        if (intentAction != null) {
+            intent.setAction(intentAction);
+            super.startService(intent);
         }
     }
 
@@ -693,19 +677,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      * @param serviceClass The class of the service to stop.
      */
     private void stopService(final Class<?> serviceClass) {
-        final PackageManager packageManager = getPackageManager();
-        final Intent intent = new Intent(this, serviceClass);
-
-        if (packageManager != null) {
-            if (PackageManager.COMPONENT_ENABLED_STATE_DISABLED !=
-                    packageManager.getApplicationEnabledSetting(this.getPackageName())) {
-
-                packageManager.setComponentEnabledSetting(intent.getComponent(),
-                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                        PackageManager.DONT_KILL_APP);
-            }
-            super.stopService(intent);
-        }
+        final Intent intent = new Intent(app, serviceClass);
+        super.stopService(intent);
     }
 
     @Override
@@ -726,7 +699,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void prepareNowPlayingMenu(Menu menu) {
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
-        MPD mpd = app.oMPDAsyncHelper.oMPD;
+        final MPD mpd = app.oMPDAsyncHelper.oMPD;
         if (!mpd.isConnected()) {
             if (menu.findItem(CONNECT) == null) {
                 menu.add(0, CONNECT, 0, R.string.connect);
@@ -762,7 +735,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         setMenuChecked(menu.findItem(R.id.GMM_Stream), app.getApplicationState().streamingMode);
 
-        final MPDStatus mpdStatus = app.getApplicationState().currentMpdStatus;
+        MPDStatus mpdStatus = null;
+        try {
+            mpdStatus = mpd.getStatus();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to retrieve a status object", e);
+        }
+
         if (mpdStatus != null) {
             setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
             setMenuChecked(menu.findItem(R.id.GMM_Consume), mpdStatus.isConsume());
@@ -787,10 +766,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         super.onStart();
         app.setActivity(this);
 
-        if(app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
+        if (app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
             app.getApplicationState().persistentNotification = true;
             app.getApplicationState().notificationMode = true;
             startService(NotificationService.class, NotificationService.ACTION_OPEN_NOTIFICATION);
+        } else if (!app.getApplicationState().notificationMode) {
+            stopService(NotificationService.class);
         }
     }
 

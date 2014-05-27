@@ -16,11 +16,9 @@
 
 package com.namelessdev.mpdroid.locale;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.NotificationService;
+import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.MPDControl;
-
-import org.a0z.mpd.MPD;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,32 +30,30 @@ public class ActionFireReceiver extends BroadcastReceiver {
 
     private static final String TAG = "MPDroid Locale Plugin";
 
-    private final MPDApplication app = MPDApplication.getInstance();
-
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, final Intent intent) {
         final Bundle bundle = intent.getBundleExtra(LocaleConstants.EXTRA_BUNDLE);
         if (bundle == null) {
             return;
         }
         final String action = bundle.getString(EditActivity.BUNDLE_ACTION_STRING);
+        final Intent serviceIntent;
 
         switch (action) {
             case NotificationService.ACTION_OPEN_NOTIFICATION:
-                final Intent i = new Intent(context, NotificationService.class);
-                i.setAction(NotificationService.ACTION_OPEN_NOTIFICATION);
-                context.startService(i);
+                serviceIntent = new Intent(context, NotificationService.class);
+                serviceIntent.setAction(action);
+                context.startService(serviceIntent);
                 break;
             case NotificationService.ACTION_CLOSE_NOTIFICATION:
-                final Intent i2 = new Intent(context, NotificationService.class);
-                i2.setAction(NotificationService.ACTION_CLOSE_NOTIFICATION);
-                context.startService(i2);
+                serviceIntent = new Intent(context, RemoteControlReceiver.class);
+                serviceIntent.setAction(action);
+                context.startService(serviceIntent);
                 break;
             default:
-                final MPD mpd = connectToMPD(context);
                 int volume = MPDControl.INVALID_INT;
 
-                if (MPDControl.ACTION_SET_VOLUME.equals(action)) {
+                if (MPDControl.ACTION_VOLUME_SET.equals(action)) {
                     final String volumeString = bundle
                             .getString(EditActivity.BUNDLE_ACTION_EXTRA);
                     if (volumeString != null) {
@@ -68,22 +64,9 @@ public class ActionFireReceiver extends BroadcastReceiver {
                         }
                     }
                 }
-                MPDControl.run(mpd, action, volume);
-                closeMPDConnection();
+                MPDControl.run(action, volume);
+                System.exit(0);
                 break;
         }
-    }
-
-    private MPD connectToMPD(Context context) {
-        app.init(context);
-        app.addConnectionLock(this);
-        app.connect();
-        return app.oMPDAsyncHelper.oMPD;
-    }
-
-    private void closeMPDConnection() {
-        app.removeConnectionLock(this);
-        // Seems required since I can't exit the dedicated process properly yet
-        System.exit(0);
     }
 }

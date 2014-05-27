@@ -79,6 +79,8 @@ public class UpdateTrackInfo {
 
     private static final boolean DEBUG = false;
 
+    private boolean forceCoverUpdate = false;
+
     private UpdateTrackInfo.FullTrackInfoUpdate fullTrackInfoListener = null;
 
     private String lastAlbum = null;
@@ -93,6 +95,11 @@ public class UpdateTrackInfo {
 
     public final void addCallback(final UpdateTrackInfo.FullTrackInfoUpdate listener) {
         fullTrackInfoListener = listener;
+    }
+
+    public final void refresh(final MPDStatus mpdStatus, final boolean forceCoverUpdate) {
+        this.forceCoverUpdate = forceCoverUpdate;
+        new UpdateTrackInfoAsync().execute(mpdStatus);
     }
 
     public final void refresh(final MPDStatus mpdStatus) {
@@ -187,7 +194,8 @@ public class UpdateTrackInfo {
         protected final void onPostExecute(final Void result) {
             super.onPostExecute(result);
 
-            final boolean sendCoverUpdate = hasCoverChanged || currentSong == null;
+            final boolean sendCoverUpdate = hasCoverChanged || currentSong == null
+                    || forceCoverUpdate;
 
             if (currentSong == null) {
                 title = app.getResources().getString(R.string.noSongInfo);

@@ -244,6 +244,17 @@ public class MPDApplication extends Application implements ConnectionListener {
         return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lightTheme", false);
     }
 
+    /**
+     * isLocalAudible()
+     *
+     * @return Returns whether it is probable that the local audio
+     * system will be playing audio controlled by this application.
+     */
+    public final boolean isLocalAudible() {
+        return state.streamingMode ||
+                "127.0.0.1".equals(oMPDAsyncHelper.getConnectionSettings().sServer);
+    }
+
     public boolean isTabletUiEnabled() {
         return getResources().getBoolean(R.bool.isTablet)
                 && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletUI", true);

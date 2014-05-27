@@ -80,13 +80,13 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
         items.add(new ActionItem(MPDControl.ACTION_PLAY, getString(R.string.play)));
         items.add(new ActionItem(MPDControl.ACTION_PAUSE, getString(R.string.pause)));
         items.add(new ActionItem(MPDControl.ACTION_STOP, getString(R.string.stop)));
-        items.add(new ActionItem(MPDControl.ACTION_REWIND, getString(R.string.rewind)));
+        items.add(new ActionItem(MPDControl.ACTION_SEEK, getString(R.string.rewind)));
         items.add(
                 new ActionItem(MPDControl.ACTION_PREVIOUS, getString(R.string.previous)));
         items.add(new ActionItem(MPDControl.ACTION_NEXT, getString(R.string.next)));
         items.add(new ActionItem(MPDControl.ACTION_MUTE,
                 getString(R.string.mute)));
-        items.add(new ActionItem(MPDControl.ACTION_SET_VOLUME,
+        items.add(new ActionItem(MPDControl.ACTION_VOLUME_SET,
                 getString(R.string.setVolume)));
         items.add(new ActionItem(NotificationService.ACTION_OPEN_NOTIFICATION,
                 getString(R.string.showNotification)));
@@ -103,7 +103,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         final ActionItem item = items.get(position);
-        if (item.actionString.equals(MPDControl.ACTION_SET_VOLUME)) {
+        if (item.actionString.equals(MPDControl.ACTION_VOLUME_SET)) {
             final SeekBar seekBar = new SeekBar(this);
             final int padding = getResources()
                     .getDimensionPixelSize(R.dimen.locale_edit_seekbar_padding);

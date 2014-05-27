@@ -58,9 +58,9 @@ public final class MPDControl {
 
     public static final String ACTION_PREVIOUS = FULLY_QUALIFIED_NAME + "PREVIOUS";
 
-    public static final String ACTION_REWIND = FULLY_QUALIFIED_NAME + "REWIND";
+    public static final String ACTION_SEEK = FULLY_QUALIFIED_NAME + "SEEK";
 
-    public static final String ACTION_SET_VOLUME = FULLY_QUALIFIED_NAME + "SET_VOLUME";
+    public static final String ACTION_VOLUME_SET = FULLY_QUALIFIED_NAME + "SET_VOLUME";
 
     public static final String ACTION_SINGLE = FULLY_QUALIFIED_NAME + "SINGLE";
 
@@ -71,6 +71,12 @@ public final class MPDControl {
     public static final String ACTION_TOGGLE_RANDOM = FULLY_QUALIFIED_NAME + "RANDOM";
 
     public static final String ACTION_TOGGLE_REPEAT = FULLY_QUALIFIED_NAME + "REPEAT";
+
+    public static final String ACTION_VOLUME_STEP_DOWN = FULLY_QUALIFIED_NAME + "VOLUME_STEP_DOWN";
+
+    public static final String ACTION_VOLUME_STEP_UP = FULLY_QUALIFIED_NAME + "VOLUME_STEP_UP";
+
+    private static final int VOLUME_STEP = 5;
 
     private static final MPDApplication app = MPDApplication.getInstance();
 
@@ -83,6 +89,10 @@ public final class MPDControl {
             sh.updateConnectionSettings();
             manualConnection = true;
         }
+    }
+
+    private MPDControl() {
+        super();
     }
 
     /**
@@ -104,6 +114,10 @@ public final class MPDControl {
      */
     public static void run(final String userCommand, final int i) {
         run(MPDApplication.getInstance().oMPDAsyncHelper.oMPD, userCommand, (long) i);
+    }
+
+    public static void run(final String userCommand, final long l) {
+        run(MPDApplication.getInstance().oMPDAsyncHelper.oMPD, userCommand, l);
     }
 
     /**
@@ -207,11 +221,6 @@ public final class MPDControl {
 
                 /** This switch translates for the next switch. */
                 switch (command) {
-                    case ACTION_PAUSE:
-                        if (!isPaused()) {
-                            command = ACTION_PAUSE;
-                        }
-                        break;
                     case ACTION_TOGGLE_PLAYBACK:
                         if (isPlaying()) {
                             command = ACTION_PAUSE;
@@ -238,7 +247,9 @@ public final class MPDControl {
                             mpd.next();
                             break;
                         case ACTION_PAUSE:
-                            mpd.pause();
+                            if (!isPaused()) {
+                                mpd.pause();
+                            }
                             break;
                         case ACTION_PLAY:
                             mpd.play();
@@ -246,17 +257,12 @@ public final class MPDControl {
                         case ACTION_PREVIOUS:
                             mpd.previous();
                             break;
-                        case ACTION_REWIND:
+                        case ACTION_SEEK:
                             long li = l;
                             if (li == INVALID_LONG) {
                                 li = 0L;
                             }
                             mpd.seek(li);
-                            break;
-                        case ACTION_SET_VOLUME:
-                            if (l != INVALID_LONG) {
-                                mpd.setVolume((int) l);
-                            }
                             break;
                         case ACTION_STOP:
                             mpd.stop();
@@ -269,6 +275,17 @@ public final class MPDControl {
                             break;
                         case ACTION_TOGGLE_REPEAT:
                             mpd.setRepeat(!mpd.getStatus().isRepeat());
+                            break;
+                        case ACTION_VOLUME_SET:
+                            if (l != INVALID_LONG) {
+                                mpd.setVolume((int) l);
+                            }
+                            break;
+                        case ACTION_VOLUME_STEP_DOWN:
+                            mpd.adjustVolume(-VOLUME_STEP);
+                            break;
+                        case ACTION_VOLUME_STEP_UP:
+                            mpd.adjustVolume(VOLUME_STEP);
                             break;
                         default:
                             break;

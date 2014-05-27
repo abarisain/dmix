@@ -69,9 +69,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         } else {
             switch (action) {
                 case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
-                    if (app.getApplicationState().streamingMode ||
-                            "127.0.0.1"
-                                    .equals(app.oMPDAsyncHelper.getConnectionSettings().sServer)) {
+                    if (app.isLocalAudible()) {
                         MPDControl.run(MPDControl.ACTION_PAUSE);
                     }
                     break;

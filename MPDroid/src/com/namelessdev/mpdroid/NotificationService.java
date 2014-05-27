@@ -45,6 +45,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -59,7 +60,8 @@ import java.util.Date;
  * A service that handles the Notification, RemoteControlClient, MediaButtonReceiver and
  * incoming MPD command intents.
  */
-public final class NotificationService extends Service implements StatusChangeListener {
+public final class NotificationService extends Service implements Handler.Callback,
+        StatusChangeListener {
 
     private static final String TAG = "NotificationService";
 
@@ -117,6 +119,13 @@ public final class NotificationService extends Service implements StatusChangeLi
         }
     };
 
+    private final MPDApplication app = MPDApplication.getInstance();
+
+    /**
+     * Target we publish for clients to send messages to IncomingHandler.
+     */
+    private Messenger serviceMessenger = null;
+
     private RemoteControlClient mRemoteControlClient = null;
 
     // The component name of MusicIntentReceiver, for use with media button and remote control APIs
@@ -130,13 +139,13 @@ public final class NotificationService extends Service implements StatusChangeLi
 
     private Notification mNotification = null;
 
-    private final MPDApplication app = MPDApplication.getInstance();
-
     private Music mCurrentMusic = null;
 
     private boolean mediaPlayerServiceIsBuffering = false;
 
     private boolean serviceHandlerActive = false;
+
+    private boolean streamingServiceWoundDown = false;
 
     /**
      * Last time the status was refreshed
@@ -149,11 +158,6 @@ public final class NotificationService extends Service implements StatusChangeLi
      */
     private long lastKnownElapsed = 0L;
 
-    /**
-     * Service: Don't rely on intents for important status updating.
-     * If something started the notification by another class and
-     * not user input, store it here.
-     */
     private boolean notificationAutomaticallyGenerated = false;
 
     private Bitmap mAlbumCover = null;
@@ -163,7 +167,7 @@ public final class NotificationService extends Service implements StatusChangeLi
     /**
      * Build a static pending intent for use with the notification button controls.
      *
-     * @param action  The ACTION intent string.
+     * @param action The ACTION intent string.
      * @return The pending intent.
      */
     private static PendingIntent buildStaticPendingIntent(final String action) {
@@ -228,11 +232,12 @@ public final class NotificationService extends Service implements StatusChangeLi
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Creating service");
+
+        /** Setup the service messenger to communicate with Handler.Callback. */
+        serviceMessenger = new Messenger(new Handler(this));
 
         //TODO: Acquire a network wake lock here if the user wants us to !
         //Otherwise we'll just shut down on screen off and reconnect on screen on
-        //Tons of work ahead
         app.addConnectionLock(this);
         app.oMPDAsyncHelper.addStatusChangeListener(this);
 
@@ -253,65 +258,15 @@ public final class NotificationService extends Service implements StatusChangeLi
         super.onStartCommand(intent, flags, startId);
         final String action = intent.getAction();
 
-        Log.d(TAG, "received command, action=" + action + " from intent: " + intent);
+        Log.d(TAG, "Starting service, received command, action="
+                + action + " from intent: " + intent);
 
         /** An action must be submitted to start this service. */
-        if (action == null) {
+        if (action != null && ACTION_OPEN_NOTIFICATION.equals(action) &&
+                app.getApplicationState().notificationMode) {
+            stateChanged(getStatus(), null);
+        } else {
             Log.e(TAG, "NotificationService started without action, stopping...");
-            stopSelf();
-        }
-
-        /**
-         * This translates StreamingService requests into NotificationService requests,
-         * sometimes, depending on the current NotificationService state.
-         */
-        mediaPlayerServiceIsBuffering = false;
-        switch (action) {
-            case StreamingService.ACTION_BUFFERING_BEGIN:
-                /** If the notification was requested by StreamingService, set it here. */
-                if (!app.getApplicationState().notificationMode &&
-                        app.getApplicationState().streamingMode) {
-                    notificationAutomaticallyGenerated = true;
-                    app.getApplicationState().notificationMode = true;
-                }
-                mediaPlayerServiceIsBuffering = true;
-                /** Fall Through */
-            case StreamingService.ACTION_BUFFERING_END:
-            case StreamingService.ACTION_STREAMING_STOP:
-                stateChanged(getStatus(), null);
-                break;
-            case StreamingService.ACTION_BUFFERING_ERROR:
-                updatePlayingInfo(getStatus());
-                break;
-            case StreamingService.ACTION_NOTIFICATION_STOP: /** StreamingService _requests_ stop */
-                if (notificationAutomaticallyGenerated &&
-                        !app.getApplicationState().persistentNotification) {
-                    app.getApplicationState().persistentNotification = false;
-                    app.getApplicationState().notificationMode = false;
-                    stopSelf();
-
-                    notificationAutomaticallyGenerated = false;
-                } else {
-                    tryToGetAudioFocus();
-                    stateChanged(getStatus(), null);
-                }
-                break;
-            case ACTION_OPEN_NOTIFICATION:
-                stateChanged(getStatus(), null);
-                break;
-            default:
-                if (!app.getApplicationState().notificationMode) {
-                    Log.e(TAG,
-                            "Please report this: NotificationService opened by something when it " +
-                                    "shouldn't be and taking no action: " + action
-                    );
-                    stopSelf();
-                }
-                break;
-        }
-
-        if (!app.getApplicationState().notificationMode) {
-            Log.w(TAG, "NotificationService opened by something, action was taken: " + action);
             stopSelf();
         }
 
@@ -370,15 +325,10 @@ public final class NotificationService extends Service implements StatusChangeLi
                      */
                     @Override
                     public void onPlaybackPositionUpdate(final long newPositionMs) {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.seek(newPositionMs /
-                                    DateUtils.SECOND_IN_MILLIS);
-                            mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
-                                    newPositionMs, 1.0f);
-                        } catch (final MPDServerException e) {
-                            Log.e(TAG, "Could not seek", e);
-                        }
-
+                        MPDControl.run(MPDControl.ACTION_SEEK, newPositionMs /
+                                DateUtils.SECOND_IN_MILLIS);
+                        mRemoteControlClient.setPlaybackState(getRemoteState(getStatus()),
+                                newPositionMs, 1.0f);
                     }
                 }
         );
@@ -389,7 +339,7 @@ public final class NotificationService extends Service implements StatusChangeLi
      * We just want the lock screen cover art.
      */
     private void tryToGetAudioFocus() {
-        if ((!app.getApplicationState().streamingMode || StreamingService.isWoundDown())
+        if ((!app.getApplicationState().streamingMode || streamingServiceWoundDown)
                 && !isAudioFocusedOnThis) {
             Log.d(TAG, "requesting audio focus");
             final int result = mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
@@ -409,11 +359,7 @@ public final class NotificationService extends Service implements StatusChangeLi
         try {
             mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus();
         } catch (final MPDServerException e) {
-            Log.d(TAG, "Couldn't get the status to updatePlayingInfo()", e);
-        }
-
-        if (mpdStatus == null) {
-            Log.d(TAG, "mpdStatus was null, could not updatePlayingInfo().");
+            Log.d(TAG, "Couldn't retrieve a status object.", e);
         }
 
         return mpdStatus;
@@ -446,6 +392,51 @@ public final class NotificationService extends Service implements StatusChangeLi
             }
         }
         return state;
+    }
+
+    @Override
+    public final boolean handleMessage(final Message msg) {
+        switch (msg.what) {
+            case StreamingService.BUFFERING_BEGIN:
+                mediaPlayerServiceIsBuffering = true;
+                stateChanged(getStatus(), null);
+                break;
+            case StreamingService.REQUEST_NOTIFICATION_STOP:
+                if (notificationAutomaticallyGenerated &&
+                        !app.getApplicationState().persistentNotification) {
+                    app.getApplicationState().persistentNotification = false;
+                    app.getApplicationState().notificationMode = false;
+                    stopSelf();
+
+                    notificationAutomaticallyGenerated = false;
+                } else {
+                    tryToGetAudioFocus();
+                    stateChanged(getStatus(), null);
+                }
+                break;
+            case StreamingService.SERVICE_WOUND_DOWN:
+                streamingServiceWoundDown = true;
+                break;
+            case StreamingService.SERVICE_WOUND_UP:
+                /** If the notification was requested by StreamingService, set it here. */
+                if (!app.getApplicationState().notificationMode &&
+                        app.getApplicationState().streamingMode) {
+                    notificationAutomaticallyGenerated = true;
+                    app.getApplicationState().notificationMode = true;
+                }
+                streamingServiceWoundDown = false;
+                break;
+            case StreamingService.BUFFERING_END:
+                mediaPlayerServiceIsBuffering = false;
+                /** Fall through */
+            case StreamingService.BUFFERING_ERROR:
+            case StreamingService.STREAMING_STOP:
+                stateChanged(getStatus(), null);
+                break;
+            default:
+                break;
+        }
+        return false;
     }
 
     /**
@@ -551,7 +542,7 @@ public final class NotificationService extends Service implements StatusChangeLi
         final String title = mCurrentMusic.getTitle();
 
         /** If in streaming, the notification should be persistent. */
-        if (app.getApplicationState().streamingMode && !StreamingService.isWoundDown()) {
+        if (app.getApplicationState().streamingMode && !streamingServiceWoundDown) {
             resultView.setViewVisibility(R.id.notificationClose, View.GONE);
         } else {
             resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
@@ -672,30 +663,40 @@ public final class NotificationService extends Service implements StatusChangeLi
      * @param mpdStatus The current server status object.
      */
     private void updateRemoteControlClient(final MPDStatus mpdStatus) {
-        final int state = getRemoteState(mpdStatus);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final int state = getRemoteState(mpdStatus);
 
-        mRemoteControlClient.editMetadata(true)
-                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, mCurrentMusic.getAlbum())
-                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                        mCurrentMusic.getAlbumArtist())
-                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, mCurrentMusic.getArtist())
-                .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
-                        (long) mCurrentMusic.getTrack())
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
-                        (long) mCurrentMusic.getDisc())
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                        mCurrentMusic.getTime() * DateUtils.SECOND_IN_MILLIS)
-                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, mCurrentMusic.getTitle())
-                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mAlbumCover)
-                .apply();
+                mRemoteControlClient.editMetadata(true)
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                                mCurrentMusic.getAlbum())
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                                mCurrentMusic.getAlbumArtist())
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                                mCurrentMusic.getArtist())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                                (long) mCurrentMusic.getTrack())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                                (long) mCurrentMusic.getDisc())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                                mCurrentMusic.getTime() * DateUtils.SECOND_IN_MILLIS)
+                        .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                                mCurrentMusic.getTitle())
+                        .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
+                                mAlbumCover)
+                        .apply();
 
-        /** Notify of the elapsed time if on 4.3 or higher */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mRemoteControlClient.setPlaybackState(state, lastKnownElapsed, 1.0f);
-        } else {
-            mRemoteControlClient.setPlaybackState(state);
-        }
-        Log.d(TAG, "Updated remote client with state " + state + " for music " + mCurrentMusic);
+                /** Notify of the elapsed time if on 4.3 or higher */
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    mRemoteControlClient.setPlaybackState(state, lastKnownElapsed, 1.0f);
+                } else {
+                    mRemoteControlClient.setPlaybackState(state);
+                }
+                Log.d(TAG, "Updated remote client with state " + state + " for music "
+                        + mCurrentMusic);
+            }
+        }).start();
     }
 
     /**
@@ -706,7 +707,7 @@ public final class NotificationService extends Service implements StatusChangeLi
         Log.d(TAG, "windDownResources()");
         stopForeground(true);
 
-        if(mAudioManager != null) {
+        if (mAudioManager != null) {
             mAudioManager.abandonAudioFocus(null);
         }
 
@@ -747,7 +748,7 @@ public final class NotificationService extends Service implements StatusChangeLi
 
     @Override
     public IBinder onBind(final Intent intent) {
-        return null;
+        return serviceMessenger.getBinder();
     }
 
     @Override
@@ -767,7 +768,7 @@ public final class NotificationService extends Service implements StatusChangeLi
     /**
      * A JMPDComm callback to be invoked during library state changes.
      *
-     * @param updating true when updating, false when not updating.
+     * @param updating  true when updating, false when not updating.
      * @param dbChanged true when the server database has been updated, false otherwise.
      */
     @Override

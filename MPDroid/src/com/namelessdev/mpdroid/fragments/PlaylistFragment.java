@@ -23,6 +23,8 @@ import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.PlaylistControl;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.models.AbstractPlaylistMusic;
@@ -45,6 +47,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
@@ -61,6 +64,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -77,40 +81,41 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.text.TextUtils.isEmpty;
-import static android.util.Log.e;
 
 public class PlaylistFragment extends ListFragment implements StatusChangeListener,
         OnMenuItemClickListener {
 
     private class QueueAdapter extends ArrayAdapter {
 
-        private boolean lightTheme;
-
-        public QueueAdapter(Context context, List<?> data, int resource) {
+        QueueAdapter(final Context context, final List<?> data, final int resource) {
             super(context, resource, data);
-
-            lightTheme = app.isLightThemeSelected();
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            PlayQueueViewHolder viewHolder;
+        public View getView(final int position, View convertView, final ViewGroup parent) {
+
+            final PlayQueueViewHolder viewHolder;
             if (convertView == null) {
                 viewHolder = new PlayQueueViewHolder();
                 convertView = LayoutInflater.from(getContext()).inflate(
-                        R.layout.playlist_queue_item, null);
+                        R.layout.playlist_queue_item, rootView);
                 viewHolder.artist = (TextView) convertView.findViewById(android.R.id.text2);
                 viewHolder.title = (TextView) convertView.findViewById(android.R.id.text1);
                 viewHolder.play = (ImageView) convertView.findViewById(R.id.picture);
                 viewHolder.cover = (ImageView) convertView.findViewById(R.id.cover);
                 viewHolder.coverHelper = new CoverAsyncHelper();
-                final int height = viewHolder.cover.getHeight();
-                // If the list is not displayed yet, the height is 0. This is a
-                // problem, so set a fallback one.
-                viewHolder.coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
-                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(
+                int height = viewHolder.cover.getHeight();
+                // If the list is not displayed yet, the height is 0.
+                // This is a problem, so set a fallback one.
+                final int fallbackHeight = 128;
+                if(height == 0) {
+                    height = fallbackHeight;
+                }
+                viewHolder.coverHelper.setCoverMaxSize(height);
+                final CoverDownloadListener acd = new AlbumCoverDownloadListener(
                         viewHolder.cover);
-                final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) viewHolder.cover
+                final AlbumCoverDownloadListener oldAcd
+                        = (AlbumCoverDownloadListener) viewHolder.cover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {
                     oldAcd.detach();
@@ -125,7 +130,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 viewHolder = (PlayQueueViewHolder) convertView.getTag();
             }
 
-            AbstractPlaylistMusic music = (AbstractPlaylistMusic) getItem(position);
+            final AbstractPlaylistMusic music = (AbstractPlaylistMusic) getItem(position);
 
             viewHolder.artist.setText(music.getPlaylistSubLine());
             viewHolder.title.setText(music.getPlayListMainLine());
@@ -135,8 +140,11 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             if (music.isForceCoverRefresh() || viewHolder.cover.getTag() == null
                     || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
                 if (!music.isForceCoverRefresh()) {
-                    viewHolder.cover.setImageResource(lightTheme ? R.drawable.no_cover_art_light
-                            : R.drawable.no_cover_art);
+                    if(lightTheme) {
+                        viewHolder.cover.setImageResource(R.drawable.no_cover_art_light);
+                    } else {
+                        viewHolder.cover.setImageResource(R.drawable.no_cover_art);
+                    }
                 }
                 music.setForceCoverRefresh(false);
                 viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
@@ -147,40 +155,50 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     // Minimum number of songs in the queue before the fastscroll thumb is shown
     private static final int MIN_SONGS_BEFORE_FASTSCROLL = 50;
-    private ArrayList<AbstractPlaylistMusic> songlist;
+
+    private ArrayList<AbstractPlaylistMusic> songList;
+
     private final MPDApplication app = MPDApplication.getInstance();
+
     private DragSortListView list;
+
     private ActionMode actionMode;
+
     private SearchView searchView;
+
     private String filter = null;
-    private PopupMenu popupMenu;
+
     private Integer popupSongID;
+
     private DragSortController controller;
+
     private FragmentActivity activity;
+
+    private ViewGroup rootView;
+
     private static final boolean DEBUG = false;
+
     private int lastPlayingID = -1;
 
-    private boolean lightTheme = false;
+    private final boolean lightTheme = app.isLightThemeSelected();
 
-    private DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
-        public void drop(int from, int to) {
-            if (from == to || filter != null) {
-                return;
-            }
-            AbstractPlaylistMusic itemFrom = songlist.get(from);
-            Integer songID = itemFrom.getSongId();
-            try {
-                app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
-            } catch (MPDServerException e) {
+    private final DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
+        @Override
+        public void drop(final int from, final int to) {
+            if (from != to || filter == null) {
+                final AbstractPlaylistMusic itemFrom = songList.get(from);
+                final int songID = itemFrom.getSongId();
+
+                PlaylistControl.run(PlaylistControl.MOVE, songID, to);
             }
         }
     };
 
-    private View.OnClickListener itemMenuButtonListener = new View.OnClickListener() {
+    private final View.OnClickListener itemMenuButtonListener = new View.OnClickListener() {
         @Override
-        public void onClick(View v) {
+        public void onClick(final View v) {
             popupSongID = (Integer) v.getTag();
-            popupMenu = new PopupMenu(activity, v);
+            final PopupMenu popupMenu = new PopupMenu(activity, v);
             popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistcnxmenu, popupMenu.getMenu());
             if (getPlaylistItemSong(popupSongID).isStream()) {
                 popupMenu.getMenu().findItem(R.id.PLCX_goto).setVisible(false);
@@ -190,20 +208,13 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     };
 
-    public PlaylistFragment() {
-        super();
-        //setHasOptionsMenu(true);
-    }
-
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        // TODO Auto-generated method stub
-
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
     }
 
-    private AbstractPlaylistMusic getPlaylistItemSong(int songID) {
+    private AbstractPlaylistMusic getPlaylistItemSong(final int songID) {
         AbstractPlaylistMusic song = null;
-        for (AbstractPlaylistMusic music : songlist) {
+        for (final AbstractPlaylistMusic music : songList) {
             if (music.getSongId() == songID) {
                 song = music;
                 break;
@@ -212,17 +223,25 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         return song;
     }
 
-    @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
-        // TODO Auto-generated method stub
+    private boolean isFiltered(final String item) {
+        final String processedItem;
+        if (item != null) {
+            processedItem = item.toLowerCase(Locale.getDefault());
+        } else {
+            processedItem = "".toLowerCase(Locale.getDefault());
+        }
 
+        return processedItem.contains(filter);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
+    }
+
+    @Override
+    public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         this.activity = getActivity();
-        lightTheme = app.isLightThemeSelected();
         refreshListColorCacheHint();
         if (list != null) {
             ((MainMenuActivity) this.activity).onQueueListAttached(list);
@@ -234,34 +253,40 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.mpd_playlistmenu, menu);
         menu.removeItem(R.id.PLM_EditPL);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.playlist_activity, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
+        rootView = container;
+        final View view = inflater.inflate(R.layout.playlist_activity, container, false);
         searchView = (SearchView) view.findViewById(R.id.search);
         searchView.setOnQueryTextListener(new OnQueryTextListener() {
 
             @Override
-            public boolean onQueryTextChange(String newText) {
+            public boolean onQueryTextChange(final String newText) {
                 filter = newText;
-                if ("".equals(newText))
+                if (newText != null && newText.isEmpty()) {
                     filter = null;
-                if (filter != null)
+                }
+                if (filter != null) {
                     filter = filter.toLowerCase();
+                }
                 list.setDragEnabled(filter == null);
                 update(false);
                 return false;
             }
 
             @Override
-            public boolean onQueryTextSubmit(String query) {
+            public boolean onQueryTextSubmit(final String query) {
                 // Hide the keyboard and give focus to the list
-                InputMethodManager imm = (InputMethodManager) activity
+                final InputMethodManager imm = (InputMethodManager) activity
                         .getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
                 list.requestFocus();
@@ -282,90 +307,72 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         list.setDragEnabled(true);
 
         refreshListColorCacheHint();
-        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
             @Override
-            public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
+            public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
 
                 final SparseBooleanArray checkedItems = list.getCheckedItemPositions();
                 final int count = list.getCount();
                 final ListAdapter adapter = list.getAdapter();
                 int j = 0;
-                final int positions[];
+                int[] positions = null;
+                boolean result = true;
 
                 switch (item.getItemId()) {
-
                     case R.id.menu_delete:
                         positions = new int[list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
                             if (checkedItems.get(i)) {
-                                positions[j] = ((AbstractPlaylistMusic) adapter.getItem(i))
-                                        .getSongId();
+                                positions[j] = ((Music) adapter.getItem(i)).getSongId();
                                 j++;
                             }
                         }
-
-                        app.oMPDAsyncHelper.execAsync(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
-                                } catch (MPDServerException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-
-                        mode.finish();
-                        return true;
+                        break;
                     case R.id.menu_crop:
                         positions = new int[list.getCount() - list.getCheckedItemCount()];
                         for (int i = 0; i < count && j < positions.length; i++) {
                             if (!checkedItems.get(i)) {
-                                positions[j] = ((AbstractPlaylistMusic) adapter.getItem(i))
-                                        .getSongId();
+                                positions[j] = ((Music) adapter.getItem(i)).getSongId();
                                 j++;
                             }
                         }
-
-                        app.oMPDAsyncHelper.execAsync(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
-                                } catch (MPDServerException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-
-                        mode.finish();
-                        return true;
+                        break;
                     default:
-                        return false;
+                        result = false;
+                        break;
                 }
+
+                if (j > 0) {
+                    PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
+                    mode.finish();
+                }
+
+                return result;
             }
 
             @Override
-            public boolean onCreateActionMode(ActionMode mode, android.view.Menu menu) {
-                final android.view.MenuInflater inflater = mode.getMenuInflater();
+            public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
+                final MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.mpd_queuemenu, menu);
                 return true;
             }
 
             @Override
-            public void onDestroyActionMode(ActionMode mode) {
+            public void onDestroyActionMode(final ActionMode mode) {
                 actionMode = null;
                 controller.setSortEnabled(true);
             }
 
             @Override
-            public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
-                    boolean checked) {
+            public void onItemCheckedStateChanged(
+                    final ActionMode mode, final int position, final long id,
+                    final boolean checked) {
                 final int selectCount = list.getCheckedItemCount();
-                if (selectCount == 0)
+                if (selectCount == 0) {
                     mode.finish();
+                }
                 if (selectCount == 1) {
                     mode.setTitle(R.string.actionSongSelected);
                 } else {
@@ -374,7 +381,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             }
 
             @Override
-            public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
+            public boolean onPrepareActionMode(final ActionMode mode, final Menu menu) {
                 actionMode = mode;
                 controller.setSortEnabled(false);
                 return false;
@@ -385,227 +392,201 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     @Override
-    public void onListItemClick(final ListView l, View v, final int position, long id) {
+    public void onListItemClick(final ListView l, final View v, final int position, final long id) {
+        super.onListItemClick(l, v, position, id);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final Integer song = ((AbstractPlaylistMusic) l.getAdapter().getItem(position))
-                        .getSongId();
-                try {
-                    app.oMPDAsyncHelper.oMPD.skipToId(song);
-                } catch (MPDServerException e) {
-                }
-            }
-        }).start();
+        final int song = ((Music) l.getAdapter().getItem(position)).getSongId();
+
+        PlaylistControl.run(PlaylistControl.SKIP_TO_ID, song);
     }
 
+    private static final String TAG = "com.namelessdev.mpdroid.PlaylistFragment";
+
     @Override
-    public boolean onMenuItemClick(android.view.MenuItem item) {
-        Intent intent;
-        AbstractPlaylistMusic music;
+    public boolean onMenuItemClick(final MenuItem item) {
+        final Intent intent;
+        final AbstractPlaylistMusic music;
 
         switch (item.getItemId()) {
             case R.id.PLCX_playNext:
-                try { // Move song to next in playlist
-                    MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-                    if (popupSongID < status.getSongPos()) {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID,
-                                status.getSongPos());
-                    } else {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID,
-                                status.getSongPos() + 1);
-                    }
-                    Tools.notifyUser("Song moved to next in list");
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return true;
+                PlaylistControl.run(PlaylistControl.MOVE_TO_NEXT, popupSongID);
+                Tools.notifyUser("Song moved to next in list");
+                break;
             case R.id.PLCX_moveFirst:
-                try { // Move song to first in playlist
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID, 0);
-                    Tools.notifyUser("Song moved to first in list");
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return true;
+                // Move song to first in playlist
+                PlaylistControl.run(PlaylistControl.MOVE, popupSongID, 0);
+                Tools.notifyUser("Song moved to first in list");
+                break;
             case R.id.PLCX_moveLast:
-                try { // Move song to last in playlist
-                    MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().move(popupSongID,
-                            status.getPlaylistLength() - 1);
-                    Tools.notifyUser("Song moved to last in list");
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return true;
+                PlaylistControl.run(PlaylistControl.MOVE_TO_LAST, popupSongID);
+                Tools.notifyUser("Song moved to last in list");
+                break;
             case R.id.PLCX_removeFromPlaylist:
-                try {
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeById(popupSongID);
-                    if (isAdded()) {
-                        Tools.notifyUser(R.string.deletedSongFromPlaylist);
-                    }
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, popupSongID);
+
+                if (isAdded()) {
+                    Tools.notifyUser(R.string.deletedSongFromPlaylist);
                 }
-                return true;
+                break;
             case R.id.PLCX_removeAlbumFromPlaylist:
-                try {
-                    if (DEBUG)
-                        Log.d(PlaylistFragment.class.getSimpleName(), "Remove Album " + popupSongID);
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().removeAlbumById(popupSongID);
-                    if (isAdded()) {
-                        Tools.notifyUser(R.string.deletedSongFromPlaylist);
-                    }
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                if (DEBUG) {
+                    Log.d(TAG, "Remove Album " + popupSongID);
                 }
-                return true;
+                PlaylistControl.run(PlaylistControl.REMOVE_ALBUM_BY_ID, popupSongID);
+                if (isAdded()) {
+                    Tools.notifyUser(R.string.deletedSongFromPlaylist);
+                }
+                break;
             case R.id.PLCX_goToArtist:
                 music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getArtist())) {
-                    return true;
+                    break;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("artist", music.getArtistAsArtist());
                 startActivityForResult(intent, -1);
-                return true;
+                break;
             case R.id.PLCX_goToAlbum:
                 music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getArtist()) || isEmpty(music.getAlbum())) {
-                    return true;
+                    break;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("album", music.getAlbumAsAlbum());
                 startActivityForResult(intent, -1);
-                return true;
+                break;
             case R.id.PLCX_goToFolder:
                 music = getPlaylistItemSong(popupSongID);
                 if (music == null || isEmpty(music.getFullpath())) {
-                    return true;
+                    break;
                 }
                 intent = new Intent(activity, SimpleLibraryActivity.class);
                 intent.putExtra("folder", music.getParent());
                 startActivityForResult(intent, -1);
-                return true;
+                break;
             default:
-                return true;
+                break;
         }
+        return true;
     }
 
     private String playlistToSave = "";
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        super.onOptionsItemSelected(item);
+
         // Menu actions...
-        Intent i;
+        boolean result = true;
+        final Intent intent;
+
         switch (item.getItemId()) {
             case R.id.PLM_Clear:
-                try {
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().clear();
-                    songlist.clear();
-                    if (isAdded()) {
-                        Tools.notifyUser(R.string.playlistCleared);
-                    }
-                    ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
-                } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                Log.e(TAG, "Playlist Clear");
+                PlaylistControl.run(PlaylistControl.CLEAR);
+                songList.clear();
+                if (isAdded()) {
+                    Tools.notifyUser(R.string.playlistCleared);
                 }
-                return true;
+                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+                break;
             case R.id.PLM_EditPL:
-                i = new Intent(activity, PlaylistEditActivity.class);
-                startActivity(i);
-                return true;
+                intent = new Intent(activity, PlaylistEditActivity.class);
+                startActivity(intent);
+                break;
             case R.id.PLM_Save:
-                List<Item> plists  = new ArrayList<Item>();
+                List<Item> playLists;
                 try {
-                    plists = app.oMPDAsyncHelper.oMPD.getPlaylists();
-                } catch (MPDServerException e) {
+                    playLists = app.oMPDAsyncHelper.oMPD.getPlaylists();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to receive list of playlists.", e);
+                    playLists = new ArrayList<>(0);
                 }
-                Collections.sort(plists);
-                final String[] playlistsArray = new String[plists.size()+1];
-                for (int p = 0; p < plists.size(); p++) {
-                    playlistsArray[p] = plists.get(p).getName(); // old playlists
+                Collections.sort(playLists);
+                final String[] playlistsArray = new String[playLists.size() + 1];
+                for (int p = 0; p < playLists.size(); p++) {
+                    playlistsArray[p] = playLists.get(p).getName(); // old playlists
                 }
-                playlistsArray[playlistsArray.length-1] = getResources().getString(R.string.newPlaylist); // "new playlist"
-                playlistToSave = playlistsArray[playlistsArray.length-1];
+                playlistsArray[playlistsArray.length - 1] = getResources()
+                        .getString(R.string.newPlaylist); // "new playlist"
+                playlistToSave = playlistsArray[playlistsArray.length - 1];
                 new AlertDialog.Builder(activity) // dialog with list of playlists
-                    .setTitle(R.string.playlistName)
-                    .setSingleChoiceItems
-                    (playlistsArray, playlistsArray.length-1,
-                     new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int which) {
-                             playlistToSave = playlistsArray[which];
-                         }
-                     })
-                    .setPositiveButton
-                    (android.R.string.ok,
-                     new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int whichButton) {
-                             savePlaylist(playlistToSave);
-                         }
-                     })
-                    .setNegativeButton
-                    (android.R.string.cancel,
-                     new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int whichButton) {
-                             // Do nothing.
-                         }
-                     })
-                    .create().show();
-                return true;
+                        .setTitle(R.string.playlistName)
+                        .setSingleChoiceItems
+                                (playlistsArray, playlistsArray.length - 1,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(
+                                                    final DialogInterface dialog, final int which) {
+                                                playlistToSave = playlistsArray[which];
+                                            }
+                                        }
+                                )
+                        .setPositiveButton
+                                (android.R.string.ok,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(final DialogInterface dialog,
+                                                    final int whichButton) {
+                                                savePlaylist(playlistToSave);
+                                            }
+                                        }
+                                )
+                        .setNegativeButton
+                                (android.R.string.cancel,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(final DialogInterface dialog,
+                                                    final int whichButton) {
+                                                // Do nothing.
+                                            }
+                                        }
+                                )
+                        .create().show();
+                break;
             default:
-                return false;
+                result = false;
+                break;
         }
-
+        return result;
     }
 
-    protected void savePlaylist(final String name) {
+    void savePlaylist(final String name) {
         if (name.equals(getResources().getString(R.string.newPlaylist))) {
             // if "new playlist", show dialog with EditText for new playlist:
             final EditText input = new EditText(activity);
             new AlertDialog.Builder(activity)
-                .setTitle(R.string.newPlaylistPrompt)
-                .setView(input)
-                .setPositiveButton
-                (android.R.string.ok,
-                 new DialogInterface.OnClickListener() {
-                     public void onClick(DialogInterface dialog, int whichButton) {
-                         final String name = input.getText().toString().trim();
-                         if (null != name && name.length() > 0 && !name.equals(MPD.STREAMS_PLAYLIST)) {
-                             // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
-                             savePlaylist(name);
-                         }
-                     }
-                 })
-                .setNegativeButton
-                (android.R.string.cancel,
-                 new DialogInterface.OnClickListener() {
-                     public void onClick(DialogInterface dialog, int whichButton) {
-                         // Do nothing.
-                     }
-                 })
-                .create().show();
-            return;
-        }
-        // actually save:
-        if (null != name && name.length() > 0) {
-            app.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            app.oMPDAsyncHelper.oMPD.getPlaylist().savePlaylist(name);
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                    .setTitle(R.string.newPlaylistPrompt)
+                    .setView(input)
+                    .setPositiveButton
+                            (android.R.string.ok,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(final DialogInterface dialog,
+                                                final int whichButton) {
+                                            final String name = input.getText().toString().trim();
+                                            if (!name.isEmpty() && !name
+                                                    .equals(MPD.STREAMS_PLAYLIST)) {
+                                                // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
+                                                savePlaylist(name);
+                                            }
+                                        }
+                                    }
+                            )
+                    .setNegativeButton
+                            (android.R.string.cancel,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(final DialogInterface dialog,
+                                                final int whichButton) {
+                                            // Do nothing.
+                                        }
+                                    }
+                            )
+                    .create().show();
+        } else if (!name.isEmpty()) {
+            // actually save:
+            PlaylistControl.run(PlaylistControl.SAVE_PLAYLIST, name);
         }
     }
 
@@ -620,6 +601,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         super.onResume();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 update();
             }
@@ -627,20 +609,13 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
         update();
 
     }
 
     @Override
-    public void randomChanged(boolean random) {
-        // TODO Auto-generated method stub
-
+    public void randomChanged(final boolean random) {
     }
 
     private void refreshListColorCacheHint() {
@@ -654,84 +629,78 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     private void refreshPlaylistItemView(final AbstractPlaylistMusic... playlistSongs) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                return null;
-            }
+        final int start = list.getFirstVisiblePosition();
 
-            @Override
-            protected void onPostExecute(Void result) {
-                int start = list.getFirstVisiblePosition();
-                for (int i = start, j = list.getLastVisiblePosition(); i <= j; i++) {
-                    AbstractPlaylistMusic playlistMusic = (AbstractPlaylistMusic) list.getAdapter()
-                            .getItem(i);
-                    for (AbstractPlaylistMusic song : playlistSongs) {
-                        if (playlistMusic.getSongId() == song.getSongId()) {
-                            View view = list.getChildAt(i - start);
-                            list.getAdapter().getView(i, view, list);
-                        }
-                    }
+        for (int i = start; i <= list.getLastVisiblePosition(); i++) {
+            final AbstractPlaylistMusic playlistMusic =
+                    (AbstractPlaylistMusic) list.getAdapter().getItem(i);
+            for (final AbstractPlaylistMusic song : playlistSongs) {
+                if (playlistMusic.getSongId() == song.getSongId()) {
+                    final View view = list.getChildAt(i - start);
+                    list.getAdapter().getView(i, view, list);
                 }
             }
-        }.execute();
+        }
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
-        // TODO Auto-generated method stub
-
+    public void repeatChanged(final boolean repeating) {
     }
 
     public void scrollToNowPlaying() {
 
-        new AsyncTask<Void, Void, Integer>() {
+        new AsyncTask<Void, Void, Void>() {
+
+            private int songPos = -1;
+
             @Override
-            protected Integer doInBackground(Void... voids) {
-                Integer songIndex = new Integer("-1");
+            protected Void doInBackground(final Void... voids) {
                 try {
-                    songIndex = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
-                } catch (MPDServerException e) {
-                    e(PlaylistFragment.class.getSimpleName(),
-                            "Cannot find the current playing song position : " + e);
+                    songPos = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Cannot find the current playing song position.", e);
                 }
-                return songIndex;
+
+                return null;
             }
 
             @Override
-            protected void onPostExecute(Integer songIndex) {
-                if (songIndex != null) {
+            protected void onPostExecute(final Void result) {
+                super.onPostExecute(result);
+
+                if (songPos == -1) {
+                    Log.d(TAG, "Missing list item.");
+                } else {
 
                     if (activity instanceof MainMenuActivity) {
                         ((MainMenuActivity) activity).showQueue();
                     }
 
-                    getListView().requestFocusFromTouch();
-                    getListView().setSelection(songIndex);
-                    getListView().clearFocus();
-                } else {
-                    Log.d(PlaylistFragment.class.getSimpleName(), "Missing list item : "
-                            + songIndex);
+                    final ListView listView = getListView();
+                    listView.requestFocusFromTouch();
+                    listView.setSelection(songPos);
+                    listView.clearFocus();
                 }
             }
         }.execute();
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
-        // TODO Auto-generated method stub
-
+    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        if (songlist != null) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
+        if (songList != null) {
             // Mark running track...
-            for (AbstractPlaylistMusic song : songlist) {
-                int newPlay;
+            for (final AbstractPlaylistMusic song : songList) {
+                final int newPlay;
                 if ((song.getSongId()) == mpdStatus.getSongId()) {
-                    newPlay = lightTheme ? R.drawable.ic_media_play_light
-                            : R.drawable.ic_media_play;
+                    if(lightTheme) {
+                        newPlay = R.drawable.ic_media_play_light;
+                    } else {
+                        newPlay = R.drawable.ic_media_play;
+                    }
                 } else {
                     newPlay = 0;
                 }
@@ -743,128 +712,154 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     }
 
-    public void update() {
+    void update() {
         update(true);
     }
 
-    protected void update(boolean forcePlayingIDRefresh) {
-        try {
-            // Save the scroll bar position to restore it after update
-            final int firstVisibleElementIndex = list.getFirstVisiblePosition();
-            View firstVisibleItem = list.getChildAt(0);
-            final int firstVisiblePosition = (firstVisibleItem != null) ? firstVisibleItem.getTop()
-                    : 0;
+    /**
+     * Update the current playlist fragment.
+     *
+     * @param forcePlayingIDRefresh Force the current track to refresh.
+     */
+    void update(final boolean forcePlayingIDRefresh) {
+        // Save the scroll bar position to restore it after update
+        final MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
+        final List<Music> musics = playlist.getMusicList();
+        final ArrayList<AbstractPlaylistMusic> newSongList = new ArrayList<>(musics.size());
 
-            MPDPlaylist playlist = app.oMPDAsyncHelper.oMPD.getPlaylist();
-            final ArrayList<AbstractPlaylistMusic> newSonglist = new ArrayList<AbstractPlaylistMusic>();
-            List<Music> musics = playlist.getMusicList();
-            if (lastPlayingID == -1 || forcePlayingIDRefresh)
+        if (lastPlayingID == -1 || forcePlayingIDRefresh) {
+            try {
                 lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
-            // The position in the songlist of the currently played song
-            int listPlayingID = -1;
-            // Copy list to avoid concurrent exception
-            for (Music m : new ArrayList<Music>(musics)) {
-                if (m == null) {
-                    continue;
-                }
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to get the current song id.", e);
+            }
+        }
 
-                AbstractPlaylistMusic item = m.isStream() ? new PlaylistStream(m)
-                        : new PlaylistSong(m);
+        // The position in the song list of the currently played song
+        int listPlayingID = -1;
 
-                if (filter != null) {
-                    if (!(item.getAlbumArtist() != null ? item.getAlbumArtist() : "").toLowerCase(
-                            Locale.getDefault()).contains(filter)
-                            &&
-                            !(item.getAlbum() != null ? item.getAlbum() : "").toLowerCase(
-                                    Locale.getDefault()).contains(filter)
-                            &&
-                            !(item.getTitle() != null ? item.getTitle() : "").toLowerCase(
-                                    Locale.getDefault()).contains(filter)) {
-                        continue;
-                    }
-                }
-
-                if (item.getSongId() == lastPlayingID) {
-                    item.setCurrentSongIconRefID(lightTheme ? R.drawable.ic_media_play_light
-                            : R.drawable.ic_media_play);
-                    // Lie a little. Scroll to the previous song than the one
-                    // playing. That way it shows that there are other songs
-                    // before
-                    // it
-                    listPlayingID = newSonglist.size() - 1;
-                } else {
-                    item.setCurrentSongIconRefID(0);
-                }
-                newSonglist.add(item);
+        // Copy list to avoid concurrent exception
+        for (final Music music : new ArrayList<>(musics)) {
+            if (music == null) {
+                continue;
             }
 
-            final int finalListPlayingID = listPlayingID;
+            final AbstractPlaylistMusic item;
+            if (music.isStream()) {
+                item = new PlaylistStream(music);
+            } else {
+                item = new PlaylistSong(music);
+            }
 
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    final ArrayAdapter songs = new QueueAdapter(activity, newSonglist,
-                            R.layout.playlist_queue_item);
-                    setListAdapter(songs);
-                    songlist = newSonglist;
-                    songs.notifyDataSetChanged();
-                    // Note : setting the scrollbar style before setting the
-                    // fastscroll state is very important pre-KitKat, because of
-                    // a bug.
-                    // It is also very important post-KitKat because it needs
-                    // the opposite order or it won't show the FastScroll
-                    // This is so stupid I don't even .... argh
-                    if (newSonglist.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
-                        if (android.os.Build.VERSION.SDK_INT >= 19) {
-                            // No need to enable FastScroll, this setter enables
-                            // it.
-                            list.setFastScrollAlwaysVisible(true);
-                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-                        } else {
-                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-                            list.setFastScrollAlwaysVisible(true);
-                        }
-                    } else {
-                        if (android.os.Build.VERSION.SDK_INT >= 19) {
-                            list.setFastScrollAlwaysVisible(false);
-                            // Default Android value
-                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-                        } else {
-                            list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-                            list.setFastScrollAlwaysVisible(false);
-                        }
-                    }
-
-                    if (actionMode != null)
-                        actionMode.finish();
-
-                    // Restore the scroll bar position
-                    if (firstVisibleElementIndex != 0 && firstVisiblePosition != 0) {
-                        list.setSelectionFromTop(firstVisibleElementIndex, firstVisiblePosition);
-                    } else {
-                        // Only scroll if there is a valid song to scroll to. 0
-                        // is a valid song but does not require scroll anyway.
-                        // Also, only scroll if it's the first update. You don't
-                        // want your playlist to scroll itself while you are
-                        // looking at
-                        // other
-                        // stuff.
-                        if (finalListPlayingID > 0 && getView() != null) {
-                            setSelection(finalListPlayingID);
-                        }
-                    }
+            if (filter != null) {
+                if (isFiltered(item.getAlbumArtist()) || isFiltered(item.getAlbum()) ||
+                        isFiltered(item.getTitle())) {
+                    continue;
                 }
-            });
+            }
 
-        } catch (MPDServerException e) {
-            e(PlaylistFragment.class.getSimpleName(), "Playlist update failure : " + e);
+            if (item.getSongId() == lastPlayingID) {
+                if (lightTheme) {
+                    item.setCurrentSongIconRefID(R.drawable.ic_media_play_light);
+                } else {
+                    item.setCurrentSongIconRefID(R.drawable.ic_media_play);
+                }
+
+                /**
+                 * Lie a little. Scroll to the previous song than the one playing.
+                 * That way it shows that there are other songs before it.
+                 */
+                listPlayingID = newSongList.size() - 1;
+            } else {
+                item.setCurrentSongIconRefID(0);
+            }
+            newSongList.add(item);
         }
+
+        updateScrollbar(newSongList, listPlayingID);
     }
 
-    public void updateCover(AlbumInfo albumInfo) {
+    /**
+     * Updates the scrollbar.
+     *
+     * @param newSongList   The updated list of songs for the playlist.
+     * @param listPlayingID The current playing playlist id.
+     */
+    private void updateScrollbar(final ArrayList newSongList, final int listPlayingID) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int firstVisibleElementIndex = list.getFirstVisiblePosition();
+                final View firstVisibleItem = list.getChildAt(0);
+                final int firstVisiblePosition;
+                final ArrayAdapter songs = new QueueAdapter(activity, newSongList,
+                        R.layout.playlist_queue_item);
 
-        List<AbstractPlaylistMusic> musicsToBeUpdated = new ArrayList<AbstractPlaylistMusic>();
+                if (firstVisibleItem != null) {
+                    firstVisiblePosition = firstVisibleItem.getTop();
+                } else {
+                    firstVisiblePosition = 0;
+                }
 
-        for (AbstractPlaylistMusic playlistMusic : songlist) {
+                setListAdapter(songs);
+                songList = newSongList;
+                songs.notifyDataSetChanged();
+
+                /**
+                 * Note : Setting the scrollbar style before setting the fast scroll state is very
+                 * important pre-KitKat, because of a bug. It is also very important post-KitKat
+                 * because it needs the opposite order or it won't show the FastScroll.
+                 *
+                 * This is so stupid I don't even .... argh.
+                 */
+                if (newSongList.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        // No need to enable FastScroll, this setter enables
+                        // it.
+                        list.setFastScrollAlwaysVisible(true);
+                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+                    } else {
+                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+                        list.setFastScrollAlwaysVisible(true);
+                    }
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        list.setFastScrollAlwaysVisible(false);
+                        // Default Android value
+                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+                    } else {
+                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+                        list.setFastScrollAlwaysVisible(false);
+                    }
+                }
+
+                if (actionMode != null) {
+                    actionMode.finish();
+                }
+
+                // Restore the scroll bar position
+                if (firstVisibleElementIndex == 0 || firstVisiblePosition == 0) {
+                    /**
+                     * Only scroll if there is a valid song to scroll to. 0 is a valid song but
+                     * does not require scroll anyway. Also, only scroll if it's the first update.
+                     * You don't want your playlist to scroll itself while you are looking at other
+                     * stuff.
+                     */
+                    if (listPlayingID > 0 && getView() != null) {
+                        setSelection(listPlayingID);
+                    }
+                } else {
+                    list.setSelectionFromTop(firstVisibleElementIndex, firstVisiblePosition);
+                }
+            }
+        });
+    }
+
+    public void updateCover(final AlbumInfo albumInfo) {
+
+        final List<AbstractPlaylistMusic> musicsToBeUpdated = new ArrayList<>(songList.size());
+
+        for (final AbstractPlaylistMusic playlistMusic : songList) {
             if (playlistMusic.getAlbumInfo().equals(albumInfo)) {
                 playlistMusic.setForceCoverRefresh(true);
                 musicsToBeUpdated.add(playlistMusic);
@@ -875,8 +870,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-        // TODO Auto-generated method stub
-
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 }
