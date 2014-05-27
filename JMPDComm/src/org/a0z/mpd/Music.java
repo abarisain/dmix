@@ -140,6 +140,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private String albumartist = "";
 
+    private String genre = "";
+
     private String fullpath;
 
     private int disc = -1;
@@ -202,6 +204,9 @@ public class Music extends Item implements FilesystemTreeEntry {
                     break;
                 case "Artist":
                     artist = lines[1];
+                    break;
+                case "Genre":
+                    genre = lines[1];
                     break;
                 case "Date":
                     try {
@@ -381,6 +386,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     public Artist getArtistAsArtist() {
         return new Artist(artist);
+    }
+
+    public String getGenre() {
+        return genre;
     }
 
     public long getDate() {
@@ -602,6 +611,10 @@ public class Music extends Item implements FilesystemTreeEntry {
         artist = string;
     }
 
+    public void setGenre(String string) {
+        genre = string;
+    }
+
     public void setDate(long value) {
         date = value;
     }
@@ -680,8 +693,8 @@ public class Music extends Item implements FilesystemTreeEntry {
         this.setTime(other.getTime());
         this.setTotalTracks(other.getTotalTracks());
         this.setTrack(other.getTrack());
+        this.setGenre(other.getGenre());
         /*
-         * this.setGenre(other.getGenre());
          * this.setSoundtrack(other.getSoundtrack());
          * this.setComposer(other.getComposer());
          */
