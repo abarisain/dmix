@@ -32,6 +32,7 @@ import org.a0z.mpd.Artist;
 
 import android.app.ActionBar;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -47,12 +48,53 @@ import android.widget.TextView;
 public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         ILibraryFragmentActivity, OnBackStackChangedListener {
 
-    public final String EXTRA_ALBUM = "album";
-    public final String EXTRA_ARTIST = "artist";
-    public final String EXTRA_STREAM = "streams";
-    public final String EXTRA_FOLDER = "folder";
+    private static final String EXTRA_ALBUM = "album";
+
+    private static final String EXTRA_ARTIST = "artist";
+
+    private static final String EXTRA_FOLDER = "folder";
+
+    private static final String EXTRA_STREAM = "streams";
 
     private TextView titleView;
+
+    private Fragment getRootFragment() {
+        final Intent intent = getIntent();
+        Fragment rootFragment = null;
+
+        if (intent.getBooleanExtra(EXTRA_STREAM, false)) {
+            rootFragment = new StreamsFragment();
+        } else {
+            Object targetElement = intent.getParcelableExtra(EXTRA_ALBUM);
+            if (targetElement == null) {
+                targetElement = intent.getParcelableExtra(EXTRA_ARTIST);
+            }
+            if (targetElement == null) {
+                targetElement = intent.getStringExtra(EXTRA_FOLDER);
+            }
+            if (targetElement == null) {
+                throw new RuntimeException(
+                        "Error : cannot start SimpleLibraryActivity without an extra");
+            } else {
+                if (targetElement instanceof Artist) {
+                    final SharedPreferences settings = PreferenceManager
+                            .getDefaultSharedPreferences(app);
+
+                    if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
+                        rootFragment = new AlbumsGridFragment((Artist) targetElement);
+                    } else {
+                        rootFragment = new AlbumsFragment((Artist) targetElement);
+                    }
+                } else if (targetElement instanceof Album) {
+                    rootFragment = new SongsFragment().init((Album) targetElement);
+                } else if (targetElement instanceof String) {
+                    rootFragment = new FSFragment().init((String) targetElement);
+                }
+            }
+        }
+
+        return rootFragment;
+    }
 
     @Override
     public void onBackStackChanged() {
@@ -60,58 +102,34 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.library_tabs);
 
-        LayoutInflater inflater = (LayoutInflater) this
+        final LayoutInflater inflater = (LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         titleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
+
         titleView.setFocusable(true);
         titleView.setFocusableInTouchMode(true);
         titleView.setSelected(true);
         titleView.requestFocus();
 
         final ActionBar actionBar = getActionBar();
-        actionBar.setCustomView(titleView);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowCustomEnabled(true);
+        if (actionBar != null) {
+            actionBar.setCustomView(titleView);
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayShowCustomEnabled(true);
+        }
 
-        Object targetElement;
         if (savedInstanceState == null) {
-            Fragment rootFragment = null;
-            if (getIntent().getBooleanExtra("streams", false)) {
-                rootFragment = new StreamsFragment();
-            } else {
-                targetElement = getIntent().getParcelableExtra(EXTRA_ALBUM);
-                if (targetElement == null)
-                    targetElement = getIntent().getParcelableExtra(EXTRA_ARTIST);
-                if (targetElement == null)
-                    targetElement = getIntent().getStringExtra(EXTRA_FOLDER);
-                if (targetElement == null) {
-                    throw new RuntimeException(
-                            "Error : cannot start SimpleLibraryActivity without an extra");
-                } else {
-                    if (targetElement instanceof Artist) {
-                        AlbumsFragment af;
-                        final SharedPreferences settings = PreferenceManager
-                                .getDefaultSharedPreferences(app);
-                        if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-                            af = new AlbumsGridFragment((Artist) targetElement);
-                        } else {
-                            af = new AlbumsFragment((Artist) targetElement);
-                        }
-                        rootFragment = af;
-                    } else if (targetElement instanceof Album) {
-                        rootFragment = new SongsFragment().init((Album) targetElement);
-                    } else if (targetElement instanceof String) {
-                        rootFragment = new FSFragment().init((String) targetElement);
-                    }
-                }
-            }
+            final Fragment rootFragment = getRootFragment();
+
             if (rootFragment != null) {
-                if (rootFragment instanceof BrowseFragment)
+                if (rootFragment instanceof BrowseFragment) {
                     setTitle(((BrowseFragment) rootFragment).getTitle());
+                }
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -127,13 +145,18 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        final boolean result;
+
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             // For onKeyLongPress to work
             event.startTracking();
-            return !app.isLocalAudible();
+            result = !app.isLocalAudible();
+        } else {
+            result = super.onKeyDown(keyCode, event);
         }
-        return super.onKeyDown(keyCode, event);
+
+        return result;
     }
 
     @Override
@@ -179,18 +202,20 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        boolean result = false;
+
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            result = true;
         }
-        return false;
+
+        return result;
     }
 
     @Override
-    public void pushLibraryFragment(Fragment fragment, String label) {
-        String title;
+    public void pushLibraryFragment(final Fragment fragment, final String label) {
+        final String title;
         if (fragment instanceof BrowseFragment) {
             title = ((BrowseFragment) fragment).getTitle();
         } else {
@@ -208,6 +233,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     private void refreshTitleFromCurrentFragment() {
         final FragmentManager supportFM = getSupportFragmentManager();
         final int fmStackCount = supportFM.getBackStackEntryCount();
+
         if (fmStackCount > 0) {
             setTitle(supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
         } else {
@@ -222,13 +248,13 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     }
 
     @Override
-    public void setTitle(CharSequence title) {
+    public void setTitle(final CharSequence title) {
         super.setTitle(title);
         titleView.setText(title);
     }
 
     @Override
-    public void setTitle(int titleId) {
+    public void setTitle(final int titleId) {
         super.setTitle(titleId);
         titleView.setText(getString(titleId));
     }
