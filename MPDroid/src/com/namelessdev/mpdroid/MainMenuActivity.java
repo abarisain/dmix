@@ -53,6 +53,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.PopupMenuCompat;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -226,6 +227,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private LibraryFragment libraryFragment;
 
     private PlaylistFragment playlistFragment;
+
+    private static final String TAG = "com.namelessdev.mpdroid.MainMenuActivity";
 
     private FragmentManager fragmentManager;
 
@@ -726,7 +729,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void prepareNowPlayingMenu(Menu menu) {
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
-        MPD mpd = app.oMPDAsyncHelper.oMPD;
+        final MPD mpd = app.oMPDAsyncHelper.oMPD;
         if (!mpd.isConnected()) {
             if (menu.findItem(CONNECT) == null) {
                 menu.add(0, CONNECT, 0, R.string.connect);
@@ -762,7 +765,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         setMenuChecked(menu.findItem(R.id.GMM_Stream), app.getApplicationState().streamingMode);
 
-        final MPDStatus mpdStatus = app.getApplicationState().currentMpdStatus;
+        MPDStatus mpdStatus = null;
+        try {
+            mpdStatus = mpd.getStatus();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to retrieve a status object", e);
+        }
+
         if (mpdStatus != null) {
             setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
             setMenuChecked(menu.findItem(R.id.GMM_Consume), mpdStatus.isConsume());
