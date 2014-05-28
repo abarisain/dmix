@@ -163,7 +163,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
         boolean result = true;
 
-        switch (event.getKeyCode()) {
+        switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
                 MPDControl.run(MPDControl.ACTION_NEXT);
                 break;
@@ -183,7 +183,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         boolean result = true;
 
         if (event.isTracking() && !event.isCanceled() && !app.isLocalAudible()) {
-            switch (event.getKeyCode()) {
+            switch (keyCode) {
                 case KeyEvent.KEYCODE_VOLUME_UP:
                     MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
                     break;
