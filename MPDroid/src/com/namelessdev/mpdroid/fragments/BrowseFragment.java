@@ -30,6 +30,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -385,33 +386,33 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     /**
-     * Override this for custom fastscroll style Note : setting the scrollbar
-     * style before setting the fastscroll state is very important pre-KitKat,
-     * because of a bug.<br/>
-     * It is also very important post-KitKat because it needs the opposite order
-     * or it won't show the FastScroll
-     * 
-     * @param shouldShowFastScroll If the fastscroll should be shown or not
+     * This is required because setting the fast scroll prior to KitKat was
+     * important because of a bug. This bug has since been corrected, but the
+     * opposite order is now required or the fast scroll will not show.
+     *
+     * @param shouldShowFastScroll If the fast scroll should be shown or not
      */
-    protected void refreshFastScrollStyle(boolean shouldShowFastScroll) {
+    protected void refreshFastScrollStyle(final boolean shouldShowFastScroll) {
         if (shouldShowFastScroll) {
-            if (android.os.Build.VERSION.SDK_INT >= 19) {
-                // No need to enable FastScroll, this setter enables it.
-                list.setFastScrollAlwaysVisible(true);
-                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-            } else {
-                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-                list.setFastScrollAlwaysVisible(true);
-            }
+            refreshFastScrollStyle(View.SCROLLBARS_INSIDE_INSET, true);
         } else {
-            if (android.os.Build.VERSION.SDK_INT >= 19) {
-                list.setFastScrollAlwaysVisible(false);
-                // Default Android value
-                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-            } else {
-                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_OVERLAY);
-                list.setFastScrollAlwaysVisible(false);
-            }
+            refreshFastScrollStyle(View.SCROLLBARS_INSIDE_OVERLAY, false);
+        }
+    }
+
+    /**
+     * This is a helper method to workaround shortcomings of the fast scroll API.
+     *
+     * @param scrollbarStyle The {@code View} scrollbar style.
+     * @param isAlwaysVisible The visibility of the scrollbar.
+     */
+    final void refreshFastScrollStyle(final int scrollbarStyle, final boolean isAlwaysVisible) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            list.setFastScrollAlwaysVisible(isAlwaysVisible);
+            list.setScrollBarStyle(scrollbarStyle);
+        } else {
+            list.setScrollBarStyle(scrollbarStyle);
+            list.setFastScrollAlwaysVisible(isAlwaysVisible);
         }
     }
 

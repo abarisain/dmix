@@ -787,6 +787,23 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
      */
     private void updateScrollbar(final ArrayList newSongList, final int listPlayingID) {
         activity.runOnUiThread(new Runnable() {
+            /**
+             * This is a helper method to workaround shortcomings of the fast scroll API.
+             *
+             * @param scrollbarStyle The {@code View} scrollbar style.
+             * @param isAlwaysVisible The visibility of the scrollbar.
+             */
+            private void refreshFastScrollStyle(final int scrollbarStyle,
+                    final boolean isAlwaysVisible) {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    list.setFastScrollAlwaysVisible(isAlwaysVisible);
+                    list.setScrollBarStyle(scrollbarStyle);
+                } else {
+                    list.setScrollBarStyle(scrollbarStyle);
+                    list.setFastScrollAlwaysVisible(isAlwaysVisible);
+                }
+            }
+
             @Override
             public void run() {
                 final int firstVisibleElementIndex = list.getFirstVisiblePosition();
@@ -813,24 +830,9 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                  * This is so stupid I don't even .... argh.
                  */
                 if (newSongList.size() >= MIN_SONGS_BEFORE_FASTSCROLL) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        // No need to enable FastScroll, this setter enables
-                        // it.
-                        list.setFastScrollAlwaysVisible(true);
-                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
-                    } else {
-                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
-                        list.setFastScrollAlwaysVisible(true);
-                    }
+                    refreshFastScrollStyle(View.SCROLLBARS_INSIDE_INSET, true);
                 } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        list.setFastScrollAlwaysVisible(false);
-                        // Default Android value
-                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-                    } else {
-                        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-                        list.setFastScrollAlwaysVisible(false);
-                    }
+                    refreshFastScrollStyle(View.SCROLLBARS_INSIDE_OVERLAY, false);
                 }
 
                 if (actionMode != null) {
