@@ -355,8 +355,8 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     @Override
     public void onStop() {
-        super.onStop();
         app.unsetActivity(getActivity());
+        super.onStop();
     }
 
     @Override
