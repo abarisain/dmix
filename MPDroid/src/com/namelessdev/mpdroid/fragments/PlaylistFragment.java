@@ -154,35 +154,35 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     }
 
     // Minimum number of songs in the queue before the fastscroll thumb is shown
-    private static final int MIN_SONGS_BEFORE_FASTSCROLL = 50;
+    protected static final int MIN_SONGS_BEFORE_FASTSCROLL = 50;
 
-    private ArrayList<AbstractPlaylistMusic> songList;
+    protected ArrayList<AbstractPlaylistMusic> songList;
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    protected final MPDApplication app = MPDApplication.getInstance();
 
-    private DragSortListView list;
+    protected DragSortListView list;
 
-    private ActionMode actionMode;
+    protected ActionMode actionMode;
 
-    private SearchView searchView;
+    protected SearchView searchView;
 
-    private String filter = null;
+    protected String filter = null;
 
-    private Integer popupSongID;
+    protected Integer popupSongID;
 
-    private DragSortController controller;
+    protected DragSortController controller;
 
-    private FragmentActivity activity;
+    protected FragmentActivity activity;
 
-    private ViewGroup rootView;
+    protected ViewGroup rootView;
 
-    private static final boolean DEBUG = false;
+    protected static final boolean DEBUG = false;
 
-    private int lastPlayingID = -1;
+    protected int lastPlayingID = -1;
 
-    private final boolean lightTheme = app.isLightThemeSelected();
+    protected final boolean lightTheme = app.isLightThemeSelected();
 
-    private final DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
+    protected final DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
         @Override
         public void drop(final int from, final int to) {
             if (from != to && filter == null) {
@@ -194,7 +194,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     };
 
-    private final View.OnClickListener itemMenuButtonListener = new View.OnClickListener() {
+    protected final View.OnClickListener itemMenuButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
             popupSongID = (Integer) v.getTag();
@@ -212,7 +212,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
     }
 
-    private AbstractPlaylistMusic getPlaylistItemSong(final int songID) {
+    protected AbstractPlaylistMusic getPlaylistItemSong(final int songID) {
         AbstractPlaylistMusic song = null;
         for (final AbstractPlaylistMusic music : songList) {
             if (music.getSongId() == songID) {
@@ -223,7 +223,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         return song;
     }
 
-    private boolean isFiltered(final String item) {
+    protected boolean isFiltered(final String item) {
         final String processedItem;
         if (item != null) {
             processedItem = item.toLowerCase(Locale.getDefault());
@@ -470,7 +470,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         return true;
     }
 
-    private String playlistToSave = "";
+    protected String playlistToSave = "";
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
@@ -617,7 +617,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     public void randomChanged(final boolean random) {
     }
 
-    private void refreshListColorCacheHint() {
+    protected void refreshListColorCacheHint() {
         if (list != null) {
             if (app.isLightThemeSelected()) {
                 list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
@@ -627,7 +627,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
         }
     }
 
-    private void refreshPlaylistItemView(final AbstractPlaylistMusic... playlistSongs) {
+    protected void refreshPlaylistItemView(final AbstractPlaylistMusic... playlistSongs) {
         final int start = list.getFirstVisiblePosition();
 
         for (int i = start; i <= list.getLastVisiblePosition(); i++) {
@@ -784,7 +784,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
      * @param newSongList   The updated list of songs for the playlist.
      * @param listPlayingID The current playing playlist id.
      */
-    private void updateScrollbar(final ArrayList newSongList, final int listPlayingID) {
+    protected void updateScrollbar(final ArrayList newSongList, final int listPlayingID) {
         activity.runOnUiThread(new Runnable() {
             /**
              * This is a helper method to workaround shortcomings of the fast scroll API.
