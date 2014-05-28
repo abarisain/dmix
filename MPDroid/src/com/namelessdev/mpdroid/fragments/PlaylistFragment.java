@@ -185,7 +185,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
     private final DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
         @Override
         public void drop(final int from, final int to) {
-            if (from != to || filter == null) {
+            if (from != to && filter == null) {
                 final AbstractPlaylistMusic itemFrom = songList.get(from);
                 final int songID = itemFrom.getSongId();
 
@@ -482,7 +482,6 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
         switch (item.getItemId()) {
             case R.id.PLM_Clear:
-                Log.e(TAG, "Playlist Clear");
                 PlaylistControl.run(PlaylistControl.CLEAR);
                 songList.clear();
                 if (isAdded()) {
