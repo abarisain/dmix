@@ -16,22 +16,21 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.GridView;
-import android.widget.ListAdapter;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
 
 import org.a0z.mpd.Artist;
 import org.a0z.mpd.Genre;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.GridView;
+import android.widget.ListAdapter;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
@@ -82,30 +81,19 @@ public class AlbumsGridFragment extends AlbumsFragment {
         return view;
     }
 
+    /**
+     * This is required because setting the fast scroll prior to KitKat was
+     * important because of a bug. This bug has since been corrected, but the
+     * opposite order is now required or the fast scroll will not show.
+     *
+     * @param shouldShowFastScroll If the fast scroll should be shown or not
+     */
     @Override
-    protected void refreshFastScrollStyle(boolean shouldShowFastScroll) {
-        // Note : setting the scrollbar style before setting the fastscroll
-        // state is very important pre-KitKat, because of a bug.
-        // It is also very important post-KitKat because it needs the opposite
-        // order or it won't show the FastScroll
+    protected void refreshFastScrollStyle(final boolean shouldShowFastScroll) {
         if (shouldShowFastScroll) {
-            if (android.os.Build.VERSION.SDK_INT >= 19) {
-                // No need to enable FastScroll, this setter enables it.
-                list.setFastScrollAlwaysVisible(true);
-                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-            } else {
-                list.setScrollBarStyle(AbsListView.SCROLLBARS_INSIDE_INSET);
-                list.setFastScrollAlwaysVisible(true);
-            }
+            refreshFastScrollStyle(View.SCROLLBARS_INSIDE_INSET, true);
         } else {
-            if (android.os.Build.VERSION.SDK_INT >= 19) {
-                list.setFastScrollAlwaysVisible(false);
-                // Matches the XML style
-                list.setScrollBarStyle(AbsListView.SCROLLBARS_OUTSIDE_OVERLAY);
-            } else {
-                list.setScrollBarStyle(AbsListView.SCROLLBARS_OUTSIDE_OVERLAY);
-                list.setFastScrollAlwaysVisible(false);
-            }
+            refreshFastScrollStyle(View.SCROLLBARS_OUTSIDE_OVERLAY, false);
         }
     }
 }
