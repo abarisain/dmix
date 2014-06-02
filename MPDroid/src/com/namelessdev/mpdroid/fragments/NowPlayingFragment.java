@@ -881,7 +881,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 if (optionalTrackInfo != null) {
                     optionalTrackInfo += " | ";
                 }
-                optionalTrackInfo += sampleRate / 1000 + "khz";
+                optionalTrackInfo += sampleRate / 1000 + "kHz";
             }
 
             if (optionalTrackInfo != null) {
