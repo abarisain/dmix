@@ -191,8 +191,15 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
+    public void onPause() {
+        app.updateTrackInfo.removeCallback(this);
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        app.updateTrackInfo.addCallback(this);
 
         MPDStatus mpdStatus = null;
         if(forceStatusUpdate && app.oMPDAsyncHelper.oMPD.isConnected()) {
@@ -213,12 +220,10 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     public void onStart() {
         super.onStart();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
-        app.updateTrackInfo.addCallback(this);
     }
 
     @Override
     public void onStop() {
-        app.updateTrackInfo.removeCallback(this);
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         super.onStop();
     }
