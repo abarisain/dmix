@@ -1,0 +1,864 @@
+/*
+ * Copyright (C) 2010-2014 The MPDroid Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.namelessdev.mpdroid.service;
+
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MainMenuActivity;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.RemoteControlReceiver;
+import com.namelessdev.mpdroid.cover.CachedCover;
+import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.tools.Tools;
+
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Music;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.exception.MPDServerException;
+
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
+import android.media.RemoteControlClient;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.text.format.DateUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.RemoteViews;
+
+import java.util.Date;
+
+/**
+ * A service that handles the Notification, RemoteControlClient, MediaButtonReceiver and
+ * incoming MPD command intents.
+ */
+public final class MPDroidService extends Service implements Handler.Callback,
+        StatusChangeListener {
+
+    private static MPDApplication sApp = MPDApplication.getInstance();
+
+    private static final String TAG = "MPDroidService";
+
+    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + '.';
+
+    /**
+     * This will close the notification, no matter the notification state.
+     */
+    public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME
+            + "CLOSE_NOTIFICATION";
+
+    private static final PendingIntent NOTIFICATION_CLOSE =
+            buildPendingIntent(ACTION_CLOSE_NOTIFICATION);
+
+    /**
+     * This readies the notification in accordance with the current state.
+     */
+    public static final String ACTION_START = FULLY_QUALIFIED_NAME
+            + "NOTIFICATION_OPEN";
+
+    /**
+     * The ID we use for the notification (the onscreen alert that appears
+     * at the notification area at the top of the screen as an icon -- and
+     * as text as well if the user expands the notification area).
+     */
+    private static final int NOTIFICATION_ID = 1;
+
+    private static final int NOTIFICATION_ICON_HEIGHT = sApp.getResources()
+            .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+
+    private static final int NOTIFICATION_ICON_WIDTH = sApp.getResources()
+            .getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+
+    private static final PendingIntent NOTIFICATION_NEXT =
+            buildPendingIntent(MPDControl.ACTION_NEXT);
+
+    private static final PendingIntent NOTIFICATION_PAUSE =
+            buildPendingIntent(MPDControl.ACTION_PAUSE);
+
+    private static final PendingIntent NOTIFICATION_PLAY =
+            buildPendingIntent(MPDControl.ACTION_PLAY);
+
+    private static final PendingIntent NOTIFICATION_PREVIOUS =
+            buildPendingIntent(MPDControl.ACTION_PREVIOUS);
+
+    private final Handler mDelayedDisconnectionHandler = new Handler() {
+        @Override
+        public void handleMessage(final Message msg) {
+            super.handleMessage(msg);
+            if (!sApp.oMPDAsyncHelper.oMPD.isConnected()) {
+                shutdownNotification();
+            }
+        }
+    };
+
+    private Bitmap mAlbumCover = null;
+
+    private String mAlbumCoverPath = null;
+
+    private AudioManager mAudioManager = null;
+
+    private Music mCurrentTrack = null;
+
+    private boolean mIsAudioFocusedOnThis = false;
+
+    /**
+     * Last time the status was refreshed
+     */
+    private long mLastStatusRefresh = 0L;
+
+    /**
+     * What was the elapsed time (in ms) when the last status refresh happened?
+     * Use this for guessing the elapsed time for the lock screen.
+     */
+    private long mLastKnownElapsed = 0L;
+
+    // The component name of MusicIntentReceiver, for use with media button and remote control APIs
+    private ComponentName mMediaButtonReceiverComponent = null;
+
+    private boolean mMediaPlayerServiceIsBuffering = false;
+
+    private Notification mNotification = null;
+
+    private NotificationManager mNotificationManager = null;
+
+    private RemoteControlClient mRemoteControlClient = null;
+
+    private boolean mServiceHandlerActive = false;
+
+    /** Set up the message handler. */
+    private final Handler mDelayedPauseHandler = new Handler() {
+        @Override
+        public void handleMessage(final Message msg) {
+            super.handleMessage(msg);
+            mServiceHandlerActive = false;
+            shutdownNotification();
+        }
+    };
+
+    /**
+     * Target we publish for clients to send messages to IncomingHandler.
+     */
+    private Messenger mServiceMessenger = null;
+
+    private boolean mStreamingOwnsNotification = false;
+
+    private boolean mStreamingServiceWoundDown = false;
+
+    /**
+     * Build a static pending intent for use with the notification button controls.
+     *
+     * @param action The ACTION intent string.
+     * @return The pending intent.
+     */
+    private static PendingIntent buildPendingIntent(final String action) {
+        final Intent intent = new Intent(sApp, RemoteControlReceiver.class);
+        intent.setAction(action);
+        return PendingIntent.getBroadcast(sApp, 0, intent, 0);
+    }
+
+    /**
+     * This builds the static bits of a new collapsed notification
+     *
+     * @return Returns a notification builder object.
+     */
+    private static NotificationCompat.Builder buildStaticCollapsedNotification() {
+        /** Build the click PendingIntent */
+        final Intent musicPlayerActivity = new Intent(sApp, MainMenuActivity.class);
+        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(sApp);
+        stackBuilder.addParentStack(MainMenuActivity.class);
+        stackBuilder.addNextIntent(musicPlayerActivity);
+        final PendingIntent notificationClick = stackBuilder.getPendingIntent(0,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(sApp);
+        builder.setSmallIcon(R.drawable.icon_bw);
+        builder.setContentIntent(notificationClick);
+        builder.setStyle(new NotificationCompat.BigTextStyle());
+
+        return builder;
+    }
+
+    /**
+     * A simple method to return a status with error logging.
+     *
+     * @return An MPDStatus object.
+     */
+    private static MPDStatus getMPDStatus() {
+        MPDStatus mpdStatus = null;
+        try {
+            mpdStatus = sApp.oMPDAsyncHelper.oMPD.getStatus();
+        } catch (final MPDServerException e) {
+            Log.d(TAG, "Couldn't retrieve a status object.", e);
+        }
+
+        return mpdStatus;
+    }
+
+    /**
+     * buildExpandedNotification builds upon the collapsed notification resources to create
+     * the resources necessary for the expanded notification RemoteViews.
+     *
+     * @return The expanded notification RemoteViews.
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private RemoteViews buildExpandedNotification() {
+        final RemoteViews resultView;
+
+        if (mNotification == null || mNotification.bigContentView == null) {
+            resultView = new RemoteViews(getPackageName(), R.layout.notification_big);
+        } else {
+            resultView = mNotification.bigContentView;
+        }
+
+        buildBaseNotification(resultView);
+
+        /** When streaming, move things down (hopefully, very) temporarily. */
+        if (mMediaPlayerServiceIsBuffering) {
+            resultView.setTextViewText(R.id.notificationAlbum, mCurrentTrack.getArtist());
+        } else {
+            resultView.setTextViewText(R.id.notificationAlbum, mCurrentTrack.getAlbum());
+        }
+
+        resultView.setOnClickPendingIntent(R.id.notificationPrev, NOTIFICATION_PREVIOUS);
+
+        return resultView;
+    }
+
+    /**
+     * This generates the collapsed notification from base.
+     *
+     * @return The collapsed notification resources for RemoteViews.
+     */
+    private NotificationCompat.Builder buildNewCollapsedNotification() {
+        final RemoteViews resultView = buildBaseNotification(
+                new RemoteViews(getPackageName(), R.layout.notification));
+        return buildStaticCollapsedNotification().setContent(resultView);
+    }
+
+    /**
+     * This method builds the base, otherwise known as the collapsed notification. The expanded
+     * notification method builds upon this method.
+     *
+     * @param resultView The RemoteView to begin with, be it new or from the current notification.
+     * @return The base, otherwise known as, collapsed notification resources for RemoteViews.
+     */
+    private RemoteViews buildBaseNotification(final RemoteViews resultView) {
+        final String title = mCurrentTrack.getTitle();
+
+        /** If in streaming, the notification should be persistent. */
+        if (sApp.getApplicationState().streamingMode && !mStreamingServiceWoundDown) {
+            resultView.setViewVisibility(R.id.notificationClose, View.GONE);
+        } else {
+            resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
+            resultView.setOnClickPendingIntent(R.id.notificationClose, NOTIFICATION_CLOSE);
+        }
+
+        if (MPDStatus.MPD_STATE_PLAYING.equals(getMPDStatus().getState())) {
+            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, NOTIFICATION_PAUSE);
+            resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_pause);
+        } else {
+            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, NOTIFICATION_PLAY);
+            resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_play);
+        }
+
+        /** When streaming, move things down (hopefully, very) temporarily. */
+        if (mMediaPlayerServiceIsBuffering) {
+            resultView.setTextViewText(R.id.notificationTitle, getString(R.string.buffering));
+            resultView.setTextViewText(R.id.notificationArtist, title);
+        } else {
+            resultView.setTextViewText(R.id.notificationTitle, title);
+            resultView.setTextViewText(R.id.notificationArtist, mCurrentTrack.getArtist());
+        }
+
+        resultView.setOnClickPendingIntent(R.id.notificationNext, NOTIFICATION_NEXT);
+
+        if (mAlbumCover != null) {
+            resultView.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
+        }
+
+        return resultView;
+    }
+
+    @Override
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
+        if (connected) {
+            if (sApp.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
+                stateChanged(getMPDStatus(), null);
+            }
+        } else {
+            final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
+
+            final Message msg = mDelayedDisconnectionHandler.obtainMessage();
+            mDelayedDisconnectionHandler.sendMessageDelayed(msg, idleDelay);
+        }
+    }
+
+    /**
+     * A simple method to enable lock screen seeking on 4.3 and higher.
+     *
+     * @param controlFlags The control flags you set beforehand, so that we can add our
+     *                     required flag
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    private void enableSeeking(final int controlFlags) {
+        mRemoteControlClient.setTransportControlFlags(controlFlags |
+                RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
+
+        /* Allows Android to show the song position */
+        mRemoteControlClient.setOnGetPlaybackPositionListener(
+                new RemoteControlClient.OnGetPlaybackPositionListener() {
+                    /**
+                     * Android's callback that queries us for the elapsed time
+                     * Here, we are guessing the elapsed time using the last time we
+                     * updated the elapsed time and its value at the time.
+                     *
+                     * @return The guessed song position
+                     */
+                    @Override
+                    public long onGetPlaybackPosition() {
+                        /**
+                         * If we don't know the position, return
+                         * a negative value as per the API spec.
+                         */
+                        long result = -1L;
+
+                        if (mLastStatusRefresh > 0L) {
+                            result = mLastKnownElapsed + new Date().getTime() - mLastStatusRefresh;
+                        }
+                        return result;
+                    }
+                }
+        );
+
+        /* Allows Android to seek */
+        mRemoteControlClient.setPlaybackPositionUpdateListener(
+                new RemoteControlClient.OnPlaybackPositionUpdateListener() {
+                    /**
+                     * Android's callback for when the user seeks using the remote
+                     * control.
+                     *
+                     * @param newPositionMs The position in MS where we should seek
+                     */
+                    @Override
+                    public void onPlaybackPositionUpdate(final long newPositionMs) {
+                        MPDControl.run(MPDControl.ACTION_SEEK, newPositionMs /
+                                DateUtils.SECOND_IN_MILLIS);
+                        mRemoteControlClient.setPlaybackState(getRemoteState(getMPDStatus()),
+                                newPositionMs, 1.0f);
+                    }
+                }
+        );
+    }
+
+    @Override
+    public final boolean handleMessage(final Message message) {
+        switch (message.what) {
+            case StreamingService.BUFFERING_BEGIN:
+                mMediaPlayerServiceIsBuffering = true;
+                stateChanged(getMPDStatus(), null);
+                break;
+            case StreamingService.REQUEST_NOTIFICATION_STOP:
+                if (mStreamingOwnsNotification &&
+                        !sApp.getApplicationState().persistentNotification) {
+                    sApp.getApplicationState().persistentNotification = false;
+                    sApp.getApplicationState().notificationMode = false;
+                    stopSelf();
+
+                    mStreamingOwnsNotification = false;
+                } else {
+                    tryToGetAudioFocus();
+                    stateChanged(getMPDStatus(), null);
+                }
+                break;
+            case StreamingService.SERVICE_WOUND_DOWN:
+                mStreamingServiceWoundDown = true;
+                break;
+            case StreamingService.SERVICE_WOUND_UP:
+                /** If the notification was requested by StreamingService, set it here. */
+                if (!sApp.getApplicationState().notificationMode &&
+                        sApp.getApplicationState().streamingMode) {
+                    mStreamingOwnsNotification = true;
+                    sApp.getApplicationState().notificationMode = true;
+                }
+                mStreamingServiceWoundDown = false;
+                break;
+            case StreamingService.BUFFERING_END:
+                mMediaPlayerServiceIsBuffering = false;
+                /** Fall through */
+            case StreamingService.BUFFERING_ERROR:
+            case StreamingService.STREAMING_STOP:
+                stateChanged(getMPDStatus(), null);
+                break;
+            default:
+                break;
+        }
+        return false;
+    }
+
+    /**
+     * Get the RemoteControlClient status for the corresponding MPDStatus
+     *
+     * @param mpdStatus MPDStatus to parse
+     * @return state to give to RemoteControlClient
+     */
+    private int getRemoteState(final MPDStatus mpdStatus) {
+        final int state;
+
+        if (mpdStatus == null) {
+            state = RemoteControlClient.PLAYSTATE_ERROR;
+        } else if (mMediaPlayerServiceIsBuffering) {
+            state = RemoteControlClient.PLAYSTATE_BUFFERING;
+        } else {
+            switch (mpdStatus.getState()) {
+                case MPDStatus.MPD_STATE_PLAYING:
+                    state = RemoteControlClient.PLAYSTATE_PLAYING;
+                    break;
+                case MPDStatus.MPD_STATE_STOPPED:
+                    state = RemoteControlClient.PLAYSTATE_STOPPED;
+                    break;
+                default:
+                    state = RemoteControlClient.PLAYSTATE_PAUSED;
+                    break;
+            }
+        }
+        return state;
+    }
+
+    /**
+     * A JMPDComm callback to be invoked during library state changes.
+     *
+     * @param updating  true when updating, false when not updating.
+     * @param dbChanged true when the server database has been updated, false otherwise.
+     */
+    @Override
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
+    }
+
+    @Override
+    public IBinder onBind(final Intent intent) {
+        return mServiceMessenger.getBinder();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        /** Setup the service messenger to communicate with Handler.Callback. */
+        mServiceMessenger = new Messenger(new Handler(this));
+
+        //TODO: Acquire a network wake lock here if the user wants us to !
+        //Otherwise we'll just shut down on screen off and reconnect on screen on
+        sApp.addConnectionLock(this);
+        sApp.oMPDAsyncHelper.addStatusChangeListener(this);
+
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+
+        registerMediaButtons();
+        tryToGetAudioFocus();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "Removing connection lock");
+        sApp.removeConnectionLock(this);
+        sApp.oMPDAsyncHelper.removeStatusChangeListener(this);
+        mDelayedPauseHandler.removeCallbacksAndMessages(null);
+
+        sApp.getApplicationState().notificationMode = false;
+
+        windDownResources();
+
+        if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
+            mAlbumCover.recycle();
+        }
+
+        if (mAudioManager != null) {
+            if (mRemoteControlClient != null) {
+                mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
+                mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
+            }
+
+            if (mMediaButtonReceiverComponent != null) {
+                mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+            }
+
+            mAudioManager.abandonAudioFocus(null);
+        }
+    }
+
+    /**
+     * Called when we receive an Intent. When we receive an intent sent to us via startService(),
+     * this is the method that gets called. So here we react appropriately depending on the
+     * Intent's action, which specifies what is being requested of us.
+     */
+    @Override
+    public int onStartCommand(final Intent intent, final int flags, final int startId) {
+        super.onStartCommand(intent, flags, startId);
+        final String action = intent.getAction();
+
+        Log.d(TAG, "Starting service, received command, action="
+                + action + " from intent: " + intent);
+
+        /** An action must be submitted to start this service. */
+        if (action == null || !ACTION_START.equals(action) ||
+                !sApp.getApplicationState().notificationMode) {
+            Log.e(TAG, "Service started without action, stopping...");
+            stopSelf();
+        }
+
+        stateChanged(getMPDStatus(), null);
+
+        /**
+         * Means we started the service, but don't want
+         * it to restart in case it's killed.
+         */
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+        /**
+         * This is required because streams will emit a playlist (current queue) event as the
+         * metadata will change while the same audio file is playing (no track change).
+         */
+        if (mCurrentTrack != null && mCurrentTrack.isStream()) {
+            updatePlayingInfo(mpdStatus);
+        }
+    }
+
+    @Override
+    public void randomChanged(final boolean random) {
+    }
+
+    @Override
+    public void repeatChanged(final boolean repeating) {
+    }
+
+    /**
+     * This registers some media buttons via the RemoteControlReceiver.class which will take
+     * action by intent to this onStartCommand().
+     */
+    private void registerMediaButtons() {
+        mMediaButtonReceiverComponent = new ComponentName(this, RemoteControlReceiver.class);
+        mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+
+        final Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        intent.setComponent(mMediaButtonReceiverComponent);
+        mRemoteControlClient = new RemoteControlClient(PendingIntent
+                .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/,
+                        intent /*intent*/, 0 /*flags*/));
+
+        final int controlFlags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+                RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+                RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
+                RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
+                RemoteControlClient.FLAG_KEY_MEDIA_STOP;
+
+        mRemoteControlClient.setTransportControlFlags(controlFlags);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            enableSeeking(controlFlags);
+        }
+
+        mAudioManager.registerRemoteControlClient(mRemoteControlClient);
+    }
+
+    /**
+     * This method retrieves a path to an album cover bitmap from the cache.
+     *
+     * @return String A path to a cached album cover bitmap.
+     */
+    private String retrieveCoverArtPath() {
+        final ICoverRetriever cache = new CachedCover();
+        String coverArtPath = null;
+        String[] coverArtPaths = null;
+
+        try {
+            coverArtPaths = cache.getCoverUrl(mCurrentTrack.getAlbumInfo());
+        } catch (final Exception e) {
+            Log.d(TAG, "Failed to get the cover URL from the cache.", e);
+        }
+
+        if (coverArtPaths != null && coverArtPaths.length > 0) {
+            coverArtPath = coverArtPaths[0];
+        }
+        return coverArtPath;
+    }
+
+
+    /**
+     * Build a new notification or perform an update on an existing notification.
+     */
+    private void setupNotification() {
+        Log.d(TAG, "update notification: " + mCurrentTrack.getArtist() + " - " + mCurrentTrack
+                .getTitle());
+
+        NotificationCompat.Builder builder = null;
+        RemoteViews expandedNotification = null;
+
+        /** These have a very specific order. */
+        if (mNotification == null || mNotification.contentView == null) {
+            builder = buildNewCollapsedNotification();
+        } else {
+            buildBaseNotification(mNotification.contentView);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            expandedNotification = buildExpandedNotification();
+        }
+
+        if (builder != null) {
+            mNotification = builder.build();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mNotification.bigContentView = expandedNotification;
+        }
+
+        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+        startForeground(NOTIFICATION_ID, mNotification);
+    }
+
+    /**
+     * This is the idle delay for shutting down this service after inactivity
+     * (in milliseconds). This idle is also longer than StreamingService to
+     * avoid being unnecessarily brought up to shut right back down.
+     */
+    private void setupServiceHandler() {
+        final long idleDelay = 630000L; /** 10 Minutes 30 Seconds */
+        final Message msg = mDelayedPauseHandler.obtainMessage();
+        mServiceHandlerActive = true;
+        mDelayedPauseHandler.sendMessageDelayed(msg, idleDelay);
+    }
+
+    private void shutdownNotification() {
+        if (sApp.getApplicationState().persistentNotification) {
+            windDownResources();
+        } else {
+            stopSelf();
+        }
+    }
+
+    @Override
+    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
+        if (mpdStatus == null) {
+            Log.w(TAG, "Null mpdStatus received in stateChanged");
+        } else {
+            mLastStatusRefresh = new Date().getTime();
+            // MPDs elapsed time is in seconds, convert to milliseconds
+            mLastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.SECOND_IN_MILLIS;
+            switch (mpdStatus.getState()) {
+                case MPDStatus.MPD_STATE_PLAYING:
+                    stopServiceHandler();
+                    tryToGetAudioFocus();
+                    updatePlayingInfo(mpdStatus);
+                    break;
+                case MPDStatus.MPD_STATE_STOPPED:
+                    if (sApp.getApplicationState().persistentNotification) {
+                        windDownResources(); /** Hide immediately, requires user intervention */
+                    } else {
+                        stopSelf();
+                    }
+                    break;
+                case MPDStatus.MPD_STATE_PAUSED:
+                    if (!mServiceHandlerActive) {
+                        setupServiceHandler();
+                        updatePlayingInfo(mpdStatus);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    /** Kills any active service handlers. */
+    private void stopServiceHandler() {
+        /** If we have a message in the queue, remove it. */
+        mDelayedPauseHandler.removeCallbacksAndMessages(null);
+        mServiceHandlerActive = false; /** No notification if stopped or paused. */
+    }
+
+    @Override
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
+        mLastStatusRefresh = new Date().getTime();
+        mLastKnownElapsed = 0L;
+
+        updatePlayingInfo(mpdStatus);
+    }
+
+    /**
+     * We try to get audio focus, but don't really try too hard.
+     * We just want the lock screen cover art.
+     */
+    private void tryToGetAudioFocus() {
+        if ((!sApp.getApplicationState().streamingMode || mStreamingServiceWoundDown)
+                && !mIsAudioFocusedOnThis) {
+            Log.d(TAG, "requesting audio focus");
+            final int result = mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN);
+
+            mIsAudioFocusedOnThis = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        }
+    }
+
+    /**
+     * This method updates mAlbumCover if it is different than currently playing, if cache is
+     * enabled.
+     */
+    private void updateAlbumCoverWithCached() {
+        final String coverArtPath = retrieveCoverArtPath();
+
+        if (coverArtPath != null && !coverArtPath.equals(mAlbumCoverPath)) {
+            if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
+                mAlbumCover.recycle();
+            }
+
+            mAlbumCoverPath = coverArtPath;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                /**
+                 * Don't resize; it WOULD be nice to use the standard 64x64 large notification
+                 * size here, but KitKat and MPDroid allow fullscreen lock screen AlbumArt and
+                 * 64x64 looks pretty bad on a higher DPI device.
+                 */
+                /** TODO: Maybe inBitmap stuff here? */
+                mAlbumCover = BitmapFactory.decodeFile(coverArtPath);
+            } else {
+                mAlbumCover = Tools.decodeSampledBitmapFromPath(coverArtPath,
+                        NOTIFICATION_ICON_WIDTH, NOTIFICATION_ICON_HEIGHT, false);
+            }
+        }
+    }
+
+    /**
+     * This method will update the current playing track, notification views,
+     * the RemoteControlClient & the cover art.
+     */
+    private void updatePlayingInfo(final MPDStatus status) {
+        Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
+
+        final MPDStatus mpdStatus = status == null ? getMPDStatus() : status;
+
+        if (mLastStatusRefresh <= 0L && mpdStatus != null) {
+            /**
+             * Only update the refresh date and elapsed time if it is the first start to
+             * make sure we have initial data, but updateStatus and trackChanged will take care
+             * of that afterwards.
+             */
+            mLastStatusRefresh = new Date().getTime();
+            mLastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.SECOND_IN_MILLIS;
+        }
+
+        if (mpdStatus != null) {
+            final int songPos = mpdStatus.getSongPos();
+            mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+        }
+
+        if (mCurrentTrack != null) {
+            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(sApp);
+
+            if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
+                updateAlbumCoverWithCached();
+            } /** TODO: Add no cache option */
+            setupNotification();
+            updateRemoteControlClient(mpdStatus);
+        }
+    }
+
+    /**
+     * Update the remote controls.
+     *
+     * @param mpdStatus The current server status object.
+     */
+    private void updateRemoteControlClient(final MPDStatus mpdStatus) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final int state = getRemoteState(mpdStatus);
+
+                mRemoteControlClient.editMetadata(true)
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                                mCurrentTrack.getAlbum())
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                                mCurrentTrack.getAlbumArtist())
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                                mCurrentTrack.getArtist())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                                (long) mCurrentTrack.getTrack())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                                (long) mCurrentTrack.getDisc())
+                        .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                                mCurrentTrack.getTime() * DateUtils.SECOND_IN_MILLIS)
+                        .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                                mCurrentTrack.getTitle())
+                        .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
+                                mAlbumCover)
+                        .apply();
+
+                /** Notify of the elapsed time if on 4.3 or higher */
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    mRemoteControlClient.setPlaybackState(state, mLastKnownElapsed, 1.0f);
+                } else {
+                    mRemoteControlClient.setPlaybackState(state);
+                }
+                Log.d(TAG, "Updated remote client with state " + state + " for music "
+                        + mCurrentTrack);
+            }
+        }).start();
+    }
+
+    @Override
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
+    }
+
+    /**
+     * Used when persistent notification is enabled in
+     * leu of selfStop() and used during selfStop().
+     */
+    private void windDownResources() {
+        Log.d(TAG, "windDownResources()");
+        stopForeground(true);
+
+        if (mAudioManager != null) {
+            mAudioManager.abandonAudioFocus(null);
+        }
+
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(NOTIFICATION_ID);
+        }
+    }
+}

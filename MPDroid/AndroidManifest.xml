@@ -93,11 +93,11 @@
             android:theme="@style/AppTheme.Dialog" />
 
         <service
-            android:name=".NotificationService"
+            android:name=".service.MPDroidService"
             android:exported="false" />
 
         <service
-            android:name=".StreamingService"
+            android:name=".service.StreamingService"
             android:exported="false" />
 
         <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >

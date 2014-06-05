@@ -41,7 +41,7 @@ public final class MPDControl {
     private static final String TAG = "MPDControl";
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.helpers" + '.'
-            + TAG;
+            + TAG + '.';
 
     /**
      * The following are server action commands.

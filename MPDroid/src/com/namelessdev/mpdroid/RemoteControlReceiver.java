@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.service.MPDroidService;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -73,12 +74,12 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                         MPDControl.run(MPDControl.ACTION_PAUSE);
                     }
                     break;
-                case NotificationService.ACTION_CLOSE_NOTIFICATION:
+                case MPDroidService.ACTION_CLOSE_NOTIFICATION:
                     app.getApplicationState().persistentNotification = false;
                     app.getApplicationState().notificationMode = false;
 
                     final Intent notificationServiceIntent
-                            = new Intent(context, NotificationService.class);
+                            = new Intent(context, MPDroidService.class);
                     context.stopService(notificationServiceIntent);
                     break;
                 default:

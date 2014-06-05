@@ -24,6 +24,8 @@ import com.namelessdev.mpdroid.fragments.PlaylistFragment;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
+import com.namelessdev.mpdroid.service.MPDroidService;
+import com.namelessdev.mpdroid.service.StreamingService;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -647,12 +649,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     break;
                 case R.id.GMM_ShowNotification:
                     if (app.getApplicationState().notificationMode) {
-                        stopService(NotificationService.class);
+                        stopService(MPDroidService.class);
                         app.getApplicationState().notificationMode = false;
                     } else {
                         app.getApplicationState().notificationMode = true;
-                        startService(NotificationService.class,
-                                NotificationService.ACTION_OPEN_NOTIFICATION);
+                        startService(MPDroidService.class, MPDroidService.ACTION_START);
                     }
                     break;
                 default:
@@ -776,9 +777,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
             app.getApplicationState().persistentNotification = true;
             app.getApplicationState().notificationMode = true;
-            startService(NotificationService.class, NotificationService.ACTION_OPEN_NOTIFICATION);
+            startService(MPDroidService.class, MPDroidService.ACTION_START);
         } else if (!app.getApplicationState().notificationMode) {
-            stopService(NotificationService.class);
+            stopService(MPDroidService.class);
         }
     }
 
