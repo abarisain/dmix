@@ -36,13 +36,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
-import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -52,16 +49,12 @@ import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import java.util.Date;
-
 /**
- * A service that handles the Notification, RemoteControlClient, MediaButtonReceiver and
- * incoming MPD command intents.
+ * This service schedules various things that run without MPDroid.
  */
 public final class MPDroidService extends Service implements Handler.Callback,
         StatusChangeListener {
@@ -135,27 +128,13 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
     private boolean mIsAudioFocusedOnThis = false;
 
-    /**
-     * Last time the status was refreshed
-     */
-    private long mLastStatusRefresh = 0L;
-
-    /**
-     * What was the elapsed time (in ms) when the last status refresh happened?
-     * Use this for guessing the elapsed time for the lock screen.
-     */
-    private long mLastKnownElapsed = 0L;
-
-    // The component name of MusicIntentReceiver, for use with media button and remote control APIs
-    private ComponentName mMediaButtonReceiverComponent = null;
-
     private boolean mMediaPlayerServiceIsBuffering = false;
 
     private Notification mNotification = null;
 
     private NotificationManager mNotificationManager = null;
 
-    private RemoteControlClient mRemoteControlClient = null;
+    private RemoteControlClientHandler mRemoteControlClientHandler = null;
 
     private boolean mServiceHandlerActive = false;
 
@@ -327,67 +306,11 @@ public final class MPDroidService extends Service implements Handler.Callback,
         }
     }
 
-    /**
-     * A simple method to enable lock screen seeking on 4.3 and higher.
-     *
-     * @param controlFlags The control flags you set beforehand, so that we can add our
-     *                     required flag
-     */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void enableSeeking(final int controlFlags) {
-        mRemoteControlClient.setTransportControlFlags(controlFlags |
-                RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
-
-        /* Allows Android to show the song position */
-        mRemoteControlClient.setOnGetPlaybackPositionListener(
-                new RemoteControlClient.OnGetPlaybackPositionListener() {
-                    /**
-                     * Android's callback that queries us for the elapsed time
-                     * Here, we are guessing the elapsed time using the last time we
-                     * updated the elapsed time and its value at the time.
-                     *
-                     * @return The guessed song position
-                     */
-                    @Override
-                    public long onGetPlaybackPosition() {
-                        /**
-                         * If we don't know the position, return
-                         * a negative value as per the API spec.
-                         */
-                        long result = -1L;
-
-                        if (mLastStatusRefresh > 0L) {
-                            result = mLastKnownElapsed + new Date().getTime() - mLastStatusRefresh;
-                        }
-                        return result;
-                    }
-                }
-        );
-
-        /* Allows Android to seek */
-        mRemoteControlClient.setPlaybackPositionUpdateListener(
-                new RemoteControlClient.OnPlaybackPositionUpdateListener() {
-                    /**
-                     * Android's callback for when the user seeks using the remote
-                     * control.
-                     *
-                     * @param newPositionMs The position in MS where we should seek
-                     */
-                    @Override
-                    public void onPlaybackPositionUpdate(final long newPositionMs) {
-                        MPDControl.run(MPDControl.ACTION_SEEK, newPositionMs /
-                                DateUtils.SECOND_IN_MILLIS);
-                        mRemoteControlClient.setPlaybackState(getRemoteState(getMPDStatus()),
-                                newPositionMs, 1.0f);
-                    }
-                }
-        );
-    }
-
     @Override
     public final boolean handleMessage(final Message message) {
         switch (message.what) {
             case StreamingService.BUFFERING_BEGIN:
+                mRemoteControlClientHandler.setMediaPlayerBuffering(true);
                 mMediaPlayerServiceIsBuffering = true;
                 stateChanged(getMPDStatus(), null);
                 break;
@@ -417,45 +340,16 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 mStreamingServiceWoundDown = false;
                 break;
             case StreamingService.BUFFERING_END:
-                mMediaPlayerServiceIsBuffering = false;
-                /** Fall through */
             case StreamingService.BUFFERING_ERROR:
             case StreamingService.STREAMING_STOP:
+                mRemoteControlClientHandler.setMediaPlayerBuffering(false);
+                mMediaPlayerServiceIsBuffering = false;
                 stateChanged(getMPDStatus(), null);
                 break;
             default:
                 break;
         }
         return false;
-    }
-
-    /**
-     * Get the RemoteControlClient status for the corresponding MPDStatus
-     *
-     * @param mpdStatus MPDStatus to parse
-     * @return state to give to RemoteControlClient
-     */
-    private int getRemoteState(final MPDStatus mpdStatus) {
-        final int state;
-
-        if (mpdStatus == null) {
-            state = RemoteControlClient.PLAYSTATE_ERROR;
-        } else if (mMediaPlayerServiceIsBuffering) {
-            state = RemoteControlClient.PLAYSTATE_BUFFERING;
-        } else {
-            switch (mpdStatus.getState()) {
-                case MPDStatus.MPD_STATE_PLAYING:
-                    state = RemoteControlClient.PLAYSTATE_PLAYING;
-                    break;
-                case MPDStatus.MPD_STATE_STOPPED:
-                    state = RemoteControlClient.PLAYSTATE_STOPPED;
-                    break;
-                default:
-                    state = RemoteControlClient.PLAYSTATE_PAUSED;
-                    break;
-            }
-        }
-        return state;
     }
 
     /**
@@ -488,7 +382,8 @@ public final class MPDroidService extends Service implements Handler.Callback,
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
-        registerMediaButtons();
+        mRemoteControlClientHandler = new RemoteControlClientHandler();
+
         tryToGetAudioFocus();
     }
 
@@ -508,16 +403,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
             mAlbumCover.recycle();
         }
 
+        mRemoteControlClientHandler.onDestroy();
+
         if (mAudioManager != null) {
-            if (mRemoteControlClient != null) {
-                mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-                mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
-            }
-
-            if (mMediaButtonReceiverComponent != null) {
-                mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
-            }
-
             mAudioManager.abandonAudioFocus(null);
         }
     }
@@ -560,7 +448,8 @@ public final class MPDroidService extends Service implements Handler.Callback,
         if (mCurrentTrack != null && mCurrentTrack.isStream()) {
             updateCurrentMusic(mpdStatus);
             updateAlbumCover();
-            updatePlayingInfo(mpdStatus);
+            mRemoteControlClientHandler.update(mCurrentTrack, mAlbumCover);
+            updateNotification();
         }
     }
 
@@ -570,35 +459,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
     @Override
     public void repeatChanged(final boolean repeating) {
-    }
-
-    /**
-     * This registers some media buttons via the RemoteControlReceiver.class which will take
-     * action by intent to this onStartCommand().
-     */
-    private void registerMediaButtons() {
-        mMediaButtonReceiverComponent = new ComponentName(this, RemoteControlReceiver.class);
-        mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
-
-        final Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        intent.setComponent(mMediaButtonReceiverComponent);
-        mRemoteControlClient = new RemoteControlClient(PendingIntent
-                .getBroadcast(this /*context*/, 0 /*requestCode, ignored*/,
-                        intent /*intent*/, 0 /*flags*/));
-
-        final int controlFlags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
-                RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
-                RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
-                RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
-                RemoteControlClient.FLAG_KEY_MEDIA_STOP;
-
-        mRemoteControlClient.setTransportControlFlags(controlFlags);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            enableSeeking(controlFlags);
-        }
-
-        mAudioManager.registerRemoteControlClient(mRemoteControlClient);
     }
 
     /**
@@ -682,9 +542,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in stateChanged");
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                updateSeekTime(mpdStatus.getElapsedTime());
-            }
+            mRemoteControlClientHandler.stateChanged(mpdStatus);
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
                     if (!MPDStatus.MPD_STATE_PAUSED.equals(oldState)) {
@@ -693,7 +551,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
                     }
                     stopServiceHandler();
                     tryToGetAudioFocus();
-                    updatePlayingInfo(mpdStatus);
+                    updateNotification();
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
                     if (sApp.getApplicationState().persistentNotification) {
@@ -710,7 +568,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
                     if (!mServiceHandlerActive) {
                         setupServiceHandler();
                     }
-                    updatePlayingInfo(mpdStatus);
+                    updateNotification();
                     break;
                 default:
                     break;
@@ -727,12 +585,11 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            updateSeekTime(0L);
-        }
+        mRemoteControlClientHandler.updateSeekTime(0L);
         updateCurrentMusic(mpdStatus);
         updateAlbumCover();
-        updatePlayingInfo(mpdStatus);
+        mRemoteControlClientHandler.update(mCurrentTrack, mAlbumCover);
+        updateNotification();
     }
 
     /**
@@ -784,57 +641,10 @@ public final class MPDroidService extends Service implements Handler.Callback,
         }
     }
 
-    private void updatePlayingInfo(final MPDStatus status) {
-        Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
-
-        final MPDStatus mpdStatus = status == null ? getMPDStatus() : status;
-
+    private void updateNotification() {
         if (mCurrentTrack != null) {
             setupNotification();
-            updateRemoteControlClient(mpdStatus);
         }
-    }
-
-    /**
-     * Update the remote controls.
-     *
-     * @param mpdStatus The current server status object.
-     */
-    private void updateRemoteControlClient(final MPDStatus mpdStatus) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final int state = getRemoteState(mpdStatus);
-
-                mRemoteControlClient.editMetadata(true)
-                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                                mCurrentTrack.getAlbum())
-                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                                mCurrentTrack.getAlbumArtist())
-                        .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                                mCurrentTrack.getArtist())
-                        .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
-                                (long) mCurrentTrack.getTrack())
-                        .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
-                                (long) mCurrentTrack.getDisc())
-                        .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                                mCurrentTrack.getTime() * DateUtils.SECOND_IN_MILLIS)
-                        .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
-                                mCurrentTrack.getTitle())
-                        .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
-                                mAlbumCover)
-                        .apply();
-
-                /** Notify of the elapsed time if on 4.3 or higher */
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                    mRemoteControlClient.setPlaybackState(state, mLastKnownElapsed, 1.0f);
-                } else {
-                    mRemoteControlClient.setPlaybackState(state);
-                }
-                Log.d(TAG, "Updated remote client with state " + state + " for music "
-                        + mCurrentTrack);
-            }
-        }).start();
     }
 
     private void updateCurrentMusic(final MPDStatus mpdStatus) {
@@ -861,16 +671,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             }
         }
-    }
-
-    /**
-     * Keep the seek time updated for the remote control client seek bar.
-     *
-     * @param elapsedTime The current track audio elapsed time.
-     */
-    private void updateSeekTime(final long elapsedTime) {
-        mLastStatusRefresh = new Date().getTime();
-        mLastKnownElapsed = elapsedTime * DateUtils.SECOND_IN_MILLIS;
     }
 
     @Override
