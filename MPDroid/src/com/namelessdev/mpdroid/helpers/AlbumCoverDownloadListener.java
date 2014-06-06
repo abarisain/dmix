@@ -33,8 +33,7 @@ import android.widget.ProgressBar;
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
     ImageView coverArt;
     ProgressBar coverArtProgress;
-    private final MPDApplication app = MPDApplication.getInstance();
-    private final boolean lightTheme = app.isLightThemeSelected();
+    private static MPDApplication sApp = MPDApplication.getInstance();
     boolean bigCoverNotFound;
 
 
@@ -57,6 +56,40 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         freeCoverDrawable();
     }
 
+    public static int getNoCoverResource() {
+        return getNoCoverResource(false);
+    }
+
+    public static int getLargeNoCoverResource() {
+        return getNoCoverResource(true);
+    }
+
+    /**
+     * Get a resource to use when no cover exists, according to current theme.
+     *
+     * @param isLarge If true a large resolution resource will be returned, false small.
+     * @return A resource to use when no cover art exists.
+     */
+    private static int getNoCoverResource(final boolean isLarge) {
+        final int newResource;
+
+        if (sApp.isLightThemeSelected()) {
+            if (isLarge) {
+                newResource = R.drawable.no_cover_art_light_big;
+            } else {
+                newResource = R.drawable.no_cover_art_light;
+            }
+        } else {
+            if (isLarge) {
+                newResource = R.drawable.no_cover_art_big;
+            } else {
+                newResource = R.drawable.no_cover_art;
+            }
+        }
+
+        return newResource;
+    }
+
     public void detach() {
         coverArtProgress = null;
         coverArt = null;
@@ -73,13 +106,11 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable))
             return;
         if (oldDrawable == null) {
-            int noCoverDrawable;
+            final int noCoverDrawable;
             if (bigCoverNotFound) {
-                noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light_big
-                        : R.drawable.no_cover_art_big;
+                noCoverDrawable = getLargeNoCoverResource();
             } else {
-                noCoverDrawable = lightTheme ? R.drawable.no_cover_art_light
-                        : R.drawable.no_cover_art;
+                noCoverDrawable = getNoCoverResource();
             }
             coverArt.setImageResource(noCoverDrawable);
         }
@@ -109,7 +140,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
                 coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
             }
             freeCoverDrawable(coverArt.getDrawable());
-            coverArt.setImageDrawable(new CoverBitmapDrawable(app.getResources(), cover
+            coverArt.setImageDrawable(new CoverBitmapDrawable(sApp.getResources(), cover
                     .getBitmap()[0]));
             cover.setBitmap(null);
         } catch (Exception e) {
