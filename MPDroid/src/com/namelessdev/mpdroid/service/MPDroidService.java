@@ -556,6 +556,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
          * metadata will change while the same audio file is playing (no track change).
          */
         if (mCurrentTrack != null && mCurrentTrack.isStream()) {
+            updateCurrentMusic(mpdStatus);
             updatePlayingInfo(mpdStatus);
         }
     }
@@ -683,6 +684,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
             mLastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.SECOND_IN_MILLIS;
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
+                    if (!MPDStatus.MPD_STATE_PAUSED.equals(oldState)) {
+                        updateCurrentMusic(mpdStatus);
+                    }
                     stopServiceHandler();
                     tryToGetAudioFocus();
                     updatePlayingInfo(mpdStatus);
@@ -695,10 +699,13 @@ public final class MPDroidService extends Service implements Handler.Callback,
                     }
                     break;
                 case MPDStatus.MPD_STATE_PAUSED:
+                    if (!MPDStatus.MPD_STATE_PLAYING.equals(oldState)) {
+                        updateCurrentMusic(mpdStatus);
+                    }
                     if (!mServiceHandlerActive) {
                         setupServiceHandler();
-                        updatePlayingInfo(mpdStatus);
                     }
+                    updatePlayingInfo(mpdStatus);
                     break;
                 default:
                     break;
@@ -718,6 +725,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
         mLastStatusRefresh = new Date().getTime();
         mLastKnownElapsed = 0L;
 
+        updateCurrentMusic(mpdStatus);
         updatePlayingInfo(mpdStatus);
     }
 
@@ -764,10 +772,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
         }
     }
 
-    /**
-     * This method will update the current playing track, notification views,
-     * the RemoteControlClient & the cover art.
-     */
     private void updatePlayingInfo(final MPDStatus status) {
         Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
 
@@ -781,11 +785,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
              */
             mLastStatusRefresh = new Date().getTime();
             mLastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.SECOND_IN_MILLIS;
-        }
-
-        if (mpdStatus != null) {
-            final int songPos = mpdStatus.getSongPos();
-            mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
         }
 
         if (mCurrentTrack != null) {
@@ -839,6 +838,32 @@ public final class MPDroidService extends Service implements Handler.Callback,
                         + mCurrentTrack);
             }
         }).start();
+    }
+
+    private void updateCurrentMusic(final MPDStatus mpdStatus) {
+        if (mpdStatus == null) {
+            Log.e(TAG, "Cannot update current track, services may be out of sync.");
+        } else {
+            final long loopFrequency = 50L;
+
+            int songPos = mpdStatus.getSongPos();
+            mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+
+            /** Workaround for Bug #558 */
+            while (sApp.oMPDAsyncHelper.oMPD.isConnected() &&
+                    mpdStatus.getPlaylistLength() != 0 && mCurrentTrack == null) {
+                Log.e(TAG, "Current music out of sync, looping..");
+                synchronized (this) {
+                    try {
+                        wait(loopFrequency);
+                    } catch (final InterruptedException ignored) {
+                    }
+                }
+
+                songPos = mpdStatus.getSongPos();
+                mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+            }
+        }
     }
 
     @Override
