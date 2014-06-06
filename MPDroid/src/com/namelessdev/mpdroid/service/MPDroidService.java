@@ -679,9 +679,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
         if (mpdStatus == null) {
             Log.w(TAG, "Null mpdStatus received in stateChanged");
         } else {
-            mLastStatusRefresh = new Date().getTime();
-            // MPDs elapsed time is in seconds, convert to milliseconds
-            mLastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.SECOND_IN_MILLIS;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                updateSeekTime(mpdStatus.getElapsedTime());
+            }
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
                     if (!MPDStatus.MPD_STATE_PAUSED.equals(oldState)) {
@@ -722,9 +722,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-        mLastStatusRefresh = new Date().getTime();
-        mLastKnownElapsed = 0L;
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            updateSeekTime(0L);
+        }
         updateCurrentMusic(mpdStatus);
         updatePlayingInfo(mpdStatus);
     }
@@ -776,16 +776,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
         Log.d(TAG, "updatePlayingInfo(int,MPDStatus)");
 
         final MPDStatus mpdStatus = status == null ? getMPDStatus() : status;
-
-        if (mLastStatusRefresh <= 0L && mpdStatus != null) {
-            /**
-             * Only update the refresh date and elapsed time if it is the first start to
-             * make sure we have initial data, but updateStatus and trackChanged will take care
-             * of that afterwards.
-             */
-            mLastStatusRefresh = new Date().getTime();
-            mLastKnownElapsed = mpdStatus.getElapsedTime() * DateUtils.SECOND_IN_MILLIS;
-        }
 
         if (mCurrentTrack != null) {
             final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(sApp);
@@ -864,6 +854,16 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             }
         }
+    }
+
+    /**
+     * Keep the seek time updated for the remote control client seek bar.
+     *
+     * @param elapsedTime The current track audio elapsed time.
+     */
+    private void updateSeekTime(final long elapsedTime) {
+        mLastStatusRefresh = new Date().getTime();
+        mLastKnownElapsed = elapsedTime * DateUtils.SECOND_IN_MILLIS;
     }
 
     @Override
