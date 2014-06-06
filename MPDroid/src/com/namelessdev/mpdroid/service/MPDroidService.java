@@ -38,7 +38,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -122,6 +121,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
             }
         }
     };
+
+    private final boolean mIsAlbumCacheEnabled = PreferenceManager.getDefaultSharedPreferences(sApp)
+            .getBoolean(CoverManager.PREFERENCE_CACHE, true);
 
     private Bitmap mAlbumCover = null;
 
@@ -557,6 +559,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
          */
         if (mCurrentTrack != null && mCurrentTrack.isStream()) {
             updateCurrentMusic(mpdStatus);
+            updateAlbumCover();
             updatePlayingInfo(mpdStatus);
         }
     }
@@ -686,6 +689,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 case MPDStatus.MPD_STATE_PLAYING:
                     if (!MPDStatus.MPD_STATE_PAUSED.equals(oldState)) {
                         updateCurrentMusic(mpdStatus);
+                        updateAlbumCover();
                     }
                     stopServiceHandler();
                     tryToGetAudioFocus();
@@ -701,6 +705,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 case MPDStatus.MPD_STATE_PAUSED:
                     if (!MPDStatus.MPD_STATE_PLAYING.equals(oldState)) {
                         updateCurrentMusic(mpdStatus);
+                        updateAlbumCover();
                     }
                     if (!mServiceHandlerActive) {
                         setupServiceHandler();
@@ -726,6 +731,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
             updateSeekTime(0L);
         }
         updateCurrentMusic(mpdStatus);
+        updateAlbumCover();
         updatePlayingInfo(mpdStatus);
     }
 
@@ -742,6 +748,12 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
             mIsAudioFocusedOnThis = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         }
+    }
+
+    private void updateAlbumCover() {
+        if (mIsAlbumCacheEnabled) {
+            updateAlbumCoverWithCached();
+        } /** TODO: Add no cache option */
     }
 
     /**
@@ -778,11 +790,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
         final MPDStatus mpdStatus = status == null ? getMPDStatus() : status;
 
         if (mCurrentTrack != null) {
-            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(sApp);
-
-            if (settings.getBoolean(CoverManager.PREFERENCE_CACHE, true)) {
-                updateAlbumCoverWithCached();
-            } /** TODO: Add no cache option */
             setupNotification();
             updateRemoteControlClient(mpdStatus);
         }
