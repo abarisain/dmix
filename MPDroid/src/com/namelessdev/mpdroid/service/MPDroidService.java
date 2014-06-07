@@ -259,7 +259,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
         final String title = mCurrentTrack.getTitle();
 
         /** If in streaming, the notification should be persistent. */
-        if (sApp.getApplicationState().streamingMode && !mStreamingServiceWoundDown) {
+        if (sApp.isStreamingServiceRunning() && !mStreamingServiceWoundDown) {
             resultView.setViewVisibility(R.id.notificationClose, View.GONE);
         } else {
             resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
@@ -316,9 +316,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 break;
             case StreamingService.REQUEST_NOTIFICATION_STOP:
                 if (mStreamingOwnsNotification &&
-                        !sApp.getApplicationState().persistentNotification) {
-                    sApp.getApplicationState().persistentNotification = false;
-                    sApp.getApplicationState().notificationMode = false;
+                        !sApp.isNotificationPersistent()) {
                     stopSelf();
 
                     mStreamingOwnsNotification = false;
@@ -332,10 +330,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 break;
             case StreamingService.SERVICE_WOUND_UP:
                 /** If the notification was requested by StreamingService, set it here. */
-                if (!sApp.getApplicationState().notificationMode &&
-                        sApp.getApplicationState().streamingMode) {
+                if (!sApp.isMPDroidServiceRunning() &&
+                        sApp.isStreamingServiceRunning()) {
                     mStreamingOwnsNotification = true;
-                    sApp.getApplicationState().notificationMode = true;
                 }
                 mStreamingServiceWoundDown = false;
                 break;
@@ -395,8 +392,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
         sApp.oMPDAsyncHelper.removeStatusChangeListener(this);
         mDelayedPauseHandler.removeCallbacksAndMessages(null);
 
-        sApp.getApplicationState().notificationMode = false;
-
         windDownResources();
 
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
@@ -424,8 +419,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 + action + " from intent: " + intent);
 
         /** An action must be submitted to start this service. */
-        if (action == null || !ACTION_START.equals(action) ||
-                !sApp.getApplicationState().notificationMode) {
+        if (action == null || !ACTION_START.equals(action)) {
             Log.e(TAG, "Service started without action, stopping...");
             stopSelf();
         }
@@ -530,7 +524,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
     }
 
     private void shutdownNotification() {
-        if (sApp.getApplicationState().persistentNotification) {
+        if (sApp.isNotificationPersistent()) {
             windDownResources();
         } else {
             stopSelf();
@@ -554,7 +548,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
                     updateNotification();
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
-                    if (sApp.getApplicationState().persistentNotification) {
+                    if (sApp.isNotificationPersistent()) {
                         windDownResources(); /** Hide immediately, requires user intervention */
                     } else {
                         stopSelf();
@@ -597,7 +591,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
      * We just want the lock screen cover art.
      */
     private void tryToGetAudioFocus() {
-        if ((!sApp.getApplicationState().streamingMode || mStreamingServiceWoundDown)
+        if ((!sApp.isStreamingServiceRunning() || mStreamingServiceWoundDown)
                 && !mIsAudioFocusedOnThis) {
             Log.d(TAG, "requesting audio focus");
             final int result = mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,

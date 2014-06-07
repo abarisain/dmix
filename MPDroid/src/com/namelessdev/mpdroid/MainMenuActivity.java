@@ -537,6 +537,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             }
         }
         refreshQueueIndicator(false);
+
+        /** Reset the persistent override when the application is reset. */
+        app.setPersistentOverride(false);
     }
 
     @Override
@@ -586,8 +589,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (event.isTracking() && !event.isCanceled()
-                        && !app.getApplicationState().streamingMode) {
+                if (event.isTracking() && !event.isCanceled() && !app.isLocalAudible()) {
                     if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                         MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
                     } else  {
@@ -630,11 +632,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     app.connect();
                     break;
                 case R.id.GMM_Stream:
-                    if (app.getApplicationState().streamingMode) {
+                    if (app.isStreamingServiceRunning()) {
                         stopService(StreamingService.class);
-                        app.getApplicationState().streamingMode = false;
                     } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                        app.getApplicationState().streamingMode = true;
                         startService(StreamingService.class, StreamingService.ACTION_START);
                     }
                     break;
@@ -648,12 +648,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     MPDControl.run(MPDControl.ACTION_SINGLE);
                     break;
                 case R.id.GMM_ShowNotification:
-                    if (app.getApplicationState().notificationMode) {
+                    if (app.isMPDroidServiceRunning()) {
                         stopService(MPDroidService.class);
-                        app.getApplicationState().notificationMode = false;
                     } else {
-                        app.getApplicationState().notificationMode = true;
                         startService(MPDroidService.class, MPDroidService.ACTION_START);
+                        app.setPersistentOverride(false);
                     }
                     break;
                 default:
@@ -705,6 +704,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     public void prepareNowPlayingMenu(Menu menu) {
+        final boolean isStreaming = app.isStreamingServiceRunning();
+
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
         final MPD mpd = app.oMPDAsyncHelper.oMPD;
@@ -731,17 +732,16 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
         MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
         if(notificationItem != null) {
-            if (app.getApplicationState().streamingMode ||
-                    app.getApplicationState().persistentNotification) {
+            if (isStreaming || app.isNotificationPersistent()) {
                 notificationItem.setVisible(false);
             } else {
                 notificationItem.setVisible(true);
             }
             
-            setMenuChecked(notificationItem, app.getApplicationState().notificationMode);
+            setMenuChecked(notificationItem, app.isMPDroidServiceRunning());
         }
 
-        setMenuChecked(menu.findItem(R.id.GMM_Stream), app.getApplicationState().streamingMode);
+        setMenuChecked(menu.findItem(R.id.GMM_Stream), isStreaming);
 
         MPDStatus mpdStatus = null;
         try {
@@ -774,11 +774,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         super.onStart();
         app.setActivity(this);
 
-        if (app.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
-            app.getApplicationState().persistentNotification = true;
-            app.getApplicationState().notificationMode = true;
+        if (app.isNotificationPersistent()) {
             startService(MPDroidService.class, MPDroidService.ACTION_START);
-        } else if (!app.getApplicationState().notificationMode) {
+        } else if (!app.isMPDroidServiceRunning()) {
+            /** Don't allow the service to auto-start. */
             stopService(MPDroidService.class);
         }
     }

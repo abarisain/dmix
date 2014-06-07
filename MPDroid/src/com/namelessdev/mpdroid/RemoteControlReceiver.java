@@ -75,12 +75,12 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     }
                     break;
                 case MPDroidService.ACTION_CLOSE_NOTIFICATION:
-                    app.getApplicationState().persistentNotification = false;
-                    app.getApplicationState().notificationMode = false;
+                    if(app.isNotificationPersistent()) {
+                        app.setPersistentOverride(true);
+                    }
 
-                    final Intent notificationServiceIntent
-                            = new Intent(context, MPDroidService.class);
-                    context.stopService(notificationServiceIntent);
+                    final Intent serviceStop = new Intent(context, MPDroidService.class);
+                    context.stopService(serviceStop);
                     break;
                 default:
                     MPDControl.run(action);

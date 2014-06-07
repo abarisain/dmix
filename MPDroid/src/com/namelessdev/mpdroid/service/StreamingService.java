@@ -363,7 +363,6 @@ public final class StreamingService extends Service implements
         doUnbindService();
 
         sApp.removeConnectionLock(this);
-        sApp.getApplicationState().streamingMode = false;
     }
 
     /**
@@ -587,8 +586,6 @@ public final class StreamingService extends Service implements
             Log.d(TAG, "A stream is already being prepared.");
         } else if (!mIsPlaying) {
             Log.d(TAG, "MPD is not currently playing, can't stream.");
-        } else if (!sApp.getApplicationState().streamingMode) {
-            Log.d(TAG, "streamingMode is not currently active, won't stream.");
         } else {
             beginStreaming();
         }
