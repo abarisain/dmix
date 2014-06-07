@@ -16,13 +16,12 @@
 
 package com.namelessdev.mpdroid;
 
-import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -53,9 +52,6 @@ public class MPDApplication extends Application implements ConnectionListener {
         public boolean streamingMode = false;
         public boolean notificationMode = false;
         public boolean persistentNotification = false;
-        public boolean settingsShown = false;
-        public boolean warningShown = false;
-        public MPDStatus currentMpdStatus = null;
     }
 
     class DialogClickListener implements OnClickListener {
@@ -88,6 +84,9 @@ public class MPDApplication extends Application implements ConnectionListener {
     private ApplicationState state = new ApplicationState();
     private Collection<Object> connectionLocks = new LinkedList<Object>();
     private AlertDialog ad;
+
+    private boolean settingsShown = false;
+    private boolean warningShown = false;
 
     private Activity currentActivity;
 
@@ -123,16 +122,16 @@ public class MPDApplication extends Application implements ConnectionListener {
     public void connect() {
         if (!settingsHelper.updateSettings()) {
             // Absolutely no settings defined! Open Settings!
-            if (currentActivity != null && !state.settingsShown) {
+            if (currentActivity != null && !settingsShown) {
                 currentActivity.startActivityForResult(new Intent(currentActivity,
                         WifiConnectionSettings.class), SETTINGS);
-                state.settingsShown = true;
+                settingsShown = true;
             }
         }
 
-        if (currentActivity != null && !settingsHelper.warningShown() && !state.warningShown) {
+        if (currentActivity != null && !settingsHelper.warningShown() && !warningShown) {
             currentActivity.startActivity(new Intent(currentActivity, WarningActivity.class));
-            state.warningShown = true;
+            warningShown = true;
         }
         connectMPD();
     }
