@@ -120,11 +120,9 @@ public class SettingsFragment extends PreferenceFragment {
                 "enableAlbumArtLibrary");
         albumArtLibrary.setEnabled(localCoverCache.isChecked());
 
-        // Enable/Disable playback resume when call ends only if playback pause
-        // is enabled when call starts
+        /** Allow these to be changed individually, pauseOnPhoneStateChange might be overridden. */
         phonePause = (CheckBoxPreference) findPreference("pauseOnPhoneStateChange");
         phoneStateChange = (CheckBoxPreference) findPreference("playOnPhoneStateChange");
-        phoneStateChange.setEnabled(phonePause.isChecked());
 
         preferencesBinded = true;
         refreshDynamicFields();
@@ -230,13 +228,14 @@ public class SettingsFragment extends PreferenceFragment {
             return true;
 
         } else if (preference.getKey().equals("pauseOnPhoneStateChange")) {
-            // Enable/Disable playback resume when call ends only if playback
-            // pause is enabled when call starts
+            /**
+             * Allow these to be changed individually,
+             * pauseOnPhoneStateChange might be overridden.
+             */
             CheckBoxPreference phonePause = (CheckBoxPreference) findPreference(
                     "pauseOnPhoneStateChange");
             CheckBoxPreference phoneStateChange = (CheckBoxPreference) findPreference(
                     "playOnPhoneStateChange");
-            phoneStateChange.setEnabled(phonePause.isChecked());
         } else if (preference.getKey().equals("clearSearchHistory")) {
             final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(getActivity(),
                     SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
