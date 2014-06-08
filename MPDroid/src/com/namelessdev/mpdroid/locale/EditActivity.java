@@ -90,7 +90,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
                 getString(R.string.setVolume)));
         items.add(new ActionItem(MPDroidService.ACTION_START,
                 getString(R.string.showNotification)));
-        items.add(new ActionItem(MPDroidService.ACTION_CLOSE_NOTIFICATION,
+        items.add(new ActionItem(MPDroidService.ACTION_STOP,
                 getString(R.string.closeNotification)));
 
         final ArrayAdapter<ActionItem> adapter = new ArrayAdapter<>(this,

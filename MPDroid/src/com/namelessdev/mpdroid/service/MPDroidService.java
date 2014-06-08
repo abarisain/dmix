@@ -17,13 +17,9 @@
 package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MainMenuActivity;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDStatus;
@@ -31,32 +27,25 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.view.View;
-import android.widget.RemoteViews;
 
 /**
  * This service schedules various things that run without MPDroid.
  */
 public final class MPDroidService extends Service implements Handler.Callback,
+        NotificationHandler.Callback,
         StatusChangeListener {
 
     private static MPDApplication sApp = MPDApplication.getInstance();
@@ -68,42 +57,20 @@ public final class MPDroidService extends Service implements Handler.Callback,
     /**
      * This will close the notification, no matter the notification state.
      */
-    public static final String ACTION_CLOSE_NOTIFICATION = FULLY_QUALIFIED_NAME
-            + "CLOSE_NOTIFICATION";
-
-    private static final PendingIntent NOTIFICATION_CLOSE =
-            buildPendingIntent(ACTION_CLOSE_NOTIFICATION);
+    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME
+            + "ACTION_STOP";
 
     /**
      * This readies the notification in accordance with the current state.
      */
     public static final String ACTION_START = FULLY_QUALIFIED_NAME
-            + "NOTIFICATION_OPEN";
-
-    /**
-     * The ID we use for the notification (the onscreen alert that appears
-     * at the notification area at the top of the screen as an icon -- and
-     * as text as well if the user expands the notification area).
-     */
-    private static final int NOTIFICATION_ID = 1;
+            + "ACTION_START";
 
     private static final int NOTIFICATION_ICON_HEIGHT = sApp.getResources()
             .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
 
     private static final int NOTIFICATION_ICON_WIDTH = sApp.getResources()
             .getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-
-    private static final PendingIntent NOTIFICATION_NEXT =
-            buildPendingIntent(MPDControl.ACTION_NEXT);
-
-    private static final PendingIntent NOTIFICATION_PAUSE =
-            buildPendingIntent(MPDControl.ACTION_PAUSE);
-
-    private static final PendingIntent NOTIFICATION_PLAY =
-            buildPendingIntent(MPDControl.ACTION_PLAY);
-
-    private static final PendingIntent NOTIFICATION_PREVIOUS =
-            buildPendingIntent(MPDControl.ACTION_PREVIOUS);
 
     private final Handler mDelayedDisconnectionHandler = new Handler() {
         @Override
@@ -128,11 +95,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
     private boolean mIsAudioFocusedOnThis = false;
 
-    private boolean mMediaPlayerServiceIsBuffering = false;
-
-    private Notification mNotification = null;
-
-    private NotificationManager mNotificationManager = null;
+    private NotificationHandler mNotificationHandler = null;
 
     private RemoteControlClientHandler mRemoteControlClientHandler = null;
 
@@ -158,40 +121,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
     private boolean mStreamingServiceWoundDown = false;
 
     /**
-     * Build a static pending intent for use with the notification button controls.
-     *
-     * @param action The ACTION intent string.
-     * @return The pending intent.
-     */
-    private static PendingIntent buildPendingIntent(final String action) {
-        final Intent intent = new Intent(sApp, RemoteControlReceiver.class);
-        intent.setAction(action);
-        return PendingIntent.getBroadcast(sApp, 0, intent, 0);
-    }
-
-    /**
-     * This builds the static bits of a new collapsed notification
-     *
-     * @return Returns a notification builder object.
-     */
-    private static NotificationCompat.Builder buildStaticCollapsedNotification() {
-        /** Build the click PendingIntent */
-        final Intent musicPlayerActivity = new Intent(sApp, MainMenuActivity.class);
-        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(sApp);
-        stackBuilder.addParentStack(MainMenuActivity.class);
-        stackBuilder.addNextIntent(musicPlayerActivity);
-        final PendingIntent notificationClick = stackBuilder.getPendingIntent(0,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(sApp);
-        builder.setSmallIcon(R.drawable.icon_bw);
-        builder.setContentIntent(notificationClick);
-        builder.setStyle(new NotificationCompat.BigTextStyle());
-
-        return builder;
-    }
-
-    /**
      * A simple method to return a status with error logging.
      *
      * @return An MPDStatus object.
@@ -205,91 +134,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
         }
 
         return mpdStatus;
-    }
-
-    /**
-     * buildExpandedNotification builds upon the collapsed notification resources to create
-     * the resources necessary for the expanded notification RemoteViews.
-     *
-     * @return The expanded notification RemoteViews.
-     */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private RemoteViews buildExpandedNotification() {
-        final RemoteViews resultView;
-
-        if (mNotification == null || mNotification.bigContentView == null) {
-            resultView = new RemoteViews(getPackageName(), R.layout.notification_big);
-        } else {
-            resultView = mNotification.bigContentView;
-        }
-
-        buildBaseNotification(resultView);
-
-        /** When streaming, move things down (hopefully, very) temporarily. */
-        if (mMediaPlayerServiceIsBuffering) {
-            resultView.setTextViewText(R.id.notificationAlbum, mCurrentTrack.getArtist());
-        } else {
-            resultView.setTextViewText(R.id.notificationAlbum, mCurrentTrack.getAlbum());
-        }
-
-        resultView.setOnClickPendingIntent(R.id.notificationPrev, NOTIFICATION_PREVIOUS);
-
-        return resultView;
-    }
-
-    /**
-     * This generates the collapsed notification from base.
-     *
-     * @return The collapsed notification resources for RemoteViews.
-     */
-    private NotificationCompat.Builder buildNewCollapsedNotification() {
-        final RemoteViews resultView = buildBaseNotification(
-                new RemoteViews(getPackageName(), R.layout.notification));
-        return buildStaticCollapsedNotification().setContent(resultView);
-    }
-
-    /**
-     * This method builds the base, otherwise known as the collapsed notification. The expanded
-     * notification method builds upon this method.
-     *
-     * @param resultView The RemoteView to begin with, be it new or from the current notification.
-     * @return The base, otherwise known as, collapsed notification resources for RemoteViews.
-     */
-    private RemoteViews buildBaseNotification(final RemoteViews resultView) {
-        final String title = mCurrentTrack.getTitle();
-
-        /** If in streaming, the notification should be persistent. */
-        if (sApp.isStreamingServiceRunning() && !mStreamingServiceWoundDown) {
-            resultView.setViewVisibility(R.id.notificationClose, View.GONE);
-        } else {
-            resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
-            resultView.setOnClickPendingIntent(R.id.notificationClose, NOTIFICATION_CLOSE);
-        }
-
-        if (MPDStatus.MPD_STATE_PLAYING.equals(getMPDStatus().getState())) {
-            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, NOTIFICATION_PAUSE);
-            resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_pause);
-        } else {
-            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, NOTIFICATION_PLAY);
-            resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_play);
-        }
-
-        /** When streaming, move things down (hopefully, very) temporarily. */
-        if (mMediaPlayerServiceIsBuffering) {
-            resultView.setTextViewText(R.id.notificationTitle, getString(R.string.buffering));
-            resultView.setTextViewText(R.id.notificationArtist, title);
-        } else {
-            resultView.setTextViewText(R.id.notificationTitle, title);
-            resultView.setTextViewText(R.id.notificationArtist, mCurrentTrack.getArtist());
-        }
-
-        resultView.setOnClickPendingIntent(R.id.notificationNext, NOTIFICATION_NEXT);
-
-        if (mAlbumCover != null) {
-            resultView.setImageViewUri(R.id.notificationIcon, Uri.parse(mAlbumCoverPath));
-        }
-
-        return resultView;
     }
 
     @Override
@@ -315,11 +159,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
                         sApp.isStreamingServiceRunning()) {
                     mStreamingOwnsNotification = true;
                 }
-                mStreamingServiceWoundDown = false;
+                mNotificationHandler.setMediaPlayerBuffering(true);
                 mRemoteControlClientHandler.setMediaPlayerBuffering(true);
-                mMediaPlayerServiceIsBuffering = true;
                 mStreamingServiceWoundDown = false;
-                stateChanged(getMPDStatus(), null);
                 break;
             case StreamingService.REQUEST_NOTIFICATION_STOP:
                 if (mStreamingOwnsNotification &&
@@ -333,13 +175,14 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 }
                 break;
             case StreamingService.SERVICE_WOUND_DOWN:
+                mNotificationHandler.setMediaPlayerWoundDown();
                 mStreamingServiceWoundDown = true;
                 break;
             case StreamingService.BUFFERING_END:
             case StreamingService.BUFFERING_ERROR:
             case StreamingService.STREAMING_STOP:
                 mRemoteControlClientHandler.setMediaPlayerBuffering(false);
-                mMediaPlayerServiceIsBuffering = false;
+                mNotificationHandler.setMediaPlayerBuffering(false);
                 stateChanged(getMPDStatus(), null);
                 break;
             default:
@@ -375,7 +218,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
         sApp.addConnectionLock(this);
         sApp.oMPDAsyncHelper.addStatusChangeListener(this);
 
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotificationHandler = new NotificationHandler();
+        mNotificationHandler.addCallback(this);
+
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         mRemoteControlClientHandler = new RemoteControlClientHandler();
@@ -393,6 +238,10 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
         windDownResources();
 
+        if (mNotificationHandler != null) {
+            mNotificationHandler.onDestroy();
+        }
+
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
             mAlbumCover.recycle();
         }
@@ -402,6 +251,16 @@ public final class MPDroidService extends Service implements Handler.Callback,
         if (mAudioManager != null) {
             mAudioManager.abandonAudioFocus(null);
         }
+    }
+
+    /**
+     * This is when an updated notification is available.
+     *
+     * @param notification The updated notification object.
+     */
+    @Override
+    public void onNotificationUpdate(final Notification notification) {
+        startForeground(NotificationHandler.NOTIFICATION_ID, notification);
     }
 
     /**
@@ -474,40 +333,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
             coverArtPath = coverArtPaths[0];
         }
         return coverArtPath;
-    }
-
-
-    /**
-     * Build a new notification or perform an update on an existing notification.
-     */
-    private void setupNotification() {
-        Log.d(TAG, "update notification: " + mCurrentTrack.getArtist() + " - " + mCurrentTrack
-                .getTitle());
-
-        NotificationCompat.Builder builder = null;
-        RemoteViews expandedNotification = null;
-
-        /** These have a very specific order. */
-        if (mNotification == null || mNotification.contentView == null) {
-            builder = buildNewCollapsedNotification();
-        } else {
-            buildBaseNotification(mNotification.contentView);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            expandedNotification = buildExpandedNotification();
-        }
-
-        if (builder != null) {
-            mNotification = builder.build();
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mNotification.bigContentView = expandedNotification;
-        }
-
-        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
-        startForeground(NOTIFICATION_ID, mNotification);
     }
 
     /**
@@ -636,7 +461,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
     private void updateNotification() {
         if (mCurrentTrack != null) {
-            setupNotification();
+            mNotificationHandler.update(mCurrentTrack, mAlbumCover, mAlbumCoverPath);
         }
     }
 
@@ -682,8 +507,8 @@ public final class MPDroidService extends Service implements Handler.Callback,
             mAudioManager.abandonAudioFocus(null);
         }
 
-        if (mNotificationManager != null) {
-            mNotificationManager.cancel(NOTIFICATION_ID);
+        if (mNotificationHandler != null) {
+            mNotificationHandler.cancelNotification();
         }
     }
 }

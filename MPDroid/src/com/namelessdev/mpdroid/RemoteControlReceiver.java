@@ -75,7 +75,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                         MPDControl.run(MPDControl.ACTION_PAUSE);
                     }
                     break;
-                case MPDroidService.ACTION_CLOSE_NOTIFICATION:
+                case MPDroidService.ACTION_STOP:
                     if (sApp.isNotificationPersistent()) {
                         sApp.setPersistentOverride(true);
                     }

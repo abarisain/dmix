@@ -45,7 +45,7 @@ public class ActionFireReceiver extends BroadcastReceiver {
                 serviceIntent.setAction(action);
                 context.startService(serviceIntent);
                 break;
-            case MPDroidService.ACTION_CLOSE_NOTIFICATION:
+            case MPDroidService.ACTION_STOP:
                 serviceIntent = new Intent(context, RemoteControlReceiver.class);
                 serviceIntent.setAction(action);
                 context.startService(serviceIntent);
