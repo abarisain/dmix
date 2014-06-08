@@ -81,9 +81,6 @@ public final class StreamingService extends Service implements
     /** Let notification service know this service is running minimal resources. */
     static final int SERVICE_WOUND_DOWN = 6;
 
-    /** Let the notification service know this service will soon be buffering. */
-    static final int SERVICE_WOUND_UP = 7;
-
     /**
      * Called as an argument to windDownResources() when a
      * message is not required to send to bound service.
@@ -175,13 +172,11 @@ public final class StreamingService extends Service implements
             windUpResources();
         }
 
-        sendToBoundService(SERVICE_WOUND_UP);
+        sendToBoundService(BUFFERING_BEGIN);
         final String streamSource = getStreamSource();
         final long asyncIdle = 1500L;
         mPreparingStreaming = true;
         stopControlHandlers();
-
-        sendToBoundService(BUFFERING_BEGIN);
 
         /**
          * With MediaPlayer, there is a racy bug which affects, minimally, Android KitKat and lower.

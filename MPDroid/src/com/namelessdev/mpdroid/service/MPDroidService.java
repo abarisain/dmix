@@ -310,8 +310,15 @@ public final class MPDroidService extends Service implements Handler.Callback,
     public final boolean handleMessage(final Message message) {
         switch (message.what) {
             case StreamingService.BUFFERING_BEGIN:
+                /** If the notification was requested by StreamingService, set it here. */
+                if (!sApp.isMPDroidServiceRunning() &&
+                        sApp.isStreamingServiceRunning()) {
+                    mStreamingOwnsNotification = true;
+                }
+                mStreamingServiceWoundDown = false;
                 mRemoteControlClientHandler.setMediaPlayerBuffering(true);
                 mMediaPlayerServiceIsBuffering = true;
+                mStreamingServiceWoundDown = false;
                 stateChanged(getMPDStatus(), null);
                 break;
             case StreamingService.REQUEST_NOTIFICATION_STOP:
@@ -327,14 +334,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 break;
             case StreamingService.SERVICE_WOUND_DOWN:
                 mStreamingServiceWoundDown = true;
-                break;
-            case StreamingService.SERVICE_WOUND_UP:
-                /** If the notification was requested by StreamingService, set it here. */
-                if (!sApp.isMPDroidServiceRunning() &&
-                        sApp.isStreamingServiceRunning()) {
-                    mStreamingOwnsNotification = true;
-                }
-                mStreamingServiceWoundDown = false;
                 break;
             case StreamingService.BUFFERING_END:
             case StreamingService.BUFFERING_ERROR:
