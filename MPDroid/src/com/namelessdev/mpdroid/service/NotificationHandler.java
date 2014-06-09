@@ -25,7 +25,6 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -41,6 +40,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+/**
+ * A class to handle everything necessary for the MPDroid notification.
+ */
 public class NotificationHandler {
 
     /**
@@ -50,45 +52,64 @@ public class NotificationHandler {
      */
     static final int NOTIFICATION_ID = 1;
 
+    private static final Notification NOTIFICATION;
+
     private static final String TAG = "NotificationHandler";
-
-    /** Pre-built PendingIntent actions */
-    private static final PendingIntent NOTIFICATION_CLOSE =
-            buildPendingIntent(MPDroidService.ACTION_STOP);
-
-    private static final PendingIntent NOTIFICATION_NEXT =
-            buildPendingIntent(MPDControl.ACTION_NEXT);
-
-    private static final PendingIntent NOTIFICATION_PAUSE =
-            buildPendingIntent(MPDControl.ACTION_PAUSE);
-
-    private static final PendingIntent NOTIFICATION_PLAY =
-            buildPendingIntent(MPDControl.ACTION_PLAY);
-
-    private static final PendingIntent NOTIFICATION_PREVIOUS =
-            buildPendingIntent(MPDControl.ACTION_PREVIOUS);
 
     private static MPDApplication sApp = MPDApplication.getInstance();
 
     private static final NotificationManager NOTIFICATION_MANAGER =
             (NotificationManager) sApp.getSystemService(sApp.NOTIFICATION_SERVICE);
 
+    private Music mCurrentTrack = null;
+
     private Callback mNotificationListener = null;
 
     private boolean mIsMediaPlayerBuffering = false;
 
-    private boolean mIsMediaPlayerStreaming = false;
-
-    private Notification mNotification = null;
-
-    private Thread mThread = null;
-
     NotificationHandler() {
         super();
+
+        final MPDStatus mpdStatus = MPDroidService.getMPDStatus();
+
+        /**
+         * Workaround for Bug #558 This is necessary if setMediaPlayerBuffering() is the first
+         * method to be called. Optimally, this would be passed into the constructor, but
+         * this complication belongs here for now.
+         */
+        if (sApp.oMPDAsyncHelper.oMPD.isConnected()) {
+            while (mCurrentTrack == null && mpdStatus.getPlaylistLength() > 0
+                    || mpdStatus.getPlaylistVersion() == 0) {
+                final int songPos = mpdStatus.getSongPos();
+                mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+
+                if (mCurrentTrack == null && mpdStatus.getPlaylistLength() > 0) {
+                    Log.w(TAG, "Failed to get current track, likely due to bug #558, looping..");
+                    synchronized (this) {
+                        try {
+                            wait(1000L);
+                        } catch (final InterruptedException ignored) {
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    static {
+        final RemoteViews resultView = new RemoteViews(sApp.getPackageName(),
+                R.layout.notification);
+
+        buildBaseNotification(resultView);
+        NOTIFICATION = buildCollapsedNotification().setContent(resultView).build();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            buildExpandedNotification();
+        }
     }
 
     /**
-     * Build a static pending intent for use with the notification button controls.
+     * Build a pending intent for use with the notification button controls.
      *
      * @param action The ACTION intent string.
      * @return The pending intent.
@@ -104,7 +125,7 @@ public class NotificationHandler {
      *
      * @return Returns a notification builder object.
      */
-    private static NotificationCompat.Builder buildStaticCollapsedNotification() {
+    private static NotificationCompat.Builder buildCollapsedNotification() {
         /** Build the click PendingIntent */
         final Intent musicPlayerActivity = new Intent(sApp, MainMenuActivity.class);
         final TaskStackBuilder stackBuilder = TaskStackBuilder.create(sApp);
@@ -122,189 +143,213 @@ public class NotificationHandler {
     }
 
     /**
-     * A simple method to return a status with error logging.
+     * A method to update the album cover view.
      *
-     * @return An MPDStatus object.
+     * @param resultView     The notification view to edit.
+     * @param albumCover     The new album cover.
+     * @param albumCoverPath The new album cover path.
      */
-    private static MPDStatus getStatus() {
-        MPDStatus mpdStatus = null;
-        try {
-            mpdStatus = sApp.oMPDAsyncHelper.oMPD.getStatus();
-        } catch (final MPDServerException e) {
-            Log.d(TAG, "Couldn't retrieve a status object.", e);
-        }
-
-        return mpdStatus;
-    }
-
-    final void addCallback(final Callback listener) {
-        mNotificationListener = listener;
-    }
-
-    /**
-     * This method builds the base, otherwise known as the collapsed notification. The expanded
-     * notification method builds upon this method.
-     *
-     * @param resultView The RemoteView to begin with, be it new or from the current notification.
-     * @return The base, otherwise known as, collapsed notification resources for RemoteViews.
-     */
-    private RemoteViews buildBaseNotification(final RemoteViews resultView,
-            final Music currentTrack, final Bitmap albumCover, final String albumCoverPath) {
-        final String title = currentTrack.getTitle();
-        final boolean isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getStatus().getState());
-
-        /** If in streaming, the notification should be persistent. */
-        if (mIsMediaPlayerStreaming) {
-            resultView.setViewVisibility(R.id.notificationClose, View.GONE);
-        } else {
-            resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
-            resultView.setOnClickPendingIntent(R.id.notificationClose, NOTIFICATION_CLOSE);
-        }
-
-        if (isPlaying) {
-            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, NOTIFICATION_PAUSE);
-            resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_pause);
-        } else {
-            resultView.setOnClickPendingIntent(R.id.notificationPlayPause, NOTIFICATION_PLAY);
-            resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_play);
-        }
-
-        /** When streaming, move things down (hopefully, very) temporarily. */
-        if (mIsMediaPlayerBuffering) {
-            resultView.setTextViewText(R.id.notificationTitle, sApp.getString(R.string.buffering));
-            resultView.setTextViewText(R.id.notificationArtist, title);
-        } else {
-            resultView.setTextViewText(R.id.notificationTitle, title);
-            resultView.setTextViewText(R.id.notificationArtist, currentTrack.getArtist());
-        }
-
-        resultView.setOnClickPendingIntent(R.id.notificationNext, NOTIFICATION_NEXT);
-
+    private static void setAlbumCover(final RemoteViews resultView, final Bitmap albumCover,
+            final String albumCoverPath) {
         if (albumCover != null) {
             resultView.setImageViewUri(R.id.notificationIcon, Uri.parse(albumCoverPath));
         } else {
             resultView.setImageViewResource(R.id.notificationIcon,
                     AlbumCoverDownloadListener.getNoCoverResource());
         }
-
-        return resultView;
     }
 
     /**
-     * This generates the collapsed notification from base.
+     * A method to update the play state icon to a "paused" state.
      *
-     * @return The collapsed notification resources for RemoteViews.
+     * @param resultView The notification view to edit.
      */
-    private NotificationCompat.Builder buildNewCollapsedNotification(final Music currentTrack,
-            final Bitmap albumCover, final String albumCoverPath) {
-        final RemoteViews resultView = buildBaseNotification(
-                new RemoteViews(sApp.getPackageName(), R.layout.notification), currentTrack,
-                albumCover, albumCoverPath);
-        return buildStaticCollapsedNotification().setContent(resultView);
+    private static void updateStatePaused(final RemoteViews resultView) {
+        final PendingIntent playAction = buildPendingIntent(MPDControl.ACTION_PLAY);
+
+        resultView.setOnClickPendingIntent(R.id.notificationPlayPause, playAction);
+        resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_play);
     }
 
     /**
-     * buildExpandedNotification builds upon the collapsed notification resources to create
-     * the resources necessary for the expanded notification RemoteViews.
+     * A method to update the play state icon to a "play" state.
      *
-     * @return The expanded notification RemoteViews.
+     * @param resultView The notification view to edit.
+     */
+    private static void updateStatePlaying(final RemoteViews resultView) {
+        final PendingIntent pauseAction = buildPendingIntent(MPDControl.ACTION_PAUSE);
+
+        resultView.setOnClickPendingIntent(R.id.notificationPlayPause, pauseAction);
+        resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_pause);
+    }
+
+    /**
+     * Update the collapsed notification view for a "buffering" play state.
+     *
+     * @param resultView The notification view to edit.
+     * @param trackTitle The current track title.
+     */
+    private static void updateBufferingContent(final RemoteViews resultView,
+            final CharSequence trackTitle) {
+        resultView.setViewVisibility(R.id.notificationClose, View.GONE);
+        resultView.setTextViewText(R.id.notificationTitle, sApp.getString(R.string.buffering));
+        resultView.setTextViewText(R.id.notificationArtist, trackTitle);
+    }
+
+    /**
+     * Update the collapsed notification view for a "not buffering" play state.
+     *
+     * @param resultView The notification view to edit.
+     * @param music      The current {@code Music} object.
+     */
+    private static void updateNotBufferingContent(final RemoteViews resultView, final Music music) {
+        resultView.setTextViewText(R.id.notificationTitle, music.getTitle());
+        resultView.setTextViewText(R.id.notificationArtist, music.getArtist());
+    }
+
+    /**
+     * This method constructs the notification base, otherwise known as the collapsed notification.
+     * The expanded notification method builds upon this method.
+     *
+     * @param resultView The RemoteView to begin with, be it new or from the current notification.
+     */
+    private static void buildBaseNotification(final RemoteViews resultView) {
+        final PendingIntent closeAction = buildPendingIntent(MPDroidService.ACTION_STOP);
+        final PendingIntent nextAction = buildPendingIntent(MPDControl.ACTION_NEXT);
+
+        resultView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
+        resultView.setOnClickPendingIntent(R.id.notificationClose, closeAction);
+
+        updateStatePaused(resultView);
+
+        resultView.setOnClickPendingIntent(R.id.notificationNext, nextAction);
+
+        resultView.setImageViewResource(R.id.notificationIcon,
+                AlbumCoverDownloadListener.getNoCoverResource());
+    }
+
+    /**
+     * This method builds upon the base notification resources to create
+     * the resources necessary for the expanded notification RemoteViews.
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private RemoteViews buildExpandedNotification(final Music currentTrack, final Bitmap albumCover,
-            final String albumCoverPath) {
-        final RemoteViews resultView;
+    private static void buildExpandedNotification() {
+        final PendingIntent previousAction = buildPendingIntent(MPDControl.ACTION_PREVIOUS);
+        final RemoteViews resultView = new RemoteViews(sApp.getPackageName(),
+                R.layout.notification_big);
 
-        if (mNotification == null || mNotification.bigContentView == null) {
-            resultView = new RemoteViews(sApp.getPackageName(), R.layout.notification_big);
-        } else {
-            resultView = mNotification.bigContentView;
-        }
+        buildBaseNotification(resultView);
 
-        buildBaseNotification(resultView, currentTrack, albumCover, albumCoverPath);
+        resultView.setOnClickPendingIntent(R.id.notificationPrev, previousAction);
 
-        /** When streaming, move things down (hopefully, very) temporarily. */
-        if (mIsMediaPlayerBuffering) {
-            resultView.setTextViewText(R.id.notificationAlbum, currentTrack.getArtist());
-        } else {
-            resultView.setTextViewText(R.id.notificationAlbum, currentTrack.getAlbum());
-        }
-
-        resultView.setOnClickPendingIntent(R.id.notificationPrev, NOTIFICATION_PREVIOUS);
-
-        return resultView;
+        NOTIFICATION.bigContentView = resultView;
     }
 
-    final void cancelNotification() {
-        if (NOTIFICATION_MANAGER != null) {
-            NOTIFICATION_MANAGER.cancel(NOTIFICATION_ID);
-        }
+    /**
+     * A callback to listen for notification updates.
+     *
+     * @param listener The current {@code Notification} listener.
+     */
+    final void addCallback(final Callback listener) {
+        mNotificationListener = listener;
     }
 
+    /**
+     * A method for cleanup and winding down.
+     */
     final void onDestroy() {
         mNotificationListener = null;
     }
 
-    final void setMediaPlayerWoundDown() {
-        mIsMediaPlayerStreaming = false;
-    }
+    /**
+     * A method to update the album cover view of the current notification.
+     *
+     * @param albumCover     The new album cover.
+     * @param albumCoverPath The new album cover path.
+     */
+    final void setAlbumCover(final Bitmap albumCover, final String albumCoverPath) {
+        setAlbumCover(NOTIFICATION.contentView, albumCover, albumCoverPath);
 
-    final void setMediaPlayerBuffering(final boolean isBuffering) {
-        mIsMediaPlayerBuffering = isBuffering;
-
-        if (isBuffering) {
-            mIsMediaPlayerStreaming = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            setAlbumCover(NOTIFICATION.bigContentView, albumCover, albumCoverPath);
         }
+
+        NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
+        mNotificationListener.onNotificationUpdate(NOTIFICATION);
     }
 
     /**
-     * Build a new notification or perform an update on an existing notification.
+     * A method to update the track information notification views for a buffering play state.
+     *
+     * @param isBuffering True if buffering, false otherwise.
      */
-    final void update(final Music currentTrack, final Bitmap albumCover,
-            final String albumCoverPath) {
-        if (currentTrack != null) {
-            if (mThread != null && mThread.isAlive()) {
-                mThread.interrupt();
-            }
+    final void setMediaPlayerBuffering(final boolean isBuffering) {
+        mIsMediaPlayerBuffering = isBuffering;
+    }
 
-            mThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d(TAG, "update notification: " + currentTrack.getArtist() + " - "
-                            + currentTrack
-                            .getTitle());
-
-                    NotificationCompat.Builder builder = null;
-                    RemoteViews expandedNotification = null;
-
-                    /** These have a very specific order. */
-                    if (mNotification == null || mNotification.contentView == null) {
-                        builder = buildNewCollapsedNotification(currentTrack, albumCover,
-                                albumCoverPath);
-                    } else {
-                        buildBaseNotification(mNotification.contentView, currentTrack, albumCover,
-                                albumCoverPath);
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        expandedNotification = buildExpandedNotification(currentTrack, albumCover,
-                                albumCoverPath);
-                    }
-
-                    if (builder != null) {
-                        mNotification = builder.build();
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        mNotification.bigContentView = expandedNotification;
-                    }
-
-                    NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, mNotification);
-                    mNotificationListener.onNotificationUpdate(mNotification);
-                }
-            });
-
-            mThread.start();
+    /**
+     * A method that sets the StreamingService {@code MediaPlayer}
+     * as dormant, which allows user access to close the notification.
+     */
+    final void setMediaPlayerWoundDown() {
+        NOTIFICATION.contentView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            NOTIFICATION.bigContentView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
         }
+
+        NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
+        mNotificationListener.onNotificationUpdate(NOTIFICATION);
+    }
+
+    /**
+     * Update the track information for the current playing track.
+     *
+     * @param currentTrack A current {@code Music} object.
+     */
+    final void setNewTrack(final Music currentTrack) {
+        mCurrentTrack = currentTrack;
+
+        if (mIsMediaPlayerBuffering) {
+            updateBufferingContent(NOTIFICATION.contentView, currentTrack.getTitle());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                updateBufferingContent(NOTIFICATION.bigContentView, currentTrack.getTitle());
+                NOTIFICATION.bigContentView.setTextViewText(R.id.notificationAlbum,
+                        currentTrack.getArtist());
+            }
+        } else {
+            updateNotBufferingContent(NOTIFICATION.contentView, currentTrack);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                updateNotBufferingContent(NOTIFICATION.bigContentView, currentTrack);
+                NOTIFICATION.bigContentView.setTextViewText(R.id.notificationAlbum,
+                        currentTrack.getAlbum());
+            }
+        }
+
+        NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
+        mNotificationListener.onNotificationUpdate(NOTIFICATION);
+
+    }
+
+    /**
+     * A method to update the play state button on the notification.
+     *
+     * @param isPlaying True if playing, false otherwise.
+     */
+    final void setPlayState(final boolean isPlaying) {
+        if (isPlaying) {
+            updateStatePlaying(NOTIFICATION.contentView);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                updateStatePlaying(NOTIFICATION.bigContentView);
+            }
+        } else {
+            updateStatePaused(NOTIFICATION.contentView);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                updateStatePaused(NOTIFICATION.bigContentView);
+            }
+        }
+
+        NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
+        mNotificationListener.onNotificationUpdate(NOTIFICATION);
     }
 
     interface Callback {

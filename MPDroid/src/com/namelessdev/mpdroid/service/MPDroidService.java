@@ -108,7 +108,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
      *
      * @return An MPDStatus object.
      */
-    private static MPDStatus getMPDStatus() {
+    static MPDStatus getMPDStatus() {
         MPDStatus mpdStatus = null;
         try {
             mpdStatus = sApp.oMPDAsyncHelper.oMPD.getStatus();
@@ -123,7 +123,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
         if (connected) {
             if (sApp.oMPDAsyncHelper.getConnectionSettings().persistentNotification) {
-                stateChanged(getMPDStatus(), null);
+                stateChanged(getMPDStatus(), MPDStatus.MPD_STATE_UNKNOWN);
             }
         } else {
             final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
@@ -135,6 +135,9 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
 
     @Override
     public final boolean handleMessage(final Message message) {
+        boolean result = true;
+        final MPDStatus mpdStatus = getMPDStatus();
+
         switch (message.what) {
             case StreamingService.BUFFERING_BEGIN:
                 /** If the notification was requested by StreamingService, set it here. */
@@ -150,7 +153,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
                 if (mStreamingOwnsNotification &&
                         !sApp.isNotificationPersistent()) {
                     stopSelf();
-
                     mStreamingOwnsNotification = false;
                 } else {
                     tryToGetAudioFocus();
@@ -166,12 +168,14 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
             case StreamingService.STREAMING_STOP:
                 mRemoteControlClientHandler.setMediaPlayerBuffering(false);
                 mNotificationHandler.setMediaPlayerBuffering(false);
-                stateChanged(getMPDStatus(), null);
+                stateChanged(getMPDStatus(), MPDStatus.MPD_STATE_UNKNOWN);
                 break;
             default:
+                result = false;
                 break;
         }
-        return false;
+
+        return result;
     }
 
     /**
@@ -197,7 +201,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
     @Override
     public void onCoverUpdate(final Bitmap albumCover, final String albumCoverPath) {
         mRemoteControlClientHandler.update(mCurrentTrack, albumCover);
-        mNotificationHandler.update(mCurrentTrack, albumCover, albumCoverPath);
+        mNotificationHandler.setAlbumCover(albumCover, albumCoverPath);
     }
 
     @Override
@@ -276,7 +280,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
             stopSelf();
         }
 
-        stateChanged(getMPDStatus(), null);
+        stateChanged(getMPDStatus(), MPDStatus.MPD_STATE_UNKNOWN);
 
         /**
          * Means we started the service, but don't want
@@ -292,8 +296,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
          * metadata will change while the same audio file is playing (no track change).
          */
         if (mCurrentTrack != null && mCurrentTrack.isStream()) {
-            updateCurrentMusic(mpdStatus);
-            mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
+            updateTrack(mpdStatus);
         }
     }
 
@@ -334,9 +337,9 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
                     if (!MPDStatus.MPD_STATE_PAUSED.equals(oldState)) {
-                        updateCurrentMusic(mpdStatus);
-                        mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
+                        updateTrack(mpdStatus);
                     }
+                    mNotificationHandler.setPlayState(true);
                     stopServiceHandler();
                     tryToGetAudioFocus();
                     break;
@@ -349,9 +352,9 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
                     break;
                 case MPDStatus.MPD_STATE_PAUSED:
                     if (!MPDStatus.MPD_STATE_PLAYING.equals(oldState)) {
-                        updateCurrentMusic(mpdStatus);
-                        mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
+                        updateTrack(mpdStatus);
                     }
+                    mNotificationHandler.setPlayState(false);
                     if (!mServiceHandlerActive) {
                         setupServiceHandler();
                     }
@@ -372,8 +375,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         mRemoteControlClientHandler.updateSeekTime(0L);
-        updateCurrentMusic(mpdStatus);
-        mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
+        updateTrack(mpdStatus);
     }
 
     /**
@@ -391,28 +393,15 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         }
     }
 
-    private void updateCurrentMusic(final MPDStatus mpdStatus) {
+    private void updateTrack(final MPDStatus mpdStatus) {
         if (mpdStatus == null) {
             Log.e(TAG, "Cannot update current track, services may be out of sync.");
-        } else {
-            final long loopFrequency = 50L;
-
-            int songPos = mpdStatus.getSongPos();
+        } else if (sApp.oMPDAsyncHelper.oMPD.isConnected()) {
+            final int songPos = mpdStatus.getSongPos();
             mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-
-            /** Workaround for Bug #558 */
-            while (sApp.oMPDAsyncHelper.oMPD.isConnected() &&
-                    mpdStatus.getPlaylistLength() != 0 && mCurrentTrack == null) {
-                Log.e(TAG, "Current music out of sync, looping..");
-                synchronized (this) {
-                    try {
-                        wait(loopFrequency);
-                    } catch (final InterruptedException ignored) {
-                    }
-                }
-
-                songPos = mpdStatus.getSongPos();
-                mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+            if (mCurrentTrack != null) {
+                mNotificationHandler.setNewTrack(mCurrentTrack);
+                mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
             }
         }
     }
@@ -434,7 +423,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         }
 
         if (mNotificationHandler != null) {
-            mNotificationHandler.cancelNotification();
+            mNotificationHandler.onDestroy();
         }
     }
 }
