@@ -17,10 +17,6 @@
 package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.cover.ICoverRetriever;
-import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
@@ -31,20 +27,18 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
  * This service schedules various things that run without MPDroid.
  */
-public final class MPDroidService extends Service implements Handler.Callback,
+public final class MPDroidService extends Service implements AlbumCoverHandler.Callback,
+        Handler.Callback,
         NotificationHandler.Callback,
         StatusChangeListener {
 
@@ -66,12 +60,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
     public static final String ACTION_START = FULLY_QUALIFIED_NAME
             + "ACTION_START";
 
-    private static final int NOTIFICATION_ICON_HEIGHT = sApp.getResources()
-            .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
-
-    private static final int NOTIFICATION_ICON_WIDTH = sApp.getResources()
-            .getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-
     private final Handler mDelayedDisconnectionHandler = new Handler() {
         @Override
         public void handleMessage(final Message msg) {
@@ -82,12 +70,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
         }
     };
 
-    private final boolean mIsAlbumCacheEnabled = PreferenceManager.getDefaultSharedPreferences(sApp)
-            .getBoolean(CoverManager.PREFERENCE_CACHE, true);
-
-    private Bitmap mAlbumCover = null;
-
-    private String mAlbumCoverPath = null;
+    private AlbumCoverHandler mAlbumCoverHandler = null;
 
     private AudioManager mAudioManager = null;
 
@@ -206,6 +189,17 @@ public final class MPDroidService extends Service implements Handler.Callback,
         return mServiceMessenger.getBinder();
     }
 
+    /**
+     * This is called when cover art needs to be updated due to server information change.
+     *
+     * @param albumCover The current album cover bitmap.
+     */
+    @Override
+    public void onCoverUpdate(final Bitmap albumCover, final String albumCoverPath) {
+        mRemoteControlClientHandler.update(mCurrentTrack, albumCover);
+        mNotificationHandler.update(mCurrentTrack, albumCover, albumCoverPath);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -217,6 +211,9 @@ public final class MPDroidService extends Service implements Handler.Callback,
         //Otherwise we'll just shut down on screen off and reconnect on screen on
         sApp.addConnectionLock(this);
         sApp.oMPDAsyncHelper.addStatusChangeListener(this);
+
+        mAlbumCoverHandler = new AlbumCoverHandler();
+        mAlbumCoverHandler.addCallback(this);
 
         mNotificationHandler = new NotificationHandler();
         mNotificationHandler.addCallback(this);
@@ -242,10 +239,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
             mNotificationHandler.onDestroy();
         }
 
-        if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-            mAlbumCover.recycle();
-        }
-
+        mAlbumCoverHandler.onDestroy();
         mRemoteControlClientHandler.onDestroy();
 
         if (mAudioManager != null) {
@@ -299,9 +293,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
          */
         if (mCurrentTrack != null && mCurrentTrack.isStream()) {
             updateCurrentMusic(mpdStatus);
-            updateAlbumCover();
-            mRemoteControlClientHandler.update(mCurrentTrack, mAlbumCover);
-            updateNotification();
+            mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
         }
     }
 
@@ -311,28 +303,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
 
     @Override
     public void repeatChanged(final boolean repeating) {
-    }
-
-    /**
-     * This method retrieves a path to an album cover bitmap from the cache.
-     *
-     * @return String A path to a cached album cover bitmap.
-     */
-    private String retrieveCoverArtPath() {
-        final ICoverRetriever cache = new CachedCover();
-        String coverArtPath = null;
-        String[] coverArtPaths = null;
-
-        try {
-            coverArtPaths = cache.getCoverUrl(mCurrentTrack.getAlbumInfo());
-        } catch (final Exception e) {
-            Log.d(TAG, "Failed to get the cover URL from the cache.", e);
-        }
-
-        if (coverArtPaths != null && coverArtPaths.length > 0) {
-            coverArtPath = coverArtPaths[0];
-        }
-        return coverArtPath;
     }
 
     /**
@@ -365,11 +335,10 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 case MPDStatus.MPD_STATE_PLAYING:
                     if (!MPDStatus.MPD_STATE_PAUSED.equals(oldState)) {
                         updateCurrentMusic(mpdStatus);
-                        updateAlbumCover();
+                        mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
                     }
                     stopServiceHandler();
                     tryToGetAudioFocus();
-                    updateNotification();
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
                     if (sApp.isNotificationPersistent()) {
@@ -381,12 +350,11 @@ public final class MPDroidService extends Service implements Handler.Callback,
                 case MPDStatus.MPD_STATE_PAUSED:
                     if (!MPDStatus.MPD_STATE_PLAYING.equals(oldState)) {
                         updateCurrentMusic(mpdStatus);
-                        updateAlbumCover();
+                        mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
                     }
                     if (!mServiceHandlerActive) {
                         setupServiceHandler();
                     }
-                    updateNotification();
                     break;
                 default:
                     break;
@@ -405,9 +373,7 @@ public final class MPDroidService extends Service implements Handler.Callback,
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         mRemoteControlClientHandler.updateSeekTime(0L);
         updateCurrentMusic(mpdStatus);
-        updateAlbumCover();
-        mRemoteControlClientHandler.update(mCurrentTrack, mAlbumCover);
-        updateNotification();
+        mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
     }
 
     /**
@@ -422,46 +388,6 @@ public final class MPDroidService extends Service implements Handler.Callback,
                     AudioManager.AUDIOFOCUS_GAIN);
 
             mIsAudioFocusedOnThis = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
-        }
-    }
-
-    private void updateAlbumCover() {
-        if (mIsAlbumCacheEnabled) {
-            updateAlbumCoverWithCached();
-        } /** TODO: Add no cache option */
-    }
-
-    /**
-     * This method updates mAlbumCover if it is different than currently playing, if cache is
-     * enabled.
-     */
-    private void updateAlbumCoverWithCached() {
-        final String coverArtPath = retrieveCoverArtPath();
-
-        if (coverArtPath != null && !coverArtPath.equals(mAlbumCoverPath)) {
-            if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-                mAlbumCover.recycle();
-            }
-
-            mAlbumCoverPath = coverArtPath;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                /**
-                 * Don't resize; it WOULD be nice to use the standard 64x64 large notification
-                 * size here, but KitKat and MPDroid allow fullscreen lock screen AlbumArt and
-                 * 64x64 looks pretty bad on a higher DPI device.
-                 */
-                /** TODO: Maybe inBitmap stuff here? */
-                mAlbumCover = BitmapFactory.decodeFile(coverArtPath);
-            } else {
-                mAlbumCover = Tools.decodeSampledBitmapFromPath(coverArtPath,
-                        NOTIFICATION_ICON_WIDTH, NOTIFICATION_ICON_HEIGHT, false);
-            }
-        }
-    }
-
-    private void updateNotification() {
-        if (mCurrentTrack != null) {
-            mNotificationHandler.update(mCurrentTrack, mAlbumCover, mAlbumCoverPath);
         }
     }
 
