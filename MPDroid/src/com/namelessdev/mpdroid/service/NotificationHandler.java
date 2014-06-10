@@ -35,7 +35,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -121,18 +120,14 @@ public class NotificationHandler {
     }
 
     /**
-     * This builds the static bits of a new collapsed notification
+     * This builds a new collapsed notification.
      *
      * @return Returns a notification builder object.
      */
     private static NotificationCompat.Builder buildCollapsedNotification() {
-        /** Build the click PendingIntent */
         final Intent musicPlayerActivity = new Intent(sApp, MainMenuActivity.class);
-        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(sApp);
-        stackBuilder.addParentStack(MainMenuActivity.class);
-        stackBuilder.addNextIntent(musicPlayerActivity);
-        final PendingIntent notificationClick = stackBuilder.getPendingIntent(0,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        final PendingIntent notificationClick = PendingIntent
+                .getActivity(sApp, 0, musicPlayerActivity, PendingIntent.FLAG_UPDATE_CURRENT);
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(sApp);
         builder.setSmallIcon(R.drawable.icon_bw);
