@@ -361,7 +361,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
 
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-        mRemoteControlClientHandler.updateSeekTime(0L);
         updateTrack(mpdStatus);
     }
 

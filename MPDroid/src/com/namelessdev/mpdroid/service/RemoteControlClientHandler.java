@@ -18,13 +18,10 @@ package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
-import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
-import org.a0z.mpd.event.TrackPositionListener;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -36,9 +33,8 @@ import android.os.Build;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import java.util.Date;
 
-public class RemoteControlClientHandler implements TrackPositionListener {
+public class RemoteControlClientHandler {
 
     private static MPDApplication sApp = MPDApplication.getInstance();
 
@@ -47,16 +43,7 @@ public class RemoteControlClientHandler implements TrackPositionListener {
 
     private static final String TAG = "RemoteControlClientService";
 
-    /**
-     * What was the elapsed time (in ms) when the last status refresh happened?
-     * Use this for guessing the elapsed time for the lock screen.
-     */
-    private long mLastKnownElapsed = 0L;
-
-    /**
-     * Last time the status was refreshed, used for track position.
-     */
-    private long mLastStatusRefresh = 0L;
+    private RemoteControlSeekBarHandler mSeekBar = null;
 
     private boolean mIsMediaPlayerBuffering = false;
 
@@ -77,65 +64,28 @@ public class RemoteControlClientHandler implements TrackPositionListener {
     RemoteControlClientHandler() {
         super();
 
+        mMediaButtonReceiverComponent = new ComponentName(sApp, RemoteControlReceiver.class);
+        AUDIO_MANAGER.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+
+        final Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        intent.setComponent(mMediaButtonReceiverComponent);
+        mRemoteControlClient = new RemoteControlClient(PendingIntent
+                .getBroadcast(sApp /*context*/, 0 /*requestCode, ignored*/,
+                        intent /*intent*/, 0 /*flags*/));
+
+        final int controlFlags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+                RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+                RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
+                RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
+                RemoteControlClient.FLAG_KEY_MEDIA_STOP;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            sApp.oMPDAsyncHelper.addTrackPositionListener(this);
+            mSeekBar = new RemoteControlSeekBarHandler(mRemoteControlClient, controlFlags);
+        } else {
+            mRemoteControlClient.setTransportControlFlags(controlFlags);
         }
-        registerMediaButtons();
-    }
 
-    /**
-     * A simple method to enable lock screen seeking on 4.3 and higher.
-     *
-     * @param controlFlags The control flags you set beforehand, so that we can add our
-     *                     required flag
-     */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void enableSeeking(final int controlFlags) {
-        mRemoteControlClient.setTransportControlFlags(controlFlags |
-                RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
-
-        /* Allows Android to show the song position */
-        mRemoteControlClient.setOnGetPlaybackPositionListener(
-                new RemoteControlClient.OnGetPlaybackPositionListener() {
-                    /**
-                     * Android's callback that queries us for the elapsed time
-                     * Here, we are guessing the elapsed time using the last time we
-                     * updated the elapsed time and its value at the time.
-                     *
-                     * @return The guessed song position
-                     */
-                    @Override
-                    public long onGetPlaybackPosition() {
-                        /**
-                         * If we don't know the position, return
-                         * a negative value as per the API spec.
-                         */
-                        long result = -1L;
-
-                        if (mLastStatusRefresh > 0L) {
-                            result = mLastKnownElapsed + new Date().getTime() - mLastStatusRefresh;
-                        }
-                        return result;
-                    }
-                }
-        );
-
-        /* Allows Android to seek */
-        mRemoteControlClient.setPlaybackPositionUpdateListener(
-                new RemoteControlClient.OnPlaybackPositionUpdateListener() {
-                    /**
-                     * Android's callback for when the user seeks using the remote
-                     * control.
-                     *
-                     * @param newPositionMs The position in MS where we should seek
-                     */
-                    @Override
-                    public void onPlaybackPositionUpdate(final long newPositionMs) {
-                        MPDControl.run(MPDControl.ACTION_SEEK, newPositionMs /
-                                DateUtils.SECOND_IN_MILLIS);
-                    }
-                }
-        );
+        AUDIO_MANAGER.registerRemoteControlClient(mRemoteControlClient);
     }
 
     /**
@@ -165,7 +115,7 @@ public class RemoteControlClientHandler implements TrackPositionListener {
         mPlaybackState = playbackState;
 
         if (!mIsMediaPlayerBuffering) {
-            mRemoteControlClient.setPlaybackState(playbackState);
+            setPlaybackState(playbackState);
         }
 
         Log.d(TAG, "Updated remote client with state " + state + '.');
@@ -175,49 +125,18 @@ public class RemoteControlClientHandler implements TrackPositionListener {
      * Cleans up this object prior to closing the parent.
      */
     final void onDestroy() {
-        if (AUDIO_MANAGER != null) {
-            if (mRemoteControlClient != null) {
-                mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-                AUDIO_MANAGER.unregisterRemoteControlClient(mRemoteControlClient);
-            }
+        if (mRemoteControlClient != null) {
+            setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
+            AUDIO_MANAGER.unregisterRemoteControlClient(mRemoteControlClient);
+        }
 
-            if (mMediaButtonReceiverComponent != null) {
-                AUDIO_MANAGER.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
-            }
+        if (mMediaButtonReceiverComponent != null) {
+            AUDIO_MANAGER.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            sApp.oMPDAsyncHelper.removeTrackPositionListener(this);
+            mSeekBar.onDestroy();
         }
-    }
-
-    /**
-     * This registers some media buttons via the RemoteControlReceiver.class which will take
-     * action by intent to this onStartCommand().
-     */
-    private void registerMediaButtons() {
-        mMediaButtonReceiverComponent = new ComponentName(sApp, RemoteControlReceiver.class);
-        AUDIO_MANAGER.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
-
-        final Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        intent.setComponent(mMediaButtonReceiverComponent);
-        mRemoteControlClient = new RemoteControlClient(PendingIntent
-                .getBroadcast(sApp /*context*/, 0 /*requestCode, ignored*/,
-                        intent /*intent*/, 0 /*flags*/));
-
-        final int controlFlags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
-                RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
-                RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
-                RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
-                RemoteControlClient.FLAG_KEY_MEDIA_STOP;
-
-        mRemoteControlClient.setTransportControlFlags(controlFlags);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            enableSeeking(controlFlags);
-        }
-
-        AUDIO_MANAGER.registerRemoteControlClient(mRemoteControlClient);
     }
 
     /**
@@ -228,9 +147,16 @@ public class RemoteControlClientHandler implements TrackPositionListener {
     final void setMediaPlayerBuffering(final boolean isBuffering) {
         mIsMediaPlayerBuffering = isBuffering;
         if (isBuffering) {
-            mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_BUFFERING);
+            setPlaybackState(RemoteControlClient.PLAYSTATE_BUFFERING);
         } else {
-            mRemoteControlClient.setPlaybackState(mPlaybackState);
+            setPlaybackState(mPlaybackState);
+        }
+    }
+
+    private void setPlaybackState(final int playbackState) {
+        mRemoteControlClient.setPlaybackState(playbackState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mSeekBar.setPlaybackState(playbackState);
         }
     }
 
@@ -240,22 +166,10 @@ public class RemoteControlClientHandler implements TrackPositionListener {
      * @param mpdStatus An MPDStatus object.
      */
     final void stateChanged(final MPDStatus mpdStatus) {
-        updateSeekTime(mpdStatus.getElapsedTime());
-        getRemoteState(mpdStatus.getState());
-    }
-
-    /**
-     * Used to keep the remote control client track bar updated.
-     *
-     * @param status New MPD status, containing current track position
-     */
-    @Override
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public final void trackPositionChanged(final MPDStatus status) {
-        if (status != null) {
-            updateSeekTime(status.getElapsedTime());
-            mRemoteControlClient.setPlaybackState(mPlaybackState, mLastKnownElapsed, 1.0f);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mSeekBar.updateSeekTime(mpdStatus.getElapsedTime());
         }
+        getRemoteState(mpdStatus.getState());
     }
 
     /**
@@ -285,19 +199,5 @@ public class RemoteControlClientHandler implements TrackPositionListener {
                         .apply();
             }
         }).start();
-    }
-
-    /**
-     * Only update the refresh date and elapsed time if it is the first start to
-     * make sure we have initial data, but updateStatus and trackChanged will take care
-     * of that afterwards.
-     *
-     * @param elapsedTime The current track audio elapsed time.
-     */
-    final void updateSeekTime(final long elapsedTime) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mLastStatusRefresh = new Date().getTime();
-            mLastKnownElapsed = elapsedTime * DateUtils.SECOND_IN_MILLIS;
-        }
     }
 }
