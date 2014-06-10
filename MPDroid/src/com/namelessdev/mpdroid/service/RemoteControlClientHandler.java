@@ -45,15 +45,7 @@ public class RemoteControlClientHandler implements TrackPositionListener {
     private static final AudioManager AUDIO_MANAGER =
             (AudioManager) sApp.getSystemService(sApp.AUDIO_SERVICE);
 
-    private static final String MEDIA_PLAYER_BUFFERING = "MediaPlayerBuffering";
-
     private static final String TAG = "RemoteControlClientService";
-
-    /**
-     * This is kept up to date and used when the state didn't change
-     * but the remote control client needs the current state.
-     */
-    private String mCurrentMPDState = MPDStatus.MPD_STATE_UNKNOWN;
 
     /**
      * What was the elapsed time (in ms) when the last status refresh happened?
@@ -66,14 +58,21 @@ public class RemoteControlClientHandler implements TrackPositionListener {
      */
     private long mLastStatusRefresh = 0L;
 
+    private boolean mIsMediaPlayerBuffering = false;
+
     /**
      * The component name of MusicIntentReceiver, for
      * use with media button and remote control APIs.
      */
-
     private ComponentName mMediaButtonReceiverComponent = null;
 
     private RemoteControlClient mRemoteControlClient = null;
+
+    /**
+     * This is kept up to date and used when the state didn't change
+     * but the remote control client needs the current state.
+     */
+    private int mPlaybackState = -1;
 
     RemoteControlClientHandler() {
         super();
@@ -147,30 +146,25 @@ public class RemoteControlClientHandler implements TrackPositionListener {
     private void getRemoteState(final String state) {
         final int playbackState;
 
-        if (state.equals(MEDIA_PLAYER_BUFFERING)) {
-            playbackState = RemoteControlClient.PLAYSTATE_BUFFERING;
-        } else {
-            switch (state) {
-                case MPDStatus.MPD_STATE_PLAYING:
-                    playbackState = RemoteControlClient.PLAYSTATE_PLAYING;
-                    break;
-                case MPDStatus.MPD_STATE_STOPPED:
-                    playbackState = RemoteControlClient.PLAYSTATE_STOPPED;
-                    break;
-                case MPDStatus.MPD_STATE_PAUSED:
-                    playbackState = RemoteControlClient.PLAYSTATE_PAUSED;
-                    break;
-                case MPDStatus.MPD_STATE_UNKNOWN:
-                default:
-                    playbackState = RemoteControlClient.PLAYSTATE_ERROR;
-                    break;
-            }
+        switch (state) {
+            case MPDStatus.MPD_STATE_PLAYING:
+                playbackState = RemoteControlClient.PLAYSTATE_PLAYING;
+                break;
+            case MPDStatus.MPD_STATE_STOPPED:
+                playbackState = RemoteControlClient.PLAYSTATE_STOPPED;
+                break;
+            case MPDStatus.MPD_STATE_PAUSED:
+                playbackState = RemoteControlClient.PLAYSTATE_PAUSED;
+                break;
+            case MPDStatus.MPD_STATE_UNKNOWN:
+            default:
+                playbackState = RemoteControlClient.PLAYSTATE_ERROR;
+                break;
         }
 
-        /** Notify of the elapsed time if on 4.3 or higher */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mRemoteControlClient.setPlaybackState(playbackState, mLastKnownElapsed, 1.0f);
-        } else {
+        mPlaybackState = playbackState;
+
+        if (!mIsMediaPlayerBuffering) {
             mRemoteControlClient.setPlaybackState(playbackState);
         }
 
@@ -232,10 +226,11 @@ public class RemoteControlClientHandler implements TrackPositionListener {
      * @param isBuffering true if mediaPlayer is buffering, false otherwise.
      */
     final void setMediaPlayerBuffering(final boolean isBuffering) {
+        mIsMediaPlayerBuffering = isBuffering;
         if (isBuffering) {
-            getRemoteState(MEDIA_PLAYER_BUFFERING);
+            mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_BUFFERING);
         } else {
-            getRemoteState(mCurrentMPDState);
+            mRemoteControlClient.setPlaybackState(mPlaybackState);
         }
     }
 
@@ -245,10 +240,8 @@ public class RemoteControlClientHandler implements TrackPositionListener {
      * @param mpdStatus An MPDStatus object.
      */
     final void stateChanged(final MPDStatus mpdStatus) {
-        mCurrentMPDState = mpdStatus.getState();
-
         updateSeekTime(mpdStatus.getElapsedTime());
-        getRemoteState(mCurrentMPDState);
+        getRemoteState(mpdStatus.getState());
     }
 
     /**
@@ -257,10 +250,11 @@ public class RemoteControlClientHandler implements TrackPositionListener {
      * @param status New MPD status, containing current track position
      */
     @Override
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public final void trackPositionChanged(final MPDStatus status) {
         if (status != null) {
             updateSeekTime(status.getElapsedTime());
-            getRemoteState(mCurrentMPDState);
+            mRemoteControlClient.setPlaybackState(mPlaybackState, mLastKnownElapsed, 1.0f);
         }
     }
 
