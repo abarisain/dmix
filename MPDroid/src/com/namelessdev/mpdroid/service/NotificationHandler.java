@@ -49,7 +49,7 @@ public class NotificationHandler {
      * at the notification area at the top of the screen as an icon -- and
      * as text as well if the user expands the notification area).
      */
-    static final int NOTIFICATION_ID = 1;
+    private static final int NOTIFICATION_ID = 1;
 
     private static final Notification NOTIFICATION;
 
@@ -60,13 +60,13 @@ public class NotificationHandler {
     private static final NotificationManager NOTIFICATION_MANAGER =
             (NotificationManager) sApp.getSystemService(sApp.NOTIFICATION_SERVICE);
 
-    private Music mCurrentTrack = null;
+    private final MPDroidService mMPDroidService;
 
-    private Callback mNotificationListener = null;
+    private Music mCurrentTrack = null;
 
     private boolean mIsMediaPlayerBuffering = false;
 
-    NotificationHandler() {
+    NotificationHandler(final MPDroidService mpdroidService) {
         super();
 
         final MPDStatus mpdStatus = MPDroidService.getMPDStatus();
@@ -93,6 +93,8 @@ public class NotificationHandler {
                 }
             }
         }
+
+        mMPDroidService = mpdroidService;
     }
 
     static {
@@ -241,19 +243,11 @@ public class NotificationHandler {
     }
 
     /**
-     * A callback to listen for notification updates.
-     *
-     * @param listener The current {@code Notification} listener.
-     */
-    final void addCallback(final Callback listener) {
-        mNotificationListener = listener;
-    }
-
-    /**
      * A method for cleanup and winding down.
      */
     final void onDestroy() {
-        mNotificationListener = null;
+        mMPDroidService.stopForeground(true);
+        NOTIFICATION_MANAGER.cancel(NOTIFICATION_ID);
     }
 
     /**
@@ -270,7 +264,7 @@ public class NotificationHandler {
         }
 
         NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
-        mNotificationListener.onNotificationUpdate(NOTIFICATION);
+        mMPDroidService.startForeground(NOTIFICATION_ID, NOTIFICATION);
     }
 
     /**
@@ -280,6 +274,7 @@ public class NotificationHandler {
      */
     final void setMediaPlayerBuffering(final boolean isBuffering) {
         mIsMediaPlayerBuffering = isBuffering;
+        setNewTrack(mCurrentTrack);
     }
 
     /**
@@ -293,7 +288,7 @@ public class NotificationHandler {
         }
 
         NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
-        mNotificationListener.onNotificationUpdate(NOTIFICATION);
+        mMPDroidService.startForeground(NOTIFICATION_ID, NOTIFICATION);
     }
 
     /**
@@ -321,8 +316,7 @@ public class NotificationHandler {
         }
 
         NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
-        mNotificationListener.onNotificationUpdate(NOTIFICATION);
-
+        mMPDroidService.startForeground(NOTIFICATION_ID, NOTIFICATION);
     }
 
     /**
@@ -344,16 +338,6 @@ public class NotificationHandler {
         }
 
         NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
-        mNotificationListener.onNotificationUpdate(NOTIFICATION);
-    }
-
-    interface Callback {
-
-        /**
-         * This is when an updated notification is available.
-         *
-         * @param notification The updated notification object.
-         */
-        void onNotificationUpdate(Notification notification);
+        mMPDroidService.startForeground(NOTIFICATION_ID, NOTIFICATION);
     }
 }

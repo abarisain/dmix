@@ -23,7 +23,6 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -39,7 +38,6 @@ import android.util.Log;
  */
 public final class MPDroidService extends Service implements AlbumCoverHandler.Callback,
         Handler.Callback,
-        NotificationHandler.Callback,
         StatusChangeListener {
 
     private static MPDApplication sApp = MPDApplication.getInstance();
@@ -219,8 +217,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         mAlbumCoverHandler = new AlbumCoverHandler();
         mAlbumCoverHandler.addCallback(this);
 
-        mNotificationHandler = new NotificationHandler();
-        mNotificationHandler.addCallback(this);
+        mNotificationHandler = new NotificationHandler(this);
 
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
@@ -249,16 +246,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         if (mAudioManager != null) {
             mAudioManager.abandonAudioFocus(null);
         }
-    }
-
-    /**
-     * This is when an updated notification is available.
-     *
-     * @param notification The updated notification object.
-     */
-    @Override
-    public void onNotificationUpdate(final Notification notification) {
-        startForeground(NotificationHandler.NOTIFICATION_ID, notification);
     }
 
     /**
@@ -416,7 +403,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
      */
     private void windDownResources() {
         Log.d(TAG, "windDownResources()");
-        stopForeground(true);
 
         if (mAudioManager != null) {
             mAudioManager.abandonAudioFocus(null);
