@@ -222,8 +222,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         mRemoteControlClientHandler = new RemoteControlClientHandler();
-
-        tryToGetAudioFocus();
     }
 
     @Override
@@ -371,9 +369,10 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
     private void tryToGetAudioFocus() {
         if ((!sApp.isStreamingServiceRunning() || mStreamingServiceWoundDown)
                 && !mIsAudioFocusedOnThis) {
-            Log.d(TAG, "requesting audio focus");
             final int result = mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN);
+
+            Log.d(TAG, "Requested audio focus, received code: " + result);
 
             mIsAudioFocusedOnThis = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         }
@@ -405,6 +404,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         Log.d(TAG, "windDownResources()");
 
         if (mAudioManager != null) {
+            mIsAudioFocusedOnThis = false;
             mAudioManager.abandonAudioFocus(null);
         }
 
