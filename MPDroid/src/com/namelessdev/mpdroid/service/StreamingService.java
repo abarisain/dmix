@@ -506,7 +506,7 @@ public final class StreamingService extends Service implements
     private void setupServiceControlHandlers() {
         if (!mServiceControlHandlersActive) {
             Log.d(TAG, "Setting up control handlers");
-            final long stopIdleDelay = 600000L; /** 10 minutes */
+            final long stopIdleDelay = 300000L; /** 5 minutes */
             /**
              * Stop handler so we don't annoy the user when they forget to turn streamingMode off.
              */

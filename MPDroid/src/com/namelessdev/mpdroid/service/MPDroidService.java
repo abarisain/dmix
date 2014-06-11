@@ -299,7 +299,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
      * avoid being unnecessarily brought up to shut right back down.
      */
     private void setupServiceHandler() {
-        final long idleDelay = 630000L; /** 10 Minutes 30 Seconds */
+        final long idleDelay = 330000L; /** 5 Minutes 30 Seconds */
         final Message msg = mDelayedPauseHandler.obtainMessage();
         mServiceHandlerActive = true;
         mDelayedPauseHandler.sendMessageDelayed(msg, idleDelay);
