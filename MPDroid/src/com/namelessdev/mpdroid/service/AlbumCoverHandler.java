@@ -18,6 +18,9 @@ package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -34,7 +37,7 @@ import android.util.Log;
  * A simple class tailor designed to keep various handlers
  * of the MPDroid service with an updated cover.
  */
-class AlbumCoverHandler {
+class AlbumCoverHandler implements CoverDownloadListener {
 
     private static final boolean DEBUG = false;
 
@@ -47,6 +50,8 @@ class AlbumCoverHandler {
     private Bitmap mAlbumCover = null;
 
     private String mAlbumCoverPath = null;
+
+    private CoverAsyncHelper mCoverAsyncHelper = null;
 
     private Callback mCoverUpdateListener = null;
 
@@ -65,6 +70,15 @@ class AlbumCoverHandler {
 
         mIconWidth = serviceContext.getResources()
                 .getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+
+        if (mIsAlbumCacheEnabled) {
+            final int maxSize = -1;
+            mCoverAsyncHelper = new CoverAsyncHelper();
+            mCoverAsyncHelper.setCachedCoverMaxSize(maxSize);
+            mCoverAsyncHelper.setCoverMaxSize(maxSize);
+            mCoverAsyncHelper.setCoverRetrieversFromPreferences();
+            mCoverAsyncHelper.addCoverDownloadListener(this);
+        }
     }
 
     /**
@@ -96,14 +110,63 @@ class AlbumCoverHandler {
         mCoverUpdateListener = callback;
     }
 
+    /**
+     * A method implemented from CoverDownloadListener executed
+     * after cover download has successfully completed.
+     *
+     * @param cover A current {@code CoverInfo object}.
+     */
+    @Override
+    public final void onCoverDownloaded(final CoverInfo cover) {
+        if (mIsAlbumCacheEnabled) {
+            mAlbumCover = cover.getBitmap()[0];
+            mAlbumCoverPath = retrieveCoverArtPath(cover);
+            mCoverUpdateListener.onCoverUpdate(cover.getBitmap()[0], mAlbumCoverPath);
+        }
+    }
+
+    /**
+     * A method implemented from CoverDownloadListener used for progress.
+     *
+     * @param cover A current {@code CoverInfo object}.
+     */
+    @Override
+    public void onCoverDownloadStarted(final CoverInfo cover) {
+    }
+
+    /**
+     * A method implemented from CoverDownloadListener
+     * executed after an album cover was not found.
+     *
+     * @param coverInfo A current {@code CoverInfo object}.
+     */
+    @Override
+    public void onCoverNotFound(final CoverInfo coverInfo) {
+    }
+
     final void stop() {
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
             mAlbumCover.recycle();
+        }
+
+        mCoverUpdateListener = null;
+
+        if (mCoverAsyncHelper != null) {
+            mCoverAsyncHelper.removeCoverDownloadListener(this);
         }
     }
 
     final void setAlbumCache(final boolean value) {
         mIsAlbumCacheEnabled = value;
+    }
+
+    /**
+     * A method implemented from CoverDownloadListener used for progress.
+     *
+     * @param albumInfo A current {@code AlbumInfo object}.
+     */
+    @Override
+    public void tagAlbumCover(final AlbumInfo albumInfo) {
     }
 
     final void update(final AlbumInfo albumInfo) {
@@ -129,10 +192,23 @@ class AlbumCoverHandler {
         final String coverArtPath = retrieveCoverArtPath(albumInfo);
 
         if (coverArtPath == null) {
+            if (DEBUG) {
+                Log.d(TAG, "Cover not found, attempting download.");
+            }
+
             mCoverUpdateListener.onCoverUpdate(null, null);
+            mCoverAsyncHelper.downloadCover(albumInfo);
         } else if (coverArtPath.equals(mAlbumCoverPath) && mAlbumCover != null) {
+            if (DEBUG) {
+                Log.d(TAG, "Cover the same as last time, omitting.");
+            }
+
             mCoverUpdateListener.onCoverUpdate(mAlbumCover, mAlbumCoverPath);
         } else {
+            if (DEBUG) {
+                Log.d(TAG, "Cover found in cache, decoding.");
+            }
+
             new DecodeAlbumCover().execute(coverArtPath);
         }
     }
@@ -185,7 +261,9 @@ class AlbumCoverHandler {
         protected final void onPostExecute(final Bitmap result) {
             super.onPostExecute(result);
 
-            mCoverUpdateListener.onCoverUpdate(mAlbumCover, mAlbumCoverPath);
+            if (mCoverUpdateListener != null) {
+                mCoverUpdateListener.onCoverUpdate(mAlbumCover, mAlbumCoverPath);
+            }
         }
     }
 }
