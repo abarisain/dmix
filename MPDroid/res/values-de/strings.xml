@@ -154,7 +154,7 @@
 	<string name="enableLocalCoverDescription">Albencover vom MPD-Server laden (Erfordert einen Webserver, siehe Wiki)</string>
 	<string name="musicPath">Musikverzeichnis</string>
 	<string name="musicPathDescriptionNew">Musikverzeichnis auf dem MPD-Server z.B. files/mp3 (music/ für Vortexbox-Benutzer). Für aufwendige Einstellungen können auch absolute Pfade (z.B. "http://ip:port/music") verwendet werden.</string>
-	<string name="coverFileName">Albencover Datei</string>
+	<string name="coverFileName">Albencover-Datei</string>
 	<string name="coverFileNameDescription">Dateiname der Albencover z.B. folder.jpg (cover.jpg für Vortexbox-Benutzer)</string>
 	<string name="cacheUsage">Belegter Cache-Speicher</string>
 	<string name="deleteServer">Diesen Server löschen</string>
@@ -278,7 +278,7 @@
 	<string name="both">Beide</string>
 	<string name="albumartist">Album Künstler</string>
 	<string name="artist">Künstler</string>
-	<string name="iconDescription">Projekt Icon</string>
+	<string name="iconDescription">Projekt-Icon</string>
 	<string name="artistTagToUse">Tag für die Künstler Liste</string>
 	<string name="artistTagToUseDescription">Wähle den Tag aus, der für die Künstler Liste zuständig ist. Nützlich um Künstler zu verstecken, die nur in Compilations vorhanden sind.</string>
 	<string name="persistentNotification">Dauerhafte Benachrichtigung</string>
