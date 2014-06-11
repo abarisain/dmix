@@ -40,8 +40,6 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StrictMode;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -123,52 +121,14 @@ public final class StreamingService extends Service implements
 
     private boolean serviceControlHandlersActive = false;
 
-    private TelephonyManager mTelephonyManager = null;
-
     private MediaPlayer mediaPlayer = null;
 
     private AudioManager audioManager = null;
-
-    private boolean streamingStoppedForCall = false;
 
     private boolean activeBufferingError = false;
 
     /** Is MPD playing? */
     private boolean isPlaying = false;
-
-    /**
-     * Setup for the method which allows MPDroid to override behavior during
-     * phone events.
-     */
-    private final PhoneStateListener phoneStateListener = new PhoneStateListener() {
-        @Override
-        public void onCallStateChanged(final int state, final String incomingNumber) {
-            super.onCallStateChanged(state, incomingNumber);
-
-            switch (state) {
-                case TelephonyManager.CALL_STATE_RINGING:
-                    final int ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
-                    if (ringVolume == 0) {
-                        break;
-                    } /** Fall Through */
-                case TelephonyManager.CALL_STATE_OFFHOOK:
-                    if (isPlaying) {
-                        streamingStoppedForCall = true;
-                        windDownResources(STREAMING_STOP);
-                    }
-                    break;
-                case TelephonyManager.CALL_STATE_IDLE:
-                    // Resume playback only if music was playing when the call was answered
-                    if (streamingStoppedForCall) {
-                        tryToStream();
-                        streamingStoppedForCall = false;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
 
     /** Flag indicating whether we have called bind on the service. */
     private boolean isBoundService = false;
@@ -453,9 +413,6 @@ public final class StreamingService extends Service implements
     private void windUpResources() {
         Log.d(TAG, "Winding up resources.");
 
-        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-
         activeBufferingError = true;
 
         mediaPlayer = new MediaPlayer();
@@ -480,10 +437,6 @@ public final class StreamingService extends Service implements
 
         if (action != INVALID_INT) {
             sendToBoundService(action);
-        }
-
-        if (mTelephonyManager != null) {
-            mTelephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
         }
 
         if (audioManager != null) {

@@ -212,14 +212,21 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      */
     private void forceStatusUpdate() {
         MPDStatus mpdStatus = null;
-        try {
-            mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus(true);
-        } catch (final MPDServerException e) {
-            Log.e(TAG, "Failed to seed the status.", e);
+
+        if (app.oMPDAsyncHelper.oMPD.isConnected()) {
+            try {
+                mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus(true);
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to seed the status.", e);
+            }
         }
 
-        updateStatus(mpdStatus);
-        updateTrackInfo(mpdStatus);
+        if (mpdStatus != null) {
+            updateStatus(mpdStatus);
+            updateTrackInfo(mpdStatus);
+        } else {
+            Log.e(TAG, "Failed to get a force updated status object.");
+        }
     }
 
     private PlaylistFragment getPlaylistFragment() {
@@ -549,10 +556,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         super.onResume();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
         isAudioNameTextEnabled = settings.getBoolean("enableAudioText", false);
-
-        if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-            forceStatusUpdate();
-        }
+        forceStatusUpdate();
     }
 
     @Override

@@ -2,33 +2,29 @@ language: java
 
 before_install:
   # Ripped most of this from https://github.com/pestrada/android-tdd-playground/blob/master/.travis.yml
+
   # Install base Android SDK
+  - ANDROID_SDK_VERSION="22.6.2"
+  - ANDROID_SDK_FILE=android-sdk_r$(printf %s $ANDROID_SDK_VERSION)-linux.tgz
   - sudo apt-get update -qq
   - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
-  - wget http://dl.google.com/android/android-sdk_r22.6.2-linux.tgz
-  - tar xzf android-sdk_r22.6.2-linux.tgz
+  - wget http://dl.google.com/android/$ANDROID_SDK_FILE
+  - tar xzf $ANDROID_SDK_FILE
   - export ANDROID_HOME=$PWD/android-sdk-linux
-  - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+  - export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
-  # Gradle
-  - wget http://services.gradle.org/distributions/gradle-1.10-bin.zip
-  - unzip gradle-1.10-bin.zip
-  - export GRADLE_HOME=$PWD/gradle-1.10
-  - export PATH=$GRADLE_HOME/bin:$PATH
-
-  # install android build tools
-  - wget https://dl-ssl.google.com/android/repository/build-tools_r19.0.3-linux.zip
-  - unzip build-tools_r19.0.3-linux.zip -d $ANDROID_HOME
-  - mkdir -p $ANDROID_HOME/build-tools/
-  - mv $ANDROID_HOME/android-4.4.2 $ANDROID_HOME/build-tools/19.0.3
+  # Try to autogenerate the current SDK and BUILD_TOOLS versions
+  - SDK_VERSION=android-`grep compileSdkVersion MPDroid/build.gradle | sed -e 's/.* //'`
+  - BUILD_TOOLS=build-tools-`grep buildToolsVersion MPDroid/build.gradle | sed -e 's/.* "//' | sed -e 's/"$//'`
 
   # Install required components.
   # For a full list, run `android list sdk -a --extended`
   # Other relevant API's
-  - echo yes | android update sdk --filter platform-tools --no-ui --force > /dev/null
-  - echo yes | android update sdk --filter android-19 --no-ui --force > /dev/null
-  - echo yes | android update sdk --filter extra-android-support --no-ui --force > /dev/null
-  - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force > /dev/null
+  - echo yes | android update sdk --filter $BUILD_TOOLS --no-ui --force
+  - echo yes | android update sdk --filter platform-tools --no-ui --force
+  - echo yes | android update sdk --filter $SDK_VERSION --no-ui --force
+  - echo yes | android update sdk --filter extra-android-support --no-ui --force
+  - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force
 
 script:
-  - gradle build
+  - ./gradlew build
