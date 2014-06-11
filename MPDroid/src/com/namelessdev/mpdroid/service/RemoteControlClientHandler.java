@@ -173,13 +173,26 @@ public class RemoteControlClientHandler {
     }
 
     /**
-     * Updates the current metadata information.
+     * Updates the current album art.
+     *
+     * @param albumCover The current track album art.
      */
-    final void update(final Music currentTrack, final Bitmap albumCover) {
+    final void update(final Bitmap albumCover) {
+        mRemoteControlClient.editMetadata(false)
+                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, albumCover)
+                .apply();
+    }
+
+    /**
+     * Update the current metadata information.
+     *
+     * @param currentTrack A current {@code Music} object.
+     */
+    final void update(final Music currentTrack) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mRemoteControlClient.editMetadata(true)
+                mRemoteControlClient.editMetadata(false)
                         .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
                                 currentTrack.getAlbum())
                         .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
@@ -194,8 +207,6 @@ public class RemoteControlClientHandler {
                                 currentTrack.getTime() * DateUtils.SECOND_IN_MILLIS)
                         .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
                                 currentTrack.getTitle())
-                        .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
-                                albumCover)
                         .apply();
             }
         }).start();

@@ -198,7 +198,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
      */
     @Override
     public void onCoverUpdate(final Bitmap albumCover, final String albumCoverPath) {
-        mRemoteControlClientHandler.update(mCurrentTrack, albumCover);
+        mRemoteControlClientHandler.update(albumCover);
         mNotificationHandler.setAlbumCover(albumCover, albumCoverPath);
     }
 
@@ -386,8 +386,9 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
             final int songPos = mpdStatus.getSongPos();
             mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             if (mCurrentTrack != null) {
-                mNotificationHandler.setNewTrack(mCurrentTrack);
                 mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
+                mNotificationHandler.setNewTrack(mCurrentTrack);
+                mRemoteControlClientHandler.update(mCurrentTrack);
             }
         }
     }
