@@ -56,6 +56,7 @@ public final class StreamingService extends Service implements
          * OnInfoListener is not used because it is broken (never gets called, ever)..
          * OnBufferingUpdateListener is not used because it depends on a stream completion time.
          */
+        Handler.Callback,
         OnAudioFocusChangeListener,
         OnCompletionListener,
         OnErrorListener,
@@ -81,6 +82,10 @@ public final class StreamingService extends Service implements
     /** Let notification service know this service is running minimal resources. */
     static final int SERVICE_WOUND_DOWN = 6;
 
+    private static final int DELAYED_PLAY = 7;
+
+    private static final int DELAYED_SERVICE_STOP = 8;
+
     /**
      * Called as an argument to windDownResources() when a
      * message is not required to send to bound service.
@@ -93,24 +98,9 @@ public final class StreamingService extends Service implements
 
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + "START_STREAMING";
 
-    private final Handler mDelayedStopHandler = new Handler() {
-        @Override
-        public void handleMessage(final Message msg) {
-            super.handleMessage(msg);
-            Log.d(TAG, "Stopping self by handler delay.");
-            stopSelf();
-        }
-    };
-
     private static MPDApplication sApp = MPDApplication.getInstance();
 
-    private final Handler mDelayedPlayHandler = new Handler() {
-        @Override
-        public void handleMessage(final Message msg) {
-            super.handleMessage(msg);
-            mMediaPlayer.prepareAsync();
-        }
-    };
+    private final Handler mHandler = new Handler(this);
 
     /** Keep track if we're in an active error. */
     private boolean mActiveBufferingError = false;
@@ -133,9 +123,6 @@ public final class StreamingService extends Service implements
 
     /** Keep track when MediaPlayer is preparing a stream. */
     private boolean mPreparingStreaming = false;
-
-    /** Keep track of active service handler. */
-    private boolean mServiceControlHandlersActive = false;
 
     /** Messenger for communicating with service. */
     private Messenger mServiceMessenger = null;
@@ -176,7 +163,7 @@ public final class StreamingService extends Service implements
         final String streamSource = getStreamSource();
         final long asyncIdle = 1500L;
         mPreparingStreaming = true;
-        stopControlHandlers();
+        mHandler.removeMessages(DELAYED_SERVICE_STOP);
 
         /**
          * With MediaPlayer, there is a racy bug which affects, minimally, Android KitKat and lower.
@@ -199,8 +186,8 @@ public final class StreamingService extends Service implements
             mMediaPlayer.reset();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setDataSource(streamSource);
-            final Message msg = mDelayedPlayHandler.obtainMessage();
-            mDelayedPlayHandler.sendMessageDelayed(msg, asyncIdle); /** Go to onPrepared() */
+            final Message msg = mHandler.obtainMessage(DELAYED_PLAY);
+            mHandler.sendMessageDelayed(msg, asyncIdle); /** Go to onPrepared() */
         } catch (final IOException e) {
             Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
             windDownResources(BUFFERING_ERROR);
@@ -209,8 +196,6 @@ public final class StreamingService extends Service implements
                     "This is typically caused by a change in the server state during stream preparation.",
                     e);
             windDownResources(BUFFERING_ERROR);
-        } finally {
-            mDelayedPlayHandler.removeCallbacksAndMessages(mDelayedPlayHandler);
         }
     }
 
@@ -242,6 +227,26 @@ public final class StreamingService extends Service implements
             mIsBoundService = false;
             Log.d(TAG, "Unbinding.");
         }
+    }
+
+    @Override
+    public boolean handleMessage(final Message message) {
+        boolean result = true;
+
+        switch (message.what) {
+            case DELAYED_PLAY:
+                mMediaPlayer.prepareAsync();
+                break;
+            case DELAYED_SERVICE_STOP:
+                Log.d(TAG, "Stopping self by handler delay.");
+                stopSelf();
+                break;
+            default:
+                result = false;
+                break;
+        }
+
+        return result;
     }
 
     /**
@@ -348,7 +353,7 @@ public final class StreamingService extends Service implements
         Log.d(TAG, "StreamingService.onDestroy()");
         super.onDestroy();
 
-        stopControlHandlers();
+        mHandler.removeCallbacksAndMessages(this);
 
         /** Remove the current MPD listeners */
         sApp.oMPDAsyncHelper.removeStatusChangeListener(this);
@@ -503,17 +508,15 @@ public final class StreamingService extends Service implements
         }
     }
 
+    /**
+     * Stop handler so we don't annoy the user when they forget to turn streamingMode off.
+     */
     private void setupServiceControlHandlers() {
-        if (!mServiceControlHandlersActive) {
-            Log.d(TAG, "Setting up control handlers");
-            final long stopIdleDelay = 300000L; /** 5 minutes */
-            /**
-             * Stop handler so we don't annoy the user when they forget to turn streamingMode off.
-             */
-            final Message msg = mDelayedStopHandler.obtainMessage();
-            mDelayedStopHandler.sendMessageDelayed(msg, stopIdleDelay);
-            mServiceControlHandlersActive = true;
-        }
+        Log.d(TAG, "Setting up control handlers");
+        final long stopIdleDelay = 300000L; /** 5 minutes */
+
+        final Message msg = mHandler.obtainMessage(DELAYED_SERVICE_STOP);
+        mHandler.sendMessageDelayed(msg, stopIdleDelay);
     }
 
     /**
@@ -531,7 +534,7 @@ public final class StreamingService extends Service implements
         if (state != null) {
             switch (state) {
                 case MPDStatus.MPD_STATE_PLAYING:
-                    stopControlHandlers();
+                    mHandler.removeMessages(DELAYED_SERVICE_STOP);
                     mIsPlaying = true;
                     tryToStream();
                     break;
@@ -556,14 +559,6 @@ public final class StreamingService extends Service implements
                 default:
                     break;
             }
-        }
-    }
-
-    private void stopControlHandlers() {
-        if (mServiceControlHandlersActive) {
-            Log.d(TAG, "Removing control handlers");
-            mDelayedStopHandler.removeCallbacksAndMessages(null);
-            mServiceControlHandlersActive = false;
         }
     }
 
@@ -599,7 +594,7 @@ public final class StreamingService extends Service implements
 
         sendToBoundService(SERVICE_WOUND_DOWN);
 
-        if (STREAMING_STOP == action) {
+        if (STREAMING_STOP == action && !mHandler.hasMessages(DELAYED_SERVICE_STOP)) {
             setupServiceControlHandlers();
         }
 
@@ -625,7 +620,7 @@ public final class StreamingService extends Service implements
                 if (BUFFERING_ERROR == action) {
                     mActiveBufferingError = true;
                 }
-                mDelayedPlayHandler.removeCallbacksAndMessages(null);
+                mHandler.removeMessages(DELAYED_PLAY);
 
             } else {
                 mMediaPlayer.reset();

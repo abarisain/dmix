@@ -58,15 +58,11 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
     public static final String ACTION_START = FULLY_QUALIFIED_NAME
             + "ACTION_START";
 
-    private final Handler mDelayedDisconnectionHandler = new Handler() {
-        @Override
-        public void handleMessage(final Message msg) {
-            super.handleMessage(msg);
-            if (!sApp.oMPDAsyncHelper.oMPD.isConnected()) {
-                shutdownNotification();
-            }
-        }
-    };
+    private static final int DELAYED_DISCONNECT = 11;
+
+    private static final int DELAYED_PAUSE = 12;
+
+    private final Handler mHandler = new Handler(this);
 
     private AlbumCoverHandler mAlbumCoverHandler = null;
 
@@ -79,18 +75,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
     private NotificationHandler mNotificationHandler = null;
 
     private RemoteControlClientHandler mRemoteControlClientHandler = null;
-
-    private boolean mServiceHandlerActive = false;
-
-    /** Set up the message handler. */
-    private final Handler mDelayedPauseHandler = new Handler() {
-        @Override
-        public void handleMessage(final Message msg) {
-            super.handleMessage(msg);
-            mServiceHandlerActive = false;
-            shutdownNotification();
-        }
-    };
 
     /**
      * Target we publish for clients to send messages to IncomingHandler.
@@ -126,17 +110,48 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         } else {
             final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
 
-            final Message msg = mDelayedDisconnectionHandler.obtainMessage();
-            mDelayedDisconnectionHandler.sendMessageDelayed(msg, idleDelay);
+            if (!mHandler.hasMessages(DELAYED_DISCONNECT)) {
+                final Message msg = mHandler.obtainMessage(DELAYED_DISCONNECT);
+                mHandler.sendMessageDelayed(msg, idleDelay);
+            }
         }
     }
 
     @Override
     public final boolean handleMessage(final Message message) {
+        boolean result = hasHandledStreamingMessage(message.what);
+
+        if (!result) {
+            result = true;
+            switch (message.what) {
+                case DELAYED_DISCONNECT:
+                    if (sApp.oMPDAsyncHelper.oMPD.isConnected()) {
+                        break;
+                    }
+                    /** Fall through */
+                case DELAYED_PAUSE:
+                    shutdownNotification();
+                    break;
+                default:
+                    result = false;
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * A method to handle any messages with origin in the stream handling code.
+     *
+     * @param what The message to handle.
+     * @return Whether this method had a streaming message that was handled.
+     */
+    private boolean hasHandledStreamingMessage(final int what) {
         boolean result = true;
         final MPDStatus mpdStatus = getMPDStatus();
 
-        switch (message.what) {
+        switch (what) {
             case StreamingService.BUFFERING_BEGIN:
                 /** If the notification was requested by StreamingService, set it here. */
                 if (!sApp.isMPDroidServiceRunning() &&
@@ -230,7 +245,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         Log.d(TAG, "Removing connection lock");
         sApp.removeConnectionLock(this);
         sApp.oMPDAsyncHelper.removeStatusChangeListener(this);
-        mDelayedPauseHandler.removeCallbacksAndMessages(null);
+        mHandler.removeCallbacksAndMessages(this);
 
         windDownResources();
 
@@ -300,9 +315,8 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
      */
     private void setupServiceHandler() {
         final long idleDelay = 330000L; /** 5 Minutes 30 Seconds */
-        final Message msg = mDelayedPauseHandler.obtainMessage();
-        mServiceHandlerActive = true;
-        mDelayedPauseHandler.sendMessageDelayed(msg, idleDelay);
+        final Message msg = mHandler.obtainMessage(DELAYED_PAUSE);
+        mHandler.sendMessageDelayed(msg, idleDelay);
     }
 
     private void shutdownNotification() {
@@ -325,7 +339,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
                         updateTrack(mpdStatus);
                     }
                     mNotificationHandler.setPlayState(true);
-                    stopServiceHandler();
+                    mHandler.removeMessages(DELAYED_PAUSE);
                     tryToGetAudioFocus();
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
@@ -340,7 +354,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
                         updateTrack(mpdStatus);
                     }
                     mNotificationHandler.setPlayState(false);
-                    if (!mServiceHandlerActive) {
+                    if (!mHandler.hasMessages(DELAYED_PAUSE)) {
                         setupServiceHandler();
                     }
                     break;
@@ -348,13 +362,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
                     break;
             }
         }
-    }
-
-    /** Kills any active service handlers. */
-    private void stopServiceHandler() {
-        /** If we have a message in the queue, remove it. */
-        mDelayedPauseHandler.removeCallbacksAndMessages(null);
-        mServiceHandlerActive = false; /** No notification if stopped or paused. */
     }
 
     @Override
