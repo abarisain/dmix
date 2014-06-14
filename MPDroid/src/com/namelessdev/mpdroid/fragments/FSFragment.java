@@ -198,7 +198,10 @@ public class FSFragment extends BrowseFragment {
                     try {
                         int songId = -1;
                         if (item instanceof Music) {
-                            app.oMPDAsyncHelper.oMPD.getPlaylist().add(item);
+                            app.oMPDAsyncHelper.oMPD.add(item, app.isInSimpleMode(), app.isInSimpleMode());
+                            if (!app.isInSimpleMode()) {
+                                Tools.notifyUser(R.string.songAdded, item);
+                            }
                         } else if (item instanceof PlaylistFile) {
                             app.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullpath());
                         }
