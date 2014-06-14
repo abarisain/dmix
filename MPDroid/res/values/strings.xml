@@ -139,8 +139,8 @@
     <string name="go_to">Go to …</string>
     <string name="moveFirst">Move to first</string>
 	<string name="moveLast">Move to last</string>
-	<string name="removeFromPlaylist">Remove from playlist</string>
-	<string name="removeAlbumFromPlaylist">Remove album from playlist</string>
+	<string name="removeFromPlaylist">Remove from queue</string>
+	<string name="removeAlbumFromPlaylist">Remove album from queue</string>
 	<string name="save">Save</string>
 	<string name="updateDBDetails">Refresh MPD\'s database</string>
 	<string name="useLocalAlbumCache">Use Album Cache</string>
