@@ -83,6 +83,8 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
 
     private boolean mStreamingOwnsNotification = false;
 
+    private boolean mNotificationSelfOwned = false;
+
     private boolean mStreamingServiceWoundDown = false;
 
     /**
@@ -153,11 +155,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
 
         switch (what) {
             case StreamingService.BUFFERING_BEGIN:
-                /** If the notification was requested by StreamingService, set it here. */
-                if (!sApp.isMPDroidServiceRunning() &&
-                        sApp.isStreamingServiceRunning()) {
-                    mStreamingOwnsNotification = true;
-                }
                 mNotificationHandler.setMediaPlayerBuffering(true);
                 mRemoteControlClientHandler.setMediaPlayerBuffering(true);
                 mStreamingServiceWoundDown = false;
@@ -166,7 +163,6 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
                 if (mStreamingOwnsNotification &&
                         !sApp.isNotificationPersistent()) {
                     stopSelf();
-                    mStreamingOwnsNotification = false;
                 } else {
                     tryToGetAudioFocus();
                     stateChanged(getMPDStatus(), null);
@@ -203,6 +199,11 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
 
     @Override
     public IBinder onBind(final Intent intent) {
+        /** Crappy Temporary hack */
+        if (!mNotificationSelfOwned) {
+            mStreamingOwnsNotification = true;
+        }
+
         return mServiceMessenger.getBinder();
     }
 
@@ -278,6 +279,11 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         if (action == null || !ACTION_START.equals(action)) {
             Log.e(TAG, "Service started without action, stopping...");
             stopSelf();
+        }
+
+        /** Crappy temporary hack */
+        if (!mStreamingOwnsNotification) {
+            mNotificationSelfOwned = true;
         }
 
         stateChanged(getMPDStatus(), MPDStatus.MPD_STATE_UNKNOWN);
