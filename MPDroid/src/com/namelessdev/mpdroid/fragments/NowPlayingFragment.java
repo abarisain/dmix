@@ -227,11 +227,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private PlaylistFragment getPlaylistFragment() {
-        PlaylistFragment playlistFragment;
-        playlistFragment = (PlaylistFragment) activity.getSupportFragmentManager()
+    private QueueFragment getPlaylistFragment() {
+        QueueFragment queueFragment;
+        queueFragment = (QueueFragment) activity.getSupportFragmentManager()
                 .findFragmentById(R.id.playlist_fragment);
-        return playlistFragment;
+        return queueFragment;
     }
 
     protected static int getPlayPauseResource(final String state) {
@@ -694,10 +694,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void scrollToNowPlaying() {
-        PlaylistFragment playlistFragment;
-        playlistFragment = getPlaylistFragment();
-        if (playlistFragment != null) {
-            playlistFragment.scrollToNowPlaying();
+        QueueFragment queueFragment;
+        queueFragment = getPlaylistFragment();
+        if (queueFragment != null) {
+            queueFragment.scrollToNowPlaying();
         }
     }
 
@@ -808,10 +808,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void updatePlaylistCovers(AlbumInfo albumInfo) {
-        PlaylistFragment playlistFragment;
-        playlistFragment = getPlaylistFragment();
-        if (playlistFragment != null) {
-            playlistFragment.updateCover(albumInfo);
+        QueueFragment queueFragment;
+        queueFragment = getPlaylistFragment();
+        if (queueFragment != null) {
+            queueFragment.updateCover(albumInfo);
         }
     }
 

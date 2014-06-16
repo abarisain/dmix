@@ -24,7 +24,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
-import com.namelessdev.mpdroid.helpers.PlaylistControl;
+import com.namelessdev.mpdroid.helpers.QueueControl;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.models.AbstractPlaylistMusic;
@@ -82,7 +82,10 @@ import java.util.Locale;
 
 import static android.text.TextUtils.isEmpty;
 
-public class PlaylistFragment extends ListFragment implements StatusChangeListener,
+/**
+ * A fragment for showing the media player's current playlist queue.
+ */
+public class QueueFragment extends ListFragment implements StatusChangeListener,
         OnMenuItemClickListener {
 
     private class QueueAdapter extends ArrayAdapter {
@@ -186,7 +189,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 final AbstractPlaylistMusic itemFrom = songList.get(from);
                 final int songID = itemFrom.getSongId();
 
-                PlaylistControl.run(PlaylistControl.MOVE, songID, to);
+                QueueControl.run(QueueControl.MOVE, songID, to);
             }
         }
     };
@@ -200,7 +203,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             if (getPlaylistItemSong(popupSongID).isStream()) {
                 popupMenu.getMenu().findItem(R.id.PLCX_goto).setVisible(false);
             }
-            popupMenu.setOnMenuItemClickListener(PlaylistFragment.this);
+            popupMenu.setOnMenuItemClickListener(QueueFragment.this);
             popupMenu.show();
         }
     };
@@ -342,7 +345,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 }
 
                 if (j > 0) {
-                    PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, positions);
+                    QueueControl.run(QueueControl.REMOVE_BY_ID, positions);
                     mode.finish();
                 }
 
@@ -394,10 +397,10 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
         final int song = ((Music) l.getAdapter().getItem(position)).getSongId();
 
-        PlaylistControl.run(PlaylistControl.SKIP_TO_ID, song);
+        QueueControl.run(QueueControl.SKIP_TO_ID, song);
     }
 
-    private static final String TAG = "com.namelessdev.mpdroid.PlaylistFragment";
+    private static final String TAG = "QueueFragment";
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
@@ -406,20 +409,20 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
         switch (item.getItemId()) {
             case R.id.PLCX_playNext:
-                PlaylistControl.run(PlaylistControl.MOVE_TO_NEXT, popupSongID);
+                QueueControl.run(QueueControl.MOVE_TO_NEXT, popupSongID);
                 Tools.notifyUser("Song moved to next in list");
                 break;
             case R.id.PLCX_moveFirst:
                 // Move song to first in playlist
-                PlaylistControl.run(PlaylistControl.MOVE, popupSongID, 0);
+                QueueControl.run(QueueControl.MOVE, popupSongID, 0);
                 Tools.notifyUser("Song moved to first in list");
                 break;
             case R.id.PLCX_moveLast:
-                PlaylistControl.run(PlaylistControl.MOVE_TO_LAST, popupSongID);
+                QueueControl.run(QueueControl.MOVE_TO_LAST, popupSongID);
                 Tools.notifyUser("Song moved to last in list");
                 break;
             case R.id.PLCX_removeFromPlaylist:
-                PlaylistControl.run(PlaylistControl.REMOVE_BY_ID, popupSongID);
+                QueueControl.run(QueueControl.REMOVE_BY_ID, popupSongID);
 
                 if (isAdded()) {
                     Tools.notifyUser(R.string.deletedSongFromPlaylist);
@@ -429,7 +432,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                 if (DEBUG) {
                     Log.d(TAG, "Remove Album " + popupSongID);
                 }
-                PlaylistControl.run(PlaylistControl.REMOVE_ALBUM_BY_ID, popupSongID);
+                QueueControl.run(QueueControl.REMOVE_ALBUM_BY_ID, popupSongID);
                 if (isAdded()) {
                     Tools.notifyUser(R.string.deletedSongFromPlaylist);
                 }
@@ -479,7 +482,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
         switch (item.getItemId()) {
             case R.id.PLM_Clear:
-                PlaylistControl.run(PlaylistControl.CLEAR);
+                QueueControl.run(QueueControl.CLEAR);
                 songList.clear();
                 if (isAdded()) {
                     Tools.notifyUser(R.string.playlistCleared);
@@ -582,7 +585,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
                     .create().show();
         } else if (!name.isEmpty()) {
             // actually save:
-            PlaylistControl.run(PlaylistControl.SAVE_PLAYLIST, name);
+            QueueControl.run(QueueControl.SAVE_PLAYLIST, name);
         }
     }
 
