@@ -257,10 +257,11 @@ public class MPD {
         /** Add */
         runnable.run();
 
-
-        if (isPlaying) {
-            if (replace) {
+        if (replace) {
+            if (isPlaying) {
                 next();
+            } else if (playAfterAdd) {
+                skipToPosition(playPos);
             }
         } else if (playAfterAdd) {
             skipToPosition(playPos);
