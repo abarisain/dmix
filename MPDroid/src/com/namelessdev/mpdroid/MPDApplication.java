@@ -153,48 +153,73 @@ public class MPDApplication extends Application implements ConnectionListener {
         connectMPD();
     }
 
+    /**
+     * Builds the Connection Failed dialog box for anything other than the settings activity.
+     *
+     * @param message The reason the connection failed.
+     * @return The built {@code AlertDialog} object.
+     */
+    private AlertDialog.Builder buildConnectionFailedMessage(final String message) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
+        final OnClickListener oDialogClickListener = new DialogClickListener();
+
+        builder.setTitle(R.string.connectionFailed);
+        builder.setMessage(
+                getResources().getString(R.string.connectionFailedMessage, message));
+        builder.setCancelable(false);
+
+        builder.setNegativeButton(R.string.quit, oDialogClickListener);
+        builder.setNeutralButton(R.string.settings, oDialogClickListener);
+        builder.setPositiveButton(R.string.retry, oDialogClickListener);
+
+        return builder;
+    }
+
+    /**
+     * Builds the Connection Failed dialog box for the Settings activity.
+     *
+     * @param message The reason the connection failed.
+     * @return The built {@code AlertDialog} object.
+     */
+    private AlertDialog.Builder buildConnectionFailedSettings(final String message) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
+
+        builder.setCancelable(false);
+        builder.setMessage(
+                getResources().getString(R.string.connectionFailedMessageSetting, message));
+        builder.setPositiveButton("OK", new OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialog, final int which) {
+            }
+        });
+        return builder;
+    }
+
+    /**
+     * Handles the connection failure with a {@code AlertDialog} user facing message box.
+     *
+     * @param message The reason the connection failed.
+     */
     @Override
     public final synchronized void connectionFailed(final String message) {
 
-        if (mAlertDialog != null && !(mAlertDialog instanceof ProgressDialog) && mAlertDialog
-                .isShowing()) {
-            return;
-        }
+        if (mAlertDialog == null || mAlertDialog instanceof ProgressDialog ||
+                !mAlertDialog.isShowing()) {
 
-        // dismiss possible dialog
-        dismissAlertDialog();
+            // dismiss possible dialog
+            dismissAlertDialog();
 
-        oMPDAsyncHelper.disconnect();
+            oMPDAsyncHelper.disconnect();
 
-        if (mCurrentActivity != null && !mConnectionLocks.isEmpty()) {
-            // are we in the settings activity?
-            if (mCurrentActivity.getClass().equals(SettingsActivity.class)) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
-                builder.setCancelable(false);
-                builder.setMessage(
-                        getResources().getString(R.string.connectionFailedMessageSetting, message));
-                builder.setPositiveButton("OK", new OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                    }
-                });
-                mAlertDialog = builder.show();
-            } else {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
-                builder.setTitle(R.string.connectionFailed);
-                builder.setMessage(
-                        getResources().getString(R.string.connectionFailedMessage, message));
-                builder.setCancelable(false);
-
-                final OnClickListener oDialogClickListener = new DialogClickListener();
-                builder.setNegativeButton(R.string.quit, oDialogClickListener);
-                builder.setNeutralButton(R.string.settings, oDialogClickListener);
-                builder.setPositiveButton(R.string.retry, oDialogClickListener);
-
+            if (mCurrentActivity != null && !mConnectionLocks.isEmpty()) {
                 try {
-                    mAlertDialog = builder.show();
+                    // are we in the settings activity?
+                    if (mCurrentActivity.getClass().equals(SettingsActivity.class)) {
+                        mAlertDialog = buildConnectionFailedSettings(message).show();
+                    } else {
+                        mAlertDialog = buildConnectionFailedMessage(message).show();
+                    }
                 } catch (final BadTokenException ignored) {
-                    // Can't display it. Don't care.
                 }
             }
         }
