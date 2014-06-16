@@ -52,36 +52,36 @@ import static android.util.Log.w;
 
 public class MPDApplication extends Application implements ConnectionListener {
 
-    public static final String TAG = "MPDroid";
+    private static final long DISCONNECT_TIMER = 15000L;
 
-    public static final int SETTINGS = 5;
+    private static final int SETTINGS = 5;
 
-    private static final long DISCONNECT_TIMER = 15000;
+    private static final String TAG = "MPDApplication";
 
-    private static MPDApplication instance;
+    private static MPDApplication sInstance;
+
+    private final Collection<Object> mConnectionLocks = new LinkedList<>();
 
     public MPDAsyncHelper oMPDAsyncHelper = null;
 
     public UpdateTrackInfo updateTrackInfo = null;
 
-    private SharedPreferences mSharedPreferences;
+    private AlertDialog mAlertDialog = null;
 
-    private SettingsHelper settingsHelper = null;
+    private Activity mCurrentActivity = null;
 
-    private Collection<Object> connectionLocks = new LinkedList<Object>();
+    private Timer mDisconnectScheduler = null;
 
-    private AlertDialog ad;
+    private SettingsHelper mSettingsHelper = null;
 
-    private boolean settingsShown = false;
+    private boolean mSettingsShown = false;
 
-    private boolean warningShown = false;
+    private SharedPreferences mSharedPreferences = null;
 
-    private Activity currentActivity;
-
-    private Timer disconnectSheduler;
+    private boolean mWarningShown = false;
 
     public static MPDApplication getInstance() {
-        return instance;
+        return sInstance;
     }
 
     /**
@@ -96,7 +96,7 @@ public class MPDApplication extends Application implements ConnectionListener {
     private static boolean isServiceRunning(final Class<?> serviceClass) {
         final int maxServices = 1000;
         final ActivityManager activityManager =
-                (ActivityManager) instance.getSystemService(instance.ACTIVITY_SERVICE);
+                (ActivityManager) sInstance.getSystemService(sInstance.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningServiceInfo> services =
                 activityManager.getRunningServices(maxServices);
         boolean isServiceRunning = false;
@@ -111,52 +111,54 @@ public class MPDApplication extends Application implements ConnectionListener {
         return isServiceRunning;
     }
 
-    public void addConnectionLock(Object lockOwner) {
-        connectionLocks.add(lockOwner);
+    public final void addConnectionLock(final Object lockOwner) {
+        mConnectionLocks.add(lockOwner);
         checkConnectionNeeded();
-        cancelDisconnectSheduler();
+        cancelDisconnectScheduler();
     }
 
-    private void cancelDisconnectSheduler() {
-        disconnectSheduler.cancel();
-        disconnectSheduler.purge();
-        disconnectSheduler = new Timer();
+    private void cancelDisconnectScheduler() {
+        mDisconnectScheduler.cancel();
+        mDisconnectScheduler.purge();
+        mDisconnectScheduler = new Timer();
     }
 
     private void checkConnectionNeeded() {
-        if (connectionLocks.size() > 0) {
+        if (mConnectionLocks.isEmpty()) {
+            disconnect();
+        } else {
             if (!oMPDAsyncHelper.isMonitorAlive()) {
                 oMPDAsyncHelper.startMonitor();
             }
-            if (!oMPDAsyncHelper.oMPD.isConnected() && (currentActivity == null
-                    || !currentActivity.getClass().equals(WifiConnectionSettings.class))) {
+            if (!oMPDAsyncHelper.oMPD.isConnected() && (mCurrentActivity == null
+                    || !mCurrentActivity.getClass().equals(WifiConnectionSettings.class))) {
                 connect();
             }
-        } else {
-            disconnect();
         }
     }
 
-    public void connect() {
-        if (!settingsHelper.updateSettings()) {
+    public final void connect() {
+        if (!mSettingsHelper.updateSettings()) {
             // Absolutely no settings defined! Open Settings!
-            if (currentActivity != null && !settingsShown) {
-                currentActivity.startActivityForResult(new Intent(currentActivity,
+            if (mCurrentActivity != null && !mSettingsShown) {
+                mCurrentActivity.startActivityForResult(new Intent(mCurrentActivity,
                         WifiConnectionSettings.class), SETTINGS);
-                settingsShown = true;
+                mSettingsShown = true;
             }
         }
 
-        if (currentActivity != null && !settingsHelper.warningShown() && !warningShown) {
-            currentActivity.startActivity(new Intent(currentActivity, WarningActivity.class));
-            warningShown = true;
+        if (mCurrentActivity != null && !mSettingsHelper.warningShown() && !mWarningShown) {
+            mCurrentActivity.startActivity(new Intent(mCurrentActivity, WarningActivity.class));
+            mWarningShown = true;
         }
         connectMPD();
     }
 
-    public synchronized void connectionFailed(String message) {
+    @Override
+    public final synchronized void connectionFailed(final String message) {
 
-        if (ad != null && !(ad instanceof ProgressDialog) && ad.isShowing()) {
+        if (mAlertDialog != null && !(mAlertDialog instanceof ProgressDialog) && mAlertDialog
+                .isShowing()) {
             return;
         }
 
@@ -165,47 +167,43 @@ public class MPDApplication extends Application implements ConnectionListener {
 
         oMPDAsyncHelper.disconnect();
 
-        if (currentActivity == null) {
-            return;
-        }
-
-        if (currentActivity != null && connectionLocks.size() > 0) {
+        if (mCurrentActivity != null && !mConnectionLocks.isEmpty()) {
             // are we in the settings activity?
-            if (currentActivity.getClass() == SettingsActivity.class) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+            if (mCurrentActivity.getClass().equals(SettingsActivity.class)) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
                 builder.setCancelable(false);
                 builder.setMessage(
                         getResources().getString(R.string.connectionFailedMessageSetting, message));
                 builder.setPositiveButton("OK", new OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
+                    @Override
+                    public void onClick(final DialogInterface dialog, final int which) {
                     }
                 });
-                ad = builder.show();
+                mAlertDialog = builder.show();
             } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
                 builder.setTitle(R.string.connectionFailed);
                 builder.setMessage(
                         getResources().getString(R.string.connectionFailedMessage, message));
                 builder.setCancelable(false);
 
-                DialogClickListener oDialogClickListener = new DialogClickListener();
+                final OnClickListener oDialogClickListener = new DialogClickListener();
                 builder.setNegativeButton(R.string.quit, oDialogClickListener);
                 builder.setNeutralButton(R.string.settings, oDialogClickListener);
                 builder.setPositiveButton(R.string.retry, oDialogClickListener);
 
                 try {
-                    ad = builder.show();
-                } catch (BadTokenException e) {
+                    mAlertDialog = builder.show();
+                } catch (final BadTokenException ignored) {
                     // Can't display it. Don't care.
                 }
             }
         }
-
     }
 
-    public synchronized void connectionSucceeded(String message) {
+    @Override
+    public final synchronized void connectionSucceeded(final String message) {
         dismissAlertDialog();
-        // checkMonitorNeeded();
     }
 
     private void connectMPD() {
@@ -213,56 +211,59 @@ public class MPDApplication extends Application implements ConnectionListener {
         dismissAlertDialog();
 
         // show connecting to server dialog
-        if (currentActivity != null) {
-            ad = new ProgressDialog(currentActivity);
-            ad.setTitle(R.string.connecting);
-            ad.setMessage(getResources().getString(R.string.connectingToServer));
-            ad.setCancelable(false);
-            ad.setOnKeyListener(new OnKeyListener() {
-                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+        if (mCurrentActivity != null) {
+            mAlertDialog = new ProgressDialog(mCurrentActivity);
+            mAlertDialog.setTitle(R.string.connecting);
+            mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
+            mAlertDialog.setCancelable(false);
+            mAlertDialog.setOnKeyListener(new OnKeyListener() {
+                @Override
+                public boolean onKey(final DialogInterface dialog, final int keyCode,
+                        final KeyEvent event) {
                     // Handle all keys!
                     return true;
                 }
             });
             try {
-                ad.show();
-            } catch (BadTokenException e) {
+                mAlertDialog.show();
+            } catch (final BadTokenException ignored) {
                 // Can't display it. Don't care.
             }
         }
 
-        cancelDisconnectSheduler();
+        cancelDisconnectScheduler();
 
         // really connect
         oMPDAsyncHelper.connect();
     }
 
-    public void disconnect() {
-        cancelDisconnectSheduler();
-        startDisconnectSheduler();
+    final void disconnect() {
+        cancelDisconnectScheduler();
+        startDisconnectScheduler();
     }
 
     private void dismissAlertDialog() {
-        if (ad != null) {
-            if (ad.isShowing()) {
+        if (mAlertDialog != null) {
+            if (mAlertDialog.isShowing()) {
                 try {
-                    ad.dismiss();
-                } catch (IllegalArgumentException e) {
+                    mAlertDialog.dismiss();
+                } catch (final IllegalArgumentException ignored) {
                     // We don't care, it has already been destroyed
                 }
             }
         }
     }
 
-    public void init(Context context) {
+    void init(final Context context) {
         MPD.setApplicationContext(context);
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        StrictMode.VmPolicy vmpolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        final StrictMode.VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
+        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
+                .build();
         StrictMode.setThreadPolicy(policy);
-        StrictMode.setVmPolicy(vmpolicy);
+        StrictMode.setVmPolicy(vmPolicy);
 
         // Init the default preferences (meaning we won't have different defaults between code/xml)
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
@@ -270,20 +271,20 @@ public class MPDApplication extends Application implements ConnectionListener {
         oMPDAsyncHelper = new MPDAsyncHelper();
         oMPDAsyncHelper.addConnectionListener(this);
 
-        settingsHelper = new SettingsHelper(oMPDAsyncHelper);
+        mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
 
-        disconnectSheduler = new Timer();
+        mDisconnectScheduler = new Timer();
 
         if (!mSharedPreferences.contains("albumTrackSort")) {
             mSharedPreferences.edit().putBoolean("albumTrackSort", true).commit();
         }
     }
 
-    public boolean isInSimpleMode() {
+    public final boolean isInSimpleMode() {
         return mSharedPreferences.getBoolean("simpleMode", false);
     }
 
-    public boolean isLightThemeSelected() {
+    public final boolean isLightThemeSelected() {
         return mSharedPreferences.getBoolean("lightTheme", false);
     }
 
@@ -332,27 +333,27 @@ public class MPDApplication extends Application implements ConnectionListener {
         return isServiceRunning(StreamingService.class);
     }
 
-    public boolean isTabletUiEnabled() {
+    public final boolean isTabletUiEnabled() {
         return getResources().getBoolean(R.bool.isTablet)
                 && mSharedPreferences.getBoolean("tabletUI", true);
     }
 
     @Override
-    public void onCreate() {
+    public final void onCreate() {
         super.onCreate();
-        instance = this;
-        Log.d(MPDApplication.TAG, "onCreate Application");
+        sInstance = this;
+        Log.d(TAG, "onCreate Application");
         init(this);
     }
 
-    public void removeConnectionLock(Object lockOwner) {
-        connectionLocks.remove(lockOwner);
+    public final void removeConnectionLock(final Object lockOwner) {
+        mConnectionLocks.remove(lockOwner);
         checkConnectionNeeded();
     }
 
-    public void setActivity(Object activity) {
+    public final void setActivity(final Object activity) {
         if (activity instanceof Activity) {
-            currentActivity = (Activity) activity;
+            mCurrentActivity = (Activity) activity;
         }
 
         addConnectionLock(activity);
@@ -369,8 +370,8 @@ public class MPDApplication extends Application implements ConnectionListener {
                 .apply();
     }
 
-    private void startDisconnectSheduler() {
-        disconnectSheduler.schedule(new TimerTask() {
+    private void startDisconnectScheduler() {
+        mDisconnectScheduler.schedule(new TimerTask() {
             @Override
             public void run() {
                 w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
@@ -381,34 +382,33 @@ public class MPDApplication extends Application implements ConnectionListener {
 
     }
 
-    public void terminateApplication() {
-        this.currentActivity.finish();
-    }
-
-    public void unsetActivity(Object activity) {
+    public final void unsetActivity(final Object activity) {
         removeConnectionLock(activity);
 
-        if (currentActivity == activity) {
-            currentActivity = null;
+        if (mCurrentActivity != null && mCurrentActivity.equals(activity)) {
+            mCurrentActivity = null;
         }
     }
 
-    class DialogClickListener implements OnClickListener {
+    private class DialogClickListener implements OnClickListener {
 
-        public void onClick(DialogInterface dialog, int which) {
+        @Override
+        public final void onClick(final DialogInterface dialog, final int which) {
             switch (which) {
-                case AlertDialog.BUTTON_NEUTRAL:
+                case DialogInterface.BUTTON_NEUTRAL:
+                    final Intent intent =
+                            new Intent(mCurrentActivity, WifiConnectionSettings.class);
                     // Show Settings
-                    currentActivity.startActivityForResult(new Intent(currentActivity,
-                            WifiConnectionSettings.class), SETTINGS);
+                    mCurrentActivity.startActivityForResult(intent, SETTINGS);
                     break;
-                case AlertDialog.BUTTON_NEGATIVE:
-                    currentActivity.finish();
+                case DialogInterface.BUTTON_NEGATIVE:
+                    mCurrentActivity.finish();
                     break;
-                case AlertDialog.BUTTON_POSITIVE:
+                case DialogInterface.BUTTON_POSITIVE:
                     connectMPD();
                     break;
-
+                default:
+                    break;
             }
         }
     }
