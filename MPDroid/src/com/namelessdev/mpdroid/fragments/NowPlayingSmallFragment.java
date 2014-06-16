@@ -69,8 +69,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     private ImageButton buttonPlayPause;
     private ImageButton buttonNext;
 
-    private boolean lightTheme;
-
     final OnClickListener buttonClickListener = new OnClickListener() {
         @Override
         public void onClick(final View v) {
@@ -119,7 +117,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         if (!MainMenuActivity.class.equals(activity.getClass())) {
             forceStatusUpdate = true;
         }
-        lightTheme = app.isLightThemeSelected();
     }
 
     /**
@@ -129,11 +126,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
      */
     @Override
     public final void onCoverUpdate(final AlbumInfo albumInfo) {
-        if (lightTheme) {
-            coverArt.setImageResource(R.drawable.no_cover_art_light_big);
-        } else {
-            coverArt.setImageResource(R.drawable.no_cover_art_big);
-        }
+        final int noCoverResource = AlbumCoverDownloadListener.getNoCoverResource();
+        coverArt.setImageResource(noCoverResource);
 
         if(albumInfo != null) {
             coverHelper.downloadCover(albumInfo);
@@ -179,8 +173,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     public void onDestroyView() {
         if (coverArt != null) {
             final Drawable oldDrawable = coverArt.getDrawable();
-            coverArt.setImageResource(lightTheme ? R.drawable.no_cover_art_light
-                    : R.drawable.no_cover_art);
+            coverArt.setImageResource(AlbumCoverDownloadListener.getNoCoverResource());
             if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
                 final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
                 if (oldBitmap != null)

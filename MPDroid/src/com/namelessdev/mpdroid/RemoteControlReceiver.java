@@ -17,6 +17,8 @@
 package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.service.MPDroidService;
+import com.namelessdev.mpdroid.service.StreamingService;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,7 +37,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 
     private static final String TAG = "com.namelessdev.mpdroid.RemoteControlReceiver";
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private static MPDApplication sApp = MPDApplication.getInstance();
 
     @Override
     public final void onReceive(final Context context, final Intent intent) {
@@ -69,17 +71,20 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         } else {
             switch (action) {
                 case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
-                    if (app.isLocalAudible()) {
+                    if (sApp.isLocalAudible()) {
                         MPDControl.run(MPDControl.ACTION_PAUSE);
                     }
                     break;
-                case NotificationService.ACTION_CLOSE_NOTIFICATION:
-                    app.getApplicationState().persistentNotification = false;
-                    app.getApplicationState().notificationMode = false;
+                case MPDroidService.ACTION_STOP:
+                    if (sApp.isNotificationPersistent()) {
+                        sApp.setPersistentOverride(true);
+                    }
 
-                    final Intent notificationServiceIntent
-                            = new Intent(context, NotificationService.class);
-                    context.stopService(notificationServiceIntent);
+                    /** Stop the MPDroid & Streaming services.*/
+                    final Intent serviceStop = new Intent(sApp, MPDroidService.class);
+                    sApp.stopService(serviceStop);
+                    serviceStop.setClass(sApp, StreamingService.class);
+                    sApp.stopService(serviceStop);
                     break;
                 default:
                     MPDControl.run(action);

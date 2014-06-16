@@ -16,15 +16,17 @@
 
 package com.namelessdev.mpdroid;
 
-import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
+import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
+import com.namelessdev.mpdroid.service.MPDroidService;
+import com.namelessdev.mpdroid.service.StreamingService;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
@@ -42,22 +44,13 @@ import android.view.WindowManager.BadTokenException;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.util.Log.w;
 
 public class MPDApplication extends Application implements ConnectionListener {
-
-    public class ApplicationState {
-        public boolean streamingMode = false;
-        public boolean notificationMode = false;
-        public boolean persistentNotification = false;
-        public boolean settingsShown = false;
-        public boolean warningShown = false;
-        public MPDStatus currentMpdStatus = null;
-    }
-
     class DialogClickListener implements OnClickListener {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
@@ -79,15 +72,19 @@ public class MPDApplication extends Application implements ConnectionListener {
 
     private static MPDApplication instance;
 
+    private SharedPreferences mSharedPreferences;
+
     public static final String TAG = "MPDroid";
     private static final long DISCONNECT_TIMER = 15000;
     public MPDAsyncHelper oMPDAsyncHelper = null;
     public UpdateTrackInfo updateTrackInfo = null;
 
     private SettingsHelper settingsHelper = null;
-    private ApplicationState state = new ApplicationState();
     private Collection<Object> connectionLocks = new LinkedList<Object>();
     private AlertDialog ad;
+
+    private boolean settingsShown = false;
+    private boolean warningShown = false;
 
     private Activity currentActivity;
 
@@ -123,16 +120,16 @@ public class MPDApplication extends Application implements ConnectionListener {
     public void connect() {
         if (!settingsHelper.updateSettings()) {
             // Absolutely no settings defined! Open Settings!
-            if (currentActivity != null && !state.settingsShown) {
+            if (currentActivity != null && !settingsShown) {
                 currentActivity.startActivityForResult(new Intent(currentActivity,
                         WifiConnectionSettings.class), SETTINGS);
-                state.settingsShown = true;
+                settingsShown = true;
             }
         }
 
-        if (currentActivity != null && !settingsHelper.warningShown() && !state.warningShown) {
+        if (currentActivity != null && !settingsHelper.warningShown() && !warningShown) {
             currentActivity.startActivity(new Intent(currentActivity, WarningActivity.class));
-            state.warningShown = true;
+            warningShown = true;
         }
         connectMPD();
     }
@@ -236,12 +233,8 @@ public class MPDApplication extends Application implements ConnectionListener {
         }
     }
 
-    public ApplicationState getApplicationState() {
-        return state;
-    }
-
     public boolean isLightThemeSelected() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lightTheme", false);
+        return mSharedPreferences.getBoolean("lightTheme", false);
     }
 
     /**
@@ -251,17 +244,80 @@ public class MPDApplication extends Application implements ConnectionListener {
      * system will be playing audio controlled by this application.
      */
     public final boolean isLocalAudible() {
-        return state.streamingMode ||
+        return isStreamingServiceRunning() ||
                 "127.0.0.1".equals(oMPDAsyncHelper.getConnectionSettings().sServer);
     }
 
     public boolean isTabletUiEnabled() {
         return getResources().getBoolean(R.bool.isTablet)
-                && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletUI", true);
+                && mSharedPreferences.getBoolean("tabletUI", true);
     }
 
     public boolean isInSimpleMode() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("simpleMode", false);
+        return mSharedPreferences.getBoolean("simpleMode", false);
+    }
+
+    /**
+     * Checks to see if the MPDroid scheduling service is active.
+     *
+     * @return True if MPDroid scheduling service running, false otherwise.
+     */
+    public final boolean isMPDroidServiceRunning() {
+        return isServiceRunning(MPDroidService.class);
+    }
+
+    /**
+     * Checks the MPDroid scheduling service and the persistent override to
+     *
+     * @return
+     */
+    public final boolean isNotificationPersistent() {
+        final boolean result;
+
+        if (oMPDAsyncHelper.getConnectionSettings().persistentNotification &&
+                !mSharedPreferences.getBoolean("notificationOverride", false)) {
+            result = true;
+        } else {
+            result = false;
+        }
+
+        return result;
+    }
+
+    /**
+     * Checks against a list of running service classes for the needle parameter. This method
+     * (ab)uses getRunningServices() due to no other clear cut way whether our own services are
+     * active. We could use static boolean, but this method is more fullproof in the case of
+     * process instability. Please replace if you know a better way.
+     *
+     * @param serviceClass The class to search for.
+     * @return True if {@code serviceClass} was found, false otherwise.
+     */
+    private static boolean isServiceRunning(final Class<?> serviceClass) {
+        final int maxServices = 1000;
+        final ActivityManager activityManager =
+                (ActivityManager) instance.getSystemService(instance.ACTIVITY_SERVICE);
+        final List<ActivityManager.RunningServiceInfo> services =
+                activityManager.getRunningServices(maxServices);
+        boolean isServiceRunning = false;
+
+        for (final ActivityManager.RunningServiceInfo serviceInfo : services){
+            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
+                isServiceRunning = true;
+                break;
+            }
+        }
+
+        return isServiceRunning;
+    }
+
+    /**
+     * Checks for a running Streaming service.
+     *
+     * @return True if streaming service is running, false otherwise.
+     */
+    public final boolean isStreamingServiceRunning() {
+        return isServiceRunning(StreamingService.class);
     }
 
     @Override
@@ -274,6 +330,8 @@ public class MPDApplication extends Application implements ConnectionListener {
 
     public void init(Context context) {
         MPD.setApplicationContext(context);
+
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         StrictMode.VmPolicy vmpolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -290,9 +348,9 @@ public class MPDApplication extends Application implements ConnectionListener {
 
         disconnectSheduler = new Timer();
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        if (!settings.contains("albumTrackSort"))
-            settings.edit().putBoolean("albumTrackSort", true).commit();
+        if (!mSharedPreferences.contains("albumTrackSort")) {
+            mSharedPreferences.edit().putBoolean("albumTrackSort", true).commit();
+        }
     }
 
     public void setActivity(Object activity) {
@@ -300,6 +358,17 @@ public class MPDApplication extends Application implements ConnectionListener {
             currentActivity = (Activity) activity;
 
         addConnectionLock(activity);
+    }
+
+    /**
+     * Set this to override the persistent notification for the current session.
+     *
+     * @param override True to override persistent notification, false otherwise.
+     */
+    public final void setPersistentOverride(final boolean override) {
+        mSharedPreferences.edit()
+                .putBoolean("notificationOverride", override)
+                .apply();
     }
 
     private void startDisconnectSheduler() {

@@ -180,8 +180,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private FragmentActivity activity;
 
-    private boolean lightTheme;
-
     private void applyViewVisibility(SharedPreferences sharedPreferences, View view, String property) {
         if (view == null) {
             return;
@@ -277,11 +275,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      */
     @Override
     public final void onCoverUpdate(final AlbumInfo albumInfo) {
-        if (lightTheme) {
-            coverArt.setImageResource(R.drawable.no_cover_art_light_big);
-        } else {
-            coverArt.setImageResource(R.drawable.no_cover_art_big);
-        }
+        final int noCoverResource = AlbumCoverDownloadListener.getLargeNoCoverResource();
+        coverArt.setImageResource(noCoverResource);
 
         if(albumInfo != null) {
             downloadCover(albumInfo);
@@ -291,7 +286,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        lightTheme = app.isLightThemeSelected();
         handler = new Handler();
         setHasOptionsMenu(false);
         activity.setTitle(R.string.nowPlaying);
@@ -448,7 +442,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void onDestroyView() {
-        coverArt.setImageResource(R.drawable.no_cover_art);
+        coverArt.setImageResource(AlbumCoverDownloadListener.getNoCoverResource());
         coverArtListener.freeCoverDrawable();
         super.onDestroyView();
     }

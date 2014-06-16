@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.locale;
 
-import com.namelessdev.mpdroid.NotificationService;
+import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
@@ -40,12 +40,12 @@ public class ActionFireReceiver extends BroadcastReceiver {
         final Intent serviceIntent;
 
         switch (action) {
-            case NotificationService.ACTION_OPEN_NOTIFICATION:
-                serviceIntent = new Intent(context, NotificationService.class);
+            case MPDroidService.ACTION_START:
+                serviceIntent = new Intent(context, MPDroidService.class);
                 serviceIntent.setAction(action);
                 context.startService(serviceIntent);
                 break;
-            case NotificationService.ACTION_CLOSE_NOTIFICATION:
+            case MPDroidService.ACTION_STOP:
                 serviceIntent = new Intent(context, RemoteControlReceiver.class);
                 serviceIntent.setAction(action);
                 context.startService(serviceIntent);

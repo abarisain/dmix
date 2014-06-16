@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.locale;
 
-import com.namelessdev.mpdroid.NotificationService;
+import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
@@ -88,9 +88,9 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
                 getString(R.string.mute)));
         items.add(new ActionItem(MPDControl.ACTION_VOLUME_SET,
                 getString(R.string.setVolume)));
-        items.add(new ActionItem(NotificationService.ACTION_OPEN_NOTIFICATION,
+        items.add(new ActionItem(MPDroidService.ACTION_START,
                 getString(R.string.showNotification)));
-        items.add(new ActionItem(NotificationService.ACTION_CLOSE_NOTIFICATION,
+        items.add(new ActionItem(MPDroidService.ACTION_STOP,
                 getString(R.string.closeNotification)));
 
         final ArrayAdapter<ActionItem> adapter = new ArrayAdapter<>(this,

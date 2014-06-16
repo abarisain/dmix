@@ -140,11 +140,8 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
             if (music.isForceCoverRefresh() || viewHolder.cover.getTag() == null
                     || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
                 if (!music.isForceCoverRefresh()) {
-                    if(lightTheme) {
-                        viewHolder.cover.setImageResource(R.drawable.no_cover_art_light);
-                    } else {
-                        viewHolder.cover.setImageResource(R.drawable.no_cover_art);
-                    }
+                    final int noCoverResource = AlbumCoverDownloadListener.getNoCoverResource();
+                    viewHolder.cover.setImageResource(noCoverResource);
                 }
                 music.setForceCoverRefresh(false);
                 viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
@@ -619,7 +616,7 @@ public class PlaylistFragment extends ListFragment implements StatusChangeListen
 
     protected void refreshListColorCacheHint() {
         if (list != null) {
-            if (app.isLightThemeSelected()) {
+            if (lightTheme) {
                 list.setCacheColorHint(getResources().getColor(android.R.color.background_light));
             } else {
                 list.setCacheColorHint(getResources().getColor(R.color.nowplaying_background));
