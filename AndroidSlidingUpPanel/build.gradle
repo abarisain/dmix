@@ -6,12 +6,12 @@ dependencies {
     }
 
     // Support Libraries
-    compile 'com.android.support:support-v4:19.+'
+    compile 'com.android.support:support-v4:20.+'
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion '19.1.0'
+    compileSdkVersion 20
+    buildToolsVersion "20.0.0"
 
     sourceSets {
         main {
