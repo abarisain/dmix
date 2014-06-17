@@ -18,15 +18,12 @@ package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.util.Log;
-
-import java.net.UnknownHostException;
 
 /**
  * This class contains simple server control methods.
@@ -80,17 +77,6 @@ public final class MPDControl {
 
     private static final MPDApplication app = MPDApplication.getInstance();
 
-    private static boolean manualConnection = false;
-
-    static {
-        /* This is strictly required for manual connection */
-        if (app.oMPDAsyncHelper.getConnectionSettings().sServer == null) {
-            final SettingsHelper sh = new SettingsHelper(app.oMPDAsyncHelper);
-            sh.updateConnectionSettings();
-            manualConnection = true;
-        }
-    }
-
     private MPDControl() {
         super();
     }
@@ -102,7 +88,7 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      */
     public static void run(final String userCommand) {
-        run(MPDApplication.getInstance().oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG);
+        run(app.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG);
     }
 
     /**
@@ -113,11 +99,11 @@ public final class MPDControl {
      * @param i           An integer which will be cast to long for run for userCommand argument.
      */
     public static void run(final String userCommand, final int i) {
-        run(MPDApplication.getInstance().oMPDAsyncHelper.oMPD, userCommand, (long) i);
+        run(app.oMPDAsyncHelper.oMPD, userCommand, (long) i);
     }
 
     public static void run(final String userCommand, final long l) {
-        run(MPDApplication.getInstance().oMPDAsyncHelper.oMPD, userCommand, l);
+        run(app.oMPDAsyncHelper.oMPD, userCommand, l);
     }
 
     /**
@@ -178,14 +164,10 @@ public final class MPDControl {
              *
              * @return An {@code MPDStatus} state string.
              */
-            private String getStatus() {
+            private String getState(final boolean forceUpdate) {
                 String state = null;
                 try {
-                    if (manualConnection) {
-                        state = mpd.getStatus(true).getState();
-                    } else {
-                        state = mpd.getStatus().getState();
-                    }
+                    state = mpd.getStatus(forceUpdate).getState();
                 } catch (final MPDServerException e) {
                     Log.e(TAG, "Failed to receive a current status", e);
                 }
@@ -194,33 +176,43 @@ public final class MPDControl {
             }
 
             private boolean isPaused() {
-                return MPDStatus.MPD_STATE_PAUSED.equals(getStatus());
+                return MPDStatus.MPD_STATE_PAUSED.equals(getState(false));
             }
 
             private boolean isPlaying() {
-                return MPDStatus.MPD_STATE_PLAYING.equals(getStatus());
+                return MPDStatus.MPD_STATE_PLAYING.equals(getState(false));
             }
 
-            private void getManualConnection() {
-                try {
-                    final MPDAsyncHelper.MPDConnectionInfo conInfo = app.oMPDAsyncHelper
-                            .getConnectionSettings();
-                    mpd.connect(conInfo.sServer, conInfo.iPort, conInfo.sPassword);
-                    manualConnection = true;
-                } catch (final MPDServerException | UnknownHostException e) {
-                    Log.d(TAG, "Failed to get a connection.", e);
+            private void blockForConnection() {
+                int loopIterator = 50; /** Give the connection 5 seconds, tops. */
+                final long blockTimeout = 100L;
+
+                while (!app.oMPDAsyncHelper.oMPD.isConnected() ||
+                        MPDStatus.MPD_STATE_UNKNOWN.equals(getState(true))) {
+                    synchronized (this) {
+                        /** Send a notice once a second or so. */
+                        if (loopIterator % 10 == 0) {
+                            Log.w(TAG, "Blocking for connection...");
+                        }
+
+                        try {
+                            wait(blockTimeout);
+                        } catch (final InterruptedException ignored) {
+                        }
+
+                        if (loopIterator == 0) {
+                            break;
+                        }
+                        loopIterator--;
+                    }
                 }
             }
 
-            @Override
-            public final void run() {
-                String command = userCommand;
-                if (!mpd.isConnected()) {
-                    getManualConnection();
-                }
+            private String translateCommand() {
+                final String command;
 
                 /** This switch translates for the next switch. */
-                switch (command) {
+                switch (userCommand) {
                     case ACTION_TOGGLE_PLAYBACK:
                         if (isPlaying()) {
                             command = ACTION_PAUSE;
@@ -229,14 +221,23 @@ public final class MPDControl {
                         }
                         break;
                     default:
+                        command = userCommand;
                         break;
                 }
+
+                return command;
+            }
+
+            @Override
+            public final void run() {
+                app.addConnectionLock(this);
+                blockForConnection();
 
                 /**
                  * The main switch for running the command.
                  */
                 try {
-                    switch (command) {
+                    switch (translateCommand()) {
                         case ACTION_CONSUME:
                             mpd.setConsume(!mpd.getStatus().isConsume());
                             break;
@@ -292,7 +293,9 @@ public final class MPDControl {
                     }
                 } catch (final MPDServerException e) {
                     Log.w(TAG, "Failed to send a simple MPD command.", e);
-                } /** Let MPD disconnect itself. */
+                } finally {
+                    app.removeConnectionLock(this);
+                }
             }
         }
         ).start();

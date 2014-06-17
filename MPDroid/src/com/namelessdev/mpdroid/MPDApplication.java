@@ -110,6 +110,11 @@ public class MPDApplication extends Application implements ConnectionListener {
         return isServiceRunning;
     }
 
+    /**
+     * This adds the connection lock which disallows the service to disconnect after timeout.
+     *
+     * @param lockOwner The instance declaring itself as an owner of the connection lock.
+     */
     public final void addConnectionLock(final Object lockOwner) {
         if (!mConnectionLocks.contains(lockOwner)) {
             mConnectionLocks.add(lockOwner);
@@ -369,6 +374,11 @@ public class MPDApplication extends Application implements ConnectionListener {
         }
     }
 
+    /**
+     * This removes the connection lock which allows the service to disconnect after timeout.
+     *
+     * @param lockOwner The instance declaring itself as an owner of the connection lock.
+     */
     public final void removeConnectionLock(final Object lockOwner) {
         mConnectionLocks.remove(lockOwner);
         checkConnectionNeeded();
