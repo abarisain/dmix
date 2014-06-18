@@ -1363,12 +1363,16 @@ public class MPD {
 		add(null, album, replace, play);
 	}
 
-	public void add(final Music music, boolean replace, boolean play) throws MPDServerException {
+	public void add(final FilesystemTreeEntry music, boolean replace, boolean play) throws MPDServerException {
 		final Runnable r = new Runnable() {
 			@Override
 			public void run() {
 				try {
-					getPlaylist().add(music);
+					if (music instanceof Music) {
+						getPlaylist().add(music);
+					} else if (music instanceof PlaylistFile) {
+						getPlaylist().load(music.getFullpath());
+					}
 				} catch (MPDServerException e) {
 					e.printStackTrace();
 				}

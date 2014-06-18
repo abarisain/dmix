@@ -70,7 +70,7 @@ public class FSFragment extends BrowseFragment {
 				Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
 						FSFragment.this.getActivity());
 			} else {
-				app.oMPDAsyncHelper.oMPD.add((Music) item, replace, play);
+				app.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
 				Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
 			}
 		} catch (Exception e) {
@@ -88,10 +88,14 @@ public class FSFragment extends BrowseFragment {
 				Tools.notifyUser(String.format(getResources().getString(R.string.addedDirectoryToPlaylist), item),
 						FSFragment.this.getActivity());
 			} else {
-				ArrayList<Music> songs = new ArrayList<Music>();
-				songs.add((Music) item);
-				app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
-				Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
+				if (item instanceof Music) {
+					ArrayList<Music> songs = new ArrayList<Music>();
+					songs.add((Music) item);
+					app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
+					Tools.notifyUser(getResources().getString(R.string.songAdded, item), FSFragment.this.getActivity());
+				}  if (item instanceof PlaylistFile) {
+					app.oMPDAsyncHelper.oMPD.getPlaylist().load(((PlaylistFile)item).getFullpath());
+				}
 			}
 		} catch (Exception e) {
 			Log.w(e);
@@ -115,7 +119,10 @@ public class FSFragment extends BrowseFragment {
 		List<Item> dirItems=new ArrayList<Item>();
 		dirItems.addAll(currentDirectory.getDirectories());
 		dirItems.addAll(currentDirectory.getFiles());
-		dirItems.addAll(currentDirectory.getPlaylistFiles());
+		//Do not show playlists for root directory
+		if (directory != null) {
+			dirItems.addAll(currentDirectory.getPlaylistFiles());
+		}
 		items=dirItems;
 	}
 
