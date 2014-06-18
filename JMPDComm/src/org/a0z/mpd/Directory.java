@@ -82,7 +82,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 	public TreeSet<PlaylistFile> getPlaylistFiles() {
 		TreeSet<PlaylistFile> c = new TreeSet<PlaylistFile>(new Comparator<PlaylistFile>() {
 			public int compare(PlaylistFile o1, PlaylistFile o2) {
-				return StringComparators.compareNatural(o1.getFullpath(), o2.getFullpath());
+				return VersionComparer.Instance.compare(o1.getFullpath(), o2.getFullpath());
 			}
 		});
 		
