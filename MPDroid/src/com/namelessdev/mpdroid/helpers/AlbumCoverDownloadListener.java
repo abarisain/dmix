@@ -35,7 +35,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     ProgressBar coverArtProgress;
     private static MPDApplication sApp = MPDApplication.getInstance();
     boolean bigCoverNotFound;
-
+    private static final String TAG = "CoverDownloadListener";
 
 
     public AlbumCoverDownloadListener(ImageView coverArt) {
@@ -143,8 +143,8 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
             coverArt.setImageDrawable(new CoverBitmapDrawable(sApp.getResources(), cover
                     .getBitmap()[0]));
             cover.setBitmap(null);
-        } catch (Exception e) {
-            Log.w(AlbumCoverDownloadListener.class.getSimpleName(), e);
+        } catch (final Exception e) {
+            Log.w(TAG, "Exception.", e);
         }
     }
 

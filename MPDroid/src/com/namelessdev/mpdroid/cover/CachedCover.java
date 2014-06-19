@@ -22,19 +22,20 @@ import org.a0z.mpd.AlbumInfo;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import static android.util.Log.d;
-import static android.util.Log.e;
 import static com.namelessdev.mpdroid.helpers.CoverManager.getCoverFileName;
 
 public class CachedCover implements ICoverRetriever {
 
     private final MPDApplication app = MPDApplication.getInstance();
     private static final String FOLDER_SUFFIX = "/covers/";
+
+    private static final String TAG = "CachedCover";
 
     public CachedCover() {
     }
@@ -51,7 +52,7 @@ public class CachedCover implements ICoverRetriever {
                 // No need to take care of subfolders, there won't be any.
                 // (Or at least any that MPDroid cares about)
                 if (albumInfo != null && getCoverFileName(albumInfo).equals(file.getName())) {
-                    d(CachedCover.class.getSimpleName(), "Deleting cover : " + file.getName());
+                    Log.d(TAG, "Deleting cover : " + file.getName());
                 }
                 if (albumInfo == null || getCoverFileName(albumInfo).equals(file.getName())) {
                     file.delete();
@@ -134,7 +135,7 @@ public class CachedCover implements ICoverRetriever {
     public void save(AlbumInfo albumInfo, Bitmap cover) {
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             // External storage is not there or read only, don't do anything
-            e(MPDApplication.TAG, "No writable external storage, not saving cover to cache");
+            Log.e(TAG, "No writable external storage, not saving cover to cache");
             return;
         }
         FileOutputStream out = null;
@@ -142,14 +143,14 @@ public class CachedCover implements ICoverRetriever {
             new File(getAbsoluteCoverFolderPath()).mkdirs();
             out = new FileOutputStream(getAbsolutePathForSong(albumInfo));
             cover.compress(Bitmap.CompressFormat.JPEG, 95, out);
-        } catch (Exception e) {
-            e(MPDApplication.TAG, "Cache cover write failure : " + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Cache cover write failure.",  e);
         } finally {
             if (out != null) {
                 try {
                     out.close();
-                } catch (IOException e) {
-                    e(MPDApplication.TAG, "Cannot close cover stream : " + e);
+                } catch (final IOException e) {
+                    Log.e(TAG, "Cannot close cover stream.", e);
                 }
             }
         }

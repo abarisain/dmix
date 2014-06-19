@@ -16,13 +16,13 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import android.util.Log;
-
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import android.util.Log;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -35,6 +35,8 @@ import java.util.List;
 public class MusicBrainzCover extends AbstractWebCover {
 
     private static final String COVER_ART_ARCHIVE_URL = "http://coverartarchive.org/release-group/";
+
+    private static final String TAG = "MusicBrainzCover";
 
     private List<String> extractImageUrls(String covertArchiveResponse) {
         JSONObject jsonRootObject;
@@ -62,8 +64,8 @@ public class MusicBrainzCover extends AbstractWebCover {
                     }
                 }
             }
-        } catch (Exception e) {
-            Log.e(MusicBrainzCover.class.getName(), "No cover in CovertArchive : " + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "No cover in CovertArchive.", e);
         }
 
         return coverUrls;
@@ -95,8 +97,8 @@ public class MusicBrainzCover extends AbstractWebCover {
                 }
                 eventType = xpp.next();
             }
-        } catch (Exception e) {
-            Log.e(MusicBrainzCover.class.getName(), "Musicbrainz release search failure : " + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Musicbrainz release search failure.", e);
         }
 
         return releaseList;

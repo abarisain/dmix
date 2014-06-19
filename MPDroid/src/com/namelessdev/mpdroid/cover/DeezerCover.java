@@ -16,16 +16,18 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import android.util.Log;
-
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import android.util.Log;
 
 /**
  * Fetch cover from Deezer
  */
 public class DeezerCover extends AbstractWebCover {
+
+    private static final String TAG = "DeezerCover";
 
     @Override
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
@@ -53,8 +55,8 @@ public class DeezerCover extends AbstractWebCover {
                 }
             }
 
-        } catch (Exception e) {
-            Log.e(DeezerCover.class.toString(), "Failed to get cover URL from Deezer");
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to get cover URL from Deezer", e);
         }
 
         return new String[0];

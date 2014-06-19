@@ -73,10 +73,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static android.text.TextUtils.isEmpty;
-import static android.util.Log.d;
-import static android.util.Log.e;
-import static android.util.Log.i;
-import static android.util.Log.w;
 import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
 import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CREATE_BITMAP;
 import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
@@ -84,6 +80,8 @@ import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
 /**
  */
 public class CoverManager {
+    private static final String TAG = "CoverManager";
+
     public enum CoverRetrievers {
         CACHE,
         LASTFM,
@@ -111,8 +109,7 @@ public class CoverManager {
             Bitmap[] bitmaps;
 
             if (DEBUG)
-                d(CoverManager.class.getSimpleName(),
-                        "Making cover bitmap for " + coverInfo.getAlbum());
+                Log.d(TAG, "Making cover bitmap for " + coverInfo.getAlbum());
 
             if (coverInfo.getCoverRetriever().isCoverLocal()) {
                 int maxSize = coverInfo.getCoverMaxSize();
@@ -173,7 +170,7 @@ public class CoverManager {
                 cacheRetriever = getCacheRetriever();
                 if (cacheRetriever != null && coverInfo.getCoverRetriever() != cacheRetriever) {
                     if (DEBUG)
-                        i(MPDApplication.TAG, "Saving cover art to cache");
+                        Log.i(TAG, "Saving cover art to cache");
                     // Save the fullsize bitmap
                     (getCacheRetriever()).save(coverInfo, fullBmp);
 
@@ -233,7 +230,7 @@ public class CoverManager {
                                     && coverRetriever.isCoverLocal();
                             if (remote || local) {
                                 if (DEBUG) {
-                                    d(CoverManager.class.getSimpleName(), "Looking for cover "
+                                    Log.d(TAG, "Looking for cover "
                                             + coverInfo.getArtist() + ", " + coverInfo.getAlbum()
                                             + " with " + coverRetriever.getName());
                                 }
@@ -250,7 +247,7 @@ public class CoverManager {
                                     AlbumInfo normalizedAlbumInfo = getNormalizedAlbumInfo(coverInfo);
                                     if (!normalizedAlbumInfo.equals(coverInfo)) {
                                         if (DEBUG)
-                                            d(FetchCoverTask.class.getSimpleName(),
+                                            Log.d(TAG,
                                                     "Retry to fetch cover with normalized names for "
                                                             + normalizedAlbumInfo);
                                         coverUrls = coverRetriever.getCoverUrl(normalizedAlbumInfo);
@@ -266,9 +263,8 @@ public class CoverManager {
                                                     coverInfo.getKey())) {
 
                                         if (DEBUG)
-                                            d(CoverManager.class.getSimpleName(),
-                                                    "Cover found for  " + coverInfo.getAlbum()
-                                                            + " with " + coverRetriever.getName()
+                                            Log.d(TAG, "Cover found for  " + coverInfo.getAlbum()
+                                                    + " with " + coverRetriever.getName()
                                                             + " : " + coverUrls[0]);
                                         coverBytes = getCoverBytes(coverUrls, coverInfo);
                                         if (coverBytes != null && coverBytes.length > 0) {
@@ -280,18 +276,16 @@ public class CoverManager {
                                             return;
                                         } else {
                                             if (DEBUG)
-                                                d(CoverManager.class.getSimpleName(),
-                                                        "The cover URL for album "
-                                                                + coverInfo.getAlbum()
+                                                Log.d(TAG, "The cover URL for album "
+                                                        + coverInfo.getAlbum()
                                                                 + " did not work : "
                                                                 + coverRetriever.getName());
                                         }
 
                                     } else {
                                         if (DEBUG) {
-                                            d(CoverManager.class.getSimpleName(),
-                                                    "Blacklisted cover url found for "
-                                                            + coverInfo.getAlbum() + " : "
+                                            Log.d(TAG, "Blacklisted cover url found for "
+                                                    + coverInfo.getAlbum() + " : "
                                                             + coverUrls[0]);
                                         }
                                     }
@@ -300,22 +294,20 @@ public class CoverManager {
                             }
                         } else {
                             if (DEBUG)
-                                d(CoverManager.class.getSimpleName(),
-                                        "Bypassing the retriever " + coverRetriever.getName()
+                                Log.d(TAG, "Bypassing the retriever " + coverRetriever.getName()
                                                 + " for album " + coverInfo.getAlbum()
                                                 + ", already asked.");
                             canStart = coverRetriever == coverInfo.getCoverRetriever();
                         }
 
-                    } catch (Exception e) {
-                        e(CoverManager.class.getSimpleName(), "Fetch cover failure : " + e);
+                    } catch (final Exception e) {
+                        Log.e(TAG, "Fetch cover failure.", e);
                     }
 
                 }
             } else {
                 coverInfo.setRequestGivenUp(true);
-                w(CoverManager.class.getSimpleName(), "Too many requests, giving up this one : "
-                        + coverInfo.getAlbum());
+                Log.w(TAG, "Too many requests, giving up this one : " + coverInfo.getAlbum());
             }
 
             requests.addLast(coverInfo);
@@ -357,10 +349,9 @@ public class CoverManager {
                                 if (!coverInfo.isValid()
                                         || notFoundAlbumKeys.contains(coverInfo.getKey())) {
                                     if (DEBUG) {
-                                        d(CoverManager.class.getSimpleName(),
-                                                "Incomplete cover request or already not found cover with artist="
-                                                        + coverInfo.getArtist() + ", album="
-                                                        + coverInfo.getAlbum());
+                                        Log.d(TAG, "Incomplete cover request or already not found "
+                                                + "cover with artist=" + coverInfo.getArtist()
+                                                + ", album=" + coverInfo.getAlbum());
                                     }
                                     coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
                                     notifyListeners(coverInfo);
@@ -407,7 +398,7 @@ public class CoverManager {
                                 notifyListeners(coverInfo);
                             } else if (isLastCoverRetriever(coverInfo.getCoverRetriever())) {
                                 if (DEBUG)
-                                    d(CoverManager.class.getSimpleName(),
+                                    Log.d(TAG,
                                             "The cover has not been downloaded correctly for album "
                                                     + coverInfo.getAlbum()
                                                     + " with this retriever : "
@@ -420,7 +411,7 @@ public class CoverManager {
                             }
                             break;
                         default:
-                            e(CoverManager.class.getSimpleName(), "Unknown request : " + coverInfo);
+                            Log.e(TAG, "Unknown request : " + coverInfo);
                             coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
                             notifyListeners(coverInfo);
                             break;
@@ -431,8 +422,8 @@ public class CoverManager {
                         saveWrongCovers();
                     }
 
-                } catch (Exception e) {
-                    e(CoverManager.class.getSimpleName(), "Cover request processing failure : " + e);
+                } catch (final Exception e) {
+                    Log.e(TAG, "Cover request processing failure.", e);
                 }
             }
 
@@ -506,8 +497,7 @@ public class CoverManager {
 
     public void addCoverRequest(CoverInfo coverInfo) {
         if (DEBUG) {
-            d(CoverManager.class.getSimpleName(),
-                    "Looking for cover with artist=" + coverInfo.getArtist() + ", album="
+            Log.d(TAG, "Looking for cover with artist=" + coverInfo.getArtist() + ", album="
                             + coverInfo.getAlbum());
         }
         this.requests.add(coverInfo);
@@ -564,9 +554,8 @@ public class CoverManager {
 
         try {
             url = new URL(request);
-        } catch (MalformedURLException e) {
-            Log.w(MPDApplication.TAG,
-                    "Failed to parse the URL string for URL object generation.", e);
+        } catch (final MalformedURLException e) {
+            Log.w(TAG, "Failed to parse the URL string for URL object generation.", e);
         }
 
         return url;
@@ -582,14 +571,14 @@ public class CoverManager {
         HttpURLConnection connection = null;
 
         if(url == null) {
-            Log.d(MPDApplication.TAG, "Cannot create a connection with a null URL");
+            Log.d(TAG, "Cannot create a connection with a null URL");
             return null;
         }
 
         try {
             connection = (HttpURLConnection) url.openConnection();
-        } catch (IOException e) {
-            Log.w(MPDApplication.TAG, "Failed to execute cover get request: ", e);
+        } catch (final IOException e) {
+            Log.w(TAG, "Failed to execute cover get request.", e);
         }
 
         if(connection != null) {
@@ -612,15 +601,14 @@ public class CoverManager {
         int statusCode = 0;
 
         if(connection == null) {
-            Log.d(CoverManager.class.getSimpleName(),
-                    "Cannot find out if URL exists with a null connection.");
+            Log.d(TAG, "Cannot find out if URL exists with a null connection.");
             return false;
         }
 
         try {
             statusCode = connection.getResponseCode();
-        } catch (IOException e) {
-            Log.e(MPDApplication.TAG, "Failed to get a valid response code.",e);
+        } catch (final IOException e) {
+            Log.e(TAG, "Failed to get a valid response code.", e);
         }
 
         return urlExists(statusCode);
@@ -649,24 +637,22 @@ public class CoverManager {
             }
             baos.flush();
             buffer = baos.toByteArray();
-        } catch (Exception e) {
-            e(CoverAsyncHelper.class.getSimpleName(), "Failed to download cover :" + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to download cover.", e);
         } finally {
             if (bis != null) {
                 try {
                     bis.close();
-                } catch (IOException e) {
-                    Log.e(CoverAsyncHelper.class.getSimpleName(),
-                            "Failed to close the BufferedInputStream.", e);
+                } catch (final IOException e) {
+                    Log.e(TAG, "Failed to close the BufferedInputStream.", e);
                 }
             }
 
             if (baos != null) {
                 try {
                     baos.close();
-                } catch (IOException e) {
-                    Log.e(MPDApplication.TAG,
-                            "Failed to close the BufferedArrayOutputStream.", e);
+                } catch (final IOException e) {
+                    Log.e(TAG, "Failed to close the BufferedArrayOutputStream.", e);
                 }
             }
 
@@ -716,10 +702,9 @@ public class CoverManager {
 
             try {
                 if (DEBUG)
-                    d(CoverManager.class.getSimpleName(),
-                            "Downloading cover (with maxsize " + coverInfo.getCoverMaxSize() + ", "
-                                    + coverInfo.getCachedCoverMaxSize() + ") for "
-                                    + coverInfo.getAlbum() + " from " + url);
+                    Log.d(TAG, "Downloading cover (with maxsize " + coverInfo.getCoverMaxSize()
+                            + ", " + coverInfo.getCachedCoverMaxSize() + ") for "
+                            + coverInfo.getAlbum() + " from " + url);
                 if (coverInfo.getState() == CACHE_COVER_FETCH) {
 
                     coverBytes = readBytes(new URL("file://" + url).openStream());
@@ -729,13 +714,12 @@ public class CoverManager {
                 }
                 if (coverBytes != null) {
                     if (DEBUG)
-                        d(CoverManager.class.getSimpleName(),
-                                "Cover downloaded for " + coverInfo.getAlbum() + " from " + url
-                                        + ", size=" + coverBytes.length);
+                        Log.d(TAG, "Cover downloaded for " + coverInfo.getAlbum() + " from " + url
+                                + ", size=" + coverBytes.length);
                     break;
                 }
-            } catch (Exception e) {
-                w(CoverManager.class.getSimpleName(), "Cover get bytes failure : " + e);
+            } catch (final Exception e) {
+                Log.w(TAG, "Cover get bytes failure.", e);
             }
         }
         return coverBytes;
@@ -813,16 +797,15 @@ public class CoverManager {
             File file = new File(getCoverFolder(), COVERS_FILE_NAME);
             objectInputStream = new ObjectInputStream(new FileInputStream(file));
             wrongCovers = (Map<String, String>) objectInputStream.readObject();
-        } catch (Exception e) {
-            e(CoverManager.class.getSimpleName(), "Cannot load cover history file: " + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Cannot load cover history file.", e);
             wrongCovers = new HashMap<String, String>();
         } finally {
             if (objectInputStream != null) {
                 try {
                     objectInputStream.close();
-                } catch (IOException e) {
-                    Log.e(CoverManager.class.getSimpleName(), "Cannot close cover history file : "
-                            + e);
+                } catch (final IOException e) {
+                    Log.e(TAG, "Cannot close cover history file.", e);
 
                 }
             }
@@ -839,15 +822,15 @@ public class CoverManager {
             File file = new File(getCoverFolder(), WRONG_COVERS_FILE_NAME);
             objectInputStream = new ObjectInputStream(new FileInputStream(file));
             wrongCovers = (MultiMap<String, String>) objectInputStream.readObject();
-        } catch (Exception e) {
-            e(CoverManager.class.getSimpleName(), "Cannot load cover blacklist : " + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Cannot load cover blacklist.", e);
             wrongCovers = new MultiMap<String, String>();
         } finally {
             if (objectInputStream != null) {
                 try {
                     objectInputStream.close();
-                } catch (IOException e) {
-                    Log.e(CoverManager.class.getSimpleName(), "Cannot close cover blacklist : " + e);
+                } catch (final IOException e) {
+                    Log.e(TAG, "Cannot close cover blacklist.", e);
 
                 }
             }
@@ -858,14 +841,12 @@ public class CoverManager {
 
     private void logQueues() {
         if (DEBUG) {
-            d(CoverManager.class.getSimpleName(), "requests queue size : " + requests.size());
-            d(CoverManager.class.getSimpleName(),
-                    "running request queue size : " + runningRequests.size());
+            Log.d(TAG, "requests queue size : " + requests.size());
+            Log.d(TAG, "running request queue size : " + runningRequests.size());
             for (CoverInfo coverInfo : runningRequests) {
-                d(CoverManager.class.getSimpleName(), "Running request : " + coverInfo.toString());
+                Log.d(TAG, "Running request : " + coverInfo.toString());
             }
-            d(CoverManager.class.getSimpleName(), "helpersByCoverInfo map size : "
-                    + helpersByCoverInfo.size());
+            Log.d(TAG, "helpersByCoverInfo map size : " + helpersByCoverInfo.size());
         }
     }
 
@@ -874,11 +855,10 @@ public class CoverManager {
         CachedCover cacheCoverRetriever;
         String wrongUrl;
         if (DEBUG)
-            d(CoverManager.class.getSimpleName(), "Blacklisting cover for " + albumInfo);
+            Log.d(TAG, "Blacklisting cover for " + albumInfo);
 
         if (!albumInfo.isValid()) {
-            Log.w(CoverManager.class.getSimpleName(),
-                    "Cannot blacklist cover, missing artist or album : " + albumInfo);
+            Log.w(TAG, "Cannot blacklist cover, missing artist or album : " + albumInfo);
             return;
         }
 
@@ -886,21 +866,20 @@ public class CoverManager {
         // Do not blacklist cover if from local storage (url starts with /...)
         if (wrongUrl != null && !wrongUrl.startsWith("/")) {
             if (DEBUG)
-                d(CoverManager.class.getSimpleName(), "Cover URL to be blacklisted  " + wrongUrl);
+                Log.d(TAG, "Cover URL to be blacklisted  " + wrongUrl);
 
             wrongCoverUrlMap.put(albumInfo.getKey(), wrongUrl);
 
             cacheCoverRetriever = getCacheRetriever();
             if (cacheCoverRetriever != null) {
                 if (DEBUG)
-                    d(CoverManager.class.getSimpleName(),
-                            "Removing blacklisted cover from cache : ");
+                    Log.d(TAG, "Removing blacklisted cover from cache : ");
                 coverUrlMap.remove(albumInfo.getKey());
                 cacheCoverRetriever.delete(albumInfo);
             }
         } else {
-            Log.w(CoverManager.class.getSimpleName(), "Cannot blacklist the cover for album : "
-                    + albumInfo + " because no cover URL has been recorded for it");
+            Log.w(TAG, "Cannot blacklist the cover for album : " + albumInfo
+                    + " because no cover URL has been recorded for it");
 
         }
     }
@@ -917,8 +896,7 @@ public class CoverManager {
                     case COVER_FOUND:
                         removeRequest(coverInfo);
                         if (DEBUG)
-                            d(CoverManager.class.getSimpleName(),
-                                    "Cover found for " + coverInfo.getAlbum());
+                            Log.d(TAG, "Cover found for " + coverInfo.getAlbum());
                         listener.onCoverDownloaded(coverInfo);
                         // Do a copy for the other listeners (not to share
                         // bitmaps between views because of the recycling)
@@ -941,8 +919,7 @@ public class CoverManager {
                         }
                         removeRequest(coverInfo);
                         if (DEBUG)
-                            d(CoverManager.class.getSimpleName(), "Cover not found for "
-                                    + coverInfo.getAlbum());
+                            Log.d(TAG, "Cover not found for " + coverInfo.getAlbum());
                         listener.onCoverNotFound(coverInfo);
                         break;
                     case WEB_COVER_FETCH:
@@ -1005,15 +982,15 @@ public class CoverManager {
             File file = new File(getCoverFolder(), fileName);
             outputStream = new ObjectOutputStream(new FileOutputStream(file));
             outputStream.writeObject(object);
-        } catch (Exception e) {
-            e(CoverManager.class.getSimpleName(), "Cannot save covers : " + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Cannot save covers.", e);
         } finally {
             if (outputStream != null) {
                 try {
                     outputStream.flush();
                     outputStream.close();
-                } catch (IOException e) {
-                    Log.e(CoverManager.class.getSimpleName(), "Cannot close cover file : " + e);
+                } catch (final IOException e) {
+                    Log.e(TAG, "Cannot close cover file.", e);
 
                 }
             }
@@ -1091,15 +1068,15 @@ public class CoverManager {
 
     private void stopExecutors() {
         try {
-            i(CoverManager.class.getSimpleName(), "Shutting down cover executors");
+            Log.i(TAG, "Shutting down cover executors");
             active = false;
             this.priorityCoverFetchExecutor.shutdown();
             this.requestExecutor.shutdown();
             this.createBitmapExecutor.shutdown();
             this.coverFetchExecutor.shutdown();
             this.cacheCoverFetchExecutor.shutdown();
-        } catch (Exception ex) {
-            e(CoverAsyncHelper.class.getSimpleName(), "Failed to shutdown cover executors :" + ex);
+        } catch (final Exception ex) {
+            Log.e(TAG, "Failed to shutdown cover executors.", ex);
         }
 
     }

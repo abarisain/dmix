@@ -30,6 +30,7 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,7 +42,9 @@ public class StoredPlaylistFragment extends BrowseFragment {
     private static final String EXTRA_PLAYLIST_NAME = "playlist";
 
     private String playlistName;
-    final private MPDApplication app = MPDApplication.getInstance();
+    private static MPDApplication app = MPDApplication.getInstance();
+
+    private static final String TAG = "StoredPlaylistFragment";
 
     public StoredPlaylistFragment() {
         super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -56,9 +59,8 @@ public class StoredPlaylistFragment extends BrowseFragment {
             if (!play) {
                 Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
             }
-        } catch (MPDServerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -67,8 +69,8 @@ public class StoredPlaylistFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(irAdded, item);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -78,8 +80,8 @@ public class StoredPlaylistFragment extends BrowseFragment {
             if (getActivity() == null)
                 return;
             items = app.oMPDAsyncHelper.oMPD.getPlaylistSongs(playlistName);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to update.", e);
         }
     }
 

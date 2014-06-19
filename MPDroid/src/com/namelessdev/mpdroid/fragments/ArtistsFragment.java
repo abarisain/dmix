@@ -29,11 +29,14 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
 public class ArtistsFragment extends BrowseFragment {
     private Genre genre = null;
+
+    private static final String TAG = "ArtistsFragment";
 
     public ArtistsFragment() {
         super(R.string.addArtist, R.string.artistAdded, MPDCommand.MPD_SEARCH_ARTIST);
@@ -46,8 +49,8 @@ public class ArtistsFragment extends BrowseFragment {
             if (isAdded()) {
                 Tools.notifyUser(irAdded, item);
             }
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add to queue.", e);
         }
     }
 
@@ -58,8 +61,8 @@ public class ArtistsFragment extends BrowseFragment {
             if (isAdded()) {
                 Tools.notifyUser(irAdded, item);
             }
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add to playlist.", e);
         }
     }
 
@@ -93,7 +96,8 @@ public class ArtistsFragment extends BrowseFragment {
                     }
                     break;
             }
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to update.", e);
         }
     }
 

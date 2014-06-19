@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
@@ -45,7 +44,7 @@ import java.util.Collection;
  */
 public class MPDAsyncHelper extends Handler {
 
-    public static final String TAG = "MPDAsyncHelper";
+    private static final String TAG = "MPDAsyncHelper";
 
     // Interface for callback when Asynchronous operations are finished
     public interface AsyncExecListener {
@@ -84,8 +83,8 @@ public class MPDAsyncHelper extends Handler {
                             MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTSUCCEEDED)
                                     .sendToTarget();
                         }
-                    } catch (MPDServerException | UnknownHostException e) {
-                        Log.e(TAG, "Error while connecting to the server", e);
+                    } catch (final MPDServerException | UnknownHostException e) {
+                        Log.e(TAG, "Error while connecting to the server.", e);
                         MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED,
                                 Tools.toObjectArray(e.getMessage())).sendToTarget();
                     }
@@ -104,16 +103,10 @@ public class MPDAsyncHelper extends Handler {
                     try {
                         if (oMPD != null)
                             oMPD.disconnect();
-                        Log.d(MPDApplication.TAG, "Disconnected");
-                    } catch (MPDServerException e) {
-                        Log.e(MPDApplication.TAG, "Error on disconnect", e);// Silent
-                                                                            // exception
-                                                                            // are
-                                                                            // dangerous
+                        Log.d(TAG, "Disconnected.");
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Error on disconnect.", e);
                     }
-                    // Should not happen anymore
-                    // catch (NullPointerException ex) {
-                    // }
                     break;
                 case EVENT_EXECASYNC:
                     Runnable run = (Runnable) msg.obj;
@@ -364,7 +357,7 @@ public class MPDAsyncHelper extends Handler {
                             listener.asyncExecSucceeded(msg.arg1);
                     break;
             }
-        } catch (ClassCastException e) {
+        } catch (final ClassCastException ignored) {
             // happens when unknown message type is received
         }
     }

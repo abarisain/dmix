@@ -28,6 +28,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
@@ -54,7 +55,7 @@ public class PlaylistsFragment extends BrowseFragment {
                             Tools.notifyUser(R.string.playlistDeleted, playlist);
                         }
                         items.remove(itemIndex);
-                    } catch (MPDServerException e) {
+                    } catch (final MPDServerException e) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setTitle(R.string.deletePlaylist);
                         builder.setMessage(
@@ -63,7 +64,7 @@ public class PlaylistsFragment extends BrowseFragment {
 
                         try {
                             builder.show();
-                        } catch (BadTokenException ex) {
+                        } catch (final BadTokenException ignored) {
                             // Can't display it. Don't care.
                         }
                     }
@@ -82,6 +83,8 @@ public class PlaylistsFragment extends BrowseFragment {
         super(R.string.addPlaylist, R.string.playlistAdded, null);
     }
 
+    private static final String TAG = "PlaylistsFragment";
+
     @Override
     protected void add(Item item, boolean replace, boolean play) {
         try {
@@ -90,8 +93,8 @@ public class PlaylistsFragment extends BrowseFragment {
                 Tools.notifyUser(irAdded, item);
             }
 
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -103,7 +106,8 @@ public class PlaylistsFragment extends BrowseFragment {
     protected void asyncUpdate() {
         try {
             items = app.oMPDAsyncHelper.oMPD.getPlaylists(true);
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to update.", e);
         }
     }
 
@@ -153,7 +157,7 @@ public class PlaylistsFragment extends BrowseFragment {
 
                 try {
                     builder.show();
-                } catch (BadTokenException e) {
+                } catch (final BadTokenException ignored) {
                     // Can't display it. Don't care.
                 }
                 break;

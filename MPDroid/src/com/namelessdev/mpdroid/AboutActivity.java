@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +43,7 @@ public class AboutActivity extends Activity {
             PackageInfo pinfo = app.getPackageManager()
                     .getPackageInfo(comp.getPackageName(), 0);
             return pinfo.versionName + " (" + pinfo.versionCode + ")";
-        } catch (android.content.pm.PackageManager.NameNotFoundException e) {
+        } catch (final PackageManager.NameNotFoundException ignored) {
             return null;
         }
     }

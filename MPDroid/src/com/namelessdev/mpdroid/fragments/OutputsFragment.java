@@ -26,6 +26,7 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -39,6 +40,8 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     private final MPDApplication app = MPDApplication.getInstance();
 
     private ArrayList<MPDOutput> outputs;
+
+    private static final String TAG = "OutputsFragment";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,8 +79,8 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                     } else {
                         mpd.disableOutput(output.getId());
                     }
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to modify output.", e);
                 }
                 final Activity activity = getActivity();
                 if (activity != null) {
@@ -101,7 +104,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                     outputs.clear();
                     outputs.addAll(mpdOutputs);
                 } catch (MPDServerException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Failed to list outputs.", e);
                 }
                 final Activity activity = getActivity();
                 if (activity != null) {

@@ -123,8 +123,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private static final String TAG = "com.namelessdev.mpdroid.NowPlayingFragment";
-
     private static final int POPUP_ARTIST = 0;
     private static final int POPUP_ALBUMARTIST = 1;
     private static final int POPUP_ALBUM = 2;
@@ -175,6 +173,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private TimerTask volTimerTask = null;
     private Handler handler;
     private Timer posTimer = null;
+
+    private static final String TAG = "NowPlayingFragment";
 
     private final MPDApplication app = MPDApplication.getInstance();
 
@@ -427,7 +427,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         });
 
         songNameText.setText(R.string.notConnected);
-        Log.i(MPDApplication.TAG, "Initialization succeeded");
+        Log.i(TAG, "Initialization succeeded");
 
         return view;
     }

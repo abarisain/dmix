@@ -35,6 +35,7 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -55,6 +56,8 @@ public class AlbumsFragment extends BrowseFragment {
     private static final int POPUP_COVER_BLACKLIST = 5;
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
+    private static final String TAG = "AlbumsFragment";
+
     public AlbumsFragment() {
         this(null);
     }
@@ -74,8 +77,8 @@ public class AlbumsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
             Tools.notifyUser(irAdded, item);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -84,8 +87,8 @@ public class AlbumsFragment extends BrowseFragment {
         try {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ((Album) item));
             Tools.notifyUser(irAdded, item);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -100,7 +103,8 @@ public class AlbumsFragment extends BrowseFragment {
                     }
                 }
             }
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to update.", e);
         }
     }
 

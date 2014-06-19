@@ -16,11 +16,11 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import android.util.Log;
-
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,8 @@ import java.util.List;
  * Fetch cover from Discogs
  */
 public class DiscogsCover extends AbstractWebCover {
+
+    private static final String TAG = "DiscogsCover";
 
     private List<String> extractImageUrls(String releaseJson) {
         JSONObject jsonRootObject;
@@ -50,9 +52,8 @@ public class DiscogsCover extends AbstractWebCover {
                 }
             }
 
-        } catch (Exception e) {
-            Log.e(DeezerCover.class.toString(), "Failed to get release image URLs from Discogs : "
-                    + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to get release image URLs from Discogs.", e);
         }
         return imageUrls;
     }
@@ -77,8 +78,8 @@ public class DiscogsCover extends AbstractWebCover {
                 }
             }
 
-        } catch (Exception e) {
-            Log.e(DeezerCover.class.toString(), "Failed to get release Ids from Discogs : " + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to get release Ids from Discogs.", e);
         }
         return releaseIds;
     }

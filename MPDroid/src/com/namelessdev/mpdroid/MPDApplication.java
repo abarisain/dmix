@@ -47,8 +47,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static android.util.Log.w;
-
 public class MPDApplication extends Application implements ConnectionListener {
 
     private static final long DISCONNECT_TIMER = 15000L;
@@ -407,7 +405,7 @@ public class MPDApplication extends Application implements ConnectionListener {
         mDisconnectScheduler.schedule(new TimerTask() {
             @Override
             public void run() {
-                w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
+                Log.w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
                 oMPDAsyncHelper.stopMonitor();
                 oMPDAsyncHelper.disconnect();
             }

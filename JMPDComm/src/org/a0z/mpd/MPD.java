@@ -159,8 +159,8 @@ public class MPD {
                 try {
                     final ArrayList<Music> songs = new ArrayList<>(getSongs(album));
                     getPlaylist().addAll(songs);
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to add.", e);
                 }
             }
         };
@@ -178,8 +178,8 @@ public class MPD {
                 try {
                     final ArrayList<Music> songs = new ArrayList<>(getSongs(artist));
                     getPlaylist().addAll(songs);
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to add.", e);
                 }
             }
         };
@@ -193,8 +193,8 @@ public class MPD {
             public void run() {
                 try {
                     getPlaylist().add(directory);
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to add.", e);
                 }
             }
         };
@@ -213,8 +213,8 @@ public class MPD {
                     } else if (music instanceof PlaylistFile) {
                         getPlaylist().load(music.getFullpath());
                     }
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to add.", e);
                 }
             }
         };
@@ -287,8 +287,8 @@ public class MPD {
             public void run() {
                 try {
                     getPlaylist().load(playlist);
-                } catch (MPDServerException e) {
-                    e.printStackTrace();
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to add playlist.", e);
                 }
             }
         };
@@ -301,8 +301,8 @@ public class MPD {
             public void run() {
                 try {
                     getPlaylist().addStream(stream);
-                } catch (MPDServerException | MPDClientException e) {
-                    e.printStackTrace();
+                } catch (final MPDServerException | MPDClientException e) {
+                    Log.e(TAG, "Failed to add stream.", e);
                 }
             }
         };
@@ -545,7 +545,8 @@ public class MPD {
         List<String[]> albumartists = null;
         try {
             albumartists = listAlbumArtists(albums);
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to fix album artists.", e);
         }
         if (albumartists == null || albumartists.size() != albums.size()) {
             return;

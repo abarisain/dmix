@@ -31,6 +31,8 @@ import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -45,9 +47,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static android.util.Log.e;
-import static android.util.Log.w;
 
 /**
  * Class representing a connection to MPD Server.
@@ -82,13 +81,13 @@ public abstract class MPDConnection {
                     // improve connection failure robustness)
                     // Just send the "changed playlist" result to force the MPD
                     // status to be refreshed.
-                } catch (MPDNoResponseException ex0) {
+                } catch (final MPDNoResponseException ex0) {
                     this.setSentToServer(false);
                     handleConnectionFailure(result, ex0);
                     if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
                         result.setResult(Collections.singletonList("changed: playlist"));
                     }
-                } catch (MPDServerException ex1) {
+                } catch (final MPDServerException ex1) {
                     // Avoid getting in an infinite loop if an error occurred in the password cmd
                     if (ex1.getErrorKind() == MPDServerException.ErrorKind.PASSWORD) {
                         result.setLastexception(new MPDServerException(
@@ -106,8 +105,8 @@ public abstract class MPDConnection {
                     result.setLastexception(new MPDConnectionException(
                             "MPD request has been cancelled for disconnection"));
                 }
-                e(MpdCallable.class.getSimpleName(), "MPD command " + command + " failed after "
-                        + retry + " attempts : " + result.getLastexception().getMessage());
+                Log.e(TAG, "MPD command " + command + " failed after " + retry + " attempts : "
+                        + result.getLastexception().getMessage());
             }
             return result;
         }
@@ -224,14 +223,13 @@ public abstract class MPDConnection {
         while (result == null && retry < MAX_CONNECT_RETRY && !cancelled) {
             try {
                 result = innerConnect();
-            } catch (MPDServerException e1) {
+            } catch (final MPDServerException e1) {
                 lastException = e1;
                 try {
                     Thread.sleep(500L);
-                } catch (InterruptedException e) {
-                    // Nothing to do
+                } catch (final InterruptedException ignored) {
                 }
-            } catch (Exception e2) {
+            } catch (final Exception e2) {
                 lastException = new MPDServerException(e2);
             }
             retry++;
@@ -277,12 +275,11 @@ public abstract class MPDConnection {
             result.setLastexception(ex);
             try {
                 Thread.sleep(500L);
-            } catch (InterruptedException e) {
-                // Nothing to do
+            } catch (final InterruptedException ignored) {
             }
             innerConnect();
             refreshAllConnections();
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
             result.setLastexception(e);
         }
     }
@@ -293,7 +290,7 @@ public abstract class MPDConnection {
             // before creating a new one
             try {
                 innerDisconnect();
-            } catch (MPDServerException e) {
+            } catch (final MPDServerException ignored) {
                 // ok, don't care about any exception here
             }
         }
@@ -342,7 +339,7 @@ public abstract class MPDConnection {
                 throw new MPDServerException("Bogus response from server");
             }
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new MPDConnectionException(e);
         }
     }
@@ -352,7 +349,7 @@ public abstract class MPDConnection {
             try {
                 getSocket().close();
                 setSocket(null);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new MPDConnectionException(e.getMessage(), e);
             }
         }
@@ -367,7 +364,7 @@ public abstract class MPDConnection {
         ArrayList<String> result = new ArrayList<>();
         try {
             writeToServer(command);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new MPDConnectionException(e);
         }
         boolean dataReaded = false;
@@ -375,10 +372,9 @@ public abstract class MPDConnection {
             try {
                 result = readFromServer();
                 dataReaded = true;
-            } catch (SocketTimeoutException e) {
-                w(MPDConnection.class.getSimpleName(),
-                        "Socket timeout while reading server response : " + e);
-            } catch (IOException e) {
+            } catch (final SocketTimeoutException e) {
+                Log.w(TAG, "Socket timeout while reading server response : " + e);
+            } catch (final IOException e) {
                 throw new MPDConnectionException(e);
             }
         }
@@ -395,13 +391,13 @@ public abstract class MPDConnection {
         // send command
         try {
             writeToServer(command);
-        } catch (IOException e1) {
+        } catch (final IOException e1) {
             throw new MPDConnectionException(e1);
         }
         try {
             result = readFromServer();
             return result;
-        } catch (MPDConnectionException e) {
+        } catch (final MPDConnectionException e) {
             if (command.command.equals(MPDCommand.MPD_CMD_CLOSE)) {
                 return result;// we sent close command, so don't care about
             }
@@ -409,7 +405,7 @@ public abstract class MPDConnection {
             else {
                 throw e;
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new MPDConnectionException(e);
         }
     }
@@ -446,7 +442,7 @@ public abstract class MPDConnection {
             } else {
                 result = executor.submit(new MpdCallable(command)).get();
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new MPDServerException(e);
         }
         if (result.getResult() != null) {
@@ -504,9 +500,8 @@ public abstract class MPDConnection {
                 for (int i = 0; i < maxThreads; i++) {
                     try {
                         processRequest(new MPDCommand(MPDCommand.MPD_CMD_PING));
-                    } catch (MPDServerException e) {
-                        w(MPDConnection.class.getSimpleName(), "All connection refresh failure : "
-                                + e);
+                    } catch (final MPDServerException e) {
+                        Log.w(TAG, "All connection refresh failure.", e);
                     }
                 }
             }

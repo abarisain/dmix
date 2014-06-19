@@ -16,17 +16,16 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import static android.text.TextUtils.isEmpty;
-import static android.util.Log.e;
-import static android.util.Log.w;
-
-import android.content.SharedPreferences;
-
 import org.a0z.mpd.AlbumInfo;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.SharedPreferences;
+import android.util.Log;
+
 import java.io.StringReader;
+
+import static android.text.TextUtils.isEmpty;
 
 public class GracenoteCover extends AbstractWebCover {
 
@@ -37,6 +36,8 @@ public class GracenoteCover extends AbstractWebCover {
     public static boolean isClientIdAvailable(SharedPreferences sharedPreferences) {
         return !isEmpty(sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null));
     }
+
+    private static final String TAG = "GracenoteCover";
 
     private String apiUrl;
     private SharedPreferences sharedPreferences;
@@ -77,9 +78,8 @@ public class GracenoteCover extends AbstractWebCover {
                 }
                 eventType = xpp.next();
             }
-        } catch (Exception e) {
-            e(GracenoteCover.class.getName(),
-                    "Cannot extract coverArt URL from Gracenote response : " + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Cannot extract coverArt URL from Gracenote response.", e);
         }
         return null;
     }
@@ -109,11 +109,10 @@ public class GracenoteCover extends AbstractWebCover {
                 }
                 eventType = xpp.next();
             }
-        } catch (Exception e)
+        } catch (final Exception e)
 
         {
-            e(GracenoteCover.class.getName(), "Cannot extract userID from Gracenote response : "
-                    + e);
+            Log.e(TAG, "Cannot extract userID from Gracenote response.", e);
         }
 
         return null;
@@ -125,8 +124,7 @@ public class GracenoteCover extends AbstractWebCover {
         if (splittedString.length == 2) {
             return splittedString[0];
         } else {
-            w(GracenoteCover.class.getSimpleName(),
-                    "Invalid GraceNote User ID (must be XXXX-XXXXXXXXXXXXX) : " + clientId);
+            Log.w(TAG, "Invalid GraceNote User ID (must be XXXX-XXXXXXXXXXXXX) : " + clientId);
             return "";
         }
     }
@@ -149,8 +147,8 @@ public class GracenoteCover extends AbstractWebCover {
                         coverUrl
                 };
             }
-        } catch (Exception ex) {
-            e(GracenoteCover.class.getName(), "GracenoteCover fetch failure : " + ex);
+        } catch (final Exception ex) {
+            Log.e(TAG, "GracenoteCover fetch failure.", ex);
         }
         return new String[0];
     }
@@ -207,9 +205,8 @@ public class GracenoteCover extends AbstractWebCover {
                     editor.commit();
                 }
             }
-        } catch (Exception e) {
-            e(GracenoteCover.class.getName(),
-                    "Gracenote initialisation failure : " + e.getMessage());
+        } catch (final Exception e) {
+            Log.e(TAG, "Gracenote initialization failure.", e);
             if (sharedPreferences != null) {
                 if (sharedPreferences != null && userId != null) {
                     SharedPreferences.Editor editor;

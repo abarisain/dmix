@@ -16,13 +16,15 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import android.util.Log;
-
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 public class ItunesCover extends AbstractWebCover {
+    private static final String TAG = "ItunesCover";
+
     @Override
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
         String response;
@@ -50,8 +52,8 @@ public class ItunesCover extends AbstractWebCover {
                 }
             }
 
-        } catch (Exception e) {
-            Log.e(ItunesCover.class.toString(), "Failed to get cover URL from " + getName());
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to get cover URL from " + getName(), e);
         }
 
         return new String[0];

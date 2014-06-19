@@ -75,8 +75,7 @@ public final class QueueControl {
                         playlist.removeById(intArray);
                     }
                 } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to remove by playlist id. intArray: " +
-                            intArray.toString(), e);
+                    Log.e(TAG, "Failed to remove by playlist id. intArray: " + intArray, e);
                 }
             }
         });

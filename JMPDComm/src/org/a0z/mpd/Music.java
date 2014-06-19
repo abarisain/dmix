@@ -530,7 +530,7 @@ public class Music extends Item implements FilesystemTreeEntry {
             if (null == path || path.isEmpty()) {
                 return url + "/#" + fixed;
             }
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException ignored) {
         }
         return url + "#" + fixed;
     }

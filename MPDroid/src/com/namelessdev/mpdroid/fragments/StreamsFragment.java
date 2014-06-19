@@ -67,13 +67,15 @@ public class StreamsFragment extends BrowseFragment {
                 case AlertDialog.BUTTON_POSITIVE:
                     try {
                         app.oMPDAsyncHelper.oMPD.removeSavedStream(streams.get(itemIndex).getPos());
-                        String name = items.get(itemIndex).getName();
-                        Tools.notifyUser(R.string.streamDeleted, name);
-                        items.remove(itemIndex);
-                        streams.remove(itemIndex);
-                        updateFromItems();
-                    } catch (MPDServerException e) {
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Failed to removed a saved stream.", e);
                     }
+
+                    String name = items.get(itemIndex).getName();
+                    Tools.notifyUser(R.string.streamDeleted, name);
+                    items.remove(itemIndex);
+                    streams.remove(itemIndex);
+                    updateFromItems();
                     break;
             }
         }
@@ -118,6 +120,8 @@ public class StreamsFragment extends BrowseFragment {
 
     private static final String SERVER_FILE_NAME = "streams.xml.gz";
 
+    private static final String TAG = "StreamsFragment";
+
     public StreamsFragment() {
         super(R.string.addStream, R.string.streamAdded, null);
     }
@@ -129,10 +133,8 @@ public class StreamsFragment extends BrowseFragment {
             app.oMPDAsyncHelper.oMPD.addStream(StreamFetcher.instance().get(s.getUrl(), s.getName()),
                     replace, play);
             Tools.notifyUser(irAdded, item);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException | MalformedURLException e) {
+            Log.e(TAG, "Failed to add stream.", e);
         }
     }
 
@@ -177,24 +179,26 @@ public class StreamsFragment extends BrowseFragment {
                         String url = null == urlEdit ? null : urlEdit.getText().toString().trim();
                         if (null != name && name.length() > 0 && null != url && url.length() > 0) {
                             if (index >= 0 && index < streams.size()) {
+                                int removedPos = streams.get(idx).getPos();
                                 try {
-                                    int removedPos=streams.get(idx).getPos();
                                     app.oMPDAsyncHelper.oMPD.editSavedStream(url, name, removedPos);
-                                    streams.remove(idx);
-                                    for (Stream stream : streams) {
-                                        if (stream.getPos()>removedPos) {
-                                            stream.setPos(stream.getPos()-1);
-                                        }
-                                    }
-                                    streams.add(new Stream(url, name, streams.size()));
-                                } catch (MPDServerException e) {
+                                } catch (final MPDServerException e) {
+                                    Log.e(TAG, "Failed to edit a saved stream.", e);
                                 }
+                                streams.remove(idx);
+                                for (Stream stream : streams) {
+                                    if (stream.getPos() > removedPos) {
+                                        stream.setPos(stream.getPos() - 1);
+                                    }
+                                }
+                                streams.add(new Stream(url, name, streams.size()));
                             } else {
                                 try {
                                     app.oMPDAsyncHelper.oMPD.saveStream(url, name);
-                                    streams.add(new Stream(url, name, streams.size()));
-                                } catch (MPDServerException e) {
+                                } catch (final MPDServerException e) {
+                                    Log.e(TAG, "Failed to save stream.", e);
                                 }
+                                streams.add(new Stream(url, name, streams.size()));
                             }
                             Collections.sort(streams);
                             items = streams;
@@ -243,7 +247,8 @@ public class StreamsFragment extends BrowseFragment {
         List<Music> mpdStreams = null;
         try {
             mpdStreams = app.oMPDAsyncHelper.oMPD.getSavedStreams();
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to retrieve saved streams.", e);
         }
 
         if (null!=mpdStreams) {
@@ -259,10 +264,12 @@ public class StreamsFragment extends BrowseFragment {
                 if (!streams.contains(stream)) {
                     try {
                         app.oMPDAsyncHelper.oMPD.saveStream(stream.url, stream.name);
-                        stream.setPos(streams.size());
-                        streams.add(stream);
-                    } catch (MPDServerException e) {
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Failed to save a stream.", e);
                     }
+
+                    stream.setPos(streams.size());
+                    streams.add(stream);
                 }
             }
         }
@@ -294,9 +301,9 @@ public class StreamsFragment extends BrowseFragment {
             in.close();
             // Now remove file - all streams will be added to MPD...
             app.deleteFile(FILE_NAME);
-        } catch (FileNotFoundException e) {
-        } catch (Exception e) {
-            Log.e("Streams", "Error while loading streams", e);
+        } catch (final FileNotFoundException ignored) {
+        } catch (final Exception e) {
+            Log.e(TAG, "Error while loading streams", e);
         }
         return oldStreams;
     }
@@ -365,7 +372,7 @@ public class StreamsFragment extends BrowseFragment {
                 builder.setPositiveButton(R.string.deleteStream, oDialogClickListener);
                 try {
                     builder.show();
-                } catch (BadTokenException e) {
+                } catch (final BadTokenException e) {
                     // Can't display it. Don't care.
                 }
                 break;

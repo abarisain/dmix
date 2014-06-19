@@ -16,11 +16,11 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import android.util.Log;
-
 import org.a0z.mpd.AlbumInfo;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import android.util.Log;
 
 import java.io.StringReader;
 
@@ -31,6 +31,7 @@ public class LastFMCover extends AbstractWebCover {
 
     private static String KEY = "7fb78a81b20bee7cb6e8fad4cbcb3694";
     private static final String URL = "http://ws.audioscrobbler.com/2.0/";
+    private static final String TAG = "LastFMCover";
 
     @Override
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
@@ -72,10 +73,8 @@ public class LastFMCover extends AbstractWebCover {
                 }
                 eventType = xpp.next();
             }
-        } catch (Exception e)
-
-        {
-            Log.e(LastFMCover.class.toString(), "Failed to get cover URL from LastFM :" + e);
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to get cover URL from LastFM.", e);
         }
 
         return new String[0];

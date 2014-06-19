@@ -147,16 +147,12 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        try {
-            Activity activity = this.getActivity();
-            ActionBar actionBar = activity.getActionBar();
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        } catch (NoClassDefFoundError e) {
-            // Older android
-        } catch (NullPointerException e) {
-
-        } catch (NoSuchMethodError e) {
-
+        final Activity activity = getActivity();
+        if (activity != null) {
+            final ActionBar actionBar = activity.getActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
         }
     }
 
@@ -206,8 +202,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                         }
                     }
                 } catch (MPDServerException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    Log.e(TAG, "Failed to parse playlists.", e);
                 }
             }
         }
@@ -452,8 +447,10 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                     noResultView.setVisibility(View.VISIBLE);
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
+            Log.e(TAG, "Exception.", e);
         }
+
         loadingView.setVisibility(View.GONE);
         refreshFastScrollStyle();
     }
