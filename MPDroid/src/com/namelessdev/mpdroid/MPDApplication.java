@@ -30,7 +30,6 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
@@ -254,32 +253,6 @@ public class MPDApplication extends Application implements ConnectionListener {
         }
     }
 
-    void init(final Context context) {
-        MPD.setApplicationContext(context);
-
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        final StrictMode.VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
-        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
-                .build();
-        StrictMode.setThreadPolicy(policy);
-        StrictMode.setVmPolicy(vmPolicy);
-
-        // Init the default preferences (meaning we won't have different defaults between code/xml)
-        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
-
-        oMPDAsyncHelper = new MPDAsyncHelper();
-        oMPDAsyncHelper.addConnectionListener(this);
-
-        mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
-
-        mDisconnectScheduler = new Timer();
-
-        if (!mSharedPreferences.contains("albumTrackSort")) {
-            mSharedPreferences.edit().putBoolean("albumTrackSort", true).commit();
-        }
-    }
-
     public final boolean isInSimpleMode() {
         return mSharedPreferences.getBoolean("simpleMode", false);
     }
@@ -343,7 +316,30 @@ public class MPDApplication extends Application implements ConnectionListener {
         super.onCreate();
         sInstance = this;
         Log.d(TAG, "onCreate Application");
-        init(this);
+
+        MPD.setApplicationContext(this);
+
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        final StrictMode.VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
+        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
+                .build();
+        StrictMode.setThreadPolicy(policy);
+        StrictMode.setVmPolicy(vmPolicy);
+
+        // Init the default preferences (meaning we won't have different defaults between code/xml)
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+
+        oMPDAsyncHelper = new MPDAsyncHelper();
+        oMPDAsyncHelper.addConnectionListener(this);
+
+        mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
+
+        mDisconnectScheduler = new Timer();
+
+        if (!mSharedPreferences.contains("albumTrackSort")) {
+            mSharedPreferences.edit().putBoolean("albumTrackSort", true).commit();
+        }
     }
 
     public final void removeConnectionLock(final Object lockOwner) {
