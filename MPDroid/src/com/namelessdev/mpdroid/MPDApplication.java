@@ -111,9 +111,11 @@ public class MPDApplication extends Application implements ConnectionListener {
     }
 
     public final void addConnectionLock(final Object lockOwner) {
-        mConnectionLocks.add(lockOwner);
-        checkConnectionNeeded();
-        cancelDisconnectScheduler();
+        if (!mConnectionLocks.contains(lockOwner)) {
+            mConnectionLocks.add(lockOwner);
+            checkConnectionNeeded();
+            cancelDisconnectScheduler();
+        }
     }
 
     private void cancelDisconnectScheduler() {
