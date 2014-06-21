@@ -270,7 +270,11 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
-        final String action = intent.getAction();
+
+        String action = null;
+        if(intent != null) {
+            action = intent.getAction();
+        }
 
         Log.d(TAG, "Starting service, received command, action="
                 + action + " from intent: " + intent);

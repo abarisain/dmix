@@ -480,7 +480,7 @@ public final class StreamingService extends Service implements
         super.onStartCommand(intent, flags, startId);
 
         /** Do nothing, it'll be done when the service is bound */
-        if (!ACTION_START.equals(intent.getAction())) {
+        if (intent != null && !ACTION_START.equals(intent.getAction())) {
             stopSelf(); /** Don't start if someone doesn't know the knock. */
         }
 
