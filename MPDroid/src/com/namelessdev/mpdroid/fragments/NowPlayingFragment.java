@@ -678,7 +678,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
          * If the current song is a stream, the metadata can change in place, and that will only
          * change the playlist, not the track, so, update if we detect a stream.
          */
-        if (currentSong != null && currentSong.isStream()) {
+        if (currentSong != null && currentSong.isStream() ||
+                MPDStatus.MPD_STATE_STOPPED.equals(mpdStatus.getState())) {
             updateTrackInfo(mpdStatus);
         }
     }
