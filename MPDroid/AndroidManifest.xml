@@ -97,7 +97,7 @@
             android:exported="false" />
 
         <service
-            android:name=".service.StreamingService"
+            android:name=".service.StreamHandler"
             android:exported="false" />
 
         <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >

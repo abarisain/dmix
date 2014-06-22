@@ -159,12 +159,12 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         final MPDStatus mpdStatus = getMPDStatus();
 
         switch (what) {
-            case StreamingService.BUFFERING_BEGIN:
+            case StreamHandler.BUFFERING_BEGIN:
                 mNotificationHandler.setMediaPlayerBuffering(true);
                 mRemoteControlClientHandler.setMediaPlayerBuffering(true);
                 mStreamingServiceWoundDown = false;
                 break;
-            case StreamingService.REQUEST_NOTIFICATION_STOP:
+            case StreamHandler.REQUEST_NOTIFICATION_STOP:
                 if (mStreamingOwnsNotification &&
                         !sApp.isNotificationPersistent()) {
                     haltSelf();
@@ -173,13 +173,13 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
                     stateChanged(getMPDStatus(), null);
                 }
                 break;
-            case StreamingService.SERVICE_WOUND_DOWN:
+            case StreamHandler.SERVICE_WOUND_DOWN:
                 mNotificationHandler.setMediaPlayerWoundDown();
                 mStreamingServiceWoundDown = true;
                 break;
-            case StreamingService.BUFFERING_END:
-            case StreamingService.BUFFERING_ERROR:
-            case StreamingService.STREAMING_STOP:
+            case StreamHandler.BUFFERING_END:
+            case StreamHandler.BUFFERING_ERROR:
+            case StreamHandler.STREAMING_STOP:
                 mRemoteControlClientHandler.setMediaPlayerBuffering(false);
                 mNotificationHandler.setMediaPlayerBuffering(false);
                 stateChanged(getMPDStatus(), MPDStatus.MPD_STATE_UNKNOWN);
@@ -325,7 +325,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
 
     /**
      * This is the idle delay for shutting down this service after inactivity
-     * (in milliseconds). This idle is also longer than StreamingService to
+     * (in milliseconds). This idle is also longer than StreamHandler to
      * avoid being unnecessarily brought up to shut right back down.
      */
     private void setupServiceHandler() {

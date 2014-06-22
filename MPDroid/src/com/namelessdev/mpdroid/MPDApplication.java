@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.service.MPDroidService;
-import com.namelessdev.mpdroid.service.StreamingService;
+import com.namelessdev.mpdroid.service.StreamHandler;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import org.a0z.mpd.MPD;
@@ -334,7 +334,7 @@ public class MPDApplication extends Application implements ConnectionListener {
      * @return True if streaming service is running, false otherwise.
      */
     public final boolean isStreamingServiceRunning() {
-        return isServiceRunning(StreamingService.class);
+        return isServiceRunning(StreamHandler.class);
     }
 
     public final boolean isTabletUiEnabled() {

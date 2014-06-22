@@ -18,7 +18,7 @@ package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.MPDroidService;
-import com.namelessdev.mpdroid.service.StreamingService;
+import com.namelessdev.mpdroid.service.StreamHandler;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -83,7 +83,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     /** Stop the MPDroid & Streaming services.*/
                     final Intent serviceStop = new Intent(sApp, MPDroidService.class);
                     sApp.stopService(serviceStop);
-                    serviceStop.setClass(sApp, StreamingService.class);
+                    serviceStop.setClass(sApp, StreamHandler.class);
                     sApp.stopService(serviceStop);
                     break;
                 default:

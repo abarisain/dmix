@@ -26,7 +26,7 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.service.MPDroidService;
-import com.namelessdev.mpdroid.service.StreamingService;
+import com.namelessdev.mpdroid.service.StreamHandler;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -638,9 +638,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     break;
                 case R.id.GMM_Stream:
                     if (app.isStreamingServiceRunning()) {
-                        stopService(StreamingService.class);
+                        stopService(StreamHandler.class);
                     } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                        startService(StreamingService.class, StreamingService.ACTION_START);
+                        startService(StreamHandler.class, StreamHandler.ACTION_START);
                     }
                     break;
                 case R.id.GMM_bonjour:

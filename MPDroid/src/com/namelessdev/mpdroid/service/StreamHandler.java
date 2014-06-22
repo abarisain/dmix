@@ -46,12 +46,12 @@ import android.util.Log;
 import java.io.IOException;
 
 /**
- * StreamingService hooks Android's audio framework to the
+ * StreamHandler hooks Android's audio framework to the
  * user's MPD streaming server to allow local audio playback.
  *
  * @author Arnaud Barisain Monrose (Dream_Team)
  */
-public final class StreamingService extends Service implements
+public final class StreamHandler extends Service implements
         /**
          * OnInfoListener is not used because it is broken (never gets called, ever)..
          * OnBufferingUpdateListener is not used because it depends on a stream completion time.
@@ -64,7 +64,7 @@ public final class StreamingService extends Service implements
         ServiceConnection, /** Service binder */
         StatusChangeListener {
 
-    /** Kills (or hides) the notification if StreamingService started it. */
+    /** Kills (or hides) the notification if StreamHandler started it. */
     static final int REQUEST_NOTIFICATION_STOP = 1;
 
     /** Keeps the notification alive, but puts it in non-streaming status. */
@@ -92,7 +92,7 @@ public final class StreamingService extends Service implements
      */
     private static final int INVALID_INT = -1;
 
-    private static final String TAG = "StreamingService";
+    private static final String TAG = "StreamHandler";
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + '.';
 
@@ -154,7 +154,7 @@ public final class StreamingService extends Service implements
     }
 
     private void beginStreaming() {
-        Log.d(TAG, "StreamingService.beginStreaming()");
+        Log.d(TAG, "StreamHandler.beginStreaming()");
         if (mMediaPlayer == null) {
             windUpResources();
         }
@@ -277,7 +277,7 @@ public final class StreamingService extends Service implements
      */
     @Override
     public final void onAudioFocusChange(final int focusChange) {
-        Log.d(TAG, "StreamingService.onAudioFocusChange() with " + focusChange);
+        Log.d(TAG, "StreamHandler.onAudioFocusChange() with " + focusChange);
         final float duckVolume = 0.2f;
 
         switch (focusChange) {
@@ -322,7 +322,7 @@ public final class StreamingService extends Service implements
      */
     @Override
     public final void onCompletion(final MediaPlayer mp) {
-        Log.d(TAG, "StreamingService.onCompletion()");
+        Log.d(TAG, "StreamHandler.onCompletion()");
 
         /**
          * If MPD is restarted during streaming, onCompletion() will be called.
@@ -341,7 +341,7 @@ public final class StreamingService extends Service implements
 
     @Override
     public final void onCreate() {
-        Log.d(TAG, "StreamingService.onCreate()");
+        Log.d(TAG, "StreamHandler.onCreate()");
         super.onCreate();
 
         doBindService();
@@ -360,7 +360,7 @@ public final class StreamingService extends Service implements
 
     @Override
     public final void onDestroy() {
-        Log.d(TAG, "StreamingService.onDestroy()");
+        Log.d(TAG, "StreamHandler.onDestroy()");
         super.onDestroy();
 
         mHandler.removeCallbacksAndMessages(this);
@@ -387,7 +387,7 @@ public final class StreamingService extends Service implements
      */
     @Override
     public final boolean onError(final MediaPlayer mp, final int what, final int extra) {
-        Log.d(TAG, "StreamingService.onError()");
+        Log.d(TAG, "StreamHandler.onError()");
         final int maxError = 4;
 
         if (mErrorIterator > 0) {
@@ -417,7 +417,7 @@ public final class StreamingService extends Service implements
      */
     @Override
     public final void onPrepared(final MediaPlayer mp) {
-        Log.d(TAG, "StreamingService.onPrepared()");
+        Log.d(TAG, "StreamHandler.onPrepared()");
         final int focusResult;
         if (mIsPlaying) {
             focusResult = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
@@ -476,7 +476,7 @@ public final class StreamingService extends Service implements
      */
     @Override
     public final int onStartCommand(final Intent intent, final int flags, final int startId) {
-        Log.d(TAG, "StreamingService.onStartCommand()");
+        Log.d(TAG, "StreamHandler.onStartCommand()");
         super.onStartCommand(intent, flags, startId);
 
         /** Do nothing, it'll be done when the service is bound */
@@ -539,7 +539,7 @@ public final class StreamingService extends Service implements
      */
     @Override
     public final void stateChanged(final MPDStatus mpdStatus, final String oldState) {
-        Log.d(TAG, "StreamingService.stateChanged()");
+        Log.d(TAG, "StreamHandler.stateChanged()");
 
         final String state = mpdStatus.getState();
 

@@ -278,7 +278,7 @@ public class NotificationHandler {
     }
 
     /**
-     * A method that sets the StreamingService {@code MediaPlayer}
+     * A method that sets the StreamHandler {@code MediaPlayer}
      * as dormant, which allows user access to close the notification.
      */
     final void setMediaPlayerWoundDown() {
