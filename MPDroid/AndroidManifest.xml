@@ -94,11 +94,9 @@
 
         <service
             android:name=".service.MPDroidService"
-            android:exported="false" />
-
-        <service
-            android:name=".service.StreamHandler"
-            android:exported="false" />
+            android:exported="false"
+            android:icon="@drawable/icon"
+            android:process=":MPDroidService" />
 
         <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >
             <intent-filter android:priority="500" >

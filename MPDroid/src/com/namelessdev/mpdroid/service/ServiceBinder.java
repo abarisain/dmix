@@ -141,7 +141,7 @@ public class ServiceBinder implements
     public static String getHandlerValue(final int what) {
         String result;
 
-        if (what >= LOCAL_UID) {
+        if (what >= LOCAL_UID && what < MPDroidService.LOCAL_UID) {
             result = "ServiceBinder.";
             switch (what) {
                 case CONNECTED:
@@ -169,6 +169,12 @@ public class ServiceBinder implements
                     result += "{unknown}: " + what;
                     break;
             }
+        } else if (what >= MPDroidService.LOCAL_UID && what < NotificationHandler.LOCAL_UID) {
+            result = MPDroidService.getHandlerValue(what);
+        } else if (what >= NotificationHandler.LOCAL_UID && what < StreamHandler.LOCAL_UID) {
+            result = NotificationHandler.getHandlerValue(what);
+        } else if (what >= StreamHandler.LOCAL_UID) {
+            result = StreamHandler.getHandlerValue(what);
         } else {
             result = "{unknown}: " + what;
         }
@@ -242,7 +248,7 @@ public class ServiceBinder implements
             setupDisconnectionDelay();
         }
 
-        mClientHandler.obtainMessage(CONNECTED).sendToTarget();
+        mClientHandler.sendEmptyMessage(CONNECTED);
 
         /** Register with the service. */
         sendMessageToService(REGISTER_CLIENT);
@@ -268,7 +274,7 @@ public class ServiceBinder implements
         // This is called when the connection with the service has been
         // unexpectedly disconnected -- that is, its process crashed.
         mServiceMessenger = null;
-        mClientHandler.obtainMessage(DISCONNECTED).sendToTarget();
+        mClientHandler.sendEmptyMessage(DISCONNECTED);
         if (DEBUG) {
             Log.d(TAG, "Disconnected from service.");
         }
@@ -367,7 +373,6 @@ public class ServiceBinder implements
 
         /** Set the service to disconnect after 15 seconds (should receive a reply by then). */
         mLocalHandler.removeMessages(UNREGISTER_CLIENT);
-        final Message msg = mLocalHandler.obtainMessage(UNREGISTER_CLIENT);
-        mLocalHandler.sendMessageDelayed(msg, MESSAGE_DELAY);
+        mLocalHandler.sendEmptyMessageDelayed(UNREGISTER_CLIENT, MESSAGE_DELAY);
     }
 }

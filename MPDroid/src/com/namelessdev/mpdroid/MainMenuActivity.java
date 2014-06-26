@@ -25,8 +25,6 @@ import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
-import com.namelessdev.mpdroid.service.MPDroidService;
-import com.namelessdev.mpdroid.service.StreamHandler;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -307,6 +305,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        app.setupServiceBinder();
         setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet
                 : R.layout.main_activity_nagvigation);
 
@@ -637,10 +636,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     app.connect();
                     break;
                 case R.id.GMM_Stream:
-                    if (app.isStreamingServiceRunning()) {
-                        stopService(StreamHandler.class);
+                    if (app.isStreamActive()) {
+                        app.stopStreaming();
                     } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                        startService(StreamHandler.class, StreamHandler.ACTION_START);
+                        app.startStreaming();
                     }
                     break;
                 case R.id.GMM_bonjour:
@@ -653,10 +652,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     MPDControl.run(MPDControl.ACTION_SINGLE);
                     break;
                 case R.id.GMM_ShowNotification:
-                    if (app.isMPDroidServiceRunning()) {
-                        stopService(MPDroidService.class);
+                    if (app.isNotificationActive()) {
+                        app.stopNotification();
                     } else {
-                        startService(MPDroidService.class, MPDroidService.ACTION_START);
+                        app.startNotification();
                         app.setPersistentOverride(false);
                     }
                     break;
@@ -666,31 +665,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             }
         }
         return result;
-    }
-
-    /**
-     * Enables and starts a service.
-     *
-     * @param serviceClass The class of the service to start.
-     * @param intentAction The starting intent action name. If null, the service
-     *               will be enabled but not started.
-     */
-    private void startService(final Class<?> serviceClass, final String intentAction) {
-        final Intent intent = new Intent(app, serviceClass);
-        if (intentAction != null) {
-            intent.setAction(intentAction);
-            super.startService(intent);
-        }
-    }
-
-    /**
-     * Disables and stops a service.
-     *
-     * @param serviceClass The class of the service to stop.
-     */
-    private void stopService(final Class<?> serviceClass) {
-        final Intent intent = new Intent(app, serviceClass);
-        super.stopService(intent);
     }
 
     @Override
@@ -709,7 +683,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     public void prepareNowPlayingMenu(Menu menu) {
-        final boolean isStreaming = app.isStreamingServiceRunning();
+        final boolean isStreaming = app.isStreamActive();
 
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
@@ -735,7 +709,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
 
         /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
-        MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
+        final MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
         if(notificationItem != null) {
             if (isStreaming || app.isNotificationPersistent()) {
                 notificationItem.setVisible(false);
@@ -743,7 +717,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 notificationItem.setVisible(true);
             }
             
-            setMenuChecked(notificationItem, app.isMPDroidServiceRunning());
+            setMenuChecked(notificationItem, app.isNotificationActive());
         }
 
         setMenuChecked(menu.findItem(R.id.GMM_Stream), isStreaming);
@@ -792,10 +766,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         app.setActivity(this);
 
         if (app.isNotificationPersistent()) {
-            startService(MPDroidService.class, MPDroidService.ACTION_START);
-        } else if (!app.isMPDroidServiceRunning()) {
-            /** Don't allow the service to auto-start. */
-            stopService(MPDroidService.class);
+            app.startNotification();
         }
     }
 

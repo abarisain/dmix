@@ -16,18 +16,11 @@
 
 package com.namelessdev.mpdroid.service;
 
-import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
 
-import android.app.Service;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
@@ -35,12 +28,8 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
-import android.os.Messenger;
 import android.os.PowerManager;
-import android.os.RemoteException;
-import android.os.StrictMode;
 import android.util.Log;
 
 import java.io.IOException;
@@ -51,7 +40,7 @@ import java.io.IOException;
  *
  * @author Arnaud Barisain Monrose (Dream_Team)
  */
-public final class StreamHandler extends Service implements
+public final class StreamHandler implements
         /**
          * OnInfoListener is not used because it is broken (never gets called, ever)..
          * OnBufferingUpdateListener is not used because it depends on a stream completion time.
@@ -60,61 +49,63 @@ public final class StreamHandler extends Service implements
         OnAudioFocusChangeListener,
         OnCompletionListener,
         OnErrorListener,
-        OnPreparedListener,
-        ServiceConnection, /** Service binder */
-        StatusChangeListener {
+        OnPreparedListener {
+
+    /** This is the class unique Binder identifier. */
+    static final int LOCAL_UID = 400;
+
+    /** Messages that can be sent to clients. */
+    public static final int IS_ACTIVE = LOCAL_UID + 1;
+
+    /** Message to send to start this handler. */
+    public static final int START = LOCAL_UID + 2;
+
+    /** Message to send to stop this handler. */
+    public static final int STOP = LOCAL_UID + 3;
 
     /** Kills (or hides) the notification if StreamHandler started it. */
-    static final int REQUEST_NOTIFICATION_STOP = 1;
+    static final int REQUEST_NOTIFICATION_STOP = LOCAL_UID + 4;
 
     /** Keeps the notification alive, but puts it in non-streaming status. */
-    static final int STREAMING_STOP = 2;
+    static final int STREAMING_STOP = LOCAL_UID + 5;
 
     /** Let notification know it's time to display buffering banner. */
-    static final int BUFFERING_BEGIN = 3;
+    static final int BUFFERING_BEGIN = LOCAL_UID + 6;
 
-    /** Remove the buffering banner from the notification service. */
-    static final int BUFFERING_END = 4;
+    /** Remove the buffering banner from the notification handler. */
+    static final int BUFFERING_END = LOCAL_UID + 7;
 
-    /** Let the notification know that this service is under error conditions. */
-    static final int BUFFERING_ERROR = 5;
-
-    /** Let notification service know this service is running minimal resources. */
-    static final int SERVICE_WOUND_DOWN = 6;
-
-    private static final int DELAYED_PLAY = 7;
-
-    private static final int DELAYED_SERVICE_STOP = 8;
+    /** Workaround to delay preparation of stream on Android 4.4.2 and earlier. */
+    private static final int PREPARE_ASYNC = 1;
 
     /**
      * Called as an argument to windDownResources() when a
-     * message is not required to send to bound service.
+     * message is not required to send to the service.
      */
     private static final int INVALID_INT = -1;
 
     private static final String TAG = "StreamHandler";
 
-    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid." + TAG + '.';
+    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.service." + TAG;
 
-    public static final String ACTION_START = FULLY_QUALIFIED_NAME + "START_STREAMING";
+    public static final String ACTION_START = FULLY_QUALIFIED_NAME + ".ACTION_START";
 
-    private static MPDApplication sApp = MPDApplication.getInstance();
+    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
 
     private final Handler mHandler = new Handler(this);
 
-    /** Keep track if we're in an active error. */
-    private boolean mActiveBufferingError = false;
+    private final MPDAsyncHelper.MPDConnectionInfo mConnectionInfo
+            = MPDroidService.MPD_ASYNC_HELPER.getConnectionSettings();
+
+    private final MPDroidService mServiceContext;
 
     private AudioManager mAudioManager = null;
 
     /** Keep track of the number of errors encountered. */
     private int mErrorIterator = 0;
 
-    /** Keeps track if the final song is playing. */
-    private boolean mFinalSong = false;
-
-    /** Flag indicating whether we have called bind on the service. */
-    private boolean mIsBoundService = false;
+    /** Is this handler active? */
+    private boolean mIsActive = false;
 
     /** Is MPD playing? */
     private boolean mIsPlaying = false;
@@ -124,33 +115,61 @@ public final class StreamHandler extends Service implements
     /** Keep track when MediaPlayer is preparing a stream. */
     private boolean mPreparingStreaming = false;
 
-    /** Messenger for communicating with service. */
-    private Messenger mServiceMessenger = null;
+    /** Service handler used for communicating with service. */
+    private Handler mServiceHandler = null;
+
+    StreamHandler(final MPDroidService serviceContext, final Handler serviceHandler,
+            final AudioManager audioManager) {
+        super();
+        Log.d(TAG, "StreamHandler constructor.");
+
+        mServiceContext = serviceContext;
+        mAudioManager = audioManager;
+        mServiceHandler = serviceHandler;
+    }
 
     /**
-     * getState is a convenience method to safely retrieve a state object.
+     * A function to translate 'what' fields to literal debug name, used primarily for debugging.
      *
-     * @return A current state object.
+     * @param what A 'what' field.
+     * @return The literal field name.
      */
-    private static String getState() {
-        Log.d(TAG, "getState()");
-        String state = null;
+    public static String getHandlerValue(final int what) {
+        final String result;
 
-        try {
-            state = sApp.oMPDAsyncHelper.oMPD.getStatus().getState();
-        } catch (final MPDServerException e) {
-            Log.w(TAG, "Failed to get the current MPD state.", e);
+        switch (what) {
+            case IS_ACTIVE:
+                result = "IS_ACTIVE";
+                break;
+            case START:
+                result = "START";
+                break;
+            case STOP:
+                result = "STOP";
+                break;
+            case REQUEST_NOTIFICATION_STOP:
+                result = "REQUEST_NOTIFICATION_STOP";
+                break;
+            case STREAMING_STOP:
+                result = "STREAMING_STOP";
+                break;
+            case BUFFERING_BEGIN:
+                result = "BUFFERING_BEGIN";
+                break;
+            case BUFFERING_END:
+                result = "BUFFERING_END";
+                break;
+            default:
+                result = "{unknown}: " + what;
+                break;
         }
-
-        return state;
+        return "StreamHandler." + result;
     }
 
     /** Get the current server streaming URL. */
-    private static String getStreamSource() {
-        return "http://"
-                + sApp.oMPDAsyncHelper.getConnectionSettings().getConnectionStreamingServer() + ':'
-                + sApp.oMPDAsyncHelper.getConnectionSettings().iPortStreaming + '/'
-                + sApp.oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming;
+    private String getStreamSource() {
+        return "http://" + mConnectionInfo.getConnectionStreamingServer() + ':'
+                + mConnectionInfo.iPortStreaming + '/' + mConnectionInfo.sSuffixStreaming;
     }
 
     private void beginStreaming() {
@@ -159,11 +178,11 @@ public final class StreamHandler extends Service implements
             windUpResources();
         }
 
-        sendToBoundService(BUFFERING_BEGIN);
+        mServiceHandler.sendEmptyMessage(BUFFERING_BEGIN);
         final String streamSource = getStreamSource();
         final long asyncIdle = 1500L;
         mPreparingStreaming = true;
-        mHandler.removeMessages(DELAYED_SERVICE_STOP);
+        mServiceHandler.removeMessages(STOP);
 
         /**
          * With MediaPlayer, there is a racy bug which affects, minimally, Android KitKat and lower.
@@ -174,7 +193,7 @@ public final class StreamHandler extends Service implements
          * Sometimes, these errors result in nagging Log errors, sometimes these errors result in
          * unrecoverable errors. This handler sets up a 1.5 second delay between
          * mediaPlayer.setDataSource() and mediaPlayer.AsyncPrepare() whether first play after
-         * service start or not.
+         * handler start or not.
          *
          * The magic number here can be adjusted if there are any more problems. I have witnessed
          * these errors occur at 750ms, but never higher. It's worth doubling, even in optimal
@@ -186,87 +205,42 @@ public final class StreamHandler extends Service implements
             mMediaPlayer.reset();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setDataSource(streamSource);
-            final Message msg = mHandler.obtainMessage(DELAYED_PLAY);
-            mHandler.sendMessageDelayed(msg, asyncIdle); /** Go to onPrepared() */
+            mHandler.sendEmptyMessageDelayed(PREPARE_ASYNC, asyncIdle); /** Go to onPrepared() */
         } catch (final IOException e) {
             Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
-            windDownResources(BUFFERING_ERROR);
+            windDownResources(BUFFERING_END);
         } catch (final IllegalStateException e) {
             Log.e(TAG,
                     "This is typically caused by a change in the server state during stream preparation.",
                     e);
-            windDownResources(BUFFERING_ERROR);
+            windDownResources(BUFFERING_END);
         }
     }
 
     @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-    }
+    public boolean handleMessage(final Message msg) {
+        boolean result = false;
 
-    /**
-     * Initiates our service binding, after complete, onBindService() should be called.
-     */
-    void doBindService() {
-        /**
-         * Establish a connection with the service.  We use an explicit class name because
-         * there is no reason to be able to let other applications replace our component.
-         */
-        bindService(new Intent(this, MPDroidService.class), this, Context.BIND_AUTO_CREATE);
-        mIsBoundService = true;
-        Log.d(TAG, "Binding.");
-    }
-
-    /**
-     * Initiates our unbinding from the bound service, after
-     * complete, onServiceDisconnected() should be called.
-     */
-    void doUnbindService() {
-        if (mIsBoundService) {
-            // Detach our existing connection.
-            unbindService(this);
-            mIsBoundService = false;
-            Log.d(TAG, "Unbinding.");
-        }
-    }
-
-    @Override
-    public boolean handleMessage(final Message message) {
-        boolean result = true;
-
-        switch (message.what) {
-            case DELAYED_PLAY:
-                if (mIsPlaying) {
-                    mMediaPlayer.prepareAsync();
-                    Log.d(TAG, "Start mediaPlayer buffering.");
-                    /**
-                     * Between here and onPrepared, if the media server pauses, error handling
-                     * workarounds will be used.
-                     */
-                } else {
-                    mPreparingStreaming = false;
-                    windDownResources(STREAMING_STOP);
-                }
-                break;
-            case DELAYED_SERVICE_STOP:
-                Log.d(TAG, "Stopping self by handler delay.");
-                stopSelf();
-                break;
-            default:
-                result = false;
-                break;
+        if (msg.what == PREPARE_ASYNC) {
+            if (mIsPlaying) {
+                mMediaPlayer.prepareAsync();
+                Log.d(TAG, "Start mediaPlayer buffering.");
+                /**
+                 * Between here and onPrepared, if the media server
+                 * stream pauses, error handling workarounds will be used.
+                 */
+            } else {
+                mPreparingStreaming = false;
+                windDownResources(STREAMING_STOP);
+            }
+            result = true;
         }
 
         return result;
     }
 
-    /**
-     * A JMPDComm callback to be invoked during library state changes.
-     *
-     * @param updating  true when updating, false when not updating.
-     * @param dbChanged true when the server database has been updated, false otherwise.
-     */
-    @Override
-    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
+    final boolean isActive() {
+        return mIsActive;
     }
 
     /**
@@ -291,7 +265,7 @@ public final class StreamHandler extends Service implements
                 }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
-                MPDControl.run(MPDControl.ACTION_PAUSE);
+                MPDControl.run(MPDroidService.MPD_ASYNC_HELPER.oMPD, MPDControl.ACTION_PAUSE);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 mMediaPlayer.pause();
@@ -302,17 +276,6 @@ public final class StreamHandler extends Service implements
             default:
                 break;
         }
-    }
-
-    /**
-     * We haven't implemented this yet, as we have no need for anything
-     * remote to send us anything other than service intents.
-     *
-     * @return null until implemented.
-     */
-    @Override
-    public final IBinder onBind(final Intent intent) {
-        return null;
     }
 
     /**
@@ -339,42 +302,6 @@ public final class StreamHandler extends Service implements
         }
     }
 
-    @Override
-    public final void onCreate() {
-        Log.d(TAG, "StreamHandler.onCreate()");
-        super.onCreate();
-
-        doBindService();
-
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
-        final StrictMode.ThreadPolicy policy =
-                new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-        sApp.oMPDAsyncHelper.addStatusChangeListener(this);
-        sApp.addConnectionLock(this);
-
-        mIsPlaying = MPDStatus.MPD_STATE_PLAYING.equals(getState());
-    }
-
-    @Override
-    public final void onDestroy() {
-        Log.d(TAG, "StreamHandler.onDestroy()");
-        super.onDestroy();
-
-        mHandler.removeCallbacksAndMessages(this);
-
-        /** Remove the current MPD listeners */
-        sApp.oMPDAsyncHelper.removeStatusChangeListener(this);
-
-        windDownResources(REQUEST_NOTIFICATION_STOP);
-
-        doUnbindService();
-
-        sApp.removeConnectionLock(this);
-    }
-
     /**
      * A MediaPlayer callback to be invoked when there has been an error during an asynchronous
      * operation (other errors will throw exceptions at method call time).
@@ -397,7 +324,7 @@ public final class StreamHandler extends Service implements
 
         /** This keeps from continuous errors and battery draining. */
         if (mErrorIterator > maxError) {
-            stopSelf();
+            stop();
         }
 
         /** beginStreaming() will never start otherwise. */
@@ -427,7 +354,7 @@ public final class StreamHandler extends Service implements
         }
 
         if (focusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            sendToBoundService(BUFFERING_END);
+            mServiceHandler.sendEmptyMessage(BUFFERING_END);
             mMediaPlayer.start();
         } else {
             /** Because preparingStreaming is still set, this will reset the stream. */
@@ -438,121 +365,44 @@ public final class StreamHandler extends Service implements
         mErrorIterator = 0; /** Reset the error iterator. */
     }
 
+    final void stop() {
+        Log.d(TAG, "StreamHandler.stop()");
 
-    /**
-     * This is used rather than onStartCommand() to begin streaming as we depending on the Binder
-     * to send messages to MPDroidService.
-     *
-     * We use this to connect the Binder to MPDroidService for IPC. This is called when the
-     * connection with the service has been established, giving us the service object we can use to
-     * interact with the service.  We are communicating with our service through an IDL interface,
-     * so get a client-side representation of that from the raw service object.
-     *
-     * @param className The Class that has connected through the binder.
-     */
-    @Override
-    public void onServiceConnected(final ComponentName className, final IBinder service) {
-        mServiceMessenger = new Messenger(service);
-        Log.d(TAG, "Attached.");
-        tryToStream();
+        mHandler.removeMessages(PREPARE_ASYNC);
+
+        windDownResources(REQUEST_NOTIFICATION_STOP);
+
+        mIsActive = false;
     }
 
-    /**
-     * Called when the binder to the MPDroidService is disconnected.
-     *
-     * @param className The Class that has connected through the binder.
-     */
-    @Override
-    public void onServiceDisconnected(final ComponentName className) {
-        // This is called when the connection with the service has been
-        // unexpectedly disconnected -- that is, its process crashed.
-        mServiceMessenger = null;
-        Log.d(TAG, "Disconnected.");
-    }
-
-    /**
-     * Called by the system every time a client explicitly
-     * starts the service by calling startService(Intent).
-     */
-    @Override
-    public final int onStartCommand(final Intent intent, final int flags, final int startId) {
-        Log.d(TAG, "StreamHandler.onStartCommand()");
-        super.onStartCommand(intent, flags, startId);
-
-        /** Do nothing, it'll be done when the service is bound */
-        if (intent != null && !ACTION_START.equals(intent.getAction())) {
-            stopSelf(); /** Don't start if someone doesn't know the knock. */
+    final void start(final String mpdState) {
+        mIsActive = true;
+        mIsPlaying = MPDStatus.MPD_STATE_PLAYING.equals(mpdState);
+        if (!mPreparingStreaming && mIsPlaying) {
+            tryToStream();
         }
-
-        /**
-         * We want this service to continue running until it is explicitly
-         * stopped, so return sticky.
-         */
-        return START_STICKY;
-    }
-
-    @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
-        /** Detect the final song and let the streaming complete rather than abrupt cut off. */
-        mFinalSong = mpdStatus != null && mpdStatus.getNextSongPos() == -1;
-    }
-
-    @Override
-    public void randomChanged(final boolean random) {
-    }
-
-    @Override
-    public void repeatChanged(final boolean repeating) {
-    }
-
-    /**
-     * Send a simple message to our bound service.
-     *
-     * @param message The simple message to send to the bound service.
-     */
-    private void sendToBoundService(final int message) {
-        final Message msg = Message.obtain(null, message);
-        try {
-            mServiceMessenger.send(msg);
-        } catch (final RemoteException e) {
-            Log.e(TAG, "Failed to communicate with bound service.", e);
-            mIsBoundService = false;
-        }
-    }
-
-    /**
-     * Stop handler so we don't annoy the user when they forget to turn streamingMode off.
-     */
-    private void setupServiceControlHandlers() {
-        Log.d(TAG, "Setting up control handlers");
-        final long stopIdleDelay = 300000L; /** 5 minutes */
-
-        final Message msg = mHandler.obtainMessage(DELAYED_SERVICE_STOP);
-        mHandler.sendMessageDelayed(msg, stopIdleDelay);
     }
 
     /**
      * A JMPDComm callback which is invoked on MPD status change.
      *
      * @param mpdStatus MPDStatus after event.
-     * @param oldState  Previous state.
      */
-    @Override
-    public final void stateChanged(final MPDStatus mpdStatus, final String oldState) {
+    final void stateChanged(final MPDStatus mpdStatus) {
         Log.d(TAG, "StreamHandler.stateChanged()");
 
         final String state = mpdStatus.getState();
 
-        if (state != null) {
+        if (state != null && mIsActive) {
             switch (state) {
                 case MPDStatus.MPD_STATE_PLAYING:
-                    mHandler.removeMessages(DELAYED_SERVICE_STOP);
+                    mServiceHandler.removeMessages(STOP);
                     mIsPlaying = true;
                     tryToStream();
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
                     /** Detect final song and let onCompletion handle it */
-                    if (mFinalSong || mpdStatus.getPlaylistLength() == 0) {
+                    if (mpdStatus.getNextSongPos() == -1 || mpdStatus.getPlaylistLength() == 0) {
                         break;
                     }
                     /** Fall Through */
@@ -562,7 +412,7 @@ public final class StreamHandler extends Service implements
                      * is likely.
                      */
                     if (mPreparingStreaming) {
-                        windDownResources(BUFFERING_ERROR);
+                        windDownResources(BUFFERING_END);
                     } else {
                         windDownResources(STREAMING_STOP);
                     }
@@ -574,27 +424,19 @@ public final class StreamHandler extends Service implements
         }
     }
 
-    @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-    }
-
     /**
      * If streaming mode is activated this will setup the Android mediaPlayer
      * framework, register the media button events, register the remote control
      * client then setup and the framework streaming.
      */
     private void tryToStream() {
-        if (mPreparingStreaming && !mActiveBufferingError) {
+        if (mPreparingStreaming) {
             Log.d(TAG, "A stream is already being prepared.");
         } else if (!mIsPlaying) {
             Log.d(TAG, "MPD is not currently playing, can't stream.");
         } else {
             beginStreaming();
         }
-    }
-
-    @Override
-    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 
     /**
@@ -604,14 +446,8 @@ public final class StreamHandler extends Service implements
     private void windDownResources(final int action) {
         Log.d(TAG, "Winding down resources.");
 
-        sendToBoundService(SERVICE_WOUND_DOWN);
-
-        if (STREAMING_STOP == action && !mHandler.hasMessages(DELAYED_SERVICE_STOP)) {
-            setupServiceControlHandlers();
-        }
-
         if (action != INVALID_INT) {
-            sendToBoundService(action);
+            mServiceHandler.sendEmptyMessage(action);
         }
 
         if (mAudioManager != null) {
@@ -630,11 +466,7 @@ public final class StreamHandler extends Service implements
              */
             if (mPreparingStreaming) {
                 Log.w(TAG, "Media player paused during streaming, workarounds running.");
-                if (BUFFERING_ERROR == action) {
-                    mActiveBufferingError = true;
-                }
-                mHandler.removeMessages(DELAYED_PLAY);
-
+                mHandler.removeMessages(PREPARE_ASYNC);
             } else {
                 mMediaPlayer.reset();
                 mMediaPlayer.release();
@@ -650,12 +482,10 @@ public final class StreamHandler extends Service implements
     private void windUpResources() {
         Log.d(TAG, "Winding up resources.");
 
-        mActiveBufferingError = true;
-
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setOnCompletionListener(this);
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnErrorListener(this);
-        mMediaPlayer.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
+        mMediaPlayer.setWakeMode(mServiceContext, PowerManager.PARTIAL_WAKE_LOCK);
     }
 }

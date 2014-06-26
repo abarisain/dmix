@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.service;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 
 import org.a0z.mpd.MPDStatus;
@@ -33,15 +32,15 @@ import android.os.Build;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-
+/**
+ * A class to handle everything necessary to integrate
+ * the music server with Android's RemoteControlClient.
+ */
 public class RemoteControlClientHandler {
 
-    private static MPDApplication sApp = MPDApplication.getInstance();
-
-    private static final AudioManager AUDIO_MANAGER =
-            (AudioManager) sApp.getSystemService(sApp.AUDIO_SERVICE);
-
     private static final String TAG = "RemoteControlClientService";
+
+    private final AudioManager mAudioManager;
 
     private RemoteControlSeekBarHandler mSeekBar = null;
 
@@ -61,16 +60,18 @@ public class RemoteControlClientHandler {
      */
     private int mPlaybackState = -1;
 
-    RemoteControlClientHandler() {
+    RemoteControlClientHandler(final MPDroidService serviceContext) {
         super();
 
-        mMediaButtonReceiverComponent = new ComponentName(sApp, RemoteControlReceiver.class);
-        AUDIO_MANAGER.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+        mAudioManager =
+                (AudioManager) serviceContext.getSystemService(serviceContext.AUDIO_SERVICE);
+        mMediaButtonReceiverComponent =
+                new ComponentName(serviceContext, RemoteControlReceiver.class);
 
         final Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         intent.setComponent(mMediaButtonReceiverComponent);
         mRemoteControlClient = new RemoteControlClient(PendingIntent
-                .getBroadcast(sApp /*context*/, 0 /*requestCode, ignored*/,
+                .getBroadcast(serviceContext /*context*/, 0 /*requestCode, ignored*/,
                         intent /*intent*/, 0 /*flags*/));
 
         final int controlFlags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
@@ -84,8 +85,7 @@ public class RemoteControlClientHandler {
         } else {
             mRemoteControlClient.setTransportControlFlags(controlFlags);
         }
-
-        AUDIO_MANAGER.registerRemoteControlClient(mRemoteControlClient);
+        start();
     }
 
     /**
@@ -121,21 +121,30 @@ public class RemoteControlClientHandler {
         Log.d(TAG, "Updated remote client with state " + state + '.');
     }
 
+    final void start() {
+        mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+        mAudioManager.registerRemoteControlClient(mRemoteControlClient);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mSeekBar.start();
+        }
+    }
+
     /**
      * Cleans up this object prior to closing the parent.
      */
-    final void onDestroy() {
+    final void stop() {
         if (mRemoteControlClient != null) {
             setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-            AUDIO_MANAGER.unregisterRemoteControlClient(mRemoteControlClient);
+            mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
         }
 
         if (mMediaButtonReceiverComponent != null) {
-            AUDIO_MANAGER.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+            mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mSeekBar.onDestroy();
+            mSeekBar.stop();
         }
     }
 

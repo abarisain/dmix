@@ -20,13 +20,15 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.service.MPDroidService;
+import com.namelessdev.mpdroid.service.NotificationHandler;
+import com.namelessdev.mpdroid.service.ServiceBinder;
 import com.namelessdev.mpdroid.service.StreamHandler;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
@@ -35,7 +37,9 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -44,11 +48,13 @@ import android.view.WindowManager.BadTokenException;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MPDApplication extends Application implements ConnectionListener {
+public class MPDApplication extends Application implements ConnectionListener,
+        Handler.Callback {
+
+    private static final boolean DEBUG = false;
 
     private static final long DISCONNECT_TIMER = 15000L;
 
@@ -70,43 +76,24 @@ public class MPDApplication extends Application implements ConnectionListener {
 
     private Timer mDisconnectScheduler = null;
 
+    private boolean mIsStreamActive = false;
+
+    private boolean mIsNotificationActive = false;
+
     private SettingsHelper mSettingsHelper = null;
 
     private boolean mSettingsShown = false;
+
+    private ServiceBinder mServiceBinder;
 
     private SharedPreferences mSharedPreferences = null;
 
     private boolean mWarningShown = false;
 
+    private boolean mIsNotificationOverridden = false;
+
     public static MPDApplication getInstance() {
         return sInstance;
-    }
-
-    /**
-     * Checks against a list of running service classes for the needle parameter. This method
-     * (ab)uses getRunningServices() due to no other clear cut way whether our own services are
-     * active. We could use static boolean, but this method is more fullproof in the case of
-     * process instability. Please replace if you know a better way.
-     *
-     * @param serviceClass The class to search for.
-     * @return True if {@code serviceClass} was found, false otherwise.
-     */
-    private static boolean isServiceRunning(final Class<?> serviceClass) {
-        final int maxServices = 1000;
-        final ActivityManager activityManager =
-                (ActivityManager) sInstance.getSystemService(sInstance.ACTIVITY_SERVICE);
-        final List<ActivityManager.RunningServiceInfo> services =
-                activityManager.getRunningServices(maxServices);
-        boolean isServiceRunning = false;
-
-        for (final ActivityManager.RunningServiceInfo serviceInfo : services) {
-            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
-                isServiceRunning = true;
-                break;
-            }
-        }
-
-        return isServiceRunning;
     }
 
     /**
@@ -284,6 +271,48 @@ public class MPDApplication extends Application implements ConnectionListener {
         }
     }
 
+    /**
+     * Called upon receiving messages from any handler, in this case most often the Service.
+     *
+     * @param msg The incoming message.
+     * @return Whether the message was acted upon.
+     */
+    @Override
+    public final boolean handleMessage(final Message msg) {
+        boolean result = true;
+
+        if (DEBUG) {
+            Log.d(TAG, "Message received: " + ServiceBinder.getHandlerValue(msg.what) +
+                    " with value: " + ServiceBinder.getHandlerValue(msg.arg1));
+        }
+
+        switch (msg.what) {
+            case MPDroidService.REQUEST_UNBIND:
+                Log.d(TAG, "Service requested unbind, complying.");
+                mServiceBinder.doUnbindService();
+                break;
+            case NotificationHandler.IS_ACTIVE:
+                mIsNotificationActive = ServiceBinder.TRUE == msg.arg1;
+                break;
+            case ServiceBinder.CONNECTED:
+                Log.d(TAG, "MPDApplication is bound to the service.");
+                break;
+            case StreamHandler.IS_ACTIVE:
+                mIsStreamActive = ServiceBinder.TRUE == msg.arg1;
+                break;
+            case ServiceBinder.SET_PERSISTENT:
+                if (!isNotificationPersistent() || ServiceBinder.TRUE == msg.arg1) {
+                    mServiceBinder.setServicePersistent(ServiceBinder.TRUE == msg.arg1);
+                }
+                break;
+            default:
+                result = false;
+                break;
+        }
+
+        return result;
+    }
+
     public final boolean isInSimpleMode() {
         return mSharedPreferences.getBoolean("simpleMode", false);
     }
@@ -299,8 +328,7 @@ public class MPDApplication extends Application implements ConnectionListener {
      * system will be playing audio controlled by this application.
      */
     public final boolean isLocalAudible() {
-        return isStreamingServiceRunning() ||
-                "127.0.0.1".equals(oMPDAsyncHelper.getConnectionSettings().sServer);
+        return isStreamActive() || Tools.isServerLocalhost();
     }
 
     /**
@@ -308,8 +336,8 @@ public class MPDApplication extends Application implements ConnectionListener {
      *
      * @return True if MPDroid scheduling service running, false otherwise.
      */
-    public final boolean isMPDroidServiceRunning() {
-        return isServiceRunning(MPDroidService.class);
+    public final boolean isNotificationActive() {
+        return !mIsNotificationOverridden && mIsNotificationActive;
     }
 
     /**
@@ -319,12 +347,15 @@ public class MPDApplication extends Application implements ConnectionListener {
         final boolean result;
 
         if (oMPDAsyncHelper.getConnectionSettings().persistentNotification &&
-                !mSharedPreferences.getBoolean("notificationOverride", false)) {
+                !mIsNotificationOverridden) {
             result = true;
         } else {
             result = false;
         }
 
+        if (DEBUG) {
+            Log.d(TAG, "Notification is persistent: " + result);
+        }
         return result;
     }
 
@@ -333,8 +364,12 @@ public class MPDApplication extends Application implements ConnectionListener {
      *
      * @return True if streaming service is running, false otherwise.
      */
-    public final boolean isStreamingServiceRunning() {
-        return isServiceRunning(StreamHandler.class);
+    public final boolean isStreamActive() {
+        if (DEBUG && mServiceBinder != null) {
+            Log.d(TAG, "ServiceBound: " + mServiceBinder.isServiceBound() + " isStreamActive: " +
+                    mIsStreamActive);
+        }
+        return mServiceBinder != null && mServiceBinder.isServiceBound() && mIsStreamActive;
     }
 
     public final boolean isTabletUiEnabled() {
@@ -397,9 +432,25 @@ public class MPDApplication extends Application implements ConnectionListener {
      * @param override True to override persistent notification, false otherwise.
      */
     public final void setPersistentOverride(final boolean override) {
-        mSharedPreferences.edit()
-                .putBoolean("notificationOverride", override)
-                .apply();
+        if (mIsNotificationOverridden != override) {
+            mIsNotificationOverridden = override;
+
+            setupServiceBinder();
+            mServiceBinder.sendMessageToService(NotificationHandler.IS_PERSISTENT,
+                    isNotificationPersistent());
+        }
+    }
+
+    /**
+     * Sets up the service binder class. This needs to run the initial running Activity, not in the
+     * Application, to prevent the service process from spawning it's own service binder class.
+     */
+    public final void setupServiceBinder() {
+        if (mServiceBinder == null) {
+            final Handler handler = new Handler(this);
+            mServiceBinder = new ServiceBinder(this, handler);
+            mServiceBinder.sendMessageToService(MPDroidService.UPDATE_CLIENT_STATUS);
+        }
     }
 
     private void startDisconnectScheduler() {
@@ -411,7 +462,45 @@ public class MPDApplication extends Application implements ConnectionListener {
                 oMPDAsyncHelper.disconnect();
             }
         }, DISCONNECT_TIMER);
+    }
 
+    public final void startNotification() {
+        if (!mIsNotificationActive) {
+            if (DEBUG) {
+                Log.d(TAG, "Starting notification.");
+            }
+            setupServiceBinder();
+            mServiceBinder.setServicePersistent(true);
+            mServiceBinder
+                    .sendMessageToService(NotificationHandler.START, isNotificationPersistent());
+        }
+    }
+
+    public final void stopNotification() {
+        if (DEBUG) {
+            Log.d(TAG, "Stop notification.");
+        }
+        setupServiceBinder();
+        mServiceBinder.sendMessageToService(NotificationHandler.STOP);
+    }
+
+    public final void startStreaming() {
+        if (!mIsStreamActive) {
+            if (DEBUG) {
+                Log.d(TAG, "Starting stream.");
+            }
+            setupServiceBinder();
+            mServiceBinder.setServicePersistent(true);
+            mServiceBinder.sendMessageToService(StreamHandler.START);
+        }
+    }
+
+    public final void stopStreaming() {
+        if (DEBUG) {
+            Log.d(TAG, "Stop streaming.");
+        }
+        setupServiceBinder();
+        mServiceBinder.sendMessageToService(StreamHandler.STOP);
     }
 
     public final void unsetActivity(final Object activity) {

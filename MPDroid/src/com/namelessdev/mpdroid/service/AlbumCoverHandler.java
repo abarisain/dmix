@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.service;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.helpers.CoverManager;
@@ -41,7 +40,9 @@ class AlbumCoverHandler {
 
     private static final String TAG = "AlbumCoverHandler";
 
-    private static MPDApplication sApp = MPDApplication.getInstance();
+    private final int mIconHeight;
+
+    private final int mIconWidth;
 
     private Bitmap mAlbumCover = null;
 
@@ -49,11 +50,21 @@ class AlbumCoverHandler {
 
     private Callback mCoverUpdateListener = null;
 
-    private boolean mIsAlbumCacheEnabled = PreferenceManager.getDefaultSharedPreferences(sApp)
-            .getBoolean(CoverManager.PREFERENCE_CACHE, true);
+    private boolean mIsAlbumCacheEnabled;
 
-    AlbumCoverHandler() {
+    AlbumCoverHandler(final MPDroidService serviceContext) {
         super();
+
+        mIsAlbumCacheEnabled =
+                PreferenceManager.getDefaultSharedPreferences(serviceContext)
+                        .getBoolean(CoverManager.PREFERENCE_CACHE, true);
+
+        mIconHeight = serviceContext
+                .getResources()
+                .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+
+        mIconWidth = serviceContext.getResources()
+                .getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
     }
 
     /**
@@ -63,7 +74,7 @@ class AlbumCoverHandler {
      */
     private static String retrieveCoverArtPath(final AlbumInfo albumInfo) {
         if (DEBUG) {
-            Log.e(TAG, "retrieveCoverArtPath(" + albumInfo + ')');
+            Log.d(TAG, "retrieveCoverArtPath(" + albumInfo + ')');
         }
         final ICoverRetriever cache = new CachedCover();
         String coverArtPath = null;
@@ -85,7 +96,7 @@ class AlbumCoverHandler {
         mCoverUpdateListener = callback;
     }
 
-    final void onDestroy() {
+    final void stop() {
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
             mAlbumCover.recycle();
         }
@@ -163,14 +174,8 @@ class AlbumCoverHandler {
                 /** TODO: Maybe inBitmap stuff here? */
                 mAlbumCover = BitmapFactory.decodeFile(mAlbumCoverPath);
             } else {
-                final int iconHeight = sApp.getResources()
-                        .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
-
-                final int iconWidth = sApp.getResources()
-                        .getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-
                 mAlbumCover = Tools.decodeSampledBitmapFromPath(mAlbumCoverPath,
-                        iconWidth, iconHeight, false);
+                        mIconWidth, mIconHeight, false);
             }
 
             return mAlbumCover;
