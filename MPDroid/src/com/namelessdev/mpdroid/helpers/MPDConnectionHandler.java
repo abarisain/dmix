@@ -25,29 +25,37 @@ import android.util.Log;
 
 public class MPDConnectionHandler extends BroadcastReceiver {
 
-    private static MPDConnectionHandler instance;
-
     private static final String TAG = "MPDConnectionHandler";
-    
+
+    private static MPDConnectionHandler sInstance;
+
     public static MPDConnectionHandler getInstance() {
-        if (instance == null)
-            instance = new MPDConnectionHandler();
-        return instance;
+        if (sInstance == null) {
+            sInstance = new MPDConnectionHandler();
+        }
+        return sInstance;
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-        if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
-            Log.d(TAG, "WIFI-STATE:" + intent.getAction());
-            Log.d(TAG, "WIFI-STATE:"
-                    + (intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE,
-                            WifiManager.WIFI_STATE_UNKNOWN)));
-        } else if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-            Log.d(TAG, "NETW-STATE:" + intent.getAction());
-            NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-            Log.d(TAG, "NETW-STATE: Connected: " + networkInfo.isConnected());
-            Log.d(TAG, "NETW-STATE: Connected: " + networkInfo.getState().toString());
+    public void onReceive(final Context context, final Intent intent) {
+        final String action = intent.getAction();
+        switch (action) {
+            case WifiManager.WIFI_STATE_CHANGED_ACTION:
+                final int wifiState = intent
+                        .getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+
+                Log.d(TAG, "WIFI-STATE:" + action + " state: " + wifiState);
+                break;
+            case WifiManager.NETWORK_STATE_CHANGED_ACTION:
+                final NetworkInfo networkInfo =
+                        intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+
+                Log.d(TAG, "NETW-STATE:" + action);
+                Log.d(TAG, "NETW-STATE: Connected: " + networkInfo.isConnected()
+                        + ", state: " + networkInfo.getState());
+                break;
+            default:
+                break;
         }
     }
 }

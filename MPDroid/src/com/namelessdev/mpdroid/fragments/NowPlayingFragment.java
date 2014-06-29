@@ -21,7 +21,6 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
@@ -36,12 +35,10 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -289,8 +286,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         handler = new Handler();
         setHasOptionsMenu(false);
         activity.setTitle(R.string.nowPlaying);
-        activity.registerReceiver(MPDConnectionHandler.getInstance(), new IntentFilter(
-                WifiManager.NETWORK_STATE_CHANGED_ACTION));
     }
 
     @Override
@@ -436,7 +431,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void onDestroy() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
         settings.unregisterOnSharedPreferenceChangeListener(this);
-        activity.unregisterReceiver(MPDConnectionHandler.getInstance());
         super.onDestroy();
     }
 
@@ -538,11 +532,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         artistNameText.setText(artist);
         songNameText.setText(title);
         yearNameText.setText(date);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     @Override

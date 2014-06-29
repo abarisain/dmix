@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.fragments.QueueFragment;
+import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
@@ -38,8 +39,10 @@ import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -235,6 +238,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private ArrayList<String> mTabList;
 
     private DisplayMode currentDisplayMode;
+
+    private static final boolean DEBUG = false;
 
     @Override
     public ArrayList<String> getTabList() {
@@ -757,9 +762,21 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
+    protected void onPause() {
+        if (DEBUG) {
+            unregisterReceiver(MPDConnectionHandler.getInstance());
+        }
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         backPressExitCount = 0;
+        if (DEBUG) {
+            registerReceiver(MPDConnectionHandler.getInstance(),
+                    new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+        }
     }
 
     @Override
