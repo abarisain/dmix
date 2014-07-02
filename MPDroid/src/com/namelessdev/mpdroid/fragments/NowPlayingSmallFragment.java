@@ -243,7 +243,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
             final int songPos = mpdStatus.getSongPos();
             final Music currentSong =
                     app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
-            if (currentSong != null && isAdded() && currentSong.isStream()) {
+            if (currentSong != null && currentSong.isStream() ||
+                    MPDStatus.MPD_STATE_STOPPED.equals(mpdStatus.getState())) {
                 forceStatusUpdate(mpdStatus);
             }
         }

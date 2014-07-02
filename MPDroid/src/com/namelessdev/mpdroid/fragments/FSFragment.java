@@ -30,6 +30,7 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -50,6 +51,8 @@ public class FSFragment extends BrowseFragment {
     private String directory = null;
     private int numSubdirs = 0; // number of subdirectories including ".."
 
+    private static final String TAG = "FSFragment";
+
     public FSFragment() {
         super(R.string.addDirectory, R.string.addedDirectoryToPlaylist,
                 MPDCommand.MPD_SEARCH_FILENAME);
@@ -67,8 +70,8 @@ public class FSFragment extends BrowseFragment {
                 app.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
                 Tools.notifyUser(R.string.songAdded, item);
             }
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -92,8 +95,8 @@ public class FSFragment extends BrowseFragment {
                             .load(((PlaylistFile) item).getFullpath());
                 }
             }
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -107,8 +110,8 @@ public class FSFragment extends BrowseFragment {
 
         try {
             currentDirectory.refreshData();
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to refresh current directory", e);
         }
 
         ArrayList<Item> newItems = new ArrayList<Item>();
@@ -163,7 +166,7 @@ public class FSFragment extends BrowseFragment {
         if (TextUtils.isEmpty(directory)) {
             try {
                 return getString(R.string.files);
-            } catch (IllegalStateException e) {
+            } catch (final IllegalStateException ignored) {
                 // Can't get the translated string if we are not attached ...
                 // Stupid workaround
                 return "/";
@@ -208,8 +211,8 @@ public class FSFragment extends BrowseFragment {
                         if (songId > -1) {
                             app.oMPDAsyncHelper.oMPD.skipToId(songId);
                         }
-                    } catch (MPDServerException e) {
-                        e.printStackTrace();
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Failed to add.", e);
                     }
                 }
             });
@@ -247,8 +250,8 @@ public class FSFragment extends BrowseFragment {
                             } else {
                                 app.oMPDAsyncHelper.oMPD.refreshDatabase(directory);
                             }
-                        } catch (MPDServerException e) {
-                            e.printStackTrace();
+                        } catch (final MPDServerException e) {
+                            Log.e(TAG, "Failed to refresh database.", e);
                         }
                     }
                 });

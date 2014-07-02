@@ -142,7 +142,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             httpPost.setEntity(new StringEntity(request));
             result = executeRequest(httpPost);
         } catch (final UnsupportedEncodingException e) {
-            Log.e(TAG, "Cannot build the HTTP POST : " + e);
+            Log.e(TAG, "Cannot build the HTTP POST.", e);
             result = "";
         } finally {
             if (request != null && httpPost != null && !httpPost.isAborted()) {

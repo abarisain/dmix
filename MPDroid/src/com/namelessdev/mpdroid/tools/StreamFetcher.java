@@ -20,6 +20,8 @@ import org.a0z.mpd.Music;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +36,8 @@ public class StreamFetcher {
     private static class LazyHolder {
         private static final StreamFetcher instance = new StreamFetcher();
     }
+
+    private static final String TAG = "StreamFetcher";
 
     public static StreamFetcher instance() {
         return LazyHolder.instance;
@@ -141,6 +145,7 @@ public class StreamFetcher {
                 eventType = xpp.next();
             }
         } catch (Exception e) {
+            Log.e(TAG, "Failed to parse an XML stream file.", e);
         }
 
         return null;
@@ -174,7 +179,8 @@ public class StreamFetcher {
                 buffer[read] = '\0';
             }
             return parse(new String(buffer), handlers);
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            Log.e(TAG, "Failed to check and parse an incoming playlist.", e);
         } finally {
             if (null != connection) {
                 connection.disconnect();

@@ -123,8 +123,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private static final String TAG = "com.namelessdev.mpdroid.NowPlayingFragment";
-
     private static final int POPUP_ARTIST = 0;
     private static final int POPUP_ALBUMARTIST = 1;
     private static final int POPUP_ALBUM = 2;
@@ -175,6 +173,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private TimerTask volTimerTask = null;
     private Handler handler;
     private Timer posTimer = null;
+
+    private static final String TAG = "NowPlayingFragment";
 
     private final MPDApplication app = MPDApplication.getInstance();
 
@@ -227,11 +227,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private PlaylistFragment getPlaylistFragment() {
-        PlaylistFragment playlistFragment;
-        playlistFragment = (PlaylistFragment) activity.getSupportFragmentManager()
+    private QueueFragment getPlaylistFragment() {
+        QueueFragment queueFragment;
+        queueFragment = (QueueFragment) activity.getSupportFragmentManager()
                 .findFragmentById(R.id.playlist_fragment);
-        return playlistFragment;
+        return queueFragment;
     }
 
     protected static int getPlayPauseResource(final String state) {
@@ -427,7 +427,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         });
 
         songNameText.setText(R.string.notConnected);
-        Log.i(MPDApplication.TAG, "Initialization succeeded");
+        Log.i(TAG, "Initialization succeeded");
 
         return view;
     }
@@ -678,7 +678,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
          * If the current song is a stream, the metadata can change in place, and that will only
          * change the playlist, not the track, so, update if we detect a stream.
          */
-        if (currentSong != null && currentSong.isStream()) {
+        if (currentSong != null && currentSong.isStream() ||
+                MPDStatus.MPD_STATE_STOPPED.equals(mpdStatus.getState())) {
             updateTrackInfo(mpdStatus);
         }
     }
@@ -694,10 +695,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void scrollToNowPlaying() {
-        PlaylistFragment playlistFragment;
-        playlistFragment = getPlaylistFragment();
-        if (playlistFragment != null) {
-            playlistFragment.scrollToNowPlaying();
+        QueueFragment queueFragment;
+        queueFragment = getPlaylistFragment();
+        if (queueFragment != null) {
+            queueFragment.scrollToNowPlaying();
         }
     }
 
@@ -808,10 +809,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void updatePlaylistCovers(AlbumInfo albumInfo) {
-        PlaylistFragment playlistFragment;
-        playlistFragment = getPlaylistFragment();
-        if (playlistFragment != null) {
-            playlistFragment.updateCover(albumInfo);
+        QueueFragment queueFragment;
+        queueFragment = getPlaylistFragment();
+        if (queueFragment != null) {
+            queueFragment.updateCover(albumInfo);
         }
     }
 

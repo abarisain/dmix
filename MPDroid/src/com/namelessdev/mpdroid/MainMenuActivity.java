@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
-import com.namelessdev.mpdroid.fragments.PlaylistFragment;
+import com.namelessdev.mpdroid.fragments.QueueFragment;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
@@ -226,7 +226,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private LibraryFragment libraryFragment;
 
-    private PlaylistFragment playlistFragment;
+    private QueueFragment mQueueFragment;
 
     private static final String TAG = "com.namelessdev.mpdroid.MainMenuActivity";
 
@@ -439,7 +439,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
 
         final View nowPlayingSmallFragment = findViewById(R.id.now_playing_small_fragment);
-        playlistFragment = (PlaylistFragment) fragmentManager.findFragmentById(R.id.playlist_fragment);
+        mQueueFragment = (QueueFragment) fragmentManager.findFragmentById(R.id.playlist_fragment);
 
         mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
         mHeaderOverflowMenu = (ImageButton) findViewById(R.id.header_overflow_menu);
@@ -620,7 +620,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public boolean onOptionsItemSelected(final MenuItem item) {
         boolean result = true;
         final boolean itemHandled = mDrawerToggle.onOptionsItemSelected(item) ||
-                (playlistFragment != null && playlistFragment.onOptionsItemSelected(item));
+                (mQueueFragment != null && mQueueFragment.onOptionsItemSelected(item));
 
         // Handle item selection
         if (!itemHandled) {

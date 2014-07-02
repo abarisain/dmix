@@ -6,7 +6,7 @@ dependencies {
     }
 
     // Support Libraries
-    compile 'com.android.support:support-v4:19.+'
+    compile 'com.android.support:support-v4:20.+'
 
     // Projects
     compile project(':JMPDComm')
@@ -18,12 +18,12 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 20
+    buildToolsVersion "20.0.0"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 19
+        targetSdkVersion 20
     }
 
     sourceSets {

@@ -182,9 +182,9 @@ public class SettingsFragment extends PreferenceFragment {
 
         if (preference.getKey().equals("refreshMPDDatabase")) {
             try {
-                MPD oMPD = app.oMPDAsyncHelper.oMPD;
-                oMPD.refreshDatabase();
-            } catch (MPDServerException e) {
+                app.oMPDAsyncHelper.oMPD.refreshDatabase();
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to refresh the database.", e);
             }
             return true;
         } else if (preference.getKey().equals("clearLocalCoverCache")) {

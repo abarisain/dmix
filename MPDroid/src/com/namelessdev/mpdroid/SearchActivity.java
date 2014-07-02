@@ -122,6 +122,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     private Tab tabAlbums;
 
     private Tab tabSongs;
+
+    private static final String TAG = "SearchActivity";
+
     private int addString, addedString;
 
     private String searchKeywords = "";
@@ -147,8 +150,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 return;
             }
             Tools.notifyUser(addedString, note);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -156,9 +159,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         try {
             app.oMPDAsyncHelper.oMPD.add(music, replace, play);
             Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
-        } catch (MPDServerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add.", e);
         }
     }
 
@@ -187,8 +189,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         try {
             arrayMusic = (ArrayList<Music>) app.oMPDAsyncHelper.oMPD.search("any", finalsearch);
-        } catch (MPDServerException e) {
-            Log.e(SearchActivity.class.getSimpleName(), "MPD search failure : " + e);
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "MPD search failure.", e);
 
         }
 
@@ -511,8 +513,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             try {
                 listArtists.setEmptyView(noResultArtistsView);
                 loadingView.setVisibility(View.GONE);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (final Exception e) {
+                Log.e(TAG, "Failed to update artists from items.", e);
             }
         }
         if (arrayAlbumsResults != null) {
@@ -523,8 +525,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             try {
                 listAlbums.setEmptyView(noResultAlbumsView);
                 loadingView.setVisibility(View.GONE);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (final Exception e) {
+                Log.e(TAG, "Failed to update albums from items.", e);
             }
         }
         if (arraySongsResults != null) {
@@ -535,8 +537,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             try {
                 listSongs.setEmptyView(noResultSongsView);
                 loadingView.setVisibility(View.GONE);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (final Exception e) {
+                Log.e(TAG, "Failed to update songs from items.", e);
             }
         }
     }

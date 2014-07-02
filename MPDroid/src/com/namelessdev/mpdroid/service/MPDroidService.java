@@ -119,6 +119,11 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         }
     }
 
+    private void haltSelf() {
+        mNotificationHandler.onDestroy();
+        stopSelf();
+    }
+
     @Override
     public final boolean handleMessage(final Message message) {
         boolean result = hasHandledStreamingMessage(message.what);
@@ -162,7 +167,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
             case StreamingService.REQUEST_NOTIFICATION_STOP:
                 if (mStreamingOwnsNotification &&
                         !sApp.isNotificationPersistent()) {
-                    stopSelf();
+                    haltSelf();
                 } else {
                     tryToGetAudioFocus();
                     stateChanged(getMPDStatus(), null);
@@ -270,7 +275,11 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
-        final String action = intent.getAction();
+
+        String action = null;
+        if(intent != null) {
+            action = intent.getAction();
+        }
 
         Log.d(TAG, "Starting service, received command, action="
                 + action + " from intent: " + intent);
@@ -278,7 +287,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         /** An action must be submitted to start this service. */
         if (action == null || !ACTION_START.equals(action)) {
             Log.e(TAG, "Service started without action, stopping...");
-            stopSelf();
+            haltSelf();
         }
 
         /** Crappy temporary hack */
@@ -329,7 +338,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
         if (sApp.isNotificationPersistent()) {
             windDownResources();
         } else {
-            stopSelf();
+            haltSelf();
         }
     }
 
@@ -352,7 +361,7 @@ public final class MPDroidService extends Service implements AlbumCoverHandler.C
                     if (sApp.isNotificationPersistent()) {
                         windDownResources(); /** Hide immediately, requires user intervention */
                     } else {
-                        stopSelf();
+                        haltSelf();
                     }
                     break;
                 case MPDStatus.MPD_STATE_PAUSED:

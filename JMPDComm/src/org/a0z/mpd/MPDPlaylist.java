@@ -138,7 +138,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         try {
             state = this.mpd.getStatus().getState();
             currentTrackId = this.mpd.getStatus().getSongId();
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
             Log.w(TAG, "Failed to get some MPD status components.", e);
         }
 
@@ -152,7 +152,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                     if (currentTrackId != 0) {
                         try {
                             move(currentTrackId, 0);
-                        } catch (MPDServerException e) {
+                        } catch (final MPDServerException e) {
                             Log.d("MPD.java", "Failed to move the current track to 0.", e);
                         }
                     }
@@ -163,7 +163,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
                     try {
                         removeByIndex(remove);
-                    } catch (MPDServerException e) {
+                    } catch (final MPDServerException e) {
                         Log.d("MPD.java", "Failed to remove from the playlist for cropping.", e);
                     }
                 }
@@ -250,8 +250,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
         try {
             refresh(oldPlaylistVersion);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to refresh.", e);
         }
     }
 

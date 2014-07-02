@@ -25,10 +25,13 @@ import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
 public class GenresFragment extends BrowseFragment {
+
+    private static final String TAG = "GenresFragment";
 
     public GenresFragment() {
         super(R.string.addGenre, R.string.genreAdded, MPDCommand.MPD_SEARCH_GENRE);
@@ -40,8 +43,8 @@ public class GenresFragment extends BrowseFragment {
             app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(
                     app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
             Tools.notifyUser(irAdded, item);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add all from playlist.", e);
         }
     }
 
@@ -51,8 +54,8 @@ public class GenresFragment extends BrowseFragment {
             app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist,
                     app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
             Tools.notifyUser(irAdded, item);
-        } catch (MPDServerException e) {
-            e.printStackTrace();
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to add all genre to playlist.", e);
         }
     }
 
@@ -60,7 +63,8 @@ public class GenresFragment extends BrowseFragment {
     protected void asyncUpdate() {
         try {
             items = app.oMPDAsyncHelper.oMPD.getGenres();
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to update list of genres.", e);
         }
     }
 

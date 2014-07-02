@@ -88,6 +88,8 @@ public class AlbumCache
         return instance;
     }
 
+    private static final String TAG = "AlbumCache";
+    
     protected boolean enabled = true;
     protected String server;
 
@@ -110,7 +112,7 @@ public class AlbumCache
     protected static AlbumCache instance = null;
 
     protected AlbumCache(CachedMPD _mpd) {
-        Log.d("MPD ALBUMCACHE", "Starting ...");
+        Log.d(TAG, "Starting ...");
         setMPD(_mpd);
     }
 
@@ -129,7 +131,7 @@ public class AlbumCache
 
     protected synchronized void deleteFile() {
         File file = new File(filesdir, getFilename());
-        Log.d("MPD ALBUMCACHE", "Deleting " + file);
+        Log.d(TAG, "Deleting " + file);
         if (file.exists())
             file.delete();
     }
@@ -189,7 +191,7 @@ public class AlbumCache
     public String getDirByArtistAlbum(String artist, String album, boolean isAlbumArtist) {
         String aa = albumCode(artist, album, isAlbumArtist);
         String result = albumDetails.get(aa).path;
-        Log.d("MPD ALBUMCACHE", "key " + aa + " - " + result);
+        Log.d(TAG, "key " + aa + " - " + result);
         return result;
     }
 
@@ -216,10 +218,10 @@ public class AlbumCache
     protected synchronized boolean isUpToDate() {
         try {
             Date mpdlast = mpd.getStatistics().getDbUpdate();
-            Log.d("MPD ALBUMCACHE", "lastupdate " + lastUpdate + " mpd date " + mpdlast);
+            Log.d(TAG, "lastupdate " + lastUpdate + " mpd date " + mpdlast);
             return (null != lastUpdate && null != mpdlast && lastUpdate.after(mpdlast));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (final Exception e) {
+            Log.e(TAG, "Exception.", e);
             return false;
         }
     }
@@ -229,7 +231,7 @@ public class AlbumCache
         if (!file.exists()) {
             return false;
         }
-        Log.d("MPD ALBUMCACHE", "Loading " + file);
+        Log.d(TAG, "Loading " + file);
         ObjectInputStream restore;
         boolean loaded_ok = false;
         try {
@@ -245,14 +247,14 @@ public class AlbumCache
             restore.close();
             makeUniqueAlbumSet();
             loaded_ok = true;
-        } catch (FileNotFoundException e) {
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (final FileNotFoundException ignored) {
+        } catch (final Exception e) {
+            Log.e(TAG, "Exception.", e);
         }
         if (loaded_ok)
-            Log.d("MPD ALBUMCACHE", cacheInfo());
+            Log.d(TAG, cacheInfo());
         else
-            Log.d("MPD ALBUMCACHE", "Error on load");
+            Log.d(TAG, "Error on load");
         return loaded_ok;
     }
 
@@ -284,10 +286,10 @@ public class AlbumCache
             return false;
 
         if (!force && isUpToDate()) {
-            Log.d("MPD ALBUMCACHE", "Cache is up to date");
+            Log.d(TAG, "Cache is up to date");
             return true;
         }
-        Log.d("MPD ALBUMCACHE", "Cache is NOT up to date. fetching ...");
+        Log.d(TAG, "Cache is NOT up to date. fetching ...");
         lastUpdate = Calendar.getInstance().getTime();
 
         Tools.notifyUser(R.string.updatingLocalAlbumCacheNote);
@@ -300,13 +302,12 @@ public class AlbumCache
         try {
             allmusic = Music.getMusicFromList(
                     mpdconnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO), false);
-            Log.d("MPD ALBUMCACHE", "allmusic " + allmusic.size());
-        } catch (MPDServerException e) {
+            Log.d(TAG, "allmusic " + allmusic.size());
+        } catch (final MPDServerException e) {
             enabled = false;
             lastUpdate = null;
-            e.printStackTrace();
             updateConnection();
-            Log.d("MPD ALBUMCACHE", "disabled AlbumCache");
+            Log.d(TAG, "disabled AlbumCache", e);
             Tools.notifyUser(
                     "Error with the 'listallinfo' command. Probably you have to adjust your server's 'max_output_buffer_size'"
             );
@@ -347,18 +348,18 @@ public class AlbumCache
                 if (details.date == 0)
                     details.date = m.getDate();
             }
-            Log.d("MPD ALBUMCACHE", "albumDetails: " + albumDetails.size());
-            Log.d("MPD ALBUMCACHE", "albumSet: " + albumSet.size());
+            Log.d(TAG, "albumDetails: " + albumDetails.size());
+            Log.d(TAG, "albumSet: " + albumSet.size());
             makeUniqueAlbumSet();
-            Log.d("MPD ALBUMCACHE", "uniqueAlbumSet: " + uniqueAlbumSet.size());
+            Log.d(TAG, "uniqueAlbumSet: " + uniqueAlbumSet.size());
             if (!save()) {
                 lastUpdate = oldUpdate;
                 return false;
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Tools.notifyUser("Error updating Album Cache");
             lastUpdate = oldUpdate;
-            e.printStackTrace();
+            Log.e(TAG, "Error updating Album Cache.", e);
             return false;
         }
         return true;
@@ -366,7 +367,7 @@ public class AlbumCache
 
     protected synchronized boolean save() {
         File file = new File(filesdir, getFilename() + (GZIP ? ".gz" : ""));
-        Log.d("MPD ALBUMCACHE", "Saving to " + file);
+        Log.d(TAG, "Saving to " + file);
         File backupfile = new File(file.getAbsolutePath() + ".bak");
         if (file.exists()) {
             if (backupfile.exists())
@@ -387,10 +388,10 @@ public class AlbumCache
             save.writeObject(albumDetails);
             save.writeObject(albumSet);
             save.close();
-            Log.d("MPD ALBUMCACHE", "saved to " + file);
-        } catch (Exception e) {
+            Log.d(TAG, "saved to " + file);
+        } catch (final Exception e) {
             error = true;
-            e.printStackTrace();
+            Log.e(TAG, "Failed to save.", e);
         }
         if (error) {
             file.delete();
@@ -402,10 +403,10 @@ public class AlbumCache
     protected void setMPD(CachedMPD _mpd) {
         enabled = true;
         try {
-            Log.d("MPD ALBUMCACHE", "set MPD");
+            Log.d(TAG, "set MPD");
             this.mpd = _mpd;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to setMPD.", e);
         }
         updateConnection();
     }
@@ -413,23 +414,23 @@ public class AlbumCache
     protected synchronized boolean updateConnection() {
         // get server/port from mpd
         if (!enabled) {
-            Log.d("MPD ALBUMCACHE", "is disabled");
+            Log.d(TAG, "is disabled");
             return false;
         }
         if (mpd == null) {
-            Log.d("MPD ALBUMCACHE", "no MPD! ");
+            Log.d(TAG, "no MPD! ");
             return false;
         }
         mpdconnection = mpd.getMpdConnection();
         if (mpdconnection == null) {
-            Log.d("MPD ALBUMCACHE", "no MPDConnection! ");
+            Log.d(TAG, "no MPDConnection! ");
             return false;
         }
         if (this.server == null) {
             this.server = mpdconnection.getHostAddress().getHostName();
             this.port = mpdconnection.getHostPort();
             this.filesdir = MPD.getApplicationContext().getCacheDir();
-            Log.d("MPD ALBUMCACHE", "server " + server + " port " + port + " dir " + filesdir);
+            Log.d(TAG, "server " + server + " port " + port + " dir " + filesdir);
             if (!load()) {
                 refresh(true);
             }

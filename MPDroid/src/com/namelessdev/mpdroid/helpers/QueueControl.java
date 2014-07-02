@@ -27,9 +27,9 @@ import android.util.Log;
 /**
  * Playlist control implements simple playlist controls which require no result processing.
  */
-public final class PlaylistControl {
+public final class QueueControl {
 
-    private static final String TAG = "com.namelessdev.mpdroid.helpers.PlaylistControl";
+    private static final String TAG = "QueueControl";
 
     private static final MPDApplication app = MPDApplication.getInstance();
 
@@ -55,7 +55,7 @@ public final class PlaylistControl {
 
     public static final int SKIP_TO_ID = 7;
 
-    private PlaylistControl() {
+    private QueueControl() {
         super();
     }
 
@@ -75,8 +75,7 @@ public final class PlaylistControl {
                         playlist.removeById(intArray);
                     }
                 } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to remove by playlist id. intArray: " +
-                            intArray.toString(), e);
+                    Log.e(TAG, "Failed to remove by playlist id. intArray: " + intArray, e);
                 }
             }
         });

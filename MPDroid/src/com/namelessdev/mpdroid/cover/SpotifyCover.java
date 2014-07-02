@@ -16,21 +16,23 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import static android.text.TextUtils.isEmpty;
-
-import android.util.Log;
-
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.text.TextUtils.isEmpty;
 
 /**
  * Fetch cover from Spotify
  */
 public class SpotifyCover extends AbstractWebCover {
+
+    private static final String TAG = "SpotifyCover";
 
     private List<String> extractAlbumIds(String response) {
         JSONObject jsonRoot;
@@ -54,8 +56,8 @@ public class SpotifyCover extends AbstractWebCover {
                     }
                 }
             }
-        } catch (Exception e) {
-            Log.e(SpotifyCover.class.toString(), "Failed to get cover URL from Spotify");
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to get cover URL from Spotify.", e);
         }
 
         return albumIds;
@@ -70,10 +72,10 @@ public class SpotifyCover extends AbstractWebCover {
             jsonAlbum = new JSONObject(response);
             imageUrl = jsonAlbum.optString("thumbnail_url");
             return imageUrl;
-        } catch (Exception e)
+        } catch (final Exception e)
 
         {
-            Log.e(SpotifyCover.class.toString(), "Failed to get cover URL from Spotify");
+            Log.e(TAG, "Failed to get cover URL from Spotify.", e);
         }
 
         return null;
@@ -103,8 +105,8 @@ public class SpotifyCover extends AbstractWebCover {
                 }
             }
 
-        } catch (Exception e) {
-            Log.e(SpotifyCover.class.toString(), "Failed to get cover URL from Spotify");
+        } catch (final Exception e) {
+            Log.e(TAG, "Failed to get cover URL from Spotify.", e);
         }
 
         return new String[0];

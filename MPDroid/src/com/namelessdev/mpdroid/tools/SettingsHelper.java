@@ -63,7 +63,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
         try {
             return Integer
                     .parseInt(settings.getString(name, Integer.toString(defaultValue)).trim());
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return DEFAULT_MPD_PORT;
         }
     }

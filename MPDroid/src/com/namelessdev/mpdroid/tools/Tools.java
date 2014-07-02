@@ -150,7 +150,7 @@ public final class Tools {
             MessageDigest hashEngine = MessageDigest.getInstance("MD5");
             hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
             return convertToHex(hashEngine.digest());
-        } catch (Exception e) {
+        } catch (final Exception ignored) {
             return null;
         }
     }

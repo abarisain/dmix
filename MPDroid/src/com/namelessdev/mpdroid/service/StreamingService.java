@@ -235,7 +235,17 @@ public final class StreamingService extends Service implements
 
         switch (message.what) {
             case DELAYED_PLAY:
-                mMediaPlayer.prepareAsync();
+                if (mIsPlaying) {
+                    mMediaPlayer.prepareAsync();
+                    Log.d(TAG, "Start mediaPlayer buffering.");
+                    /**
+                     * Between here and onPrepared, if the media server pauses, error handling
+                     * workarounds will be used.
+                     */
+                } else {
+                    mPreparingStreaming = false;
+                    windDownResources(STREAMING_STOP);
+                }
                 break;
             case DELAYED_SERVICE_STOP:
                 Log.d(TAG, "Stopping self by handler delay.");
@@ -408,13 +418,15 @@ public final class StreamingService extends Service implements
     @Override
     public final void onPrepared(final MediaPlayer mp) {
         Log.d(TAG, "StreamingService.onPrepared()");
-        final int focusResult = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN);
+        final int focusResult;
+        if (mIsPlaying) {
+            focusResult = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN);
+        } else {
+            focusResult = AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+        }
 
-        /**
-         * Not to be playing here is unlikely but it's a race we need to avoid.
-         */
-        if (mIsPlaying && focusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+        if (focusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             sendToBoundService(BUFFERING_END);
             mMediaPlayer.start();
         } else {
@@ -468,7 +480,7 @@ public final class StreamingService extends Service implements
         super.onStartCommand(intent, flags, startId);
 
         /** Do nothing, it'll be done when the service is bound */
-        if (!ACTION_START.equals(intent.getAction())) {
+        if (intent != null && !ACTION_START.equals(intent.getAction())) {
             stopSelf(); /** Don't start if someone doesn't know the knock. */
         }
 
@@ -617,6 +629,7 @@ public final class StreamingService extends Service implements
              * the beginning and restart buffering; not perfect, but this is a pretty good solution.
              */
             if (mPreparingStreaming) {
+                Log.w(TAG, "Media player paused during streaming, workarounds running.");
                 if (BUFFERING_ERROR == action) {
                     mActiveBufferingError = true;
                 }

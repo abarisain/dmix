@@ -29,6 +29,7 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,15 +43,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import static android.util.Log.d;
-import static android.util.Log.e;
-
 public class PlaylistEditActivity extends MPDroidListActivity implements StatusChangeListener,
         OnClickListener {
     private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
     private String playlistName = null;
     private boolean isPlayQueue = true;
     private boolean isFirstRefresh = true;
+    private static final String TAG = "PlaylistEditActivity";
 
     private DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
         public void drop(int from, int to) {
@@ -59,22 +58,20 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             }
             HashMap<String, Object> itemFrom = songlist.get(from);
             Integer songID = (Integer) itemFrom.get("songid");
-            try {
-                // looks like it's not necessary
-                /*
-                 * if (from < to) {
-                 * app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to - 1);
-                 * } else {
-                 */
                 if (isPlayQueue) {
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
+                    try {
+                        app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Failed to move a track on the queue.", e);
+                    }
                 } else {
-                    app.oMPDAsyncHelper.oMPD.movePlaylistSong(playlistName, from, to);
+                    try {
+                        app.oMPDAsyncHelper.oMPD.movePlaylistSong(playlistName, from, to);
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Failed to rename a playlist.");
+                    }
                     update();
                 }
-                // }
-            } catch (MPDServerException e) {
-            }
             Tools.notifyUser("Updating ...");
         }
     };
@@ -130,8 +127,8 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                         ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
                     }
                     Tools.notifyUser(R.string.removeCountSongs, count);
-                } catch (Exception e) {
-                    e("MPDroid", "General: " + e.toString());
+                } catch (final Exception e) {
+                    Log.e(TAG, "General Error.", e);
                     update();
                 }
                 break;
@@ -315,7 +312,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             }
 
         } catch (MPDServerException e) {
-            d(PlaylistEditActivity.class.getSimpleName(), "Playlist update failure : " + e);
+            Log.d(TAG, "Playlist update failure.", e);
 
         }
 

@@ -657,7 +657,7 @@ public class WeakLinkedList<T> implements List<T> {
             final ListIterator<T> itr = this.listIterator(index);
             try {
                 return (itr.next());
-            } catch (NoSuchElementException exc) {
+            } catch (final NoSuchElementException ignored) {
                 throw (new IndexOutOfBoundsException("Index: " + index));
             }
         }
@@ -780,7 +780,7 @@ public class WeakLinkedList<T> implements List<T> {
             final T value;
             try {
                 value = itr.next();
-            } catch (NoSuchElementException exc) {
+            } catch (final NoSuchElementException ignored) {
                 throw (new IndexOutOfBoundsException("Index: " + index));
             }
 
@@ -908,7 +908,7 @@ public class WeakLinkedList<T> implements List<T> {
                 final T oldVal = itr.next();
                 itr.set(element);
                 return oldVal;
-            } catch (NoSuchElementException exc) {
+            } catch (final NoSuchElementException ignored) {
                 throw (new IndexOutOfBoundsException("Index: " + index));
             }
         }
