@@ -146,7 +146,8 @@ class AlbumCoverHandler implements CoverDownloadListener {
 
     final void stop() {
         if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-            mAlbumCover.recycle();
+            /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
+            mAlbumCover = null;
         }
 
         mCoverUpdateListener = null;
@@ -236,7 +237,8 @@ class AlbumCoverHandler implements CoverDownloadListener {
             }
 
             if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-                mAlbumCover.recycle();
+                /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
+                mAlbumCover = null;
             }
 
             mAlbumCoverPath = pathArray[0];
