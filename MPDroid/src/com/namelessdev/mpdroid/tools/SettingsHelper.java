@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.tools;
 
+import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
@@ -100,7 +101,7 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
         editor.commit();
     }
 
-    public boolean updateConnectionSettings() {
+    public final boolean updateConnectionSettings() {
         String wifiSSID = getCurrentSSID();
         if (getStringSetting(getStringWithSSID("hostname", wifiSSID)) != null) {
             updateConnectionSettings(wifiSSID);
@@ -113,28 +114,37 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
         }
     }
 
-    private void updateConnectionSettings(String wifiSSID) {
+    public void updateConnectionSettings(String wifiSSID) {
         // an empty SSID should be null
         if (wifiSSID != null)
             if (wifiSSID.trim().equals(""))
                 wifiSSID = null;
 
-        oMPDAsyncHelper.getConnectionSettings().sServer = getStringSetting(getStringWithSSID(
-                "hostname", wifiSSID));
-        oMPDAsyncHelper.getConnectionSettings().iPort = getIntegerSetting(
-                getStringWithSSID("port", wifiSSID), DEFAULT_MPD_PORT);
-        oMPDAsyncHelper.getConnectionSettings().sPassword = getStringSetting(getStringWithSSID(
-                "password", wifiSSID));
-        oMPDAsyncHelper.getConnectionSettings().sServerStreaming = getStringSetting(getStringWithSSID(
-                "hostnameStreaming", wifiSSID));
-        oMPDAsyncHelper.getConnectionSettings().persistentNotification = getBooleanSetting(
-                getStringWithSSID("persistentNotification", wifiSSID));
-        oMPDAsyncHelper.getConnectionSettings().iPortStreaming = getIntegerSetting(
+
+        final String server = getStringSetting(getStringWithSSID("hostname", wifiSSID));
+        final int port = getIntegerSetting(getStringWithSSID("port", wifiSSID), DEFAULT_MPD_PORT);
+        final String password = getStringSetting(getStringWithSSID("password", wifiSSID));
+        final ConnectionInfo.Builder connectionInfo =
+                new ConnectionInfo.Builder(server, port, password);
+
+        final String streamServer =
+                getStringSetting(getStringWithSSID("hostnameStreaming", wifiSSID));
+        final int streamPort = getIntegerSetting(
                 getStringWithSSID("portStreaming", wifiSSID), DEFAULT_STREAMING_PORT);
-        oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming = getStringSetting(getStringWithSSID(
-                "suffixStreaming", wifiSSID));
-        if (oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming == null)
-            oMPDAsyncHelper.getConnectionSettings().sSuffixStreaming = "";
+        String streamSuffix =
+                getStringSetting(getStringWithSSID("suffixStreaming", wifiSSID));
+        if (streamSuffix == null) {
+            streamSuffix = "";
+        }
+        connectionInfo.setStreamingServer(streamServer, streamPort, streamSuffix);
+
+        final boolean persistentNotification =
+                getBooleanSetting(getStringWithSSID("persistentNotification", wifiSSID));
+        connectionInfo.setPersistentNotification(persistentNotification);
+
+        connectionInfo.setPreviousConnectionInfo(oMPDAsyncHelper.getConnectionSettings());
+
+        oMPDAsyncHelper.setConnectionSettings(connectionInfo.build());
     }
 
     public boolean updateSettings() {

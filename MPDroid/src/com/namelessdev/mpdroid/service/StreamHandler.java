@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.service;
 
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
+import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
@@ -94,7 +94,7 @@ public final class StreamHandler implements
 
     private final Handler mHandler = new Handler(this);
 
-    private final MPDAsyncHelper.MPDConnectionInfo mConnectionInfo
+    private final ConnectionInfo mConnectionInfo
             = MPDroidService.MPD_ASYNC_HELPER.getConnectionSettings();
 
     private final MPDroidService mServiceContext;
@@ -168,8 +168,8 @@ public final class StreamHandler implements
 
     /** Get the current server streaming URL. */
     private String getStreamSource() {
-        return "http://" + mConnectionInfo.getConnectionStreamingServer() + ':'
-                + mConnectionInfo.iPortStreaming + '/' + mConnectionInfo.sSuffixStreaming;
+        return "http://" + mConnectionInfo.streamServer + ':'
+                + mConnectionInfo.streamPort + '/' + mConnectionInfo.streamSuffix;
     }
 
     private void beginStreaming() {

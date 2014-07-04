@@ -51,7 +51,8 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MPDApplication extends Application implements ConnectionListener,
+public class MPDApplication extends Application implements
+        ConnectionListener,
         Handler.Callback {
 
     private static final boolean DEBUG = false;
@@ -346,7 +347,7 @@ public class MPDApplication extends Application implements ConnectionListener,
     public final boolean isNotificationPersistent() {
         final boolean result;
 
-        if (oMPDAsyncHelper.getConnectionSettings().persistentNotification &&
+        if (oMPDAsyncHelper.getConnectionSettings().isNotificationPersistent &&
                 !mIsNotificationOverridden) {
             result = true;
         } else {
@@ -397,9 +398,9 @@ public class MPDApplication extends Application implements ConnectionListener,
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 
         oMPDAsyncHelper = new MPDAsyncHelper();
-        oMPDAsyncHelper.addConnectionListener(this);
-
         mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
+        oMPDAsyncHelper.startWorkerThread();
+        oMPDAsyncHelper.addConnectionListener(this);
 
         mDisconnectScheduler = new Timer();
 

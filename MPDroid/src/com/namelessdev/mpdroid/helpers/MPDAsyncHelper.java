@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
@@ -30,6 +31,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.net.UnknownHostException;
@@ -58,6 +60,10 @@ public class MPDAsyncHelper extends Handler {
         public void connectionSucceeded(String message);
     }
 
+    public interface ConnectionInfoListener {
+        void onCurrentConnectionChange(ConnectionInfo connectionInfo);
+    }
+
     /**
      * Asynchronous worker thread-class for long during operations on JMPDComm
      */
@@ -67,46 +73,53 @@ public class MPDAsyncHelper extends Handler {
             super(looper);
         }
 
+        private void connect() {
+            try {
+                if (oMPD != null) {
+                    oMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
+                    MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTSUCCEEDED)
+                            .sendToTarget();
+                }
+            } catch (final MPDServerException | UnknownHostException e) {
+                Log.e(TAG, "Error while connecting to the server.", e);
+                MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED,
+                        Tools.toObjectArray(e.getMessage())).sendToTarget();
+            }
+        }
+
         @Override
         public void connectionStateChanged(boolean connected, boolean connectionLost) {
             MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTIONSTATE,
                     Tools.toObjectArray(connected, connectionLost)).sendToTarget();
         }
 
+        private void disconnect() {
+            try {
+                if (oMPD != null) {
+                    oMPD.disconnect();
+                }
+                Log.d(TAG, "Disconnected.");
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Error on disconnect.", e);
+            }
+        }
+
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case EVENT_CONNECT:
-                    try {
-                        MPDConnectionInfo conInfo = (MPDConnectionInfo) msg.obj;
-                        if (oMPD != null) {
-                            oMPD.connect(conInfo.sServer, conInfo.iPort, conInfo.sPassword);
-                            MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTSUCCEEDED)
-                                    .sendToTarget();
-                        }
-                    } catch (final MPDServerException | UnknownHostException e) {
-                        Log.e(TAG, "Error while connecting to the server.", e);
-                        MPDAsyncHelper.this.obtainMessage(EVENT_CONNECTFAILED,
-                                Tools.toObjectArray(e.getMessage())).sendToTarget();
-                    }
+                    connect();
+                    break;
+                case EVENT_RECONNECT:
+                    reconnect();
                     break;
                 case EVENT_STARTMONITOR:
-                    oMonitor = new MPDStatusMonitor(oMPD, 500L);
-                    oMonitor.addStatusChangeListener(this);
-                    oMonitor.addTrackPositionListener(this);
-                    oMonitor.start();
+                    startMonitor();
                     break;
                 case EVENT_STOPMONITOR:
-                    if (oMonitor != null)
-                        oMonitor.giveup();
+                    stopMonitor();
                     break;
                 case EVENT_DISCONNECT:
-                    try {
-                        if (oMPD != null)
-                            oMPD.disconnect();
-                        Log.d(TAG, "Disconnected.");
-                    } catch (final MPDServerException e) {
-                        Log.e(TAG, "Error on disconnect.", e);
-                    }
+                    disconnect();
                     break;
                 case EVENT_EXECASYNC:
                     Runnable run = (Runnable) msg.obj;
@@ -136,10 +149,41 @@ public class MPDAsyncHelper extends Handler {
                     .sendToTarget();
         }
 
+        private void reconnect() {
+            final boolean isMonitorAlive = isMonitorAlive();
+
+            /** Don't continue before the monitor is stopped. */
+            if (isMonitorAlive) {
+                stopMonitor();
+
+                try {
+                    /** Give up waiting after a couple of seconds. */
+                    oMonitor.join(2L * DateUtils.SECOND_IN_MILLIS);
+                } catch (final InterruptedException ignored) {
+                }
+            }
+
+            if (oMPD != null && oMPD.isConnected()) {
+                disconnect();
+                connect();
+            }
+
+            if (isMonitorAlive) {
+                startMonitor();
+            }
+        }
+
         @Override
         public void repeatChanged(boolean repeating) {
             MPDAsyncHelper.this.obtainMessage(EVENT_REPEAT, Tools.toObjectArray(repeating))
                     .sendToTarget();
+        }
+
+        private void startMonitor() {
+            oMonitor = new MPDStatusMonitor(oMPD, 500L);
+            oMonitor.addStatusChangeListener(this);
+            oMonitor.addTrackPositionListener(this);
+            oMonitor.start();
         }
 
         @Override
@@ -147,6 +191,12 @@ public class MPDAsyncHelper extends Handler {
             MPDAsyncHelper.this
                     .obtainMessage(EVENT_STATE, Tools.toObjectArray(mpdStatus, oldState))
                     .sendToTarget();
+        }
+
+        private void stopMonitor() {
+            if (oMonitor != null) {
+                oMonitor.giveup();
+            }
         }
 
         @Override
@@ -167,20 +217,6 @@ public class MPDAsyncHelper extends Handler {
         public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
             MPDAsyncHelper.this.obtainMessage(EVENT_VOLUME,
                     Tools.toObjectArray(mpdStatus, oldVolume)).sendToTarget();
-        }
-    }
-
-    public class MPDConnectionInfo {
-        public String sServer = null;
-        public int iPort;
-        public String sPassword;
-        public String sServerStreaming;
-        public int iPortStreaming;
-        public String sSuffixStreaming = "";
-        public boolean persistentNotification = false;
-
-        public String getConnectionStreamingServer() {
-            return conInfo.sServerStreaming == null ? sServer : sServerStreaming;
         }
     }
 
@@ -205,6 +241,8 @@ public class MPDAsyncHelper extends Handler {
     private static final int EVENT_UPDATESTATE = 17;
     private static final int EVENT_VOLUME = 18;
     private static final int EVENT_TRACKPOSITION = 19;
+    private static final int EVENT_CONNECTION_CHANGED = 20;
+    private static final int EVENT_RECONNECT = 21;
     private MPDAsyncWorker oMPDAsyncWorker;
 
     private HandlerThread oMPDAsyncWorkerThread;
@@ -215,6 +253,7 @@ public class MPDAsyncHelper extends Handler {
     private static int iJobID = 0;
     // Listener Collections
     private Collection<ConnectionListener> connectionListeners;
+    private Collection<ConnectionInfoListener> mConnectionInfoListeners;
     private Collection<StatusChangeListener> statusChangedListeners;
 
     private Collection<TrackPositionListener> trackPositionListeners;
@@ -222,7 +261,7 @@ public class MPDAsyncHelper extends Handler {
     private Collection<AsyncExecListener> asyncExecListeners;
 
     // Current connection Information
-    private MPDConnectionInfo conInfo;
+    private ConnectionInfo mConInfo;
 
     public MPDAsyncHelper() {
         this(true);
@@ -233,16 +272,18 @@ public class MPDAsyncHelper extends Handler {
      */
     public MPDAsyncHelper(boolean cached) {
         oMPD = new CachedMPD(cached);
+    }
+
+    public void startWorkerThread() {
         oMPDAsyncWorkerThread = new HandlerThread("MPDAsyncWorker");
         oMPDAsyncWorkerThread.start();
         oMPDAsyncWorker = new MPDAsyncWorker(oMPDAsyncWorkerThread.getLooper());
 
         connectionListeners = new WeakLinkedList<ConnectionListener>("ConnectionListener");
+        mConnectionInfoListeners = new WeakLinkedList<>("ConnectionInfoListener");
         statusChangedListeners = new WeakLinkedList<StatusChangeListener>("StatusChangeListener");
         trackPositionListeners = new WeakLinkedList<TrackPositionListener>("TrackPositionListener");
         asyncExecListeners = new WeakLinkedList<AsyncExecListener>("AsyncExecListener");
-
-        conInfo = new MPDConnectionInfo();
     }
 
     public void addAsyncExecListener(AsyncExecListener listener) {
@@ -251,6 +292,10 @@ public class MPDAsyncHelper extends Handler {
 
     public void addConnectionListener(ConnectionListener listener) {
         connectionListeners.add(listener);
+    }
+
+    public void addConnectionInfoListener(final ConnectionInfoListener listener) {
+        mConnectionInfoListeners.add(listener);
     }
 
     public void addStatusChangeListener(StatusChangeListener listener) {
@@ -262,7 +307,7 @@ public class MPDAsyncHelper extends Handler {
     }
 
     public void connect() {
-        oMPDAsyncWorker.obtainMessage(EVENT_CONNECT, conInfo).sendToTarget();
+        oMPDAsyncWorker.obtainMessage(EVENT_CONNECT).sendToTarget();
     }
 
     public void disconnect() {
@@ -285,8 +330,33 @@ public class MPDAsyncHelper extends Handler {
         return actjobid;
     }
 
-    public MPDConnectionInfo getConnectionSettings() {
-        return conInfo;
+    public ConnectionInfo getConnectionSettings() {
+        return mConInfo;
+    }
+
+    public final void setConnectionSettings(final ConnectionInfo connectionInfo) {
+        if (mConInfo == null) {
+            if (connectionInfo != null) {
+                mConInfo = connectionInfo;
+            }
+        } else if (connectionInfo.serverInfoChanged || connectionInfo.streamingServerInfoChanged
+                || connectionInfo.wasNotificationPersistent !=
+                connectionInfo.isNotificationPersistent) {
+            obtainMessage(EVENT_CONNECTION_CHANGED).sendToTarget();
+            mConInfo = connectionInfo;
+
+            if (mConInfo.serverInfoChanged) {
+                if (oMPDAsyncWorker != null) {
+                    Log.d(TAG, "Connection changed, connecting to " + mConInfo.server);
+                    oMPDAsyncWorker.obtainMessage(EVENT_RECONNECT).sendToTarget();
+
+                } else {
+                    Log.d(TAG, "Worker null.");
+                }
+            } else {
+                Log.d(TAG, "Server info had not changed!");
+            }
+        }
     }
 
     /**
@@ -308,6 +378,11 @@ public class MPDAsyncHelper extends Handler {
                     if ((Boolean) args[1])
                         for (ConnectionListener listener : connectionListeners)
                             listener.connectionFailed("Connection Lost");
+                    break;
+                case EVENT_CONNECTION_CHANGED:
+                    for (final ConnectionInfoListener listener : mConnectionInfoListeners) {
+                        listener.onCurrentConnectionChange(mConInfo);
+                    }
                     break;
                 case EVENT_PLAYLIST:
                     for (StatusChangeListener listener : statusChangedListeners)
@@ -375,6 +450,10 @@ public class MPDAsyncHelper extends Handler {
 
     public void removeConnectionListener(ConnectionListener listener) {
         connectionListeners.remove(listener);
+    }
+
+    public void removeConnectionInfoListener(final ConnectionInfoListener listener) {
+        mConnectionInfoListeners.remove(listener);
     }
 
     public void removeStatusChangeListener(StatusChangeListener listener) {
