@@ -286,23 +286,33 @@ public class MPDAsyncHelper extends Handler {
     }
 
     public void addAsyncExecListener(AsyncExecListener listener) {
-        asyncExecListeners.add(listener);
+        if (!asyncExecListeners.contains(listener)) {
+            asyncExecListeners.add(listener);
+        }
     }
 
     public void addConnectionListener(ConnectionListener listener) {
-        connectionListeners.add(listener);
+        if (!connectionListeners.contains(listener)) {
+            connectionListeners.add(listener);
+        }
     }
 
     public void addConnectionInfoListener(final ConnectionInfoListener listener) {
-        mConnectionInfoListeners.add(listener);
+        if (!mConnectionInfoListeners.contains(listener)) {
+            mConnectionInfoListeners.add(listener);
+        }
     }
 
     public void addStatusChangeListener(StatusChangeListener listener) {
-        statusChangedListeners.add(listener);
+        if (!statusChangedListeners.contains(listener)) {
+            statusChangedListeners.add(listener);
+        }
     }
 
     public void addTrackPositionListener(TrackPositionListener listener) {
-        trackPositionListeners.add(listener);
+        if (!trackPositionListeners.contains(listener)) {
+            trackPositionListeners.add(listener);
+        }
     }
 
     public void connect() {
