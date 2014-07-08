@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
@@ -29,6 +30,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -46,6 +48,7 @@ import java.util.List;
  */
 public final class MPDroidService extends Service implements
         AlbumCoverHandler.Callback,
+        MPDAsyncHelper.ConnectionInfoListener,
         StatusChangeListener {
 
     /** This is the class unique Binder identifier. */
@@ -65,6 +68,9 @@ public final class MPDroidService extends Service implements
 
     /** Sends stop() to all handlers. */
     private static final int WIND_DOWN_HANDLERS = LOCAL_UID + 5;
+
+    /** The main process connection changed. */
+    public static final int CONNECTION_INFO_CHANGED = LOCAL_UID + 6;
 
     static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
 
@@ -105,7 +111,7 @@ public final class MPDroidService extends Service implements
     /** If the media server is playing, and this is true, notification should show. */
     private boolean mIsNotificationStarted = false;
 
-    private boolean mIsNotificationPersistent = false;
+    private boolean mIsPersistentOverridden = false;
 
     /** If the media server is playing, and this is true, audio streaming will be attempted. */
     private boolean mIsStreamStarted = false;
@@ -140,6 +146,9 @@ public final class MPDroidService extends Service implements
         final String result;
 
         switch (what) {
+            case CONNECTION_INFO_CHANGED:
+                result = "CONNECTION_INFO_CHANGED";
+                break;
             case DISCONNECT_ON_NO_CONNECTION:
                 result = "DISCONNECT_ON_NO_CONNECTION";
                 break;
@@ -208,7 +217,6 @@ public final class MPDroidService extends Service implements
     private void initializeAsyncHelper() {
         final SettingsHelper settingsHelper = new SettingsHelper(MPD_ASYNC_HELPER);
         settingsHelper.updateConnectionSettings();
-        MPD_ASYNC_HELPER.startWorkerThread();
 
         if (!MPD_ASYNC_HELPER.oMPD.isConnected()) {
             MPD_ASYNC_HELPER.connect();
@@ -261,9 +269,15 @@ public final class MPDroidService extends Service implements
         }
     }
 
+    /** Is the notification persistent when taking override into account? */
+    private boolean isNotificationPersistent() {
+        return !mIsPersistentOverridden &&
+                MPD_ASYNC_HELPER.getConnectionSettings().isNotificationPersistent;
+    }
+
     /** Checks for both service and notification persistence. */
     private boolean isServiceBusy() {
-        return mIsNotificationStarted || mIsStreamStarted || mIsNotificationPersistent;
+        return mIsNotificationStarted || mIsStreamStarted || isNotificationPersistent();
     }
 
     /**
@@ -299,6 +313,24 @@ public final class MPDroidService extends Service implements
     public void onCoverUpdate(final Bitmap albumCover, final String albumCoverPath) {
         mRemoteControlClientHandler.update(albumCover);
         mNotificationHandler.setAlbumCover(albumCover, albumCoverPath);
+    }
+
+    /**
+     * Called upon connection configuration change.
+     *
+     * @param connectionInfo The new connection configuration information object.
+     */
+    @Override
+    public void onConnectionConfigChange(final ConnectionInfo connectionInfo) {
+        if (connectionInfo.streamingServerInfoChanged && mIsStreamStarted) {
+            Log.d(TAG, "Streaming information changed, resetting.");
+            windDownHandlers(false);
+            mHandler.obtainMessage(StreamHandler.START).sendToTarget();
+        } else if (connectionInfo.serverInfoChanged && mIsNotificationStarted) {
+            Log.d(TAG, "Notification information changed, resetting.");
+            windDownHandlers(false);
+            mHandler.obtainMessage(NotificationHandler.START).sendToTarget();
+        }
     }
 
     /** If handlers have activated, use windDownService rather than stopSelf(). */
@@ -618,7 +650,7 @@ public final class MPDroidService extends Service implements
             Log.d(TAG, "windDownHandlers()");
         }
 
-        if (!mIsNotificationPersistent) {
+        if (!isNotificationPersistent()) {
             mIsNotificationStarted = false;
         }
 
@@ -635,7 +667,7 @@ public final class MPDroidService extends Service implements
             mRemoteControlClientHandler.stop();
             mNotificationHandler.stop();
 
-            if (!mIsNotificationPersistent) {
+            if (!isNotificationPersistent()) {
                 /**
                  * Don't remove the status change listener here. It
                  * causes a bug with the weak linked list, somehow.
@@ -727,7 +759,7 @@ public final class MPDroidService extends Service implements
             if (what >= ServiceBinder.LOCAL_UID && what < LOCAL_UID) {
                 handleBinderMessages(msg);
             } else if (what >= LOCAL_UID && what < NotificationHandler.LOCAL_UID) {
-                handleServiceMessages(what);
+                handleServiceMessages(msg);
             } else if (what >= NotificationHandler.LOCAL_UID && what < StreamHandler.LOCAL_UID) {
                 handleNotificationMessages(msg);
             } else if (what >= StreamHandler.LOCAL_UID) {
@@ -742,18 +774,17 @@ public final class MPDroidService extends Service implements
         /**
          * Handles messages which ultimately effects the notification handler.
          *
-         * @param message The message with the 'what' to act upon.
+         * @param msg The message with the 'what' to act upon.
          */
-        private void handleNotificationMessages(final Message message) {
-            final int what = message.what;
+        private void handleNotificationMessages(final Message msg) {
+            final int what = msg.what;
             Log.d(TAG, "Message received: " + NotificationHandler.getHandlerValue(what));
 
             switch (what) {
-                case NotificationHandler.IS_PERSISTENT:
-                    mIsNotificationPersistent = message.arg1 == ServiceBinder.TRUE;
+                case NotificationHandler.PERSISTENT_OVERRIDDEN:
+                    mIsPersistentOverridden = msg.arg1 == ServiceBinder.TRUE;
                     break;
                 case NotificationHandler.START:
-                    mIsNotificationPersistent = message.arg1 == ServiceBinder.TRUE;
                     startNotification();
                     sendHandlerStatus();
                     break;
@@ -765,12 +796,12 @@ public final class MPDroidService extends Service implements
                     break;
                 default:
                     break;
-
             }
         }
 
         /** Handles the messages received for the outer Service class. */
-        private void handleServiceMessages(final int what) {
+        private void handleServiceMessages(final Message msg) {
+            final int what = msg.what;
             Log.d(TAG, "Message received: " + getHandlerValue(what));
 
             switch (what) {
@@ -781,6 +812,9 @@ public final class MPDroidService extends Service implements
                     /** Fall through */
                 case WIND_DOWN_HANDLERS:
                     windDownHandlers(true);
+                    break;
+                case CONNECTION_INFO_CHANGED:
+                    setConnectionSettings(msg.getData());
                     break;
                 case STOP_SELF:
                     haltService();
@@ -866,11 +900,37 @@ public final class MPDroidService extends Service implements
         }
 
         /**
+         * This processes the incoming (and likely changed) {@code ConnectionSettings} object.
+         *
+         * This method is necessary as the {@code MPDAsyncHelper}, which produces the
+         * {@code ConnectionSettings} object, only changes in the remote process upon connection
+         * settings change. It is then parceled, bundled and sent as a message here then processed
+         * back into a {@code ConnectionSettings} object. It is then sent to our
+         * {@code MPDAsyncHelper} instance.
+         *
+         * Once sent to this process instance {@code MPDAsyncHelper}, this will then call the
+         * ConnectionInfoListener callback which calls the onConnectionConfigChange().
+         *
+         * @param bundle The incoming {@code ConnectionInfo} bundle.
+         */
+        private void setConnectionSettings(final Bundle bundle) {
+            if (bundle == null) {
+                Log.e(TAG, "Null bundle received");
+            } else {
+                final ClassLoader classLoader = ConnectionInfo.class.getClassLoader();
+                bundle.setClassLoader(classLoader);
+                final ConnectionInfo connectionInfo =
+                        bundle.getParcelable(ConnectionInfo.BUNDLE_KEY);
+                MPD_ASYNC_HELPER.setConnectionSettings(connectionInfo);
+            }
+        }
+
+        /**
          * If the stream handler requests stop, this
          * method chooses whether to grant the request.
          */
         private void streamRequestsNotificationStop() {
-            if (mStreamOwnsService && !mIsNotificationPersistent) {
+            if (mStreamOwnsService && !isNotificationPersistent()) {
                 sendMessageToClients(NotificationHandler.IS_ACTIVE, false);
                 sendMessageToClients(ServiceBinder.SET_PERSISTENT, false);
                 mNotificationHandler.stop();

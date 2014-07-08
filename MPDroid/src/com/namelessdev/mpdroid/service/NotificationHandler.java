@@ -50,7 +50,7 @@ public class NotificationHandler {
 
     public static final int IS_ACTIVE = LOCAL_UID + 3;
 
-    public static final int IS_PERSISTENT = LOCAL_UID + 4;
+    public static final int PERSISTENT_OVERRIDDEN = LOCAL_UID + 4;
 
     private static final int NOTIFICATION_ID = 1;
 
@@ -138,8 +138,8 @@ public class NotificationHandler {
             case IS_ACTIVE:
                 result = "IS_ACTIVE";
                 break;
-            case IS_PERSISTENT:
-                result = "IS_PERSISTENT";
+            case PERSISTENT_OVERRIDDEN:
+                result = "PERSISTENT_OVERRIDDEN";
                 break;
             default:
                 result = "{unknown}: " + what;

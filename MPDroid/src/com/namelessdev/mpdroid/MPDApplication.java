@@ -37,6 +37,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -53,7 +54,8 @@ import java.util.TimerTask;
 
 public class MPDApplication extends Application implements
         ConnectionListener,
-        Handler.Callback {
+        Handler.Callback,
+        MPDAsyncHelper.ConnectionInfoListener {
 
     private static final boolean DEBUG = false;
 
@@ -289,7 +291,9 @@ public class MPDApplication extends Application implements
 
         switch (msg.what) {
             case MPDroidService.REQUEST_UNBIND:
-                Log.d(TAG, "Service requested unbind, complying.");
+                if (DEBUG) {
+                    Log.d(TAG, "Service requested unbind, complying.");
+                }
                 mServiceBinder.doUnbindService();
                 break;
             case NotificationHandler.IS_ACTIVE:
@@ -297,6 +301,10 @@ public class MPDApplication extends Application implements
                 break;
             case ServiceBinder.CONNECTED:
                 Log.d(TAG, "MPDApplication is bound to the service.");
+                oMPDAsyncHelper.addConnectionInfoListener(this);
+                break;
+            case ServiceBinder.DISCONNECTED:
+                oMPDAsyncHelper.removeConnectionInfoListener(this);
                 break;
             case StreamHandler.IS_ACTIVE:
                 mIsStreamActive = ServiceBinder.TRUE == msg.arg1;
@@ -399,13 +407,27 @@ public class MPDApplication extends Application implements
 
         oMPDAsyncHelper = new MPDAsyncHelper();
         mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
-        oMPDAsyncHelper.startWorkerThread();
         oMPDAsyncHelper.addConnectionListener(this);
 
         mDisconnectScheduler = new Timer();
 
         if (!mSharedPreferences.contains("albumTrackSort")) {
             mSharedPreferences.edit().putBoolean("albumTrackSort", true).commit();
+        }
+    }
+
+    /**
+     * Called upon connection configuration change.
+     *
+     * @param connectionInfo The new connection configuration information object.
+     */
+    @Override
+    public final void onConnectionConfigChange(final ConnectionInfo connectionInfo) {
+        if (mServiceBinder != null && mServiceBinder.isServiceBound()) {
+            final Bundle bundle = new Bundle();
+            bundle.setClassLoader(ConnectionInfo.class.getClassLoader());
+            bundle.putParcelable(ConnectionInfo.BUNDLE_KEY, connectionInfo);
+            mServiceBinder.sendMessageToService(MPDroidService.CONNECTION_INFO_CHANGED, bundle);
         }
     }
 
@@ -437,8 +459,8 @@ public class MPDApplication extends Application implements
             mIsNotificationOverridden = override;
 
             setupServiceBinder();
-            mServiceBinder.sendMessageToService(NotificationHandler.IS_PERSISTENT,
-                    isNotificationPersistent());
+            mServiceBinder.sendMessageToService(NotificationHandler.PERSISTENT_OVERRIDDEN,
+                    mIsNotificationOverridden);
         }
     }
 

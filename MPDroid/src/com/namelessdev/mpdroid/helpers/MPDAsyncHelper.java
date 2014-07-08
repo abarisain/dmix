@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
@@ -61,7 +62,7 @@ public class MPDAsyncHelper extends Handler {
     }
 
     public interface ConnectionInfoListener {
-        void onCurrentConnectionChange(ConnectionInfo connectionInfo);
+        void onConnectionConfigChange(ConnectionInfo connectionInfo);
     }
 
     /**
@@ -272,9 +273,7 @@ public class MPDAsyncHelper extends Handler {
      */
     public MPDAsyncHelper(boolean cached) {
         oMPD = new CachedMPD(cached);
-    }
-
-    public void startWorkerThread() {
+        new SettingsHelper(this).updateConnectionSettings();
         oMPDAsyncWorkerThread = new HandlerThread("MPDAsyncWorker");
         oMPDAsyncWorkerThread.start();
         oMPDAsyncWorker = new MPDAsyncWorker(oMPDAsyncWorkerThread.getLooper());
@@ -381,7 +380,7 @@ public class MPDAsyncHelper extends Handler {
                     break;
                 case EVENT_CONNECTION_CHANGED:
                     for (final ConnectionInfoListener listener : mConnectionInfoListeners) {
-                        listener.onCurrentConnectionChange(mConInfo);
+                        listener.onConnectionConfigChange(mConInfo);
                     }
                     break;
                 case EVENT_PLAYLIST:
