@@ -75,6 +75,8 @@ public final class StreamHandler implements
     /** Remove the buffering banner from the notification handler. */
     static final int BUFFERING_END = LOCAL_UID + 7;
 
+    private static final boolean DEBUG = MPDroidService.DEBUG;
+
     /** Workaround to delay preparation of stream on Android 4.4.2 and earlier. */
     private static final int PREPARE_ASYNC = 1;
 
@@ -121,7 +123,9 @@ public final class StreamHandler implements
     StreamHandler(final MPDroidService serviceContext, final Handler serviceHandler,
             final AudioManager audioManager) {
         super();
-        Log.d(TAG, "StreamHandler constructor.");
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler constructor.");
+        }
 
         mServiceContext = serviceContext;
         mAudioManager = audioManager;
@@ -173,7 +177,9 @@ public final class StreamHandler implements
     }
 
     private void beginStreaming() {
-        Log.d(TAG, "StreamHandler.beginStreaming()");
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler.beginStreaming()");
+        }
         if (mMediaPlayer == null) {
             windUpResources();
         }
@@ -223,8 +229,10 @@ public final class StreamHandler implements
 
         if (msg.what == PREPARE_ASYNC) {
             if (mIsPlaying) {
+                if (DEBUG) {
+                    Log.d(TAG, "Start mediaPlayer buffering.");
+                }
                 mMediaPlayer.prepareAsync();
-                Log.d(TAG, "Start mediaPlayer buffering.");
                 /**
                  * Between here and onPrepared, if the media server
                  * stream pauses, error handling workarounds will be used.
@@ -251,16 +259,22 @@ public final class StreamHandler implements
      */
     @Override
     public final void onAudioFocusChange(final int focusChange) {
-        Log.d(TAG, "StreamHandler.onAudioFocusChange() with " + focusChange);
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler.onAudioFocusChange() with " + focusChange);
+        }
         final float duckVolume = 0.2f;
 
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 if (mMediaPlayer.isPlaying()) {
-                    Log.d(TAG, "Regaining after ducked transient loss.");
+                    if (DEBUG) {
+                        Log.d(TAG, "Regaining after ducked transient loss.");
+                    }
                     mMediaPlayer.setVolume(1.0f, 1.0f);
                 } else if (!mPreparingStreaming) {
-                    Log.d(TAG, "Coming out of transient loss.");
+                    if (DEBUG) {
+                        Log.d(TAG, "Coming out of transient loss.");
+                    }
                     mMediaPlayer.start();
                 }
                 break;
@@ -285,7 +299,9 @@ public final class StreamHandler implements
      */
     @Override
     public final void onCompletion(final MediaPlayer mp) {
-        Log.d(TAG, "StreamHandler.onCompletion()");
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler.onCompletion()");
+        }
 
         /**
          * If MPD is restarted during streaming, onCompletion() will be called.
@@ -314,7 +330,9 @@ public final class StreamHandler implements
      */
     @Override
     public final boolean onError(final MediaPlayer mp, final int what, final int extra) {
-        Log.d(TAG, "StreamHandler.onError()");
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler.onError()");
+        }
         final int maxError = 4;
 
         if (mErrorIterator > 0) {
@@ -344,8 +362,12 @@ public final class StreamHandler implements
      */
     @Override
     public final void onPrepared(final MediaPlayer mp) {
-        Log.d(TAG, "StreamHandler.onPrepared()");
         final int focusResult;
+
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler.onPrepared()");
+        }
+
         if (mIsPlaying) {
             focusResult = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN);
@@ -366,7 +388,9 @@ public final class StreamHandler implements
     }
 
     final void stop() {
-        Log.d(TAG, "StreamHandler.stop()");
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler.stop()");
+        }
 
         mHandler.removeMessages(PREPARE_ASYNC);
 
@@ -389,7 +413,9 @@ public final class StreamHandler implements
      * @param mpdStatus MPDStatus after event.
      */
     final void stateChanged(final MPDStatus mpdStatus) {
-        Log.d(TAG, "StreamHandler.stateChanged()");
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler.stateChanged()");
+        }
 
         final String state = mpdStatus.getState();
 
@@ -444,7 +470,9 @@ public final class StreamHandler implements
      * clean up resources and give up focus to the phone and sound.
      */
     private void windDownResources(final int action) {
-        Log.d(TAG, "Winding down resources.");
+        if (DEBUG) {
+            Log.d(TAG, "Winding down resources.");
+        }
 
         if (action != INVALID_INT) {
             mServiceHandler.sendEmptyMessage(action);
@@ -480,7 +508,9 @@ public final class StreamHandler implements
      * necessary resources for handling the MediaPlayer stream.
      */
     private void windUpResources() {
-        Log.d(TAG, "Winding up resources.");
+        if (DEBUG) {
+            Log.d(TAG, "Winding up resources.");
+        }
 
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setOnCompletionListener(this);

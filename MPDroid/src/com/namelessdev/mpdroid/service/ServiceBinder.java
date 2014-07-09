@@ -64,7 +64,7 @@ public class ServiceBinder implements
     public static final int SET_PERSISTENT = LOCAL_UID + 7;
 
     /** Turns on debugging messages. */
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = MPDroidService.DEBUG;
 
     private static final String TAG = "ServiceBinder";
 

@@ -40,6 +40,8 @@ public class RemoteControlClientHandler {
 
     private static final String TAG = "RemoteControlClientService";
 
+    private static final boolean DEBUG = MPDroidService.DEBUG;
+
     private final AudioManager mAudioManager;
 
     private RemoteControlSeekBarHandler mSeekBar = null;
@@ -118,7 +120,9 @@ public class RemoteControlClientHandler {
             setPlaybackState(playbackState);
         }
 
-        Log.d(TAG, "Updated remote client with state " + state + '.');
+        if (DEBUG) {
+            Log.d(TAG, "Updated remote client with state " + state + '.');
+        }
     }
 
     final void start() {

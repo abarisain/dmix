@@ -74,7 +74,8 @@ public final class MPDroidService extends Service implements
 
     static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
 
-    private static final boolean DEBUG = false;
+    /** Enable this to get various DEBUG messages from this module. */
+    static final boolean DEBUG = false;
 
     private static final String TAG = "MPDroidService";
 
