@@ -54,6 +54,7 @@ import java.util.List;
 public final class MPDroidService extends Service implements
         AlbumCoverHandler.Callback,
         MPDAsyncHelper.ConnectionInfoListener,
+        AudioManager.OnAudioFocusChangeListener,
         StatusChangeListener {
 
     /** This is the class unique Binder identifier. */
@@ -294,6 +295,29 @@ public final class MPDroidService extends Service implements
      */
     @Override
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
+    }
+
+    @Override
+    public void onAudioFocusChange(final int i) {
+        switch (i) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                mIsAudioFocusedOnThis = true;
+                if (DEBUG) {
+                    Log.d(TAG, "Gained audio focus");
+                }
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                mIsAudioFocusedOnThis = false;
+                if (DEBUG) {
+                    Log.d(TAG, "Lost audio focus");
+                }
+                break;
+            default:
+                if (DEBUG) {
+                    Log.d(TAG, "Did not gain or lose audio focus: " + i);
+                }
+                break;
+        }
     }
 
     /**
@@ -634,14 +658,12 @@ public final class MPDroidService extends Service implements
      */
     private void tryToGetAudioFocus() {
         if (mIsNotificationStarted && !mIsStreamStarted && !mIsAudioFocusedOnThis) {
-            final int result = mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+            final int result = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN);
 
             if (DEBUG) {
                 Log.d(TAG, "Requested audio focus, received code: " + result);
             }
-
-            mIsAudioFocusedOnThis = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         }
     }
 
@@ -700,8 +722,7 @@ public final class MPDroidService extends Service implements
 
         /** We group these together under the notification, but they can easily be split. */
         if (mNotificationHandler != null) {
-            mIsAudioFocusedOnThis = false;
-            mAudioManager.abandonAudioFocus(null);
+            mAudioManager.abandonAudioFocus(this);
             mAlbumCoverHandler.stop();
             mRemoteControlClientHandler.stop();
             mNotificationHandler.stop();
@@ -892,6 +913,10 @@ public final class MPDroidService extends Service implements
                     mIsStreamStarted = false;
                     mNotificationHandler.setMediaPlayerWoundDown();
                     setupServiceHandler();
+                    if (mIsNotificationStarted && MPD_ASYNC_HELPER.oMPD.isConnected() &&
+                            MPDStatus.MPD_STATE_PLAYING.equals(getMPDStatus().getState())) {
+                        tryToGetAudioFocus();
+                    }
                     /** Fall Through */
                 case StreamHandler.BUFFERING_END:
                     mRemoteControlClientHandler.setMediaPlayerBuffering(false);
