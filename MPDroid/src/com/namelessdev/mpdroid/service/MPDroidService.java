@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
@@ -26,7 +27,10 @@ import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -36,6 +40,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -406,6 +411,39 @@ public final class MPDroidService extends Service implements
 
         /** Means we started the service, but don't want it to restart in case it's killed. */
         return START_NOT_STICKY;
+    }
+
+    /**
+     * If the user swipes MPDroid to close, it closes this service by default; this works
+     * around that behaviour by restarting the service and getting back to where it was.
+     *
+     * @param rootIntent The original root Intent that was used to launch the task that is being
+     *                   removed.
+     */
+    @Override
+    public final void onTaskRemoved(final Intent rootIntent) {
+        final String pendingAction;
+        if (mIsStreamStarted) {
+            pendingAction = StreamHandler.ACTION_START;
+        } else if (mIsNotificationStarted) {
+            pendingAction = NotificationHandler.ACTION_START;
+        } else {
+            pendingAction = null;
+        }
+
+        if (pendingAction != null) {
+            final Intent restartServiceIntent
+                    = new Intent(pendingAction, null, this, RemoteControlReceiver.class);
+            final PendingIntent restartService = PendingIntent
+                    .getBroadcast(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+            final AlarmManager alarmService =
+                    (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+            alarmService.set(AlarmManager.ELAPSED_REALTIME,
+                    SystemClock.elapsedRealtime() + DateUtils.SECOND_IN_MILLIS,
+                    restartService);
+        }
+        super.onTaskRemoved(rootIntent);
     }
 
     /**
