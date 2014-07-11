@@ -167,6 +167,7 @@ public class UpdateTrackInfo {
                     }
 
                     title = currentSong.getTitle();
+                    addDiscAndTrackNumber();
                     setArtist();
                     albumInfo = currentSong.getAlbumInfo();
                 }
@@ -237,6 +238,18 @@ public class UpdateTrackInfo {
             } else if (showAlbumArtist && albumArtist != null &&
                     !artist.toLowerCase().contains(albumArtist.toLowerCase())) {
                 artist = albumArtist + " / " + artist;
+            }
+        }
+
+        private void addDiscAndTrackNumber() {
+            final int tracknum = currentSong.getTrack();
+            final int discnum  = currentSong.getDisc();
+            if (tracknum > - 1) {
+                title = tracknum+"] " + title;
+                if (discnum > - 1) {
+                    title = discnum+"/" + title;
+                }
+                title = "[" + title;
             }
         }
     }
