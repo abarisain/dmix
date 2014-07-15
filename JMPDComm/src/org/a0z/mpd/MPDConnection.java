@@ -491,6 +491,29 @@ public abstract class MPDConnection {
         command.setSentToServer(true);
     }
 
+    private static class MPDCommandResult {
+
+        private MPDServerException mLastException = null;
+
+        private List<String> mResult = null;
+
+        final MPDServerException getLastexception() {
+            return mLastException;
+        }
+
+        final void setLastexception(final MPDServerException lastException) {
+            this.mLastException = lastException;
+        }
+
+        final List<String> getResult() {
+            return mResult;
+        }
+
+        final void setResult(final List<String> result) {
+            mResult = result;
+        }
+    }
+
     class MpdCallable extends MPDCommand implements Callable<MPDCommandResult> {
 
         private int retry = 0;
@@ -547,29 +570,6 @@ public abstract class MPDConnection {
                         + result.getLastexception().getMessage());
             }
             return result;
-        }
-    }
-
-    class MPDCommandResult {
-
-        private MPDServerException lastexception = null;
-
-        private List<String> result = null;
-
-        public MPDServerException getLastexception() {
-            return lastexception;
-        }
-
-        public void setLastexception(MPDServerException lastexception) {
-            this.lastexception = lastexception;
-        }
-
-        public List<String> getResult() {
-            return result;
-        }
-
-        public void setResult(List<String> result) {
-            this.result = result;
         }
     }
 }
