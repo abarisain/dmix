@@ -194,28 +194,13 @@ public abstract class MPDConnection {
 
     protected abstract void setSocket(Socket socket);
 
-    private void handleConnectionFailure(MPDCommandResult result, MPDServerException ex) {
-        try {
-            result.setLastexception(ex);
-            try {
-                Thread.sleep(500L);
-            } catch (final InterruptedException ignored) {
-            }
-            innerConnect();
-            refreshAllConnections();
-        } catch (final MPDServerException e) {
-            result.setLastexception(e);
-        }
-    }
-
     private int[] innerConnect() throws MPDServerException {
 
-        if (getSocket() != null) { // Always release existing socket if any
-            // before creating a new one
+        // Always release existing socket if any before creating a new one
+        if (getSocket() != null) {
             try {
                 innerDisconnect();
             } catch (final MPDServerException ignored) {
-                // ok, don't care about any exception here
             }
         }
         try {
@@ -268,7 +253,7 @@ public abstract class MPDConnection {
         }
     }
 
-    void innerDisconnect() throws MPDServerException {
+    void innerDisconnect() throws MPDConnectionException {
         if (innerIsConnected()) {
             try {
                 getSocket().close();
@@ -281,57 +266,6 @@ public abstract class MPDConnection {
 
     public boolean innerIsConnected() {
         return (getSocket() != null && getSocket().isConnected() && !getSocket().isClosed());
-    }
-
-    private List<String> innerSyncedWriteAsyncRead(MPDCommand command)
-            throws MPDServerException {
-        ArrayList<String> result = new ArrayList<>();
-        try {
-            writeToServer(command);
-        } catch (final IOException e) {
-            throw new MPDConnectionException(e);
-        }
-        boolean dataReaded = false;
-        while (!dataReaded) {
-            try {
-                result = readFromServer();
-                dataReaded = true;
-            } catch (final SocketTimeoutException e) {
-                Log.w(TAG, "Socket timeout while reading server response : " + e);
-            } catch (final IOException e) {
-                throw new MPDConnectionException(e);
-            }
-        }
-        return result;
-    }
-
-    private List<String> innerSyncedWriteRead(MPDCommand command)
-            throws MPDServerException {
-        ArrayList<String> result = new ArrayList<>();
-        if (!isConnected()) {
-            throw new MPDConnectionException("No connection to server");
-        }
-
-        // send command
-        try {
-            writeToServer(command);
-        } catch (final IOException e1) {
-            throw new MPDConnectionException(e1);
-        }
-        try {
-            result = readFromServer();
-            return result;
-        } catch (final MPDConnectionException e) {
-            if (command.command.equals(MPDCommand.MPD_CMD_CLOSE)) {
-                return result;// we sent close command, so don't care about
-            }
-            // Exception while wrong to read response
-            else {
-                throw e;
-            }
-        } catch (final IOException e) {
-            throw new MPDConnectionException(e);
-        }
     }
 
     public boolean isAlbumGroupingSupported() {
@@ -386,52 +320,6 @@ public abstract class MPDConnection {
         queueCommand(new MPDCommand(command, args));
     }
 
-    private ArrayList<String> readFromServer() throws MPDServerException, IOException {
-        ArrayList<String> result = new ArrayList<>();
-        BufferedReader in = new BufferedReader(getInputStream(), 1024);
-
-        boolean dataReaded = false;
-        for (String line = in.readLine(); line != null; line = in.readLine()) {
-            dataReaded = true;
-            if (line.startsWith(MPD_RESPONSE_OK)) {
-                break;
-            }
-            if (line.startsWith(MPD_RESPONSE_ERR)) {
-
-                if (line.contains("permission")) {
-                    throw new MPDConnectionException("MPD Permission failure : "
-                            + line);
-                } else {
-                    throw new MPDServerException(line);
-                }
-            }
-            result.add(line);
-        }
-        if (!dataReaded) {
-            // Close socket if there is no response... Something is wrong
-            // (e.g.
-            // MPD shutdown..)
-            throw new MPDNoResponseException("Connection lost");
-        }
-        return result;
-    }
-
-    private void refreshAllConnections() {
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < maxThreads; i++) {
-                    try {
-                        processRequest(new MPDCommand(MPDCommand.MPD_CMD_PING));
-                    } catch (final MPDServerException e) {
-                        Log.w(TAG, "All connection refresh failure.", e);
-                    }
-                }
-            }
-        }).start();
-    }
-
     List<String> sendAsyncCommand(MPDCommand command)
             throws MPDServerException {
         return syncedWriteAsyncRead(command);
@@ -480,15 +368,6 @@ public abstract class MPDConnection {
     private List<String> syncedWriteRead(MPDCommand command) throws MPDServerException {
         command.setSynchronous(true);
         return processRequest(command);
-    }
-
-    private void writeToServer(MPDCommand command) throws IOException {
-        final String cmdString = command.toString();
-        // Uncomment for extreme command debugging
-        //Log.v(TAG, "Sending MPDCommand : " + cmdString);
-        getOutputStream().write(cmdString);
-        getOutputStream().flush();
-        command.setSentToServer(true);
     }
 
     private static class MPDCommandResult {
@@ -570,6 +449,126 @@ public abstract class MPDConnection {
                         + result.getLastexception().getMessage());
             }
             return result;
+        }
+
+        private void handleConnectionFailure(MPDCommandResult result, MPDServerException ex) {
+            try {
+                result.setLastexception(ex);
+                try {
+                    Thread.sleep(500L);
+                } catch (final InterruptedException ignored) {
+                }
+                innerConnect();
+                refreshAllConnections();
+            } catch (final MPDServerException e) {
+                result.setLastexception(e);
+            }
+        }
+
+        private List<String> innerSyncedWriteAsyncRead(MPDCommand command)
+                throws MPDServerException {
+            ArrayList<String> result = new ArrayList<>();
+            try {
+                writeToServer(command);
+            } catch (final IOException e) {
+                throw new MPDConnectionException(e);
+            }
+            boolean dataReaded = false;
+            while (!dataReaded) {
+                try {
+                    result = readFromServer();
+                    dataReaded = true;
+                } catch (final SocketTimeoutException e) {
+                    Log.w(TAG, "Socket timeout while reading server response : " + e);
+                } catch (final IOException e) {
+                    throw new MPDConnectionException(e);
+                }
+            }
+            return result;
+        }
+
+        private List<String> innerSyncedWriteRead(MPDCommand command)
+                throws MPDServerException {
+            ArrayList<String> result = new ArrayList<>();
+            if (!isConnected()) {
+                throw new MPDConnectionException("No connection to server");
+            }
+
+            // send command
+            try {
+                writeToServer(command);
+            } catch (final IOException e1) {
+                throw new MPDConnectionException(e1);
+            }
+            try {
+                result = readFromServer();
+                return result;
+            } catch (final MPDConnectionException e) {
+                if (command.command.equals(MPDCommand.MPD_CMD_CLOSE)) {
+                    return result;// we sent close command, so don't care about
+                }
+                // Exception while wrong to read response
+                else {
+                    throw e;
+                }
+            } catch (final IOException e) {
+                throw new MPDConnectionException(e);
+            }
+        }
+
+        private ArrayList<String> readFromServer() throws MPDServerException, IOException {
+            ArrayList<String> result = new ArrayList<>();
+            BufferedReader in = new BufferedReader(getInputStream(), 1024);
+
+            boolean dataReaded = false;
+            for (String line = in.readLine(); line != null; line = in.readLine()) {
+                dataReaded = true;
+                if (line.startsWith(MPD_RESPONSE_OK)) {
+                    break;
+                }
+                if (line.startsWith(MPD_RESPONSE_ERR)) {
+
+                    if (line.contains("permission")) {
+                        throw new MPDConnectionException("MPD Permission failure : "
+                                + line);
+                    } else {
+                        throw new MPDServerException(line);
+                    }
+                }
+                result.add(line);
+            }
+            if (!dataReaded) {
+                // Close socket if there is no response... Something is wrong
+                // (e.g.
+                // MPD shutdown..)
+                throw new MPDNoResponseException("Connection lost");
+            }
+            return result;
+        }
+
+        private void refreshAllConnections() {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < maxThreads; i++) {
+                        try {
+                            processRequest(new MPDCommand(MPDCommand.MPD_CMD_PING));
+                        } catch (final MPDServerException e) {
+                            Log.w(TAG, "All connection refresh failure.", e);
+                        }
+                    }
+                }
+            }).start();
+        }
+
+        private void writeToServer(MPDCommand command) throws IOException {
+            final String cmdString = command.toString();
+            // Uncomment for extreme command debugging
+            //Log.v(TAG, "Sending MPDCommand : " + cmdString);
+            getOutputStream().write(cmdString);
+            getOutputStream().flush();
+            command.setSentToServer(true);
         }
     }
 }
