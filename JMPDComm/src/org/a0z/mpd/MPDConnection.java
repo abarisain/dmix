@@ -77,6 +77,8 @@ abstract class MPDConnection {
 
     private static final int MAX_REQUEST_RETRY = 3;
 
+    private final List<MPDCommand> mCommandQueue;
+
     private final ExecutorService mExecutor;
 
     private final InetAddress mHostAddress;
@@ -91,7 +93,7 @@ abstract class MPDConnection {
 
     private boolean mCancelled = false;
 
-    private List<MPDCommand> mCommandQueue;
+    private int mCommandQueueStringLength;
 
     private boolean mIsConnected = false;
 
@@ -106,6 +108,7 @@ abstract class MPDConnection {
         mHostPort = port;
         mHostAddress = server;
         mCommandQueue = new ArrayList<>();
+        mCommandQueueStringLength = MPD_CMD_START_BULK_OK.length() + MPD_CMD_END_BULK.length() + 5;
         mMaxThreads = maxConnections;
         mExecutor = Executors.newFixedThreadPool(mMaxThreads);
         mPassword = password;
@@ -319,6 +322,7 @@ abstract class MPDConnection {
 
     void queueCommand(final MPDCommand command) {
         mCommandQueue.add(command);
+        mCommandQueueStringLength += command.toString().length();
     }
 
     void queueCommand(final String command, final String... args) {
@@ -348,13 +352,24 @@ abstract class MPDConnection {
     }
 
     List<String> sendCommandQueue(final boolean withSeparator) throws MPDServerException {
-        String commandstr = (withSeparator ? MPD_CMD_START_BULK_OK : MPD_CMD_START_BULK) + '\n';
-        for (final MPDCommand command : mCommandQueue) {
-            commandstr += command.toString();
+        final StringBuilder commandString = new StringBuilder(mCommandQueueStringLength);
+
+        if (withSeparator) {
+            commandString.append(MPD_CMD_START_BULK_OK);
+        } else {
+            commandString.append(MPD_CMD_START_BULK);
         }
-        commandstr += MPD_CMD_END_BULK;
-        mCommandQueue = new ArrayList<>();
-        return sendRawCommand(new MPDCommand(commandstr));
+        commandString.append('\n');
+
+        for (final MPDCommand command : mCommandQueue) {
+            commandString.append(command);
+        }
+        commandString.append(MPD_CMD_END_BULK);
+
+        mCommandQueueStringLength = MPD_CMD_START_BULK_OK.length() + MPD_CMD_END_BULK.length() + 5;
+        mCommandQueue.clear();
+
+        return sendRawCommand(new MPDCommand(commandString.toString()));
     }
 
     List<String[]> sendCommandQueueSeparated() throws MPDServerException {
