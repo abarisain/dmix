@@ -892,7 +892,7 @@ public class MPD {
      *
      * @return {@code MPDConnection}.
      */
-    public MPDConnection getMpdConnection() {
+    MPDConnection getMpdConnection() {
         return this.mpdConnection;
     }
 
@@ -910,7 +910,7 @@ public class MPD {
             throw new MPDServerException("MPD Connection is not established");
         }
 
-        int[] version = mpdIdleConnection.getMpdVersion();
+        int[] version = mpdIdleConnection.getMPDVersion();
 
         StringBuffer sb = new StringBuffer(version.length);
         for (int i = 0; i < version.length; i++) {

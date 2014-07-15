@@ -27,8 +27,6 @@
 
 package org.a0z.mpd.exception;
 
-import org.a0z.mpd.MPDConnection;
-
 import android.util.Log;
 
 import java.util.regex.Matcher;
@@ -44,6 +42,8 @@ public class MPDServerException extends MPDException {
     private static final long serialVersionUID = 5986199004785561712L;
 
     private static final String TAG = "MPDServerException";
+
+    private static final String MPD_RESPONSE_ERR = "ACK";
 
     private static final Pattern ACK_CODE_PATTERN = Pattern.compile("([0-9]+)");
 
@@ -97,7 +97,7 @@ public class MPDServerException extends MPDException {
     public ErrorKind getErrorKind() {
         int errorNumber;
         ErrorKind errorKind = ErrorKind.UNKNOWN;
-        if (getMessage() != null && getMessage().startsWith(MPDConnection.MPD_RESPONSE_ERR)) {
+        if (getMessage() != null && getMessage().startsWith(MPD_RESPONSE_ERR)) {
             try {
                 final Matcher matcher = ACK_CODE_PATTERN.matcher(getMessage());
                 if (matcher.find()) {
