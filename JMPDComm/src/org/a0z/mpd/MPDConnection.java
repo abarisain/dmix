@@ -311,6 +311,7 @@ abstract class MPDConnection {
 
     private List<String> processRequest(final MPDCommand command) throws MPDServerException {
         final MPDCommandResult result;
+        final List<String> commandResult;
 
         try {
             // Bypass thread pool queue if the thread already comes from the pool to avoid deadlock.
@@ -322,13 +323,18 @@ abstract class MPDConnection {
         } catch (final ExecutionException | InterruptedException e) {
             throw new MPDServerException(e);
         }
-        if (result.getResult() != null) {
-            return result.getResult();
-        } else if (mCancelled) {
-            throw new MPDConnectionException("The MPD request has been canceled");
-        } else {
+
+        commandResult = result.getResult();
+
+        if (commandResult == null) {
+            if (mCancelled) {
+                throw new MPDConnectionException("The MPD request has been cancelled");
+            }
+
             throw result.getLastException();
         }
+
+        return commandResult;
     }
 
     void queueCommand(final MPDCommand command) {
