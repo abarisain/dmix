@@ -829,6 +829,22 @@ public class MPD {
         return result;
     }
 
+    public InetAddress getHostAddress() throws MPDConnectionException {
+        if (mpdConnection == null) {
+            throw new MPDConnectionException("MPD Connection is null.");
+        }
+
+        return mpdConnection.getHostAddress();
+    }
+
+    public int getHostPort() throws MPDConnectionException {
+        if (mpdConnection == null) {
+            throw new MPDConnectionException("MPD Connection is null.");
+        }
+
+        return mpdConnection.getHostPort();
+    }
+
     protected List<Music> getFirstTrack(Album album) throws MPDServerException {
         Artist artist = album.getArtist();
         String[] args = new String[6];
@@ -1547,6 +1563,23 @@ public class MPD {
                 MPDCommand.MPD_TAG_GENRE);
 
         return parseResponse(response, "Genre", sortInsensitive);
+    }
+
+    /**
+     * Returns a sorted listallinfo command from the media server. Use of this command is highly
+     * discouraged, as it can retrieve so much information the server max_output_buffer_size may
+     * be exceeded, which will, in turn, truncate the output to this method.
+     *
+     * @return List of all available music information.
+     * @throws MPDServerException on no connection or failure to send command.
+     */
+    public List<Music> listAllInfo() throws MPDServerException {
+        if (!isConnected()) {
+            throw new MPDConnectionException("MPD Connection is not established.");
+        }
+
+        final List<String> allInfo = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO);
+        return Music.getMusicFromList(allInfo, false);
     }
 
     public void movePlaylistSong(String playlistName, int from, int to) throws MPDServerException {
