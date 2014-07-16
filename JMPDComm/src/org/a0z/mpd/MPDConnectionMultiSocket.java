@@ -27,8 +27,6 @@
 
 package org.a0z.mpd;
 
-import org.a0z.mpd.exception.MPDServerException;
-
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
@@ -37,46 +35,46 @@ import java.net.Socket;
 /**
  * Class representing a connection to MPD Server.
  */
-public class MPDConnectionMultiSocket extends MPDConnection {
+class MPDConnectionMultiSocket extends MPDConnection {
 
-    private final ThreadLocal<Socket> socket = new ThreadLocal<>();
+    private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
 
-    private final ThreadLocal<InputStreamReader> inputstream = new ThreadLocal<>();
+    private static final ThreadLocal<InputStreamReader> INPUT_STREAM = new ThreadLocal<>();
 
-    private final ThreadLocal<OutputStreamWriter> outputstream = new ThreadLocal<>();
+    private static final ThreadLocal<OutputStreamWriter> OUTPUT_STREAM = new ThreadLocal<>();
 
-    MPDConnectionMultiSocket(InetAddress server, int port, int maxConnection, String password,
-            int readWriteTimeout) throws MPDServerException {
+    MPDConnectionMultiSocket(final InetAddress server, final int port, final int maxConnection,
+            final String password, final int readWriteTimeout) {
         super(server, port, readWriteTimeout, maxConnection, password);
     }
 
     @Override
     public InputStreamReader getInputStream() {
-        return this.inputstream.get();
+        return INPUT_STREAM.get();
+    }
+
+    @Override
+    public void setInputStream(final InputStreamReader inputStream) {
+        INPUT_STREAM.set(inputStream);
     }
 
     @Override
     public OutputStreamWriter getOutputStream() {
-        return this.outputstream.get();
+        return OUTPUT_STREAM.get();
+    }
+
+    @Override
+    public void setOutputStream(final OutputStreamWriter outputStream) {
+        OUTPUT_STREAM.set(outputStream);
     }
 
     @Override
     protected Socket getSocket() {
-        return socket.get();
+        return SOCKET.get();
     }
 
     @Override
-    public void setInputStream(InputStreamReader inputStream) {
-        this.inputstream.set(inputStream);
-    }
-
-    @Override
-    public void setOutputStream(OutputStreamWriter outputStream) {
-        this.outputstream.set(outputStream);
-    }
-
-    @Override
-    protected void setSocket(Socket sock) {
-        socket.set(sock);
+    protected void setSocket(final Socket socket) {
+        SOCKET.set(socket);
     }
 }

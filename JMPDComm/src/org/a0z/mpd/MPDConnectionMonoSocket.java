@@ -37,44 +37,48 @@ import java.net.Socket;
 /**
  * Class representing a connection to MPD Server.
  */
-public class MPDConnectionMonoSocket extends MPDConnection {
+class MPDConnectionMonoSocket extends MPDConnection {
 
-    private Socket socket;
+    private Socket mSocket;
 
-    private InputStreamReader inputStream;
+    private InputStreamReader mInputStream;
 
-    private OutputStreamWriter outputStream;
+    private OutputStreamWriter mOutputStream;
 
-    MPDConnectionMonoSocket(InetAddress server, int port, String password, int readWriteTimeout)
-            throws MPDServerException {
+    MPDConnectionMonoSocket(final InetAddress server, final int port, final String password,
+            final int readWriteTimeout) throws MPDServerException {
         super(server, port, password, readWriteTimeout);
         // connect right away and setup streams
-        this.connect();
+        connect();
     }
 
+    @Override
     public InputStreamReader getInputStream() {
-        return inputStream;
+        return mInputStream;
     }
 
+    @Override
+    public void setInputStream(final InputStreamReader inputStream) {
+        mInputStream = inputStream;
+    }
+
+    @Override
     public OutputStreamWriter getOutputStream() {
-        return outputStream;
+        return mOutputStream;
+    }
+
+    @Override
+    public void setOutputStream(final OutputStreamWriter outputStream) {
+        mOutputStream = outputStream;
     }
 
     @Override
     protected Socket getSocket() {
-        return socket;
-    }
-
-    public void setInputStream(InputStreamReader inputStream) {
-        this.inputStream = inputStream;
-    }
-
-    public void setOutputStream(OutputStreamWriter outputStream) {
-        this.outputStream = outputStream;
+        return mSocket;
     }
 
     @Override
-    protected void setSocket(Socket socket) {
-        this.socket = socket;
+    protected void setSocket(final Socket socket) {
+        mSocket = socket;
     }
 }
