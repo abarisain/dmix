@@ -144,7 +144,7 @@ abstract class MPDConnection {
         return result;
     }
 
-    final int[] connect() throws MPDServerException {
+    final void connect() throws MPDServerException {
         int[] result = null;
         int retry = 0;
         MPDServerException lastException = null;
@@ -164,16 +164,14 @@ abstract class MPDConnection {
             retry++;
         }
 
-        if (result != null) {
-            mIsConnected = true;
-            mMPDVersion = result;
-            return result;
-        } else {
+        if (result == null) {
             if (lastException == null) {
                 lastException = new MPDServerException("Connection request cancelled.");
             }
             throw new MPDServerException(lastException);
         }
+        mIsConnected = true;
+        mMPDVersion = result;
     }
 
     void disconnect() throws MPDConnectionException {
