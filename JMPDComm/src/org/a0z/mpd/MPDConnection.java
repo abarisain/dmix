@@ -592,19 +592,23 @@ abstract class MPDConnection {
         }
 
         private void refreshAllConnections() {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < mMaxThreads; i++) {
-                        try {
-                            processRequest(new MPDCommand(MPDCommand.MPD_CMD_PING));
-                        } catch (final MPDServerException e) {
-                            Log.w(TAG, "All connection refresh failure.", e);
-                        }
+            new Thread(mPingAllConnections).start();
+        }
+
+        private final Runnable mPingAllConnections = new Runnable() {
+            @Override
+            public void run() {
+                final MPDCommand ping = new MPDCommand(MPDCommand.MPD_CMD_PING);
+
+                for (int i = 0; i < mMaxThreads; i++) {
+                    try {
+                        processRequest(ping);
+                    } catch (final MPDServerException e) {
+                        Log.w(TAG, "All connection refresh failure.", e);
                     }
                 }
-            }).start();
-        }
+            }
+        };
 
         private void writeToServer(final MPDCommand command) throws IOException {
             final String cmdString = command.toString();
@@ -614,5 +618,7 @@ abstract class MPDConnection {
             getOutputStream().flush();
             command.setSentToServer(true);
         }
+
+
     }
 }
