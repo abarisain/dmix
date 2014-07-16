@@ -166,9 +166,10 @@ abstract class MPDConnection {
 
         if (result == null) {
             if (lastException == null) {
-                lastException = new MPDServerException("Connection request cancelled.");
+                throw new MPDServerException("Connection request cancelled.");
+            } else {
+                throw new MPDServerException(lastException);
             }
-            throw new MPDServerException(lastException);
         }
         mIsConnected = true;
         mMPDVersion = result;
