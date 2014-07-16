@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 /**
  * Class representing a connection to MPD Server.
@@ -76,6 +77,8 @@ abstract class MPDConnection {
     private static final int MAX_CONNECT_RETRY = 3;
 
     private static final int MAX_REQUEST_RETRY = 3;
+
+    private static final Pattern PERIOD_DELIMITER = Pattern.compile("\\.");
 
     private final List<MPDCommand> mCommandQueue;
 
@@ -222,9 +225,8 @@ abstract class MPDConnection {
             if (line == null) {
                 throw new MPDServerException("No response from server");
             } else if (line.startsWith(MPD_RESPONSE_OK)) {
-                final String[] tmp = line
-                        .substring((MPD_RESPONSE_OK + " MPD ").length(), line.length())
-                        .split("\\.");
+                final String response = line.substring((MPD_RESPONSE_OK + " MPD ").length());
+                final String[] tmp = PERIOD_DELIMITER.split(response);
                 final int[] result = new int[tmp.length];
 
                 for (int i = 0; i < tmp.length; i++) {
