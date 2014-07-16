@@ -193,7 +193,7 @@ abstract class MPDConnection {
     protected abstract void setInputStream(InputStreamReader inputStream);
 
     int[] getMPDVersion() {
-        return mMPDVersion;
+        return mMPDVersion.clone();
     }
 
     protected abstract OutputStreamWriter getOutputStream();
@@ -422,11 +422,17 @@ abstract class MPDConnection {
         }
 
         final List<String> getResult() {
+            /** No need, we already made the collection immutable on the way in. */
+            //noinspection ReturnOfCollectionOrArrayField
             return mResult;
         }
 
         final void setResult(final List<String> result) {
-            mResult = result;
+            if (result == null) {
+                mResult = null;
+            } else {
+                mResult = Collections.unmodifiableList(result);
+            }
         }
     }
 
