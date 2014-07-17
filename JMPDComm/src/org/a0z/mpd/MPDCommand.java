@@ -35,8 +35,6 @@ import java.util.regex.Pattern;
 
 public class MPDCommand {
 
-    private static final boolean DEBUG = false;
-
     public static final int MIN_VOLUME = 0;
 
     public static final int MAX_VOLUME = 100;
@@ -115,10 +113,8 @@ public class MPDCommand {
 
     public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
 
-    public static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,
+    private static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,
             MPD_CMD_PREV, MPD_CMD_PLAYLIST_ADD, MPD_CMD_PLAYLIST_MOVE, MPD_CMD_PLAYLIST_DEL);
-
-    private boolean sentToServer = false;
 
     public static final String MPD_CMD_IDLE = "idle";
 
@@ -154,51 +150,59 @@ public class MPDCommand {
 
     public static final String MPD_TAG_GENRE = "genre";
 
-    public static boolean isRetryable(String command) {
-        return !NON_RETRYABLE_COMMANDS.contains(command);
-    }
+    private static final String TAG = "MPDCommand";
 
-    String command = null;
-
-    String[] args = null;
-
-    private boolean synchronous = true;
-
-    public MPDCommand(String _command, String... _args) {
-        this.command = _command;
-        this.args = _args;
-    }
-
-    public MPDCommand(String command, String[] args, boolean synchronous) {
-        this.command = command;
-        this.args = args;
-        this.synchronous = synchronous;
-    }
-
-    public boolean isSentToServer() {
-        return sentToServer;
-    }
-
-    public boolean isSynchronous() {
-        return synchronous;
-    }
-
-    public void setSentToServer(boolean sentToServer) {
-        this.sentToServer = sentToServer;
-    }
-
-    public void setSynchronous(boolean synchronous) {
-        this.synchronous = synchronous;
-    }
+    private static final boolean DEBUG = false;
 
     private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
 
+    String mCommand = null;
+
+    String[] mArgs = null;
+
+    private boolean mSentToServer = false;
+
+    private boolean mSynchronous = true;
+
+    public MPDCommand(final String command, final String... args) {
+        super();
+        mCommand = command;
+        mArgs = args.clone();
+    }
+
+    public MPDCommand(final String command, final String[] args, final boolean synchronous) {
+        super();
+        mCommand = command;
+        mArgs = args.clone();
+        mSynchronous = synchronous;
+    }
+
+    public static boolean isRetryable(final String command) {
+        return !NON_RETRYABLE_COMMANDS.contains(command);
+    }
+
+    public boolean isSentToServer() {
+        return mSentToServer;
+    }
+
+    public void setSentToServer(final boolean sentToServer) {
+        mSentToServer = sentToServer;
+    }
+
+    public boolean isSynchronous() {
+        return mSynchronous;
+    }
+
+    public void setSynchronous(final boolean synchronous) {
+        mSynchronous = synchronous;
+    }
+
     public String toString() {
-        final int argsLength = args.toString().length();
-        final int approximateLength = argsLength + argsLength * (command.length() + 10);
-        final StringBuffer outBuf = new StringBuffer(approximateLength);
-        outBuf.append(command);
-        for (String arg : args) {
+        final int argsLength = Arrays.toString(mArgs).length();
+        final int approximateLength = argsLength + argsLength * (mCommand.length() + 10);
+        final StringBuilder outBuf = new StringBuilder(approximateLength);
+        outBuf.append(mCommand);
+        for (String arg : mArgs) {
             if (arg == null) {
                 continue;
             }
@@ -210,8 +214,13 @@ public class MPDCommand {
         outBuf.append('\n');
         final String outString = outBuf.toString();
         if (DEBUG) {
-            Log.d("JMPDComm", "Mpd command : "
-                    + (outString.startsWith("password ") ? "password **censored**" : outString));
+            final String safeCommand;
+            if (outString.startsWith(MPD_CMD_PASSWORD)) {
+                safeCommand = "password **censored**";
+            } else {
+                safeCommand = outString;
+            }
+            Log.d("JMPDComm", "MPD command : " + safeCommand);
         }
         return outString;
     }

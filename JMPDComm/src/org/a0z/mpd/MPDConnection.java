@@ -441,7 +441,7 @@ abstract class MPDConnection {
         private int mRetry = 0;
 
         MPDCallable(final MPDCommand mpdCommand) {
-            super(mpdCommand.command, mpdCommand.args, mpdCommand.isSynchronous());
+            super(mpdCommand.mCommand, mpdCommand.mArgs, mpdCommand.isSynchronous());
         }
 
         @Override
@@ -467,7 +467,7 @@ abstract class MPDConnection {
                     mIsConnected = false;
                     setSentToServer(false);
                     handleConnectionFailure(result, ex0);
-                    if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
+                    if (mCommand.equals(MPDCommand.MPD_CMD_IDLE)) {
                         result.setResult(Collections.singletonList("changed: playlist"));
                     }
                 } catch (final MPDServerException ex1) {
@@ -479,7 +479,7 @@ abstract class MPDConnection {
                         handleConnectionFailure(result, ex1);
                     }
                 }
-                retryable = isRetryable(command) || !isSentToServer();
+                retryable = isRetryable(mCommand) || !isSentToServer();
                 mRetry++;
             }
 
@@ -489,7 +489,7 @@ abstract class MPDConnection {
                     result.setLastException(new MPDConnectionException(
                             "MPD request has been cancelled for disconnection."));
                 }
-                Log.e(TAG, "MPD command " + command + " failed after " + mRetry + " attempts.",
+                Log.e(TAG, "MPD command " + mCommand + " failed after " + mRetry + " attempts.",
                         result.getLastException());
             } else {
                 mIsConnected = true;
@@ -553,7 +553,7 @@ abstract class MPDConnection {
             try {
                 result = readFromServer();
             } catch (final MPDConnectionException e) {
-                if (!command.command.equals(MPDCommand.MPD_CMD_CLOSE)) {
+                if (!command.mCommand.equals(MPDCommand.MPD_CMD_CLOSE)) {
                     throw e;
                 }
             } catch (final IOException e) {
