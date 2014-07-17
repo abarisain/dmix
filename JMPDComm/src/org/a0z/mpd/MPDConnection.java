@@ -145,7 +145,6 @@ abstract class MPDConnection {
     }
 
     final int[] connect() throws MPDServerException {
-
         int[] result = null;
         int retry = 0;
         MPDServerException lastException = null;
@@ -207,6 +206,8 @@ abstract class MPDConnection {
     protected abstract void setSocket(Socket socket);
 
     private int[] innerConnect() throws MPDServerException {
+        final int[] result;
+        final String line;
 
         // Always release existing socket if any before creating a new one
         if (getSocket() != null) {
@@ -215,54 +216,63 @@ abstract class MPDConnection {
             } catch (final MPDServerException ignored) {
             }
         }
+
         try {
             setSocket(new Socket());
             getSocket().setSoTimeout(mReadWriteTimeout);
             getSocket().connect(new InetSocketAddress(mHostAddress, mHostPort), CONNECTION_TIMEOUT);
             final BufferedReader in = new BufferedReader(new InputStreamReader(getSocket()
                     .getInputStream()), DEFAULT_BUFFER_SIZE);
-            final String line = in.readLine();
-
-            if (line == null) {
-                throw new MPDServerException("No response from server.");
-            } else if (line.startsWith(MPD_RESPONSE_OK)) {
-                final String response = line.substring((MPD_RESPONSE_OK + " MPD ").length());
-                final String[] tmp = PERIOD_DELIMITER.split(response);
-                final int[] result = new int[tmp.length];
-
-                for (int i = 0; i < tmp.length; i++) {
-                    result[i] = Integer.parseInt(tmp[i]);
-                }
-
-                // Use UTF-8 when needed
-                if (result[0] > 0 || result[1] >= 10) {
-                    setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
-                    setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
-                } else {
-                    setOutputStream(new OutputStreamWriter(getSocket().getOutputStream()));
-                    setInputStream(new InputStreamReader(getSocket().getInputStream()));
-                }
-
-                // MPD 0.19 supports album grouping
-                if (result[0] > 0 || result[1] >= 19) {
-                    mIsAlbumGroupingSupported = true;
-                } else {
-                    mIsAlbumGroupingSupported = false;
-                }
-
-                if (mPassword != null) {
-                    password(mPassword);
-                }
-                return result;
-            } else if (line.startsWith(MPD_RESPONSE_ERR)) {
-                throw new MPDServerException(line);
-            } else {
-                throw new MPDServerException("Bogus response from server.");
-            }
-
+            line = in.readLine();
         } catch (final IOException e) {
             throw new MPDConnectionException(e);
         }
+
+        if (line == null) {
+            throw new MPDServerException("No response from server.");
+        }
+
+        if (line.startsWith(MPD_RESPONSE_ERR)) {
+            throw new MPDServerException(line);
+        }
+
+        if (!line.startsWith(MPD_RESPONSE_OK)) {
+            throw new MPDServerException("Bogus response from server.");
+        }
+
+        final String response = line.substring((MPD_RESPONSE_OK + " MPD ").length());
+        final String[] tmp = PERIOD_DELIMITER.split(response);
+        result = new int[tmp.length];
+
+        for (int i = 0; i < tmp.length; i++) {
+            result[i] = Integer.parseInt(tmp[i]);
+        }
+
+        try {
+            // Use UTF-8 when needed
+            if (result[0] > 0 || result[1] >= 10) {
+                setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
+                setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
+            } else {
+                setOutputStream(new OutputStreamWriter(getSocket().getOutputStream()));
+                setInputStream(new InputStreamReader(getSocket().getInputStream()));
+            }
+        } catch (final IOException e) {
+            throw new MPDConnectionException(e);
+        }
+
+        // MPD 0.19 supports album grouping
+        if (result[0] > 0 || result[1] >= 19) {
+            mIsAlbumGroupingSupported = true;
+        } else {
+            mIsAlbumGroupingSupported = false;
+        }
+
+        if (mPassword != null) {
+            password(mPassword);
+        }
+
+        return result;
     }
 
     private void innerDisconnect() throws MPDConnectionException {
