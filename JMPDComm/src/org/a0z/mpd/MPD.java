@@ -1096,6 +1096,10 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatistics getStatistics() throws MPDServerException {
+        if (!isConnected()) {
+            throw new MPDConnectionException("MPD Connection is not established");
+        }
+
         List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
         return new MPDStatistics(response);
     }
