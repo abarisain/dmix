@@ -93,7 +93,6 @@ public class ActionFireReceiver extends BroadcastReceiver {
                         }
                     }
                     MPDControl.run(action, volume);
-                    System.exit(0);
                     break;
             }
         }
