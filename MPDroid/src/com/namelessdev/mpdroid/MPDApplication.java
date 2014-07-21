@@ -35,6 +35,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -239,8 +240,8 @@ public class MPDApplication extends Application implements ConnectionListener {
         // dismiss possible dialog
         dismissAlertDialog();
 
-        // show connecting to server dialog
-        if (mCurrentActivity != null) {
+        // show connecting to server dialog, only on the main thread.
+        if (mCurrentActivity != null && Looper.myLooper().equals(Looper.getMainLooper())) {
             mAlertDialog = new ProgressDialog(mCurrentActivity);
             mAlertDialog.setTitle(R.string.connecting);
             mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
