@@ -432,6 +432,7 @@ public final class MPDroidService extends Service implements
                             MPDControl.run(MPD_ASYNC_HELPER.oMPD, MPDControl.ACTION_PAUSE);
                         }
                         break;
+                    case Intent.ACTION_BOOT_COMPLETED:
                     case NotificationHandler.ACTION_START:
                         startNotification();
                         break;

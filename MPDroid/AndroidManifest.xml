@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Used to start the service upon boot if the service requires persistence. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Required for JmDNS to see services available on the network -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <!-- Cover art cache -->
@@ -105,6 +107,7 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver">

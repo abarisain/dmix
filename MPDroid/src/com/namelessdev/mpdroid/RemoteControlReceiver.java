@@ -105,6 +105,11 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                         redirectIntentToService(false, intent);
                     }
                     break;
+                case Intent.ACTION_BOOT_COMPLETED:
+                    if (sApp.isNotificationPersistent()) {
+                        redirectIntentToService(true, intent);
+                    }
+                    break;
                 case MPDroidService.ACTION_STOP:
                 case NotificationHandler.ACTION_START:
                 case StreamHandler.ACTION_START:
