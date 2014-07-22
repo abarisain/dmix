@@ -93,6 +93,8 @@ abstract class MPDConnection {
 
     private List<MPDCommand> mCommandQueue;
 
+    private boolean mIsConnected = false;
+
     private int[] mMPDVersion = null;
 
     private String mPassword = null;
@@ -157,6 +159,7 @@ abstract class MPDConnection {
         }
 
         if (result != null) {
+            mIsConnected = true;
             mMPDVersion = result;
             return result;
         } else {
@@ -257,6 +260,7 @@ abstract class MPDConnection {
     }
 
     private void innerDisconnect() throws MPDConnectionException {
+        mIsConnected = false;
         if (isInnerConnected()) {
             try {
                 getSocket().close();
@@ -276,7 +280,7 @@ abstract class MPDConnection {
     }
 
     boolean isConnected() {
-        return !mCancelled;
+        return mIsConnected;
     }
 
     /**
@@ -422,12 +426,14 @@ abstract class MPDConnection {
                     // failure robustness). Just send the "changed playlist" result to force the MPD
                     // status to be refreshed.
                 } catch (final MPDNoResponseException ex0) {
+                    mIsConnected = false;
                     setSentToServer(false);
                     handleConnectionFailure(result, ex0);
                     if (command.equals(MPDCommand.MPD_CMD_IDLE)) {
                         result.setResult(Collections.singletonList("changed: playlist"));
                     }
                 } catch (final MPDServerException ex1) {
+                    mIsConnected = false;
                     // Avoid getting in an infinite loop if an error occurred in the password cmd
                     if (ex1.getErrorKind() == MPDServerException.ErrorKind.PASSWORD) {
                         result.setLastException(new MPDServerException("Wrong password"));
@@ -441,11 +447,14 @@ abstract class MPDConnection {
 
             if (result.getResult() == null) {
                 if (mCancelled) {
+                    mIsConnected = false;
                     result.setLastException(new MPDConnectionException(
                             "MPD request has been cancelled for disconnection"));
                 }
                 Log.e(TAG, "MPD command " + command + " failed after " + mRetry + " attempts : "
                         + result.getLastException().getMessage());
+            } else {
+                mIsConnected = true;
             }
             return result;
         }
@@ -490,7 +499,7 @@ abstract class MPDConnection {
         private List<String> innerSyncedWriteRead(final MPDCommand command)
                 throws MPDServerException {
             List<String> result = new ArrayList<>();
-            if (!isConnected()) {
+            if (mCancelled) {
                 throw new MPDConnectionException("No connection to server");
             }
 
