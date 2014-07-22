@@ -45,7 +45,7 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final int EVENT_CONNECT = LOCAL_UID + 1;
 
-    static final int EVENT_CONNECTION_CHANGED = LOCAL_UID + 2;
+    static final int EVENT_CONNECTION_CONFIG = LOCAL_UID + 2;
 
     static final int EVENT_DISCONNECT = LOCAL_UID + 3;
 
@@ -121,7 +121,7 @@ public class MPDAsyncWorker implements Handler.Callback,
                 reconnect();
                 break;
             case EVENT_STARTMONITOR:
-                startMonitor();
+                startStatusMonitor();
                 break;
             case EVENT_STOPMONITOR:
                 stopMonitor();
@@ -189,7 +189,7 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
 
         if (isMonitorAlive) {
-            startMonitor();
+            startStatusMonitor();
         }
     }
 
@@ -207,7 +207,7 @@ public class MPDAsyncWorker implements Handler.Callback,
         } else if (connectionInfo.serverInfoChanged || connectionInfo.streamingServerInfoChanged
                 || connectionInfo.wasNotificationPersistent !=
                 connectionInfo.isNotificationPersistent) {
-            mHelperHandler.obtainMessage(EVENT_CONNECTION_CHANGED, mConInfo).sendToTarget();
+            mHelperHandler.obtainMessage(EVENT_CONNECTION_CONFIG, mConInfo).sendToTarget();
             mConInfo = connectionInfo;
 
             if (mConInfo.serverInfoChanged) {
@@ -219,7 +219,7 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
     }
 
-    private void startMonitor() {
+    private void startStatusMonitor() {
         mStatusMonitor = new MPDStatusMonitor(mMPD, 500L);
         mStatusMonitor.addStatusChangeListener(this);
         mStatusMonitor.addTrackPositionListener(this);

@@ -53,8 +53,9 @@ import java.util.List;
  */
 public final class MPDroidService extends Service implements
         AlbumCoverHandler.Callback,
-        MPDAsyncHelper.ConnectionInfoListener,
         AudioManager.OnAudioFocusChangeListener,
+        MPDAsyncHelper.ConnectionInfoListener,
+        MPDAsyncHelper.NetworkMonitorListener,
         StatusChangeListener {
 
     /** This is the class unique Binder identifier. */
@@ -185,11 +186,9 @@ public final class MPDroidService extends Service implements
             Log.d(TAG, "connectionStateChanged(" + connected + ", " + connectionLost + ')');
         }
 
+        final MPDStatus mpdStatus = getMPDStatus();
         if (connected) {
-            final MPDStatus mpdStatus = getMPDStatus();
-            if (hasActiveHandlers()) {
-                stateChanged(mpdStatus, MPDStatus.MPD_STATE_UNKNOWN);
-            }
+            stateChanged(mpdStatus, MPDStatus.MPD_STATE_UNKNOWN);
         } else {
             final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
 
@@ -229,11 +228,16 @@ public final class MPDroidService extends Service implements
             MPD_ASYNC_HELPER.connect();
         }
 
-        if (!MPD_ASYNC_HELPER.isMonitorAlive()) {
-            MPD_ASYNC_HELPER.startMonitor();
+        if (!MPD_ASYNC_HELPER.isStatusMonitorAlive()) {
+            MPD_ASYNC_HELPER.startStatusMonitor();
+        }
+
+        if (!MPD_ASYNC_HELPER.isNetworkMonitorAlive()) {
+            MPD_ASYNC_HELPER.startNetworkMonitor(this);
         }
 
         MPD_ASYNC_HELPER.addStatusChangeListener(this);
+        MPD_ASYNC_HELPER.addNetworkMonitorListener(this);
         /**
          * From here, upon successful connection, it will go from connectionStateChanged to
          * stateChanged() where handlers will be started as required.
@@ -374,6 +378,21 @@ public final class MPDroidService extends Service implements
         windDownHandlers(false);
 
         mHandler.removeCallbacksAndMessages(null);
+    }
+
+    /**
+     * This method is called when a network has connected that matches the MPD server settings.
+     */
+    @Override
+    public void onNetworkConnect() {
+        if (DEBUG) {
+            Log.d(TAG, "onNetworkConnect");
+        }
+        if (isNotificationPersistent()) {
+            windDownHandlers(false);
+            mIsNotificationStarted = false;
+            startNotification();
+        }
     }
 
     /**
@@ -732,7 +751,8 @@ public final class MPDroidService extends Service implements
                  * Don't remove the status change listener here. It
                  * causes a bug with the weak linked list, somehow.
                  */
-                MPD_ASYNC_HELPER.stopMonitor();
+                MPD_ASYNC_HELPER.stopStatusMonitor();
+                MPD_ASYNC_HELPER.stopNetworkMonitor(this);
                 MPD_ASYNC_HELPER.disconnect();
             }
         }

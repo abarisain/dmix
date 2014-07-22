@@ -122,8 +122,8 @@ public class MPDApplication extends Application implements
         if (mConnectionLocks.isEmpty()) {
             disconnect();
         } else {
-            if (!oMPDAsyncHelper.isMonitorAlive()) {
-                oMPDAsyncHelper.startMonitor();
+            if (!oMPDAsyncHelper.isStatusMonitorAlive()) {
+                oMPDAsyncHelper.startStatusMonitor();
             }
             if (!oMPDAsyncHelper.oMPD.isConnected() && (mCurrentActivity == null
                     || !mCurrentActivity.getClass().equals(WifiConnectionSettings.class))) {
@@ -481,7 +481,7 @@ public class MPDApplication extends Application implements
             @Override
             public void run() {
                 Log.w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
-                oMPDAsyncHelper.stopMonitor();
+                oMPDAsyncHelper.stopStatusMonitor();
                 oMPDAsyncHelper.disconnect();
             }
         }, DISCONNECT_TIMER);
