@@ -79,7 +79,7 @@ import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
 
 /**
  */
-public class CoverManager {
+public final class CoverManager {
 
     public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
 
@@ -91,11 +91,11 @@ public class CoverManager {
 
     public static final boolean DEBUG = false;
 
-    public static final int MAX_REQUESTS = 20;
+    private static final int MAX_REQUESTS = 20;
 
-    public static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";
+    private static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";
 
-    public static final String COVERS_FILE_NAME = "covers.bin";
+    private static final String COVERS_FILE_NAME = "covers.bin";
 
     private static final String TAG = "CoverManager";
 
@@ -110,71 +110,72 @@ public class CoverManager {
     private static final Pattern BLOCK_IN_COMBINING_DIACRITICAL_MARKS =
             Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
-    private static CoverManager instance = null;
+    private static CoverManager sInstance = null;
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private static MPDApplication sApp = MPDApplication.getInstance();
 
-    private SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+    private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(sApp);
 
-    private BlockingDeque<CoverInfo> requests = new LinkedBlockingDeque<CoverInfo>();
+    private final BlockingDeque<CoverInfo> mRequests = new LinkedBlockingDeque<>();
 
-    private List<CoverInfo> runningRequests = Collections
+    private final List<CoverInfo> mRunningRequests = Collections
             .synchronizedList(new ArrayList<CoverInfo>());
 
-    private ExecutorService requestExecutor = Executors.newFixedThreadPool(1);
+    private final ExecutorService mRequestExecutor = Executors.newFixedThreadPool(1);
 
-    private ThreadPoolExecutor coverFetchExecutor = getCoverFetchExecutor();
+    private final ThreadPoolExecutor mCoverFetchExecutor = getCoverFetchExecutor();
 
-    private ExecutorService priorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
+    private final ExecutorService mPriorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
 
-    private ExecutorService cacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
+    private final ExecutorService mCacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
 
-    private ExecutorService createBitmapExecutor = cacheCoverFetchExecutor;
+    private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
 
-    private MultiMap<CoverInfo, CoverDownloadListener> helpersByCoverInfo
-            = new MultiMap<CoverInfo, CoverDownloadListener>();
+    private final MultiMap<CoverInfo, CoverDownloadListener> mHelpersByCoverInfo
+            = new MultiMap<>();
 
-    private ICoverRetriever[] coverRetrievers = null;
+    private ICoverRetriever[] mCoverRetrievers = null;
 
-    private boolean active = true;
+    private boolean mActive = true;
 
-    private MultiMap<String, String> wrongCoverUrlMap = null;
+    private MultiMap<String, String> mWrongCoverUrlMap = null;
 
-    private Map<String, String> coverUrlMap = null;
+    private Map<String, String> mCoverUrlMap = null;
 
-    private Set<String> notFoundAlbumKeys;
+    private Set<String> mNotFoundAlbumKeys;
 
     private CoverManager() {
-        requestExecutor.submit(new RequestProcessorTask());
-        this.setCoverRetrieversFromPreferences();
+        super();
+        mRequestExecutor.submit(new RequestProcessorTask());
+        setCoverRetrieversFromPreferences();
         initializeCoverData();
     }
 
     private static ThreadPoolExecutor getCoverFetchExecutor() {
-        return new ThreadPoolExecutor(2, 2, 0, TimeUnit.SECONDS,
+        return new ThreadPoolExecutor(2, 2, 0L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>());
     }
 
-    public static String getCoverFileName(AlbumInfo albumInfo) {
+    public static String getCoverFileName(final AlbumInfo albumInfo) {
         return albumInfo.getKey() + ".jpg";
     }
 
-    public synchronized static CoverManager getInstance() {
-        if (instance == null) {
-            instance = new CoverManager();
+    public static synchronized CoverManager getInstance() {
+        if (sInstance == null) {
+            sInstance = new CoverManager();
         }
-        return instance;
+        return sInstance;
     }
 
     /**
      * This method cleans and builds a proper URL object from a string.
      *
-     * @param _request This is the URL in string form.
+     * @param incomingRequest This is the URL in string form.
      * @return A URL Object
      */
-    public static URL buildURLForConnection(final String _request) {
+    public static URL buildURLForConnection(final String incomingRequest) {
         URL url = null;
-        String request = StringUtils.trim(_request);
+        String request = StringUtils.trim(incomingRequest);
 
         if (isEmpty(request)) {
             return null;
@@ -196,7 +197,7 @@ public class CoverManager {
      * @param url The URL object used to create the connection.
      * @return The connection which is returned; ensure this resource is disconnected after use.
      */
-    public static HttpURLConnection getHttpConnection(URL url) {
+    public static HttpURLConnection getHttpConnection(final URL url) {
         HttpURLConnection connection = null;
 
         if (url == null) {
@@ -228,7 +229,7 @@ public class CoverManager {
      * @param connection An HttpURLConnection object.
      * @return True if the URL exists, false otherwise.
      */
-    public static boolean urlExists(HttpURLConnection connection) {
+    public static boolean urlExists(final HttpURLConnection connection) {
         int statusCode = 0;
 
         if (connection == null) {
@@ -254,23 +255,23 @@ public class CoverManager {
      * @param statusCode An HttpURLConnection object.
      * @return True if the URL exists, false otherwise.
      */
-    public static boolean urlExists(int statusCode) {
-        final int TEMPORARY_REDIRECT = 307; /** No constant for 307 exists */
+    public static boolean urlExists(final int statusCode) {
+        final int temporaryRedirect = 307; /** No constant for 307 exists */
 
-        return ((statusCode == HttpURLConnection.HTTP_OK ||
-                statusCode == TEMPORARY_REDIRECT ||
-                statusCode == HttpURLConnection.HTTP_MOVED_TEMP));
+        return statusCode == HttpURLConnection.HTTP_OK ||
+                statusCode == temporaryRedirect ||
+                statusCode == HttpURLConnection.HTTP_MOVED_TEMP;
     }
 
-    public void addCoverRequest(CoverInfo coverInfo) {
+    public void addCoverRequest(final CoverInfo coverInfo) {
         if (DEBUG) {
             Log.d(TAG, "Looking for cover with artist=" + coverInfo.getArtist() + ", album="
                     + coverInfo.getAlbum());
         }
-        this.requests.add(coverInfo);
+        mRequests.add(coverInfo);
     }
 
-    protected String cleanGetRequest(final CharSequence text) {
+    String cleanGetRequest(final CharSequence text) {
         String processedText = null;
 
         if (text != null) {
@@ -286,28 +287,28 @@ public class CoverManager {
     }
 
     public void clear() {
-        CachedCover cachedCover = getCacheRetriever();
+        final CachedCover cachedCover = getCacheRetriever();
         if (cachedCover != null) {
             cachedCover.clear();
         }
         initializeCoverData();
     }
 
-    public void clear(AlbumInfo albumInfo) {
+    public void clear(final AlbumInfo albumInfo) {
 
-        CachedCover cachedCover = getCacheRetriever();
+        final CachedCover cachedCover = getCacheRetriever();
         if (cachedCover != null) {
             cachedCover.delete(albumInfo);
         }
-        coverUrlMap.remove(albumInfo);
-        wrongCoverUrlMap.remove(albumInfo.getKey());
-        notFoundAlbumKeys.remove(albumInfo.getKey());
+        mCoverUrlMap.remove(albumInfo);
+        mWrongCoverUrlMap.remove(albumInfo.getKey());
+        mNotFoundAlbumKeys.remove(albumInfo.getKey());
     }
 
-    private byte[] download(String textUrl) {
+    private byte[] download(final String textUrl) {
 
-        URL url = buildURLForConnection(textUrl);
-        HttpURLConnection connection = getHttpConnection(url);
+        final URL url = buildURLForConnection(textUrl);
+        final HttpURLConnection connection = getHttpConnection(url);
         BufferedInputStream bis = null;
         ByteArrayOutputStream baos = null;
         byte[] buffer = null;
@@ -358,12 +359,12 @@ public class CoverManager {
     @Override
     protected void finalize() throws Throwable {
         stopExecutors();
-        instance = null;
+        sInstance = null;
         super.finalize();
     }
 
     private CachedCover getCacheRetriever() {
-        for (ICoverRetriever retriever : coverRetrievers) {
+        for (final ICoverRetriever retriever : mCoverRetrievers) {
             if (retriever != null && retriever.isCoverLocal() && retriever instanceof CachedCover) {
                 return (CachedCover) retriever;
             }
@@ -371,11 +372,11 @@ public class CoverManager {
         return null;
     }
 
-    private byte[] getCoverBytes(String[] coverUrls, CoverInfo coverInfo) {
+    private byte[] getCoverBytes(final String[] coverUrls, final CoverInfo coverInfo) {
 
         byte[] coverBytes = null;
 
-        for (String url : coverUrls) {
+        for (final String url : coverUrls) {
 
             try {
                 if (DEBUG) {
@@ -404,20 +405,20 @@ public class CoverManager {
         return coverBytes;
     }
 
-    public String getCoverFolder() {
-        final File cacheDir = app.getExternalCacheDir();
+    String getCoverFolder() {
+        final File cacheDir = sApp.getExternalCacheDir();
         if (cacheDir == null) {
             return null;
         }
         return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
     }
 
-    private CoverInfo getExistingRequest(CoverInfo coverInfo) {
-        return runningRequests.get(runningRequests.indexOf(coverInfo));
+    private CoverInfo getExistingRequest(final CoverInfo coverInfo) {
+        return mRunningRequests.get(mRunningRequests.indexOf(coverInfo));
     }
 
-    public AlbumInfo getNormalizedAlbumInfo(AlbumInfo albumInfo) throws Exception {
-        AlbumInfo normalizedAlbumInfo = new AlbumInfo(albumInfo);
+    AlbumInfo getNormalizedAlbumInfo(final AlbumInfo albumInfo) {
+        final AlbumInfo normalizedAlbumInfo = new AlbumInfo(albumInfo);
         normalizedAlbumInfo.setAlbum(cleanGetRequest(normalizedAlbumInfo.getAlbum()));
         normalizedAlbumInfo.setAlbum(removeDiscReference(normalizedAlbumInfo.getAlbum()));
         normalizedAlbumInfo.setArtist(cleanGetRequest(normalizedAlbumInfo.getArtist()));
@@ -425,31 +426,31 @@ public class CoverManager {
     }
 
     private void initializeCoverData() {
-        wrongCoverUrlMap = loadWrongCovers();
-        coverUrlMap = loadCovers();
-        notFoundAlbumKeys = new HashSet<String>();
+        mWrongCoverUrlMap = loadWrongCovers();
+        mCoverUrlMap = loadCovers();
+        mNotFoundAlbumKeys = new HashSet<>();
     }
 
     // The gracenote URLs change at every request. We match for this provider on
     // the URL prefix only.
-    private boolean isBlacklistedCoverUrl(String url, String albumKey) {
-        if (!url.contains(GracenoteCover.URL_PREFIX)) {
-            return wrongCoverUrlMap.get(albumKey).contains(url);
-        } else {
-            for (String wrongUrl : wrongCoverUrlMap.get(albumKey)) {
+    private boolean isBlacklistedCoverUrl(final String url, final String albumKey) {
+        if (url.contains(GracenoteCover.URL_PREFIX)) {
+            for (final String wrongUrl : mWrongCoverUrlMap.get(albumKey)) {
                 if (wrongUrl.contains(GracenoteCover.URL_PREFIX)) {
                     return true;
                 }
             }
             return false;
+        } else {
+            return mWrongCoverUrlMap.get(albumKey).contains(url);
         }
     }
 
-    private boolean isLastCoverRetriever(ICoverRetriever retriever) {
+    private boolean isLastCoverRetriever(final ICoverRetriever retriever) {
 
-        for (int r = 0; r < coverRetrievers.length; r++) {
-            if (coverRetrievers[r] == retriever) {
-                if (r < coverRetrievers.length - 1) {
+        for (int r = 0; r < mCoverRetrievers.length; r++) {
+            if (mCoverRetrievers[r].equals(retriever)) {
+                if (r < mCoverRetrievers.length - 1) {
                     return false;
                 }
             }
@@ -460,11 +461,11 @@ public class CoverManager {
     /**
      * Checks if device connected or connecting to wifi network
      */
-    public boolean isWifi() {
-        ConnectivityManager conMan = (ConnectivityManager) app
+    boolean isWifi() {
+        final ConnectivityManager conMan = (ConnectivityManager) sApp
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         // Get status of wifi connection
-        NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState();
+        final NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState();
 
         return (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING);
     }
@@ -474,12 +475,12 @@ public class CoverManager {
         ObjectInputStream objectInputStream = null;
 
         try {
-            File file = new File(getCoverFolder(), COVERS_FILE_NAME);
+            final File file = new File(getCoverFolder(), COVERS_FILE_NAME);
             objectInputStream = new ObjectInputStream(new FileInputStream(file));
             wrongCovers = (Map<String, String>) objectInputStream.readObject();
         } catch (final Exception e) {
             Log.e(TAG, "Cannot load cover history file.", e);
-            wrongCovers = new HashMap<String, String>();
+            wrongCovers = new HashMap<>();
         } finally {
             if (objectInputStream != null) {
                 try {
@@ -499,12 +500,12 @@ public class CoverManager {
         ObjectInputStream objectInputStream = null;
 
         try {
-            File file = new File(getCoverFolder(), WRONG_COVERS_FILE_NAME);
+            final File file = new File(getCoverFolder(), WRONG_COVERS_FILE_NAME);
             objectInputStream = new ObjectInputStream(new FileInputStream(file));
             wrongCovers = (MultiMap<String, String>) objectInputStream.readObject();
         } catch (final Exception e) {
             Log.e(TAG, "Cannot load cover blacklist.", e);
-            wrongCovers = new MultiMap<String, String>();
+            wrongCovers = new MultiMap<>();
         } finally {
             if (objectInputStream != null) {
                 try {
@@ -521,19 +522,19 @@ public class CoverManager {
 
     private void logQueues() {
         if (DEBUG) {
-            Log.d(TAG, "requests queue size : " + requests.size());
-            Log.d(TAG, "running request queue size : " + runningRequests.size());
-            for (CoverInfo coverInfo : runningRequests) {
-                Log.d(TAG, "Running request : " + coverInfo.toString());
+            Log.d(TAG, "requests queue size : " + mRequests.size());
+            Log.d(TAG, "running request queue size : " + mRunningRequests.size());
+            for (final CoverInfo coverInfo : mRunningRequests) {
+                Log.d(TAG, "Running request : " + coverInfo);
             }
-            Log.d(TAG, "helpersByCoverInfo map size : " + helpersByCoverInfo.size());
+            Log.d(TAG, "helpersByCoverInfo map size : " + mHelpersByCoverInfo.size());
         }
     }
 
-    public void markWrongCover(AlbumInfo albumInfo) {
+    public void markWrongCover(final AlbumInfo albumInfo) {
 
-        CachedCover cacheCoverRetriever;
-        String wrongUrl;
+        final CachedCover cacheCoverRetriever;
+        final String wrongUrl;
         if (DEBUG) {
             Log.d(TAG, "Blacklisting cover for " + albumInfo);
         }
@@ -543,21 +544,21 @@ public class CoverManager {
             return;
         }
 
-        wrongUrl = coverUrlMap.get(albumInfo.getKey());
+        wrongUrl = mCoverUrlMap.get(albumInfo.getKey());
         // Do not blacklist cover if from local storage (url starts with /...)
         if (wrongUrl != null && !wrongUrl.startsWith("/")) {
             if (DEBUG) {
                 Log.d(TAG, "Cover URL to be blacklisted  " + wrongUrl);
             }
 
-            wrongCoverUrlMap.put(albumInfo.getKey(), wrongUrl);
+            mWrongCoverUrlMap.put(albumInfo.getKey(), wrongUrl);
 
             cacheCoverRetriever = getCacheRetriever();
             if (cacheCoverRetriever != null) {
                 if (DEBUG) {
                     Log.d(TAG, "Removing blacklisted cover from cache : ");
                 }
-                coverUrlMap.remove(albumInfo.getKey());
+                mCoverUrlMap.remove(albumInfo.getKey());
                 cacheCoverRetriever.delete(albumInfo);
             }
         } else {
@@ -569,11 +570,12 @@ public class CoverManager {
 
     private void notifyListeners(CoverInfo coverInfo) {
 
-        if (helpersByCoverInfo.containsKey(coverInfo)) {
-            Iterator<CoverDownloadListener> listenerIterator = helpersByCoverInfo.get(coverInfo)
+        if (mHelpersByCoverInfo.containsKey(coverInfo)) {
+            final Iterator<CoverDownloadListener> listenerIterator = mHelpersByCoverInfo
+                    .get(coverInfo)
                     .iterator();
             while (listenerIterator.hasNext()) {
-                CoverDownloadListener listener = listenerIterator.next();
+                final CoverDownloadListener listener = listenerIterator.next();
 
                 switch (coverInfo.getState()) {
                     case COVER_FOUND:
@@ -586,7 +588,7 @@ public class CoverManager {
                         // bitmaps between views because of the recycling)
                         if (listenerIterator.hasNext()) {
                             coverInfo = new CoverInfo(coverInfo);
-                            Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(
+                            final Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(
                                     coverInfo.getBitmap()[0].getConfig(),
                                     coverInfo.getBitmap()[0].isMutable());
                             coverInfo.setBitmap(new Bitmap[]{
@@ -599,7 +601,7 @@ public class CoverManager {
                         // if the request has been given up or if the path is
                         // missing (like in artist view)
                         if (!coverInfo.isRequestGivenUp() && !isEmpty(coverInfo.getPath())) {
-                            notFoundAlbumKeys.add(coverInfo.getKey());
+                            mNotFoundAlbumKeys.add(coverInfo.getKey());
                         }
                         removeRequest(coverInfo);
                         if (DEBUG) {
@@ -617,14 +619,14 @@ public class CoverManager {
         }
     }
 
-    public byte[] readBytes(InputStream inputStream) throws IOException {
+    byte[] readBytes(final InputStream inputStream) throws IOException {
         try {
             // this dynamically extends to take the bytes you read
-            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            final ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
 
             // this is storage overwritten on each iteration with bytes
-            int bufferSize = 1024;
-            byte[] buffer = new byte[bufferSize];
+            final int bufferSize = 1024;
+            final byte[] buffer = new byte[bufferSize];
 
             // we need to know how may bytes were read to write them to the
             // byteBuffer
@@ -643,28 +645,28 @@ public class CoverManager {
     }
 
     // Remove disc references from albums (like CD1, disc02 ...)
-    protected String removeDiscReference(String album) {
+    String removeDiscReference(final String album) {
         String cleanedAlbum = album.toLowerCase();
-        for (String discReference : DISC_REFERENCES) {
+        for (final String discReference : DISC_REFERENCES) {
             cleanedAlbum = cleanedAlbum.replaceAll(discReference + "\\s*\\d+", " ");
         }
         return cleanedAlbum;
     }
 
-    private void removeRequest(CoverInfo coverInfo) {
-        runningRequests.remove(coverInfo);
-        helpersByCoverInfo.remove(coverInfo);
+    private void removeRequest(final CoverInfo coverInfo) {
+        mRunningRequests.remove(coverInfo);
+        mHelpersByCoverInfo.remove(coverInfo);
         logQueues();
     }
 
     private void saveCovers() {
-        saveCovers(COVERS_FILE_NAME, coverUrlMap);
+        saveCovers(COVERS_FILE_NAME, mCoverUrlMap);
     }
 
-    private void saveCovers(String fileName, Object object) {
+    private void saveCovers(final String fileName, final Object object) {
         ObjectOutputStream outputStream = null;
         try {
-            File file = new File(getCoverFolder(), fileName);
+            final File file = new File(getCoverFolder(), fileName);
             outputStream = new ObjectOutputStream(new FileOutputStream(file));
             outputStream.writeObject(object);
         } catch (final Exception e) {
@@ -683,52 +685,52 @@ public class CoverManager {
     }
 
     private void saveWrongCovers() {
-        saveCovers(WRONG_COVERS_FILE_NAME, wrongCoverUrlMap);
+        saveCovers(WRONG_COVERS_FILE_NAME, mWrongCoverUrlMap);
     }
 
-    public void setCoverRetrievers(List<CoverRetrievers> whichCoverRetrievers) {
+    void setCoverRetrievers(final List<CoverRetrievers> whichCoverRetrievers) {
         if (whichCoverRetrievers == null) {
-            coverRetrievers = new ICoverRetriever[0];
+            mCoverRetrievers = new ICoverRetriever[0];
         }
-        coverRetrievers = new ICoverRetriever[whichCoverRetrievers.size()];
+        mCoverRetrievers = new ICoverRetriever[whichCoverRetrievers.size()];
         for (int i = 0; i < whichCoverRetrievers.size(); i++) {
             switch (whichCoverRetrievers.get(i)) {
                 case CACHE:
-                    this.coverRetrievers[i] = new CachedCover();
+                    mCoverRetrievers[i] = new CachedCover();
                     break;
                 case LASTFM:
-                    this.coverRetrievers[i] = new LastFMCover();
+                    mCoverRetrievers[i] = new LastFMCover();
                     break;
                 case LOCAL:
-                    this.coverRetrievers[i] = new LocalCover();
+                    mCoverRetrievers[i] = new LocalCover();
                     break;
                 case GRACENOTE:
-                    if (GracenoteCover.isClientIdAvailable(settings)) {
-                        this.coverRetrievers[i] = new GracenoteCover(this.settings);
+                    if (GracenoteCover.isClientIdAvailable(mSettings)) {
+                        mCoverRetrievers[i] = new GracenoteCover(mSettings);
                     }
                     break;
                 case DEEZER:
-                    this.coverRetrievers[i] = new DeezerCover();
+                    mCoverRetrievers[i] = new DeezerCover();
                     break;
                 case MUSICBRAINZ:
-                    this.coverRetrievers[i] = new MusicBrainzCover();
+                    mCoverRetrievers[i] = new MusicBrainzCover();
                     break;
                 case DISCOGS:
-                    this.coverRetrievers[i] = new DiscogsCover();
+                    mCoverRetrievers[i] = new DiscogsCover();
                     break;
                 case SPOTIFY:
-                    this.coverRetrievers[i] = new SpotifyCover();
+                    mCoverRetrievers[i] = new SpotifyCover();
                     break;
                 case ITUNES:
-                    this.coverRetrievers[i] = new ItunesCover();
+                    mCoverRetrievers[i] = new ItunesCover();
                     break;
             }
         }
     }
 
     public void setCoverRetrieversFromPreferences() {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-        final List<CoverRetrievers> enabledRetrievers = new ArrayList<CoverRetrievers>();
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(sApp);
+        final List<CoverRetrievers> enabledRetrievers = new ArrayList<>();
         // There is a cover provider order, respect it.
         // Cache -> MPD Server -> LastFM
         if (settings.getBoolean(PREFERENCE_CACHE, true)) {
@@ -754,12 +756,12 @@ public class CoverManager {
     private void stopExecutors() {
         try {
             Log.i(TAG, "Shutting down cover executors");
-            active = false;
-            this.priorityCoverFetchExecutor.shutdown();
-            this.requestExecutor.shutdown();
-            this.createBitmapExecutor.shutdown();
-            this.coverFetchExecutor.shutdown();
-            this.cacheCoverFetchExecutor.shutdown();
+            mActive = false;
+            mPriorityCoverFetchExecutor.shutdown();
+            mRequestExecutor.shutdown();
+            mCreateBitmapExecutor.shutdown();
+            mCoverFetchExecutor.shutdown();
+            mCacheCoverFetchExecutor.shutdown();
         } catch (final Exception ex) {
             Log.e(TAG, "Failed to shutdown cover executors.", ex);
         }
@@ -778,63 +780,64 @@ public class CoverManager {
         ITUNES
     }
 
-    private class CreateBitmapTask implements Runnable
+    private class CreateBitmapTask implements Runnable {
 
-    {
+        private final CoverInfo mCoverInfo;
 
-        private CoverInfo coverInfo;
-
-        private CreateBitmapTask(CoverInfo coverInfo) {
-            this.coverInfo = coverInfo;
+        private CreateBitmapTask(final CoverInfo coverInfo) {
+            super();
+            this.mCoverInfo = coverInfo;
         }
 
         @Override
         public void run() {
 
-            Bitmap[] bitmaps;
+            final Bitmap[] bitmaps;
 
             if (DEBUG) {
-                Log.d(TAG, "Making cover bitmap for " + coverInfo.getAlbum());
+                Log.d(TAG, "Making cover bitmap for " + mCoverInfo.getAlbum());
             }
 
-            if (coverInfo.getCoverRetriever().isCoverLocal()) {
-                int maxSize = coverInfo.getCoverMaxSize();
-                if (coverInfo.getCachedCoverMaxSize() != CoverInfo.MAX_SIZE) {
-                    maxSize = coverInfo.getCachedCoverMaxSize();
+            if (mCoverInfo.getCoverRetriever().isCoverLocal()) {
+                int maxSize = mCoverInfo.getCoverMaxSize();
+                if (mCoverInfo.getCachedCoverMaxSize() != CoverInfo.MAX_SIZE) {
+                    maxSize = mCoverInfo.getCachedCoverMaxSize();
                 }
                 if (maxSize == CoverInfo.MAX_SIZE) {
                     bitmaps = new Bitmap[]{
-                            BitmapFactory.decodeByteArray(coverInfo.getCoverBytes(), 0,
-                                    coverInfo.getCoverBytes().length)
+                            BitmapFactory.decodeByteArray(mCoverInfo.getCoverBytes(), 0,
+                                    mCoverInfo.getCoverBytes().length)
                     };
-                    coverInfo.setBitmap(bitmaps);
+                    mCoverInfo.setBitmap(bitmaps);
                 } else {
                     bitmaps = new Bitmap[]{
-                            Tools.decodeSampledBitmapFromBytes(coverInfo.getCoverBytes(), maxSize,
+                            Tools.decodeSampledBitmapFromBytes(mCoverInfo.getCoverBytes(), maxSize,
                                     maxSize, false)
                     };
-                    coverInfo.setBitmap(bitmaps);
+                    mCoverInfo.setBitmap(bitmaps);
                 }
             } else {
-                BitmapFactory.Options o = new BitmapFactory.Options();
+                final BitmapFactory.Options o = new BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
-                BitmapFactory.decodeByteArray(coverInfo.getCoverBytes(), 0,
-                        coverInfo.getCoverBytes().length, o);
+                BitmapFactory.decodeByteArray(mCoverInfo.getCoverBytes(), 0,
+                        mCoverInfo.getCoverBytes().length, o);
 
                 int scale = 1;
-                if (coverInfo.getCoverMaxSize() != CoverInfo.MAX_SIZE
-                        || o.outHeight > coverInfo.getCoverMaxSize()
-                        || o.outWidth > coverInfo.getCoverMaxSize()) {
-                    scale = (int) Math.pow(2,
-                            (int) Math.round(Math.log(coverInfo.getCoverMaxSize() /
-                                    (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+                if (mCoverInfo.getCoverMaxSize() != CoverInfo.MAX_SIZE
+                        || o.outHeight > mCoverInfo.getCoverMaxSize()
+                        || o.outWidth > mCoverInfo.getCoverMaxSize()) {
+                    scale = (int) Math.pow(2.0,
+                            (double) (int) Math.round(Math.log(
+                                    (double) mCoverInfo.getCoverMaxSize() /
+                                            (double) Math.max(o.outHeight, o.outWidth)) / Math
+                                    .log(0.5)));
                 }
 
                 o.inSampleSize = 1;
                 o.inJustDecodeBounds = false;
-                Bitmap fullBmp = BitmapFactory.decodeByteArray(coverInfo.getCoverBytes(), 0,
-                        coverInfo.getCoverBytes().length, o);
-                Bitmap bmp;
+                final Bitmap fullBmp = BitmapFactory.decodeByteArray(mCoverInfo.getCoverBytes(), 0,
+                        mCoverInfo.getCoverBytes().length, o);
+                final Bitmap bmp;
                 if (scale == 1) {
                     // This can cause some problem (a bitmap being freed will
                     // free both references)
@@ -843,33 +846,34 @@ public class CoverManager {
                 } else {
                     o.inSampleSize = scale;
                     o.inJustDecodeBounds = false;
-                    bmp = BitmapFactory.decodeByteArray(coverInfo.getCoverBytes(), 0,
-                            coverInfo.getCoverBytes().length, o);
+                    bmp = BitmapFactory.decodeByteArray(mCoverInfo.getCoverBytes(), 0,
+                            mCoverInfo.getCoverBytes().length, o);
                 }
                 bitmaps = new Bitmap[]{
                         bmp, fullBmp
                 };
-                coverInfo.setBitmap(bitmaps);
-                coverInfo.setCoverBytes(null);
+                mCoverInfo.setBitmap(bitmaps);
+                mCoverInfo.setCoverBytes(null);
 
-                ICoverRetriever cacheRetriever;
+                final ICoverRetriever cacheRetriever;
                 cacheRetriever = getCacheRetriever();
-                if (cacheRetriever != null && coverInfo.getCoverRetriever() != cacheRetriever) {
+                if (cacheRetriever != null && !mCoverInfo.getCoverRetriever()
+                        .equals(cacheRetriever)) {
                     if (DEBUG) {
                         Log.i(TAG, "Saving cover art to cache");
                     }
                     // Save the fullsize bitmap
-                    (getCacheRetriever()).save(coverInfo, fullBmp);
+                    getCacheRetriever().save(mCoverInfo, fullBmp);
 
                     // Release the cover immediately if not used
-                    if (bitmaps[0] != bitmaps[1]) {
+                    if (!bitmaps[0].equals(bitmaps[1])) {
                         bitmaps[1].recycle();
                         bitmaps[1] = null;
                     }
                 }
             }
 
-            requests.addLast(coverInfo);
+            mRequests.addLast(mCoverInfo);
         }
 
     }
@@ -878,10 +882,11 @@ public class CoverManager {
 
     {
 
-        private CoverInfo coverInfo;
+        private final CoverInfo mCoverInfo;
 
-        private FetchCoverTask(CoverInfo coverInfo) {
-            this.coverInfo = coverInfo;
+        private FetchCoverTask(final CoverInfo coverInfo) {
+            super();
+            this.mCoverInfo = coverInfo;
         }
 
         @Override
@@ -892,18 +897,18 @@ public class CoverManager {
             boolean canStart = true;
             byte[] coverBytes;
 
-            if (coverInfo.getState() != CoverInfo.STATE.WEB_COVER_FETCH
-                    || coverFetchExecutor.getQueue().size() < MAX_REQUESTS) {
+            if (mCoverInfo.getState() != WEB_COVER_FETCH
+                    || mCoverFetchExecutor.getQueue().size() < MAX_REQUESTS) {
 
                 // If the coverretriever is defined in the coverInfo
                 // that means that a previous cover fetch failed with this
                 // retriever
                 // We just start after this retriever to try a cover.
-                if (coverInfo.getCoverRetriever() != null) {
+                if (mCoverInfo.getCoverRetriever() != null) {
                     canStart = false;
                 }
 
-                for (ICoverRetriever coverRetriever : coverRetrievers) {
+                for (final ICoverRetriever coverRetriever : mCoverRetrievers) {
                     try {
 
                         if (coverRetriever == null) {
@@ -912,18 +917,18 @@ public class CoverManager {
 
                         if (canStart) {
 
-                            remote = coverInfo.getState() == WEB_COVER_FETCH
+                            remote = mCoverInfo.getState() == WEB_COVER_FETCH
                                     && !coverRetriever.isCoverLocal();
-                            local = coverInfo.getState() == CACHE_COVER_FETCH
+                            local = mCoverInfo.getState() == CACHE_COVER_FETCH
                                     && coverRetriever.isCoverLocal();
                             if (remote || local) {
                                 if (DEBUG) {
                                     Log.d(TAG, "Looking for cover "
-                                            + coverInfo.getArtist() + ", " + coverInfo.getAlbum()
+                                            + mCoverInfo.getArtist() + ", " + mCoverInfo.getAlbum()
                                             + " with " + coverRetriever.getName());
                                 }
-                                coverInfo.setCoverRetriever(coverRetriever);
-                                coverUrls = coverRetriever.getCoverUrl(coverInfo);
+                                mCoverInfo.setCoverRetriever(coverRetriever);
+                                coverUrls = coverRetriever.getCoverUrl(mCoverInfo);
 
                                 // Normalize (remove special characters ...) the
                                 // artist and album names if no result has been
@@ -932,9 +937,9 @@ public class CoverManager {
                                         && remote
                                         && !(coverRetriever.getName()
                                         .equals(LocalCover.RETRIEVER_NAME))) {
-                                    AlbumInfo normalizedAlbumInfo = getNormalizedAlbumInfo(
-                                            coverInfo);
-                                    if (!normalizedAlbumInfo.equals(coverInfo)) {
+                                    final AlbumInfo normalizedAlbumInfo = getNormalizedAlbumInfo(
+                                            mCoverInfo);
+                                    if (!normalizedAlbumInfo.equals(mCoverInfo)) {
                                         if (DEBUG) {
                                             Log.d(TAG,
                                                     "Retry to fetch cover with normalized names for "
@@ -945,30 +950,30 @@ public class CoverManager {
                                 }
 
                                 if (coverUrls != null && coverUrls.length > 0) {
-                                    List<String> wrongUrlsForCover = wrongCoverUrlMap.get(coverInfo
-                                            .getKey());
+                                    final List<String> wrongUrlsForCover =
+                                            mWrongCoverUrlMap.get(mCoverInfo.getKey());
 
                                     if (wrongUrlsForCover == null
                                             || !isBlacklistedCoverUrl(coverUrls[0],
-                                            coverInfo.getKey())) {
+                                            mCoverInfo.getKey())) {
 
                                         if (DEBUG) {
-                                            Log.d(TAG, "Cover found for  " + coverInfo.getAlbum()
+                                            Log.d(TAG, "Cover found for  " + mCoverInfo.getAlbum()
                                                     + " with " + coverRetriever.getName()
                                                     + " : " + coverUrls[0]);
                                         }
-                                        coverBytes = getCoverBytes(coverUrls, coverInfo);
+                                        coverBytes = getCoverBytes(coverUrls, mCoverInfo);
                                         if (coverBytes != null && coverBytes.length > 0) {
                                             if (!coverRetriever.isCoverLocal()) {
-                                                coverUrlMap.put(coverInfo.getKey(), coverUrls[0]);
+                                                mCoverUrlMap.put(mCoverInfo.getKey(), coverUrls[0]);
                                             }
-                                            coverInfo.setCoverBytes(coverBytes);
-                                            requests.addLast(coverInfo);
+                                            mCoverInfo.setCoverBytes(coverBytes);
+                                            mRequests.addLast(mCoverInfo);
                                             return;
                                         } else {
                                             if (DEBUG) {
                                                 Log.d(TAG, "The cover URL for album "
-                                                        + coverInfo.getAlbum()
+                                                        + mCoverInfo.getAlbum()
                                                         + " did not work : "
                                                         + coverRetriever.getName());
                                             }
@@ -977,7 +982,7 @@ public class CoverManager {
                                     } else {
                                         if (DEBUG) {
                                             Log.d(TAG, "Blacklisted cover url found for "
-                                                    + coverInfo.getAlbum() + " : "
+                                                    + mCoverInfo.getAlbum() + " : "
                                                     + coverUrls[0]);
                                         }
                                     }
@@ -987,10 +992,10 @@ public class CoverManager {
                         } else {
                             if (DEBUG) {
                                 Log.d(TAG, "Bypassing the retriever " + coverRetriever.getName()
-                                        + " for album " + coverInfo.getAlbum()
+                                        + " for album " + mCoverInfo.getAlbum()
                                         + ", already asked.");
                             }
-                            canStart = coverRetriever == coverInfo.getCoverRetriever();
+                            canStart = coverRetriever.equals(mCoverInfo.getCoverRetriever());
                         }
 
                     } catch (final Exception e) {
@@ -999,11 +1004,11 @@ public class CoverManager {
 
                 }
             } else {
-                coverInfo.setRequestGivenUp(true);
-                Log.w(TAG, "Too many requests, giving up this one : " + coverInfo.getAlbum());
+                mCoverInfo.setRequestGivenUp(true);
+                Log.w(TAG, "Too many requests, giving up this one : " + mCoverInfo.getAlbum());
             }
 
-            requests.addLast(coverInfo);
+            mRequests.addLast(mCoverInfo);
         }
 
     }
@@ -1015,10 +1020,10 @@ public class CoverManager {
 
             CoverInfo coverInfo;
 
-            while (active) {
+            while (mActive) {
 
                 try {
-                    coverInfo = requests.take();
+                    coverInfo = mRequests.take();
 
                     if (coverInfo == null || coverInfo.getListener() == null) {
                         return;
@@ -1030,9 +1035,9 @@ public class CoverManager {
                             // already exists
                             // Just register the new cover listener and update
                             // the request priority.
-                            helpersByCoverInfo.put(coverInfo, coverInfo.getListener());
-                            if (runningRequests.contains(coverInfo)) {
-                                CoverInfo existingRequest = getExistingRequest(coverInfo);
+                            mHelpersByCoverInfo.put(coverInfo, coverInfo.getListener());
+                            if (mRunningRequests.contains(coverInfo)) {
+                                final CoverInfo existingRequest = getExistingRequest(coverInfo);
                                 existingRequest.setPriority(existingRequest.isPriority()
                                         || coverInfo.isPriority());
                                 notifyListeners(existingRequest);
@@ -1040,7 +1045,7 @@ public class CoverManager {
                             } else {
 
                                 if (!coverInfo.isValid()
-                                        || notFoundAlbumKeys.contains(coverInfo.getKey())) {
+                                        || mNotFoundAlbumKeys.contains(coverInfo.getKey())) {
                                     if (DEBUG) {
                                         Log.d(TAG, "Incomplete cover request or already not found "
                                                 + "cover with artist=" + coverInfo.getArtist()
@@ -1049,9 +1054,9 @@ public class CoverManager {
                                     coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
                                     notifyListeners(coverInfo);
                                 } else {
-                                    runningRequests.add(coverInfo);
+                                    mRunningRequests.add(coverInfo);
                                     coverInfo.setState(CACHE_COVER_FETCH);
-                                    cacheCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
+                                    mCacheCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                                 }
                                 break;
 
@@ -1062,15 +1067,15 @@ public class CoverManager {
                                 coverInfo.setState(WEB_COVER_FETCH);
                                 notifyListeners(coverInfo);
                                 if (coverInfo.isPriority()) {
-                                    priorityCoverFetchExecutor
+                                    mPriorityCoverFetchExecutor
                                             .submit(new FetchCoverTask(coverInfo));
                                 } else {
-                                    coverFetchExecutor.submit(new FetchCoverTask(coverInfo));
+                                    mCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                                 }
                                 break;
                             } else {
                                 coverInfo.setState(CREATE_BITMAP);
-                                createBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
+                                mCreateBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
                                 break;
                             }
                         case WEB_COVER_FETCH:
@@ -1078,7 +1083,7 @@ public class CoverManager {
                                     && coverInfo.getCoverBytes().length > 0) {
                                 coverInfo.setState(CREATE_BITMAP);
                                 notifyListeners(coverInfo);
-                                createBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
+                                mCreateBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
                                 break;
                             } else {
                                 coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
@@ -1098,7 +1103,7 @@ public class CoverManager {
                                                     + coverInfo.getCoverRetriever()
                                                     + ", trying the next ones ...");
                                 }
-                                coverFetchExecutor.submit(new FetchCoverTask(coverInfo));
+                                mCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                             } else {
                                 coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
                                 notifyListeners(coverInfo);
@@ -1111,7 +1116,7 @@ public class CoverManager {
                             break;
                     }
 
-                    if (runningRequests.isEmpty()) {
+                    if (mRunningRequests.isEmpty()) {
                         saveCovers();
                         saveWrongCovers();
                     }
