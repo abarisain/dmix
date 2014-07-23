@@ -749,9 +749,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final long totalTime = status.getTotalTime();
 
         if (totalTime == 0) {
-            trackTime.setVisibility(View.GONE);
-            trackTotalTime.setVisibility(View.GONE);
-            seekBarTrack.setVisibility(View.GONE);
+            trackTime.setVisibility(View.INVISIBLE);
+            trackTotalTime.setVisibility(View.INVISIBLE);
+            stopPosTimer();
+            seekBarTrack.setProgress(0);
+            seekBarTrack.setEnabled(false);
         } else {
             final long elapsedTime = status.getElapsedTime();
 
@@ -766,7 +768,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             trackTime.setVisibility(View.VISIBLE);
             trackTotalTime.setVisibility(View.VISIBLE);
-            seekBarTrack.setVisibility(View.VISIBLE);
+            seekBarTrack.setEnabled(true);
         }
     }
 
