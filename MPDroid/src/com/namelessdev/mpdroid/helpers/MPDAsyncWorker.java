@@ -49,27 +49,29 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final int EVENT_DISCONNECT = LOCAL_UID + 3;
 
-    static final int EVENT_EXECASYNC = LOCAL_UID + 4;
+    static final int EVENT_EXEC_ASYNC = LOCAL_UID + 4;
 
-    static final int EVENT_EXECASYNCFINISHED = LOCAL_UID + 5;
+    static final int EVENT_EXEC_ASYNC_FINISHED = LOCAL_UID + 5;
 
     static final int EVENT_RECONNECT = LOCAL_UID + 6;
 
-    static final int EVENT_STARTMONITOR = LOCAL_UID + 7;
+    static final int EVENT_START_STATUS_MONITOR = LOCAL_UID + 7;
 
-    static final int EVENT_STOPMONITOR = LOCAL_UID + 8;
+    static final int EVENT_STOP_STATUS_MONITOR = LOCAL_UID + 8;
 
     private static final String TAG = "MPDAsyncWorker";
 
-    static Handler mWorkerHandler;
-
+    /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
 
     private final MPD mMPD;
 
+    /** A store for the current connection information. */
     private ConnectionInfo mConInfo;
 
     private MPDStatusMonitor mStatusMonitor;
+
+    private Handler mWorkerHandler;
 
     MPDAsyncWorker(final Handler helperHandler, final MPD mpd) {
         super();
@@ -78,26 +80,27 @@ public class MPDAsyncWorker implements Handler.Callback,
         mMPD = mpd;
     }
 
+    /** Connects the {@code MPD} object to the media server. */
     private void connect() {
         try {
             if (mMPD != null) {
                 mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
-                mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECTSUCCEEDED)
-                        .sendToTarget();
+                mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
             }
         } catch (final MPDServerException | UnknownHostException e) {
             Log.e(TAG, "Error while connecting to the server.", e);
-            mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECTFAILED,
+            mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECT_FAILED,
                     Tools.toObjectArray(e.getMessage())).sendToTarget();
         }
     }
 
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECTIONSTATE,
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
+        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECTION_STATE,
                 Tools.toObjectArray(connected, connectionLost)).sendToTarget();
     }
 
+    /** Disconnects the {@code MPD} object from the media server. */
     private void disconnect() {
         try {
             if (mMPD != null) {
@@ -109,6 +112,12 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
     }
 
+    /**
+     * Handles messages to the off UI thread {@code Handler}/{@code Looper}.
+     *
+     * @param msg The incoming message to handle.
+     * @return True if message was handled, false otherwise.
+     */
     @Override
     public final boolean handleMessage(final Message msg) {
         boolean result = true;
@@ -120,20 +129,19 @@ public class MPDAsyncWorker implements Handler.Callback,
             case EVENT_RECONNECT:
                 reconnect();
                 break;
-            case EVENT_STARTMONITOR:
+            case EVENT_START_STATUS_MONITOR:
                 startStatusMonitor();
                 break;
-            case EVENT_STOPMONITOR:
-                stopMonitor();
+            case EVENT_STOP_STATUS_MONITOR:
+                stopStatusMonitor();
                 break;
             case EVENT_DISCONNECT:
                 disconnect();
                 break;
-            case EVENT_EXECASYNC:
-                Runnable run = (Runnable) msg.obj;
+            case EVENT_EXEC_ASYNC:
+                final Runnable run = (Runnable) msg.obj;
                 run.run();
-                mHelperHandler.obtainMessage(EVENT_EXECASYNCFINISHED, msg.arg1, 0)
-                        .sendToTarget();
+                mHelperHandler.obtainMessage(EVENT_EXEC_ASYNC_FINISHED, msg.arg1, 0).sendToTarget();
                 break;
             default:
                 result = false;
@@ -143,38 +151,48 @@ public class MPDAsyncWorker implements Handler.Callback,
         return result;
     }
 
-    public boolean isMonitorAlive() {
-        if (mStatusMonitor == null) {
-            return false;
+    /**
+     * Checks the JMPDComm MPD Status Monitor for activity.
+     *
+     * @return True if the JMPDComm MPD Status Monitor is active, false otherwise.
+     */
+    public boolean isStatusMonitorAlive() {
+        final boolean isMonitorAlive;
+
+        if (mStatusMonitor != null && mStatusMonitor.isAlive() && !mStatusMonitor.isGivingUp()) {
+            isMonitorAlive = true;
         } else {
-            return mStatusMonitor.isAlive() & !mStatusMonitor.isGivingUp();
+            isMonitorAlive = false;
         }
+
+        return isMonitorAlive;
     }
 
     @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
-        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_UPDATESTATE, Tools.toObjectArray(updating,
-                dbChanged)).sendToTarget();
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
+        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_UPDATE_STATE,
+                Tools.toObjectArray(updating,dbChanged)).sendToTarget();
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
         mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_PLAYLIST,
                 Tools.toObjectArray(mpdStatus, oldPlaylistVersion)).sendToTarget();
     }
 
     @Override
-    public void randomChanged(boolean random) {
+    public void randomChanged(final boolean random) {
         mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_RANDOM, Tools.toObjectArray(random))
                 .sendToTarget();
     }
 
+    /** Reconnects the MPD object after the settings have changed. */
     private void reconnect() {
-        final boolean isMonitorAlive = isMonitorAlive();
+        final boolean isMonitorAlive = isStatusMonitorAlive();
 
         /** Don't continue before the monitor is stopped. */
         if (isMonitorAlive) {
-            stopMonitor();
+            stopStatusMonitor();
 
             try {
                 /** Give up waiting after a couple of seconds. */
@@ -194,11 +212,16 @@ public class MPDAsyncWorker implements Handler.Callback,
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
+    public void repeatChanged(final boolean repeating) {
         mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_REPEAT, Tools.toObjectArray(repeating))
                 .sendToTarget();
     }
 
+    /**
+     * Sets the connection settings.
+     *
+     * @param connectionInfo A current {@code ConnectionInfo} object.
+     */
     public final void setConnectionSettings(final ConnectionInfo connectionInfo) {
         if (mConInfo == null) {
             if (connectionInfo != null) {
@@ -219,13 +242,19 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
     }
 
+    /** Starts the JMPDComm MPD Status Monitor. */
     private void startStatusMonitor() {
-        mStatusMonitor = new MPDStatusMonitor(mMPD, 500L);
+        mStatusMonitor = new MPDStatusMonitor(mMPD, DateUtils.SECOND_IN_MILLIS / 2L);
         mStatusMonitor.addStatusChangeListener(this);
         mStatusMonitor.addTrackPositionListener(this);
         mStatusMonitor.start();
     }
 
+    /**
+     * Initiates the worker thread {@code Handler} in an off UI thread {@code Looper}.
+     *
+     * @return A {@code Handler} for this object.
+     */
     final Handler startThread() {
         final HandlerThread handlerThread = new HandlerThread("MPDAsyncWorker");
 
@@ -236,34 +265,35 @@ public class MPDAsyncWorker implements Handler.Callback,
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
+    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
         mHelperHandler
                 .obtainMessage(MPDAsyncHelper.EVENT_STATE, Tools.toObjectArray(mpdStatus, oldState))
                 .sendToTarget();
     }
 
-    private void stopMonitor() {
+    /** Stops the JMPDComm MPD Status Monitor */
+    private void stopStatusMonitor() {
         if (mStatusMonitor != null) {
             mStatusMonitor.giveup();
         }
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         mHelperHandler
                 .obtainMessage(MPDAsyncHelper.EVENT_TRACK, Tools.toObjectArray(mpdStatus, oldTrack))
                 .sendToTarget();
     }
 
     @Override
-    public void trackPositionChanged(MPDStatus status) {
+    public void trackPositionChanged(final MPDStatus status) {
         mHelperHandler
-                .obtainMessage(MPDAsyncHelper.EVENT_TRACKPOSITION, Tools.toObjectArray(status))
+                .obtainMessage(MPDAsyncHelper.EVENT_TRACK_POSITION, Tools.toObjectArray(status))
                 .sendToTarget();
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
         mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_VOLUME,
                 Tools.toObjectArray(mpdStatus, oldVolume)).sendToTarget();
     }
