@@ -202,7 +202,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
 
         if (mMPD != null && mMPD.isConnected()) {
-            disconnect();
             connect();
         }
 
