@@ -417,7 +417,7 @@ public class MPD {
     public final synchronized void connect(InetAddress server, int port, String password)
             throws MPDServerException {
         if (!isConnected()) {
-            this.mpdConnection = new MPDConnectionMultiSocket(server, port, 3, password, 5000);
+            this.mpdConnection = new MPDConnectionMultiSocket(server, port, password, 5000, 3);
             this.mpdIdleConnection = new MPDConnectionMonoSocket(server, port, password, 0);
             this.mpdStatusConnection = new MPDConnectionMonoSocket(server, port, password, 5000);
         }
