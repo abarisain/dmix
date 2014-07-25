@@ -864,7 +864,7 @@ public final class MPDroidService extends Service implements
             switch (what) {
                 case NotificationHandler.PERSISTENT_OVERRIDDEN:
                     mIsPersistentOverridden = msg.arg1 == ServiceBinder.TRUE;
-                    break;
+                    /** Fall Through */
                 case NotificationHandler.START:
                     startNotification();
                     sendHandlerStatus();

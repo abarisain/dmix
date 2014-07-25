@@ -111,6 +111,8 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     }
                     break;
                 case MPDroidService.ACTION_STOP:
+                    sApp.setPersistentOverride(true);
+                    /** Fall Through */
                 case NotificationHandler.ACTION_START:
                 case StreamHandler.ACTION_START:
                     redirectIntentToService(true, intent);
