@@ -43,9 +43,9 @@ class MPDConnectionMultiSocket extends MPDConnection {
 
     private static final ThreadLocal<OutputStreamWriter> OUTPUT_STREAM = new ThreadLocal<>();
 
-    MPDConnectionMultiSocket(final InetAddress server, final int port, final int maxConnection,
-            final String password, final int readWriteTimeout) {
-        super(server, port, readWriteTimeout, maxConnection, password);
+    MPDConnectionMultiSocket(final InetAddress server, final int port, final String password,
+            final int readWriteTimeout, final int maxConnection) {
+        super(server, port, password, readWriteTimeout, maxConnection);
     }
 
     @Override

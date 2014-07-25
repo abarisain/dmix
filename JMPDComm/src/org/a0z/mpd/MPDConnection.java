@@ -105,8 +105,8 @@ abstract class MPDConnection {
 
     private String mPassword = null;
 
-    MPDConnection(final InetAddress server, final int port, final int readWriteTimeout,
-            final int maxConnections, final String password) {
+    MPDConnection(final InetAddress server, final int port, final String password,
+            final int readWriteTimeout, final int maxConnections) {
         super();
         mReadWriteTimeout = readWriteTimeout;
         mHostPort = port;
@@ -121,7 +121,7 @@ abstract class MPDConnection {
 
     MPDConnection(final InetAddress server, final int port, final String password,
             final int readWriteTimeout) {
-        this(server, port, readWriteTimeout, 1, password);
+        this(server, port, password, readWriteTimeout, 1);
     }
 
     private static List<String[]> separatedQueueResults(final Iterable<String> lines) {
