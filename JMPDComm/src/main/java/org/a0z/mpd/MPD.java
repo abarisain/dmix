@@ -467,13 +467,6 @@ public class MPD {
         MPDServerException ex = null;
         if (mpdConnection != null && mpdConnection.isConnected()) {
             try {
-                mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLOSE);
-            } catch (MPDServerException e) {
-                ex = e;
-            }
-        }
-        if (mpdConnection != null && mpdConnection.isConnected()) {
-            try {
                 mpdConnection.disconnect();
             } catch (MPDServerException e) {
                 ex = (ex != null) ? ex : e;// Always keep first non null
