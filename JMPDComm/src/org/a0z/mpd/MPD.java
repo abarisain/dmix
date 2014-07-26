@@ -56,8 +56,6 @@ public class MPD {
 
     protected MPDConnection mpdIdleConnection;
 
-    protected MPDConnection mpdStatusConnection;
-
     protected MPDStatus mpdStatus;
 
     protected MPDPlaylist playlist;
@@ -417,9 +415,8 @@ public class MPD {
     public final synchronized void connect(InetAddress server, int port, String password)
             throws MPDServerException {
         if (!isConnected()) {
-            this.mpdConnection = new MPDConnectionMultiSocket(server, port, password, 5000, 3);
+            this.mpdConnection = new MPDConnectionMultiSocket(server, port, password, 5000, 2);
             this.mpdIdleConnection = new MPDConnectionMonoSocket(server, port, password, 0);
-            this.mpdStatusConnection = new MPDConnectionMonoSocket(server, port, password, 5000);
         }
     }
 
@@ -493,17 +490,6 @@ public class MPD {
                 // exception
             }
         }
-
-        if (mpdStatusConnection != null && mpdStatusConnection.isConnected()) {
-            try {
-                mpdStatusConnection.disconnect();
-            } catch (MPDServerException e) {
-                ex = (ex != null) ? ex : e;// Always keep non null first
-                // exception
-            }
-        }
-
-        // TODO: Throw ex
     }
 
     public void enableOutput(int id) throws MPDServerException {
@@ -1141,7 +1127,7 @@ public class MPD {
             if (!isConnected()) {
                 throw new MPDConnectionException("MPD Connection is not established");
             }
-            List<String> response = mpdStatusConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
+            List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
             if (response == null) {
                 Log.w(TAG, "No status response from the MPD server.");
             } else {
@@ -1167,7 +1153,7 @@ public class MPD {
      * @return true when connected and false when not connected
      */
     public boolean isConnected() {
-        return mpdIdleConnection != null && mpdStatusConnection != null && mpdConnection != null
+        return mpdIdleConnection != null && mpdConnection != null
                 && mpdIdleConnection.isConnected();
     }
 
