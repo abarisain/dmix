@@ -226,7 +226,7 @@ abstract class MPDConnection {
         }
 
         if (mPassword != null) {
-            password(mPassword);
+            sendCommand(MPDCommand.MPD_CMD_PASSWORD, mPassword);
         }
 
         return result;
@@ -262,17 +262,6 @@ abstract class MPDConnection {
 
     boolean isConnected() {
         return mIsConnected;
-    }
-
-    /**
-     * Authenticate using password.
-     *
-     * @param password password.
-     * @throws MPDServerException if an error occur while contacting server.
-     */
-    void password(final String password) throws MPDServerException {
-        mPassword = password;
-        sendCommand(MPDCommand.MPD_CMD_PASSWORD, password);
     }
 
     private List<String> processRequest(final MPDCommand command) throws MPDServerException {
