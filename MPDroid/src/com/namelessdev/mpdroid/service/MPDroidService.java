@@ -537,6 +537,28 @@ public final class MPDroidService extends Service implements
     }
 
     /**
+     * Sets the handlerUID as active or inactive.
+     *
+     * @param handlerUID The handler local UID what.
+     * @param isActive True if the handler is being set as active, false otherwise.
+     */
+    private void setHandlerActivity(final int handlerUID, final boolean isActive) {
+        switch(handlerUID) {
+            case StreamHandler.LOCAL_UID:
+                mIsStreamStarted = isActive;
+                mMessageHandler.sendMessageToClients(StreamHandler.IS_ACTIVE, isActive);
+                break;
+            case NotificationHandler.LOCAL_UID:
+                mIsNotificationStarted = isActive;
+                mMessageHandler.sendMessageToClients(NotificationHandler.IS_ACTIVE, isActive);
+                break;
+            default:
+                Log.e(TAG, "setStreamHandler set for invalid value.");
+                break;
+        }
+    }
+
+    /**
      * This is the idle delay for shutting down this service after inactivity
      * (in milliseconds). This idle is also longer than StreamHandler to
      * avoid being unnecessarily brought up to shut right back down.
@@ -566,7 +588,7 @@ public final class MPDroidService extends Service implements
                 mNotificationOwnsService = true;
             }
 
-            mIsNotificationStarted = true;
+            setHandlerActivity(NotificationHandler.LOCAL_UID, true);
             if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
                 stateChanged(getMPDStatus(), MPDStatus.MPD_STATE_UNKNOWN);
             } else {
@@ -593,7 +615,7 @@ public final class MPDroidService extends Service implements
                 mStreamOwnsService = true;
             }
 
-            mIsStreamStarted = true;
+            setHandlerActivity(StreamHandler.LOCAL_UID, true);
             if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
                 stateChanged(getMPDStatus(), MPDStatus.MPD_STATE_UNKNOWN);
             } else {
@@ -655,7 +677,7 @@ public final class MPDroidService extends Service implements
      * can be called if the service crashes and the main process status gets out of sync.
      */
     private void stopStream() {
-        mIsStreamStarted = false;
+        setHandlerActivity(StreamHandler.LOCAL_UID, false);
 
         if (mNotificationHandler != null) {
             mNotificationHandler.setMediaPlayerWoundDown();
@@ -664,7 +686,6 @@ public final class MPDroidService extends Service implements
         if (mStreamHandler != null) {
             mStreamHandler.stop();
         }
-        mMessageHandler.sendMessageToClients(StreamHandler.IS_ACTIVE, false);
     }
 
     @Override
@@ -732,12 +753,12 @@ public final class MPDroidService extends Service implements
         }
 
         if (!isNotificationPersistent()) {
-            mIsNotificationStarted = false;
+            setHandlerActivity(NotificationHandler.LOCAL_UID, false);
         }
 
         if (mStreamHandler != null) {
             mStreamHandler.stop();
-            mIsStreamStarted = false;
+            setHandlerActivity(StreamHandler.LOCAL_UID, false);
         }
 
         /** We group these together under the notification, but they can easily be split. */
@@ -874,10 +895,9 @@ public final class MPDroidService extends Service implements
                     /** Fall Through */
                 case NotificationHandler.START:
                     startNotification();
-                    sendHandlerStatus();
                     break;
                 case NotificationHandler.STOP:
-                    mIsNotificationStarted = false;
+                    setHandlerActivity(NotificationHandler.LOCAL_UID, false);
                     mNotificationOwnsService = false;
                     windDownHandlers(true);
                     sendMessageToClients(NotificationHandler.IS_ACTIVE, false);
@@ -936,14 +956,12 @@ public final class MPDroidService extends Service implements
                     break;
                 case StreamHandler.START:
                     startStream();
-                    sendHandlerStatus();
                     break;
                 case StreamHandler.STOP:
                     stopStream();
                     break;
                 case StreamHandler.STREAMING_STOP:
-                    mIsStreamStarted = false;
-                    sendMessageToClients(StreamHandler.IS_ACTIVE, false);
+                    setHandlerActivity(StreamHandler.LOCAL_UID, false);
                     /** Fall Through */
                 case StreamHandler.STREAMING_PAUSE:
                     mNotificationHandler.setMediaPlayerWoundDown();
