@@ -328,17 +328,16 @@ abstract class MPDConnection {
 
     private class MPDCallable extends MPDCommand implements Callable<CommandResult> {
 
-        private int mRetry = 0;
-
         MPDCallable(final MPDCommand mpdCommand) {
             super(mpdCommand.mCommand, mpdCommand.mArgs, mpdCommand.isSynchronous());
         }
 
         @Override
         public final CommandResult call() {
+            int retryCount = 0;
             final CommandResult result = new CommandResult();
 
-            while (result.getResult() == null && mRetry < MAX_REQUEST_RETRY && !mCancelled) {
+            while (result.getResult() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
                 try {
                     if (!isInnerConnected()) {
                         innerConnect();
@@ -373,7 +372,7 @@ abstract class MPDConnection {
                     break;
                 }
 
-                mRetry++;
+                retryCount++;
             }
 
             if (result.getResult() == null) {
@@ -382,7 +381,7 @@ abstract class MPDConnection {
                     result.setLastException(new MPDConnectionException(
                             "MPD request has been cancelled for disconnection."));
                 }
-                Log.e(TAG, "MPD command " + mCommand + " failed after " + mRetry + " attempts.",
+                Log.e(TAG, "MPD command " + mCommand + " failed after " + retryCount + " attempts.",
                         result.getLastException());
             } else {
                 mIsConnected = true;
