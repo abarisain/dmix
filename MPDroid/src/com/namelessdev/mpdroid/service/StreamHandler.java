@@ -115,7 +115,7 @@ public final class StreamHandler implements
     private MediaPlayer mMediaPlayer = null;
 
     /** Keep track when MediaPlayer is preparing a stream. */
-    private boolean mPreparingStreaming = false;
+    private boolean mPreparingStream = false;
 
     /** Service handler used for communicating with service. */
     private Handler mServiceHandler = null;
@@ -187,7 +187,7 @@ public final class StreamHandler implements
         mServiceHandler.sendEmptyMessage(BUFFERING_BEGIN);
         final String streamSource = getStreamSource();
         final long asyncIdle = 1500L;
-        mPreparingStreaming = true;
+        mPreparingStream = true;
         mServiceHandler.removeMessages(STOP);
 
         /**
@@ -238,7 +238,7 @@ public final class StreamHandler implements
                  * stream pauses, error handling workarounds will be used.
                  */
             } else {
-                mPreparingStreaming = false;
+                mPreparingStream = false;
                 windDownResources(STREAMING_STOP);
             }
             result = true;
@@ -271,7 +271,7 @@ public final class StreamHandler implements
                         Log.d(TAG, "Regaining after ducked transient loss.");
                     }
                     mMediaPlayer.setVolume(1.0f, 1.0f);
-                } else if (!mPreparingStreaming) {
+                } else if (!mPreparingStream) {
                     if (DEBUG) {
                         Log.d(TAG, "Coming out of transient loss.");
                     }
@@ -346,7 +346,7 @@ public final class StreamHandler implements
         }
 
         /** beginStreaming() will never start otherwise. */
-        mPreparingStreaming = false;
+        mPreparingStream = false;
 
         /** Either way we need to stop streaming. */
         windDownResources(STREAMING_STOP);
@@ -379,11 +379,11 @@ public final class StreamHandler implements
             mServiceHandler.sendEmptyMessage(BUFFERING_END);
             mMediaPlayer.start();
         } else {
-            /** Because preparingStreaming is still set, this will reset the stream. */
+            /** Because mPreparingStream is still set, this will reset the stream. */
             windDownResources(STREAMING_STOP);
         }
 
-        mPreparingStreaming = false;
+        mPreparingStream = false;
         mErrorIterator = 0; /** Reset the error iterator. */
     }
 
@@ -402,7 +402,7 @@ public final class StreamHandler implements
     final void start(final String mpdState) {
         mIsActive = true;
         mIsPlaying = MPDStatus.MPD_STATE_PLAYING.equals(mpdState);
-        if (!mPreparingStreaming && mIsPlaying) {
+        if (!mPreparingStream && mIsPlaying) {
             tryToStream();
         }
     }
@@ -437,7 +437,7 @@ public final class StreamHandler implements
                      * If in the middle of stream preparation, "Buffering…" notification message
                      * is likely.
                      */
-                    if (mPreparingStreaming) {
+                    if (mPreparingStream) {
                         windDownResources(BUFFERING_END);
                     } else {
                         windDownResources(STREAMING_STOP);
@@ -456,7 +456,7 @@ public final class StreamHandler implements
      * client then setup and the framework streaming.
      */
     private void tryToStream() {
-        if (mPreparingStreaming) {
+        if (mPreparingStream) {
             Log.d(TAG, "A stream is already being prepared.");
         } else if (!mIsPlaying) {
             Log.d(TAG, "MPD is not currently playing, can't stream.");
@@ -492,9 +492,10 @@ public final class StreamHandler implements
              * least on Android 4.4.2. Worst case, not resetting may cause a stale buffer to play at
              * the beginning and restart buffering; not perfect, but this is a pretty good solution.
              */
-            if (mPreparingStreaming) {
+            if (mPreparingStream) {
                 Log.w(TAG, "Media player paused during streaming, workarounds running.");
                 mHandler.removeMessages(PREPARE_ASYNC);
+                mPreparingStream = false;
             } else {
                 mMediaPlayer.reset();
                 mMediaPlayer.release();
