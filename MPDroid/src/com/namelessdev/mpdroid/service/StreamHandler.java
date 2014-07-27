@@ -75,6 +75,9 @@ public final class StreamHandler implements
     /** Remove the buffering banner from the notification handler. */
     static final int BUFFERING_END = LOCAL_UID + 7;
 
+    /** Like STREAMING_STOP, but does allows streaming to continue on audio state change. */
+    static final int STREAMING_PAUSE = LOCAL_UID + 8;
+
     private static final boolean DEBUG = MPDroidService.DEBUG;
 
     /** Workaround to delay preparation of stream on Android 4.4.2 and earlier. */
@@ -239,7 +242,7 @@ public final class StreamHandler implements
                  */
             } else {
                 mPreparingStream = false;
-                windDownResources(STREAMING_STOP);
+                windDownResources(STREAMING_PAUSE);
             }
             result = true;
         }
@@ -394,6 +397,8 @@ public final class StreamHandler implements
 
         mHandler.removeMessages(PREPARE_ASYNC);
 
+        mAudioManager.abandonAudioFocus(this);
+
         windDownResources(REQUEST_NOTIFICATION_STOP);
 
         mIsActive = false;
@@ -440,7 +445,7 @@ public final class StreamHandler implements
                     if (mPreparingStream) {
                         windDownResources(BUFFERING_END);
                     } else {
-                        windDownResources(STREAMING_STOP);
+                        windDownResources(STREAMING_PAUSE);
                     }
                     mIsPlaying = false;
                     break;
@@ -476,10 +481,6 @@ public final class StreamHandler implements
 
         if (action != INVALID_INT) {
             mServiceHandler.sendEmptyMessage(action);
-        }
-
-        if (mAudioManager != null) {
-            mAudioManager.abandonAudioFocus(this);
         }
 
         if (mMediaPlayer != null) {

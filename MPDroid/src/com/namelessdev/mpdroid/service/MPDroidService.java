@@ -742,7 +742,6 @@ public final class MPDroidService extends Service implements
 
         /** We group these together under the notification, but they can easily be split. */
         if (mNotificationHandler != null) {
-            mAudioManager.abandonAudioFocus(this);
             mAlbumCoverHandler.stop();
             mRemoteControlClientHandler.stop();
             mNotificationHandler.stop();
@@ -759,14 +758,22 @@ public final class MPDroidService extends Service implements
         }
         mMessageHandler.sendHandlerStatus();
 
-        if (!isServiceBusy() && stopSelf) {
-            if (DEBUG) {
-                Log.d(TAG, "Stopping service in " +
-                        ServiceBinder.MESSAGE_DELAY / DateUtils.SECOND_IN_MILLIS + " seconds.");
+        if (stopSelf) {
+            /**
+             * Any time we want to stopSelf, it happens that we want to abandon audio focus as well.
+             */
+            if (mAudioManager != null) {
+                mAudioManager.abandonAudioFocus(this);
             }
+            if (!isServiceBusy()) {
+                if (DEBUG) {
+                    Log.d(TAG, "Stopping service in " +
+                            ServiceBinder.MESSAGE_DELAY / DateUtils.SECOND_IN_MILLIS + " seconds.");
+                }
 
-            mMessageHandler.sendMessageToClients(REQUEST_UNBIND);
-            mHandler.sendEmptyMessageDelayed(STOP_SELF, ServiceBinder.MESSAGE_DELAY);
+                mMessageHandler.sendMessageToClients(REQUEST_UNBIND);
+                mHandler.sendEmptyMessageDelayed(STOP_SELF, ServiceBinder.MESSAGE_DELAY);
+            }
         }
     }
 
@@ -921,6 +928,10 @@ public final class MPDroidService extends Service implements
                     mRemoteControlClientHandler.setMediaPlayerBuffering(true);
                     break;
                 case StreamHandler.REQUEST_NOTIFICATION_STOP:
+                    if (mIsNotificationStarted && MPD_ASYNC_HELPER.oMPD.isConnected() &&
+                            MPDStatus.MPD_STATE_PLAYING.equals(getMPDStatus().getState())) {
+                        tryToGetAudioFocus();
+                    }
                     streamRequestsNotificationStop();
                     break;
                 case StreamHandler.START:
@@ -932,12 +943,11 @@ public final class MPDroidService extends Service implements
                     break;
                 case StreamHandler.STREAMING_STOP:
                     mIsStreamStarted = false;
+                    sendMessageToClients(StreamHandler.IS_ACTIVE, false);
+                    /** Fall Through */
+                case StreamHandler.STREAMING_PAUSE:
                     mNotificationHandler.setMediaPlayerWoundDown();
                     setupServiceHandler();
-                    if (mIsNotificationStarted && MPD_ASYNC_HELPER.oMPD.isConnected() &&
-                            MPDStatus.MPD_STATE_PLAYING.equals(getMPDStatus().getState())) {
-                        tryToGetAudioFocus();
-                    }
                     /** Fall Through */
                 case StreamHandler.BUFFERING_END:
                     mRemoteControlClientHandler.setMediaPlayerBuffering(false);
