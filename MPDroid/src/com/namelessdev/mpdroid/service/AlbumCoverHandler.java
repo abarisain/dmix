@@ -145,10 +145,7 @@ class AlbumCoverHandler implements CoverDownloadListener {
     }
 
     final void stop() {
-        if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-            /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
-            mAlbumCover = null;
-        }
+        /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
 
         mCoverUpdateListener = null;
 
@@ -236,10 +233,7 @@ class AlbumCoverHandler implements CoverDownloadListener {
                 Log.d(TAG, "doInBackground()");
             }
 
-            if (mAlbumCover != null && !mAlbumCover.isRecycled()) {
-                /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
-                mAlbumCover = null;
-            }
+            /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
 
             mAlbumCoverPath = pathArray[0];
 
