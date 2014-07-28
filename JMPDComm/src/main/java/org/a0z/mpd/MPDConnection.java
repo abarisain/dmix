@@ -405,7 +405,6 @@ abstract class MPDConnection {
 
             try {
                 innerConnect();
-                refreshAllConnections();
             } catch (final MPDServerException e) {
                 result.setLastException(e);
             }
@@ -486,10 +485,6 @@ abstract class MPDConnection {
             return result;
         }
 
-        private void refreshAllConnections() {
-            new Thread(mPingAllConnections).start();
-        }
-
         private void writeToServer() throws IOException {
             final String cmdString = mCallableCommand.toString();
             // Uncomment for extreme command debugging
@@ -498,20 +493,5 @@ abstract class MPDConnection {
             getOutputStream().flush();
             mCallableCommand.setSentToServer(true);
         }
-
-        private final Runnable mPingAllConnections = new Runnable() {
-            @Override
-            public void run() {
-                final MPDCommand ping = new MPDCommand(MPDCommand.MPD_CMD_PING);
-
-                for (int i = 0; i < mMaxThreads; i++) {
-                    try {
-                        processRequest(ping);
-                    } catch (final MPDServerException e) {
-                        Log.w(TAG, "All connection refresh failure.", e);
-                    }
-                }
-            }
-        };
     }
 }
