@@ -110,7 +110,7 @@ public class ConnectionSettings extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.layout.connectionsettings);
+        addPreferencesFromResource(R.xml.connectionsettings);
 
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
 

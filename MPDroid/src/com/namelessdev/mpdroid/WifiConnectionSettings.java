@@ -45,7 +45,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        addPreferencesFromResource(R.layout.wificonnectionsettings);
+        addPreferencesFromResource(R.xml.wificonnectionsettings);
 
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
 
