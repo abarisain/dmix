@@ -117,6 +117,10 @@
 	<string name="defaultSettings">Default connection settings</string>
 	<string name="wlanBasedSettingsDescription">Set WLAN based MPD-Host/Port and password</string>
 	<string name="defaultSettingsDescription">Set default MPD-Host/Port and password</string>
+	<string name="extrasConnection">Global connection settings</string>
+	<string name="mopidyConnection">Modipy server</string>
+	<string name="mopidyConnectionOnDescription">My server is a Modipy server</string>
+	<string name="mopidyConnectionOffDescription">My server is a standard MPD</string>
 	<string name="stream">Streaming</string>
 	<string name="buffering">Buffering …</string>
 	<string name="portStreaming">Streaming port</string>
