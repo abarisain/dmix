@@ -31,4 +31,7 @@
 	           android:summary="@string/passwordDescription" /> 
 	            -->
 	</PreferenceCategory>
+    <PreferenceCategory android:title="@string/extrasConnection" android:key="extrasCategory">
+        <CheckBoxPreference android:title="@string/mopidyConnection" android:summaryOff="@string/mopidyConnectionOffDescription" android:summaryOn="@string/mopidyConnectionOnDescription" android:key="mopidyConnection"/>
+    </PreferenceCategory>
 </PreferenceScreen>

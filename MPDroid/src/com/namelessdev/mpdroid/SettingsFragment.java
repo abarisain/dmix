@@ -25,12 +25,15 @@ import org.a0z.mpd.exception.MPDServerException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
 import android.text.format.Formatter;
@@ -69,6 +72,8 @@ public class SettingsFragment extends PreferenceFragment {
     private CheckBoxPreference phoneStateChange;
 
     private boolean preferencesBinded;
+
+    private boolean isModipyConnection;
 
     private final MPDApplication app = MPDApplication.getInstance();
 
@@ -129,6 +134,19 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        isModipyConnection = settings.getBoolean("mopidyConnection", false);
+        if (isModipyConnection) {
+            // hide information screen, modipy does not provide anything here
+            PreferenceGroup preferenceScreen = (PreferenceGroup) findPreference("preferencescreen");
+            preferenceScreen.removePreference(informationScreen);
+        }
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         refreshDynamicFields();
@@ -147,7 +165,9 @@ public class SettingsFragment extends PreferenceFragment {
 
     public void onConnectionStateChanged() {
         final MPD mpd = app.oMPDAsyncHelper.oMPD;
-        informationScreen.setEnabled(mpd.isConnected());
+        if (informationScreen != null) {
+            informationScreen.setEnabled(mpd.isConnected());
+        }
 
         new Thread(new Runnable() {
             @Override

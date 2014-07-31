@@ -237,6 +237,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private DisplayMode currentDisplayMode;
 
+    private boolean isModipyConnection;
+
     private static final boolean DEBUG = false;
 
     @Override
@@ -324,6 +326,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         isDualPaneMode = (nowPlayingDualPane != null);
         switchMode(DisplayMode.MODE_LIBRARY);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        isModipyConnection = settings.getBoolean("mopidyConnection", false);
 
         exitCounterReset = new Handler();
 
@@ -468,6 +473,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             mHeaderOverflowPopupMenu = new PopupMenu(this, mHeaderOverflowMenu);
             mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_mainmenu,
                     mHeaderOverflowPopupMenu.getMenu());
+            if (isModipyConnection) {
+                mHeaderOverflowPopupMenu.getMenu().findItem(R.id.GMM_Stream).setVisible(false);
+            }
             mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_playlistmenu,
                     mHeaderOverflowPopupMenu.getMenu());
             mHeaderOverflowPopupMenu.getMenu().removeItem(R.id.PLM_EditPL);
