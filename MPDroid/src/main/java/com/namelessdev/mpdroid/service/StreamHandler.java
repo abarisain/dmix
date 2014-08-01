@@ -102,8 +102,10 @@ public final class StreamHandler implements
     private final ConnectionInfo mConnectionInfo
             = MPDroidService.MPD_ASYNC_HELPER.getConnectionSettings();
 
+    /** The service context used to acquire the wake lock. */
     private final MPDroidService mServiceContext;
 
+    /** The audio manager used to obtain audio focus. */
     private AudioManager mAudioManager = null;
 
     /** Keep track of the number of errors encountered. */
@@ -123,6 +125,15 @@ public final class StreamHandler implements
     /** Service handler used for communicating with service. */
     private Handler mServiceHandler = null;
 
+    /**
+     * The {@code MediaPlayer} streaming interface for the {@code MPDroidService},
+     *
+     * @param serviceContext The {@code MPDroidService} instance/context.
+     * @param serviceHandler The {@code MPDroidService} {@code Handler}.
+     * @param audioManager   The {@code AudioManager} from the service; don't acquire a
+     *                       {@code AudioManager} from this context as {@code AudioManager} is
+     *                       touchy about whom grabs focus.
+     */
     StreamHandler(final MPDroidService serviceContext, final Handler serviceHandler,
             final AudioManager audioManager) {
         super();
@@ -182,6 +193,7 @@ public final class StreamHandler implements
                 + mConnectionInfo.streamPort + '/' + mConnectionInfo.streamSuffix;
     }
 
+    /** This is where the stream start is managed. */
     private void beginStreaming() {
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.beginStreaming()");
@@ -229,6 +241,12 @@ public final class StreamHandler implements
         }
     }
 
+    /**
+     * The {@code Handler.Callback} method callback used to communicate with the service.
+     *
+     * @param msg The incoming message from the service.
+     * @return True if the incoming message was handled by this method, false otherwise.
+     */
     @Override
     public boolean handleMessage(final Message msg) {
         boolean result = false;
@@ -396,6 +414,14 @@ public final class StreamHandler implements
         mErrorIterator = 0; /** Reset the error iterator. */
     }
 
+    final void start(final String mpdState) {
+        mIsActive = true;
+        mIsPlaying = MPDStatus.MPD_STATE_PLAYING.equals(mpdState);
+        if (!mPreparingStream && mIsPlaying) {
+            tryToStream();
+        }
+    }
+
     final void stop() {
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.stop()");
@@ -408,14 +434,6 @@ public final class StreamHandler implements
         windDownResources(REQUEST_NOTIFICATION_STOP);
 
         mIsActive = false;
-    }
-
-    final void start(final String mpdState) {
-        mIsActive = true;
-        mIsPlaying = MPDStatus.MPD_STATE_PLAYING.equals(mpdState);
-        if (!mPreparingStream && mIsPlaying) {
-            tryToStream();
-        }
     }
 
     /**

@@ -44,8 +44,10 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
 
     private final AudioManager mAudioManager;
 
+    /** The RemoteControlClient Seekbar handled by the {@code RemoteControlClientSeekBarHandler}. */
     private RemoteControlSeekBarHandler mSeekBar = null;
 
+    /** A flag used to inform the RemoteControlClient that a buffering event is taking place. */
     private boolean mIsMediaPlayerBuffering = false;
 
     /**
@@ -146,9 +148,7 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
         }
     }
 
-    /**
-     * Cleans up this object prior to closing the parent.
-     */
+    /** Cleans up this object prior to closing the parent. */
     final void stop() {
         if (mRemoteControlClient != null) {
             setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
@@ -178,6 +178,12 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
         }
     }
 
+    /**
+     * Sets the current media server playback state in the
+     * RemoteControlClient and RemoteControlClient seek bar.
+     *
+     * @param playbackState The current playback state.
+     */
     private void setPlaybackState(final int playbackState) {
         mRemoteControlClient.setPlaybackState(playbackState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {

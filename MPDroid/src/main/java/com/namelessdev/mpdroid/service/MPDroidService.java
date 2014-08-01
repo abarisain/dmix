@@ -32,7 +32,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -78,6 +77,7 @@ public final class MPDroidService extends Service implements
     /** The main process connection changed. */
     public static final int CONNECTION_INFO_CHANGED = LOCAL_UID + 6;
 
+    /** The {@code MPDAsyncHelper} for this service. */
     static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
 
     /** Enable this to get various DEBUG messages from this module. */
@@ -106,6 +106,7 @@ public final class MPDroidService extends Service implements
 
     private Music mCurrentTrack = null;
 
+    /** True if audio is focused on this service. */
     private boolean mIsAudioFocusedOnThis = false;
 
     private NotificationHandler mNotificationHandler = null;
@@ -118,13 +119,16 @@ public final class MPDroidService extends Service implements
     /** If the media server is playing, and this is true, notification should show. */
     private boolean mIsNotificationStarted = false;
 
+    /** True if the notification persistent is overridden. */
     private boolean mIsPersistentOverridden = false;
 
     /** If the media server is playing, and this is true, audio streaming will be attempted. */
     private boolean mIsStreamStarted = false;
 
+    /** If this flag is true, and stream is started/stopped, notification will continue. */
     private boolean mNotificationOwnsService = false;
 
+    /** If this flag is true, and stream stops, notification should shut itself down. */
     private boolean mStreamOwnsService = false;
 
     /**
@@ -179,6 +183,13 @@ public final class MPDroidService extends Service implements
         return "MPDroidService." + result;
     }
 
+    /**
+     * The status monitor listener callback method called
+     * upon media server connection change events.
+     *
+     * @param connected      New connection state: true, connected; false, disconnected.
+     * @param connectionLost True when connection was lost, false otherwise.
+     */
     @Override
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
         if (DEBUG) {
@@ -197,6 +208,12 @@ public final class MPDroidService extends Service implements
         }
     }
 
+    /**
+     * This method is called by the stateChanged() callback method
+     * inform service handlers about media service status changes.
+     *
+     * @param mpdStatus The current {@code MPDStatus}.
+     */
     private void handlerStateChanged(final MPDStatus mpdStatus) {
         if (mRemoteControlClientHandler != null) {
             mRemoteControlClientHandler.stateChanged(mpdStatus);
@@ -219,6 +236,7 @@ public final class MPDroidService extends Service implements
         return mIsNotificationStarted || mIsStreamStarted;
     }
 
+    /** Initialize the {@code MPD} connection, monitors and listeners. */
     private void initializeAsyncHelper() {
         final SettingsHelper settingsHelper = new SettingsHelper(MPD_ASYNC_HELPER);
         settingsHelper.updateConnectionSettings();
@@ -244,7 +262,7 @@ public final class MPDroidService extends Service implements
     }
 
     /** Initializes the notification and handlers which are generally associated with it. */
-    private void initializeNotification(final MPDStatus mpdStatus) {
+    private void initializeNotification() {
         Log.d(TAG, "initializeNotification()");
 
         //TODO: Acquire a network wake lock here if the user wants us to !
@@ -292,7 +310,7 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * A JMPDComm callback to be invoked during library state changes.
+     * A status monitor listener callback method to be invoked during library state changes.
      *
      * @param updating  true when updating, false when not updating.
      * @param dbChanged true when the server database has been updated, false otherwise.
@@ -301,9 +319,14 @@ public final class MPDroidService extends Service implements
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
+    /**
+     * Called by the Android framework upon audio focus changes.
+     *
+     * @param focusChange The type of audio focus change.
+     */
     @Override
-    public void onAudioFocusChange(final int i) {
-        switch (i) {
+    public void onAudioFocusChange(final int focusChange) {
+        switch (focusChange) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 mIsAudioFocusedOnThis = true;
                 if (DEBUG) {
@@ -318,7 +341,7 @@ public final class MPDroidService extends Service implements
                 break;
             default:
                 if (DEBUG) {
-                    Log.d(TAG, "Did not gain or lose audio focus: " + i);
+                    Log.d(TAG, "Did not gain or lose audio focus: " + focusChange);
                 }
                 break;
         }
@@ -386,7 +409,7 @@ public final class MPDroidService extends Service implements
 
     /**
      * This is one of the methods to start the service, and to keep the service running
-     * semi-persistently.
+     * semi-persistently. This method also receives incoming intents.
      *
      * @param intent  The incoming intent used to start the service or containing expected action.
      * @param flags   Additional data about this start request.
@@ -509,6 +532,12 @@ public final class MPDroidService extends Service implements
         return false;
     }
 
+    /**
+     * A status monitor listener callback method called upon playlist queue changes.
+     *
+     * @param mpdStatus          MPDStatus after playlist change.
+     * @param oldPlaylistVersion old playlist version.
+     */
     @Override
     public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
         /**
@@ -520,10 +549,20 @@ public final class MPDroidService extends Service implements
         }
     }
 
+    /**
+     * A status monitor listener callback method called upon random state changes.
+     *
+     * @param random new random state: true, on; false, off
+     */
     @Override
     public void randomChanged(final boolean random) {
     }
 
+    /**
+     * A status monitor listener callback method called upon repeat state changes.
+     *
+     * @param repeating new repeat state: true, on; false, off.
+     */
     @Override
     public void repeatChanged(final boolean repeating) {
     }
@@ -532,10 +571,10 @@ public final class MPDroidService extends Service implements
      * Sets the handlerUID as active or inactive.
      *
      * @param handlerUID The handler local UID what.
-     * @param isActive True if the handler is being set as active, false otherwise.
+     * @param isActive   True if the handler is being set as active, false otherwise.
      */
     private void setHandlerActivity(final int handlerUID, final boolean isActive) {
-        switch(handlerUID) {
+        switch (handlerUID) {
             case StreamHandler.LOCAL_UID:
                 mIsStreamStarted = isActive;
                 mMessageHandler.sendMessageToClients(StreamHandler.IS_ACTIVE, isActive);
@@ -620,6 +659,12 @@ public final class MPDroidService extends Service implements
         }
     }
 
+    /**
+     * This monitor listener callback method is to inform about media server play state changes.
+     *
+     * @param mpdStatus {@code MPDStatus} after event.
+     * @param oldState  previous state.
+     */
     @Override
     public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
         if (mpdStatus == null) {
@@ -627,7 +672,7 @@ public final class MPDroidService extends Service implements
         } else {
             switch (mpdStatus.getState()) {
                 case MPDStatus.MPD_STATE_PLAYING:
-                    stateChangedPlaying(mpdStatus, oldState);
+                    stateChangedPlaying(mpdStatus);
                     break;
                 case MPDStatus.MPD_STATE_STOPPED:
                     windDownHandlers(true);
@@ -645,14 +690,18 @@ public final class MPDroidService extends Service implements
         }
     }
 
-    /** This method is called during a stateChanged() when the media server is playing. */
-    private void stateChangedPlaying(final MPDStatus mpdStatus, final String oldState) {
+    /**
+     * This method is called during a stateChanged() 'play' state.
+     *
+     * @param mpdStatus {@code MPDStatus} after event.
+     */
+    private void stateChangedPlaying(final MPDStatus mpdStatus) {
         mHandler.removeMessages(WIND_DOWN_HANDLERS);
         final boolean needNotification = mIsNotificationStarted || mIsStreamStarted;
 
         if (needNotification && (mNotificationHandler == null ||
                 !mNotificationHandler.isActive())) {
-            initializeNotification(mpdStatus);
+            initializeNotification();
         }
 
         if (mIsStreamStarted && (mStreamHandler == null ||
@@ -680,6 +729,12 @@ public final class MPDroidService extends Service implements
         }
     }
 
+    /**
+     * This status monitor listener callback method is to inform about media server track changes.
+     *
+     * @param mpdStatus {@code MPDStatus} after event.
+     * @param oldTrack  track number before event.
+     */
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         updateTrack(mpdStatus);
@@ -734,6 +789,12 @@ public final class MPDroidService extends Service implements
         }
     }
 
+    /**
+     * This status monitor listener callback method is to inform about media server volume changes.
+     *
+     * @param mpdStatus {@code MPDStatus} after event
+     * @param oldVolume volume before event
+     */
     @Override
     public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
@@ -967,7 +1028,12 @@ public final class MPDroidService extends Service implements
             }
         }
 
-        /** Sends a message to all clients about all important handlers. */
+        /**
+         * Sends a message to all clients about all important
+         * handlers. This is used to initialize all clients.
+         *
+         * @see #setHandlerActivity If not initializing, this method should be used instead.
+         */
         private void sendHandlerStatus() {
             sendMessageToClients(NotificationHandler.IS_ACTIVE, mIsNotificationStarted);
             sendMessageToClients(StreamHandler.IS_ACTIVE, mIsStreamStarted);
@@ -977,7 +1043,13 @@ public final class MPDroidService extends Service implements
             sendMessageToClients(what, false);
         }
 
-        /** Sends a message to all clients about a specific important handler. */
+        /**
+         * Sends a message to all clients about a specific handler.
+         *
+         * @param what     The what message to sent to bound clients.
+         * @param isActive If the what message requires it,
+         *                 whether to send true or false to clients.
+         */
         private void sendMessageToClients(final int what, final boolean isActive) {
             final Message msg;
             if (mServiceClients.isEmpty()) {

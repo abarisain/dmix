@@ -51,8 +51,10 @@ class AlbumCoverHandler implements CoverDownloadListener {
 
     private NotificationCallback mNotificationListener;
 
+    /** The current path to the album cover on the local device */
     private String mAlbumCoverPath = null;
 
+    /** The album cover helper instance. */
     private CoverAsyncHelper mCoverAsyncHelper = null;
 
     private FullSizeCallback mFullSizeListener = null;
