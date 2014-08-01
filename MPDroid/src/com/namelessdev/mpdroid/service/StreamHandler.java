@@ -483,10 +483,6 @@ public final class StreamHandler implements
         }
 
         if (mMediaPlayer != null) {
-            if (mMediaPlayer.isPlaying()) {
-                mMediaPlayer.stop();
-            }
-
             /**
              * Cannot run reset/release when buffering, MediaPlayer will ANR or crash MPDroid, at
              * least on Android 4.4.2. Worst case, not resetting may cause a stale buffer to play at
@@ -497,7 +493,6 @@ public final class StreamHandler implements
                 mHandler.removeMessages(PREPARE_ASYNC);
                 mPreparingStream = false;
             } else {
-                mMediaPlayer.reset();
                 mMediaPlayer.release();
                 mMediaPlayer = null;
             }
