@@ -83,9 +83,6 @@ public class ServiceBinder implements
     /** Local handler used only for local (usually delayed) messaging. */
     private final Handler mLocalHandler;
 
-    /** Whether the service is bound to this instance. */
-    private boolean mIsBound = false;
-
     /** If service and bind are persistent. */
     private boolean mIsPersistent = false;
 
@@ -201,12 +198,11 @@ public class ServiceBinder implements
             Log.d(TAG, "doUnbindService()");
         }
 
-        if (mIsBound && mServiceMessenger != null) {
+        if (mServiceMessenger != null) {
             sendMessageToService(UNREGISTER_CLIENT);
 
             // Detach our existing connection.
             mClientContext.unbindService(this);
-            mIsBound = false;
             mServiceMessenger = null;
         }
     }
@@ -265,7 +261,6 @@ public class ServiceBinder implements
         if (DEBUG) {
             Log.d(TAG, "Attached.");
         }
-        mIsBound = true;
     }
 
     /**
@@ -282,8 +277,6 @@ public class ServiceBinder implements
         if (DEBUG) {
             Log.d(TAG, "Disconnected from service.");
         }
-
-        mIsBound = false;
     }
 
     /**
