@@ -359,11 +359,11 @@ public final class MPDroidService extends Service implements
         if (connectionInfo.streamingServerInfoChanged && mIsStreamStarted) {
             Log.d(TAG, "Streaming information changed, resetting.");
             windDownHandlers(false);
-            mHandler.obtainMessage(StreamHandler.START).sendToTarget();
+            startStream();
         } else if (connectionInfo.serverInfoChanged && mIsNotificationStarted) {
             Log.d(TAG, "Notification information changed, resetting.");
             windDownHandlers(false);
-            mHandler.obtainMessage(NotificationHandler.START).sendToTarget();
+            startNotification();
         }
     }
 
