@@ -277,7 +277,7 @@ abstract class MPDConnection {
     }
 
     private List<String> processRequest(final MPDCommand command) throws MPDServerException {
-        final MPDCommandResult result;
+        final CommandResult result;
         final List<String> commandResult;
 
         // Bypass thread pool queue if the thread already comes from the pool to avoid deadlock.
@@ -338,36 +338,7 @@ abstract class MPDConnection {
         return processRequest(command);
     }
 
-    private static class MPDCommandResult {
-
-        private MPDServerException mLastException = null;
-
-        private List<String> mResult = null;
-
-        final MPDServerException getLastException() {
-            return mLastException;
-        }
-
-        final void setLastException(final MPDServerException lastException) {
-            mLastException = lastException;
-        }
-
-        final List<String> getResult() {
-            /** No need, we already made the collection immutable on the way in. */
-            //noinspection ReturnOfCollectionOrArrayField
-            return mResult;
-        }
-
-        final void setResult(final List<String> result) {
-            if (result == null) {
-                mResult = null;
-            } else {
-                mResult = Collections.unmodifiableList(result);
-            }
-        }
-    }
-
-    private class MPDCallable extends MPDCommand implements Callable<MPDCommandResult> {
+    private class MPDCallable extends MPDCommand implements Callable<CommandResult> {
 
         private int mRetry = 0;
 
@@ -376,9 +347,9 @@ abstract class MPDConnection {
         }
 
         @Override
-        public final MPDCommandResult call() {
+        public final CommandResult call() {
             boolean retryable = true;
-            final MPDCommandResult result = new MPDCommandResult();
+            final CommandResult result = new CommandResult();
 
             while (result.getResult() == null && mRetry < MAX_REQUEST_RETRY && !mCancelled
                     && retryable) {
@@ -428,7 +399,7 @@ abstract class MPDConnection {
             return result;
         }
 
-        private void handleConnectionFailure(final MPDCommandResult result,
+        private void handleConnectionFailure(final CommandResult result,
                 final MPDServerException ex) {
 
             result.setLastException(ex);
