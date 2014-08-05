@@ -72,6 +72,8 @@ public class NotificationHandler {
 
     private boolean mIsActive;
 
+    private boolean mIsForeground = false;
+
     private boolean mIsMediaPlayerBuffering = false;
 
     NotificationHandler(final MPDroidService serviceContext) {
@@ -245,8 +247,7 @@ public class NotificationHandler {
                 setAlbumCover(mNotification.bigContentView, albumCover, albumCoverPath);
             }
 
-            mNotificationManager.notify(NOTIFICATION_ID, mNotification);
-            mServiceContext.startForeground(NOTIFICATION_ID, mNotification);
+            updateNotification();
         }
     }
 
@@ -272,8 +273,7 @@ public class NotificationHandler {
                         .setViewVisibility(R.id.notificationClose, View.VISIBLE);
             }
 
-            mNotificationManager.notify(NOTIFICATION_ID, mNotification);
-            mServiceContext.startForeground(NOTIFICATION_ID, mNotification);
+            updateNotification();
         }
     }
 
@@ -302,8 +302,7 @@ public class NotificationHandler {
                 }
             }
 
-            mNotificationManager.notify(NOTIFICATION_ID, mNotification);
-            mServiceContext.startForeground(NOTIFICATION_ID, mNotification);
+            updateNotification();
         }
     }
 
@@ -326,8 +325,7 @@ public class NotificationHandler {
                 }
             }
 
-            mNotificationManager.notify(NOTIFICATION_ID, mNotification);
-            mServiceContext.startForeground(NOTIFICATION_ID, mNotification);
+            updateNotification();
         }
     }
 
@@ -358,6 +356,7 @@ public class NotificationHandler {
         mServiceContext.stopForeground(true);
         mNotificationManager.cancel(NOTIFICATION_ID);
         mIsActive = false;
+        mIsForeground = false;
     }
 
     /**
@@ -372,6 +371,15 @@ public class NotificationHandler {
         resultView.setTextViewText(R.id.notificationTitle,
                 mServiceContext.getString(R.string.buffering));
         resultView.setTextViewText(R.id.notificationArtist, trackTitle);
+    }
+
+    private void updateNotification() {
+        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+
+        if (!mIsForeground) {
+            mServiceContext.startForeground(NOTIFICATION_ID, mNotification);
+            mIsForeground = true;
+        }
     }
 
     /**
