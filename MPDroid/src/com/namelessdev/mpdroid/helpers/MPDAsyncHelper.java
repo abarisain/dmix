@@ -26,7 +26,6 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 
 import android.content.Context;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 
@@ -351,20 +350,20 @@ public class MPDAsyncHelper implements Handler.Callback {
     }
 
     public final void startNetworkMonitor(final Context context) {
-        if (!mIsNetworkMonitorActive) {
+        /** if (!mIsNetworkMonitorActive) {
             mNetworkActivityHandler = new NetworkActivityHandler(this);
             final IntentFilter intentFilter =
                     new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
             context.registerReceiver(mNetworkActivityHandler, intentFilter);
             mIsNetworkMonitorActive = true;
-        }
+        } */
     }
 
     public final void stopNetworkMonitor(final Context context) {
-        if (mIsNetworkMonitorActive) {
+        /** if (mIsNetworkMonitorActive) {
             context.unregisterReceiver(mNetworkActivityHandler);
             mIsNetworkMonitorActive = false;
-        }
+        } */
     }
 
     public void stopStatusMonitor() {
