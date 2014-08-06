@@ -88,7 +88,7 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private final MPDAsyncWorker oMPDAsyncWorker;
 
-    private ConnectionInfo mConnectionInfo;
+    private ConnectionInfo mConnectionInfo = new ConnectionInfo();
 
     private NetworkActivityHandler mNetworkActivityHandler;
 

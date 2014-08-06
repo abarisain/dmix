@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid;
 
+import org.a0z.mpd.MPDCommand;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -73,6 +75,24 @@ public class ConnectionInfo implements Parcelable {
     public final String streamSuffix;
 
     public final boolean wasNotificationPersistent;
+
+    /** Only call this to initialize. */
+    public ConnectionInfo() {
+        super();
+
+        server = null;
+        port = MPDCommand.DEFAULT_MPD_PORT;
+        password = null;
+
+        streamServer = null;
+        streamPort = MPDCommand.DEFAULT_MPD_PORT;
+        streamSuffix = null;
+
+        isNotificationPersistent = false;
+        wasNotificationPersistent = false;
+        serverInfoChanged = false;
+        streamingServerInfoChanged = false;
+    }
 
     /** The private constructor, constructed by the Build inner class. */
     private ConnectionInfo(final String pServer, final int pPort, final String pPassword,
