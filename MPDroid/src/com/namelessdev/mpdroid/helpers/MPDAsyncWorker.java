@@ -67,7 +67,7 @@ public class MPDAsyncWorker implements Handler.Callback,
     private final MPD mMPD;
 
     /** A store for the current connection information. */
-    private ConnectionInfo mConInfo;
+    private ConnectionInfo mConInfo = new ConnectionInfo();
 
     private MPDStatusMonitor mStatusMonitor;
 
