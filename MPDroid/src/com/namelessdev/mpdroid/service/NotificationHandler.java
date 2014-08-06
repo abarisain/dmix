@@ -31,7 +31,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
@@ -40,7 +39,7 @@ import android.widget.RemoteViews;
 /**
  * A class to handle everything necessary for the MPDroid notification.
  */
-public class NotificationHandler {
+public class NotificationHandler implements AlbumCoverHandler.NotificationCallback {
 
     static final int LOCAL_UID = 300;
 
@@ -154,17 +153,15 @@ public class NotificationHandler {
     /**
      * A method to update the album cover view.
      *
-     * @param resultView     The notification view to edit.
-     * @param albumCover     The new album cover.
-     * @param albumCoverPath The new album cover path.
+     * @param resultView The notification view to edit.
+     * @param albumCover The new album cover.
      */
-    private static void setAlbumCover(final RemoteViews resultView, final Bitmap albumCover,
-            final String albumCoverPath) {
-        if (albumCover != null) {
-            resultView.setImageViewUri(R.id.notificationIcon, Uri.parse(albumCoverPath));
-        } else {
+    private static void setAlbumCover(final RemoteViews resultView, final Bitmap albumCover) {
+        if (albumCover == null) {
             resultView.setImageViewResource(R.id.notificationIcon,
                     AlbumCoverDownloadListener.getNoCoverResource());
+        } else {
+            resultView.setImageViewBitmap(R.id.notificationIcon, albumCover);
         }
     }
 
@@ -234,19 +231,17 @@ public class NotificationHandler {
     }
 
     /**
-     * A method to update the album cover view of the current notification.
+     * This is called when cover art needs to be updated due to server information change.
      *
-     * @param albumCover     The new album cover.
-     * @param albumCoverPath The new album cover path.
+     * @param albumCover the current album cover bitmap.
      */
-    final void setAlbumCover(final Bitmap albumCover, final String albumCoverPath) {
+    @Override
+    public final void onCoverUpdate(final Bitmap albumCover) {
         if (mIsActive) {
-            setAlbumCover(mNotification.contentView, albumCover, albumCoverPath);
-
+            setAlbumCover(mNotification.contentView, albumCover);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                setAlbumCover(mNotification.bigContentView, albumCover, albumCoverPath);
+                setAlbumCover(mNotification.bigContentView, albumCover);
             }
-
             updateNotification();
         }
     }
