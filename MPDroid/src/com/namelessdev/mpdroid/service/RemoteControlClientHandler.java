@@ -36,7 +36,7 @@ import android.util.Log;
  * A class to handle everything necessary to integrate
  * the music server with Android's RemoteControlClient.
  */
-public class RemoteControlClientHandler {
+public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCallback {
 
     private static final String TAG = "RemoteControlClientService";
 
@@ -123,6 +123,18 @@ public class RemoteControlClientHandler {
         if (DEBUG) {
             Log.d(TAG, "Updated remote client with state " + state + '.');
         }
+    }
+
+    /**
+     * This is called when cover art needs to be updated due to server information change.
+     *
+     * @param albumCover The current album cover bitmap.
+     */
+    @Override
+    public final void onCoverUpdate(final Bitmap albumCover) {
+        mRemoteControlClient.editMetadata(false)
+                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, albumCover)
+                .apply();
     }
 
     final void start() {

@@ -22,14 +22,12 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.AlbumInfo;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -47,13 +45,17 @@ class AlbumCoverHandler implements CoverDownloadListener {
 
     private final int mIconWidth;
 
-    private Bitmap mAlbumCover = null;
+    private Bitmap mFullSizeAlbumCover = null;
+
+    private Bitmap mNotificationCover;
+
+    private NotificationCallback mNotificationListener;
 
     private String mAlbumCoverPath = null;
 
     private CoverAsyncHelper mCoverAsyncHelper = null;
 
-    private Callback mCoverUpdateListener = null;
+    private FullSizeCallback mFullSizeListener = null;
 
     private boolean mIsAlbumCacheEnabled;
 
@@ -106,8 +108,12 @@ class AlbumCoverHandler implements CoverDownloadListener {
         return coverArtPath;
     }
 
-    final void addCallback(final Callback callback) {
-        mCoverUpdateListener = callback;
+    final void addCallback(final FullSizeCallback callback) {
+        mFullSizeListener = callback;
+    }
+
+    final void addCallback(final NotificationCallback callback) {
+        mNotificationListener = callback;
     }
 
     /**
@@ -119,9 +125,12 @@ class AlbumCoverHandler implements CoverDownloadListener {
     @Override
     public final void onCoverDownloaded(final CoverInfo cover) {
         if (mIsAlbumCacheEnabled) {
-            mAlbumCover = cover.getBitmap()[0];
+            mFullSizeAlbumCover = cover.getBitmap()[0];
+            mNotificationCover =
+                    Bitmap.createScaledBitmap(mFullSizeAlbumCover, mIconWidth, mIconHeight, false);
             mAlbumCoverPath = retrieveCoverArtPath(cover);
-            mCoverUpdateListener.onCoverUpdate(cover.getBitmap()[0], mAlbumCoverPath);
+            mFullSizeListener.onCoverUpdate(mFullSizeAlbumCover);
+            mNotificationListener.onCoverUpdate(mNotificationCover);
         }
     }
 
@@ -147,7 +156,8 @@ class AlbumCoverHandler implements CoverDownloadListener {
     final void stop() {
         /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
 
-        mCoverUpdateListener = null;
+        mFullSizeListener = null;
+        mNotificationListener = null;
 
         if (mCoverAsyncHelper != null) {
             mCoverAsyncHelper.removeCoverDownloadListener(this);
@@ -172,7 +182,7 @@ class AlbumCoverHandler implements CoverDownloadListener {
             Log.d(TAG, "update()");
         }
 
-        if (mCoverUpdateListener != null) {
+        if (mFullSizeListener != null) {
             if (mIsAlbumCacheEnabled) {
                 updateAlbumCoverWithCached(albumInfo);
             } /** TODO: Add no cache option */
@@ -180,28 +190,35 @@ class AlbumCoverHandler implements CoverDownloadListener {
     }
 
     /**
-     * This method updates mAlbumCover if it is different than currently playing, if cache is
-     * enabled.
+     * This method updates the service covers if the current cover
+     * path is different than currently playing, if cache is enabled.
      */
     private void updateAlbumCoverWithCached(final AlbumInfo albumInfo) {
         if (DEBUG) {
             Log.d(TAG, "updateAlbumCoverWithCache(music): " + albumInfo);
         }
         final String coverArtPath = retrieveCoverArtPath(albumInfo);
+        final boolean sameCover = coverArtPath != null && coverArtPath.equals(mAlbumCoverPath);
+        final boolean fullCoverValid =
+                mFullSizeAlbumCover != null && !mFullSizeAlbumCover.isRecycled();
+        final boolean smallCoverValid =
+                mNotificationCover != null && !mNotificationCover.isRecycled();
 
         if (coverArtPath == null) {
             if (DEBUG) {
                 Log.d(TAG, "Cover not found, attempting download.");
             }
 
-            mCoverUpdateListener.onCoverUpdate(null, null);
+            mNotificationListener.onCoverUpdate(null);
+            mFullSizeListener.onCoverUpdate(null);
             mCoverAsyncHelper.downloadCover(albumInfo);
-        } else if (coverArtPath.equals(mAlbumCoverPath) && mAlbumCover != null) {
+        } else if (sameCover && fullCoverValid && smallCoverValid) {
             if (DEBUG) {
                 Log.d(TAG, "Cover the same as last time, omitting.");
             }
 
-            mCoverUpdateListener.onCoverUpdate(mAlbumCover, mAlbumCoverPath);
+            mNotificationListener.onCoverUpdate(mNotificationCover);
+            mFullSizeListener.onCoverUpdate(mFullSizeAlbumCover);
         } else {
             if (DEBUG) {
                 Log.d(TAG, "Cover found in cache, decoding.");
@@ -211,54 +228,61 @@ class AlbumCoverHandler implements CoverDownloadListener {
         }
     }
 
-    interface Callback {
+    interface NotificationCallback {
+
+        /**
+         * This is called when cover art needs to be updated due to server information change.
+         *
+         * @param albumCover the current album cover bitmap.
+         */
+        void onCoverUpdate(Bitmap albumCover);
+    }
+
+    interface FullSizeCallback {
 
         /**
          * This is called when cover art needs to be updated due to server information change.
          *
          * @param albumCover The current album cover bitmap.
          */
-        void onCoverUpdate(Bitmap albumCover, String albumCoverPath);
+        void onCoverUpdate(Bitmap albumCover);
     }
 
     /**
-     * This method updates mAlbumCover if it is different than currently playing, if cache is
-     * enabled.
+     * This method updates the service covers if the current cover
+     * path is different than currently playing, if cache is enabled.
      */
     private class DecodeAlbumCover extends AsyncTask<String, Void, Bitmap> {
 
         @Override
-        protected final Bitmap doInBackground(final String... pathArray) {
+        protected final Bitmap doInBackground(final String... params) {
             if (DEBUG) {
                 Log.d(TAG, "doInBackground()");
             }
 
             /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
 
-            mAlbumCoverPath = pathArray[0];
+            mAlbumCoverPath = params[0];
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                /**
-                 * Don't resize; it WOULD be nice to use the standard 64x64 large notification
-                 * size here, but KitKat and MPDroid allow fullscreen lock screen AlbumArt and
-                 * 64x64 looks pretty bad on a higher DPI device.
-                 */
-                /** TODO: Maybe inBitmap stuff here? */
-                mAlbumCover = BitmapFactory.decodeFile(mAlbumCoverPath);
-            } else {
-                mAlbumCover = Tools.decodeSampledBitmapFromPath(mAlbumCoverPath,
-                        mIconWidth, mIconHeight, false);
-            }
+            mFullSizeAlbumCover = BitmapFactory.decodeFile(mAlbumCoverPath);
 
-            return mAlbumCover;
+            /** This will always scale down, no filter needed. */
+            mNotificationCover =
+                    Bitmap.createScaledBitmap(mFullSizeAlbumCover, mIconWidth, mIconHeight, false);
+
+            return mFullSizeAlbumCover;
         }
 
         @Override
         protected final void onPostExecute(final Bitmap result) {
             super.onPostExecute(result);
 
-            if (mCoverUpdateListener != null) {
-                mCoverUpdateListener.onCoverUpdate(mAlbumCover, mAlbumCoverPath);
+            if (mFullSizeListener != null) {
+                mFullSizeListener.onCoverUpdate(mFullSizeAlbumCover);
+            }
+
+            if (mNotificationListener != null) {
+                mNotificationListener.onCoverUpdate(mNotificationCover);
             }
         }
     }
