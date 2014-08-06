@@ -46,8 +46,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
@@ -83,7 +84,7 @@ abstract class MPDConnection {
 
     private final List<MPDCommand> mCommandQueue;
 
-    private final ExecutorService mExecutor;
+    private final ThreadPoolExecutor mExecutor;
 
     private final InetAddress mHostAddress;
 
@@ -114,7 +115,8 @@ abstract class MPDConnection {
         mCommandQueue = new ArrayList<>();
         mCommandQueueStringLength = MPD_CMD_START_BULK_OK.length() + MPD_CMD_END_BULK.length() + 5;
         mMaxThreads = maxConnections;
-        mExecutor = Executors.newFixedThreadPool(mMaxThreads);
+        mExecutor = new ThreadPoolExecutor(1, mMaxThreads, (long) mReadWriteTimeout,
+                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mPassword = password;
     }
 
@@ -313,15 +315,17 @@ abstract class MPDConnection {
         final MPDCommandResult result;
         final List<String> commandResult;
 
-        try {
-            // Bypass thread pool queue if the thread already comes from the pool to avoid deadlock.
-            if (Thread.currentThread().getName().startsWith(POOL_THREAD_NAME_PREFIX)) {
-                result = new MPDCallable(command).call();
-            } else {
+        // Bypass thread pool queue if the thread already comes from the pool to avoid deadlock.
+        if (Thread.currentThread().getName().startsWith(POOL_THREAD_NAME_PREFIX)) {
+            result = new MPDCallable(command).call();
+        } else {
+            try {
                 result = mExecutor.submit(new MPDCallable(command)).get();
+                // Spam the log with the largest pool size
+                //Log.d(TAG, "Largest pool size: " + mExecutor.getLargestPoolSize());
+            } catch (final ExecutionException | InterruptedException e) {
+                throw new MPDServerException(e);
             }
-        } catch (final ExecutionException | InterruptedException e) {
-            throw new MPDServerException(e);
         }
 
         commandResult = result.getResult();
@@ -595,6 +599,15 @@ abstract class MPDConnection {
             new Thread(mPingAllConnections).start();
         }
 
+        private void writeToServer(final MPDCommand command) throws IOException {
+            final String cmdString = command.toString();
+            // Uncomment for extreme command debugging
+            //Log.v(TAG, "Sending MPDCommand : " + cmdString);
+            getOutputStream().write(cmdString);
+            getOutputStream().flush();
+            command.setSentToServer(true);
+        }
+
         private final Runnable mPingAllConnections = new Runnable() {
             @Override
             public void run() {
@@ -609,15 +622,6 @@ abstract class MPDConnection {
                 }
             }
         };
-
-        private void writeToServer(final MPDCommand command) throws IOException {
-            final String cmdString = command.toString();
-            // Uncomment for extreme command debugging
-            //Log.v(TAG, "Sending MPDCommand : " + cmdString);
-            getOutputStream().write(cmdString);
-            getOutputStream().flush();
-            command.setSentToServer(true);
-        }
 
 
     }
