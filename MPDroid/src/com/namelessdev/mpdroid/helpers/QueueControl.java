@@ -182,4 +182,35 @@ public final class QueueControl {
             }
         }).start();
     }
+
+    /**
+     * A method to send simple playlist controls which requires no result processing.
+     *
+     * @param command The playlist command to send.
+     * @param arg1    An integer argument for the command.
+     * @param arg2    An integer argument for the command.
+     * @param arg3    An integer argument for the command.
+     */
+    public static void run(final int command, final int arg1, final int arg2, final int arg3) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int i = arg1;
+                int j = arg2;
+                int k = arg3;
+                try {
+                    switch (command) {
+                        case MOVE:
+                            playlist.moveByPosition(i, j, k);
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to run simple playlist command. Argument 1: " + arg1 + " Argument 2: " + arg2 + " Argument 3: " + arg3, e);
+                }
+            }
+        }).start();
+    }
+
 }
