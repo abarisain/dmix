@@ -52,7 +52,6 @@ import java.util.List;
  * MPDroid.
  */
 public final class MPDroidService extends Service implements
-        AlbumCoverHandler.Callback,
         AudioManager.OnAudioFocusChangeListener,
         MPDAsyncHelper.ConnectionInfoListener,
         MPDAsyncHelper.NetworkMonitorListener,
@@ -261,7 +260,8 @@ public final class MPDroidService extends Service implements
             mNotificationHandler.start();
             mRemoteControlClientHandler.start();
         }
-        mAlbumCoverHandler.addCallback(this);
+        mAlbumCoverHandler.addCallback(mNotificationHandler);
+        mAlbumCoverHandler.addCallback(mRemoteControlClientHandler);
 
         mMessageHandler.sendMessageToClients(NotificationHandler.IS_ACTIVE, true);
     }
@@ -336,17 +336,6 @@ public final class MPDroidService extends Service implements
         final Messenger serviceMessenger = new Messenger(mHandler);
 
         return serviceMessenger.getBinder();
-    }
-
-    /**
-     * This is called when cover art needs to be updated due to server information change.
-     *
-     * @param albumCover The current album cover bitmap.
-     */
-    @Override
-    public void onCoverUpdate(final Bitmap albumCover, final String albumCoverPath) {
-        mRemoteControlClientHandler.update(albumCover);
-        mNotificationHandler.setAlbumCover(albumCover, albumCoverPath);
     }
 
     /**
@@ -777,7 +766,6 @@ public final class MPDroidService extends Service implements
                 MPD_ASYNC_HELPER.disconnect();
             }
         }
-        mMessageHandler.sendHandlerStatus();
 
         if (stopSelf) {
             /**

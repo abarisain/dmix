@@ -217,6 +217,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
 
         if (mpdStatus != null) {
+            volumeChanged(mpdStatus, -1);
             updateStatus(mpdStatus);
             updateTrackInfo(mpdStatus);
         } else {
