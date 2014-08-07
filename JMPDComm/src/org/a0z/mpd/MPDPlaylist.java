@@ -240,6 +240,37 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         this.refresh();
     }
 
+    /**
+     * Moves {@code number} songs starting at position {@code start}
+     * to position {@code to}.
+     *
+     * @param start   current position of the first of the songs to be moved.
+     * @param number  number of songs to be moved.
+     * @param to      first target position of the songs to be moved to.
+     * @throws MPDServerException if an error occur while contacting server.
+     * @see #moveByPosition(int, int)
+     */
+    public void moveByPosition(final int start, final int number, final int to) throws MPDServerException {
+        if (start == to || number <= 0) {
+            return;
+        }
+        MPDConnection conn = mpd.getMpdConnection();
+        boolean moveUp = (to < start);
+        int from   = start;
+        int target = to;
+        for (int i = 0; i < number; i++) {
+            conn.queueCommand(MPD_CMD_PLAYLIST_MOVE,
+                              Integer.toString(from),
+                              Integer.toString(target));
+            if (moveUp) {
+                from ++;
+                target ++;
+            }
+        }
+        conn.sendCommandQueue();
+        this.refresh();
+    }
+
     /*
      * React to playlist change on server and refresh the queue
      * @see
