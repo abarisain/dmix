@@ -766,7 +766,6 @@ public final class MPDroidService extends Service implements
                 MPD_ASYNC_HELPER.disconnect();
             }
         }
-        mMessageHandler.sendHandlerStatus();
 
         if (stopSelf) {
             /**
