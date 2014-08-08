@@ -127,7 +127,7 @@ public class MPDAsyncWorker implements Handler.Callback,
                 connect();
                 break;
             case EVENT_RECONNECT:
-                reconnect();
+                //reconnect();
                 break;
             case EVENT_START_STATUS_MONITOR:
                 startStatusMonitor();
