@@ -399,6 +399,7 @@ public final class MPDroidService extends Service implements
 
         if (intent != null) {
             final String action = intent.getAction();
+            boolean keepActive = false;
 
             if (action != null) {
                 switch (action) {
@@ -407,6 +408,7 @@ public final class MPDroidService extends Service implements
                         windDownHandlers(true);
                         break;
                     case ACTION_START:
+                        keepActive = true;
                         if (DEBUG) {
                             Log.d(TAG, "Service persistent.");
                         }
@@ -437,7 +439,7 @@ public final class MPDroidService extends Service implements
             }
 
             /** If the action didn't start anything, shut it down. */
-            if (!hasActiveHandlers()) {
+            if (!hasActiveHandlers() && !keepActive) {
                 stopSelf();
             }
         }
