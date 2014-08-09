@@ -368,7 +368,6 @@ public class ServiceBinder implements
                 mIntent.setAction(MPDroidService.ACTION_START);
                 mClientContext.startService(mIntent);
             } else {
-                sendMessageToService(SET_PERSISTENT, false);
                 setupDisconnectionDelay();
             }
         }
