@@ -166,6 +166,9 @@ public final class StreamHandler implements
             case BUFFERING_END:
                 result = "BUFFERING_END";
                 break;
+            case STREAMING_PAUSE:
+                result = "STREAMING_PAUSE";
+                break;
             default:
                 result = "{unknown}: " + what;
                 break;
@@ -265,33 +268,36 @@ public final class StreamHandler implements
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.onAudioFocusChange() with " + focusChange);
         }
-        final float duckVolume = 0.2f;
 
-        switch (focusChange) {
-            case AudioManager.AUDIOFOCUS_GAIN:
-                if (mMediaPlayer.isPlaying()) {
-                    if (DEBUG) {
-                        Log.d(TAG, "Regaining after ducked transient loss.");
+        if (mMediaPlayer != null) {
+            final float duckVolume = 0.2f;
+
+            switch (focusChange) {
+                case AudioManager.AUDIOFOCUS_GAIN:
+                    if (mMediaPlayer.isPlaying()) {
+                        if (DEBUG) {
+                            Log.d(TAG, "Regaining after ducked transient loss.");
+                        }
+                        mMediaPlayer.setVolume(1.0f, 1.0f);
+                    } else if (!mPreparingStream) {
+                        if (DEBUG) {
+                            Log.d(TAG, "Coming out of transient loss.");
+                        }
+                        mMediaPlayer.start();
                     }
-                    mMediaPlayer.setVolume(1.0f, 1.0f);
-                } else if (!mPreparingStream) {
-                    if (DEBUG) {
-                        Log.d(TAG, "Coming out of transient loss.");
-                    }
-                    mMediaPlayer.start();
-                }
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS:
-                MPDControl.run(MPDroidService.MPD_ASYNC_HELPER.oMPD, MPDControl.ACTION_PAUSE);
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                mMediaPlayer.pause();
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                mMediaPlayer.setVolume(duckVolume, duckVolume);
-                break;
-            default:
-                break;
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS:
+                    MPDControl.run(MPDroidService.MPD_ASYNC_HELPER.oMPD, MPDControl.ACTION_PAUSE);
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                    mMediaPlayer.pause();
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                    mMediaPlayer.setVolume(duckVolume, duckVolume);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
