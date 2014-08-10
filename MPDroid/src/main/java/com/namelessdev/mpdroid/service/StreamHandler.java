@@ -26,6 +26,7 @@ import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
+import android.media.MediaPlayer.OnInfoListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
 import android.os.Message;
@@ -42,13 +43,13 @@ import java.io.IOException;
  */
 public final class StreamHandler implements
         /**
-         * OnInfoListener is not used because it is broken (never gets called, ever)..
          * OnBufferingUpdateListener is not used because it depends on a stream completion time.
          */
         Handler.Callback,
         OnAudioFocusChangeListener,
         OnCompletionListener,
         OnErrorListener,
+        OnInfoListener,
         OnPreparedListener {
 
     /** This is the class unique Binder identifier. */
@@ -380,6 +381,33 @@ public final class StreamHandler implements
 
         mErrorIterator += 1;
         return true;
+    }
+
+    /**
+     * Called to indicate an info or a warning.
+     *
+     * @param mp    The {@code MediaPlayer} the info pertains to.
+     * @param what  The type of info or warning.
+     * @param extra An extra code, specific to the info. Typically implementation dependent.
+     * @return True if the method handled the info, false if it didn't. Returning false, or not
+     * having an OnErrorListener at all, will cause the info to be discarded.
+     */
+    @Override
+    public boolean onInfo(final MediaPlayer mp, final int what, final int extra) {
+        boolean result = true;
+
+        switch (what) {
+            case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                mServiceHandler.sendEmptyMessage(BUFFERING_BEGIN);
+                break;
+            case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                mServiceHandler.sendEmptyMessage(BUFFERING_END);
+                break;
+            default:
+                result = false;
+        }
+
+        return result;
     }
 
     /**
