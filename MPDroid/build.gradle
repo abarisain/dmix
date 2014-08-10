@@ -11,9 +11,9 @@ dependencies {
 
     // Projects
     compile project(':JMPDComm')
-    compile 'com.sothree.slidinguppanel:library:2.0.1'
 
     // Libraries from maven
+    compile 'com.sothree.slidinguppanel:library:2.0.1'
     compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.3'
     compile 'asia.ivity.android:drag-sort-listview:1.0'
 }
