@@ -748,8 +748,8 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             }
 
             if (filter != null) {
-                if (isFiltered(item.getAlbumArtist()) || isFiltered(item.getAlbum()) ||
-                        isFiltered(item.getTitle())) {
+                if (!(isFiltered(item.getAlbumArtist()) || isFiltered(item.getAlbum()) ||
+                        isFiltered(item.getTitle()))) {
                     continue;
                 }
             }
