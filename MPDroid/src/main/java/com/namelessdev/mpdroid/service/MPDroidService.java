@@ -1051,26 +1051,24 @@ public final class MPDroidService extends Service implements
          *                 whether to send true or false to clients.
          */
         private void sendMessageToClients(final int what, final boolean isActive) {
-            final Message msg;
             if (mServiceClients.isEmpty()) {
                 if (DEBUG) {
                     Log.d(TAG, "No service clients. What: " + ServiceBinder.getHandlerValue(what));
                 }
-                msg = null;
             } else {
-                msg = ServiceBinder.getBoolMessage(mHandler, what, isActive);
-            }
+                final Message msg = ServiceBinder.getBoolMessage(mHandler, what, isActive);
 
-            for (int iterator = mServiceClients.size() - 1; iterator >= 0; iterator--) {
-                try {
-                    mServiceClients.get(iterator).send(msg);
-                } catch (final RemoteException e) {
-                    /**
-                     * The client is dead.  Remove it from the list; we are going through
-                     * the list from back to front so this is safe to do inside the loop.
-                     */
-                    mServiceClients.remove(iterator);
-                    Log.w(TAG, "Client died.", e);
+                for (int iterator = mServiceClients.size() - 1; iterator >= 0; iterator--) {
+                    try {
+                        mServiceClients.get(iterator).send(msg);
+                    } catch (final RemoteException e) {
+                        /**
+                         * The client is dead.  Remove it from the list; we are going through
+                         * the list from back to front so this is safe to do inside the loop.
+                         */
+                        mServiceClients.remove(iterator);
+                        Log.w(TAG, "Client died.", e);
+                    }
                 }
             }
         }
