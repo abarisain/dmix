@@ -354,13 +354,16 @@ public class ServiceBinder implements
 
     /** This sets the service as persistent until service is restarted. */
     public final void setServicePersistent(final boolean isPersistent) {
-        mIsPersistent = isPersistent;
-        if (isPersistent) {
-            mIntent.setAction(MPDroidService.ACTION_START);
-            mClientContext.startService(mIntent);
-        } else {
-            sendMessageToService(SET_PERSISTENT, false);
-            setupDisconnectionDelay();
+        if (mIsPersistent != isPersistent) {
+            mIsPersistent = isPersistent;
+
+            if (isPersistent) {
+                mIntent.setAction(MPDroidService.ACTION_START);
+                mClientContext.startService(mIntent);
+            } else {
+                sendMessageToService(SET_PERSISTENT, false);
+                setupDisconnectionDelay();
+            }
         }
     }
 

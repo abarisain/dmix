@@ -298,6 +298,7 @@ public class MPDApplication extends Application implements
                 break;
             case NotificationHandler.IS_ACTIVE:
                 mIsNotificationActive = ServiceBinder.TRUE == msg.arg1;
+                mServiceBinder.setServicePersistent(true);
                 break;
             case ServiceBinder.CONNECTED:
                 Log.d(TAG, "MPDApplication is bound to the service.");
@@ -308,6 +309,7 @@ public class MPDApplication extends Application implements
                 break;
             case StreamHandler.IS_ACTIVE:
                 mIsStreamActive = ServiceBinder.TRUE == msg.arg1;
+                mServiceBinder.setServicePersistent(true);
                 break;
             case ServiceBinder.SET_PERSISTENT:
                 if (!isNotificationPersistent() || ServiceBinder.TRUE == msg.arg1) {
@@ -493,7 +495,6 @@ public class MPDApplication extends Application implements
                 Log.d(TAG, "Starting notification.");
             }
             setupServiceBinder();
-            mServiceBinder.setServicePersistent(true);
             mServiceBinder
                     .sendMessageToService(NotificationHandler.START, isNotificationPersistent());
         }
@@ -513,7 +514,6 @@ public class MPDApplication extends Application implements
                 Log.d(TAG, "Starting stream.");
             }
             setupServiceBinder();
-            mServiceBinder.setServicePersistent(true);
             mServiceBinder.sendMessageToService(StreamHandler.START);
         }
     }
