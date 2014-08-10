@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.helpers.MPDControl;
-import com.namelessdev.mpdroid.tools.NetworkHelper;
 
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
@@ -26,6 +25,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -48,6 +49,27 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         SETTINGS.edit()
                 .putBoolean(PAUSED_MARKER, value)
                 .commit();
+    }
+
+    private static boolean isLocalNetworkConnected() {
+        final ConnectivityManager cm =
+                (ConnectivityManager) APP.getSystemService(Context.CONNECTIVITY_SERVICE);
+        boolean isLocalNetwork = false;
+
+        if (cm != null) {
+            final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+
+            if (networkInfo != null) {
+                final int networkType = networkInfo.getType();
+
+                if (networkInfo.isConnected() && networkType == ConnectivityManager.TYPE_WIFI ||
+                        networkType == ConnectivityManager.TYPE_ETHERNET) {
+                    isLocalNetwork = true;
+                }
+            }
+        }
+
+        return isLocalNetwork;
     }
 
     private static boolean shouldPauseForCall() {
@@ -81,11 +103,10 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     public final void onReceive(final Context context, final Intent intent) {
         final String telephonyState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
 
-        if (DEBUG) {
-            Log.d(TAG, "Telephony State: " + telephonyState);
-        }
-        if (NetworkHelper.isLocalNetworkConnected() || APP.isLocalAudible()
-                && telephonyState != null) {
+        if (isLocalNetworkConnected() || APP.isLocalAudible() && telephonyState != null) {
+            if (DEBUG) {
+                Log.d(TAG, "Telephony State: " + telephonyState);
+            }
             if ((telephonyState.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING) ||
                     telephonyState.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_OFFHOOK)) &&
                     shouldPauseForCall()) {

@@ -98,7 +98,7 @@ public class LocalCover implements ICoverRetriever {
 
         if (musicPath != null) {
             // load server name/ip
-            final String serverName = app.oMPDAsyncHelper.getConnectionSettings().sServer;
+            final String serverName = app.oMPDAsyncHelper.getConnectionSettings().server;
 
             String url;
             final List<String> urls = new ArrayList<String>();

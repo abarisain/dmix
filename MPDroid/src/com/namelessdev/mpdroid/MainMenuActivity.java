@@ -21,11 +21,10 @@ import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.fragments.QueueFragment;
+import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
-import com.namelessdev.mpdroid.service.MPDroidService;
-import com.namelessdev.mpdroid.service.StreamingService;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -38,8 +37,10 @@ import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -218,6 +219,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private ImageButton mHeaderOverflowMenu;
 
+    private View mHeaderDragView;
+
     private PopupMenu mHeaderOverflowPopupMenu;
 
     private TextView mHeaderTitle;
@@ -236,6 +239,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private DisplayMode currentDisplayMode;
 
+    private static final boolean DEBUG = false;
+
     @Override
     public ArrayList<String> getTabList() {
         return mTabList;
@@ -250,8 +255,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      */
     @Override
     public void onBackPressed() {
-        if (mSlidingLayout.isExpanded()) {
-            mSlidingLayout.collapsePane();
+        if (mSlidingLayout.isPanelExpanded()) {
+            mSlidingLayout.collapsePanel();
             return;
         }
 
@@ -302,6 +307,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        app.setupServiceBinder();
         setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet
                 : R.layout.main_activity_nagvigation);
 
@@ -444,12 +450,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
         mHeaderOverflowMenu = (ImageButton) findViewById(R.id.header_overflow_menu);
         mHeaderTitle = (TextView) findViewById(R.id.header_title);
+        mHeaderDragView = findViewById(R.id.header_dragview);
         if (mHeaderPlayQueue != null) {
             mHeaderPlayQueue.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (nowPlayingPager != null && mSlidingLayout != null
-                            && mSlidingLayout.isExpanded()) {
+                            && mSlidingLayout.isPanelExpanded()) {
                         if (nowPlayingPager.getCurrentItem() == 0) {
                             showQueue();
                         } else {
@@ -474,7 +481,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             mHeaderOverflowMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mSlidingLayout != null && mSlidingLayout.isExpanded()) {
+                    if (mSlidingLayout != null && mSlidingLayout.isPanelExpanded()) {
                         prepareNowPlayingMenu(mHeaderOverflowPopupMenu.getMenu());
                         mHeaderOverflowPopupMenu.show();
                     }
@@ -483,15 +490,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
         // Sliding panel
         mSlidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        //mSlidingLayout.setDragView(findViewById(R.id.header_dragview));
         mSlidingLayout.setEnableDragViewTouchEvents(true);
-        mSlidingLayout.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
         mSlidingLayout.setPanelHeight((int)getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
         final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
                 new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset < 0.3) {
+                if (slideOffset > 0.3) {
                     if (getActionBar().isShowing()) {
                         getActionBar().hide();
                     }
@@ -500,8 +505,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         getActionBar().show();
                     }
                 }
-                nowPlayingSmallFragment.setVisibility(slideOffset <= 0 ? View.GONE : View.VISIBLE);
-                nowPlayingSmallFragment.setAlpha(slideOffset);
+                nowPlayingSmallFragment.setVisibility(slideOffset < 1 ? View.VISIBLE : View.GONE);
+                nowPlayingSmallFragment.setAlpha(1-slideOffset);
             }
 
             @Override
@@ -521,17 +526,20 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             @Override
             public void onPanelAnchored(View panel) {
             }
-        };
+
+            @Override
+            public void onPanelHidden(View view) {}
+         };
         mSlidingLayout.setPanelSlideListener(panelSlideListener);
         // Ensure that the view state is consistent (otherwise we end up with a view mess)
         // The sliding layout should take care of it itself but does not
         if (savedInstanceState != null) {
             if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
-                mSlidingLayout.expandPane();
+                mSlidingLayout.expandPanel();
                 panelSlideListener.onPanelSlide(mSlidingLayout, 0);
                 panelSlideListener.onPanelExpanded(mSlidingLayout);
             } else {
-                mSlidingLayout.collapsePane();
+                mSlidingLayout.collapsePanel();
                 panelSlideListener.onPanelSlide(mSlidingLayout, 1);
                 panelSlideListener.onPanelCollapsed(mSlidingLayout);
             }
@@ -632,10 +640,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     app.connect();
                     break;
                 case R.id.GMM_Stream:
-                    if (app.isStreamingServiceRunning()) {
-                        stopService(StreamingService.class);
+                    if (app.isStreamActive()) {
+                        app.stopStreaming();
                     } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                        startService(StreamingService.class, StreamingService.ACTION_START);
+                        app.startStreaming();
                     }
                     break;
                 case R.id.GMM_bonjour:
@@ -648,10 +656,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     MPDControl.run(MPDControl.ACTION_SINGLE);
                     break;
                 case R.id.GMM_ShowNotification:
-                    if (app.isMPDroidServiceRunning()) {
-                        stopService(MPDroidService.class);
+                    if (app.isNotificationActive()) {
+                        app.stopNotification();
                     } else {
-                        startService(MPDroidService.class, MPDroidService.ACTION_START);
+                        app.startNotification();
                         app.setPersistentOverride(false);
                     }
                     break;
@@ -661,31 +669,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             }
         }
         return result;
-    }
-
-    /**
-     * Enables and starts a service.
-     *
-     * @param serviceClass The class of the service to start.
-     * @param intentAction The starting intent action name. If null, the service
-     *               will be enabled but not started.
-     */
-    private void startService(final Class<?> serviceClass, final String intentAction) {
-        final Intent intent = new Intent(app, serviceClass);
-        if (intentAction != null) {
-            intent.setAction(intentAction);
-            super.startService(intent);
-        }
-    }
-
-    /**
-     * Disables and stops a service.
-     *
-     * @param serviceClass The class of the service to stop.
-     */
-    private void stopService(final Class<?> serviceClass) {
-        final Intent intent = new Intent(app, serviceClass);
-        super.stopService(intent);
     }
 
     @Override
@@ -704,7 +687,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     public void prepareNowPlayingMenu(Menu menu) {
-        final boolean isStreaming = app.isStreamingServiceRunning();
+        final boolean isStreaming = app.isStreamActive();
 
         // Reminder : never disable buttons that are shown as actionbar actions
         // here
@@ -730,7 +713,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
 
         /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
-        MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
+        final MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
         if(notificationItem != null) {
             if (isStreaming || app.isNotificationPersistent()) {
                 notificationItem.setVisible(false);
@@ -738,7 +721,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 notificationItem.setVisible(true);
             }
             
-            setMenuChecked(notificationItem, app.isMPDroidServiceRunning());
+            setMenuChecked(notificationItem, app.isNotificationActive());
         }
 
         setMenuChecked(menu.findItem(R.id.GMM_Stream), isStreaming);
@@ -757,15 +740,27 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
+    protected void onPause() {
+        if (DEBUG) {
+            unregisterReceiver(MPDConnectionHandler.getInstance());
+        }
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         backPressExitCount = 0;
+        if (DEBUG) {
+            registerReceiver(MPDConnectionHandler.getInstance(),
+                    new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(EXTRA_DISPLAY_MODE, currentDisplayMode);
-        outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isExpanded());
+        outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isPanelExpanded());
         super.onSaveInstanceState(outState);
     }
 
@@ -775,10 +770,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         app.setActivity(this);
 
         if (app.isNotificationPersistent()) {
-            startService(MPDroidService.class, MPDroidService.ACTION_START);
-        } else if (!app.isMPDroidServiceRunning()) {
-            /** Don't allow the service to auto-start. */
-            stopService(MPDroidService.class);
+            app.startNotification();
         }
     }
 
@@ -873,21 +865,26 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (mHeaderTitle != null) {
             mHeaderTitle.setText(queueShown && !isDualPaneMode ? R.string.playQueue : R.string.nowPlaying);
         }
+
+        // Restrain the sliding panel sliding zone
+        if (mSlidingLayout != null) {
+            if (queueShown) {
+                mSlidingLayout.setDragView(mHeaderDragView);
+            } else {
+                mSlidingLayout.setDragView(null);
+                // Sliding layout made mHeaderDragView clickable, revert it
+                mHeaderDragView.setClickable(false);
+            }
+        }
     }
 
     public void showQueue() {
         if (mSlidingLayout != null) {
-            mSlidingLayout.expandPane();
+            mSlidingLayout.expandPanel();
         }
         if (nowPlayingPager != null) {
             nowPlayingPager.setCurrentItem(1, true);
         }
         refreshQueueIndicator(true);
-    }
-
-    public void onQueueListAttached(View list) {
-        if (mSlidingLayout != null) {
-            mSlidingLayout.mActionViews = new View[] { list };
-        }
     }
 }

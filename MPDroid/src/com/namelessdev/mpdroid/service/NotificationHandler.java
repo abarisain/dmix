@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.service;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
@@ -32,93 +31,70 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
 /**
  * A class to handle everything necessary for the MPDroid notification.
  */
-public class NotificationHandler {
+public class NotificationHandler implements AlbumCoverHandler.NotificationCallback {
 
-    /**
-     * The ID we use for the notification (the onscreen alert that appears
-     * at the notification area at the top of the screen as an icon -- and
-     * as text as well if the user expands the notification area).
-     */
+    static final int LOCAL_UID = 300;
+
+    public static final int START = LOCAL_UID + 1;
+
+    public static final int STOP = LOCAL_UID + 2;
+
+    public static final int IS_ACTIVE = LOCAL_UID + 3;
+
+    public static final int PERSISTENT_OVERRIDDEN = LOCAL_UID + 4;
+
     private static final int NOTIFICATION_ID = 1;
-
-    private static final Notification NOTIFICATION;
 
     private static final String TAG = "NotificationHandler";
 
-    private static MPDApplication sApp = MPDApplication.getInstance();
+    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.service." + TAG;
 
-    private static final NotificationManager NOTIFICATION_MANAGER =
-            (NotificationManager) sApp.getSystemService(sApp.NOTIFICATION_SERVICE);
+    public static final String ACTION_START = FULLY_QUALIFIED_NAME + ".ACTION_START";
 
-    private final MPDroidService mMPDroidService;
+    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
+
+    private final Notification mNotification;
+
+    private final MPDroidService mServiceContext;
+
+    private final NotificationManager mNotificationManager;
 
     private Music mCurrentTrack = null;
 
+    private boolean mIsActive;
+
+    private boolean mIsForeground = false;
+
     private boolean mIsMediaPlayerBuffering = false;
 
-    NotificationHandler(final MPDroidService mpdroidService) {
+    NotificationHandler(final MPDroidService serviceContext) {
         super();
 
-        final MPDStatus mpdStatus = MPDroidService.getMPDStatus();
+        mServiceContext = serviceContext;
 
-        /**
-         * Workaround for Bug #558 This is necessary if setMediaPlayerBuffering() is the first
-         * method to be called. Optimally, this would be passed into the constructor, but
-         * this complication belongs here for now.
-         */
-        if (sApp.oMPDAsyncHelper.oMPD.isConnected()) {
-            while (mCurrentTrack == null && mpdStatus.getPlaylistLength() > 0
-                    || mpdStatus.getPlaylistVersion() == 0) {
-                final int songPos = mpdStatus.getSongPos();
-                mCurrentTrack = sApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+        mNotificationManager = (NotificationManager) mServiceContext
+                .getSystemService(serviceContext.NOTIFICATION_SERVICE);
 
-                if (mCurrentTrack == null && mpdStatus.getPlaylistLength() > 0) {
-                    Log.w(TAG, "Failed to get current track, likely due to bug #558, looping..");
-                    synchronized (this) {
-                        try {
-                            wait(1000L);
-                        } catch (final InterruptedException ignored) {
-                        }
-                    }
-                }
-            }
-        }
-
-        mMPDroidService = mpdroidService;
-    }
-
-    static {
-        final RemoteViews resultView = new RemoteViews(sApp.getPackageName(),
+        final RemoteViews resultView = new RemoteViews(mServiceContext.getPackageName(),
                 R.layout.notification);
 
         buildBaseNotification(resultView);
-        NOTIFICATION = buildCollapsedNotification().setContent(resultView).build();
+        mNotification = buildCollapsedNotification(serviceContext).setContent(resultView).build();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             buildExpandedNotification();
         }
-    }
 
-    /**
-     * Build a pending intent for use with the notification button controls.
-     *
-     * @param action The ACTION intent string.
-     * @return The pending intent.
-     */
-    private static PendingIntent buildPendingIntent(final String action) {
-        final Intent intent = new Intent(sApp, RemoteControlReceiver.class);
-        intent.setAction(action);
-        return PendingIntent.getBroadcast(sApp, 0, intent, 0);
+        mCurrentTrack = new Music();
+        mIsActive = true;
     }
 
     /**
@@ -126,12 +102,14 @@ public class NotificationHandler {
      *
      * @return Returns a notification builder object.
      */
-    private static NotificationCompat.Builder buildCollapsedNotification() {
-        final Intent musicPlayerActivity = new Intent(sApp, MainMenuActivity.class);
+    private static NotificationCompat.Builder
+    buildCollapsedNotification(final MPDroidService context) {
+        final Intent musicPlayerActivity = new Intent(context, MainMenuActivity.class);
         final PendingIntent notificationClick = PendingIntent
-                .getActivity(sApp, 0, musicPlayerActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+                .getActivity(context, 0, musicPlayerActivity,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
 
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(sApp);
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setSmallIcon(R.drawable.icon_bw);
         builder.setContentIntent(notificationClick);
         builder.setStyle(new NotificationCompat.BigTextStyle());
@@ -140,57 +118,51 @@ public class NotificationHandler {
     }
 
     /**
+     * A function to translate 'what' fields to literal debug name, used primarily for debugging.
+     *
+     * @param what A 'what' field.
+     * @return The literal field name.
+     */
+    public static String getHandlerValue(final int what) {
+        final String result;
+
+        switch (what) {
+            case LOCAL_UID:
+                result = "LOCAL_UID";
+                break;
+            case START:
+                result = "START";
+                break;
+            case STOP:
+                result = "STOP";
+                break;
+            case IS_ACTIVE:
+                result = "IS_ACTIVE";
+                break;
+            case PERSISTENT_OVERRIDDEN:
+                result = "PERSISTENT_OVERRIDDEN";
+                break;
+            default:
+                result = "{unknown}: " + what;
+                break;
+        }
+
+        return "NotificationHandler." + result;
+    }
+
+    /**
      * A method to update the album cover view.
      *
-     * @param resultView     The notification view to edit.
-     * @param albumCover     The new album cover.
-     * @param albumCoverPath The new album cover path.
+     * @param resultView The notification view to edit.
+     * @param albumCover The new album cover.
      */
-    private static void setAlbumCover(final RemoteViews resultView, final Bitmap albumCover,
-            final String albumCoverPath) {
-        if (albumCover != null) {
-            resultView.setImageViewUri(R.id.notificationIcon, Uri.parse(albumCoverPath));
-        } else {
+    private static void setAlbumCover(final RemoteViews resultView, final Bitmap albumCover) {
+        if (albumCover == null) {
             resultView.setImageViewResource(R.id.notificationIcon,
                     AlbumCoverDownloadListener.getNoCoverResource());
+        } else {
+            resultView.setImageViewBitmap(R.id.notificationIcon, albumCover);
         }
-    }
-
-    /**
-     * A method to update the play state icon to a "paused" state.
-     *
-     * @param resultView The notification view to edit.
-     */
-    private static void updateStatePaused(final RemoteViews resultView) {
-        final PendingIntent playAction = buildPendingIntent(MPDControl.ACTION_PLAY);
-
-        resultView.setOnClickPendingIntent(R.id.notificationPlayPause, playAction);
-        resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_play);
-    }
-
-    /**
-     * A method to update the play state icon to a "play" state.
-     *
-     * @param resultView The notification view to edit.
-     */
-    private static void updateStatePlaying(final RemoteViews resultView) {
-        final PendingIntent pauseAction = buildPendingIntent(MPDControl.ACTION_PAUSE);
-
-        resultView.setOnClickPendingIntent(R.id.notificationPlayPause, pauseAction);
-        resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_pause);
-    }
-
-    /**
-     * Update the collapsed notification view for a "buffering" play state.
-     *
-     * @param resultView The notification view to edit.
-     * @param trackTitle The current track title.
-     */
-    private static void updateBufferingContent(final RemoteViews resultView,
-            final CharSequence trackTitle) {
-        resultView.setViewVisibility(R.id.notificationClose, View.GONE);
-        resultView.setTextViewText(R.id.notificationTitle, sApp.getString(R.string.buffering));
-        resultView.setTextViewText(R.id.notificationArtist, trackTitle);
     }
 
     /**
@@ -205,12 +177,24 @@ public class NotificationHandler {
     }
 
     /**
+     * Build a pending intent for use with the notification button controls.
+     *
+     * @param action The ACTION intent string.
+     * @return The pending intent.
+     */
+    private PendingIntent buildPendingIntent(final String action) {
+        final Intent intent = new Intent(mServiceContext, RemoteControlReceiver.class);
+        intent.setAction(action);
+        return PendingIntent.getBroadcast(mServiceContext, 0, intent, 0);
+    }
+
+    /**
      * This method constructs the notification base, otherwise known as the collapsed notification.
      * The expanded notification method builds upon this method.
      *
      * @param resultView The RemoteView to begin with, be it new or from the current notification.
      */
-    private static void buildBaseNotification(final RemoteViews resultView) {
+    private void buildBaseNotification(final RemoteViews resultView) {
         final PendingIntent closeAction = buildPendingIntent(MPDroidService.ACTION_STOP);
         final PendingIntent nextAction = buildPendingIntent(MPDControl.ACTION_NEXT);
 
@@ -230,41 +214,36 @@ public class NotificationHandler {
      * the resources necessary for the expanded notification RemoteViews.
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private static void buildExpandedNotification() {
+    private void buildExpandedNotification() {
         final PendingIntent previousAction = buildPendingIntent(MPDControl.ACTION_PREVIOUS);
-        final RemoteViews resultView = new RemoteViews(sApp.getPackageName(),
+        final RemoteViews resultView = new RemoteViews(mServiceContext.getPackageName(),
                 R.layout.notification_big);
 
         buildBaseNotification(resultView);
 
         resultView.setOnClickPendingIntent(R.id.notificationPrev, previousAction);
 
-        NOTIFICATION.bigContentView = resultView;
+        mNotification.bigContentView = resultView;
+    }
+
+    final boolean isActive() {
+        return mIsActive;
     }
 
     /**
-     * A method for cleanup and winding down.
-     */
-    final void onDestroy() {
-        mMPDroidService.stopForeground(true);
-        NOTIFICATION_MANAGER.cancel(NOTIFICATION_ID);
-    }
-
-    /**
-     * A method to update the album cover view of the current notification.
+     * This is called when cover art needs to be updated due to server information change.
      *
-     * @param albumCover     The new album cover.
-     * @param albumCoverPath The new album cover path.
+     * @param albumCover the current album cover bitmap.
      */
-    final void setAlbumCover(final Bitmap albumCover, final String albumCoverPath) {
-        setAlbumCover(NOTIFICATION.contentView, albumCover, albumCoverPath);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            setAlbumCover(NOTIFICATION.bigContentView, albumCover, albumCoverPath);
+    @Override
+    public final void onCoverUpdate(final Bitmap albumCover) {
+        if (mIsActive) {
+            setAlbumCover(mNotification.contentView, albumCover);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                setAlbumCover(mNotification.bigContentView, albumCover);
+            }
+            updateNotification();
         }
-
-        NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
-        mMPDroidService.startForeground(NOTIFICATION_ID, NOTIFICATION);
     }
 
     /**
@@ -278,17 +257,19 @@ public class NotificationHandler {
     }
 
     /**
-     * A method that sets the StreamingService {@code MediaPlayer}
+     * A method that sets the StreamHandler {@code MediaPlayer}
      * as dormant, which allows user access to close the notification.
      */
     final void setMediaPlayerWoundDown() {
-        NOTIFICATION.contentView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            NOTIFICATION.bigContentView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
-        }
+        if (mIsActive) {
+            mNotification.contentView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                mNotification.bigContentView
+                        .setViewVisibility(R.id.notificationClose, View.VISIBLE);
+            }
 
-        NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
-        mMPDroidService.startForeground(NOTIFICATION_ID, NOTIFICATION);
+            updateNotification();
+        }
     }
 
     /**
@@ -297,26 +278,27 @@ public class NotificationHandler {
      * @param currentTrack A current {@code Music} object.
      */
     final void setNewTrack(final Music currentTrack) {
-        mCurrentTrack = currentTrack;
+        if (mIsActive) {
+            mCurrentTrack = currentTrack;
 
-        if (mIsMediaPlayerBuffering) {
-            updateBufferingContent(NOTIFICATION.contentView, currentTrack.getTitle());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                updateBufferingContent(NOTIFICATION.bigContentView, currentTrack.getTitle());
-                NOTIFICATION.bigContentView.setTextViewText(R.id.notificationAlbum,
-                        currentTrack.getArtist());
+            if (mIsMediaPlayerBuffering) {
+                updateBufferingContent(mNotification.contentView, currentTrack.getTitle());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    updateBufferingContent(mNotification.bigContentView, currentTrack.getTitle());
+                    mNotification.bigContentView.setTextViewText(R.id.notificationAlbum,
+                            currentTrack.getArtist());
+                }
+            } else {
+                updateNotBufferingContent(mNotification.contentView, currentTrack);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    updateNotBufferingContent(mNotification.bigContentView, currentTrack);
+                    mNotification.bigContentView.setTextViewText(R.id.notificationAlbum,
+                            currentTrack.getAlbum());
+                }
             }
-        } else {
-            updateNotBufferingContent(NOTIFICATION.contentView, currentTrack);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                updateNotBufferingContent(NOTIFICATION.bigContentView, currentTrack);
-                NOTIFICATION.bigContentView.setTextViewText(R.id.notificationAlbum,
-                        currentTrack.getAlbum());
-            }
+
+            updateNotification();
         }
-
-        NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
-        mMPDroidService.startForeground(NOTIFICATION_ID, NOTIFICATION);
     }
 
     /**
@@ -325,19 +307,97 @@ public class NotificationHandler {
      * @param isPlaying True if playing, false otherwise.
      */
     final void setPlayState(final boolean isPlaying) {
-        if (isPlaying) {
-            updateStatePlaying(NOTIFICATION.contentView);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                updateStatePlaying(NOTIFICATION.bigContentView);
+        if (mIsActive) {
+            if (isPlaying) {
+                updateStatePlaying(mNotification.contentView);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    updateStatePlaying(mNotification.bigContentView);
+                }
+            } else {
+                updateStatePaused(mNotification.contentView);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    updateStatePaused(mNotification.bigContentView);
+                }
             }
-        } else {
-            updateStatePaused(NOTIFICATION.contentView);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                updateStatePaused(NOTIFICATION.bigContentView);
-            }
-        }
 
-        NOTIFICATION_MANAGER.notify(NOTIFICATION_ID, NOTIFICATION);
-        mMPDroidService.startForeground(NOTIFICATION_ID, NOTIFICATION);
+            updateNotification();
+        }
+    }
+
+    final void start() {
+        mIsActive = true;
+        mIsMediaPlayerBuffering = false;
+    }
+
+    final void stateChanged(final MPDStatus mpdStatus) {
+        switch (mpdStatus.getState()) {
+            case MPDStatus.MPD_STATE_PLAYING:
+                setPlayState(true);
+                break;
+            case MPDStatus.MPD_STATE_PAUSED:
+                setPlayState(false);
+                break;
+            case MPDStatus.MPD_STATE_STOPPED:
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * A method for cleanup and winding down.
+     */
+    final void stop() {
+        mServiceContext.stopForeground(true);
+        mNotificationManager.cancel(NOTIFICATION_ID);
+        mIsActive = false;
+        mIsForeground = false;
+    }
+
+    /**
+     * Update the collapsed notification view for a "buffering" play state.
+     *
+     * @param resultView The notification view to edit.
+     * @param trackTitle The current track title.
+     */
+    private void updateBufferingContent(final RemoteViews resultView,
+            final CharSequence trackTitle) {
+        resultView.setViewVisibility(R.id.notificationClose, View.GONE);
+        resultView.setTextViewText(R.id.notificationTitle,
+                mServiceContext.getString(R.string.buffering));
+        resultView.setTextViewText(R.id.notificationArtist, trackTitle);
+    }
+
+    private void updateNotification() {
+        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+
+        if (!mIsForeground) {
+            mServiceContext.startForeground(NOTIFICATION_ID, mNotification);
+            mIsForeground = true;
+        }
+    }
+
+    /**
+     * A method to update the play state icon to a "paused" state.
+     *
+     * @param resultView The notification view to edit.
+     */
+    private void updateStatePaused(final RemoteViews resultView) {
+        final PendingIntent playAction = buildPendingIntent(MPDControl.ACTION_PLAY);
+
+        resultView.setOnClickPendingIntent(R.id.notificationPlayPause, playAction);
+        resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_play);
+    }
+
+    /**
+     * A method to update the play state icon to a "play" state.
+     *
+     * @param resultView The notification view to edit.
+     */
+    private void updateStatePlaying(final RemoteViews resultView) {
+        final PendingIntent pauseAction = buildPendingIntent(MPDControl.ACTION_PAUSE);
+
+        resultView.setOnClickPendingIntent(R.id.notificationPlayPause, pauseAction);
+        resultView.setImageViewResource(R.id.notificationPlayPause, R.drawable.ic_media_pause);
     }
 }

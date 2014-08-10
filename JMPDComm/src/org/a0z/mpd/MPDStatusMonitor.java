@@ -44,7 +44,7 @@ public class MPDStatusMonitor extends Thread {
 
     private final MPD mpd;
 
-    private boolean giveup;
+    private volatile boolean giveup;
 
     private final LinkedList<StatusChangeListener> statusChangedListeners;
 

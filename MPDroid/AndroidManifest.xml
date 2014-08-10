@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
     package="com.namelessdev.mpdroid"
-    android:versionCode="46"
-    android:versionName="1.07 Beta 6" >
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:versionCode="47"
+    android:versionName="1.07 Beta 7">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Used to start the service upon boot if the service requires persistence. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Required for JmDNS to see services available on the network -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <!-- Cover art cache -->
@@ -22,7 +26,7 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".SearchActivity" />
@@ -32,7 +36,7 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustNothing" >
+            android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,7 +54,7 @@
         </activity>
         <activity
             android:name="com.namelessdev.mpdroid.SearchActivity"
-            android:label="@string/search" >
+            android:label="@string/search">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
 
@@ -63,8 +67,7 @@
         </activity>
         <activity
             android:name="com.namelessdev.mpdroid.library.PlaylistEditActivity"
-            android:label="@string/playlist" >
-        </activity>
+            android:label="@string/playlist" />
         <activity
             android:name="com.namelessdev.mpdroid.library.SimpleLibraryActivity"
             android:windowSoftInputMode="adjustNothing" />
@@ -94,52 +97,46 @@
 
         <service
             android:name=".service.MPDroidService"
-            android:exported="false" />
+            android:exported="false"
+            android:icon="@drawable/icon"
+            android:process=":MPDroidService" />
 
-        <service
-            android:name=".service.StreamingService"
-            android:exported="false" />
-
-        <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >
-            <intent-filter android:priority="500" >
+        <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">
+            <intent-filter android:priority="500">
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver" >
+        <receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProvider" >
+        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProvider">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" >
-                </action>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_provider_simple" >
-            </meta-data>
+                android:resource="@xml/widget_provider_simple" />
         </receiver>
-        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProviderWithStop" >
+        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProviderWithStop">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" >
-                </action>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_provider_simple_with_stop" >
-            </meta-data>
+                android:resource="@xml/widget_provider_simple_with_stop" />
         </receiver>
 
         <service
             android:name="com.namelessdev.mpdroid.widgets.WidgetHelperService"
-            android:enabled="true" >
-        </service>
+            android:enabled="true" />
 
         <provider
             android:name="com.namelessdev.mpdroid.SearchRecentProvider"
@@ -148,8 +145,8 @@
 
         <activity
             android:name=".locale.EditActivity"
-            android:label="@string/app_name"
-            android:icon="@drawable/icon" >
+            android:icon="@drawable/icon"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
             </intent-filter>
@@ -166,7 +163,7 @@
         <activity
             android:name="com.namelessdev.mpdroid.URIHandlerActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.Hidden" >
+            android:theme="@style/AppTheme.Hidden">
 
             <!--
              The following intent filters only common streaming file extensions,
@@ -252,5 +249,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

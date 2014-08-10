@@ -155,6 +155,10 @@ public final class Tools {
         }
     }
 
+    public static boolean isServerLocalhost() {
+        return "127.0.0.1".equals(app.oMPDAsyncHelper.getConnectionSettings().server);
+    }
+
     public static boolean isStringEmptyOrNull(String str) {
         return (str == null || "".equals(str));
     }

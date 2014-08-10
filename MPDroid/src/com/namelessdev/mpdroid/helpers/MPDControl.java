@@ -88,7 +88,7 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      */
     public static void run(final String userCommand) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG);
+        run(app.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG, true);
     }
 
     /**
@@ -99,11 +99,11 @@ public final class MPDControl {
      * @param i           An integer which will be cast to long for run for userCommand argument.
      */
     public static void run(final String userCommand, final int i) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, (long) i);
+        run(app.oMPDAsyncHelper.oMPD, userCommand, (long) i, true);
     }
 
     public static void run(final String userCommand, final long l) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, l);
+        run(app.oMPDAsyncHelper.oMPD, userCommand, l, true);
     }
 
     /**
@@ -138,6 +138,17 @@ public final class MPDControl {
     }
 
     /**
+     * Overload method for the {@code run(mpd, userCommand, long)}
+     * method which removes the third parameter.
+     *
+     * @param mpd         An {@code MPD} object.
+     * @param userCommand The command to be run.
+     */
+    public static void run(final MPD mpd, final String userCommand) {
+        run(mpd, userCommand, INVALID_LONG, false);
+    }
+
+    /**
      * Overload method for the {@code run(mpd, userCommand, long)} method which
      * allows an integer as the final parameter.
      *
@@ -146,7 +157,7 @@ public final class MPDControl {
      * @param i           An integer which will be cast to long for run.
      */
     public static void run(final MPD mpd, final String userCommand, final int i) {
-        run(mpd, userCommand, (long) i);
+        run(mpd, userCommand, (long) i, false);
     }
 
     /**
@@ -155,8 +166,11 @@ public final class MPDControl {
      * @param mpd         An {@code MPD} object.
      * @param userCommand The command to be run.
      * @param l           A long primitive argument for the {@code userCommand}.
+     * @param internalMPD True if the {@code MPD} object was created by the main MPDroid process
+     *                    Application class singleton MPDAsyncHelper instance, false otherwise.
      */
-    public static void run(final MPD mpd, final String userCommand, final long l) {
+    public static void run(final MPD mpd, final String userCommand, final long l,
+            final boolean internalMPD) {
         new Thread(new Runnable() {
 
             /**
@@ -187,8 +201,7 @@ public final class MPDControl {
                 int loopIterator = 50; /** Give the connection 5 seconds, tops. */
                 final long blockTimeout = 100L;
 
-                while (!app.oMPDAsyncHelper.oMPD.isConnected() ||
-                        MPDStatus.MPD_STATE_UNKNOWN.equals(getState(true))) {
+                while (!mpd.isConnected() || MPDStatus.MPD_STATE_UNKNOWN.equals(getState(true))) {
                     synchronized (this) {
                         /** Send a notice once a second or so. */
                         if (loopIterator % 10 == 0) {
@@ -230,7 +243,9 @@ public final class MPDControl {
 
             @Override
             public final void run() {
-                app.addConnectionLock(this);
+                if (internalMPD) {
+                    app.addConnectionLock(this);
+                }
                 blockForConnection();
 
                 /**
@@ -294,7 +309,9 @@ public final class MPDControl {
                 } catch (final MPDServerException e) {
                     Log.w(TAG, "Failed to send a simple MPD command.", e);
                 } finally {
-                    app.removeConnectionLock(this);
+                    if (internalMPD) {
+                        app.removeConnectionLock(this);
+                    }
                 }
             }
         }

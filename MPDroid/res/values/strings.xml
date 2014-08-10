@@ -196,7 +196,8 @@
     <string name="enableAlbumYearText">Show album year</string>
     <string name="showAlbumArtist">Show album artist</string>
     <string name="enableAudioText">Show audio properties</string>
-
+    <string name="startStreaming">Start Streaming</string>
+    <string name="stopStreaming">Stop Streaming</string>
 
     <string name="behavior">Phone Behavior</string>
 	<string name="pauseOnPhoneStateChange">Pause playback</string>

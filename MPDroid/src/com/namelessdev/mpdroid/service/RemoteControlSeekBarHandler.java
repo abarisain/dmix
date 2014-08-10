@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.service;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
@@ -30,14 +29,13 @@ import android.text.format.DateUtils;
 import java.util.Date;
 
 /**
- * A simple Class to enable lock screen seeking on Android 4.3 and higher.
+ * A simple class to enable Android's RemoteControlClient
+ * seek bar. (Requires Android 4.3 and higher).
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class RemoteControlSeekBarHandler implements
         RemoteControlClient.OnPlaybackPositionUpdateListener,
         RemoteControlClient.OnGetPlaybackPositionListener, TrackPositionListener {
-
-    private static MPDApplication sApp = MPDApplication.getInstance();
 
     private static final String TAG = "RemoteControlSeekBarHandler";
 
@@ -61,16 +59,19 @@ public class RemoteControlSeekBarHandler implements
         super();
 
         mRemoteControlClient = remoteControlClient;
-        mRemoteControlClient.setOnGetPlaybackPositionListener(this);
-        mRemoteControlClient.setPlaybackPositionUpdateListener(this);
-        sApp.oMPDAsyncHelper.addTrackPositionListener(this);
 
         mRemoteControlClient.setTransportControlFlags(controlFlags |
                 RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
     }
 
-    void onDestroy() {
-        sApp.oMPDAsyncHelper.removeTrackPositionListener(this);
+    final void start() {
+        mRemoteControlClient.setOnGetPlaybackPositionListener(this);
+        mRemoteControlClient.setPlaybackPositionUpdateListener(this);
+        MPDroidService.MPD_ASYNC_HELPER.addTrackPositionListener(this);
+    }
+
+    final void stop() {
+        MPDroidService.MPD_ASYNC_HELPER.removeTrackPositionListener(this);
         mRemoteControlClient.setOnGetPlaybackPositionListener(null);
         mRemoteControlClient.setPlaybackPositionUpdateListener(null);
     }

@@ -130,7 +130,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         coverArt.setImageResource(noCoverResource);
 
         if(albumInfo != null) {
-            coverHelper.downloadCover(albumInfo);
+            coverHelper.downloadCover(albumInfo, true);
         }
     }
 

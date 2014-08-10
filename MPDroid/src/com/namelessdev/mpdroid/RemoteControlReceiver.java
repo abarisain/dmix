@@ -18,12 +18,15 @@ package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.MPDroidService;
-import com.namelessdev.mpdroid.service.StreamingService;
+import com.namelessdev.mpdroid.service.NotificationHandler;
+import com.namelessdev.mpdroid.service.StreamHandler;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -35,9 +38,34 @@ import android.view.KeyEvent;
  */
 public class RemoteControlReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "com.namelessdev.mpdroid.RemoteControlReceiver";
+    private static final boolean DEBUG = false;
+
+    private static final String TAG = "RemoteControlReceiver";
 
     private static MPDApplication sApp = MPDApplication.getInstance();
+
+    /**
+     * This method redirects the incoming broadcast intent to the service, if it's alive. The
+     * service cannot be communicated through messages in this class because this BroadcastReceiver
+     * is registered through the AndroidManifest {@code <receiver>} tag which results in this
+     * BroadcastReceiver will no longer exist after return from {@code onReceive()}.
+     *
+     * @param forceService Force the action, even if the service isn't active.
+     * @param intent       The incoming intent through {@code onReceive()}.
+     * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
+     * android.content.Intent)
+     */
+    private void redirectIntentToService(final boolean forceService, final Intent intent) {
+        intent.setClass(sApp, MPDroidService.class);
+        final IBinder iBinder = peekService(sApp, intent);
+        if (forceService || iBinder != null && iBinder.isBinderAlive()) {
+            if (DEBUG) {
+                Log.d(TAG, "Redirecting action " + intent.getAction() + " to the service.");
+            }
+
+            sApp.startService(intent);
+        }
+    }
 
     @Override
     public final void onReceive(final Context context, final Intent intent) {
@@ -71,20 +99,23 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         } else {
             switch (action) {
                 case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
-                    if (sApp.isLocalAudible()) {
+                    if (Tools.isServerLocalhost()) {
                         MPDControl.run(MPDControl.ACTION_PAUSE);
+                    } else {
+                        redirectIntentToService(false, intent);
+                    }
+                    break;
+                case Intent.ACTION_BOOT_COMPLETED:
+                    if (sApp.isNotificationPersistent()) {
+                        redirectIntentToService(true, intent);
                     }
                     break;
                 case MPDroidService.ACTION_STOP:
-                    if (sApp.isNotificationPersistent()) {
-                        sApp.setPersistentOverride(true);
-                    }
-
-                    /** Stop the MPDroid & Streaming services.*/
-                    final Intent serviceStop = new Intent(sApp, MPDroidService.class);
-                    sApp.stopService(serviceStop);
-                    serviceStop.setClass(sApp, StreamingService.class);
-                    sApp.stopService(serviceStop);
+                    sApp.setPersistentOverride(true);
+                    /** Fall Through */
+                case NotificationHandler.ACTION_START:
+                case StreamHandler.ACTION_START:
+                    redirectIntentToService(true, intent);
                     break;
                 default:
                     MPDControl.run(action);

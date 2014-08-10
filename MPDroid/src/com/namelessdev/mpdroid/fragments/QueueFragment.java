@@ -243,9 +243,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         super.onActivityCreated(savedInstanceState);
         this.activity = getActivity();
         refreshListColorCacheHint();
-        if (list != null) {
-            ((MainMenuActivity) this.activity).onQueueListAttached(list);
-        }
     }
 
     /*

@@ -1,30 +1,24 @@
-language: java
+language: android
 
-before_install:
-  # Ripped most of this from https://github.com/pestrada/android-tdd-playground/blob/master/.travis.yml
+android:
+  components:
+    # Uncomment the lines below if you want to use the latest revision of Android SDK Tools.
+    # - platform-tools
+    # - tools
 
-  # Install base Android SDK
-  - ANDROID_SDK_VERSION="23"
-  - ANDROID_SDK_FILE=android-sdk_r$(printf %s $ANDROID_SDK_VERSION)-linux.tgz
-  - sudo apt-get update -qq
-  - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
-  - wget http://dl.google.com/android/$ANDROID_SDK_FILE
-  - tar xzf $ANDROID_SDK_FILE
-  - export ANDROID_HOME=$PWD/android-sdk-linux
-  - export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+    # The BuildTools version used by your project.
+    - build-tools-20.0.0
 
-  # Try to autogenerate the current SDK and BUILD_TOOLS versions
-  - SDK_VERSION=android-`grep compileSdkVersion MPDroid/build.gradle | sed -e 's/.* //'`
-  - BUILD_TOOLS=build-tools-`grep buildToolsVersion MPDroid/build.gradle | sed -e 's/.* "//' | sed -e 's/"$//'`
+    # The SDK version used to compile your project.
+    - android-19
 
-  # Install required components.
-  # For a full list, run `android list sdk -a --extended`
-  # Other relevant API's
-  - echo yes | android update sdk --filter $BUILD_TOOLS --no-ui --force
-  - echo yes | android update sdk --filter platform-tools --no-ui --force
-  - echo yes | android update sdk --filter $SDK_VERSION --no-ui --force
-  - echo yes | android update sdk --filter extra-android-support --no-ui --force
-  - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force
+    # Additional components
+    # - extra-google-google_play_services
+    # - extra-google-m2repository
+    # - extra-android-m2repository
+    # - addon-google_apis-google-19
 
+# This project doesn't support checkConnected, which is
+#  the default script label for the Android plugin.
 script:
-  - ./gradlew build
+    ./gradlew build

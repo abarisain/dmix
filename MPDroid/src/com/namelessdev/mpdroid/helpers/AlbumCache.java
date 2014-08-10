@@ -20,9 +20,8 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.MPDConnection;
 import org.a0z.mpd.Music;
+import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.util.Log;
@@ -96,8 +95,6 @@ public class AlbumCache
     protected int port;
     protected File filesdir;
     protected CachedMPD mpd;
-
-    protected MPDConnection mpdconnection;
     protected Date lastUpdate = null;
 
     // list of albumname, artist, albumartist including ""
@@ -300,8 +297,7 @@ public class AlbumCache
 
         List<Music> allmusic;
         try {
-            allmusic = Music.getMusicFromList(
-                    mpdconnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO), false);
+            allmusic = mpd.listAllInfo();
             Log.d(TAG, "allmusic " + allmusic.size());
         } catch (final MPDServerException e) {
             enabled = false;
@@ -421,14 +417,18 @@ public class AlbumCache
             Log.d(TAG, "no MPD! ");
             return false;
         }
-        mpdconnection = mpd.getMpdConnection();
-        if (mpdconnection == null) {
+
+        if (mpd.isMpdConnectionNull()) {
             Log.d(TAG, "no MPDConnection! ");
             return false;
         }
         if (this.server == null) {
-            this.server = mpdconnection.getHostAddress().getHostName();
-            this.port = mpdconnection.getHostPort();
+            try {
+                this.server = mpd.getHostAddress().getHostName();
+                this.port = mpd.getHostPort();
+            } catch (final MPDConnectionException ignored) {
+                /** This shouldn't happen, we already checked for a null connection. */
+            }
             this.filesdir = MPD.getApplicationContext().getCacheDir();
             Log.d(TAG, "server " + server + " port " + port + " dir " + filesdir);
             if (!load()) {

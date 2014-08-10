@@ -56,8 +56,6 @@ public class MPD {
 
     protected MPDConnection mpdIdleConnection;
 
-    protected MPDConnection mpdStatusConnection;
-
     protected MPDStatus mpdStatus;
 
     protected MPDPlaylist playlist;
@@ -417,9 +415,8 @@ public class MPD {
     public final synchronized void connect(InetAddress server, int port, String password)
             throws MPDServerException {
         if (!isConnected()) {
-            this.mpdConnection = new MPDConnectionMultiSocket(server, port, 3, password, 5000);
+            this.mpdConnection = new MPDConnectionMultiSocket(server, port, password, 5000, 2);
             this.mpdIdleConnection = new MPDConnectionMonoSocket(server, port, password, 0);
-            this.mpdStatusConnection = new MPDConnectionMonoSocket(server, port, password, 5000);
         }
     }
 
@@ -493,17 +490,6 @@ public class MPD {
                 // exception
             }
         }
-
-        if (mpdStatusConnection != null && mpdStatusConnection.isConnected()) {
-            try {
-                mpdStatusConnection.disconnect();
-            } catch (MPDServerException e) {
-                ex = (ex != null) ? ex : e;// Always keep non null first
-                // exception
-            }
-        }
-
-        // TODO: Throw ex
     }
 
     public void enableOutput(int id) throws MPDServerException {
@@ -829,6 +815,22 @@ public class MPD {
         return result;
     }
 
+    public InetAddress getHostAddress() throws MPDConnectionException {
+        if (mpdConnection == null) {
+            throw new MPDConnectionException("MPD Connection is null.");
+        }
+
+        return mpdConnection.getHostAddress();
+    }
+
+    public int getHostPort() throws MPDConnectionException {
+        if (mpdConnection == null) {
+            throw new MPDConnectionException("MPD Connection is null.");
+        }
+
+        return mpdConnection.getHostPort();
+    }
+
     protected List<Music> getFirstTrack(Album album) throws MPDServerException {
         Artist artist = album.getArtist();
         String[] args = new String[6];
@@ -876,7 +878,7 @@ public class MPD {
      *
      * @return {@code MPDConnection}.
      */
-    public MPDConnection getMpdConnection() {
+    MPDConnection getMpdConnection() {
         return this.mpdConnection;
     }
 
@@ -894,7 +896,7 @@ public class MPD {
             throw new MPDServerException("MPD Connection is not established");
         }
 
-        int[] version = mpdIdleConnection.getMpdVersion();
+        int[] version = mpdIdleConnection.getMPDVersion();
 
         StringBuffer sb = new StringBuffer(version.length);
         for (int i = 0; i < version.length; i++) {
@@ -1096,6 +1098,10 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatistics getStatistics() throws MPDServerException {
+        if (!isConnected()) {
+            throw new MPDConnectionException("MPD Connection is not established");
+        }
+
         List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
         return new MPDStatistics(response);
     }
@@ -1121,7 +1127,7 @@ public class MPD {
             if (!isConnected()) {
                 throw new MPDConnectionException("MPD Connection is not established");
             }
-            List<String> response = mpdStatusConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
+            List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
             if (response == null) {
                 Log.w(TAG, "No status response from the MPD server.");
             } else {
@@ -1147,7 +1153,7 @@ public class MPD {
      * @return true when connected and false when not connected
      */
     public boolean isConnected() {
-        return mpdIdleConnection != null && mpdStatusConnection != null && mpdConnection != null
+        return mpdIdleConnection != null && mpdConnection != null
                 && mpdIdleConnection.isConnected();
     }
 
@@ -1543,6 +1549,23 @@ public class MPD {
                 MPDCommand.MPD_TAG_GENRE);
 
         return parseResponse(response, "Genre", sortInsensitive);
+    }
+
+    /**
+     * Returns a sorted listallinfo command from the media server. Use of this command is highly
+     * discouraged, as it can retrieve so much information the server max_output_buffer_size may
+     * be exceeded, which will, in turn, truncate the output to this method.
+     *
+     * @return List of all available music information.
+     * @throws MPDServerException on no connection or failure to send command.
+     */
+    public List<Music> listAllInfo() throws MPDServerException {
+        if (!isConnected()) {
+            throw new MPDConnectionException("MPD Connection is not established.");
+        }
+
+        final List<String> allInfo = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO);
+        return Music.getMusicFromList(allInfo, false);
     }
 
     public void movePlaylistSong(String playlistName, int from, int to) throws MPDServerException {
