@@ -11,7 +11,7 @@ dependencies {
 
     // Projects
     compile project(':JMPDComm')
-    compile project(':AndroidSlidingUpPanel')
+    compile 'com.sothree.slidinguppanel:library:2.0.1'
 
     // Libraries from maven
     compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.3'

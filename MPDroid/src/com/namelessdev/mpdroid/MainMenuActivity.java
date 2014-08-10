@@ -219,6 +219,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private ImageButton mHeaderOverflowMenu;
 
+    private View mHeaderDragView;
+
     private PopupMenu mHeaderOverflowPopupMenu;
 
     private TextView mHeaderTitle;
@@ -253,8 +255,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      */
     @Override
     public void onBackPressed() {
-        if (mSlidingLayout.isExpanded()) {
-            mSlidingLayout.collapsePane();
+        if (mSlidingLayout.isPanelExpanded()) {
+            mSlidingLayout.collapsePanel();
             return;
         }
 
@@ -448,12 +450,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
         mHeaderOverflowMenu = (ImageButton) findViewById(R.id.header_overflow_menu);
         mHeaderTitle = (TextView) findViewById(R.id.header_title);
+        mHeaderDragView = findViewById(R.id.header_dragview);
         if (mHeaderPlayQueue != null) {
             mHeaderPlayQueue.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (nowPlayingPager != null && mSlidingLayout != null
-                            && mSlidingLayout.isExpanded()) {
+                            && mSlidingLayout.isPanelExpanded()) {
                         if (nowPlayingPager.getCurrentItem() == 0) {
                             showQueue();
                         } else {
@@ -478,7 +481,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             mHeaderOverflowMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mSlidingLayout != null && mSlidingLayout.isExpanded()) {
+                    if (mSlidingLayout != null && mSlidingLayout.isPanelExpanded()) {
                         prepareNowPlayingMenu(mHeaderOverflowPopupMenu.getMenu());
                         mHeaderOverflowPopupMenu.show();
                     }
@@ -487,15 +490,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
         // Sliding panel
         mSlidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        //mSlidingLayout.setDragView(findViewById(R.id.header_dragview));
         mSlidingLayout.setEnableDragViewTouchEvents(true);
-        mSlidingLayout.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
         mSlidingLayout.setPanelHeight((int)getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
         final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
                 new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset < 0.3) {
+                if (slideOffset > 0.3) {
                     if (getActionBar().isShowing()) {
                         getActionBar().hide();
                     }
@@ -504,8 +505,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         getActionBar().show();
                     }
                 }
-                nowPlayingSmallFragment.setVisibility(slideOffset <= 0 ? View.GONE : View.VISIBLE);
-                nowPlayingSmallFragment.setAlpha(slideOffset);
+                nowPlayingSmallFragment.setVisibility(slideOffset < 1 ? View.VISIBLE : View.GONE);
+                nowPlayingSmallFragment.setAlpha(1-slideOffset);
             }
 
             @Override
@@ -525,17 +526,20 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             @Override
             public void onPanelAnchored(View panel) {
             }
-        };
+
+            @Override
+            public void onPanelHidden(View view) {}
+         };
         mSlidingLayout.setPanelSlideListener(panelSlideListener);
         // Ensure that the view state is consistent (otherwise we end up with a view mess)
         // The sliding layout should take care of it itself but does not
         if (savedInstanceState != null) {
             if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
-                mSlidingLayout.expandPane();
+                mSlidingLayout.expandPanel();
                 panelSlideListener.onPanelSlide(mSlidingLayout, 0);
                 panelSlideListener.onPanelExpanded(mSlidingLayout);
             } else {
-                mSlidingLayout.collapsePane();
+                mSlidingLayout.collapsePanel();
                 panelSlideListener.onPanelSlide(mSlidingLayout, 1);
                 panelSlideListener.onPanelCollapsed(mSlidingLayout);
             }
@@ -756,7 +760,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(EXTRA_DISPLAY_MODE, currentDisplayMode);
-        outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isExpanded());
+        outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isPanelExpanded());
         super.onSaveInstanceState(outState);
     }
 
@@ -861,21 +865,26 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (mHeaderTitle != null) {
             mHeaderTitle.setText(queueShown && !isDualPaneMode ? R.string.playQueue : R.string.nowPlaying);
         }
+
+        // Restrain the sliding panel sliding zone
+        if (mSlidingLayout != null) {
+            if (queueShown) {
+                mSlidingLayout.setDragView(mHeaderDragView);
+            } else {
+                mSlidingLayout.setDragView(null);
+                // Sliding layout made mHeaderDragView clickable, revert it
+                mHeaderDragView.setClickable(false);
+            }
+        }
     }
 
     public void showQueue() {
         if (mSlidingLayout != null) {
-            mSlidingLayout.expandPane();
+            mSlidingLayout.expandPanel();
         }
         if (nowPlayingPager != null) {
             nowPlayingPager.setCurrentItem(1, true);
         }
         refreshQueueIndicator(true);
-    }
-
-    public void onQueueListAttached(View list) {
-        if (mSlidingLayout != null) {
-            mSlidingLayout.mActionViews = new View[] { list };
-        }
     }
 }
