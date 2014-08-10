@@ -433,7 +433,15 @@ public class MPDStatus {
                     }
                     break;
                 case "mixrampdelay":
-                    mixRampDelay = Float.parseFloat(lines[1]);
+                    try {
+                        mixRampDelay = Float.parseFloat(lines[1]);
+                    } catch (final NumberFormatException e) {
+                        if ("nan".equals(lines[1])) {
+                            mixRampDisabled = true;
+                        } else {
+                            Log.e(TAG, "Unexpected value from mixrampdelay", e);
+                        }
+                    }
                     break;
                 case "nextsong":
                     nextSong = Integer.parseInt(lines[1]);
