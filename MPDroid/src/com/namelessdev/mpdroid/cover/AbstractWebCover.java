@@ -62,7 +62,9 @@ public abstract class AbstractWebCover implements ICoverRetriever {
                 line = reader.readLine();
             } while (line != null);
         } catch (final IOException e) {
-            Log.e(TAG, "Failed to retrieve the with the buffered reader.", e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Failed to retrieve the with the buffered reader.", e);
+            }
         } finally {
             try {
                 inputStreamReader.close();
@@ -171,12 +173,14 @@ public abstract class AbstractWebCover implements ICoverRetriever {
                 entity = response.getEntity();
                 content = entity.getContent();
                 result = readInputStream(content);
-            } else {
+            } else if (CoverManager.DEBUG) {
                 Log.w(TAG, "Failed to download cover : HTTP status code : " + statusCode);
 
             }
         } catch (final IOException e) {
-            Log.e(TAG, "Failed to download cover.", e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Failed to download cover.", e);
+            }
         } catch (final IllegalStateException e) {
             Log.e(TAG, "Illegal state exception when downloading.", e);
         } finally {

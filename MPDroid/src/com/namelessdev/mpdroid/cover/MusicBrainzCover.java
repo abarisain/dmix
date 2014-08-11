@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.helpers.CoverManager;
+
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -98,7 +100,9 @@ public class MusicBrainzCover extends AbstractWebCover {
                 eventType = xpp.next();
             }
         } catch (final Exception e) {
-            Log.e(TAG, "Musicbrainz release search failure.", e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Musicbrainz release search failure.", e);
+            }
         }
 
         return releaseList;

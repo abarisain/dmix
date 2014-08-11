@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.helpers.CoverManager;
+
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,7 +55,9 @@ public class ItunesCover extends AbstractWebCover {
             }
 
         } catch (final Exception e) {
-            Log.e(TAG, "Failed to get cover URL from " + getName(), e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Failed to get cover URL from " + getName(), e);
+            }
         }
 
         return new String[0];

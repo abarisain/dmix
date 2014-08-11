@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.helpers.CoverManager;
+
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,7 +55,9 @@ public class DiscogsCover extends AbstractWebCover {
             }
 
         } catch (final Exception e) {
-            Log.e(TAG, "Failed to get release image URLs from Discogs.", e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Failed to get release image URLs from Discogs.", e);
+            }
         }
         return imageUrls;
     }
@@ -79,7 +83,9 @@ public class DiscogsCover extends AbstractWebCover {
             }
 
         } catch (final Exception e) {
-            Log.e(TAG, "Failed to get release Ids from Discogs.", e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Failed to get release Ids from Discogs.", e);
+            }
         }
         return releaseIds;
     }

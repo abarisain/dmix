@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.helpers.CoverManager;
 
 import org.a0z.mpd.AlbumInfo;
 
@@ -144,7 +145,9 @@ public class CachedCover implements ICoverRetriever {
             out = new FileOutputStream(getAbsolutePathForSong(albumInfo));
             cover.compress(Bitmap.CompressFormat.JPEG, 95, out);
         } catch (final Exception e) {
-            Log.e(TAG, "Cache cover write failure.",  e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Cache cover write failure.", e);
+            }
         } finally {
             if (out != null) {
                 try {

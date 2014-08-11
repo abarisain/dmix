@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.helpers.CoverManager;
+
 import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -57,7 +59,9 @@ public class SpotifyCover extends AbstractWebCover {
                 }
             }
         } catch (final Exception e) {
-            Log.e(TAG, "Failed to get cover URL from Spotify.", e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Failed to get cover URL from Spotify.", e);
+            }
         }
 
         return albumIds;

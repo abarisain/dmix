@@ -423,7 +423,9 @@ public class CoverManager {
                     }
 
                 } catch (final Exception e) {
-                    Log.e(TAG, "Cover request processing failure.", e);
+                    if (DEBUG) {
+                        Log.e(TAG, "Cover request processing failure.", e);
+                    }
                 }
             }
 
@@ -608,7 +610,9 @@ public class CoverManager {
         try {
             statusCode = connection.getResponseCode();
         } catch (final IOException e) {
-            Log.e(TAG, "Failed to get a valid response code.", e);
+            if (DEBUG) {
+                Log.e(TAG, "Failed to get a valid response code.", e);
+            }
         }
 
         return urlExists(statusCode);
@@ -638,7 +642,9 @@ public class CoverManager {
             baos.flush();
             buffer = baos.toByteArray();
         } catch (final Exception e) {
-            Log.e(TAG, "Failed to download cover.", e);
+            if (DEBUG) {
+                Log.e(TAG, "Failed to download cover.", e);
+            }
         } finally {
             if (bis != null) {
                 try {

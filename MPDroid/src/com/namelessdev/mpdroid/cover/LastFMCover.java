@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.helpers.CoverManager;
+
 import org.a0z.mpd.AlbumInfo;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -74,7 +76,9 @@ public class LastFMCover extends AbstractWebCover {
                 eventType = xpp.next();
             }
         } catch (final Exception e) {
-            Log.e(TAG, "Failed to get cover URL from LastFM.", e);
+            if (CoverManager.DEBUG) {
+                Log.e(TAG, "Failed to get cover URL from LastFM.", e);
+            }
         }
 
         return new String[0];
