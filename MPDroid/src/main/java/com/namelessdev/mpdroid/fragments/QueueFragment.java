@@ -225,10 +225,11 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
     protected boolean isFiltered(final String item) {
         final String processedItem;
-        if (item != null) {
-            processedItem = item.toLowerCase(Locale.getDefault());
+
+        if (item == null) {
+            processedItem = "";
         } else {
-            processedItem = "".toLowerCase(Locale.getDefault());
+            processedItem = item.toLowerCase(Locale.getDefault());
         }
 
         return processedItem.contains(filter);
