@@ -266,9 +266,15 @@ class AlbumCoverHandler implements CoverDownloadListener {
 
             mFullSizeAlbumCover = BitmapFactory.decodeFile(mAlbumCoverPath);
 
-            /** This will always scale down, no filter needed. */
-            mNotificationCover =
-                    Bitmap.createScaledBitmap(mFullSizeAlbumCover, mIconWidth, mIconHeight, false);
+            if (mFullSizeAlbumCover == null) {
+                /** TODO: Consider album cover reset here? */
+                mNotificationCover = null;
+            } else {
+                /** This will always scale down, no filter needed. */
+                mNotificationCover =
+                        Bitmap.createScaledBitmap(mFullSizeAlbumCover, mIconWidth, mIconHeight,
+                                false);
+            }
 
             return mFullSizeAlbumCover;
         }
