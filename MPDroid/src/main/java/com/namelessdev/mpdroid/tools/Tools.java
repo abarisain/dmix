@@ -18,16 +18,18 @@ package com.namelessdev.mpdroid.tools;
 
 import com.namelessdev.mpdroid.MPDApplication;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.widget.Toast;
 
 import java.security.MessageDigest;
 import java.util.List;
 
 public final class Tools {
+
     private static final MPDApplication app = MPDApplication.getInstance();
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth,
@@ -54,15 +56,21 @@ public final class Tools {
         return inSampleSize;
     }
 
-    public static float convertDpToPixel(float dp) {
-        Resources resources = app.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        return dp * (metrics.densityDpi / 160f);
+    /**
+     * Converts density independent pixels to pixels for the current device.
+     *
+     * @param context The context to get the resources from.
+     * @param dip     The density independent pixel count to convert to pixel count for the device.
+     * @return The device pixel equivalent of the incoming dip count.
+     */
+    public static float convertDpToPixel(final Context context, final float dip) {
+        final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, metrics);
     }
 
     /**
      * Convert byte array to hex string.
-     * 
+     *
      * @param data Target data array.
      * @return Hex string.
      */
@@ -76,10 +84,11 @@ public final class Tools {
             int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
             int two_halfs = 0;
             do {
-                if ((0 <= halfbyte) && (halfbyte <= 9))
+                if ((0 <= halfbyte) && (halfbyte <= 9)) {
                     buffer.append((char) ('0' + halfbyte));
-                else
+                } else {
                     buffer.append((char) ('a' + (halfbyte - 10)));
+                }
                 halfbyte = data[byteIndex] & 0x0F;
             } while (two_halfs++ < 1);
         }
@@ -137,7 +146,7 @@ public final class Tools {
 
     /**
      * Gets the hash value from the specified string.
-     * 
+     *
      * @param value Target string value to get hash from.
      * @return the hash from string.
      */
@@ -180,8 +189,9 @@ public final class Tools {
     public static int[] toIntArray(List<Integer> list) {
         int[] ret = new int[list.size()];
         int i = 0;
-        for (Integer e : list)
+        for (Integer e : list) {
             ret[i++] = e.intValue();
+        }
         return ret;
     }
 
