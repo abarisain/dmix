@@ -365,7 +365,7 @@ public final class CoverManager {
 
     private CachedCover getCacheRetriever() {
         for (final ICoverRetriever retriever : mCoverRetrievers) {
-            if (retriever != null && retriever.isCoverLocal() && retriever instanceof CachedCover) {
+            if (retriever instanceof CachedCover && retriever.isCoverLocal()) {
                 return (CachedCover) retriever;
             }
         }
