@@ -236,7 +236,7 @@ public class ConnectionInfo implements Parcelable {
 
         public final void setStreamingServer(final String server, final int port,
                 final String suffix) {
-            if (server == null) {
+            if (server == null || server.isEmpty()) {
                 mStreamServer = mServer;
             } else {
                 mStreamServer = server;
