@@ -25,7 +25,6 @@
 	<string name="skipToHere">Skip to here</string>
 	<string name="stopped">Stopped</string>
 	<string name="streamDetails">Stream details:</string>
-	<string name="streamError">Streaming error, stream not playable</string>
 	<string name="streamPaused">Streaming paused</string>
 	<string name="streamPauseBattery">For saving battery, stop streaming if not used</string>
 	<string name="streamingManualURL">Use a specific URL for streaming (Icecast)</string>
@@ -167,7 +166,6 @@
 	<string name="variousArtists">Various artists</string>
 	<string name="tracksInfoHeader">%1$s Tracks, %2$s</string>
 	<string name="tracksInfoHeaderPlural">%1$s Tracks, %2$s</string>
-	<string name="audioFocusFailed">Cannot start streaming : Another application is playing music.</string>
 	<string name="addToPlaylist">Add to playlist</string>
 	<string name="newPlaylist">(New playlist)</string>
 	<string name="playlistName">Playlist Name</string>
@@ -284,4 +282,21 @@
     <string name="persistentNotification">Persistent Notification</string>
     <string name="persistentNotificationDescription">Set the notification to stay on for this network</string>
     <string name="notPlayingInRandomMode">Not playing added items in random mode.</string>
+
+    <!-- Begin StreamHandler Specific Strings -->
+    <string name="audioFocusFailed">Cannot start streaming: Another application is playing music.</string>
+    <string name="streamError">%1$s stream error: %2$s.</string>
+    <string name="streamPreparationError">This error was caused by a change of server state during stream preparation.</string>
+    <string name="streamSourceError">Failed to set the stream source: %1$.</string>
+    <!-- End StreamHandler Specific Strings -->
+
+    <!-- Begin MediaPlayer Error Strings -->
+    <string name="mediaPlayerErrorUnknown">Unspecified media player error.</string>
+    <string name="mediaPlayerErrorServerDied">Media server died.</string>
+
+    <string name="mediaPlayerErrorIO">Network related operation error.</string>
+    <string name="mediaPlayerErrorMalformed">Stream is not conforming to the related coding standard.</string>
+    <string name="mediaPlayerErrorTimedOut">Operation timed out.</string>
+    <string name="mediaPlayerErrorUnsupported">Media framework does not support stream codec.</string>
+    <!-- End MediaPlayer Error Strings -->
 </resources>

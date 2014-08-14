@@ -17,10 +17,12 @@
 package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
 
+import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
@@ -32,6 +34,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -188,6 +191,36 @@ public final class StreamHandler implements
         return "StreamHandler." + result;
     }
 
+    /**
+     * Translates MediaPlayer.OnErrorListener error codes to applicable resource ids for a local
+     * translated string.
+     *
+     * @param resId MediaPlayer.OnErrorListener resource id.
+     * @return Local resource id for a translated string.
+     */
+    private static int getErrorDetails(final int resId) {
+        final int errorExtraResId;
+
+        switch (resId) {
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                errorExtraResId = R.string.mediaPlayerErrorTimedOut;
+                break;
+            case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                errorExtraResId = R.string.mediaPlayerErrorMalformed;
+                break;
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                errorExtraResId = R.string.mediaPlayerErrorUnsupported;
+                break;
+            case MediaPlayer.MEDIA_ERROR_IO:
+                /** Fall through, nothing else is possible. */
+            default:
+                errorExtraResId = R.string.mediaPlayerErrorIO;
+                break;
+        }
+
+        return errorExtraResId;
+    }
+
     /** Get the current server streaming URL. */
     private String getStreamSource() {
         return "http://" + mConnectionInfo.streamServer + ':'
@@ -211,11 +244,13 @@ public final class StreamHandler implements
 
         mMediaPlayer.reset();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
         try {
             mMediaPlayer.setDataSource(streamSource);
         } catch (final IOException e) {
-            Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
+            final Resources resources = mServiceContext.getResources();
+            final String error = resources.getString(R.string.streamSourceError, streamSource);
+
+            showErrorToUser(error, e);
             windDownResources(BUFFERING_END);
         }
 
@@ -258,9 +293,7 @@ public final class StreamHandler implements
                 try {
                     mMediaPlayer.prepareAsync();
                 } catch (final IllegalStateException e) {
-                    Log.e(TAG,
-                            "This is typically caused by a change in the server state during stream preparation.",
-                            e);
+                    showErrorToUser(R.string.streamPreparationError, e);
                     windDownResources(BUFFERING_END);
                 }
                 /**
@@ -366,6 +399,9 @@ public final class StreamHandler implements
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.onError()");
         }
+
+        showErrorToUser(what, extra);
+
         final int maxError = 4;
 
         if (mErrorIterator > 0) {
@@ -439,12 +475,87 @@ public final class StreamHandler implements
             mServiceHandler.sendEmptyMessage(BUFFERING_END);
             mMediaPlayer.start();
         } else {
+            showErrorToUser(R.string.audioFocusFailed);
+
             /** Because mPreparingStream is still set, this will reset the stream. */
             windDownResources(STREAMING_STOP);
         }
 
         mPreparingStream = false;
         mErrorIterator = 0; /** Reset the error iterator. */
+    }
+
+    /**
+     * Reports the content of the MediaPlayer errorDetails to the user via a Log and Toast.
+     *
+     * @param errorType    The type of errorDetails the occurred.
+     * @param errorDetails Implementation dependent specific error details.
+     */
+    private void showErrorToUser(final int errorType, final int errorDetails) {
+        final Resources resources = mServiceContext.getResources();
+        final String appName = resources.getString(R.string.app_name);
+        final String errorTypeString;
+
+        if (errorType == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+            errorTypeString = resources.getString(R.string.mediaPlayerErrorServerDied);
+        } else {
+            errorTypeString = resources.getString(R.string.mediaPlayerErrorUnknown);
+        }
+
+        final String errorDetailsString = resources.getString(getErrorDetails(errorDetails));
+
+        showErrorToUser(errorTypeString + ' ' + errorDetailsString);
+    }
+
+    /**
+     * Reports the contents of an error string to the user via a Log and Toast.
+     *
+     * @param userOutput The error to show the user.
+     */
+    private void showErrorToUser(final String userOutput) {
+        showErrorToUser(userOutput, null);
+    }
+
+    /**
+     * Reports the contents of an error string to the user via a Log and Toast.
+     *
+     * @param resId The resource ID of the translated string to show the user.
+     */
+    private void showErrorToUser(final int resId) {
+        showErrorToUser(resId, null);
+    }
+
+    /**
+     * Reports the contents of an error string to the user via a Log and Toast.
+     *
+     * @param resId The resourceID of the translated string to show the user.
+     * @param e     The exception to go to the {@code Log}.
+     */
+    private void showErrorToUser(final int resId, final Exception e) {
+        final Resources resources = mServiceContext.getResources();
+        final String error = resources.getString(resId);
+
+        showErrorToUser(error, e);
+    }
+
+    /**
+     * Reports the contents of an error string to the user via a Log and Toast.
+     *
+     * @param userOutput The error to show the user.
+     */
+    private void showErrorToUser(final String userOutput, final Exception e) {
+        if (e == null) {
+            Log.e(TAG, userOutput);
+        } else {
+            Log.e(TAG, userOutput, e);
+        }
+
+        /** Let users know where the Toast is coming from, and why. */
+        final Resources resources = mServiceContext.getResources();
+        final String appName = resources.getString(R.string.app_name);
+        final String toastOutput = resources.getString(R.string.streamError, appName, userOutput);
+
+        Toast.makeText(mServiceContext, toastOutput, Toast.LENGTH_LONG).show();
     }
 
     final void start(final String mpdState) {
