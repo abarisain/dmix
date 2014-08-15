@@ -44,6 +44,10 @@ android {
         closedbits {
             versionName defaultConfig.versionName + "-c"
         }
+
+        foss {
+            versionName defaultConfig.versionName + "-f"
+        }
     }
 }
 
