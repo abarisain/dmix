@@ -234,11 +234,6 @@ public final class StreamHandler implements
         } catch (final IOException e) {
             Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
             windDownResources(BUFFERING_END);
-        } catch (final IllegalStateException e) {
-            Log.e(TAG,
-                    "This is typically caused by a change in the server state during stream preparation.",
-                    e);
-            windDownResources(BUFFERING_END);
         }
     }
 
@@ -257,7 +252,15 @@ public final class StreamHandler implements
                 if (DEBUG) {
                     Log.d(TAG, "Start mediaPlayer buffering.");
                 }
-                mMediaPlayer.prepareAsync();
+
+                try {
+                    mMediaPlayer.prepareAsync();
+                } catch (final IllegalStateException e) {
+                    Log.e(TAG,
+                            "This is typically caused by a change in the server state during stream preparation.",
+                            e);
+                    windDownResources(BUFFERING_END);
+                }
                 /**
                  * Between here and onPrepared, if the media server
                  * stream pauses, error handling workarounds will be used.
