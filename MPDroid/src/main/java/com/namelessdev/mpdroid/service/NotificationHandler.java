@@ -262,6 +262,10 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
      */
     final void setMediaPlayerWoundDown() {
         if (mIsActive) {
+            if (mIsMediaPlayerBuffering) {
+                setMediaPlayerBuffering(false);
+            }
+
             mNotification.contentView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 mNotification.bigContentView
