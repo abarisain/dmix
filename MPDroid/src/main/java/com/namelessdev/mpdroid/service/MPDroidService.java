@@ -88,10 +88,13 @@ public final class MPDroidService extends Service implements
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.service." + TAG;
 
     /** Handled in onStartCommand(), this is the persistent service start intent action. */
-    public static final String ACTION_START = FULLY_QUALIFIED_NAME + ".ACTION_START";
+    public static final String ACTION_START = FULLY_QUALIFIED_NAME + "ACTION_START";
 
     /** Handled in RemoteControlReceiver, this attempts closing this service. */
-    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
+    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + "ACTION_STOP";
+
+    /** A tag for manually signifying service ownership used by the onTaskRemoved() Intent. */
+    private static final String SERVICE_OWNERSHIP = FULLY_QUALIFIED_NAME + "SERVICE_OWNED_BY";
 
     /** The inner class which handles messages for this service. */
     private final MessageHandler mMessageHandler = new MessageHandler();
@@ -450,9 +453,11 @@ public final class MPDroidService extends Service implements
                     case Intent.ACTION_BOOT_COMPLETED:
                     case NotificationHandler.ACTION_START:
                         startNotification();
+                        setServiceOwner(intent);
                         break;
                     case StreamHandler.ACTION_START:
                         startStream();
+                        setServiceOwner(intent);
                         break;
                     case StreamHandler.ACTION_STOP:
                         stopStream();
@@ -497,6 +502,15 @@ public final class MPDroidService extends Service implements
                     .getBroadcast(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
             final AlarmManager alarmService =
                     (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+            /** If notification is persistent, we don't care who owns the service. */
+            if (!isNotificationPersistent()) {
+                if (mNotificationOwnsService) {
+                    restartServiceIntent.putExtra(SERVICE_OWNERSHIP, NotificationHandler.LOCAL_UID);
+                } else if (mStreamOwnsService) {
+                    restartServiceIntent.putExtra(SERVICE_OWNERSHIP, StreamHandler.LOCAL_UID);
+                }
+            }
 
             alarmService.set(AlarmManager.ELAPSED_REALTIME,
                     SystemClock.elapsedRealtime() + DateUtils.SECOND_IN_MILLIS,
@@ -585,6 +599,32 @@ public final class MPDroidService extends Service implements
                 break;
             default:
                 Log.e(TAG, "setStreamHandler set for invalid value.");
+                break;
+        }
+    }
+
+    /**
+     * This checks the intent for a defined service owner as sent by onTaskRemoved().
+     *
+     * @param intent The incoming intent.
+     */
+    private void setServiceOwner(final Intent intent) {
+        switch (intent.getIntExtra(SERVICE_OWNERSHIP, -1)) {
+            case StreamHandler.LOCAL_UID:
+                if (DEBUG) {
+                    Log.d(TAG, "StreamHandler set as service owner by onTaskRemoved().");
+                }
+                mStreamOwnsService = true;
+                mNotificationOwnsService = false;
+                break;
+            case NotificationHandler.LOCAL_UID:
+                if (DEBUG) {
+                    Log.d(TAG, "NotificationHandler set as service owner by onTaskRemoved().");
+                }
+                mNotificationOwnsService = true;
+                mStreamOwnsService = false;
+                break;
+            default:
                 break;
         }
     }
