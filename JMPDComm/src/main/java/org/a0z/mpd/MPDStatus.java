@@ -471,20 +471,7 @@ public class MPDStatus {
                     songId = Integer.parseInt(lines[1]);
                     break;
                 case "state":
-                    switch (lines[1]) {
-                        case MPD_STATE_PAUSED:
-                            state = MPD_STATE_PAUSED;
-                            break;
-                        case MPD_STATE_PLAYING:
-                            state = MPD_STATE_PLAYING;
-                            break;
-                        case MPD_STATE_STOPPED:
-                            state = MPD_STATE_STOPPED;
-                            break;
-                        default:
-                            state = MPD_STATE_UNKNOWN;
-                            break;
-                    }
+                    state = lines[1];
                     break;
                 case "time":
                     final String[] time = COMMA_DELIMITER.split(lines[1]);
