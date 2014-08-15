@@ -209,6 +209,16 @@ public final class StreamHandler implements
         mPreparingStream = true;
         mServiceHandler.removeMessages(STOP);
 
+        mMediaPlayer.reset();
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        try {
+            mMediaPlayer.setDataSource(streamSource);
+        } catch (final IOException e) {
+            Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
+            windDownResources(BUFFERING_END);
+        }
+
         /**
          * With MediaPlayer, there is a racy bug which affects, minimally, Android KitKat and lower.
          * If mediaPlayer.prepareAsync() is called too soon after mediaPlayer.setDataSource(), and
@@ -226,15 +236,7 @@ public final class StreamHandler implements
          *
          * This order is very specific and if interrupted can cause big problems.
          */
-        try {
-            mMediaPlayer.reset();
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setDataSource(streamSource);
-            mHandler.sendEmptyMessageDelayed(PREPARE_ASYNC, asyncIdle); /** Go to onPrepared() */
-        } catch (final IOException e) {
-            Log.e(TAG, "IO failure while trying to stream from: " + streamSource, e);
-            windDownResources(BUFFERING_END);
-        }
+        mHandler.sendEmptyMessageDelayed(PREPARE_ASYNC, asyncIdle); /** Go to onPrepared() */
     }
 
     /**
