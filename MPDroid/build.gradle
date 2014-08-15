@@ -16,6 +16,10 @@ repositories {
     maven { url 'http://download.crashlytics.com/maven' }
 }
 
+def gitShortHash() {
+    return "git rev-parse --short HEAD".execute().text.replace("\n", "")
+}
+
 android {
     compileSdkVersion 19
     buildToolsVersion "20.0.0"
@@ -23,6 +27,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
+        versionCode 47
+        versionName "1.07 Beta 7 " + gitShortHash()
     }
 
     lintOptions {
@@ -36,7 +42,7 @@ android {
 
     productFlavors {
         closedbits {
-
+            versionName defaultConfig.versionName + "-c"
         }
     }
 }
