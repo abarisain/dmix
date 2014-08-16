@@ -47,6 +47,7 @@ android {
 
         foss {
             versionName defaultConfig.versionName + "-f"
+            ext.enableCrashlytics = false
         }
     }
 }

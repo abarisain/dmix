@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import com.crashlytics.android.Crashlytics;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
