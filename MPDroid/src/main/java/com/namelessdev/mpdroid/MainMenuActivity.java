@@ -536,11 +536,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (savedInstanceState != null) {
             if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
                 mSlidingLayout.expandPanel();
-                panelSlideListener.onPanelSlide(mSlidingLayout, 0);
+                panelSlideListener.onPanelSlide(mSlidingLayout, 1);
                 panelSlideListener.onPanelExpanded(mSlidingLayout);
             } else {
                 mSlidingLayout.collapsePanel();
-                panelSlideListener.onPanelSlide(mSlidingLayout, 1);
+                panelSlideListener.onPanelSlide(mSlidingLayout, 0);
                 panelSlideListener.onPanelCollapsed(mSlidingLayout);
             }
         }
