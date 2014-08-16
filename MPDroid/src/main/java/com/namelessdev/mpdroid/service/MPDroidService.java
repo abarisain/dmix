@@ -414,7 +414,8 @@ public final class MPDroidService extends Service implements
                         }
                         break;
                     case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
-                        if (mIsStreamStarted && mStreamHandler.isActive()) {
+                        if (mIsStreamStarted && mStreamHandler != null &&
+                                mStreamHandler.isActive()) {
                             /** Should never be disconnected. We're streaming! */
                             if (MPD_ASYNC_HELPER.oMPD == null ||
                                     !MPD_ASYNC_HELPER.oMPD.isConnected()) {
