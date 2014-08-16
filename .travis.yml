@@ -21,4 +21,4 @@ android:
 # This project doesn't support checkConnected, which is
 #  the default script label for the Android plugin.
 script:
-    ./gradlew build
+    ./gradlew assembleFossDebug
