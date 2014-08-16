@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    package="com.namelessdev.mpdroid"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Used to start the service upon boot if the service requires persistence. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Required for JmDNS to see services available on the network -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- Cover art cache -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Wake Lock for Streaming -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name="com.namelessdev.mpdroid.MPDApplication"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:theme="@style/AppTheme">
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".SearchActivity" />
+        <!-- android:debuggable="true" -->
+        <activity
+            android:name="com.namelessdev.mpdroid.MainMenuActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustNothing">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.namelessdev.mpdroid.PLAYBACK_VIEWER" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchActivity" />
+        </activity>
+        <activity
+            android:name="com.namelessdev.mpdroid.SearchActivity"
+            android:label="@string/search">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name="com.namelessdev.mpdroid.library.PlaylistEditActivity"
+            android:label="@string/playlist" />
+        <activity
+            android:name="com.namelessdev.mpdroid.library.SimpleLibraryActivity"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name="com.namelessdev.mpdroid.SettingsActivity"
+            android:label="@string/settings" />
+        <activity
+            android:name="com.namelessdev.mpdroid.WifiConnectionSettings"
+            android:label="@string/settings"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.namelessdev.mpdroid.ConnectionSettings"
+            android:label="@string/settings" />
+        <activity
+            android:name="com.namelessdev.mpdroid.library.LibraryTabsSettings"
+            android:label="@string/libraryTabsSettings" />
+        <activity
+            android:name="com.namelessdev.mpdroid.ServerListActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.namelessdev.mpdroid.AboutActivity"
+            android:label="@string/about" />
+        <activity
+            android:name="com.namelessdev.mpdroid.WarningActivity"
+            android:label="@string/warningTitle"
+            android:theme="@style/AppTheme.Dialog" />
+
+        <service
+            android:name=".service.MPDroidService"
+            android:exported="false"
+            android:icon="@drawable/icon"
+            android:process=":MPDroidService" />
+
+        <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">
+            <intent-filter android:priority="500">
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_simple" />
+        </receiver>
+        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProviderWithStop">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_simple_with_stop" />
+        </receiver>
+
+        <service
+            android:name="com.namelessdev.mpdroid.widgets.WidgetHelperService"
+            android:enabled="true" />
+
+        <provider
+            android:name="com.namelessdev.mpdroid.SearchRecentProvider"
+            android:authorities="com.namelessdev.mpdroid.recent_searches_authority"
+            android:exported="false" />
+
+        <activity
+            android:name=".locale.EditActivity"
+            android:icon="@drawable/icon"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".locale.ActionFireReceiver"
+            android:process="com.namelessdev.mpdroid.LocaleProcess">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.namelessdev.mpdroid.URIHandlerActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Hidden">
+
+            <!--
+             The following intent filters only common streaming file extensions,
+			scheme "file" is not supported until reverse streaming support is added
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+
+            <!-- If not caught by the above mimeType, try to catch with a basic pattern glob -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:host="*" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:pathPattern=".*\\.mp3" />
+                <data android:pathPattern=".*\\.mp4" />
+                <data android:pathPattern=".*\\.m4a" />
+                <data android:pathPattern=".*\\.nsv" />
+                <data android:pathPattern=".*\\.ogg" />
+                <data android:pathPattern=".*\\.oga" />
+                <data android:pathPattern=".*\\.opus" />
+                <data android:pathPattern=".*\\.webm" />
+                <data android:pathPattern=".*\\.wma" />
+                <!-- pathPattern is case sensitive -->
+                <data android:pathPattern=".*\\.MP3" />
+                <data android:pathPattern=".*\\.MP4" />
+                <data android:pathPattern=".*\\.M4A" />
+                <data android:pathPattern=".*\\.NSV" />
+                <data android:pathPattern=".*\\.OGG" />
+                <data android:pathPattern=".*\\.OGA" />
+                <data android:pathPattern=".*\\.OPUS" />
+                <data android:pathPattern=".*\\.WEBM" />
+                <data android:pathPattern=".*\\.WMA" />
+            </intent-filter>
+
+            <!-- mimeTypes to send to the playlist processor -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="file" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:mimeType="audio/x-mpegurl" />
+                <data android:mimeType="audio/mpegurl" />
+                <data android:mimeType="application/vnd.apple.mpegurl" />
+                <data android:mimeType="application/x-mpegurl" />
+                <data android:mimeType="application/xspf+xml" />
+                <data android:mimeType="audio/x-scpls" />
+                <data android:mimeType="video/x-ms-asf" />
+            </intent-filter>
+
+            <!-- Basic glob pattern match extensions as a last resort -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="file" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.asx" />
+                <data android:pathPattern=".*\\.m3u8" />
+                <data android:pathPattern=".*\\.m3u" />
+                <data android:pathPattern=".*\\.pls" />
+                <data android:pathPattern=".*\\.xspf" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

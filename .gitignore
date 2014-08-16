@@ -41,3 +41,7 @@ local.properties
 
 # Sandbox stuff
 _sandbox
+
+# Crashlytics generated files
+MPDroid/src/main/res/values/com_crashlytics_export_strings.xml
+MPDroid/crashlytics.properties
