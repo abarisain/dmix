@@ -192,6 +192,10 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onResume() {
         super.onResume();
+
+        if (app.updateTrackInfo == null) {
+            app.updateTrackInfo = new UpdateTrackInfo();
+        }
         app.updateTrackInfo.addCallback(this);
 
         MPDStatus mpdStatus = null;

@@ -574,7 +574,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onStart() {
         super.onStart();
-        app.updateTrackInfo = new UpdateTrackInfo();
+        if (app.updateTrackInfo == null) {
+            app.updateTrackInfo = new UpdateTrackInfo();
+        }
         app.updateTrackInfo.addCallback(this);
         app.oMPDAsyncHelper.addStatusChangeListener(this);
         app.oMPDAsyncHelper.addTrackPositionListener(this);
