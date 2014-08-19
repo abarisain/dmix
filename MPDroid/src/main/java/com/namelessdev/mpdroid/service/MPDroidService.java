@@ -88,13 +88,13 @@ public final class MPDroidService extends Service implements
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.service." + TAG;
 
     /** Handled in onStartCommand(), this is the persistent service start intent action. */
-    public static final String ACTION_START = FULLY_QUALIFIED_NAME + "ACTION_START";
+    public static final String ACTION_START = FULLY_QUALIFIED_NAME + ".ACTION_START";
 
     /** Handled in RemoteControlReceiver, this attempts closing this service. */
-    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + "ACTION_STOP";
+    public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
 
     /** A tag for manually signifying service ownership used by the onTaskRemoved() Intent. */
-    private static final String SERVICE_OWNERSHIP = FULLY_QUALIFIED_NAME + "SERVICE_OWNED_BY";
+    private static final String SERVICE_OWNERSHIP = FULLY_QUALIFIED_NAME + ".SERVICE_OWNED_BY";
 
     /** The inner class which handles messages for this service. */
     private final MessageHandler mMessageHandler = new MessageHandler();
@@ -687,6 +687,7 @@ public final class MPDroidService extends Service implements
 
     /**
      * This monitor listener callback method is to inform about media server play state changes.
+     *
      * @param mpdStatus {@code MPDStatus} after event.
      * @param oldState  previous state.
      */
