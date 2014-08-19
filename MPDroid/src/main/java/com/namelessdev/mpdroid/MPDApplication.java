@@ -231,8 +231,14 @@ public class MPDApplication extends Application implements
         // dismiss possible dialog
         dismissAlertDialog();
 
+
+        /** Returns null if the calling thread is not associated with a Looper.*/
+        final Looper localLooper = Looper.myLooper();
+        final boolean isUIThread =
+                localLooper != null && localLooper.equals(Looper.getMainLooper());
+
         // show connecting to server dialog, only on the main thread.
-        if (mCurrentActivity != null && Looper.myLooper().equals(Looper.getMainLooper())) {
+        if (mCurrentActivity != null && isUIThread) {
             mAlertDialog = new ProgressDialog(mCurrentActivity);
             mAlertDialog.setTitle(R.string.connecting);
             mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
