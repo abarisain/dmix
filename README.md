@@ -12,19 +12,20 @@ What's not to like?
 
 MPDroid works on **all** devices from 4.0.3 (API 15) to 4.4+
 
-
 #### Libraries
 
-JMPDComm - The core MPD interface lib. Heavily modified.
-DragSortListView - Really nice and widely used TouchInterceptor replacement.
-ActionBar-PullToRefresh - Pull to refresh for library.  
+- JMPDComm - The core MPD interface lib. Heavily modified.
+- DragSortListView - Really nice and widely used TouchInterceptor replacement.
+- ActionBar-PullToRefresh - Pull to refresh for library.  
 
 ## Known issues
- - Limited multi server support (based on WLAN name)
+
+- Limited multi server support (based on WLAN name)
 
 ## Roadmap
-New features will most likely be delayed. MPDroid is, in my opinion, almost fully-featured and pushes (hits) MPD's API limits. Widely requested features (like better search, better library browsing) can't be done without duplicating MPD's database locally.
-This is a huge project, and it will take a lot of time (if ever done).
+
+New features will most likely be delayed. MPDroid is, in my opinion, almost fully-featured and pushes (hits) MPD's API limits. Widely requested features (like better search, better library browsing) can't be done without duplicating MPD's database locally. This is a huge project, and it will take a lot of time (if ever done).
+
 Also, MPDroid's speed isn't that great, but considering that MPD's API was never made for 3G (read crappy) connections, it is also not that bad.
 
 So, the current roadmap is:
@@ -40,8 +41,7 @@ So, the current roadmap is:
 
 Since MPDroid is a fork of dmix and that a lot of people helped me with some huge patches (see special thanks), I don't really believe it would be ethical to accept donations.
 
-If you still want to donate, I have a PayPal address at dreamteam69@gmail.com , you can send how much you want to it :)
-
+If you still want to donate, I have a PayPal address at dreamteam69@gmail.com, you can send how much you want to it :)
 
 Please consider donating to some of the developers down there :)
 
@@ -78,7 +78,7 @@ Craig Drummond - Helped me integrate new features while cleaning up old internal
 
 Other patch submitters : Jörg Thalheim, Florian Weile, Daniel Schoepe, John Bäckstrand, ...
 
-And if I forgot you … I'm sorry, it's kinda hard to remember everybody who worked on a 2 year old project, feel free to mail me :)
+And if I forgot you… I'm sorry, it's kinda hard to remember everybody who worked on a 2 year old project, feel free to mail me :)
 
 
 Thanks a lot guys!
