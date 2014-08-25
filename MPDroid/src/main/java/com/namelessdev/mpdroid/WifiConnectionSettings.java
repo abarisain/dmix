@@ -76,7 +76,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
     @Override
     public boolean onPreferenceTreeClick(final PreferenceScreen preferenceScreen,
             final Preference preference) {
-        final Intent intent = new Intent(this, ConnectionSettings.class);
+        Intent intent;
         final PreferenceCategory preferenceCategory =
                 (PreferenceCategory) preferenceScreen.findPreference(KEY_WIFI_BASED_CATEGORY);
         List<WifiConfiguration> wifiList = null;
@@ -103,6 +103,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
                 final PreferenceScreen ssidItem =
                         getPreferenceManager().createPreferenceScreen(this);
 
+                intent = new Intent(this, ConnectionSettings.class);
                 intent.putExtra("SSID", ssid);
 
                 ssidItem.setPersistent(false);
