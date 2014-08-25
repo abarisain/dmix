@@ -81,10 +81,10 @@ public class WifiConnectionSettings extends PreferenceActivity {
                 (PreferenceCategory) preferenceScreen.findPreference(KEY_WIFI_BASED_CATEGORY);
         List<WifiConfiguration> wifiList = null;
 
-        /** Clear the wifi list, */
-        preferenceCategory.removeAll();
-
         if (preference.getKey().equals(KEY_WIFI_BASED_SCREEN)) {
+            /** Clear the wifi list. */
+            preferenceCategory.removeAll();
+
             final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             wifiList = wifiManager.getConfiguredNetworks();
         }
