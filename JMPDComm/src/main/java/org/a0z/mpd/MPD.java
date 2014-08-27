@@ -27,7 +27,6 @@
 
 package org.a0z.mpd;
 
-import org.a0z.mpd.exception.MPDClientException;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -299,7 +298,7 @@ public class MPD {
             public void run() {
                 try {
                     getPlaylist().addStream(stream);
-                } catch (final MPDServerException | MPDClientException e) {
+                } catch (final MPDServerException e) {
                     Log.e(TAG, "Failed to add stream.", e);
                 }
             }
