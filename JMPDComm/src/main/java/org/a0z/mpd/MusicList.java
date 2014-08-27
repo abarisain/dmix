@@ -28,6 +28,7 @@
 package org.a0z.mpd;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -95,8 +96,10 @@ public class MusicList {
      * Removes all musics from this {@code MusicList}.
      */
     public void clear() {
-        list.clear();
-        map.clear();
+        synchronized (list) {
+            list.clear();
+            map.clear();
+        }
     }
 
     /**
@@ -164,6 +167,18 @@ public class MusicList {
         if (music != null) {
             list.remove(index);
             map.remove(Integer.valueOf(music.getSongId()));
+        }
+    }
+
+    /**
+     * Replace the current {@code MusicList} object.
+     *
+     * @param collection The {@code Music} collection to replace the {@code MusicList} with.
+     */
+    public void replace(final Collection<Music> collection) {
+        synchronized (list) {
+            clear();
+            list.addAll(collection);
         }
     }
 

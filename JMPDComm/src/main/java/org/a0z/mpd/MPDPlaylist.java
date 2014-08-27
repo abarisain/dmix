@@ -296,8 +296,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                     .sendCommand(MPD_CMD_PLAYLIST_LIST);
             final List<Music> playlist = Music.getMusicFromList(response, false);
 
-            mList.clear();
-            mList.addAll(playlist);
+            mList.replace(playlist);
 
             mLastPlaylistVersion = status.getPlaylistVersion();
             mFirstRefresh = false;
@@ -343,8 +342,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
             }
         }
 
-        mList.clear();
-        mList.addAll(newPlaylist);
+        mList.replace(newPlaylist);
 
         return status.getPlaylistVersion();
     }
