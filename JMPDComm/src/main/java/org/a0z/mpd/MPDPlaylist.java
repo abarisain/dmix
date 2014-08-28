@@ -32,7 +32,6 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,8 +75,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     private final MPD mMPD;
 
     private final MusicList mList;
-
-    private boolean mFirstRefresh = true;
 
     private int mLastPlaylistVersion = -1;
 
@@ -275,76 +272,45 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         super.playlistChanged(mpdStatus, oldPlaylistVersion);
 
         try {
-            refresh(oldPlaylistVersion);
+            refresh();
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to refresh.", e);
         }
     }
 
     /**
-     * Reload playlist content. {@code refresh} has better performance and
-     * is more server friendly, use it whenever possible.
+     * Reloads the playlist content.
      *
      * @throws MPDServerException if an error occur while contacting server.
-     * @see #refresh(int)
      */
     private void refresh() throws MPDServerException {
-        if (mFirstRefresh) {
-            // TODO should be atomic
-            final MPDStatus status = mMPD.getStatus();
-            final List<String> response = mMPD.getMpdConnection()
-                    .sendCommand(MPD_CMD_PLAYLIST_LIST);
-            final List<Music> playlist = Music.getMusicFromList(response, false);
-
-            mList.replace(playlist);
-
-            mLastPlaylistVersion = status.getPlaylistVersion();
-            mFirstRefresh = false;
-        } else {
-            mLastPlaylistVersion = refresh(mLastPlaylistVersion);
-        }
-    }
-
-    /**
-     * Do incremental update of playlist contents.
-     *
-     * @param playlistVersion last read playlist version
-     * @return current playlist version.
-     * @throws MPDServerException if an error occur while contacting server.
-     */
-    private int refresh(final int playlistVersion) throws MPDServerException {
-        // TODO should be atomic
         final MPDStatus status = mMPD.getStatus();
-        final List<String> response = mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CHANGES,
-                Integer.toString(playlistVersion));
-        final List<Music> changes = Music.getMusicFromList(response, false);
 
-        final int newLength = status.getPlaylistLength();
-        final int oldLength = mList.size();
-        final List<Music> newPlaylist = new ArrayList<>(newLength + 1);
-        final int newPlaylistLength;
+        /** Synchronize this block to make sure the playlist version stays coherent. */
+        synchronized (mList) {
+            final int newPlaylistVersion = status.getPlaylistVersion();
 
-        if (newLength < oldLength) {
-            newPlaylistLength = newLength;
-        } else {
-            newPlaylistLength = oldLength;
-        }
+            if (mLastPlaylistVersion == -1) {
+                final List<String> response = mMPD.getMpdConnection()
+                        .sendCommand(MPD_CMD_PLAYLIST_LIST);
+                final List<Music> playlist = Music.getMusicFromList(response, false);
 
-        newPlaylist.addAll(mList.subList(0, newPlaylistLength));
+                mList.replace(playlist);
+            } else if (mLastPlaylistVersion != newPlaylistVersion) {
+                final List<String> response =
+                        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CHANGES,
+                                Integer.toString(mLastPlaylistVersion));
+                final List<Music> changes = Music.getMusicFromList(response, false);
 
-        for (int i = newLength - oldLength; i > 0; i--) {
-            newPlaylist.add(null);
-        }
+                for (final Music song : changes) {
+                    mList.manipulate(song);
+                }
 
-        for (final Music song : changes) {
-            if (newPlaylist.size() > song.getPos() && song.getPos() > -1) {
-                newPlaylist.set(song.getPos(), song);
+                mList.removeByRange(status.getPlaylistLength(), mList.size());
             }
+
+            mLastPlaylistVersion = newPlaylistVersion;
         }
-
-        mList.replace(newPlaylist);
-
-        return status.getPlaylistVersion();
     }
 
     /**

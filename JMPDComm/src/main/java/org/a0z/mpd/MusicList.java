@@ -53,6 +53,7 @@ final class MusicList {
     }
 
     /**
+<<<<<<< HEAD
      * Constructs a new {@code MusicList} containing all music from
      * {@code list}.
      *
@@ -143,6 +144,32 @@ final class MusicList {
     /**
      * Remove a {@code Music} object with given {@code songId}
      * from this {@code MusicList}, if it is present.
+     * Adds or moves a Music item on the {@code MusicList}.
+     *
+     * @param music {@code Music} to be added or moved.
+     */
+    final void manipulate(final Music music) {
+        final int songId = music.getSongId();
+        final Integer songIdInteger = Integer.valueOf(songId);
+        final int songPos = music.getPos();
+
+        /** SongIDs can't exist in two places at the same time, remove it prior to adding it. */
+        if (getById(songId) != null) {
+            mSongIDMap.remove(songIdInteger);
+            mList.remove(music);
+        }
+
+        // add it to the map and at the right position to the list
+        mSongIDMap.put(songIdInteger, music);
+        while (mList.size() < songPos + 1) {
+            mList.add(null);
+        }
+        mList.set(music.getPos(), music);
+    }
+
+    /**
+     * Remove music with given {@code songId} from this
+     * {@code MusicList}, if it is present.
      *
      * @param songId songId of the {@code Music} to be removed from this
      *               {@code MusicList}.
@@ -173,6 +200,32 @@ final class MusicList {
     }
 
     /**
+     * Removes all items sequentially within a specified range from the {@code MusicList}.
+     *
+     * @param start The position with which to start removing.
+     * @param end   The final position to remove from the list.
+     */
+    final void removeByRange(final int start, final int end) {
+        if (start < -1 || start > mList.size()) {
+            throw new IndexOutOfBoundsException("Attempted invalid start range value: " + start +
+                    ", list size: " + mList.size() + '.');
+        }
+
+        if (end < -1 || end > mList.size()) {
+            throw new IndexOutOfBoundsException("Attempted invalid end range value: " + end +
+                    ", list size: " + mList.size() + '.');
+        }
+
+        int iterator = start;
+        synchronized (mList) {
+            while (iterator < end) {
+                removeByIndex(start);
+                iterator++;
+            }
+        }
+    }
+
+    /**
      * Replace the current {@code MusicList} object.
      *
      * @param collection The {@code Music} collection to replace the {@code MusicList} with.
@@ -191,17 +244,5 @@ final class MusicList {
      */
     final int size() {
         return mList.size();
-    }
-
-    /**
-     * Retrieves a {@code List} with selected slice from this {@code MusicList}.
-     *
-     * @param fromIndex first index (included).
-     * @param toIndex   last index (not included).
-     * @return a {@code List} with selected slice from this {@code MusicList}.
-     * @see List#subList(int, int)
-     */
-    final Collection<Music> subList(final int fromIndex, final int toIndex) {
-        return mList.subList(fromIndex, toIndex);
     }
 }
