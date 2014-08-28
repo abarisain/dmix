@@ -126,35 +126,22 @@ public class MPDPlaylist {
 
     /**
      * Remove all songs except for the currently playing.
+     *
+     * @throws MPDServerException    Thrown upon server error.
+     * @throws IllegalStateException If not playing.
      */
-    public void crop() {
-        final MPDStatus mpdStatus = mMPD.getStatus();
-        if (mpdStatus.isState(MPDStatus.STATE_PLAYING) ||
-                mpdStatus.isState(MPDStatus.STATE_PAUSED)) {
-            final int currentTrackId = mpdStatus.getSongId();
-            final int playlistLength = mList.size();
-            final int[] remove = new int[(playlistLength - 1)];
+    public void crop() throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue();
+        final int currentTrackID = mMPD.getStatus().getSongId();
+        final int playlistLength = mMPD.getStatus().getPlaylistLength();
 
-            if (playlistLength > 0) {
-                if (currentTrackId != 0) {
-                    try {
-                        move(currentTrackId, 0);
-                    } catch (final MPDServerException e) {
-                        Log.d("MPD.java", "Failed to move the current track to 0.", e);
-                    }
-                }
-
-                for (int i = 0; i < playlistLength - 1; i++) {
-                    remove[i] = i + 1;
-                }
-
-                try {
-                    removeByIndex(remove);
-                } catch (final MPDServerException e) {
-                    Log.d(TAG, "Failed to remove from the playlist for cropping.", e);
-                }
-            }
+        if (currentTrackID < 0) {
+            throw new IllegalStateException("Cannot crop when media server is inactive.");
         }
+
+        commandQueue.add(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(currentTrackID), "0");
+        commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, "1:" + playlistLength);
+        commandQueue.send(mMPD.getMpdConnection());
     }
 
     /**

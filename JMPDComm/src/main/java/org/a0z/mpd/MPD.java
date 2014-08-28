@@ -241,7 +241,11 @@ public class MPD {
         /** Replace */
         if (replace) {
             if (isPlaying) {
-                playlist.crop();
+                try {
+                    playlist.crop();
+                } catch (final IllegalStateException ignored) {
+                    /** Shouldn't occur, we already checked for playing. */
+                }
             } else {
                 playlist.clear();
             }
