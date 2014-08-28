@@ -782,26 +782,8 @@ public final class MPDroidService extends Service implements
      * @param mpdStatus A {@code MPDStatus} object.
      */
     private void updateTrack(final MPDStatus mpdStatus) {
-        /**
-         * Workaround for Bug #558 This is necessary if setMediaPlayerBuffering() is the first
-         * method to be called. Optimally, this would be passed into the constructor, but
-         * this complication belongs here for now.
-         */
-        int songPos = mpdStatus.getSongPos();
+        final int songPos = mpdStatus.getSongPos();
         mCurrentTrack = MPD_ASYNC_HELPER.oMPD.getPlaylist().getByIndex(songPos);
-
-        while (mCurrentTrack == null && mpdStatus.getPlaylistLength() > 0) {
-            Log.w(TAG, "Failed to get current track, likely due to bug #558, looping..");
-            synchronized (this) {
-                try {
-                    wait(100L);
-                } catch (final InterruptedException ignored) {
-                }
-            }
-
-            songPos = mpdStatus.getSongPos();
-            mCurrentTrack = MPD_ASYNC_HELPER.oMPD.getPlaylist().getByIndex(songPos);
-        }
 
         if (mNotificationHandler != null && mCurrentTrack != null) {
             mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
