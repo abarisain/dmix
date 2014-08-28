@@ -96,7 +96,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      */
     public void add(final FilesystemTreeEntry entry) throws MPDServerException {
         mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, entry.getFullpath());
-        refresh();
     }
 
     /**
@@ -106,7 +105,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      */
     public void addStream(final String url) throws MPDServerException {
         mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, url);
-        refresh();
     }
 
     /**
@@ -125,7 +123,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         }
 
         commandQueue.send(mMPD.getMpdConnection());
-        refresh();
     }
 
     @Override
@@ -213,7 +210,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      */
     public void load(final String file) throws MPDServerException {
         mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_LOAD, file);
-        refresh();
     }
 
     /**
@@ -226,7 +222,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     public void move(final int songId, final int to) throws MPDServerException {
         mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(songId),
                 Integer.toString(to));
-        refresh();
     }
 
     /**
@@ -240,7 +235,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     public void moveByPosition(final int from, final int to) throws MPDServerException {
         mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_MOVE, Integer.toString(from),
                 Integer.toString(to));
-        refresh();
     }
 
     /**
@@ -270,7 +264,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                 }
             }
             commandQueue.send(mMPD.getMpdConnection());
-            refresh();
         }
     }
 
@@ -463,8 +456,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
     /**
      * Retrieves playlist size. Operates on local copy of playlist, may not
-     * reflect server's current playlist. You may call refresh() before calling
-     * size().
+     * reflect server's current playlist.
      *
      * @return playlist size.
      */
@@ -482,7 +474,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     public void swap(final int song1Id, final int song2Id) throws MPDServerException {
         mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_SWAP_ID,
                 Integer.toString(song1Id), Integer.toString(song2Id));
-        refresh();
     }
 
     /**
@@ -496,7 +487,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     public void swapByPosition(final int song1, final int song2) throws MPDServerException {
         mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_SWAP, Integer.toString(song1),
                 Integer.toString(song2));
-        refresh();
     }
 
     /**
