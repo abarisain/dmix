@@ -128,6 +128,19 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         refresh();
     }
 
+    @Override
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
+        super.connectionStateChanged(connected, connectionLost);
+
+        if (connected) {
+            try {
+                refresh();
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to refresh.", e);
+            }
+        }
+    }
+
     /**
      * Remove all songs except for the currently playing.
      */
