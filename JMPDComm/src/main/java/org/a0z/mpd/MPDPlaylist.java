@@ -131,7 +131,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
         if (connected) {
             try {
-                refresh();
+                final MPDStatus mpdStatus = mMPD.getStatus();
+                refresh(mpdStatus);
             } catch (final MPDServerException e) {
                 Log.e(TAG, "Failed to refresh.", e);
             }
@@ -278,7 +279,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         super.playlistChanged(mpdStatus, oldPlaylistVersion);
 
         try {
-            refresh();
+            refresh(mpdStatus);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to refresh.", e);
         }
@@ -287,14 +288,14 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     /**
      * Reloads the playlist content.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @param mpdStatus A current {@code MPDStatus} object.
+     * @throws MPDServerException Thrown if an error occurred while communicating with the media
+     *                            server.
      */
-    private void refresh() throws MPDServerException {
-        final MPDStatus status = mMPD.getStatus();
-
+    private void refresh(final MPDStatus mpdStatus) throws MPDServerException {
         /** Synchronize this block to make sure the playlist version stays coherent. */
         synchronized (mList) {
-            final int newPlaylistVersion = status.getPlaylistVersion();
+            final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
 
             if (mLastPlaylistVersion == -1) {
                 final List<String> response = mMPD.getMpdConnection()
@@ -312,7 +313,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                     mList.manipulate(song);
                 }
 
-                mList.removeByRange(status.getPlaylistLength(), mList.size());
+                mList.removeByRange(mpdStatus.getPlaylistLength(), mList.size());
             }
 
             mLastPlaylistVersion = newPlaylistVersion;
