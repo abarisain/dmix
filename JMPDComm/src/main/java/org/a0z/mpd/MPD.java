@@ -336,11 +336,12 @@ public class MPD {
         if (null == c || c.size() < 1) {
             return;
         }
+        final CommandQueue commandQueue = new CommandQueue();
+
         for (Music m : c) {
-            getMpdConnection().queueCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName,
-                    m.getFullpath());
+            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullpath());
         }
-        getMpdConnection().sendCommandQueue();
+        commandQueue.send(mpdConnection);
     }
 
     public void addToPlaylist(String playlistName, FilesystemTreeEntry entry)
@@ -595,10 +596,11 @@ public class MPD {
 
     protected void getAlbumDetails(List<Album> albums,
             boolean findYear) throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue();
         for (Album a : albums) {
-            mpdConnection.queueCommand(getAlbumDetailsCommand(a));
+            commandQueue.add(getAlbumDetailsCommand(a));
         }
-        List<String[]> response = mpdConnection.sendCommandQueueSeparated();
+        final List<String[]> response = commandQueue.sendSeparated(mpdConnection);
         if (response.size() != albums.size()) {
             // Log.d("MPD AlbumDetails", "non matching results "+
             // response.size()+" != "+ albums.size());
@@ -1198,15 +1200,17 @@ public class MPD {
     }
 
     public List<String[]> listAlbumArtists(List<Album> albums) throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue();
+
         for (Album a : albums) {
-            mpdConnection.queueCommand(new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
+            commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
                     MPDCommand.MPD_TAG_ALBUM_ARTIST,
                     MPDCommand.MPD_TAG_ARTIST,
                     a.getArtist().getName(),
                     MPDCommand.MPD_TAG_ALBUM,
-                    a.getName()));
+                    a.getName());
         }
-        List<String[]> response = mpdConnection.sendCommandQueueSeparated();
+        final List<String[]> response = commandQueue.sendSeparated(mpdConnection);
         if (response.size() != albums.size()) {
             Log.d("MPD listAlbumArtists", "ERROR");
             return null;
@@ -1431,26 +1435,26 @@ public class MPD {
         if (albums == null) {
             return new ArrayList<>(0);
         }
+
+        final CommandQueue commandQueue = new CommandQueue();
         for (Album a : albums) {
             // When adding album artist to existing artist check that the artist
             // matches
             if (albumArtist && a.getArtist() != null && !a.getArtist().isUnknown()) {
-                mpdConnection.queueCommand
-                        (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
-                                MPDCommand.MPD_TAG_ALBUM_ARTIST,
-                                MPDCommand.MPD_TAG_ALBUM, a.getName(),
-                                MPDCommand.MPD_TAG_ARTIST, a.getArtist().getName()));
+                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
+                        MPDCommand.MPD_TAG_ALBUM_ARTIST,
+                        MPDCommand.MPD_TAG_ALBUM, a.getName(),
+                        MPDCommand.MPD_TAG_ARTIST, a.getArtist().getName());
             } else {
-                mpdConnection.queueCommand
-                        (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
-                                (albumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
-                                        MPDCommand.MPD_TAG_ARTIST), MPDCommand.MPD_TAG_ALBUM, a
-                                .getName()
-                        ));
+                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
+                        (albumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
+                                MPDCommand.MPD_TAG_ARTIST),
+                        MPDCommand.MPD_TAG_ALBUM, a.getName()
+                );
             }
         }
 
-        List<String[]> responses = mpdConnection.sendCommandQueueSeparated();
+        final List<String[]> responses = commandQueue.sendSeparated(mpdConnection);
         final List<String[]> result = new ArrayList<>(responses.size());
 
         for (String[] r : responses) {

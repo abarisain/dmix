@@ -121,11 +121,13 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * @see Music
      */
     public void addAll(final Iterable<Music> collection) throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue();
+
         for (final Music music : collection) {
-            mMPD.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_ADD, music.getFullpath());
+            commandQueue.add(MPD_CMD_PLAYLIST_ADD, music.getFullpath());
         }
 
-        mMPD.getMpdConnection().sendCommandQueue();
+        commandQueue.send(mMPD.getMpdConnection());
         refresh();
     }
 
@@ -244,12 +246,12 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
     public void moveByPosition(final int start, final int number, final int to)
             throws MPDServerException {
         if (start != to && number > 0) {
-            final MPDConnection conn = mMPD.getMpdConnection();
+            final CommandQueue commandQueue = new CommandQueue();
             final boolean moveUp = to < start;
             int from = start;
             int target = to;
             for (int i = 0; i < number; i++) {
-                conn.queueCommand(MPD_CMD_PLAYLIST_MOVE,
+                commandQueue.add(MPD_CMD_PLAYLIST_MOVE,
                         Integer.toString(from),
                         Integer.toString(target));
                 if (moveUp) {
@@ -257,7 +259,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
                     target++;
                 }
             }
-            conn.sendCommandQueue();
+            commandQueue.send(mMPD.getMpdConnection());
             refresh();
         }
     }
@@ -380,6 +382,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
             Log.d(TAG, "Remove album " + album + " of " + artist);
         }
 
+        final CommandQueue commandQueue = new CommandQueue();
         int num = 0;
         for (final Music song : songs) {
             if (album.equals(song.getAlbum())) {
@@ -390,8 +393,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
 
                 if (songIsArtist || songIsAlbumArtist) {
                     final int id = song.getSongId();
-                    mMPD.getMpdConnection().
-                            queueCommand(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
+                    commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
                     mList.removeById(id);
                     num++;
                 }
@@ -400,7 +402,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         if (DEBUG) {
             Log.d(TAG, "Removed " + num + " songs");
         }
-        mMPD.getMpdConnection().sendCommandQueue();
+        commandQueue.send(mMPD.getMpdConnection());
     }
 
     /**
@@ -410,11 +412,12 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void removeById(final int... songIds) throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue();
+
         for (final int id : songIds) {
-            mMPD.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_REMOVE_ID,
-                    Integer.toString(id));
+            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
         }
-        mMPD.getMpdConnection().sendCommandQueue();
+        commandQueue.send(mMPD.getMpdConnection());
 
         for (final int id : songIds) {
             mList.removeById(id);
@@ -430,12 +433,12 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      */
     void removeByIndex(final int... songs) throws MPDServerException {
         Arrays.sort(songs);
+        final CommandQueue commandQueue = new CommandQueue();
 
         for (int i = songs.length - 1; i >= 0; i--) {
-            mMPD.getMpdConnection().queueCommand(MPD_CMD_PLAYLIST_REMOVE,
-                    Integer.toString(songs[i]));
+            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(songs[i]));
         }
-        mMPD.getMpdConnection().sendCommandQueue();
+        commandQueue.send(mMPD.getMpdConnection());
 
         for (int i = songs.length - 1; i >= 0; i--) {
             mList.removeByIndex(songs[i]);

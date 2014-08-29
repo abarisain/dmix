@@ -68,21 +68,11 @@ abstract class MPDConnection {
 
     private static final String MPD_RESPONSE_OK = "OK";
 
-    private static final String MPD_CMD_START_BULK = "command_list_begin";
-
-    private static final String MPD_CMD_START_BULK_OK = "command_list_ok_begin";
-
-    private static final String MPD_CMD_BULK_SEP = "list_OK";
-
-    private static final String MPD_CMD_END_BULK = "command_list_end";
-
     private static final int MAX_CONNECT_RETRY = 3;
 
     private static final int MAX_REQUEST_RETRY = 3;
 
     private static final Pattern PERIOD_DELIMITER = Pattern.compile("\\.");
-
-    private final List<MPDCommand> mCommandQueue;
 
     private final ThreadPoolExecutor mExecutor;
 
@@ -98,8 +88,6 @@ abstract class MPDConnection {
 
     private boolean mCancelled = false;
 
-    private int mCommandQueueStringLength;
-
     private boolean mIsConnected = false;
 
     private int[] mMPDVersion = null;
@@ -112,38 +100,15 @@ abstract class MPDConnection {
         mReadWriteTimeout = readWriteTimeout;
         mHostPort = port;
         mHostAddress = server;
-        mCommandQueue = new ArrayList<>();
-        mCommandQueueStringLength = MPD_CMD_START_BULK_OK.length() + MPD_CMD_END_BULK.length() + 5;
         mMaxThreads = maxConnections;
         mExecutor = new ThreadPoolExecutor(1, mMaxThreads, (long) mReadWriteTimeout,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mPassword = password;
     }
 
-
     MPDConnection(final InetAddress server, final int port, final String password,
             final int readWriteTimeout) {
         this(server, port, password, readWriteTimeout, 1);
-    }
-
-    private static List<String[]> separatedQueueResults(final Iterable<String> lines) {
-        final List<String[]> result = new ArrayList<>();
-        final ArrayList<String> lineCache = new ArrayList<>();
-
-        for (final String line : lines) {
-            if (line.equals(MPD_CMD_BULK_SEP)) { // new part
-                if (!lineCache.isEmpty()) {
-                    result.add(lineCache.toArray(new String[lineCache.size()]));
-                    lineCache.clear();
-                }
-            } else {
-                lineCache.add(line);
-            }
-        }
-        if (!lineCache.isEmpty()) {
-            result.add(lineCache.toArray(new String[lineCache.size()]));
-        }
-        return result;
     }
 
     final void connect() throws MPDServerException {
@@ -341,15 +306,6 @@ abstract class MPDConnection {
         return commandResult;
     }
 
-    void queueCommand(final MPDCommand command) {
-        mCommandQueue.add(command);
-        mCommandQueueStringLength += command.toString().length();
-    }
-
-    void queueCommand(final String command, final String... args) {
-        queueCommand(new MPDCommand(command, args));
-    }
-
     List<String> sendAsyncCommand(final MPDCommand command) throws MPDServerException {
         return syncedWriteAsyncRead(command);
     }
@@ -366,35 +322,6 @@ abstract class MPDConnection {
     List<String> sendCommand(final String command, final String... args)
             throws MPDServerException {
         return sendCommand(new MPDCommand(command, args));
-    }
-
-    List<String> sendCommandQueue() throws MPDServerException {
-        return sendCommandQueue(false);
-    }
-
-    List<String> sendCommandQueue(final boolean withSeparator) throws MPDServerException {
-        final StringBuilder commandString = new StringBuilder(mCommandQueueStringLength);
-
-        if (withSeparator) {
-            commandString.append(MPD_CMD_START_BULK_OK);
-        } else {
-            commandString.append(MPD_CMD_START_BULK);
-        }
-        commandString.append('\n');
-
-        for (final MPDCommand command : mCommandQueue) {
-            commandString.append(command);
-        }
-        commandString.append(MPD_CMD_END_BULK);
-
-        mCommandQueueStringLength = MPD_CMD_START_BULK_OK.length() + MPD_CMD_END_BULK.length() + 5;
-        mCommandQueue.clear();
-
-        return sendRawCommand(new MPDCommand(commandString.toString()));
-    }
-
-    List<String[]> sendCommandQueueSeparated() throws MPDServerException {
-        return separatedQueueResults(sendCommandQueue(true));
     }
 
     private List<String> sendRawCommand(final MPDCommand command) throws MPDServerException {
