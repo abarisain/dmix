@@ -223,20 +223,11 @@ public class MPDPlaylist {
     public void moveByPosition(final int start, final int number, final int to)
             throws MPDServerException {
         if (start != to && number > 0) {
-            final CommandQueue commandQueue = new CommandQueue();
-            final boolean moveUp = to < start;
-            int from = start;
-            int target = to;
-            for (int i = 0; i < number; i++) {
-                commandQueue.add(MPD_CMD_PLAYLIST_MOVE,
-                        Integer.toString(from),
-                        Integer.toString(target));
-                if (moveUp) {
-                    from++;
-                    target++;
-                }
-            }
-            commandQueue.send(mMPD.getMpdConnection());
+            final String beginRange = Integer.toString(start);
+            final String endRange = Integer.toString(start + number);
+            final String target = Integer.toString(to);
+            mMPD.getMpdConnection()
+                    .sendCommand(MPD_CMD_PLAYLIST_MOVE, beginRange + ':' + endRange, target);
         }
     }
 
