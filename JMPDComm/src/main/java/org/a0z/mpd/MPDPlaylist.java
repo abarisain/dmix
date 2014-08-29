@@ -325,6 +325,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         final List<Music> songs = mList.getMusic();
         String artist = "";
         String album = "";
+        int num = 0;
         boolean usingAlbumArtist = true;
 
         for (final Music song : songs) {
@@ -339,34 +340,37 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
             }
         }
 
-        if (artist == null || album == null) {
-            return;
-        }
-        if (DEBUG) {
-            Log.d(TAG, "Remove album " + album + " of " + artist);
-        }
+        if (artist != null && album != null) {
+            if (DEBUG) {
+                Log.d(TAG, "Remove album " + album + " of " + artist);
+            }
+            final CommandQueue commandQueue = new CommandQueue();
 
-        final CommandQueue commandQueue = new CommandQueue();
-        int num = 0;
-        for (final Music song : songs) {
-            if (album.equals(song.getAlbum())) {
-                final boolean songIsAlbumArtist =
-                        usingAlbumArtist && artist.equals(song.getAlbumArtist());
-                final boolean songIsArtist =
-                        !usingAlbumArtist && artist.equals(song.getArtist());
+            /** Don't allow the list to change before we've computed the CommandList. */
+            synchronized (mList) {
+                final List<Music> tracks = mList.getMusic();
 
-                if (songIsArtist || songIsAlbumArtist) {
-                    final int id = song.getSongId();
-                    commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
-                    mList.removeById(id);
-                    num++;
+                for (final Music track : tracks) {
+                    if (album.equals(track.getAlbum())) {
+                        final boolean songIsAlbumArtist =
+                                usingAlbumArtist && artist.equals(track.getAlbumArtist());
+                        final boolean songIsArtist =
+                                !usingAlbumArtist && artist.equals(track.getArtist());
+
+                        if (songIsArtist || songIsAlbumArtist) {
+                            final String songID = Integer.toString(track.getSongId());
+                            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, songID);
+                            num++;
+                        }
+                    }
                 }
             }
+
+            commandQueue.send(mMPD.getMpdConnection());
         }
         if (DEBUG) {
             Log.d(TAG, "Removed " + num + " songs");
         }
-        commandQueue.send(mMPD.getMpdConnection());
     }
 
     /**
@@ -489,9 +493,11 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      */
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder(mList.toString().length());
-        for (final Music music : mList.getMusic()) {
-            stringBuilder.append(music);
-            stringBuilder.append('\n');
+        synchronized (mList) {
+            for (final Music music : mList.getMusic()) {
+                stringBuilder.append(music);
+                stringBuilder.append('\n');
+            }
         }
         return stringBuilder.toString();
     }

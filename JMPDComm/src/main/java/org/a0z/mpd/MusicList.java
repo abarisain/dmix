@@ -159,12 +159,14 @@ final class MusicList {
             mList.remove(music);
         }
 
-        // add it to the map and at the right position to the list
-        mSongIDMap.put(songIdInteger, music);
-        while (mList.size() < songPos + 1) {
-            mList.add(null);
+        synchronized (mList) {
+            // add it to the map and at the right position to the list
+            mSongIDMap.put(songIdInteger, music);
+            while (mList.size() < songPos + 1) {
+                mList.add(null);
+            }
+            mList.set(songPos, music);
         }
-        mList.set(music.getPos(), music);
     }
 
     /**
@@ -177,9 +179,11 @@ final class MusicList {
     final void removeById(final int songId) {
         final Music music = getById(songId);
 
-        if (music != null) {
-            mSongIDMap.remove(Integer.valueOf(songId));
-            mList.remove(music);
+        synchronized (mList) {
+            if (music != null) {
+                mSongIDMap.remove(Integer.valueOf(songId));
+                mList.remove(music);
+            }
         }
     }
 
@@ -191,11 +195,13 @@ final class MusicList {
      *              {@code MusicList}.
      */
     final void removeByIndex(final int index) {
-        final Music music = getByIndex(index);
+        synchronized (mList) {
+            final Music music = getByIndex(index);
 
-        if (music != null) {
-            mList.remove(index);
-            mSongIDMap.remove(Integer.valueOf(music.getSongId()));
+            if (music != null) {
+                mList.remove(index);
+                mSongIDMap.remove(Integer.valueOf(music.getSongId()));
+            }
         }
     }
 
