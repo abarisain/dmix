@@ -151,7 +151,6 @@ public class MPDPlaylist {
      */
     public void clear() throws MPDServerException {
         mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CLEAR);
-        mList.clear();
     }
 
     /**
@@ -339,10 +338,6 @@ public class MPDPlaylist {
             commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
         }
         commandQueue.send(mMPD.getMpdConnection());
-
-        for (final int id : songIds) {
-            mList.removeById(id);
-        }
     }
 
     /**
@@ -360,10 +355,6 @@ public class MPDPlaylist {
             commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(songs[i]));
         }
         commandQueue.send(mMPD.getMpdConnection());
-
-        for (int i = songs.length - 1; i >= 0; i--) {
-            mList.removeByIndex(songs[i]);
-        }
     }
 
     /**
