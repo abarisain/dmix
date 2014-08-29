@@ -684,6 +684,10 @@ public class MPD {
      * @return all Albums
      */
     public List<Album> getAllAlbums(final boolean trackCountNeeded) throws MPDServerException {
+        if (mpdConnection == null) {
+            throw new MPDServerException("MPD Connection is null.");
+        }
+
         final List<Album> albums;
         // Use MPD 0.19's album grouping feature if available.
         if (mpdConnection.isAlbumGroupingSupported()) {
