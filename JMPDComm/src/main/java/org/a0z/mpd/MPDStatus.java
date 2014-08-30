@@ -41,24 +41,37 @@ public class MPDStatus {
     /**
      * MPD State: playing.
      */
-    public static final String MPD_STATE_PLAYING = "play";
+    public static final int STATE_PLAYING = 0;
 
     /**
      * MPD State: stopped.
      */
-    public static final String MPD_STATE_STOPPED = "stop";
+    public static final int STATE_STOPPED = 1;
 
     /**
      * MPD State: paused.
      */
-    public static final String MPD_STATE_PAUSED = "pause";
+    public static final int STATE_PAUSED = 2;
 
     /**
      * MPD State: unknown.
      */
-    public static final String MPD_STATE_UNKNOWN = "unknown";
+    public static final int STATE_UNKNOWN = 3;
+
+    private static final String MPD_STATE_PLAYING = "play";
+
+    private static final String MPD_STATE_STOPPED = "stop";
+
+    private static final String MPD_STATE_PAUSED = "pause";
+
+    private static final String MPD_STATE_UNKNOWN = "unknown";
 
     private static final String TAG = "org.a0z.mpd.MPDStatus";
+
+    /**
+     * The time response has it's own delimiter.
+     */
+    private static final Pattern COMMA_DELIMITER = Pattern.compile(":");
 
     private int bitsPerSample;
 
@@ -102,7 +115,7 @@ public class MPDStatus {
 
     private int songId;
 
-    private String state;
+    private int state;
 
     private long totalTime;
 
@@ -122,7 +135,7 @@ public class MPDStatus {
         random = false;
         repeat = false;
         single = false;
-        state = MPD_STATE_UNKNOWN;
+        state = STATE_UNKNOWN;
         volume = 0;
     }
 
@@ -256,8 +269,18 @@ public class MPDStatus {
      *
      * @return player state.
      */
-    public final String getState() {
+    public final int getState() {
         return state;
+    }
+
+    /**
+     * A convenience method to query the current state.
+     *
+     * @param queryState The state to query against.
+     * @return True if the same as the current state.
+     */
+    public final boolean isState(final int queryState) {
+        return state == queryState;
     }
 
     /**
@@ -321,11 +344,6 @@ public class MPDStatus {
     public final boolean isUpdating() {
         return updating;
     }
-
-    /**
-     * The time response has it's own delimiter.
-     */
-    private static final Pattern COMMA_DELIMITER = Pattern.compile(":");
 
     /**
      * These values are not necessarily reset by a response
@@ -471,7 +489,21 @@ public class MPDStatus {
                     songId = Integer.parseInt(lines[1]);
                     break;
                 case "state":
-                    state = lines[1];
+                    switch (lines[1]) {
+                        case MPD_STATE_PLAYING:
+                            state = STATE_PLAYING;
+                            break;
+                        case MPD_STATE_PAUSED:
+                            state = STATE_PAUSED;
+                            break;
+                        case MPD_STATE_STOPPED:
+                            state = STATE_STOPPED;
+                            break;
+                        case MPD_STATE_UNKNOWN:
+                        default:
+                            state = STATE_UNKNOWN;
+                            break;
+                    }
                     break;
                 case "time":
                     final String[] time = COMMA_DELIMITER.split(lines[1]);

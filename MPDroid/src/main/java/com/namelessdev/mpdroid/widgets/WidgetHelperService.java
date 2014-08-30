@@ -69,7 +69,7 @@ public class WidgetHelperService extends IntentService {
         switch (action) {
             case CMD_UPDATE_WIDGET:
                 try {
-                    playing = mpd.getStatus().getState().equals(MPDStatus.MPD_STATE_PLAYING);
+                    playing = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);
                 } catch (final MPDServerException e) {
                     Log.e(TAG, "Failed to get current status", e);
                 }

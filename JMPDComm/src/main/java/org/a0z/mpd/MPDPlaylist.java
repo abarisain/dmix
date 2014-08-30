@@ -132,7 +132,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * Remove all songs except for the currently playing.
      */
     public void crop() {
-        String state = null;
+        int state = MPDStatus.STATE_UNKNOWN;
         int currentTrackId = 0;
 
         try {
@@ -143,8 +143,8 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         }
 
         switch (state) {
-            case MPDStatus.MPD_STATE_PLAYING:
-            case MPDStatus.MPD_STATE_PAUSED:
+            case MPDStatus.STATE_PLAYING:
+            case MPDStatus.STATE_PAUSED:
                 final int playlistLength = list.size();
                 final int remove[] = new int[(playlistLength - 1)];
 

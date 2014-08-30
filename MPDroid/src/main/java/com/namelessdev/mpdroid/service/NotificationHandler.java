@@ -335,14 +335,13 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
 
     final void stateChanged(final MPDStatus mpdStatus) {
         switch (mpdStatus.getState()) {
-            case MPDStatus.MPD_STATE_PLAYING:
+            case MPDStatus.STATE_PLAYING:
                 setPlayState(true);
                 break;
-            case MPDStatus.MPD_STATE_PAUSED:
+            case MPDStatus.STATE_PAUSED:
                 setPlayState(false);
                 break;
-            case MPDStatus.MPD_STATE_STOPPED:
-                break;
+            case MPDStatus.STATE_STOPPED:
             default:
                 break;
         }

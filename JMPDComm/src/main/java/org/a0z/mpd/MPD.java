@@ -236,7 +236,7 @@ public class MPD {
             throws MPDServerException {
         int playPos = 0;
         final MPDStatus status = getStatus();
-        final boolean isPlaying = MPDStatus.MPD_STATE_PLAYING.equals(status.getState());
+        final boolean isPlaying = status.isState(MPDStatus.STATE_PLAYING);
         final boolean isConsume = status.isConsume();
         final boolean isRandom = status.isRandom();
 
@@ -1127,7 +1127,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public MPDStatus getStatus(boolean forceRefresh) throws MPDServerException {
-        if (forceRefresh || mpdStatus == null || mpdStatus.getState() == null) {
+        if (forceRefresh || mpdStatus == null) {
             if (!isConnected()) {
                 throw new MPDConnectionException("MPD Connection is not established");
             }

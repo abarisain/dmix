@@ -264,7 +264,7 @@ public class MPDAsyncWorker implements Handler.Callback,
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
         mHelperHandler
                 .obtainMessage(MPDAsyncHelper.EVENT_STATE, Tools.toObjectArray(mpdStatus, oldState))
                 .sendToTarget();

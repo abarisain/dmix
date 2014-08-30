@@ -683,7 +683,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
     }
 
     @Override

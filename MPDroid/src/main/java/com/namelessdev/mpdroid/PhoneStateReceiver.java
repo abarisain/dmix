@@ -74,15 +74,15 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
     private static boolean shouldPauseForCall() {
         boolean result = false;
-        String mpdState = null;
+        boolean isPlaying = false;
 
         try {
-            mpdState = APP.oMPDAsyncHelper.oMPD.getStatus().getState();
+            isPlaying = APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatus.STATE_PLAYING);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to get a server state.", e);
         }
 
-        if (MPDStatus.MPD_STATE_PLAYING.equals(mpdState)) {
+        if (isPlaying) {
             if (APP.isLocalAudible()) {
                 if (DEBUG) {
                     Log.d(TAG, "App is local audible.");

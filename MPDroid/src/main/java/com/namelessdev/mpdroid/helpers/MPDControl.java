@@ -176,10 +176,10 @@ public final class MPDControl {
             /**
              * A simple status retrieval method.
              *
-             * @return An {@code MPDStatus} state string.
+             * @return An {@code MPDStatus} state.
              */
-            private String getState(final boolean forceUpdate) {
-                String state = null;
+            private int getState(final boolean forceUpdate) {
+                int state = MPDStatus.STATE_UNKNOWN;
                 try {
                     state = mpd.getStatus(forceUpdate).getState();
                 } catch (final MPDServerException e) {
@@ -190,18 +190,18 @@ public final class MPDControl {
             }
 
             private boolean isPaused() {
-                return MPDStatus.MPD_STATE_PAUSED.equals(getState(false));
+                return MPDStatus.STATE_PAUSED == getState(false);
             }
 
             private boolean isPlaying() {
-                return MPDStatus.MPD_STATE_PLAYING.equals(getState(false));
+                return MPDStatus.STATE_PLAYING == getState(false);
             }
 
             private void blockForConnection() {
                 int loopIterator = 50; /** Give the connection 5 seconds, tops. */
                 final long blockTimeout = 100L;
 
-                while (!mpd.isConnected() || MPDStatus.MPD_STATE_UNKNOWN.equals(getState(true))) {
+                while (!mpd.isConnected() || MPDStatus.STATE_UNKNOWN == getState(true)) {
                     synchronized (this) {
                         /** Send a notice once a second or so. */
                         if (loopIterator % 10 == 0) {

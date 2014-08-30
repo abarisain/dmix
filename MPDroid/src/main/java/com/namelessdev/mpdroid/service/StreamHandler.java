@@ -558,9 +558,9 @@ public final class StreamHandler implements
         Toast.makeText(mServiceContext, toastOutput, Toast.LENGTH_LONG).show();
     }
 
-    final void start(final String mpdState) {
+    final void start(final int mpdState) {
         mIsActive = true;
-        mIsPlaying = MPDStatus.MPD_STATE_PLAYING.equals(mpdState);
+        mIsPlaying = MPDStatus.STATE_PLAYING == mpdState;
         if (!mPreparingStream && mIsPlaying) {
             tryToStream();
         }
@@ -590,22 +590,22 @@ public final class StreamHandler implements
             Log.d(TAG, "StreamHandler.stateChanged()");
         }
 
-        final String state = mpdStatus.getState();
+        final int state = mpdStatus.getState();
 
-        if (state != null && mIsActive) {
+        if (mIsActive) {
             switch (state) {
-                case MPDStatus.MPD_STATE_PLAYING:
+                case MPDStatus.STATE_PLAYING:
                     mServiceHandler.removeMessages(STOP);
                     mIsPlaying = true;
                     tryToStream();
                     break;
-                case MPDStatus.MPD_STATE_STOPPED:
+                case MPDStatus.STATE_STOPPED:
                     /** Detect final song and let onCompletion handle it */
                     if (mpdStatus.getNextSongPos() == -1 || mpdStatus.getPlaylistLength() == 0) {
                         break;
                     }
                     /** Fall Through */
-                case MPDStatus.MPD_STATE_PAUSED:
+                case MPDStatus.STATE_PAUSED:
                     /**
                      * If in the middle of stream preparation, "Buffering…" notification message
                      * is likely.

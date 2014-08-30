@@ -107,7 +107,7 @@ public class MPDStatusMonitor extends Thread {
         int oldSongId = -1;
         int oldPlaylistVersion = -1;
         long oldElapsedTime = -1L;
-        String oldState = "";
+        int oldState = MPDStatus.STATE_UNKNOWN;
         int oldVolume = -1;
         boolean oldUpdating = false;
         boolean oldRepeat = false;
@@ -202,7 +202,7 @@ public class MPDStatusMonitor extends Thread {
                         }
 
                         // state
-                        if (connectionStateChanged || !oldState.equals(status.getState())) {
+                        if (connectionStateChanged || !status.isState(oldState)) {
                             for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.stateChanged(status, oldState);
                             }

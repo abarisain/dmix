@@ -80,7 +80,7 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
+    public void stateChanged(MPDStatus mpdStatus, int oldState) {
 
     }
 

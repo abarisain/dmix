@@ -275,7 +275,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                                  * Let the user know if we're not going to play the added music.
                                  */
                                 if(status != null && status.isRandom() &&
-                                        MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
+                                        status.isState(MPDStatus.STATE_PLAYING)) {
                                     Tools.notifyUser(R.string.notPlayingInRandomMode);
                                 } else {
                                     play = true;

@@ -55,7 +55,7 @@ public abstract class AbstractStatusChangeListener implements StatusChangeListen
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
+    public void stateChanged(MPDStatus mpdStatus, int oldState) {
     }
 
     @Override

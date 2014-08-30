@@ -240,7 +240,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
+    public void stateChanged(MPDStatus mpdStatus, int oldState) {
         // TODO Auto-generated method stub
 
     }

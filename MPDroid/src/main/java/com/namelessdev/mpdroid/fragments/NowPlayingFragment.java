@@ -232,18 +232,17 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return queueFragment;
     }
 
-    protected static int getPlayPauseResource(final String state) {
+    protected static int getPlayPauseResource(final int state) {
         final int resource;
-        final boolean isPlaying = state.equals(MPDStatus.MPD_STATE_PLAYING);
 
         if(MPDApplication.getInstance().isLightThemeSelected()) {
-            if (isPlaying) {
+            if (state == MPDStatus.STATE_PLAYING) {
                 resource = R.drawable.ic_media_pause_light;
             } else {
                 resource = R.drawable.ic_media_play_light;
             }
         } else {
-            if (isPlaying) {
+            if (state == MPDStatus.STATE_PLAYING) {
                 resource = R.drawable.ic_media_pause;
             } else {
                 resource = R.drawable.ic_media_play;
@@ -671,7 +670,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
          * change the playlist, not the track, so, update if we detect a stream.
          */
         if (currentSong != null && currentSong.isStream() ||
-                MPDStatus.MPD_STATE_STOPPED.equals(mpdStatus.getState())) {
+                mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
             updateTrackInfo(mpdStatus);
         }
     }
@@ -728,7 +727,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
         if (activity != null && mpdStatus != null) {
             updateStatus(mpdStatus);
         }
@@ -760,7 +759,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else {
             final long elapsedTime = status.getElapsedTime();
 
-            if(MPDStatus.MPD_STATE_PLAYING.equals(status.getState())) {
+            if(status.isState(MPDStatus.STATE_PLAYING)) {
                 startPosTimer(elapsedTime, totalTime);
             } else {
                 stopPosTimer();
@@ -838,10 +837,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      */
     private void updateAudioNameText(final MPDStatus status) {
         String optionalTrackInfo = null;
-        final String state = status.getState();
 
         if(currentSong != null && isAudioNameTextEnabled &&
-                !MPDStatus.MPD_STATE_STOPPED.equals(state)) {
+                !status.isState(MPDStatus.STATE_STOPPED)) {
             final String extension = getExtension(currentSong.getFullpath()).toUpperCase();
             final long bitRate = status.getBitrate();
             final int bitsPerSample = status.getBitsPerSample();

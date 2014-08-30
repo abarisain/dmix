@@ -248,7 +248,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
             final Music currentSong =
                     app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             if (currentSong != null && currentSong.isStream() ||
-                    MPDStatus.MPD_STATE_STOPPED.equals(mpdStatus.getState())) {
+                    mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
                 forceStatusUpdate(mpdStatus);
             }
         }
@@ -264,7 +264,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void stateChanged(MPDStatus status, String oldState) {
+    public void stateChanged(MPDStatus status, int oldState) {
         forceStatusUpdate(status);
         updatePlayPauseButton(status);
 
@@ -284,7 +284,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     private void updatePlayPauseButton(final MPDStatus status) {
         if (isAdded()) {
-            String state = null;
+            int state = MPDStatus.STATE_UNKNOWN;
 
             if (status == null) {
                 try {

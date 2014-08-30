@@ -97,20 +97,20 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
      *
      * @param state Current server state
      */
-    private void getRemoteState(final String state) {
+    private void getRemoteState(final int state) {
         final int playbackState;
 
         switch (state) {
-            case MPDStatus.MPD_STATE_PLAYING:
+            case MPDStatus.STATE_PLAYING:
                 playbackState = RemoteControlClient.PLAYSTATE_PLAYING;
                 break;
-            case MPDStatus.MPD_STATE_STOPPED:
+            case MPDStatus.STATE_STOPPED:
                 playbackState = RemoteControlClient.PLAYSTATE_STOPPED;
                 break;
-            case MPDStatus.MPD_STATE_PAUSED:
+            case MPDStatus.STATE_PAUSED:
                 playbackState = RemoteControlClient.PLAYSTATE_PAUSED;
                 break;
-            case MPDStatus.MPD_STATE_UNKNOWN:
+            case MPDStatus.STATE_UNKNOWN:
             default:
                 playbackState = RemoteControlClient.PLAYSTATE_ERROR;
                 break;

@@ -252,7 +252,7 @@ public class MPDAsyncHelper implements Handler.Callback {
                     break;
                 case EVENT_STATE:
                     for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.stateChanged((MPDStatus) args[0], (String) args[1]);
+                        listener.stateChanged((MPDStatus) args[0], (int) args[1]);
                     }
                     break;
                 case EVENT_TRACK:
