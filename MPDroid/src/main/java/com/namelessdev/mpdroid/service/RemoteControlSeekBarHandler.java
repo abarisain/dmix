@@ -115,9 +115,7 @@ public class RemoteControlSeekBarHandler implements
      */
     @Override
     public final void trackPositionChanged(final MPDStatus status) {
-        if (status != null) {
-            updateSeekTime(status.getElapsedTime());
-        }
+        updateSeekTime(status.getElapsedTime());
     }
 
     /**

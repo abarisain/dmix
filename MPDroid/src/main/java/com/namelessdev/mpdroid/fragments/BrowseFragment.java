@@ -264,18 +264,12 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                                 replace = true;
                                 break;
                             case ADDNPLAY:
-                                MPDStatus status = null;
-                                try {
-                                    status = app.oMPDAsyncHelper.oMPD.getStatus();
-                                } catch (final MPDServerException e) {
-                                    Log.e(TAG, "Failed to get random state status.", e);
-                                }
+                                final MPDStatus status = app.oMPDAsyncHelper.oMPD.getStatus();
 
                                 /**
                                  * Let the user know if we're not going to play the added music.
                                  */
-                                if(status != null && status.isRandom() &&
-                                        status.isState(MPDStatus.STATE_PLAYING)) {
+                                if(status.isRandom() && status.isState(MPDStatus.STATE_PLAYING)) {
                                     Tools.notifyUser(R.string.notPlayingInRandomMode);
                                 } else {
                                     play = true;

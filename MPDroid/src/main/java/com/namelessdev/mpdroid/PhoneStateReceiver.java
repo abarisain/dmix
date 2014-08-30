@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -74,13 +73,8 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
     private static boolean shouldPauseForCall() {
         boolean result = false;
-        boolean isPlaying = false;
-
-        try {
-            isPlaying = APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatus.STATE_PLAYING);
-        } catch (final MPDServerException e) {
-            Log.e(TAG, "Failed to get a server state.", e);
-        }
+        final boolean isPlaying =
+                APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatus.STATE_PLAYING);
 
         if (isPlaying) {
             if (APP.isLocalAudible()) {

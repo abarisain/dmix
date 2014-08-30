@@ -31,7 +31,6 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -197,31 +196,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         oCoverAsyncHelper.downloadCover(albumInfo, true);
     }
 
-    /**
-     * This is a very important block. This should be used exclusively in onResume() and/or in
-     * connectedStateChanged(). These should be the only two places in the non-library code that
-     * will require a forced status update, as our idle status monitor will otherwise take care of
-     * any other updates.
-     *
-     * This SHOULD NOT be used elsewhere unless you know exactly what you're doing.
-     */
     private void forceStatusUpdate() {
-        MPDStatus mpdStatus = null;
+        final MPDStatus mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus();
 
-        if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-            try {
-                mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus(true);
-            } catch (final MPDServerException e) {
-                Log.e(TAG, "Failed to seed the status.", e);
-            }
-        }
-
-        if (mpdStatus != null) {
+        if (mpdStatus.isValid()) {
             volumeChanged(mpdStatus, -1);
             updateStatus(mpdStatus);
             updateTrackInfo(mpdStatus);
-        } else {
-            Log.e(TAG, "Failed to get a force updated status object.");
         }
     }
 
@@ -559,11 +540,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
             case "enableAudioText":
                 isAudioNameTextEnabled = sharedPreferences.getBoolean(key, false);
-                try {
-                    updateAudioNameText(app.oMPDAsyncHelper.oMPD.getStatus());
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Could not get a current status.", e);
-                }
+                updateAudioNameText(app.oMPDAsyncHelper.oMPD.getStatus());
                 break;
             default:
                 break;
@@ -728,7 +705,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
-        if (activity != null && mpdStatus != null) {
+        if (activity != null) {
             updateStatus(mpdStatus);
         }
     }
@@ -887,7 +864,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void updateTrackInfo(final MPDStatus status) {
-        if (app.oMPDAsyncHelper.oMPD.isConnected() && status != null && isAdded()) {
+        if (app.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
             toggleTrackProgress(status);
             app.updateTrackInfo.refresh(status);
         }

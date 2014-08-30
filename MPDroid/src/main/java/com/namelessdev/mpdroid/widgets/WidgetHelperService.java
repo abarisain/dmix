@@ -21,11 +21,9 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 public class WidgetHelperService extends IntentService {
     static final String TAG = "MPDroidWidgetHelperService";
@@ -68,11 +66,7 @@ public class WidgetHelperService extends IntentService {
     void processIntent(String action, MPD mpd) {
         switch (action) {
             case CMD_UPDATE_WIDGET:
-                try {
-                    playing = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to get current status", e);
-                }
+                playing = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);
                 SimpleWidgetProvider.getInstance().notifyChange(this);
                 break;
             default:

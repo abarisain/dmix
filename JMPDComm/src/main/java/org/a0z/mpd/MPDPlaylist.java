@@ -132,17 +132,10 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * Remove all songs except for the currently playing.
      */
     public void crop() {
-        int state = MPDStatus.STATE_UNKNOWN;
-        int currentTrackId = 0;
+        final MPDStatus mpdStatus = mpd.getStatus();
+        final int currentTrackId = mpdStatus.getSongId();
 
-        try {
-            state = this.mpd.getStatus().getState();
-            currentTrackId = this.mpd.getStatus().getSongId();
-        } catch (final MPDServerException e) {
-            Log.w(TAG, "Failed to get some MPD status components.", e);
-        }
-
-        switch (state) {
+        switch (mpdStatus.getState()) {
             case MPDStatus.STATE_PLAYING:
             case MPDStatus.STATE_PAUSED:
                 final int playlistLength = list.size();

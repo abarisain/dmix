@@ -284,6 +284,15 @@ public class MPDStatus {
     }
 
     /**
+     * Lets callers know if the current status object is valid.
+     *
+     * @return True if valid, false otherwise.
+     */
+    public final boolean isValid() {
+        return state != STATE_UNKNOWN;
+    }
+
+    /**
      * Retrieves current track total time.
      *
      * @return current track total time.

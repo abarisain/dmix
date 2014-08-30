@@ -46,7 +46,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -645,41 +644,21 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     public void scrollToNowPlaying() {
+        final int songPos = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
 
-        new AsyncTask<Void, Void, Void>() {
+        if (songPos == -1) {
+            Log.d(TAG, "Missing list item.");
+        } else {
 
-            private int songPos = -1;
-
-            @Override
-            protected Void doInBackground(final Void... voids) {
-                try {
-                    songPos = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Cannot find the current playing song position.", e);
-                }
-
-                return null;
+            if (activity instanceof MainMenuActivity) {
+                ((MainMenuActivity) activity).showQueue();
             }
 
-            @Override
-            protected void onPostExecute(final Void result) {
-                super.onPostExecute(result);
-
-                if (songPos == -1) {
-                    Log.d(TAG, "Missing list item.");
-                } else {
-
-                    if (activity instanceof MainMenuActivity) {
-                        ((MainMenuActivity) activity).showQueue();
-                    }
-
-                    final ListView listView = getListView();
-                    listView.requestFocusFromTouch();
-                    listView.setSelection(songPos);
-                    listView.clearFocus();
-                }
-            }
-        }.execute();
+            final ListView listView = getListView();
+            listView.requestFocusFromTouch();
+            listView.setSelection(songPos);
+            listView.clearFocus();
+        }
     }
 
     @Override
@@ -725,11 +704,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         final ArrayList<AbstractPlaylistMusic> newSongList = new ArrayList<>(musics.size());
 
         if (lastPlayingID == -1 || forcePlayingIDRefresh) {
-            try {
-                lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
-            } catch (final MPDServerException e) {
-                Log.e(TAG, "Failed to get the current song id.", e);
-            }
+            lastPlayingID = app.oMPDAsyncHelper.oMPD.getStatus().getSongId();
         }
 
         // The position in the song list of the currently played song

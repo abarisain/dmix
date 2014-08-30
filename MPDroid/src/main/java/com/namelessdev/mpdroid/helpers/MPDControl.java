@@ -173,35 +173,11 @@ public final class MPDControl {
             final boolean internalMPD) {
         new Thread(new Runnable() {
 
-            /**
-             * A simple status retrieval method.
-             *
-             * @return An {@code MPDStatus} state.
-             */
-            private int getState(final boolean forceUpdate) {
-                int state = MPDStatus.STATE_UNKNOWN;
-                try {
-                    state = mpd.getStatus(forceUpdate).getState();
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to receive a current status", e);
-                }
-
-                return state;
-            }
-
-            private boolean isPaused() {
-                return MPDStatus.STATE_PAUSED == getState(false);
-            }
-
-            private boolean isPlaying() {
-                return MPDStatus.STATE_PLAYING == getState(false);
-            }
-
             private void blockForConnection() {
                 int loopIterator = 50; /** Give the connection 5 seconds, tops. */
                 final long blockTimeout = 100L;
 
-                while (!mpd.isConnected() || MPDStatus.STATE_UNKNOWN == getState(true)) {
+                while (!mpd.isConnected() || !mpd.getStatus().isValid()) {
                     synchronized (this) {
                         /** Send a notice once a second or so. */
                         if (loopIterator % 10 == 0) {
@@ -221,26 +197,6 @@ public final class MPDControl {
                 }
             }
 
-            private String translateCommand() {
-                final String command;
-
-                /** This switch translates for the next switch. */
-                switch (userCommand) {
-                    case ACTION_TOGGLE_PLAYBACK:
-                        if (isPlaying()) {
-                            command = ACTION_PAUSE;
-                        } else {
-                            command = ACTION_PLAY;
-                        }
-                        break;
-                    default:
-                        command = userCommand;
-                        break;
-                }
-
-                return command;
-            }
-
             @Override
             public final void run() {
                 if (internalMPD) {
@@ -252,7 +208,7 @@ public final class MPDControl {
                  * The main switch for running the command.
                  */
                 try {
-                    switch (translateCommand()) {
+                    switch (userCommand) {
                         case ACTION_CONSUME:
                             mpd.setConsume(!mpd.getStatus().isConsume());
                             break;
@@ -263,8 +219,15 @@ public final class MPDControl {
                             mpd.next();
                             break;
                         case ACTION_PAUSE:
-                            if (!isPaused()) {
+                            if (!mpd.getStatus().isState(MPDStatus.STATE_PAUSED)) {
                                 mpd.pause();
+                            }
+                            break;
+                        case ACTION_TOGGLE_PLAYBACK:
+                            if (mpd.getStatus().isState(MPDStatus.STATE_PLAYING)) {
+                                mpd.pause();
+                            } else {
+                                mpd.play();
                             }
                             break;
                         case ACTION_PLAY:

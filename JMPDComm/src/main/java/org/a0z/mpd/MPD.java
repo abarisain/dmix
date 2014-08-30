@@ -52,11 +52,11 @@ public class MPD {
 
     public static final String STREAMS_PLAYLIST = "[Radio Streams]";
 
-    protected MPDConnection mpdConnection;
+    private MPDConnection mpdConnection;
 
-    protected MPDConnection mpdIdleConnection;
+    private MPDConnection mpdIdleConnection;
 
-    protected MPDStatus mpdStatus;
+    private MPDStatus mpdStatus;
 
     protected MPDPlaylist playlist;
 
@@ -235,10 +235,9 @@ public class MPD {
     public void add(final Runnable runnable, final boolean replace, final boolean playAfterAdd)
             throws MPDServerException {
         int playPos = 0;
-        final MPDStatus status = getStatus();
-        final boolean isPlaying = status.isState(MPDStatus.STATE_PLAYING);
-        final boolean isConsume = status.isConsume();
-        final boolean isRandom = status.isRandom();
+        final boolean isPlaying = mpdStatus.isState(MPDStatus.STATE_PLAYING);
+        final boolean isConsume = mpdStatus.isConsume();
+        final boolean isRandom = mpdStatus.isRandom();
 
         /** Replace */
         if (replace) {
@@ -369,7 +368,7 @@ public class MPD {
         }
 
         // calculate final volume (clip value with [0, 100])
-        int vol = getVolume() + modifier;
+        int vol = mpdStatus.getVolume() + modifier;
         vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, vol));
 
         mpdConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
@@ -1114,41 +1113,9 @@ public class MPD {
      * Retrieves status of the connected server.
      *
      * @return status of the connected server.
-     * @throws MPDServerException if an error occur while contacting server.
      */
-    public MPDStatus getStatus() throws MPDServerException {
-        return getStatus(false);
-    }
-
-    /**
-     * Retrieves status of the connected server.
-     *
-     * @return status of the connected server.
-     * @throws MPDServerException if an error occur while contacting server.
-     */
-    public MPDStatus getStatus(boolean forceRefresh) throws MPDServerException {
-        if (forceRefresh || mpdStatus == null) {
-            if (!isConnected()) {
-                throw new MPDConnectionException("MPD Connection is not established");
-            }
-            List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
-            if (response == null) {
-                Log.w(TAG, "No status response from the MPD server.");
-            } else {
-                mpdStatus.updateStatus(response);
-            }
-        }
+    public MPDStatus getStatus() {
         return mpdStatus;
-    }
-
-    /**
-     * Retrieves current volume.
-     *
-     * @return current volume.
-     * @throws MPDServerException if an error occur while contacting server.
-     */
-    public int getVolume() throws MPDServerException {
-        return this.getStatus().getVolume();
     }
 
     /**
@@ -1688,7 +1655,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void seek(long position) throws MPDServerException {
-        seekById(this.getStatus().getSongId(), position);
+        seekById(mpdStatus.getSongId(), position);
     }
 
     /**
@@ -1869,22 +1836,24 @@ public class MPD {
     }
 
     /**
-     * Wait for server changes using "idle" command on the dedicated connection.
+     * Retrieves status of the connected server. Do not call this unless you absolutely know what
+     * you are doing. If a long running application needs a status update, use the
+     * {@code MPDStatusMonitor} instead.
      *
-     * @return Data read from the server.
-     * @throws MPDServerException if an error occur while contacting server
+     * @throws MPDServerException if an error occur while contacting server.
+     * @see MPDStatusMonitor
      */
-    public List<String> waitForChanges() throws MPDServerException {
-
-        while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
-            List<String> data = mpdIdleConnection
-                    .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
-            if (data.isEmpty()) {
-                continue;
-            }
-            return data;
+    void updateStatus() throws MPDServerException {
+        if (!isConnected()) {
+            throw new MPDConnectionException("MPD Connection is not established");
         }
-        throw new MPDConnectionException("IDLE connection lost");
-    }
 
+        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
+
+        if (response == null) {
+            Log.e(TAG, "No status response from the MPD server.");
+        } else {
+            mpdStatus.updateStatus(response);
+        }
+    }
 }

@@ -32,6 +32,8 @@ import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.util.Log;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,6 +41,8 @@ import java.util.List;
  * Monitors MPD Server and sends events on status changes.
  */
 public class MPDStatusMonitor extends Thread {
+
+    private static final String TAG = "MPDStatusMonitor";
 
     private final long delay;
 
@@ -103,6 +107,7 @@ public class MPDStatusMonitor extends Thread {
      */
     public void run() {
         // initialize value cache
+        final MPDStatus status = mpd.getStatus();
         int oldSong = -1;
         int oldSongId = -1;
         int oldPlaylistVersion = -1;
@@ -123,6 +128,15 @@ public class MPDStatusMonitor extends Thread {
                 for (StatusChangeListener listener : statusChangedListeners) {
                     listener.connectionStateChanged(connectionState.booleanValue(), connectionLost);
                 }
+
+                if (mpd.isConnected()) {
+                    try {
+                        mpd.updateStatus();
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Failed to force a status update.", e);
+                    }
+                }
+
                 connectionLost = false;
                 oldConnectionState = connectionState;
                 connectionStateChanged = true;
@@ -137,11 +151,9 @@ public class MPDStatusMonitor extends Thread {
                     if (connectionStateChanged) {
                         dbChanged = statusChanged = true;
                     } else {
-                        List<String> changes = mpd.waitForChanges();
+                        final List<String> changes = waitForChanges();
 
-                        if (null == changes || changes.isEmpty()) {
-                            continue;
-                        }
+                        mpd.updateStatus();
 
                         for (String change : changes) {
                             if (change.startsWith("changed: database")) {
@@ -166,8 +178,6 @@ public class MPDStatusMonitor extends Thread {
                         mpd.getStatistics();
                     }
                     if (statusChanged) {
-                        MPDStatus status = mpd.getStatus(true);
-
                         // playlist
                         if (connectionStateChanged
                                 || (oldPlaylistVersion != status.getPlaylistVersion() && status
@@ -259,5 +269,27 @@ public class MPDStatusMonitor extends Thread {
 
         }
 
+    }
+
+    /**
+     * Wait for server changes using "idle" command on the dedicated connection.
+     *
+     * @return Data read from the server.
+     * @throws MPDServerException if an error occur while contacting server
+     */
+    private List<String> waitForChanges() throws MPDServerException {
+        final MPDConnection mpdIdleConnection = mpd.getMpdIdleConnection();
+
+        while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
+            final List<String> data = mpdIdleConnection
+                    .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
+
+            if (data.isEmpty()) {
+                continue;
+            }
+
+            return data;
+        }
+        throw new MPDConnectionException("IDLE connection lost");
     }
 }
