@@ -29,6 +29,7 @@ package org.a0z.mpd;
 
 import android.util.Log;
 
+import java.util.Date;
 import java.util.regex.Pattern;
 
 /**
@@ -123,6 +124,8 @@ public class MPDStatus {
 
     private int volume;
 
+    private long updateTime;
+
     MPDStatus() {
         super();
         resetValues();
@@ -176,12 +179,24 @@ public class MPDStatus {
     }
 
     /**
-     * Retrieves current track elapsed time.
+     * Retrieves current track elapsed time. If the server
+     * status is playing, this time is calculated.
      *
-     * @return current track elapsed time.
+     * @return Elapsed time for the current track.
      */
     public final long getElapsedTime() {
-        return elapsedTime;
+        final long result;
+
+        if (isState(STATE_PLAYING)) {
+            /** We can't expect to always update right before this is called. */
+            final long sinceUpdated = (new Date().getTime() - updateTime) / 1000;
+
+            result = sinceUpdated + elapsedTime;
+        } else {
+            result = elapsedTime;
+        }
+
+        return result;
     }
 
     /**
@@ -519,6 +534,7 @@ public class MPDStatus {
 
                     elapsedTime = Long.parseLong(time[0]);
                     totalTime = Long.parseLong(time[1]);
+                    updateTime = new Date().getTime();
                     break;
                 case "volume":
                     volume = Integer.parseInt(lines[1]);
