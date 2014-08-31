@@ -239,14 +239,18 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void stateChanged(MPDStatus status, int oldState) {
-        app.updateTrackInfo.refresh(status, true);
+        if (forceStatusUpdate) {
+            app.updateTrackInfo.refresh(status);
+        }
         updatePlayPauseButton(status);
 
     }
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        app.updateTrackInfo.refresh(mpdStatus, true);
+        if (forceStatusUpdate) {
+            app.updateTrackInfo.refresh(mpdStatus);
+        }
     }
 
     public void updateCover(AlbumInfo albumInfo) {

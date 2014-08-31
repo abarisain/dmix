@@ -68,7 +68,7 @@ public class UpdateTrackInfo {
     }
 
     public final void refresh(final MPDStatus mpdStatus) {
-        new UpdateTrackInfoAsync().execute(mpdStatus);
+        refresh(mpdStatus, false);
     }
 
     public final void removeCallback(final FullTrackInfoUpdate ignored) {

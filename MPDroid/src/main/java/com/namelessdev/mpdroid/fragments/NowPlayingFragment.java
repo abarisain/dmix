@@ -202,7 +202,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         if (mpdStatus.isValid()) {
             volumeChanged(mpdStatus, -1);
             updateStatus(mpdStatus);
-            updateTrackInfo(mpdStatus);
+            updateTrackInfo(mpdStatus, true);
         }
     }
 
@@ -648,7 +648,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
          */
         if (currentSong != null && currentSong.isStream() ||
                 mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
-            updateTrackInfo(mpdStatus);
+            updateTrackInfo(mpdStatus, false);
         }
     }
 
@@ -770,7 +770,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        updateTrackInfo(mpdStatus);
+        updateTrackInfo(mpdStatus, false);
     }
 
     @Override
@@ -863,10 +863,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private void updateTrackInfo(final MPDStatus status) {
+    private void updateTrackInfo(final MPDStatus status, final boolean forcedUpdate) {
         if (app.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
             toggleTrackProgress(status);
-            app.updateTrackInfo.refresh(status);
+            app.updateTrackInfo.refresh(status, forcedUpdate);
         }
     }
 
