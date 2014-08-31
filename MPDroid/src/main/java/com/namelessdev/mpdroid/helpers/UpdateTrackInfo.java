@@ -35,6 +35,54 @@ import android.util.Log;
  */
 public class UpdateTrackInfo {
 
+    private static final boolean DEBUG = false;
+
+    private static final String TAG = "UpdateTrackInfo";
+
+    private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private final SharedPreferences mSharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(mApp);
+
+    private boolean mForceCoverUpdate = false;
+
+    private FullTrackInfoUpdate mFullTrackInfoListener = null;
+
+    private String mLastAlbum = null;
+
+    private String mLastArtist = null;
+
+    private TrackInfoUpdate mTrackInfoListener = null;
+
+    public UpdateTrackInfo() {
+        super();
+    }
+
+    public final void addCallback(final FullTrackInfoUpdate listener) {
+        mFullTrackInfoListener = listener;
+    }
+
+    public final void refresh(final MPDStatus mpdStatus, final boolean forceCoverUpdate) {
+        mForceCoverUpdate = forceCoverUpdate;
+        new UpdateTrackInfoAsync().execute(mpdStatus);
+    }
+
+    public final void refresh(final MPDStatus mpdStatus) {
+        new UpdateTrackInfoAsync().execute(mpdStatus);
+    }
+
+    public final void removeCallback(final FullTrackInfoUpdate ignored) {
+        mFullTrackInfoListener = null;
+    }
+
+    public final void removeCallback(final TrackInfoUpdate ignored) {
+        mTrackInfoListener = null;
+    }
+
+    public final void addCallback(final TrackInfoUpdate listener) {
+        mTrackInfoListener = listener;
+    }
+
     public interface FullTrackInfoUpdate {
 
         /**
@@ -75,114 +123,75 @@ public class UpdateTrackInfo {
         void onTrackInfoUpdate(CharSequence artist, CharSequence title);
     }
 
-    private final MPDApplication app = MPDApplication.getInstance();
-
-    private static final boolean DEBUG = false;
-
-    private boolean forceCoverUpdate = false;
-
-    private UpdateTrackInfo.FullTrackInfoUpdate fullTrackInfoListener = null;
-
-    private String lastAlbum = null;
-
-    private String lastArtist = null;
-
-    private final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-
-    private UpdateTrackInfo.TrackInfoUpdate trackInfoListener = null;
-
-    private static final String TAG = "com.namelessdev.mpdroid.UpdateTrackInfo";
-
-    public final void addCallback(final UpdateTrackInfo.FullTrackInfoUpdate listener) {
-        fullTrackInfoListener = listener;
-    }
-
-    public final void refresh(final MPDStatus mpdStatus, final boolean forceCoverUpdate) {
-        this.forceCoverUpdate = forceCoverUpdate;
-        new UpdateTrackInfoAsync().execute(mpdStatus);
-    }
-
-    public final void refresh(final MPDStatus mpdStatus) {
-        new UpdateTrackInfoAsync().execute(mpdStatus);
-    }
-
-    public final void removeCallback(final UpdateTrackInfo.FullTrackInfoUpdate ignored) {
-        fullTrackInfoListener = null;
-    }
-
-    public final void removeCallback(final UpdateTrackInfo.TrackInfoUpdate ignored) {
-        trackInfoListener = null;
-    }
-
-    public final void addCallback(final UpdateTrackInfo.TrackInfoUpdate listener) {
-        trackInfoListener = listener;
-    }
-
     private class UpdateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Void> {
 
-        private String album = null;
+        private String mAlbum = null;
 
-        private AlbumInfo albumInfo = null;
+        private AlbumInfo mAlbumInfo = null;
 
-        private String artist = null;
+        private String mArtist = null;
 
-        private Music currentSong = null;
+        private Music mCurrentSong = null;
 
-        private String date = null;
+        private String mDate = null;
 
-        private boolean hasCoverChanged = false;
+        private boolean mHasCoverChanged = false;
 
-        private String title = null;
+        private String mTitle = null;
 
         /**
          * Gather and parse all song track information necessary after change.
          *
-         * @param mpdStatuses A {@code MPDStatus} object array.
+         * @param params A {@code MPDStatus} object array.
          * @return A null {@code Void} object, ignore it.
          */
         @Override
-        protected final Void doInBackground(final MPDStatus... mpdStatuses) {
-            final int songPos = mpdStatuses[0].getSongPos();
-            currentSong = app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+        protected final Void doInBackground(final MPDStatus... params) {
+            final int songPos = params[0].getSongPos();
+            mCurrentSong = mApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
 
-            if (currentSong != null) {
-                if (currentSong.isStream()) {
-                    if (currentSong.haveTitle()) {
-                        album = currentSong.getName();
-                        title = currentSong.getTitle();
+            if (mCurrentSong != null) {
+                if (mCurrentSong.isStream()) {
+                    if (mCurrentSong.haveTitle()) {
+                        mAlbum = mCurrentSong.getName();
+                        mTitle = mCurrentSong.getTitle();
                     } else {
-                        title = currentSong.getName();
+                        mTitle = mCurrentSong.getName();
                     }
 
-                    artist = currentSong.getArtist();
-                    albumInfo = new AlbumInfo(artist, album);
+                    mArtist = mCurrentSong.getArtist();
+                    mAlbumInfo = new AlbumInfo(mArtist, mAlbum);
                 } else {
-                    album = currentSong.getAlbum();
+                    mAlbum = mCurrentSong.getAlbum();
 
-                    date = Long.toString(currentSong.getDate());
-                    if (date.isEmpty() || date.charAt(0) == '-') {
-                        date = "";
+                    mDate = Long.toString(mCurrentSong.getDate());
+                    if (mDate.isEmpty() || mDate.charAt(0) == '-') {
+                        mDate = "";
                     } else {
-                        date = " - " + date;
+                        mDate = " - " + mDate;
                     }
 
-                    title = currentSong.getTitle();
+                    mTitle = mCurrentSong.getTitle();
                     setArtist();
-                    albumInfo = currentSong.getAlbumInfo();
+                    mAlbumInfo = mCurrentSong.getAlbumInfo();
                 }
-                hasCoverChanged = hasCoverChanged();
+                mHasCoverChanged = hasCoverChanged();
 
                 if (DEBUG) {
                     Log.i(TAG,
-                            "album: " + album + " artist: " + artist + " date: " + date
-                                    + " albumInfo: " + albumInfo + " hasTrackChanged: " +
-                                    hasCoverChanged
+                            "mAlbum: " + mAlbum +
+                                    " mArtist: " + mArtist +
+                                    " mDate: " + mDate +
+                                    " mAlbumInfo: " + mAlbumInfo +
+                                    " mHasTrackChanged: " + mHasCoverChanged +
+                                    " mCurrentSong: " + mCurrentSong +
+                                    " mForceCoverUpdate: " + mForceCoverUpdate
                     );
                 }
             }
 
-            lastAlbum = album;
-            lastArtist = artist;
+            mLastAlbum = mAlbum;
+            mLastArtist = mArtist;
 
             return (Void) null;
         }
@@ -194,49 +203,56 @@ public class UpdateTrackInfo {
         protected final void onPostExecute(final Void result) {
             super.onPostExecute(result);
 
-            final boolean sendCoverUpdate = hasCoverChanged || currentSong == null
-                    || forceCoverUpdate;
+            final boolean sendCoverUpdate = mHasCoverChanged || mCurrentSong == null
+                    || mForceCoverUpdate;
 
-            if (currentSong == null) {
-                title = app.getResources().getString(R.string.noSongInfo);
+            if (mCurrentSong == null) {
+                mTitle = mApp.getResources().getString(R.string.noSongInfo);
             }
 
-            if (fullTrackInfoListener != null) {
-                fullTrackInfoListener
-                        .onTrackInfoUpdate(currentSong, album, artist, date, title);
+            if (mFullTrackInfoListener != null) {
+                mFullTrackInfoListener
+                        .onTrackInfoUpdate(mCurrentSong, mAlbum, mArtist, mDate, mTitle);
 
                 if (sendCoverUpdate) {
-                    fullTrackInfoListener.onCoverUpdate(albumInfo);
+                    if (DEBUG) {
+                        Log.e(TAG, "Sending cover update to full track info listener.");
+                    }
+                    mFullTrackInfoListener.onCoverUpdate(mAlbumInfo);
                 }
             }
 
-            if (trackInfoListener != null) {
-                trackInfoListener.onTrackInfoUpdate(album, title);
+            if (mTrackInfoListener != null) {
+                mTrackInfoListener.onTrackInfoUpdate(mAlbum, mTitle);
 
                 if (sendCoverUpdate) {
-                    trackInfoListener.onCoverUpdate(albumInfo);
+                    if (DEBUG) {
+                        Log.d(TAG, "Sending cover update to track info listener.");
+                    }
+                    mTrackInfoListener.onCoverUpdate(mAlbumInfo);
                 }
             }
         }
 
         private boolean hasCoverChanged() {
-            final boolean invalid = artist == null || album == null;
-            return invalid || !artist.equals(lastArtist) || !album.equals(lastAlbum);
+            final boolean invalid = mArtist == null || mAlbum == null;
+            return invalid || !mArtist.equals(mLastArtist) || !mAlbum.equals(mLastAlbum);
         }
 
         /**
-         * If not a stream, this sets up the artist based on artist and album artist information.
+         * If not a stream, this sets up the mArtist based on mArtist and album mArtist
+         * information.
          */
         private void setArtist() {
-            final boolean showAlbumArtist = settings.getBoolean("showAlbumArtist", true);
-            final String albumArtist = currentSong.getAlbumArtist();
+            final boolean showAlbumArtist = mSharedPreferences.getBoolean("showAlbumArtist", true);
+            final String albumArtist = mCurrentSong.getAlbumArtist();
 
-            artist = currentSong.getArtist();
-            if (artist.isEmpty()) {
-                artist = albumArtist;
+            mArtist = mCurrentSong.getArtist();
+            if (mArtist.isEmpty()) {
+                mArtist = albumArtist;
             } else if (showAlbumArtist && albumArtist != null &&
-                    !artist.toLowerCase().contains(albumArtist.toLowerCase())) {
-                artist = albumArtist + " / " + artist;
+                    !mArtist.toLowerCase().contains(albumArtist.toLowerCase())) {
+                mArtist = albumArtist + " / " + mArtist;
             }
         }
     }
