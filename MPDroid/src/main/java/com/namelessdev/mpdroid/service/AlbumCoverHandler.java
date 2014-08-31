@@ -127,12 +127,24 @@ class AlbumCoverHandler implements CoverDownloadListener {
     @Override
     public final void onCoverDownloaded(final CoverInfo cover) {
         if (mIsAlbumCacheEnabled) {
-            mFullSizeAlbumCover = cover.getBitmap()[0];
-            mNotificationCover =
-                    Bitmap.createScaledBitmap(mFullSizeAlbumCover, mIconWidth, mIconHeight, false);
-            mAlbumCoverPath = retrieveCoverArtPath(cover);
-            mFullSizeListener.onCoverUpdate(mFullSizeAlbumCover);
-            mNotificationListener.onCoverUpdate(mNotificationCover);
+            /** This is a workaround for the rare occasion of cover.getBitmap()[0] being null. */
+            Bitmap placeholder = null;
+            for (final Bitmap bitmap : cover.getBitmap()) {
+                if (bitmap != null) {
+                    placeholder = bitmap;
+                    break;
+                }
+            }
+
+            if (placeholder != null) {
+                mFullSizeAlbumCover = placeholder;
+                mNotificationCover =
+                        Bitmap.createScaledBitmap(mFullSizeAlbumCover, mIconWidth, mIconHeight,
+                                false);
+                mAlbumCoverPath = retrieveCoverArtPath(cover);
+                mFullSizeListener.onCoverUpdate(mFullSizeAlbumCover);
+                mNotificationListener.onCoverUpdate(mNotificationCover);
+            }
         }
     }
 
