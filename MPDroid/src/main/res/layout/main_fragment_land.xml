@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:mpdroid="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:ignore="ContentDescription,HardcodedText" >
+    tools:ignore="ContentDescription,HardcodedText">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
         android:baselineAligned="true"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <com.namelessdev.mpdroid.views.FixedRatioRelativeLayout
             android:id="@+id/coverLayout"
@@ -21,7 +21,7 @@
             android:layout_marginLeft="10dip"
             android:layout_marginRight="10dip"
             android:layout_marginTop="4dip"
-            mpdroid:fixedSide="height" >
+            mpdroid:fixedSide="height">
 
             <ImageView
                 android:id="@+id/albumCover"
@@ -53,7 +53,7 @@
             android:gravity="center"
             android:paddingBottom="2dip"
             android:paddingLeft="10dip"
-            android:paddingRight="10dip" >
+            android:paddingRight="10dip">
 
             <TextView
                 android:id="@+id/songName"
@@ -86,7 +86,7 @@
                 android:layout_below="@+id/artistName"
                 android:layout_centerHorizontal="true"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal" >
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/albumName"
@@ -126,7 +126,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="5dip"
             android:layout_marginTop="20dip"
-            android:layout_toRightOf="@id/coverLayout" >
+            android:layout_toRightOf="@id/coverLayout">
 
             <SeekBar
                 android:id="@+id/progress_volume"
@@ -154,7 +154,7 @@
             android:layout_height="wrap_content"
             android:layout_above="@id/volume_layout"
             android:layout_marginTop="5dip"
-            android:layout_toRightOf="@id/coverLayout" >
+            android:layout_toRightOf="@id/coverLayout">
 
             <TextView
                 android:id="@+id/trackTime"
@@ -195,7 +195,7 @@
         android:id="@+id/buttons_layout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/playerbutton_height"
-        android:gravity="center_horizontal" >
+        android:gravity="center_horizontal">
 
         <ImageButton
             android:id="@+id/shuffle"

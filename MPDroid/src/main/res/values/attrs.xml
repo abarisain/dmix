@@ -6,7 +6,7 @@
     <declare-styleable name="FixedRatioRelativeLayout">
         <attr name="fixedSide" format="string" />
     </declare-styleable>
-    
+
     <declare-styleable name="AppTheme">
         <attr name="noCoverArtIcon" format="reference" />
         <attr name="menuButton" format="reference" />
@@ -29,5 +29,5 @@
         <attr name="playQueueIcon" format="reference" />
         <attr name="overflowButton" format="reference" />
     </declare-styleable>
-    
+
 </resources>

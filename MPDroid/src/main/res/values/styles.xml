@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2011 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +27,9 @@
     <style name="ActionBar.Blue" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/actionbar_background_blue</item>
         <item name="android:backgroundStacked">@color/actionbar_background_blue</item>
-        <item name="android:titleTextStyle">@android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse</item>
+        <item name="android:titleTextStyle">
+            @android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse
+        </item>
     </style>
 
     <style name="ActionBarTabStyle.Light" parent="@android:style/Widget.Holo.ActionBar.TabView">
@@ -44,7 +45,8 @@
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text</item>
-        <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color</item>
+        <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color
+        </item>
         <item name="repeatDisabled">@drawable/ic_media_repeat</item>
         <item name="repeatEnabled">@drawable/ic_media_repeat_on</item>
         <item name="shuffleDisabled">@drawable/ic_media_shuffle</item>
@@ -70,10 +72,13 @@
         <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
         <item name="menuButton">@drawable/spinner_default_holo_light</item>
         <item name="listItemHandle">@drawable/ic_mp_move</item>
-        <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light</item>
+        <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light
+        </item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text_light</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text_light</item>
-        <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color_light</item>
+        <item name="nowPlayingSliderBackgroundColor">
+            @color/nowplaying_slider_background_color_light
+        </item>
         <item name="repeatDisabled">@drawable/ic_media_repeat_light</item>
         <item name="repeatEnabled">@drawable/ic_media_repeat_on_light</item>
         <item name="shuffleDisabled">@drawable/ic_media_shuffle_light</item>
@@ -109,8 +114,11 @@
 
     <style name="SeekBar" parent="android:Widget.SeekBar">
         <item name="android:indeterminateOnly">false</item>
-        <item name="android:progressDrawable">@drawable/scrubber_progress_horizontal_holo_dark</item>
-        <item name="android:indeterminateDrawable">@drawable/scrubber_progress_horizontal_holo_dark</item>
+        <item name="android:progressDrawable">@drawable/scrubber_progress_horizontal_holo_dark
+        </item>
+        <item name="android:indeterminateDrawable">
+            @drawable/scrubber_progress_horizontal_holo_dark
+        </item>
         <item name="android:minHeight">13dip</item>
         <item name="android:maxHeight">13dip</item>
         <item name="android:thumb">@drawable/scrubber_control_selector_holo</item>

@@ -1,15 +1,27 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"  android:key="preferencescreen">
-	<PreferenceCategory android:title="@string/preferredConnection">
-		<PreferenceScreen android:title="@string/wlanBasedSettings" android:summary="@string/wlanBasedSettingsDescription" android:key="wifibasedScreen">
-			<PreferenceCategory android:title="@string/chooseWLAN" android:key="wifibasedCategory">
-			</PreferenceCategory>
-		</PreferenceScreen>	
-	</PreferenceCategory>
-	<PreferenceCategory android:visible="false" android:title="@string/defaultConnection" android:key="defaultCategory">
-		<PreferenceScreen android:title="@string/defaultSettings" android:summary="@string/defaultSettingsDescription" android:key="defaultScreen">
-			<intent android:action="android.intent.action.MAIN"
-                    android:targetPackage="com.namelessdev.mpdroid"
-                    android:targetClass="com.namelessdev.mpdroid.ConnectionSettings" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="preferencescreen">
+    <PreferenceCategory android:title="@string/preferredConnection">
+        <PreferenceScreen
+            android:key="wifibasedScreen"
+            android:summary="@string/wlanBasedSettingsDescription"
+            android:title="@string/wlanBasedSettings">
+            <PreferenceCategory
+                android:key="wifibasedCategory"
+                android:title="@string/chooseWLAN"/>
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="defaultCategory"
+        android:title="@string/defaultConnection"
+        android:visible="false">
+        <PreferenceScreen
+            android:key="defaultScreen"
+            android:summary="@string/defaultSettingsDescription"
+            android:title="@string/defaultSettings">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetClass="com.namelessdev.mpdroid.ConnectionSettings"
+                android:targetPackage="com.namelessdev.mpdroid" />
         </PreferenceScreen>
         <!-- 
 		<EditTextPreference  
@@ -30,5 +42,5 @@
 	           android:password="true"
 	           android:summary="@string/passwordDescription" /> 
 	            -->
-	</PreferenceCategory>
+    </PreferenceCategory>
 </PreferenceScreen>

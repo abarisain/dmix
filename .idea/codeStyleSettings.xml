@@ -65,6 +65,11 @@
         <option name="FOR_BRACE_FORCE" value="3" />
         <AndroidXmlCodeStyleSettings>
           <option name="USE_CUSTOM_SETTINGS" value="true" />
+          <option name="VALUE_RESOURCE_FILE_SETTINGS">
+            <value>
+              <option name="WRAP_ATTRIBUTES" value="4" />
+            </value>
+          </option>
         </AndroidXmlCodeStyleSettings>
         <XML>
           <option name="XML_KEEP_LINE_BREAKS" value="false" />

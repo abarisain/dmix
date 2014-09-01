@@ -11,22 +11,22 @@
 
     <ImageView
         android:id="@+id/cover"
-        android:contentDescription="@string/albumCover"
         android:layout_width="55dip"
         android:layout_height="55dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
         android:layout_gravity="center"
         android:layout_marginRight="8dip"
-        android:src="?attr/noCoverArtIcon"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        android:contentDescription="@string/albumCover"
+        android:src="?attr/noCoverArtIcon" />
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:orientation="vertical"
+        android:layout_toLeftOf="@+id/menu"
         android:layout_toRightOf="@+id/cover"
-        android:layout_toLeftOf="@+id/menu">
+        android:orientation="vertical">
 
         <TextView
             android:id="@android:id/text1"
@@ -69,16 +69,18 @@
 
     <ImageButton
         android:id="@+id/menu"
-        android:contentDescription="@string/menuButton"
         android:layout_width="40dip"
         android:layout_height="match_parent"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="false"
+        android:layout_centerVertical="true"
         android:layout_gravity="bottom"
         android:background="@null"
+        android:contentDescription="@string/menuButton"
         android:paddingLeft="2dip"
         android:paddingRight="4dip"
-        android:src="@drawable/ic_menu_moreoverflow_card" android:layout_alignParentLeft="false"
-        android:layout_alignParentTop="false"
-        android:layout_alignParentRight="true" android:layout_alignParentStart="false"
-        android:layout_centerVertical="true"/>
+        android:src="@drawable/ic_menu_moreoverflow_card" />
 
 </RelativeLayout>

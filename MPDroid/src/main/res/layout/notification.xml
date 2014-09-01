@@ -9,8 +9,8 @@
         android:layout_height="@android:dimen/notification_large_icon_height"
         android:layout_marginRight="8dp"
         android:background="#3333B5E5"
-        android:scaleType="fitCenter"
         android:contentDescription="@string/notificationIconDescription"
+        android:scaleType="fitCenter"
         android:src="@drawable/icon_bw" />
 
     <LinearLayout
@@ -18,8 +18,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/notificationIcon"
         android:layout_toLeftOf="@+id/notificationButtons"
+        android:layout_toRightOf="@+id/notificationIcon"
         android:orientation="vertical">
 
         <TextView
@@ -47,8 +47,8 @@
         android:id="@+id/notificationButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
         android:orientation="horizontal">
 
         <ImageView

@@ -4,6 +4,6 @@
     android:label="@string/search_label"
     android:searchSuggestAuthority="com.namelessdev.mpdroid.recent_searches_authority"
     android:searchSuggestSelection=" ? "
-    android:voiceSearchMode="showVoiceSearchButton|launchRecognizer" >
+    android:voiceSearchMode="showVoiceSearchButton|launchRecognizer">
 
 </searchable>

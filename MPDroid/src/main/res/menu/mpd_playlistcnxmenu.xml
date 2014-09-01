@@ -1,17 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:id="@+id/PLCX_playNext" android:title="@string/playNext"></item>
-<item android:id="@+id/PLCX_moveFirst" android:title="@string/moveFirst"></item>
-<item android:id="@+id/PLCX_moveLast" android:title="@string/moveLast"></item>
-<item android:id="@+id/PLCX_removeFromPlaylist" android:title="@string/removeFromPlaylist"></item>
-<item android:id="@+id/PLCX_removeAlbumFromPlaylist" android:title="@string/removeAlbumFromPlaylist"></item>
-<item android:id="@+id/PLCX_goto"   android:title="@string/go_to">
-    <menu>
-        <item android:id="@+id/PLCX_goToAlbum"  android:title="@string/goToAlbum"/>
-        <item android:id="@+id/PLCX_goToArtist" android:title="@string/goToArtist"/>
-        <item android:id="@+id/PLCX_goToAlbumArtist" android:title="@string/goToAlbumArtist"/>
-        <item android:id="@+id/PLCX_goToFolder" android:title="@string/goToFolder"/>
-    </menu>
-</item>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/PLCX_playNext"
+        android:title="@string/playNext"/>
+    <item
+        android:id="@+id/PLCX_moveFirst"
+        android:title="@string/moveFirst"/>
+    <item
+        android:id="@+id/PLCX_moveLast"
+        android:title="@string/moveLast"/>
+    <item
+        android:id="@+id/PLCX_removeFromPlaylist"
+        android:title="@string/removeFromPlaylist"/>
+    <item
+        android:id="@+id/PLCX_removeAlbumFromPlaylist"
+        android:title="@string/removeAlbumFromPlaylist"/>
+    <item
+        android:id="@+id/PLCX_goto"
+        android:title="@string/go_to">
+        <menu>
+            <item
+                android:id="@+id/PLCX_goToAlbum"
+                android:title="@string/goToAlbum" />
+            <item
+                android:id="@+id/PLCX_goToArtist"
+                android:title="@string/goToArtist" />
+            <item
+                android:id="@+id/PLCX_goToAlbumArtist"
+                android:title="@string/goToAlbumArtist" />
+            <item
+                android:id="@+id/PLCX_goToFolder"
+                android:title="@string/goToFolder" />
+        </menu>
+    </item>
 </menu>

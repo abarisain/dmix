@@ -4,33 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:ignore="InconsistentLayout" >
+    tools:ignore="InconsistentLayout">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:baselineAligned="false"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <LinearLayout
             android:id="@+id/albumInfoLayout"
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="3"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <com.namelessdev.mpdroid.views.FixedRatioRelativeLayout
                 android:id="@+id/albumCoverFrame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dip"
-                mpdroid:fixedSide="width" >
+                mpdroid:fixedSide="width">
 
                 <ImageView
                     android:id="@+id/albumCover"
-                    android:contentDescription="@string/albumCover"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
+                    android:contentDescription="@string/albumCover"
                     android:scaleType="fitCenter"
                     android:src="?attr/noCoverArtIcon" />
 
@@ -68,19 +68,19 @@
 
             <ImageButton
                 android:id="@+id/album_menu"
-                android:contentDescription="@string/menuButton"
                 android:layout_width="40dip"
                 android:layout_height="48dip"
                 android:layout_gravity="right"
                 android:layout_marginTop="-40dip"
                 android:background="?android:attr/actionBarItemBackground"
+                android:contentDescription="@string/menuButton"
                 android:src="?attr/menuButton" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="7" >
+            android:layout_weight="7">
 
             <ListView
                 android:id="@id/list"
@@ -94,7 +94,7 @@
         android:id="@+id/loadingLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -118,7 +118,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="horizontal"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"

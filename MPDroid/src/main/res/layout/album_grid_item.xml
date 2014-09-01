@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="10dp"
-    android:background="?attr/cardBackground" >
+    android:background="?attr/cardBackground"
+    android:paddingBottom="10dp">
 
-        <com.namelessdev.mpdroid.ui.SquareImageView
-                android:id="@+id/albumCover"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:paddingTop="1dip"
-                android:scaleType="centerCrop"
-                android:src="?attr/noCoverArtIcon" />
+    <com.namelessdev.mpdroid.ui.SquareImageView
+        android:id="@+id/albumCover"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:paddingTop="1dip"
+        android:scaleType="centerCrop"
+        android:src="?attr/noCoverArtIcon" />
 
-        <ProgressBar
-                android:id="@+id/albumCoverProgress"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:visible="false" android:layout_alignLeft="@+id/albumCover"
-                android:layout_alignRight="@+id/albumCover"/>
+    <ProgressBar
+        android:id="@+id/albumCoverProgress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/albumCover"
+        android:layout_alignRight="@+id/albumCover"
+        android:layout_centerInParent="true"
+        android:visible="false" />
 
     <TextView
         android:id="@+id/album_name"
@@ -35,8 +36,8 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="10dp"
-        android:textColor="?attr/cardPrimaryTextColor"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:textColor="?attr/cardPrimaryTextColor" />
 
     <TextView
         android:id="@+id/album_info"
