@@ -26,9 +26,10 @@
     <string name="stopped">Beendet</string>
     <string name="streamDetails">Streamdetails:</string>
     <string name="streamError">Fehler beim Streaming. Stream ist nicht abspielbar.</string>
+    <string name="streamingManualURL">Benutzte bestimmte URL für Streaming (icecast)</string>
     <string name="streamPaused">Streaming pausiert</string>
     <string name="streamPauseBattery">Um den Akku zu schonen, sollte Streaming gestoppt werden, wenn es nicht verwendet wird</string>
-    <string name="streamingManualURL">Benutzte bestimmte URL für Streaming (icecast)</string>
+    <string name="streamStopped">Streaming gestoppt</string>
     <string name="streamingURLDescription">Stream-URL (mit http://)</string>
     <string name="updateDB">Datenbank aktualisieren</string>
     <string name="track">Titel</string>
@@ -123,7 +124,6 @@
     <string name="portStreamingDescription">MPD-Streaming-Port (Standard: 8000)</string>
     <string name="suffixStreaming">Streaming URL Suffix</string>
     <string name="suffixStreamingDescription">Dateiendung für Stream-URL (z.B. mpd.mp3)</string>
-    <string name="streamStopped">Streaming gestoppt</string>
     <string name="aboutText1">MPDroid ist Open Source. Quelltext unter http://github.com/abarisain/dmix</string>
     <string name="aboutText2">MPDroid ist ein Fork von PMix\n (http://code.google.com/p/pmix/). Bedanke dich!</string>
     <string name="search">Suchen</string>

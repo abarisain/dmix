@@ -79,7 +79,7 @@
         <PreferenceScreen
             android:key="clearLocalCoverCache"
             android:summary="@string/clearLocalCoverCacheDescription"
-            android:title="@string/clearLocalCoverCache"/>
+            android:title="@string/clearLocalCoverCache" />
 
         <CheckBoxPreference
             android:defaultValue="true"

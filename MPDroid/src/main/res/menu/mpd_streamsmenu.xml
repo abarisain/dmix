@@ -6,6 +6,6 @@
         android:icon="@drawable/ic_action_add"
         android:orderInCategory="1"
         android:showAsAction="always"
-        android:title="@string/addStream"/>
+        android:title="@string/addStream" />
 
 </menu>

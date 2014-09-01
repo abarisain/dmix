@@ -28,6 +28,7 @@
     <string name="streamPaused">Streaming paused</string>
     <string name="streamPauseBattery">For saving battery, stop streaming if not used</string>
     <string name="streamingManualURL">Use a specific URL for streaming (Icecast)</string>
+    <string name="streamStopped">Streaming stopped</string>
     <string name="streamingURLDescription">Stream URL (with http://)</string>
     <string name="updateDB">Update</string>
     <string name="track">Track</string>
@@ -122,7 +123,6 @@
     <string name="portStreamingDescription">MPD Streaming port (Default: 8000)</string>
     <string name="suffixStreaming">Streaming URL suffix</string>
     <string name="suffixStreamingDescription">Suffix to append to stream URL (ex. mpd.mp3)</string>
-    <string name="streamStopped">Streaming stopped</string>
     <string name="aboutText1">MPDroid is open-source software. Visit http://github.com/abarisain/dmix for source code !</string>
     <string name="aboutText2">MPDroid is a fork of PMix (http://code.google.com/p/pmix/). Thanks to them !</string>
     <string name="search">Search</string>
@@ -287,7 +287,7 @@
     <string name="audioFocusFailed">Cannot start streaming: Another application is playing music.</string>
     <string name="streamError">%1$s stream error: %2$s.</string>
     <string name="streamPreparationError">This error was caused by a change of server state during stream preparation.</string>
-    <string name="streamSourceError">Failed to set the stream source: %1$.</string>
+    <string name="streamSourceError">Failed to set the stream source: %1$s.</string>
     <!-- End StreamHandler Specific Strings -->
 
     <!-- Begin MediaPlayer Error Strings -->

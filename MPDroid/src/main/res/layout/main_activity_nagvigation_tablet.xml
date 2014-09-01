@@ -27,13 +27,13 @@
                     android:id="@+id/library_root_frame"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:visibility="visible"/>
+                    android:visibility="visible" />
 
                 <FrameLayout
                     android:id="@+id/outputs_root_frame"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
             </FrameLayout>
 
             <FrameLayout

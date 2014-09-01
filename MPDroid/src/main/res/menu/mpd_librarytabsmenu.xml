@@ -18,5 +18,5 @@
     <item
         android:id="@+id/reset"
         android:showAsAction="always"
-        android:title="@string/reset"/>
+        android:title="@string/reset" />
 </menu>

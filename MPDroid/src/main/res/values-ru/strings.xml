@@ -28,6 +28,7 @@
     <string name="streamingURLDescription">URL для потокового воспроизведения (с http://)</string>
     <string name="streamPaused">Потоковое воспроизведение приостановлено</string>
     <string name="streamPauseBattery">Для сохранения заряда батареи останавливайте потоковое воспроизведение, если не используете его</string>
+    <string name="streamStopped">Потоковое воспроизведение остановлено</string>
     <string name="track">Дорожка</string>
     <string name="updateDB">Обновить БД</string>
     <string name="volume">Громкость</string>
@@ -119,7 +120,6 @@
     <string name="portStreamingDescription">Порт потокового воспроизведения (По умолчанию: 8000)</string>
     <string name="suffixStreaming">Окончание URL</string>
     <string name="suffixStreamingDescription">Окончание, добавляемое к URL (напр. mpd.mp3)</string>
-    <string name="streamStopped">Потоковое воспроизведение остановлено</string>
     <string name="aboutText1">MPDroid является свободным ПО. Вы можете получить исходный код по адресу http://github.com/abarisain/dmix !</string>
     <string name="aboutText2">MPDroid является форком PMix (http://code.google.com/p/pmix/). Спасибо им!\nЗамечания по переводу можно присылать по адресу kzudov.esp@gmail.com</string>
     <string name="search">Поиск</string>

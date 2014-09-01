@@ -7,7 +7,7 @@
             android:title="@string/wlanBasedSettings">
             <PreferenceCategory
                 android:key="wifibasedCategory"
-                android:title="@string/chooseWLAN"/>
+                android:title="@string/chooseWLAN" />
         </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory

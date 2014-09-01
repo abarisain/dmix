@@ -26,9 +26,10 @@
     <string name="stopped">Detenido</string>
     <string name="streamDetails">Detalles de la transmisión:</string>
     <string name="streamError">Error de transmisión. Nada que reproducir</string>
+    <string name="streamingManualURL">Usar una dirección URL específica para la transmisión (Icecast)</string>
     <string name="streamPaused">Transmisión pausada</string>
     <string name="streamPauseBattery">Para ahorar batería, detenga la transmisión cuando no la está usando</string>
-    <string name="streamingManualURL">Usar una dirección URL específica para la transmisión (Icecast)</string>
+    <string name="streamStopped">Transmisión detenida</string>
     <string name="streamingURLDescription">URL de la transmisión (con http://)</string>
     <string name="track">Pista</string>
     <string name="updateDB">Actualizar</string>
@@ -124,7 +125,6 @@
     <string name="portStreamingDescription">Puerto de transmisión MPD (Por defecto: 8000)</string>
     <string name="suffixStreaming">Sufijo de la URL de la transmisión</string>
     <string name="suffixStreamingDescription">Sufijo a anexar a la URL de la transmisión (ej. mpd.mp3)</string>
-    <string name="streamStopped">Transmisión detenida</string>
     <string name="aboutText1">MPDroid es software open-source. Visita http://github.com/abarisain/dmix para obtener el código fuente !</string>
     <string name="aboutText2">MPDroid es un fork de PMix (http://code.google.com/p/pmix/). Gracias a ellos !</string>
     <string name="search">Buscar</string>

@@ -7,12 +7,12 @@
         android:icon="@drawable/ic_action_crop"
         android:showAsAction="always"
         android:title="@string/cropSongs"
-        tools:ignore="AlwaysShowAction"/>
+        tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/menu_delete"
         android:icon="@drawable/ic_action_delete"
         android:showAsAction="always"
         android:title="@string/removeSongs"
-        tools:ignore="AlwaysShowAction"/>
+        tools:ignore="AlwaysShowAction" />
 
 </menu>

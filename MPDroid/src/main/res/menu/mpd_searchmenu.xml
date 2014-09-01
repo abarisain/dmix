@@ -5,5 +5,5 @@
         android:icon="@drawable/ic_action_search"
         android:orderInCategory="2"
         android:showAsAction="always"
-        android:title="@string/search"/>
+        android:title="@string/search" />
 </menu>

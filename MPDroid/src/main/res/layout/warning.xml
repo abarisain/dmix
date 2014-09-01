@@ -26,6 +26,6 @@
         android:id="@+id/buttonOK"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="@string/ok"/>
+        android:text="@string/ok" />
 
 </LinearLayout>

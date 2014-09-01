@@ -10,7 +10,7 @@
         android:id="@+id/root_frame"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
     <View
         android:id="@+id/now_playing_small_separator"

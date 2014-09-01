@@ -6,14 +6,14 @@
         android:icon="@drawable/ic_action_edit"
         android:orderInCategory="1"
         android:showAsAction="always"
-        android:title="@string/editPlaylist"/>
+        android:title="@string/editPlaylist" />
     <item
         android:id="@+id/PLM_Save"
         android:icon="@android:drawable/ic_menu_save"
-        android:title="@string/save"/>
+        android:title="@string/save" />
     <item
         android:id="@+id/PLM_Clear"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        android:title="@string/clear"/>
+        android:title="@string/clear" />
 
 </menu>
