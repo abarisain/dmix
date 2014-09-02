@@ -242,7 +242,7 @@ public class MPDPlaylist {
         synchronized (mList) {
             final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
 
-            if (mLastPlaylistVersion == -1) {
+            if (mLastPlaylistVersion == -1 || mList.size() == 0) {
                 final List<String> response = mMPD.getMpdConnection()
                         .sendCommand(MPD_CMD_PLAYLIST_LIST);
                 final List<Music> playlist = Music.getMusicFromList(response, false);
