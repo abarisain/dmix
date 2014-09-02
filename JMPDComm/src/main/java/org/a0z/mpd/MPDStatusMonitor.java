@@ -105,9 +105,6 @@ public class MPDStatusMonitor extends Thread {
         this.statusChangedListeners = new LinkedList<>();
         this.trackPositionChangedListeners = new LinkedList<>();
         mIdleCommand = new MPDCommand(MPDCommand.MPD_CMD_IDLE, supportedIdle);
-
-        // integrate MPD stuff into listener lists
-        addStatusChangeListener(mpd.getPlaylist());
     }
 
     /**
@@ -156,6 +153,7 @@ public class MPDStatusMonitor extends Thread {
         boolean oldRandom = false;
         boolean oldConnectionState = false;
         boolean connectionLost = false;
+        final MPDPlaylist playlist = mpd.getPlaylist();
 
         while (!giveup) {
             Boolean connectionState = Boolean.valueOf(mpd.isConnected());
@@ -169,6 +167,7 @@ public class MPDStatusMonitor extends Thread {
                 if (mpd.isConnected()) {
                     try {
                         mpd.updateStatus();
+                        playlist.refresh(status);
                     } catch (final MPDServerException e) {
                         Log.e(TAG, "Failed to force a status update.", e);
                     }
@@ -196,7 +195,12 @@ public class MPDStatusMonitor extends Thread {
                             switch(change.substring("changed: ".length())) {
                                 case "database":
                                     dbChanged = true;
-                                    /** Fall through */
+                                    statusChanged = true;
+                                    break;
+                                case "playlist":
+                                    playlist.refresh(status);
+                                    statusChanged = true;
+                                    break;
                                 default:
                                     statusChanged = true;
                                     break;

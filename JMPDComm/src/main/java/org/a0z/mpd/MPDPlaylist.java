@@ -27,7 +27,6 @@
 
 package org.a0z.mpd;
 
-import org.a0z.mpd.event.AbstractStatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.util.Log;
@@ -38,7 +37,7 @@ import java.util.List;
 /**
  * MPD Playlist controller.
  */
-public class MPDPlaylist extends AbstractStatusChangeListener {
+public class MPDPlaylist {
 
     public static final String MPD_CMD_PLAYLIST_ADD = "add";
 
@@ -123,20 +122,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         }
 
         commandQueue.send(mMPD.getMpdConnection());
-    }
-
-    @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-        super.connectionStateChanged(connected, connectionLost);
-
-        if (connected) {
-            try {
-                final MPDStatus mpdStatus = mMPD.getStatus();
-                refresh(mpdStatus);
-            } catch (final MPDServerException e) {
-                Log.e(TAG, "Failed to refresh.", e);
-            }
-        }
     }
 
     /**
@@ -268,23 +253,6 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
         }
     }
 
-    /*
-     * React to playlist change on server and refresh the queue
-     * @see
-     * org.a0z.mpd.event.AbstractStatusChangeListener#playlistChanged(org.a0z
-     * .mpd.MPDStatus, int)
-     */
-    @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
-        super.playlistChanged(mpdStatus, oldPlaylistVersion);
-
-        try {
-            refresh(mpdStatus);
-        } catch (final MPDServerException e) {
-            Log.e(TAG, "Failed to refresh.", e);
-        }
-    }
-
     /**
      * Reloads the playlist content.
      *
@@ -292,7 +260,7 @@ public class MPDPlaylist extends AbstractStatusChangeListener {
      * @throws MPDServerException Thrown if an error occurred while communicating with the media
      *                            server.
      */
-    private void refresh(final MPDStatus mpdStatus) throws MPDServerException {
+    void refresh(final MPDStatus mpdStatus) throws MPDServerException {
         /** Synchronize this block to make sure the playlist version stays coherent. */
         synchronized (mList) {
             final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
