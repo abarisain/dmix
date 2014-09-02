@@ -28,6 +28,7 @@ import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatusMonitor;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -124,7 +125,15 @@ public class MPDApplication extends Application implements
             disconnect();
         } else {
             if (!oMPDAsyncHelper.isStatusMonitorAlive()) {
-                oMPDAsyncHelper.startStatusMonitor();
+                oMPDAsyncHelper.startStatusMonitor(new String[]{
+                        MPDStatusMonitor.IDLE_DATABASE,
+                        MPDStatusMonitor.IDLE_MIXER,
+                        MPDStatusMonitor.IDLE_OPTIONS,
+                        MPDStatusMonitor.IDLE_OUTPUT,
+                        MPDStatusMonitor.IDLE_PLAYER,
+                        MPDStatusMonitor.IDLE_PLAYLIST,
+                        MPDStatusMonitor.IDLE_UPDATE
+                });
             }
             if (!oMPDAsyncHelper.oMPD.isConnected() && (mCurrentActivity == null
                     || !mCurrentActivity.getClass().equals(WifiConnectionSettings.class))) {

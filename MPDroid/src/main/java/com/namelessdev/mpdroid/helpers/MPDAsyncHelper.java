@@ -345,8 +345,9 @@ public class MPDAsyncHelper implements Handler.Callback {
         ((CachedMPD) oMPD).setUseCache(useCache);
     }
 
-    public void startStatusMonitor() {
-        mWorkerHandler.sendEmptyMessage(MPDAsyncWorker.EVENT_START_STATUS_MONITOR);
+    public void startStatusMonitor(final String[] idleSubsystems) {
+        Message.obtain(mWorkerHandler, MPDAsyncWorker.EVENT_START_STATUS_MONITOR, idleSubsystems)
+                .sendToTarget();
     }
 
     public final void startNetworkMonitor(final Context context) {

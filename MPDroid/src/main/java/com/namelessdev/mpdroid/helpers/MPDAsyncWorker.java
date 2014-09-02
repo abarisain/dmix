@@ -64,6 +64,8 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
 
+    private String[] mIdleSubsystems;
+
     private final MPD mMPD;
 
     /** A store for the current connection information. */
@@ -130,6 +132,7 @@ public class MPDAsyncWorker implements Handler.Callback,
                 //reconnect();
                 break;
             case EVENT_START_STATUS_MONITOR:
+                mIdleSubsystems = (String[]) msg.obj;
                 startStatusMonitor();
                 break;
             case EVENT_STOP_STATUS_MONITOR:
@@ -243,7 +246,8 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     /** Starts the JMPDComm MPD Status Monitor. */
     private void startStatusMonitor() {
-        mStatusMonitor = new MPDStatusMonitor(mMPD, DateUtils.SECOND_IN_MILLIS / 2L);
+        mStatusMonitor =
+                new MPDStatusMonitor(mMPD, DateUtils.SECOND_IN_MILLIS / 2L, mIdleSubsystems);
         mStatusMonitor.addStatusChangeListener(this);
         mStatusMonitor.addTrackPositionListener(this);
         mStatusMonitor.start();

@@ -42,6 +42,39 @@ import java.util.List;
  */
 public class MPDStatusMonitor extends Thread {
 
+    /** The song database has been modified after update. */
+    public static final String IDLE_DATABASE = "database";
+
+    /** A message was received on a channel this client is subscribed to. */
+    public static final String IDLE_MESSAGE = "message";
+
+    /** Emitted after the mixer volume has been modified. */
+    public static final String IDLE_MIXER = "mixer";
+
+    /** Emitted after an option (repeat, random, cross fade, Replay Gain) modification. */
+    public static final String IDLE_OPTIONS = "options";
+
+    /** Emitted after a output has been enabled or disabled. */
+    public static final String IDLE_OUTPUT = "output";
+
+    /** Emitted after upon current playing status change. */
+    public static final String IDLE_PLAYER = "player";
+
+    /** Emitted after the playlist queue has been modified. */
+    public static final String IDLE_PLAYLIST = "playlist";
+
+    /** Emitted after the sticker database has been modified. */
+    public static final String IDLE_STICKER = "sticker";
+
+    /** Emitted after a server side stored playlist has been added, removed or modified. */
+    public static final String IDLE_STORED_PLAYLIST = "stored_playlist";
+
+    /** Emitted after a client has added or removed subscription to a channel. */
+    public static final String IDLE_SUBSCRIPTION = "subscription";
+
+    /** Emitted after a database update has started or finished. See IDLE_DATABASE */
+    public static final String IDLE_UPDATE = "update";
+
     private static final String TAG = "MPDStatusMonitor";
 
     private final long delay;
@@ -54,13 +87,16 @@ public class MPDStatusMonitor extends Thread {
 
     private final LinkedList<TrackPositionListener> trackPositionChangedListeners;
 
+    private final MPDCommand mIdleCommand;
+
     /**
      * Constructs a MPDStatusMonitor.
      *
-     * @param mpd   MPD server to monitor.
-     * @param delay status query interval.
+     * @param mpd           MPD server to monitor.
+     * @param delay         status query interval.
+     * @param supportedIdle Idle subsystems to support, see IDLE fields in this class.
      */
-    public MPDStatusMonitor(MPD mpd, long delay) {
+    public MPDStatusMonitor(MPD mpd, long delay, final String[] supportedIdle) {
         super("MPDStatusMonitor");
 
         this.mpd = mpd;
@@ -68,6 +104,7 @@ public class MPDStatusMonitor extends Thread {
         this.giveup = false;
         this.statusChangedListeners = new LinkedList<>();
         this.trackPositionChangedListeners = new LinkedList<>();
+        mIdleCommand = new MPDCommand(MPDCommand.MPD_CMD_IDLE, supportedIdle);
 
         // integrate MPD stuff into listener lists
         addStatusChangeListener(mpd.getPlaylist());
@@ -155,17 +192,14 @@ public class MPDStatusMonitor extends Thread {
 
                         mpd.updateStatus();
 
-                        for (String change : changes) {
-                            if (change.startsWith("changed: database")) {
-                                dbChanged = true;
-                                statusChanged = true;
-                            } else if (change.startsWith("changed: playlist")
-                                    || change.startsWith("changed: update")
-                                    || change.startsWith("changed: player") ||
-                                    change.startsWith("changed: mixer")
-                                    || change.startsWith("changed: output")
-                                    || change.startsWith("changed: options")) {
-                                statusChanged = true;
+                        for (final String change : changes) {
+                            switch(change.substring("changed: ".length())) {
+                                case "database":
+                                    dbChanged = true;
+                                    /** Fall through */
+                                default:
+                                    statusChanged = true;
+                                    break;
                             }
 
                             if (dbChanged && statusChanged) {
@@ -281,8 +315,7 @@ public class MPDStatusMonitor extends Thread {
         final MPDConnection mpdIdleConnection = mpd.getMpdIdleConnection();
 
         while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
-            final List<String> data = mpdIdleConnection
-                    .sendAsyncCommand(MPDCommand.MPD_CMD_IDLE);
+            final List<String> data = mpdIdleConnection.sendCommand(mIdleCommand);
 
             if (data.isEmpty()) {
                 continue;

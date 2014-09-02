@@ -23,6 +23,7 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 
@@ -231,7 +232,10 @@ public final class MPDroidService extends Service implements
         }
 
         if (!MPD_ASYNC_HELPER.isStatusMonitorAlive()) {
-            MPD_ASYNC_HELPER.startStatusMonitor();
+            MPD_ASYNC_HELPER.startStatusMonitor(new String[]{
+                    MPDStatusMonitor.IDLE_PLAYER,
+                    MPDStatusMonitor.IDLE_PLAYLIST
+            });
         }
 
         if (!MPD_ASYNC_HELPER.isNetworkMonitorAlive()) {
