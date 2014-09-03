@@ -154,63 +154,85 @@ public class MPD {
         connect(server, port, password);
     }
 
-    public void add(Album album) throws MPDServerException {
+    /**
+     * Adds a {@code Album} item object to the playlist queue.
+     *
+     * @param album {@code Album} item object to be added to the media server playlist queue.
+     * @throws MPDServerException On media server command parsing or connection error.
+     */
+    public void add(final Album album) throws MPDServerException {
         add(album, false, false);
     }
 
-    public void add(final Album album, boolean replace, boolean play) throws MPDServerException {
-        final Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final ArrayList<Music> songs = new ArrayList<>(getSongs(album));
-                    getPlaylist().addAll(songs);
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to add.", e);
-                }
-            }
-        };
-        add(r, replace, play);
+    /**
+     * Adds a {@code Album} item object to the playlist queue.
+     *
+     * @param album {@code Album} item object to be added to the media server playlist queue.
+     * @param replace Whether to clear the playlist queue prior to adding the item(s).
+     * @param play Whether to play the playlist queue after adding the item(s).
+     * @throws MPDServerException On media server command parsing or connection error.
+     */
+    public void add(final Album album, final boolean replace, final boolean play)
+            throws MPDServerException {
+        final List<Music> songs = getSongs(album);
+        final CommandQueue commandQueue = MPDPlaylist.addAllCommand(songs);
+
+        add(commandQueue, replace, play);
     }
 
-    public void add(Artist artist) throws MPDServerException {
+    /**
+     * Adds a {@code Artist} item object to the playlist queue.
+     *
+     * @param artist {@code Artist} item object to be added to the media server playlist queue.
+     * @throws MPDServerException On media server command parsing or connection error.
+     */
+    public void add(final Artist artist) throws MPDServerException {
         add(artist, false, false);
     }
 
-    public void add(final Artist artist, boolean replace, boolean play) throws MPDServerException {
-        final Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final ArrayList<Music> songs = new ArrayList<>(getSongs(artist));
-                    getPlaylist().addAll(songs);
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to add.", e);
-                }
-            }
-        };
-        add(r, replace, play);
-    }
-
-    public void add(final FilesystemTreeEntry music, boolean replace, boolean play)
+    /**
+     * Adds a {@code Artist} item object to the playlist queue.
+     *
+     * @param artist {@code Artist} item object to be added to the media server playlist queue.
+     * @param replace Whether to clear the playlist queue prior to adding the item(s).
+     * @param play Whether to play the playlist queue after adding the item(s).
+     * @throws MPDServerException On media server command parsing or connection error.
+     */
+    public void add(final Artist artist, final boolean replace, final boolean play)
             throws MPDServerException {
-        final Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (music instanceof PlaylistFile) {
-                        getPlaylist().load(music.getFullpath());
-                    } else {
-                        getPlaylist().add(music);
-                    }
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to add.", e);
-                }
-            }
-        };
-        add(r, replace, play);
+        final List<Music> songs = getSongs(artist);
+        final CommandQueue commandQueue = MPDPlaylist.addAllCommand(songs);
+
+        add(commandQueue, replace, play);
     }
 
+    /**
+     * Add a {@code Music} item object to the playlist queue.
+     *
+     * @param music   {@code Music} item object to be added to the media server playlist queue.
+     * @param replace Whether to clear the playlist queue prior to adding the item(s).
+     * @param play    Whether to play the playlist queue after adding the item(s).
+     * @throws MPDServerException On media server command parsing or connection error.
+     */
+    public void add(final FilesystemTreeEntry music, final boolean replace, final boolean play)
+            throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue();
+
+        if (music instanceof PlaylistFile) {
+            commandQueue.add(MPDPlaylist.loadCommand(music.getFullpath()));
+        } else {
+            commandQueue.add(MPDPlaylist.addCommand(music.getFullpath()));
+        }
+
+        add(commandQueue, replace, play);
+    }
+
+    /**
+     * Add a {@code Music} item object to the playlist queue.
+     *
+     * @param music {@code Music} item object to be added to the playlist queue.
+     * @throws MPDServerException On media server command parsing or connection error.
+     */
     public void add(Music music) throws MPDServerException {
         add(music, false, false);
     }
@@ -219,13 +241,13 @@ public class MPD {
      * Adds songs to the queue. Optionally, clears the queue prior to the addition. Optionally,
      * play the added songs afterward.
      *
-     * @param runnable The runnable that will be responsible of inserting the
+     * @param commandQueue The commandQueue that will be responsible of inserting the
      *                 songs into the queue.
      * @param replace  If true, replaces the entire playlist queue with the added files.
      * @param playAfterAdd     If true, starts playing once added.
      */
-    public void add(final Runnable runnable, final boolean replace, final boolean playAfterAdd)
-            throws MPDServerException {
+    public void add(final CommandQueue commandQueue, final boolean replace,
+            final boolean playAfterAdd) throws MPDServerException {
         int playPos = 0;
         final boolean isPlaying = mpdStatus.isState(MPDStatus.STATE_PLAYING);
         final boolean isConsume = mpdStatus.isConsume();
@@ -235,72 +257,78 @@ public class MPD {
         if (replace) {
             if (isPlaying) {
                 try {
-                    playlist.crop();
+                    commandQueue.add(0, MPDPlaylist.cropCommand(this));
                 } catch (final IllegalStateException ignored) {
                     /** Shouldn't occur, we already checked for playing. */
                 }
             } else {
-                playlist.clear();
+                commandQueue.add(0, MPDPlaylist.clearCommand());
             }
         } else if (playAfterAdd && !isRandom) {
             /** Since we didn't clear the playlist queue, we need to play the (current queue+1) */
             playPos = playlist.size();
         }
 
-        /** Add */
-        runnable.run();
-
         if (replace) {
             if (isPlaying) {
-                next();
+                commandQueue.add(nextCommand());
             } else if (playAfterAdd) {
-                skipToPosition(playPos);
+                commandQueue.add(skipToPositionCommand(playPos));
             }
         } else if (playAfterAdd) {
-            skipToPosition(playPos);
+            commandQueue.add(skipToPositionCommand(playPos));
         }
 
         /** Finally, clean up the last playing song. */
         if (replace && isPlaying && !isConsume) {
-            try {
-                playlist.removeByIndex(0);
-            } catch (final MPDServerException e) {
-                Log.d(TAG, "Remove by index failed.", e);
-            }
+            commandQueue.add(MPDPlaylist.removeByIndexCommand(0));
+
         }
+
+        commandQueue.send(mpdConnection);
     }
 
-    public void add(String playlist) throws MPDServerException {
-        add(playlist, false, false);
+    /**
+     * Add a generic string to the playlist. This method is not preferred due to lack of type
+     * checking, use at your own risk.
+     *
+     * @param generic Generic string to be accepted by the media server.
+     * @throws MPDServerException On media server command parsing or connection error.
+     * @see #add(org.a0z.mpd.item.Music)
+     * @see #add(org.a0z.mpd.item.Album)
+     * @see #add(org.a0z.mpd.item.Artist)
+     */
+    public void add(final String generic) throws MPDServerException {
+        add(generic, false, false);
     }
 
-    public void add(final String playlist, boolean replace, boolean play)
+    /**
+     * Add a generic string to the playlist. This method is not preferred due to lack of type
+     * checking, use at your own risk.
+     *
+     * @param generic Generic string to be accepted by the media server.
+     * @param replace Whether to clear the playlist queue prior to adding the generic string.
+     * @param play    Whether to play the playlist queue prior after adding the generic string.
+     * @throws MPDServerException On media server command parsing or connection error.
+     * @see #add(org.a0z.mpd.item.Album, boolean, boolean)
+     * @see #add(org.a0z.mpd.item.Artist, boolean, boolean)
+     * @see #add(FilesystemTreeEntry, boolean, boolean)
+     */
+    public void add(final String generic, final boolean replace, final boolean play)
             throws MPDServerException {
-        final Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    getPlaylist().load(playlist);
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to add playlist.", e);
-                }
-            }
-        };
-        add(r, replace, play);
+        final CommandQueue commandQueue = new CommandQueue();
+        commandQueue.add(MPDPlaylist.loadCommand(generic));
+
+        add(commandQueue, replace, play);
     }
 
-    public void addStream(final String stream, boolean replace, boolean play) throws MPDServerException {
-        final Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    getPlaylist().addStream(stream);
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to add stream.", e);
-                }
-            }
-        };
-        add(r, replace, play);
+    /** TODO: This needs to be an add(URL) method. */
+    public void addStream(final String stream, boolean replace, boolean play)
+            throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue();
+        commandQueue.add(MPDPlaylist.addCommand(stream));
+
+        add(commandQueue, replace, play);
     }
 
     protected void addAlbumPaths(List<Album> albums) {
@@ -1516,7 +1544,11 @@ public class MPD {
             throw new MPDServerException("MPD Connection is not established");
         }
 
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_NEXT);
+        mpdConnection.sendCommand(nextCommand());
+    }
+
+    static MPDCommand nextCommand() {
+        return new MPDCommand(MPDCommand.MPD_CMD_NEXT);
     }
 
     /**
@@ -1781,7 +1813,11 @@ public class MPD {
             throw new MPDServerException("MPD Connection is not established");
         }
 
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
+        mpdConnection.sendCommand(skipToPositionCommand(position));
+    }
+
+    static MPDCommand skipToPositionCommand(final int position) {
+        return new MPDCommand(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
     }
 
     /**

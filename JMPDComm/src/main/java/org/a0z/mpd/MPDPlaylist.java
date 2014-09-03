@@ -89,6 +89,55 @@ public class MPDPlaylist {
         mList = new MusicList();
     }
 
+    static MPDCommand addCommand(final String fullPath) {
+        return new MPDCommand(MPD_CMD_PLAYLIST_ADD, fullPath);
+    }
+
+    static CommandQueue addAllCommand(final Iterable<Music> collection) {
+        final CommandQueue commandQueue = new CommandQueue();
+
+        for (final Music music : collection) {
+            commandQueue.add(MPD_CMD_PLAYLIST_ADD, music.getFullpath());
+        }
+
+        return commandQueue;
+    }
+
+    static CommandQueue cropCommand(final MPD mpd) {
+        final CommandQueue commandQueue = new CommandQueue();
+        final int currentTrackID = mpd.getStatus().getSongId();
+        /** Null range ends are broken in MPD-0.18 on 32-bit arch, see bug #4080. */
+        final int playlistLength = mpd.getStatus().getPlaylistLength();
+
+        if (currentTrackID < 0) {
+            throw new IllegalStateException("Cannot crop when media server is inactive.");
+        }
+
+        commandQueue.add(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(currentTrackID), "0");
+        commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, "1:" + playlistLength);
+
+        return commandQueue;
+    }
+
+    static MPDCommand clearCommand() {
+        return new MPDCommand(MPD_CMD_PLAYLIST_CLEAR);
+    }
+
+    static MPDCommand loadCommand(final String file) {
+        return new MPDCommand(MPD_CMD_PLAYLIST_LOAD, file);
+    }
+
+    static CommandQueue removeByIndexCommand(final int... songs) {
+        Arrays.sort(songs);
+        final CommandQueue commandQueue = new CommandQueue();
+
+        for (int i = songs.length - 1; i >= 0; i--) {
+            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(songs[i]));
+        }
+
+        return commandQueue;
+    }
+
     /**
      * Adds a music to playlist.
      *
@@ -96,7 +145,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void add(final FilesystemTreeEntry entry) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, entry.getFullpath());
+        mMPD.getMpdConnection().sendCommand(addCommand(entry.getFullpath()));
     }
 
     /**
@@ -117,13 +166,7 @@ public class MPDPlaylist {
      * @see Music
      */
     public void addAll(final Iterable<Music> collection) throws MPDServerException {
-        final CommandQueue commandQueue = new CommandQueue();
-
-        for (final Music music : collection) {
-            commandQueue.add(MPD_CMD_PLAYLIST_ADD, music.getFullpath());
-        }
-
-        commandQueue.send(mMPD.getMpdConnection());
+        addAllCommand(collection).send(mMPD.getMpdConnection());
     }
 
     /**
@@ -133,17 +176,7 @@ public class MPDPlaylist {
      * @throws IllegalStateException If not playing.
      */
     public void crop() throws MPDServerException {
-        final CommandQueue commandQueue = new CommandQueue();
-        final int currentTrackID = mMPD.getStatus().getSongId();
-        final int playlistLength = mMPD.getStatus().getPlaylistLength();
-
-        if (currentTrackID < 0) {
-            throw new IllegalStateException("Cannot crop when media server is inactive.");
-        }
-
-        commandQueue.add(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(currentTrackID), "0");
-        commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, "1:" + playlistLength);
-        commandQueue.send(mMPD.getMpdConnection());
+        cropCommand(mMPD).send(mMPD.getMpdConnection());
     }
 
     /**
@@ -152,7 +185,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void clear() throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CLEAR);
+        mMPD.getMpdConnection().sendCommand(clearCommand());
     }
 
     /**
@@ -183,7 +216,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void load(final String file) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_LOAD, file);
+        mMPD.getMpdConnection().sendCommand(loadCommand(file));
     }
 
     /**
@@ -350,13 +383,7 @@ public class MPDPlaylist {
      * @see #removeById(int[])
      */
     void removeByIndex(final int... songs) throws MPDServerException {
-        Arrays.sort(songs);
-        final CommandQueue commandQueue = new CommandQueue();
-
-        for (int i = songs.length - 1; i >= 0; i--) {
-            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(songs[i]));
-        }
-        commandQueue.send(mMPD.getMpdConnection());
+        removeByIndexCommand(songs).send(mMPD.getMpdConnection());
     }
 
     /**

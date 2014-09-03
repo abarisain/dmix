@@ -99,6 +99,38 @@ final class CommandQueue {
     }
 
     /**
+     * Add a command queue to the end of this command queue.
+     *
+     * @param commandQueue The command queue to add to this one.
+     */
+    final void add(final CommandQueue commandQueue) {
+        mCommandQueue.addAll(commandQueue.mCommandQueue);
+        mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
+    }
+
+    /**
+     * Add a command queue to the specified position of this command queue.
+     *
+     * @param position     The position of this command queue to add the new command queue.
+     * @param commandQueue The command queue to add to this one.
+     */
+    final void add(final int position, final CommandQueue commandQueue) {
+        mCommandQueue.addAll(position, commandQueue.mCommandQueue);
+        mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
+    }
+
+    /**
+     * Add a command to the specified position of this command queue.
+     *
+     * @param position The position of this command queue to add the new command.
+     * @param command  The command to add to this command queue.
+     */
+    final void add(final int position, final MPDCommand command) {
+        mCommandQueue.add(position, command);
+        mCommandQueueStringLength += command.toString().length();
+    }
+
+    /**
      * Add a command to a command to the {@code CommandQueue}.
      *
      * @param command Command to add to the queue.
@@ -123,6 +155,7 @@ final class CommandQueue {
         mCommandQueue.clear();
     }
 
+    /** Reverse the command queue order, useful for removing playlist entries. */
     final void reverse() {
         Collections.reverse(mCommandQueue);
     }
