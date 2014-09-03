@@ -144,12 +144,19 @@ final class CommandQueue {
      *
      * @param mpdConnection The connection to send the queued commands to.
      * @return The results of from the media server.
-     * @throws MPDServerException Thrown when there is an error sending the command to the media
-     *                            server.
+     * @throws MPDServerException Thrown when there is an error sending the command to
+     *                            the media server.
      */
     private List<String> send(final MPDConnection mpdConnection, final boolean separated)
             throws MPDServerException {
-        final MPDCommand mpdCommand = new MPDCommand(toString(separated));
+        final MPDCommand mpdCommand;
+
+        if (mCommandQueue.size() == 1) {
+            /** OK, it's not really a command queue. Send it anyhow. */
+            mpdCommand = mCommandQueue.get(0);
+        } else {
+            mpdCommand = new MPDCommand(toString(separated));
+        }
 
         if (DEBUG) {
             Log.d(TAG, toString(separated));
