@@ -144,12 +144,17 @@ final class CommandQueue {
      *
      * @param mpdConnection The connection to send the queued commands to.
      * @return The results of from the media server.
-     * @throws MPDServerException Thrown when there is an error sending the command to
-     *                            the media server.
+     * @throws MPDServerException    Thrown when there is an error sending the command to
+     *                               the media server.
+     * @throws IllegalStateException Thrown on empty command queue.
      */
     private List<String> send(final MPDConnection mpdConnection, final boolean separated)
             throws MPDServerException {
         final MPDCommand mpdCommand;
+
+        if (mCommandQueue.isEmpty()) {
+            throw new IllegalStateException("Cannot send an empty command queue.");
+        }
 
         if (mCommandQueue.size() == 1) {
             /** OK, it's not really a command queue. Send it anyhow. */
