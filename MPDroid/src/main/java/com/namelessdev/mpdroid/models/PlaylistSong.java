@@ -19,7 +19,7 @@ package com.namelessdev.mpdroid.models;
 import static android.text.TextUtils.isEmpty;
 import static android.text.TextUtils.join;
 
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 
 import java.util.ArrayList;
 import java.util.List;

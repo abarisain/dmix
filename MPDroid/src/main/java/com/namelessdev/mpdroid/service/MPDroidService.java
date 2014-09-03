@@ -24,8 +24,8 @@ import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.MPDStatusMonitor;
-import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.item.Music;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

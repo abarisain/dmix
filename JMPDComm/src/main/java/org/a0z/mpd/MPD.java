@@ -29,6 +29,15 @@ package org.a0z.mpd;
 
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.Directory;
+import org.a0z.mpd.item.FilesystemTreeEntry;
+import org.a0z.mpd.item.Genre;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.Playlist;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.content.Context;
 import android.util.Log;
@@ -513,7 +522,7 @@ public class MPD {
      *               matches {@code string} will be returned in the results.
      * @return a Collection of {@code Music}
      * @throws MPDServerException if an error occur while contacting server
-     * @see org.a0z.mpd.Music
+     * @see org.a0z.mpd.item.Music
      */
     public List<Music> find(String type, String string) throws MPDServerException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, type, string);
@@ -754,8 +763,7 @@ public class MPD {
     }
 
     /**
-     * Retrieves a database directory listing of the base of the database
-     * directory path.
+     * Retrieves a database directory listing of the base of the database directory path.
      *
      * @return a {@code Collection} of {@code Music} and
      * {@code Directory} representing directory entries.
@@ -771,8 +779,8 @@ public class MPD {
      * Retrieves a database directory listing of {@code path} directory.
      *
      * @param path Directory to be listed.
-     * @return a {@code Collection} of {@code Music} and
-     * {@code Directory} representing directory entries.
+     * @return a {@code Collection} of {@code Music} and {@code Directory} representing directory
+     * entries.
      * @throws MPDServerException if an error occur while contacting server.
      * @see Music
      * @see Directory
@@ -783,44 +791,7 @@ public class MPD {
         }
 
         final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
-
-        final LinkedList<String> lineCache = new LinkedList<>();
-        final LinkedList<FilesystemTreeEntry> result = new LinkedList<>();
-
-        // Read the response backwards so it is easier to parse
-        for (int i = response.size() - 1; i >= 0; i--) {
-
-            // If we hit anything we know is an item, consume the linecache
-            final String line = response.get(i);
-            final String[] lines = StringsUtils.MPD_DELIMITER.split(line, 2);
-            
-            switch (lines[0]) {
-                case "directory":
-                    result.add(rootDirectory.makeDirectory(lines[1]));
-                    lineCache.clear();
-                    break;
-                case "file":
-                    // Music requires this line to be cached too.
-                    // It could be done every time but it would be a waste to add and
-                    // clear immediately when we're parsing a playlist or a directory
-                    lineCache.add(line);
-                    result.add(new Music(lineCache));
-                    lineCache.clear();
-                    break;
-                case "playlist":
-                    result.add(new PlaylistFile(lines[1]));
-                    lineCache.clear();
-                    break;
-                default:
-                    // We're in something unsupported or in an item description, cache the lines
-                    lineCache.add(line);
-                    break;
-            }
-        }
-
-        // Since we read the list backwards, reverse the results ordering.
-        Collections.reverse(result);
-        return result;
+        return Directory.getDir(response, this);
     }
 
     public InetAddress getHostAddress() throws MPDConnectionException {
@@ -1645,7 +1616,7 @@ public class MPD {
      *               {@code string} will be returned in the results.
      * @return a Collection of {@code Music}.
      * @throws MPDServerException if an error occur while contacting server.
-     * @see org.a0z.mpd.Music
+     * @see org.a0z.mpd.item.Music
      */
     public Collection<Music> search(String type, String string) throws MPDServerException {
         return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, string);

@@ -27,8 +27,8 @@ import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
 
 import android.app.ActionBar;
 import android.content.Context;

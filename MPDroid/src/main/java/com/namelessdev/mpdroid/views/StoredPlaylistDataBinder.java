@@ -24,8 +24,8 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.PlaylistViewHolder;
 
-import org.a0z.mpd.Item;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 
 import android.content.Context;
 import android.content.SharedPreferences;

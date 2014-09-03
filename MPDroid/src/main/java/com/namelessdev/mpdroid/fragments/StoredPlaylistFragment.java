@@ -23,9 +23,9 @@ import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.StoredPlaylistDataBinder;
 
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Item;
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.Intent;

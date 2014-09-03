@@ -25,8 +25,8 @@ import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.SongViewHolder;
 
-import org.a0z.mpd.Item;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 
 import java.util.List;
 

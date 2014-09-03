@@ -25,42 +25,21 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.item;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+public class Playlist extends Item {
 
-/**
- * Represents a playlist in the database
- */
-public class PlaylistFile extends Item implements FilesystemTreeEntry {
+    private final String name;
 
-    private final String fullpath;
-
-    private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");
-
-    public PlaylistFile(final String path) {
-        super();
-        fullpath = path;
+    public Playlist(String name) {
+        this.name = name;
     }
 
-    @Override
-    public String getFullpath() {
-        return fullpath;
+    public String displayName() {
+        return name;
     }
 
-    @Override
     public String getName() {
-        String result = "";
-
-        if (fullpath != null) {
-            final Matcher matcher = PLAYLIST_FILE_REGEXP.matcher(fullpath);
-            if (matcher.matches()) {
-                result = matcher.replaceAll("[$2] $1.$2");
-            } else {
-                result = fullpath;
-            }
-        }
-        return result;
+        return name;
     }
 }

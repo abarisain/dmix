@@ -21,7 +21,7 @@ import android.view.View;
 
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Item;
 
 import java.util.List;
 

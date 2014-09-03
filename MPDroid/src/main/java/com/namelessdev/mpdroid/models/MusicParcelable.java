@@ -3,15 +3,15 @@ package com.namelessdev.mpdroid.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 
 public class MusicParcelable extends Music implements Parcelable {
 //    private boolean mIsNull;
 
     /**
-     * Public constructor, used to encapsulate a {@link org.a0z.mpd.Music} into this {@link android.os.Parcelable}
+     * Public constructor, used to encapsulate a {@link org.a0z.mpd.item.Music} into this {@link android.os.Parcelable}
      *
-     * @param music The target {@link org.a0z.mpd.Music} object
+     * @param music The target {@link org.a0z.mpd.item.Music} object
      */
     public MusicParcelable(Music music) {
         super(music.getAlbum(), music.getArtist(), music.getAlbumArtist(), music.getFullpath(), music.getDisc(),
@@ -35,7 +35,7 @@ public class MusicParcelable extends Music implements Parcelable {
 
     /**
      * Protected constructor, used by the Android framework when reconstructing the object from a {@link android.os.Parcel}<br />
-     * This constructor will instantiate the object through the default {@link org.a0z.mpd.Music#Music(String, String, String, String, int, long, long, org.a0z.mpd.Directory, String, int, int, int, int, String)} constructor.
+     * This constructor will instantiate the object through the default {@link org.a0z.mpd.item.Music#Music(String, String, String, String, int, long, long, org.a0z.mpd.item.Directory, String, int, int, int, int, String)} constructor.
      *
      * @param in The {@link android.os.Parcel} that contains our object
      */

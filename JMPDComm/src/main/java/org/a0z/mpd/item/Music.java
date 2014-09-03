@@ -25,7 +25,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.item;
+
+import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.StringsUtils;
 
 import android.util.Log;
 
@@ -164,7 +168,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private String name;
 
-    private static final String TAG = "org.a0z.mpd.Music";
+    private static final String TAG = "Music";
 
     public Music() {
     }

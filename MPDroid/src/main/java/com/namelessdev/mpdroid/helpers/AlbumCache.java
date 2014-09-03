@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 

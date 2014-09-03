@@ -27,6 +27,8 @@
 
 package org.a0z.mpd;
 
+import org.a0z.mpd.item.Music;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;

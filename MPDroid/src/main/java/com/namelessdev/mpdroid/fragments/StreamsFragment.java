@@ -20,8 +20,8 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.Item;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 import org.a0z.mpd.exception.MPDServerException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -130,7 +130,8 @@ public class StreamsFragment extends BrowseFragment {
     protected void add(Item item, boolean replace, boolean play) {
         try {
             final Stream s = (Stream) item;
-            app.oMPDAsyncHelper.oMPD.addStream(StreamFetcher.instance().get(s.getUrl(), s.getName()),
+            app.oMPDAsyncHelper.oMPD.addStream(
+                    StreamFetcher.instance().get(s.getUrl(), s.getName()),
                     replace, play);
             Tools.notifyUser(irAdded, item);
         } catch (final MPDServerException | MalformedURLException e) {

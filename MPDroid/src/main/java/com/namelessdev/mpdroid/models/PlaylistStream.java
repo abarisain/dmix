@@ -18,7 +18,7 @@ package com.namelessdev.mpdroid.models;
 
 import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 
 public class PlaylistStream extends AbstractPlaylistMusic {
 

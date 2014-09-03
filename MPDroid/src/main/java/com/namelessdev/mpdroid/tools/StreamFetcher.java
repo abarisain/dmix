@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.tools;
 
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 

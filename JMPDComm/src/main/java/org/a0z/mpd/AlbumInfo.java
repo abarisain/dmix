@@ -27,6 +27,9 @@
 
 package org.a0z.mpd;
 
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
+
 import static android.text.TextUtils.isEmpty;
 import static org.a0z.mpd.StringsUtils.getHashFromString;
 

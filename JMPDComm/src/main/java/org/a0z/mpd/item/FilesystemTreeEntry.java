@@ -25,21 +25,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.item;
 
-public class Playlist extends Item {
+public interface FilesystemTreeEntry {
 
-    private final String name;
-
-    public Playlist(String name) {
-        this.name = name;
-    }
-
-    public String displayName() {
-        return name;
-    }
-
-    public String getName() {
-        return name;
-    }
+    String getFullpath();
 }

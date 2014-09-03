@@ -20,12 +20,12 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.Directory;
-import org.a0z.mpd.FilesystemTreeEntry;
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Directory;
+import org.a0z.mpd.item.FilesystemTreeEntry;
+import org.a0z.mpd.item.Item;
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.PlaylistFile;
+import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.PlaylistFile;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;

@@ -27,7 +27,7 @@ import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 
 import android.app.Activity;

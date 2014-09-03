@@ -25,13 +25,17 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.item;
 
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.StringsUtils;
 import org.a0z.mpd.exception.InvalidParameterException;
 import org.a0z.mpd.exception.MPDServerException;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -120,6 +124,55 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      */
     public boolean containsDir(String filename) {
         return directories.containsKey(filename);
+    }
+
+    /**
+     * Retrieves a database directory listing of {@code path} directory.
+     *
+     * @param response The server response.
+     * @param mpd The {@code MPD} object instance.
+     * @return a {@code Collection} of {@code Music} and
+     * {@code Directory} representing directory entries.
+     * @see Music
+     */
+    public static  List<FilesystemTreeEntry> getDir(final List<String> response, final MPD mpd) {
+        final LinkedList<String> lineCache = new LinkedList<>();
+        final LinkedList<FilesystemTreeEntry> result = new LinkedList<>();
+
+        // Read the response backwards so it is easier to parse
+        for (int i = response.size() - 1; i >= 0; i--) {
+
+            // If we hit anything we know is an item, consume the linecache
+            final String line = response.get(i);
+            final String[] lines = StringsUtils.MPD_DELIMITER.split(line, 2);
+
+            switch (lines[0]) {
+                case "directory":
+                    result.add(makeRootDirectory(mpd).makeDirectory(lines[1]));
+                    lineCache.clear();
+                    break;
+                case "file":
+                    // Music requires this line to be cached too.
+                    // It could be done every time but it would be a waste to add and
+                    // clear immediately when we're parsing a playlist or a directory
+                    lineCache.add(line);
+                    result.add(new Music(lineCache));
+                    lineCache.clear();
+                    break;
+                case "playlist":
+                    result.add(new PlaylistFile(lines[1]));
+                    lineCache.clear();
+                    break;
+                default:
+                    // We're in something unsupported or in an item description, cache the lines
+                    lineCache.add(line);
+                    break;
+            }
+        }
+
+        // Since we read the list backwards, reverse the results ordering.
+        Collections.reverse(result);
+        return result;
     }
 
     /**

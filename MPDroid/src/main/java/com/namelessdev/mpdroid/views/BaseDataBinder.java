@@ -23,7 +23,7 @@ import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Item;
 
 import android.content.Context;
 import android.content.SharedPreferences;

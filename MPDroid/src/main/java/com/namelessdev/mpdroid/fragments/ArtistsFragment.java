@@ -21,9 +21,9 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Genre;
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.Genre;
+import org.a0z.mpd.item.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 

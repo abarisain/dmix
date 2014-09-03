@@ -35,7 +35,7 @@ public final class StringsUtils {
     /**
      * This is a regular expression pattern matcher for the typical MPD protocol response.
      */
-    static final Pattern MPD_DELIMITER = Pattern.compile(": ");
+    public static final Pattern MPD_DELIMITER = Pattern.compile(": ");
 
     private static final Pattern EXTENSION_DELIMITER = Pattern.compile("\\.");
 

@@ -19,7 +19,7 @@ package com.namelessdev.mpdroid.service;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;

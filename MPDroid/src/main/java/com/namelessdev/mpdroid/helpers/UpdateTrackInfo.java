@@ -21,7 +21,7 @@ import com.namelessdev.mpdroid.R;
 
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;

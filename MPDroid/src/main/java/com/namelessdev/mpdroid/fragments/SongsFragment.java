@@ -26,11 +26,11 @@ import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
-import org.a0z.mpd.Album;
+import org.a0z.mpd.item.Album;
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Item;
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;

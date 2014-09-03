@@ -19,7 +19,7 @@ package com.namelessdev.mpdroid.adapters;
 import android.content.Context;
 import android.widget.SectionIndexer;
 
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Item;
 
 import java.text.Collator;
 import java.util.ArrayList;

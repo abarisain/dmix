@@ -16,8 +16,8 @@
 
 package com.namelessdev.mpdroid.models;
 
-import org.a0z.mpd.Directory;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Directory;
+import org.a0z.mpd.item.Music;
 
 public abstract class AbstractPlaylistMusic extends Music {
     private int currentSongIconRefID;

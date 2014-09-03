@@ -23,7 +23,7 @@ import android.view.ViewGroup;
 
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
