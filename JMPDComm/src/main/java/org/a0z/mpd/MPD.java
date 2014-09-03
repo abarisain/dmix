@@ -715,7 +715,7 @@ public class MPD {
 
         final List<Album> albums;
         // Use MPD 0.19's album grouping feature if available.
-        if (mpdConnection.isAlbumGroupingSupported()) {
+        if (mpdConnection.isProtocolVersionSupported(0, 18)) {
             albums = listAllAlbumsGrouped(false);
         } else {
             final List<String> albumNames = listAlbums();

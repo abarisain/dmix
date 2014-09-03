@@ -84,8 +84,6 @@ abstract class MPDConnection {
 
     private final int mReadWriteTimeout;
 
-    private boolean mIsAlbumGroupingSupported = false;
-
     private boolean mCancelled = false;
 
     private boolean mIsConnected = false;
@@ -227,13 +225,6 @@ abstract class MPDConnection {
             throw new MPDConnectionException(e);
         }
 
-        // MPD 0.19 supports album grouping
-        if (result[0] > 0 || result[1] >= 19) {
-            mIsAlbumGroupingSupported = true;
-        } else {
-            mIsAlbumGroupingSupported = false;
-        }
-
         if (mPassword != null) {
             password(mPassword);
         }
@@ -257,8 +248,16 @@ abstract class MPDConnection {
         return getSocket() != null && getSocket().isConnected() && !getSocket().isClosed();
     }
 
-    boolean isAlbumGroupingSupported() {
-        return mIsAlbumGroupingSupported;
+    boolean isProtocolVersionSupported(final int major, final int minor) {
+        final boolean result;
+
+        if (mMPDVersion == null || mMPDVersion[0] <= major && mMPDVersion[1] < minor) {
+            result = false;
+        } else {
+            result = true;
+        }
+
+        return result;
     }
 
     boolean isConnected() {
