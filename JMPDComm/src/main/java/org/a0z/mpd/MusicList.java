@@ -37,13 +37,15 @@ import java.util.List;
 /**
  * @author Felipe Gustavo de Almeida, Stefan Agner
  */
+
+/** The skeleton of the playlist. */
 final class MusicList {
 
-    private final AbstractMap<Integer, Music> mSongIDMap;
+    private static final String TAG = "MusicList";
 
     private final List<Music> mList;
 
-    private static final String TAG = "MusicList";
+    private final AbstractMap<Integer, Music> mSongIDMap;
 
     MusicList() {
         super();
@@ -240,6 +242,10 @@ final class MusicList {
         synchronized (mList) {
             clear();
             mList.addAll(collection);
+
+            for (final Music track : collection) {
+                mSongIDMap.put(track.getSongId(), track);
+            }
         }
     }
 
