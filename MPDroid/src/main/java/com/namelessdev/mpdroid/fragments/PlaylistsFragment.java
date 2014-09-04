@@ -21,8 +21,9 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.item.Item;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -88,7 +89,7 @@ public class PlaylistsFragment extends BrowseFragment {
     @Override
     protected void add(Item item, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
+            app.oMPDAsyncHelper.oMPD.add((PlaylistFile) item, replace, play);
             if (isAdded()) {
                 Tools.notifyUser(irAdded, item);
             }

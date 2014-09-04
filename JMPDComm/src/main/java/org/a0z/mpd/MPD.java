@@ -218,11 +218,7 @@ public class MPD {
             throws MPDServerException {
         final CommandQueue commandQueue = new CommandQueue();
 
-        if (music instanceof PlaylistFile) {
-            commandQueue.add(MPDPlaylist.loadCommand(music.getFullpath()));
-        } else {
-            commandQueue.add(MPDPlaylist.addCommand(music.getFullpath()));
-        }
+        commandQueue.add(MPDPlaylist.addCommand(music.getFullpath()));
 
         add(commandQueue, replace, play);
     }
@@ -289,35 +285,31 @@ public class MPD {
     }
 
     /**
-     * Add a generic string to the playlist. This method is not preferred due to lack of type
-     * checking, use at your own risk.
+     * Add a {@code Playlist} item object to the playlist queue.
      *
-     * @param generic Generic string to be accepted by the media server.
+     * @param databasePlaylist A playlist item stored on the media server to add to the
+     *                         playlist queue.
      * @throws MPDServerException On media server command parsing or connection error.
-     * @see #add(org.a0z.mpd.item.Music)
-     * @see #add(org.a0z.mpd.item.Album)
-     * @see #add(org.a0z.mpd.item.Artist)
      */
-    public void add(final String generic) throws MPDServerException {
-        add(generic, false, false);
+    public void add(final PlaylistFile databasePlaylist) throws MPDServerException {
+        add(databasePlaylist, false, false);
     }
 
     /**
-     * Add a generic string to the playlist. This method is not preferred due to lack of type
-     * checking, use at your own risk.
+     * Add a {@code Playlist} item object to the playlist queue.
      *
-     * @param generic Generic string to be accepted by the media server.
-     * @param replace Whether to clear the playlist queue prior to adding the generic string.
-     * @param play    Whether to play the playlist queue prior after adding the generic string.
+     * @param databasePlaylist A playlist item stored on the media server to add to the
+     *                         playlist queue.
+     * @param replace          Whether to clear the playlist queue prior to adding the
+     *                         databasePlaylist string.
+     * @param play             Whether to play the playlist queue prior after adding the
+     *                         databasePlaylist string.
      * @throws MPDServerException On media server command parsing or connection error.
-     * @see #add(org.a0z.mpd.item.Album, boolean, boolean)
-     * @see #add(org.a0z.mpd.item.Artist, boolean, boolean)
-     * @see #add(FilesystemTreeEntry, boolean, boolean)
      */
-    public void add(final String generic, final boolean replace, final boolean play)
+    public void add(final PlaylistFile databasePlaylist, final boolean replace, final boolean play)
             throws MPDServerException {
         final CommandQueue commandQueue = new CommandQueue();
-        commandQueue.add(MPDPlaylist.loadCommand(generic));
+        commandQueue.add(MPDPlaylist.loadCommand(databasePlaylist.getName()));
 
         add(commandQueue, replace, play);
     }
