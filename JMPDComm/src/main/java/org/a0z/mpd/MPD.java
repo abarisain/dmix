@@ -314,7 +314,7 @@ public class MPD {
         add(commandQueue, replace, play);
     }
 
-    /** TODO: This needs to be an add(URL) method. */
+    /** TODO: This needs to be an add(Stream, ...) method. */
     public void addStream(final String stream, boolean replace, boolean play)
             throws MPDServerException {
         final CommandQueue commandQueue = new CommandQueue();

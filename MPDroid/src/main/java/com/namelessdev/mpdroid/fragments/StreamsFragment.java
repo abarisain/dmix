@@ -20,9 +20,10 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Stream;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -78,38 +79,6 @@ public class StreamsFragment extends BrowseFragment {
                     updateFromItems();
                     break;
             }
-        }
-    }
-
-    private static class Stream extends Item {
-        private String name = null;
-        private String url = null;
-        private int pos = -1;
-
-        public Stream(String name, String url, int pos) {
-            this.name = name;
-            this.url = url;
-            this.pos = pos;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-        public String getUrl() {
-            return url;
-        }
-        public int getPos() { return pos; }
-        public void setPos(int p) { pos=p; }
-
-        @Override
-        public boolean equals(Object other) {
-            return this==other || (null!=other && other instanceof Stream && null!=url && url.equals(((Stream) other).url));
-        }
-
-        @Override
-        public int hashCode() {
-            return null==url ? 0 : url.hashCode();
         }
     }
 
@@ -264,7 +233,7 @@ public class StreamsFragment extends BrowseFragment {
             for (Stream stream : streams) {
                 if (!streams.contains(stream)) {
                     try {
-                        app.oMPDAsyncHelper.oMPD.saveStream(stream.url, stream.name);
+                        app.oMPDAsyncHelper.oMPD.saveStream(stream.getUrl(), stream.getName());
                     } catch (final MPDServerException e) {
                         Log.e(TAG, "Failed to save a stream.", e);
                     }
