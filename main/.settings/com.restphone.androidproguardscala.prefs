@@ -2,3 +2,7 @@ eclipse.preferences.version=1
 jarfile_actionbarsherlock.jar_bin=libraryjar
 jarfile_jmdns.jar_bin=libraryjar
 jarfile_jmpdcomm.jar_bin=libraryjar
+jarfile_org.scala-lang.scala-actors_2.11.2.v20140721-095018-73fb460c1c.jar_plugins=inputjar
+jarfile_org.scala-lang.scala-library_2.11.2.v20140721-095018-73fb460c1c.jar_plugins=inputjar
+jarfile_org.scala-lang.scala-reflect_2.11.2.v20140721-095018-73fb460c1c.jar_plugins=inputjar
+jarfile_scala-swing.jar_lib=inputjar
