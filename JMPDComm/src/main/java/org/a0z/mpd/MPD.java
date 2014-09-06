@@ -36,7 +36,6 @@ import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
-import org.a0z.mpd.item.Playlist;
 import org.a0z.mpd.item.PlaylistFile;
 
 import android.content.Context;
@@ -309,6 +308,7 @@ public class MPD {
     public void add(final PlaylistFile databasePlaylist, final boolean replace, final boolean play)
             throws MPDServerException {
         final CommandQueue commandQueue = new CommandQueue();
+
         commandQueue.add(MPDPlaylist.loadCommand(databasePlaylist.getName()));
 
         add(commandQueue, replace, play);
@@ -954,7 +954,7 @@ public class MPD {
             if (line.startsWith("playlist")) {
                 String name = line.substring("playlist: ".length());
                 if ( null != name && !name.equals(STREAMS_PLAYLIST)) {
-                    result.add(new Playlist(name));
+                    result.add(new PlaylistFile(name));
                 }
             }
         }
