@@ -336,11 +336,9 @@ abstract class MPDConnection {
 
         @Override
         public final CommandResult call() {
-            boolean retryable = true;
             final CommandResult result = new CommandResult();
 
-            while (result.getResult() == null && mRetry < MAX_REQUEST_RETRY && !mCancelled
-                    && retryable) {
+            while (result.getResult() == null && mRetry < MAX_REQUEST_RETRY && !mCancelled) {
                 try {
                     if (!isInnerConnected()) {
                         innerConnect();
@@ -369,7 +367,12 @@ abstract class MPDConnection {
                         handleConnectionFailure(result, ex1);
                     }
                 }
-                retryable = isRetryable(mCommand) || !isSentToServer();
+
+                /** On successful send of non-retryable command, break out. */
+                if (!isRetryable(mCommand) && isSentToServer()) {
+                    break;
+                }
+
                 mRetry++;
             }
 
