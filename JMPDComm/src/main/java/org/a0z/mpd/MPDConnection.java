@@ -404,23 +404,20 @@ abstract class MPDConnection {
         }
 
         private List<String> innerSyncedWriteAsyncRead() throws MPDServerException {
-            List<String> result = new ArrayList<>();
-            try {
-                writeToServer();
-            } catch (final IOException e) {
-                throw new MPDConnectionException(e);
-            }
-            boolean dataReadFromServer = false;
-            while (!dataReadFromServer) {
+            List<String> result;
+
+            while (true) {
                 try {
+                    writeToServer();
                     result = readFromServer();
-                    dataReadFromServer = true;
+                    break;
                 } catch (final SocketTimeoutException e) {
                     Log.w(TAG, "Socket timeout while reading server response.", e);
                 } catch (final IOException e) {
                     throw new MPDConnectionException(e);
                 }
             }
+
             return result;
         }
 
@@ -430,14 +427,8 @@ abstract class MPDConnection {
                 throw new MPDConnectionException("No connection to server");
             }
 
-            // send command
             try {
                 writeToServer();
-            } catch (final IOException e) {
-                throw new MPDConnectionException(e);
-            }
-
-            try {
                 result = readFromServer();
             } catch (final MPDConnectionException e) {
                 if (!mCallableCommand.mCommand.equals(MPDCommand.MPD_CMD_CLOSE)) {
