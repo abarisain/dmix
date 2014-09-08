@@ -27,9 +27,6 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.R;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -107,9 +104,7 @@ public class Artist extends Item implements Parcelable {
      * text for display Item.toString() returns mainText()
      */
     public String mainText() {
-        return (name.isEmpty() ?
-                MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_artist) :
-                name);
+        return name;
     }
 
     @Override

@@ -27,9 +27,6 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.R;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -80,9 +77,7 @@ public class Genre extends Item implements Parcelable {
      */
     @Override
     public String mainText() {
-        return (name.isEmpty() ?
-                MPD.getApplicationContext().getString(R.string.jmpdcomm_unknown_genre) :
-                name);
+        return name;
     }
 
     public String sort() {

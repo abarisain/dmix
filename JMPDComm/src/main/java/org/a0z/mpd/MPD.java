@@ -38,7 +38,6 @@ import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.net.InetAddress;
@@ -76,16 +75,6 @@ public class MPD {
     protected static boolean showArtistAlbumCount = false;
 
     protected static boolean showAlbumTrackCount = true;
-
-    protected static Context applicationContext = null;
-
-    public static Context getApplicationContext() {
-        return applicationContext;
-    }
-
-    public static void setApplicationContext(Context context) {
-        applicationContext = context;
-    }
 
     public static void setShowAlbumTrackCount(boolean v) {
         showAlbumTrackCount = v;

@@ -30,7 +30,6 @@ package org.a0z.mpd;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 
-import static android.text.TextUtils.isEmpty;
 import static org.a0z.mpd.StringsUtils.getHashFromString;
 
 public class AlbumInfo {
@@ -123,7 +122,9 @@ public class AlbumInfo {
     }
 
     public boolean isValid() {
-        return !isEmpty(artist) && !isEmpty(album);
+        final boolean isArtistEmpty = artist == null || artist.isEmpty();
+        final boolean isAlbumEmpty = album == null || album.isEmpty();
+        return !isAlbumEmpty && !isArtistEmpty;
     }
 
     public void setAlbum(String album) {

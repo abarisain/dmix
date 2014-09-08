@@ -17,6 +17,10 @@
 package com.namelessdev.mpdroid.tools;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -163,6 +167,31 @@ public final class Tools {
             return null;
         }
     }
+
+    public static String getMainText(final Artist artist) {
+        final String result;
+
+        if (artist.isUnknown()) {
+            result = app.getResources().getString(R.string.unknown_metadata_artist);
+        } else {
+            result = artist.mainText();
+        }
+
+        return result;
+    }
+
+    public static String getMainText(final Album album) {
+        final String result;
+
+        if (album.isUnknown()) {
+            result = app.getResources().getString(R.string.unknown_metadata_album);
+        } else {
+            result = album.mainText();
+        }
+
+        return result;
+    }
+
 
     public static boolean isServerLocalhost() {
         return "127.0.0.1".equals(app.oMPDAsyncHelper.getConnectionSettings().server);

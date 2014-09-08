@@ -413,8 +413,6 @@ public class MPDApplication extends Application implements
         // Don't worry FOSS guys, crashlytics is not included in the "foss" flavour
         CrashlyticsWrapper.start(this);
 
-        MPD.setApplicationContext(this);
-
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         final StrictMode.VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();

@@ -178,11 +178,15 @@ public class SongsFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        if (album != null) {
-            return album.mainText();
+        final String result;
+
+        if (album == null) {
+            result = getString(R.string.songs);
         } else {
-            return getString(R.string.songs);
+            result = Tools.getMainText(album);
         }
+
+        return result;
     }
 
     private String getTotalTimeForTrackList() {
@@ -402,8 +406,8 @@ public class SongsFragment extends BrowseFragment {
             AlbumInfo fixedAlbumInfo;
             fixedAlbumInfo = getFixedAlbumInfo();
             String artist = fixedAlbumInfo.getArtist();
-            if ("".equals(artist)) {
-                headerArtist.setText(R.string.jmpdcomm_unknown_artist);
+            if (artist.isEmpty()) {
+                headerArtist.setText(R.string.unknown_metadata_artist);
             } else {
                 headerArtist.setText(artist);
             }

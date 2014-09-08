@@ -16,10 +16,6 @@
 
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.view.View;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
@@ -27,6 +23,10 @@ import com.namelessdev.mpdroid.views.holders.SongViewHolder;
 
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
+
+import android.content.Context;
+import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -79,8 +79,8 @@ public class SongDataBinder implements ArrayDataBinder {
 
         if (showArtist) {
             String a = song.getArtist();
-            if (a == null || a.equals("")) {
-                a = context.getString(R.string.jmpdcomm_unknown_artist);
+            if (a == null || a.isEmpty()) {
+                a = context.getString(R.string.unknown_metadata_artist);
             }
             holder.trackArtist.setText(a);
         }

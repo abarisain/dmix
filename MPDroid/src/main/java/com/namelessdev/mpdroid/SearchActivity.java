@@ -23,10 +23,10 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
+import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Music;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -97,10 +97,10 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     public static final int PLAYLIST = 3;
     public static final int ADD = 0;
-    public static final int ADDNREPLACE = 1;
-    public static final int ADDNREPLACEPLAY = 3;
+    public static final int ADD_REPLACE = 1;
+    public static final int ADD_REPLACE_PLAY = 3;
 
-    public static final int ADDNPLAY = 2;
+    public static final int ADD_PLAY = 2;
     private ArrayList<Artist> arrayArtistsResults;
     private ArrayList<Album> arrayAlbumsResults;
 
@@ -255,17 +255,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         });
     }
 
-    private String getItemName(Object o) {
-        if (o instanceof Music) {
-            return ((Music) o).getTitle();
-        } else if (o instanceof Artist) {
-            return ((Artist) o).mainText();
-        } else if (o instanceof Album) {
-            return ((Album) o).mainText();
-        }
-        return "";
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -350,35 +339,41 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        ArrayList<?> targetArray;
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+            final ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        final MenuItem addItem = menu.add(Menu.NONE, ADD, 0, getString(addString));
+        final MenuItem addAndReplaceItem = menu.add(Menu.NONE, ADD_REPLACE, 0,
+                R.string.addAndReplace);
+        final MenuItem addReplacePlayItem = menu.add(Menu.NONE, ADD_REPLACE_PLAY,
+                0, R.string.addAndReplacePlay);
+        final MenuItem addAndPlayItem = menu.add(Menu.NONE, ADD_PLAY, 0, R.string.addAndPlay);
+
         switch (pager.getCurrentItem()) {
-            default:
             case 0:
-                targetArray = arrayArtistsResults;
+                final Artist artist = arrayArtistsResults.get((int) info.id);
+                menu.setHeaderTitle(Tools.getMainText(artist));
+                setContextForObject(artist);
                 break;
             case 1:
-                targetArray = arrayAlbumsResults;
+                final Album album = arrayAlbumsResults.get((int) info.id);
+                menu.setHeaderTitle(Tools.getMainText(album));
+                setContextForObject(album);
                 break;
             case 2:
-                targetArray = arraySongsResults;
+                final Music music = arraySongsResults.get((int) info.id);
+                menu.setHeaderTitle(music.mainText());
+                setContextForObject(music);
+                break;
+            default:
                 break;
         }
-        final Object item = targetArray.get((int) info.id);
-        menu.setHeaderTitle(getItemName(item));
-        setContextForObject(item);
-        android.view.MenuItem addItem = menu.add(ContextMenu.NONE, ADD, 0, getResources()
-                .getString(addString));
+
         addItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0,
-                R.string.addAndReplace);
         addAndReplaceItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem addAndReplacePlayItem = menu.add(ContextMenu.NONE, ADDNREPLACEPLAY,
-                0, R.string.addAndReplacePlay);
-        addAndReplacePlayItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem addAndPlayItem = menu.add(ContextMenu.NONE, ADDNPLAY, 0,
-                R.string.addAndPlay);
+        addReplacePlayItem.setOnMenuItemClickListener(this);
         addAndPlayItem.setOnMenuItemClickListener(this);
     }
 
@@ -427,14 +422,14 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 boolean replace = false;
                 boolean play = false;
                 switch (item.getItemId()) {
-                    case ADDNREPLACEPLAY:
+                    case ADD_REPLACE_PLAY:
                         replace = true;
                         play = true;
                         break;
-                    case ADDNREPLACE:
+                    case ADD_REPLACE:
                         replace = true;
                         break;
-                    case ADDNPLAY:
+                    case ADD_PLAY:
                         play = true;
                         break;
                 }
