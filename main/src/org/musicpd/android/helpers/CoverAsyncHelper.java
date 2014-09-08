@@ -320,6 +320,8 @@ public class CoverAsyncHelper extends Handler {
 			return null;
 		} catch (IOException e) {
 			return null;
+		} catch (Exception e) {
+			return null;
 		}
 	}
 

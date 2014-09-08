@@ -62,7 +62,8 @@ public class ArrayIndexerAdapter extends ArrayAdapter<Item> implements SectionIn
 		int size = items.size();
 		for (int i = size - 1; i >= 0; i--) {
 			Item element = items.get(i);
-			alphaIndexer.put(element.sort().substring(0, 1).toUpperCase(), i);
+			if (element != null)
+				alphaIndexer.put(element.sort().substring(0, 1).toUpperCase(), i);
 		//We store the first letter of the word, and its index.
 		//The Hashmap will replace the value for identical keys are putted in
 		} 

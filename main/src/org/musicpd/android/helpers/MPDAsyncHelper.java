@@ -161,6 +161,8 @@ public class MPDAsyncHelper extends Handler {
 		}
 		} catch(ClassCastException e) {
 			// happens when unknown message type is received
+		} catch(Exception e) {
+			// happens unexpectedly
 		}
 	}
 
