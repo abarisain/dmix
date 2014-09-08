@@ -1,6 +1,6 @@
 language: scala
 scala:
-  - 2.10.2
+  - 2.11.2
 
 before_install:
   - wget "$(wget http://developer.android.com/sdk/index.html -O-|grep -o 'http://[^"]*-linux[.][^"]*')" -O- | tar zx
