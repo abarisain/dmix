@@ -37,6 +37,8 @@ class CommandResult {
 
     private MPDServerException mLastException = null;
 
+    private String mConnectionResult;
+
     private List<String> mResult = null;
 
     final MPDServerException getLastException() {
@@ -47,10 +49,18 @@ class CommandResult {
         mLastException = lastException;
     }
 
+    final String getConnectionResult() {
+        return mConnectionResult;
+    }
+
     final List<String> getResult() {
         /** No need, we already made the collection immutable on the way in. */
         //noinspection ReturnOfCollectionOrArrayField
         return mResult;
+    }
+
+    final void setConnectionResult(final String result) {
+        mConnectionResult = result;
     }
 
     final void setResult(final List<String> result) {

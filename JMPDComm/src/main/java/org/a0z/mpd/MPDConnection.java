@@ -112,11 +112,12 @@ abstract class MPDConnection {
     final void connect() throws MPDServerException {
         String result = null;
         int retry = 0;
+        final MPDCommand mpdCommand = new MPDCommand(MPDCommand.MPD_CMD_PING);
         MPDServerException lastException = null;
 
         while (result == null && retry < MAX_CONNECT_RETRY && !mCancelled) {
             try {
-                result = innerConnect();
+                result = processRequest(mpdCommand).getConnectionResult();
             } catch (final MPDServerException e) {
                 lastException = e;
                 try {
@@ -182,53 +183,6 @@ abstract class MPDConnection {
 
     protected abstract void setSocket(Socket socket);
 
-    private String innerConnect() throws MPDServerException {
-        final String line;
-
-        // Always release existing socket if any before creating a new one
-        if (getSocket() != null) {
-            try {
-                innerDisconnect();
-            } catch (final MPDServerException ignored) {
-            }
-        }
-
-        try {
-            setSocket(new Socket());
-            getSocket().setSoTimeout(mReadWriteTimeout);
-            getSocket().connect(new InetSocketAddress(mHostAddress, mHostPort), CONNECTION_TIMEOUT);
-            setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
-            final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
-            line = in.readLine();
-        } catch (final IOException e) {
-            throw new MPDConnectionException(e);
-        }
-
-        if (line == null) {
-            throw new MPDServerException("No response from server.");
-        }
-
-        if (line.startsWith(MPD_RESPONSE_ERR)) {
-            throw new MPDServerException(line);
-        }
-
-        if (!line.startsWith(MPD_RESPONSE_OK)) {
-            throw new MPDServerException("Bogus response from server.");
-        }
-
-        try {
-            setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
-        } catch (final IOException e) {
-            throw new MPDConnectionException(e);
-        }
-
-        if (mPassword != null) {
-            sendCommand(MPDCommand.MPD_CMD_PASSWORD, mPassword);
-        }
-
-        return line;
-    }
-
     private void innerDisconnect() throws MPDConnectionException {
         mIsConnected = false;
         if (isInnerConnected()) {
@@ -261,7 +215,7 @@ abstract class MPDConnection {
         return mIsConnected;
     }
 
-    private List<String> processRequest(final MPDCommand command) throws MPDServerException {
+    private CommandResult processRequest(final MPDCommand command) throws MPDServerException {
         final CommandResult result;
         final List<String> commandResult;
 
@@ -288,11 +242,11 @@ abstract class MPDConnection {
             throw result.getLastException();
         }
 
-        return commandResult;
+        return result;
     }
 
     List<String> sendAsyncCommand(final MPDCommand command) throws MPDServerException {
-        return syncedWriteAsyncRead(command);
+        return syncedWriteAsyncRead(command).getResult();
     }
 
     List<String> sendAsyncCommand(final String command, final String... args)
@@ -310,15 +264,15 @@ abstract class MPDConnection {
     }
 
     private List<String> sendRawCommand(final MPDCommand command) throws MPDServerException {
-        return syncedWriteRead(command);
+        return syncedWriteRead(command).getResult();
     }
 
-    private List<String> syncedWriteAsyncRead(final MPDCommand command) throws MPDServerException {
+    private CommandResult syncedWriteAsyncRead(final MPDCommand command) throws MPDServerException {
         command.setSynchronous(false);
         return processRequest(command);
     }
 
-    private List<String> syncedWriteRead(final MPDCommand command) throws MPDServerException {
+    private CommandResult syncedWriteRead(final MPDCommand command) throws MPDServerException {
         command.setSynchronous(true);
         return processRequest(command);
     }
@@ -341,8 +295,9 @@ abstract class MPDConnection {
             while (result.getResult() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
                 try {
                     if (!isInnerConnected()) {
-                        innerConnect();
+                        result.setConnectionResult(innerConnect());
                     }
+
                     if (mCallableCommand.isSynchronous()) {
                         result.setResult(innerSyncedWriteRead());
                     } else {
@@ -405,6 +360,54 @@ abstract class MPDConnection {
             } catch (final MPDServerException e) {
                 result.setLastException(e);
             }
+        }
+
+        private String innerConnect() throws MPDServerException {
+            final String line;
+
+            // Always release existing socket if any before creating a new one
+            if (getSocket() != null) {
+                try {
+                    innerDisconnect();
+                } catch (final MPDServerException ignored) {
+                }
+            }
+
+            try {
+                setSocket(new Socket());
+                getSocket().setSoTimeout(mReadWriteTimeout);
+                getSocket().connect(new InetSocketAddress(mHostAddress, mHostPort),
+                        CONNECTION_TIMEOUT);
+                setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
+                final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
+                line = in.readLine();
+            } catch (final IOException e) {
+                throw new MPDConnectionException(e);
+            }
+
+            if (line == null) {
+                throw new MPDServerException("No response from server.");
+            }
+
+            if (line.startsWith(MPD_RESPONSE_ERR)) {
+                throw new MPDServerException(line);
+            }
+
+            if (!line.startsWith(MPD_RESPONSE_OK)) {
+                throw new MPDServerException("Bogus response from server.");
+            }
+
+            try {
+                setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
+            } catch (final IOException e) {
+                throw new MPDConnectionException(e);
+            }
+
+            if (mPassword != null) {
+                sendCommand(MPDCommand.MPD_CMD_PASSWORD, mPassword);
+            }
+
+            return line;
         }
 
         private List<String> innerSyncedWriteAsyncRead() throws MPDServerException {
