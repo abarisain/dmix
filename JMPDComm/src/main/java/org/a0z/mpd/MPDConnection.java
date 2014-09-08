@@ -133,7 +133,7 @@ abstract class MPDConnection {
             if (lastException == null) {
                 throw new MPDServerException("Connection request cancelled.");
             } else {
-                throw new MPDServerException(lastException);
+                throw lastException;
             }
         }
 
