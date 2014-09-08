@@ -69,6 +69,8 @@ public class MPDCommand {
 
     public static final String MPD_CMD_PASSWORD = "password";
 
+    public static final String MPD_CMD_PERMISSION = "permission";
+
     public static final String MPD_CMD_PLAY = "play";
 
     public static final String MPD_CMD_PLAY_ID = "playid";

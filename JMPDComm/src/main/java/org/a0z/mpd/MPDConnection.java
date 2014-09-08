@@ -461,8 +461,7 @@ abstract class MPDConnection {
                     break;
                 }
                 if (line.startsWith(MPD_RESPONSE_ERR)) {
-
-                    if (line.contains("permission")) {
+                    if (line.contains(MPDCommand.MPD_CMD_PERMISSION)) {
                         throw new MPDConnectionException("MPD Permission failure : " + line);
                     } else {
                         throw new MPDServerException(line);
