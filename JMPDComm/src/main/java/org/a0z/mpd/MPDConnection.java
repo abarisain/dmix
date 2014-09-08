@@ -68,19 +68,15 @@ abstract class MPDConnection {
 
     private static final String MPD_RESPONSE_OK = "OK";
 
-    private static final int MAX_CONNECT_RETRY = 3;
-
     private static final int MAX_REQUEST_RETRY = 3;
 
     private static final Pattern PERIOD_DELIMITER = Pattern.compile("\\.");
 
     private final ThreadPoolExecutor mExecutor;
 
-    private final int mMaxThreads;
-
     private final int mReadWriteTimeout;
 
-    private final InetSocketAddress mSocketAddress;
+    private InetSocketAddress mSocketAddress;
 
     private boolean mCancelled = false;
 
@@ -90,49 +86,31 @@ abstract class MPDConnection {
 
     private String mPassword = null;
 
-    MPDConnection(final InetAddress server, final int port, final String password,
-            final int readWriteTimeout, final int maxConnections) {
+    MPDConnection(final int readWriteTimeout, final int maxConnections) {
         super();
+
         mReadWriteTimeout = readWriteTimeout;
-        mMaxThreads = maxConnections;
-        mExecutor = new ThreadPoolExecutor(1, mMaxThreads, (long) mReadWriteTimeout,
+        mExecutor = new ThreadPoolExecutor(1, maxConnections, (long) mReadWriteTimeout,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        mExecutor.prestartCoreThread();
+        if (maxConnections > 1) {
+            mExecutor.allowCoreThreadTimeOut(true);
+        }
+    }
+
+    final void connect(final InetAddress server, final int port, final String password)
+            throws MPDServerException {
+        innerDisconnect();
+
+        mCancelled = false;
         mPassword = password;
         mSocketAddress = new InetSocketAddress(server, port);
-    }
 
-    MPDConnection(final InetAddress server, final int port, final String password,
-            final int readWriteTimeout) {
-        this(server, port, password, readWriteTimeout, 1);
-    }
-
-    final void connect() throws MPDServerException {
-        String result = null;
-        int retry = 0;
         final MPDCommand mpdCommand = new MPDCommand(MPDCommand.MPD_CMD_PING);
-        MPDServerException lastException = null;
-
-        while (result == null && retry < MAX_CONNECT_RETRY && !mCancelled) {
-            try {
-                result = processRequest(mpdCommand).getConnectionResult();
-            } catch (final MPDServerException e) {
-                lastException = e;
-                try {
-                    Thread.sleep(500L);
-                } catch (final InterruptedException ignored) {
-                }
-            } catch (final RuntimeException e) {
-                lastException = new MPDServerException(e);
-            }
-            retry++;
-        }
+        final String result = processRequest(mpdCommand).getConnectionResult();
 
         if (result == null) {
-            if (lastException == null) {
-                throw new MPDServerException("Connection request cancelled.");
-            } else {
-                throw lastException;
-            }
+            throw new MPDServerException("Failed initial connection.");
         }
 
         mIsConnected = true;

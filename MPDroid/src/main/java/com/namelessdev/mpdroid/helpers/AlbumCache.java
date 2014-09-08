@@ -418,7 +418,7 @@ public class AlbumCache
             return false;
         }
 
-        if (mpd.isMpdConnectionNull()) {
+        if (!mpd.isConnected()) {
             Log.d(TAG, "no MPDConnection! ");
             return false;
         }

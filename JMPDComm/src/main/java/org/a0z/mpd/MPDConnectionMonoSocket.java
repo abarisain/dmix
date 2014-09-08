@@ -27,11 +27,8 @@
 
 package org.a0z.mpd;
 
-import org.a0z.mpd.exception.MPDServerException;
-
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 
 /**
@@ -45,11 +42,8 @@ class MPDConnectionMonoSocket extends MPDConnection {
 
     private OutputStreamWriter mOutputStream;
 
-    MPDConnectionMonoSocket(final InetAddress server, final int port, final String password,
-            final int readWriteTimeout) throws MPDServerException {
-        super(server, port, password, readWriteTimeout);
-        // connect right away and setup streams
-        connect();
+    MPDConnectionMonoSocket(final int readWriteTimeout) {
+        super(readWriteTimeout, 1);
     }
 
     @Override

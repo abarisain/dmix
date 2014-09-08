@@ -58,9 +58,9 @@ public class MPD {
 
     public static final String STREAMS_PLAYLIST = "[Radio Streams]";
 
-    private MPDConnection mpdConnection;
+    private final MPDConnection mpdConnection;
 
-    private MPDConnection mpdIdleConnection;
+    private final MPDConnection mpdIdleConnection;
 
     private MPDStatus mpdStatus;
 
@@ -108,6 +108,8 @@ public class MPD {
         this.playlist = new MPDPlaylist(this);
         this.mpdStatus = new MPDStatus();
         this.rootDirectory = Directory.makeRootDirectory(this);
+        mpdConnection = new MPDConnectionMultiSocket(5000, 2);
+        mpdIdleConnection = new MPDConnectionMonoSocket(0);
     }
 
     /**
@@ -413,8 +415,8 @@ public class MPD {
     public final synchronized void connect(InetAddress server, int port, String password)
             throws MPDServerException {
         if (!isConnected()) {
-            this.mpdConnection = new MPDConnectionMultiSocket(server, port, password, 5000, 2);
-            this.mpdIdleConnection = new MPDConnectionMonoSocket(server, port, password, 0);
+            mpdConnection.connect(server, port, password);
+            mpdIdleConnection.connect(server, port, password);
         }
     }
 
