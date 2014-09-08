@@ -252,16 +252,11 @@ abstract class MPDConnection {
     }
 
     List<String> sendCommand(final MPDCommand command) throws MPDServerException {
-        return sendRawCommand(command);
-    }
-
-    List<String> sendCommand(final String command, final String... args)
-            throws MPDServerException {
-        return sendCommand(new MPDCommand(command, args));
-    }
-
-    private List<String> sendRawCommand(final MPDCommand command) throws MPDServerException {
         return syncedWriteRead(command).getResult();
+    }
+
+    List<String> sendCommand(final String command, final String... args) throws MPDServerException {
+        return sendCommand(new MPDCommand(command, args));
     }
 
     private CommandResult syncedWriteAsyncRead(final MPDCommand command) throws MPDServerException {
