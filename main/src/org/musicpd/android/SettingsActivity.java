@@ -306,12 +306,15 @@ public class SettingsActivity extends PreferenceActivity implements
 		final MPDApplication app = (MPDApplication) getApplication();
 		try {
 			Collection<MPDOutput> list = app.oMPDAsyncHelper.oMPD.getOutputs();
-			java.util.List<String> slaves = app.oMPDAsyncHelper.oMPD.listStickers("global", "slaves");
-			for(int i = 0, N = slaves.size(); i < N; i++)
-			{
-				String[] is = slaves.get(i).split("=");
-				slaves.set(i, is.length == 3 && "on".equals(is[2])? is[0].substring(9) : "");
-			}
+			java.util.List<String> slaves = null;
+			try {
+				slaves = app.oMPDAsyncHelper.oMPD.listStickers("global", "slaves");
+				for(int i = 0, N = slaves.size(); i < N; i++)
+				{
+					String[] is = slaves.get(i).split("=");
+					slaves.set(i, is.length == 3 && "on".equals(is[2])? is[0].substring(9) : "");
+				}
+			} catch (Exception e) { }
 			
 			pOutput.removeAll();
 			for (MPDOutput out : list) {
@@ -326,6 +329,8 @@ public class SettingsActivity extends PreferenceActivity implements
 				cbPrefs.put(out.getId(), pref);
 				pOutput.addPreference(pref);
 				
+				if (slaves == null)
+					continue;
 				pref = new CheckBoxPreference(this);
 				pref.setPersistent(false);
 				pref.setTitle(out.getName() + " mimics");
