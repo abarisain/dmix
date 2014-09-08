@@ -185,8 +185,8 @@ abstract class MPDConnection {
             setSocket(new Socket());
             getSocket().setSoTimeout(mReadWriteTimeout);
             getSocket().connect(new InetSocketAddress(mHostAddress, mHostPort), CONNECTION_TIMEOUT);
-            final BufferedReader in = new BufferedReader(new InputStreamReader(getSocket()
-                    .getInputStream()), DEFAULT_BUFFER_SIZE);
+            setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
+            final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
             line = in.readLine();
         } catch (final IOException e) {
             throw new MPDConnectionException(e);
@@ -213,14 +213,7 @@ abstract class MPDConnection {
         }
 
         try {
-            // Use UTF-8 when needed
-            if (result[0] > 0 || result[1] >= 10) {
-                setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
-                setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
-            } else {
-                setOutputStream(new OutputStreamWriter(getSocket().getOutputStream()));
-                setInputStream(new InputStreamReader(getSocket().getInputStream()));
-            }
+            setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
         } catch (final IOException e) {
             throw new MPDConnectionException(e);
         }
