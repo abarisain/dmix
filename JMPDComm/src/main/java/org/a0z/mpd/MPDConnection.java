@@ -110,7 +110,7 @@ abstract class MPDConnection {
     }
 
     final void connect() throws MPDServerException {
-        int[] result = null;
+        String result = null;
         int retry = 0;
         MPDServerException lastException = null;
 
@@ -136,8 +136,9 @@ abstract class MPDConnection {
                 throw new MPDServerException(lastException);
             }
         }
+
         mIsConnected = true;
-        mMPDVersion = result;
+        setMPDVersion(result);
     }
 
     void disconnect() throws MPDConnectionException {
@@ -161,6 +162,18 @@ abstract class MPDConnection {
         return mMPDVersion.clone();
     }
 
+    private void setMPDVersion(final String response) {
+        final String formatResponse = response.substring((MPD_RESPONSE_OK + " MPD ").length());
+        final String[] tmp = PERIOD_DELIMITER.split(formatResponse);
+        final int[] version = new int[tmp.length];
+
+        for (int i = 0; i < tmp.length; i++) {
+            version[i] = Integer.parseInt(tmp[i]);
+        }
+
+        mMPDVersion = version;
+    }
+
     protected abstract OutputStreamWriter getOutputStream();
 
     protected abstract void setOutputStream(OutputStreamWriter outputStream);
@@ -169,8 +182,7 @@ abstract class MPDConnection {
 
     protected abstract void setSocket(Socket socket);
 
-    private int[] innerConnect() throws MPDServerException {
-        final int[] result;
+    private String innerConnect() throws MPDServerException {
         final String line;
 
         // Always release existing socket if any before creating a new one
@@ -204,14 +216,6 @@ abstract class MPDConnection {
             throw new MPDServerException("Bogus response from server.");
         }
 
-        final String response = line.substring((MPD_RESPONSE_OK + " MPD ").length());
-        final String[] tmp = PERIOD_DELIMITER.split(response);
-        result = new int[tmp.length];
-
-        for (int i = 0; i < tmp.length; i++) {
-            result[i] = Integer.parseInt(tmp[i]);
-        }
-
         try {
             setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
         } catch (final IOException e) {
@@ -222,7 +226,7 @@ abstract class MPDConnection {
             sendCommand(MPDCommand.MPD_CMD_PASSWORD, mPassword);
         }
 
-        return result;
+        return line;
     }
 
     private void innerDisconnect() throws MPDConnectionException {
