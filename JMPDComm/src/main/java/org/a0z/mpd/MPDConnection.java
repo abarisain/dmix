@@ -76,13 +76,11 @@ abstract class MPDConnection {
 
     private final ThreadPoolExecutor mExecutor;
 
-    private final InetAddress mHostAddress;
-
-    private final int mHostPort;
-
     private final int mMaxThreads;
 
     private final int mReadWriteTimeout;
+
+    private final InetSocketAddress mSocketAddress;
 
     private boolean mCancelled = false;
 
@@ -96,12 +94,11 @@ abstract class MPDConnection {
             final int readWriteTimeout, final int maxConnections) {
         super();
         mReadWriteTimeout = readWriteTimeout;
-        mHostPort = port;
-        mHostAddress = server;
         mMaxThreads = maxConnections;
         mExecutor = new ThreadPoolExecutor(1, mMaxThreads, (long) mReadWriteTimeout,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mPassword = password;
+        mSocketAddress = new InetSocketAddress(server, port);
     }
 
     MPDConnection(final InetAddress server, final int port, final String password,
@@ -148,11 +145,11 @@ abstract class MPDConnection {
     }
 
     InetAddress getHostAddress() {
-        return mHostAddress;
+        return mSocketAddress.getAddress();
     }
 
     int getHostPort() {
-        return mHostPort;
+        return mSocketAddress.getPort();
     }
 
     protected abstract InputStreamReader getInputStream();
@@ -376,8 +373,7 @@ abstract class MPDConnection {
             try {
                 setSocket(new Socket());
                 getSocket().setSoTimeout(mReadWriteTimeout);
-                getSocket().connect(new InetSocketAddress(mHostAddress, mHostPort),
-                        CONNECTION_TIMEOUT);
+                getSocket().connect(mSocketAddress, CONNECTION_TIMEOUT);
                 setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
                 final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
                 line = in.readLine();
