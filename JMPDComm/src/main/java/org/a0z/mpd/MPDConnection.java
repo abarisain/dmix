@@ -330,6 +330,7 @@ abstract class MPDConnection {
                 getSocket().connect(mSocketAddress, CONNECTION_TIMEOUT);
                 setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
                 final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
+                setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
                 line = in.readLine();
             } catch (final IOException e) {
                 throw new MPDConnectionException(e);
@@ -345,12 +346,6 @@ abstract class MPDConnection {
 
             if (!line.startsWith(MPD_RESPONSE_OK)) {
                 throw new MPDServerException("Bogus response from server.");
-            }
-
-            try {
-                setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
-            } catch (final IOException e) {
-                throw new MPDConnectionException(e);
             }
 
             if (mPassword != null) {
