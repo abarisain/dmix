@@ -40,7 +40,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -220,15 +219,6 @@ abstract class MPDConnection {
         return result;
     }
 
-    List<String> sendAsyncCommand(final MPDCommand command) throws MPDServerException {
-        return syncedWriteAsyncRead(command).getResult();
-    }
-
-    List<String> sendAsyncCommand(final String command, final String... args)
-            throws MPDServerException {
-        return sendAsyncCommand(new MPDCommand(command, args));
-    }
-
     List<String> sendCommand(final MPDCommand command) throws MPDServerException {
         return syncedWriteRead(command).getResult();
     }
@@ -237,13 +227,7 @@ abstract class MPDConnection {
         return sendCommand(new MPDCommand(command, args));
     }
 
-    private CommandResult syncedWriteAsyncRead(final MPDCommand command) throws MPDServerException {
-        command.setSynchronous(false);
-        return processRequest(command);
-    }
-
     private CommandResult syncedWriteRead(final MPDCommand command) throws MPDServerException {
-        command.setSynchronous(true);
         return processRequest(command);
     }
 
@@ -268,11 +252,7 @@ abstract class MPDConnection {
                         result.setConnectionResult(innerConnect());
                     }
 
-                    if (mCallableCommand.isSynchronous()) {
-                        result.setResult(innerSyncedWriteRead());
-                    } else {
-                        result.setResult(innerSyncedWriteAsyncRead());
-                    }
+                    result.setResult(innerSyncedWriteRead());
                 } catch (final MPDNoResponseException ex0) {
                     mIsConnected = false;
                     mCallableCommand.setSentToServer(false);
@@ -378,24 +358,6 @@ abstract class MPDConnection {
             }
 
             return line;
-        }
-
-        private List<String> innerSyncedWriteAsyncRead() throws MPDServerException {
-            List<String> result;
-
-            while (true) {
-                try {
-                    writeToServer();
-                    result = readFromServer();
-                    break;
-                } catch (final SocketTimeoutException e) {
-                    Log.w(TAG, "Socket timeout while reading server response.", e);
-                } catch (final IOException e) {
-                    throw new MPDConnectionException(e);
-                }
-            }
-
-            return result;
         }
 
         private List<String> innerSyncedWriteRead() throws MPDServerException {

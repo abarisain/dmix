@@ -164,19 +164,10 @@ public class MPDCommand {
 
     private boolean mSentToServer = false;
 
-    private boolean mSynchronous = true;
-
     public MPDCommand(final String command, final String... args) {
         super();
         mCommand = command;
         mArgs = args.clone();
-    }
-
-    public MPDCommand(final String command, final String[] args, final boolean synchronous) {
-        super();
-        mCommand = command;
-        mArgs = args.clone();
-        mSynchronous = synchronous;
     }
 
     public static boolean isRetryable(final String command) {
@@ -189,14 +180,6 @@ public class MPDCommand {
 
     public void setSentToServer(final boolean sentToServer) {
         mSentToServer = sentToServer;
-    }
-
-    public boolean isSynchronous() {
-        return mSynchronous;
-    }
-
-    public void setSynchronous(final boolean synchronous) {
-        mSynchronous = synchronous;
     }
 
     public String toString() {
