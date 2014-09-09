@@ -158,11 +158,9 @@ public class MPDCommand {
 
     private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
 
-    String mCommand = null;
+    final String mCommand;
 
-    String[] mArgs = null;
-
-    private boolean mSentToServer = false;
+    private final String[] mArgs;
 
     public MPDCommand(final String command, final String... args) {
         super();
@@ -172,14 +170,6 @@ public class MPDCommand {
 
     public static boolean isRetryable(final String command) {
         return !NON_RETRYABLE_COMMANDS.contains(command);
-    }
-
-    public boolean isSentToServer() {
-        return mSentToServer;
-    }
-
-    public void setSentToServer(final boolean sentToServer) {
-        mSentToServer = sentToServer;
     }
 
     public String toString() {

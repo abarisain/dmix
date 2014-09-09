@@ -235,6 +235,8 @@ abstract class MPDConnection {
 
         private final MPDCommand mCallableCommand;
 
+        private boolean mIsCommandSent;
+
         MPDCallable(final MPDCommand mpdCommand) {
             super();
 
@@ -255,7 +257,7 @@ abstract class MPDConnection {
                     result.setResult(innerSyncedWriteRead());
                 } catch (final MPDNoResponseException ex0) {
                     mIsConnected = false;
-                    mCallableCommand.setSentToServer(false);
+                    mIsCommandSent = false;
                     handleConnectionFailure(result, ex0);
                     // Do not fail when the IDLE response has not been read (to improve connection
                     // failure robustness). Just send the "changed playlist" result to force the MPD
@@ -276,7 +278,7 @@ abstract class MPDConnection {
 
                 /** On successful send of non-retryable command, break out. */
                 if (!MPDCommand.isRetryable(mCallableCommand.mCommand) &&
-                        mCallableCommand.isSentToServer()) {
+                        mIsCommandSent) {
                     break;
                 }
 
@@ -408,7 +410,7 @@ abstract class MPDConnection {
             //Log.v(TAG, "Sending MPDCommand : " + cmdString);
             getOutputStream().write(cmdString);
             getOutputStream().flush();
-            mCallableCommand.setSentToServer(true);
+            mIsCommandSent = true;
         }
     }
 }
