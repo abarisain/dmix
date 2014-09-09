@@ -57,7 +57,6 @@ final class MusicList {
     }
 
     /**
-<<<<<<< HEAD
      * Constructs a new {@code MusicList} containing all music from
      * {@code list}.
      *
@@ -74,7 +73,7 @@ final class MusicList {
      *
      * @param music music to be added.
      */
-    final void add(final Music music) {
+    void add(final Music music) {
         if (getById(music.getSongId()) != null) {
             throw new IllegalArgumentException("Music is already on list");
         }
@@ -96,12 +95,12 @@ final class MusicList {
      * @throws ClassCastException when {@code playlist} contains elements
      *                            not assignable to {@code Music}.
      */
-    final void addAll(final Collection<Music> playlist) {
+    void addAll(final Collection<Music> playlist) {
         mList.addAll(playlist);
     }
 
     /** Removes all {@code Music} objects from this {@code MusicList}. */
-    final void clear() {
+    void clear() {
         synchronized (mList) {
             mList.clear();
             mSongIDMap.clear();
@@ -115,7 +114,7 @@ final class MusicList {
      * @return a Music with given songId or {@code null} if it is not
      * present on this {@code MusicList}.
      */
-    final Music getById(final int songId) {
+    Music getById(final int songId) {
         return mSongIDMap.get(Integer.valueOf(songId));
     }
 
@@ -126,7 +125,7 @@ final class MusicList {
      * @return a Music with given position or {@code null} if it is not
      * present on this {@code MusicList}.
      */
-    final Music getByIndex(final int index) {
+    Music getByIndex(final int index) {
         Music result = null;
 
         if (index >= 0 && mList.size() > index) {
@@ -141,7 +140,7 @@ final class MusicList {
      *
      * @return Retrieves a List containing all {@code Music} objects from this {@code MusicList}.
      */
-    final List<Music> getMusic() {
+    List<Music> getMusic() {
         return Collections.unmodifiableList(mList);
     }
 
@@ -152,7 +151,7 @@ final class MusicList {
      *
      * @param music {@code Music} to be added or moved.
      */
-    final void manipulate(final Music music) {
+    void manipulate(final Music music) {
         final int songId = music.getSongId();
         final Integer songIdInteger = Integer.valueOf(songId);
         final int songPos = music.getPos();
@@ -180,7 +179,7 @@ final class MusicList {
      * @param songId songId of the {@code Music} to be removed from this
      *               {@code MusicList}.
      */
-    final void removeById(final int songId) {
+    void removeById(final int songId) {
         final Music music = getById(songId);
 
         synchronized (mList) {
@@ -198,7 +197,7 @@ final class MusicList {
      * @param index position of the {@code Music} to be removed from this
      *              {@code MusicList}.
      */
-    final void removeByIndex(final int index) {
+    void removeByIndex(final int index) {
         synchronized (mList) {
             final Music music = getByIndex(index);
 
@@ -215,7 +214,7 @@ final class MusicList {
      * @param start The position with which to start removing.
      * @param end   The final position to remove from the list.
      */
-    final void removeByRange(final int start, final int end) {
+    void removeByRange(final int start, final int end) {
         if (start < -1 || start > mList.size()) {
             throw new IndexOutOfBoundsException("Attempted invalid start range value: " + start +
                     ", list size: " + mList.size() + '.');
@@ -240,7 +239,7 @@ final class MusicList {
      *
      * @param collection The {@code Music} collection to replace the {@code MusicList} with.
      */
-    final void replace(final Collection<Music> collection) {
+    void replace(final Collection<Music> collection) {
         synchronized (mList) {
             clear();
             mList.addAll(collection);
@@ -256,7 +255,7 @@ final class MusicList {
      *
      * @return {@code MusicList} size.
      */
-    final int size() {
+    int size() {
         return mList.size();
     }
 }
