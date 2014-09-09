@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd "$(git rev-parse --show-toplevel)"/icons
+inkscape -C -e icon_store.png -w 512 -h 512 icon.svg
+for x in m:48 h:72 xh:96 xxh:144 xxxh:192; do
+ inkscape -C -e ../main/res/drawable-${x%:*}dpi/icon.png -w ${x#*:} -h ${x#*:} icon.svg
+done
