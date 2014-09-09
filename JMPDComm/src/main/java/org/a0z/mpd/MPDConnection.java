@@ -158,6 +158,10 @@ abstract class MPDConnection {
 
     protected abstract void setSocket(Socket socket);
 
+    boolean isConnected() {
+        return mIsConnected;
+    }
+
     private void innerDisconnect() throws MPDConnectionException {
         mIsConnected = false;
         if (isInnerConnected()) {
@@ -184,10 +188,6 @@ abstract class MPDConnection {
         }
 
         return result;
-    }
-
-    boolean isConnected() {
-        return mIsConnected;
     }
 
     private CommandResult processRequest(final MPDCommand command) throws MPDServerException {
@@ -273,15 +273,16 @@ abstract class MPDConnection {
                     } else {
                         result.setResult(innerSyncedWriteAsyncRead());
                     }
-                    // Do not fail when the IDLE response has not been read (to improve connection
-                    // failure robustness). Just send the "changed playlist" result to force the MPD
-                    // status to be refreshed.
                 } catch (final MPDNoResponseException ex0) {
                     mIsConnected = false;
                     mCallableCommand.setSentToServer(false);
                     handleConnectionFailure(result, ex0);
+                    // Do not fail when the IDLE response has not been read (to improve connection
+                    // failure robustness). Just send the "changed playlist" result to force the MPD
+                    // status to be refreshed.
                     if (MPDCommand.MPD_CMD_IDLE.equals(mCallableCommand.mCommand)) {
-                        result.setResult(Collections.singletonList("changed: playlist"));
+                        result.setResult(Collections.singletonList(
+                                "changed: " + MPDStatusMonitor.IDLE_PLAYLIST));
                     }
                 } catch (final MPDServerException ex1) {
                     mIsConnected = false;
