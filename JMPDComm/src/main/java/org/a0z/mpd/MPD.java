@@ -105,11 +105,12 @@ public class MPD {
      * Constructs a new MPD server controller without connection.
      */
     public MPD() {
-        this.playlist = new MPDPlaylist(this);
-        this.mpdStatus = new MPDStatus();
-        this.rootDirectory = Directory.makeRootDirectory(this);
         mpdConnection = new MPDConnectionMultiSocket(5000, 2);
         mpdIdleConnection = new MPDConnectionMonoSocket(0);
+
+        this.playlist = new MPDPlaylist(mpdConnection);
+        this.mpdStatus = new MPDStatus();
+        this.rootDirectory = Directory.makeRootDirectory(this);
     }
 
     /**
@@ -788,15 +789,6 @@ public class MPD {
             Collections.sort(genres);
         }
         return genres;
-    }
-
-    /**
-     * Retrieves {@code MPDConnection}.
-     *
-     * @return {@code MPDConnection}.
-     */
-    MPDConnection getMpdConnection() {
-        return this.mpdConnection;
     }
 
     MPDConnection getMpdIdleConnection() {

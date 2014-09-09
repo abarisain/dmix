@@ -73,7 +73,7 @@ public class MPDPlaylist {
 
     private static final boolean DEBUG = false;
 
-    private final MPD mMPD;
+    private final MPDConnection mConnection;
 
     private final MusicList mList;
 
@@ -82,11 +82,11 @@ public class MPDPlaylist {
     /**
      * Creates a new playlist.
      */
-    MPDPlaylist(final MPD mpd) {
+    MPDPlaylist(final MPDConnection mpdConnection) {
         super();
-        mMPD = mpd;
 
         mList = new MusicList();
+        mConnection = mpdConnection;
     }
 
     static MPDCommand addCommand(final String fullPath) {
@@ -145,7 +145,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void add(final FilesystemTreeEntry entry) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(addCommand(entry.getFullpath()));
+        mConnection.sendCommand(addCommand(entry.getFullpath()));
     }
 
     /**
@@ -154,7 +154,7 @@ public class MPDPlaylist {
      * @param url stream URL
      */
     public void addStream(final String url) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_ADD, url);
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_ADD, url);
     }
 
     /**
@@ -166,17 +166,7 @@ public class MPDPlaylist {
      * @see Music
      */
     public void addAll(final Iterable<Music> collection) throws MPDServerException {
-        addAllCommand(collection).send(mMPD.getMpdConnection());
-    }
-
-    /**
-     * Remove all songs except for the currently playing.
-     *
-     * @throws MPDServerException    Thrown upon server error.
-     * @throws IllegalStateException If not playing.
-     */
-    public void crop() throws MPDServerException {
-        cropCommand(mMPD).send(mMPD.getMpdConnection());
+        addAllCommand(collection).send(mConnection);
     }
 
     /**
@@ -185,7 +175,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void clear() throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(clearCommand());
+        mConnection.sendCommand(clearCommand());
     }
 
     /**
@@ -216,7 +206,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void load(final String file) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(loadCommand(file));
+        mConnection.sendCommand(loadCommand(file));
     }
 
     /**
@@ -227,7 +217,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void move(final int songId, final int to) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(songId),
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(songId),
                 Integer.toString(to));
     }
 
@@ -240,7 +230,7 @@ public class MPDPlaylist {
      * @see #move(int, int)
      */
     public void moveByPosition(final int from, final int to) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_MOVE, Integer.toString(from),
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_MOVE, Integer.toString(from),
                 Integer.toString(to));
     }
 
@@ -260,7 +250,7 @@ public class MPDPlaylist {
             final String beginRange = Integer.toString(start);
             final String endRange = Integer.toString(start + number);
             final String target = Integer.toString(to);
-            mMPD.getMpdConnection()
+            mConnection
                     .sendCommand(MPD_CMD_PLAYLIST_MOVE, beginRange + ':' + endRange, target);
         }
     }
@@ -278,14 +268,14 @@ public class MPDPlaylist {
             final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
 
             if (mLastPlaylistVersion == -1 || mList.size() == 0) {
-                final List<String> response = mMPD.getMpdConnection()
+                final List<String> response = mConnection
                         .sendCommand(MPD_CMD_PLAYLIST_LIST);
                 final List<Music> playlist = Music.getMusicFromList(response, false);
 
                 mList.replace(playlist);
             } else if (mLastPlaylistVersion != newPlaylistVersion) {
                 final List<String> response =
-                        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_CHANGES,
+                        mConnection.sendCommand(MPD_CMD_PLAYLIST_CHANGES,
                                 Integer.toString(mLastPlaylistVersion));
                 final List<Music> changes = Music.getMusicFromList(response, false);
 
@@ -353,7 +343,7 @@ public class MPDPlaylist {
                 }
             }
 
-            commandQueue.send(mMPD.getMpdConnection());
+            commandQueue.send(mConnection);
         }
         if (DEBUG) {
             Log.d(TAG, "Removed " + num + " songs");
@@ -372,7 +362,7 @@ public class MPDPlaylist {
         for (final int id : songIds) {
             commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
         }
-        commandQueue.send(mMPD.getMpdConnection());
+        commandQueue.send(mConnection);
     }
 
     /**
@@ -383,7 +373,7 @@ public class MPDPlaylist {
      * @see #removeById(int[])
      */
     void removeByIndex(final int... songs) throws MPDServerException {
-        removeByIndexCommand(songs).send(mMPD.getMpdConnection());
+        removeByIndexCommand(songs).send(mConnection);
     }
 
     /**
@@ -393,7 +383,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void removePlaylist(final String file) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_DELETE, file);
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_DELETE, file);
     }
 
     /**
@@ -409,7 +399,7 @@ public class MPDPlaylist {
         } catch (final MPDServerException ignored) {
             /** We're removing it just in case it exists. */
         }
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_SAVE, file);
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_SAVE, file);
     }
 
     /**
@@ -418,7 +408,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void shuffle() throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_SHUFFLE);
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_SHUFFLE);
     }
 
     /**
@@ -439,7 +429,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void swap(final int song1Id, final int song2Id) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_SWAP_ID,
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_SWAP_ID,
                 Integer.toString(song1Id), Integer.toString(song2Id));
     }
 
@@ -452,7 +442,7 @@ public class MPDPlaylist {
      * @see #swap(int, int)
      */
     public void swapByPosition(final int song1, final int song2) throws MPDServerException {
-        mMPD.getMpdConnection().sendCommand(MPD_CMD_PLAYLIST_SWAP, Integer.toString(song1),
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_SWAP, Integer.toString(song1),
                 Integer.toString(song2));
     }
 
