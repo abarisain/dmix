@@ -63,28 +63,44 @@ abstract class MPDConnection {
 
     private static final int CONNECTION_TIMEOUT = 10000;
 
+    /** Default buffer size for the socket. */
     private static final int DEFAULT_BUFFER_SIZE = 1024;
 
     private static final String MPD_RESPONSE_OK = "OK";
 
+    /** Maximum number of times to attempt command processing. */
     private static final int MAX_REQUEST_RETRY = 3;
 
     private static final Pattern PERIOD_DELIMITER = Pattern.compile("\\.");
 
+    /** The {@code ExecutorService} used to process commands. */
     private final ThreadPoolExecutor mExecutor;
 
+    /** The command communication timeout. */
     private final int mReadWriteTimeout;
 
+    /** The host/port pair used to connect to the media server. */
     private InetSocketAddress mSocketAddress;
 
+    /** If set to true, this will cancel any processing commands at next opportunity. */
     private boolean mCancelled = false;
 
+    /** User facing connection status. */
     private boolean mIsConnected = false;
 
+    /** Current media server's major/minor/micro version. */
     private int[] mMPDVersion = null;
 
+    /** Current media server password. */
     private String mPassword = null;
 
+    /**
+     * The constructor method. This method does not connect to the server.
+     *
+     * @param readWriteTimeout The read write timeout for this connection.
+     * @param maxConnections Maximum number of sockets to allow running at one time.
+     * @see #connect(java.net.InetAddress, int, String)
+     */
     MPDConnection(final int readWriteTimeout, final int maxConnections) {
         super();
 
@@ -97,13 +113,22 @@ abstract class MPDConnection {
         }
     }
 
-    final void connect(final InetAddress server, final int port, final String password)
+    /**
+     * Sets up connection to host/port pair with MPD password.
+     *
+     * @param host     The media server host to connect to.
+     * @param port     The media server port to connect to.
+     * @param password The MPD protocol password to pass upon connection.
+     * @throws MPDServerException Thrown upon an error sending a simple command to the {@code
+     *                            host}/{@code port} pair with the {@code password}.
+     */
+    final void connect(final InetAddress host, final int port, final String password)
             throws MPDServerException {
         innerDisconnect();
 
         mCancelled = false;
         mPassword = password;
-        mSocketAddress = new InetSocketAddress(server, port);
+        mSocketAddress = new InetSocketAddress(host, port);
 
         final MPDCommand mpdCommand = new MPDCommand(MPDCommand.MPD_CMD_PING);
         final String result = processCommand(mpdCommand).getConnectionResult();
@@ -116,15 +141,30 @@ abstract class MPDConnection {
         setMPDVersion(result);
     }
 
+    /**
+     * The method to disconnect from the current connected server.
+     *
+     * @throws MPDConnectionException Thrown upon disconnection error.
+     */
     void disconnect() throws MPDConnectionException {
         mCancelled = true;
         innerDisconnect();
     }
 
+    /**
+     * The current connected media server host.
+     *
+     * @return The current connected media server host, null if not connected.
+     */
     InetAddress getHostAddress() {
         return mSocketAddress.getAddress();
     }
 
+    /**
+     * The current connected media server port.
+     *
+     * @return The current connected media server port, null if not connected.
+     */
     int getHostPort() {
         return mSocketAddress.getPort();
     }
@@ -133,10 +173,19 @@ abstract class MPDConnection {
 
     protected abstract void setInputStream(InputStreamReader inputStream);
 
+    /**
+     * The current MPD protocol version.
+     */
     int[] getMPDVersion() {
         return mMPDVersion.clone();
     }
 
+    /**
+     * Processes the {@code CommandResult} connection response to store the current media server
+     * MPD protocol version.
+     *
+     * @param response The {@code CommandResult().getConnectionResponse()}.
+     */
     private void setMPDVersion(final String response) {
         final String formatResponse = response.substring((MPD_RESPONSE_OK + " MPD ").length());
         final String[] tmp = PERIOD_DELIMITER.split(formatResponse);
@@ -157,10 +206,20 @@ abstract class MPDConnection {
 
     protected abstract void setSocket(Socket socket);
 
+    /**
+     * A user facing connection inquiry method.
+     *
+     * @return True if socket(s) are connected, false otherwise.
+     */
     boolean isConnected() {
         return mIsConnected;
     }
 
+    /**
+     * A low level disconnect method for the socket(s).
+     *
+     * @throws MPDConnectionException Thrown if there is a problem closing the socket.
+     */
     private void innerDisconnect() throws MPDConnectionException {
         mIsConnected = false;
         if (isInnerConnected()) {
@@ -173,10 +232,25 @@ abstract class MPDConnection {
         }
     }
 
+    /**
+     * A low level connection check for the socket(s). Don't rely on this for actual connection
+     * status. Use {@code isConnected()} for actual connection status.
+     *
+     * @return True if the socket is supposed to be connected, false otherwise.
+     */
     private boolean isInnerConnected() {
         return getSocket() != null && getSocket().isConnected() && !getSocket().isClosed();
     }
 
+    /**
+     * Checks the media server version for support of a feature. This does not check micro version
+     * as new features shouldn't be added during stable releases.
+     *
+     * @param major The major version to inquire for support. (x in x.0.0)
+     * @param minor The minor version to inquire for support. (x in 0.x.0)
+     * @return Returns true if the protocol version input is supported or not connected, false
+     * otherwise.
+     */
     boolean isProtocolVersionSupported(final int major, final int minor) {
         final boolean result;
 
@@ -189,6 +263,15 @@ abstract class MPDConnection {
         return result;
     }
 
+    /**
+     * Processes the command by setting up the command processor executor.
+     *
+     * @param command The command to be processed.
+     * @return The response to the processed command.
+     * @throws MPDServerException Thrown if there were communication problems, execution problems,
+     *                            server side problems with the command or if the executor was
+     *                            interrupted.
+     */
     private CommandResult processCommand(final MPDCommand command) throws MPDServerException {
         final CommandResult result;
         final List<String> commandResult;
@@ -219,18 +302,36 @@ abstract class MPDConnection {
         return result;
     }
 
+    /**
+     * Communicates with the server by sending a command and receiving the response.
+     *
+     * @param command The command to be sent to the server.
+     * @return The result from the command sent to the server.
+     * @throws MPDServerException Thrown if there are errors sending the command to the server.
+     */
     List<String> sendCommand(final MPDCommand command) throws MPDServerException {
         return processCommand(command).getResult();
     }
 
+    /**
+     * Communicates with the server by sending a command and receiving the response.
+     *
+     * @param command The command to be sent to the server.
+     * @param args    Arguments to the command to be sent to the server.
+     * @return The result from the command sent to the server.
+     * @throws MPDServerException Thrown if there are errors sending the command to the server.
+     */
     List<String> sendCommand(final String command, final String... args) throws MPDServerException {
         return sendCommand(new MPDCommand(command, args));
     }
 
+    /** This class communicates with the server by sending the command and processing the result. */
     private class CommandProcessor implements Callable<CommandResult> {
 
+        /** The command to be processed. */
         private final MPDCommand mCommand;
 
+        /** The status of whether the command has been sent. */
         private boolean mIsCommandSent;
 
         CommandProcessor(final MPDCommand mpdCommand) {
@@ -239,6 +340,11 @@ abstract class MPDConnection {
             mCommand = mpdCommand;
         }
 
+        /**
+         * This is the default class method.
+         *
+         * @return A {@code CommandResult} from the processed command.
+         */
         @Override
         public final CommandResult call() {
             int retryCount = 0;
@@ -295,6 +401,13 @@ abstract class MPDConnection {
             return result;
         }
 
+        /**
+         * This method processes the command and response from the command.
+         *
+         * @return A String list of responses to the sent command.
+         * @throws MPDServerException Thrown if there is an error communicating with the media
+         *                            server.
+         */
         private List<String> communicate() throws MPDServerException {
             List<String> result = new ArrayList<>();
             if (mCancelled) {
@@ -315,6 +428,12 @@ abstract class MPDConnection {
             return result;
         }
 
+        /**
+         * Used after a server error, sleeps for a small time then tries to reconnect.
+         *
+         * @param result The {@code CommandResult} which stores the connection failure.
+         * @param ex     The exception thrown to get to this method.
+         */
         private void handleConnectionFailure(final CommandResult result,
                 final MPDServerException ex) {
 
@@ -331,6 +450,12 @@ abstract class MPDConnection {
             }
         }
 
+        /**
+         * This is the low level media server connection method.
+         *
+         * @return The initial response from the connection.
+         * @throws MPDServerException Thrown if there was an error connecting to the media server.
+         */
         private String innerConnect() throws MPDServerException {
             final String line;
 
@@ -373,6 +498,15 @@ abstract class MPDConnection {
             return line;
         }
 
+        /**
+         * Read the server response after a {@code write()} to the server.
+         *
+         * @return A String list of responses.
+         * @throws MPDServerException Thrown if there was a server side error with the command that
+         *                            was sent.
+         * @throws IOException        Thrown if there was a problem reading from from the media
+         *                            server.
+         */
         private List<String> read() throws MPDServerException, IOException {
             final List<String> result = new ArrayList<>();
             final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
@@ -400,6 +534,11 @@ abstract class MPDConnection {
             return result;
         }
 
+        /**
+         * Sends the command to the server.
+         *
+         * @throws IOException Thrown upon error transferring command to media server.
+         */
         private void write() throws IOException {
             final String cmdString = mCommand.toString();
             // Uncomment for extreme command debugging
