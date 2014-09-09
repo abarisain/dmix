@@ -437,7 +437,6 @@ abstract class MPDConnection {
         private void handleConnectionFailure(final CommandResult result,
                 final MPDServerException ex) {
 
-            result.setLastException(ex);
             try {
                 Thread.sleep(500L);
             } catch (final InterruptedException ignored) {
@@ -445,6 +444,7 @@ abstract class MPDConnection {
 
             try {
                 innerConnect();
+                result.setLastException(ex);
             } catch (final MPDServerException e) {
                 result.setLastException(e);
             }
