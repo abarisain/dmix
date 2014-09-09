@@ -258,62 +258,56 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
             visualizeIntent(mIntent);
         }
 
-        if (mMPDAsyncHelper.oMPD.isMpdConnectionNull()) {
+        /**
+         * !mIntent.getBooleanExtra("noConnectivity") == is connected
+         * !mIntent.getBooleanExtra("noConnectivity", false) if doesn't exist is connected
+         */
+        final boolean isNetworkConnected = !mIntent.getBooleanExtra("noConnectivity", false);
+        boolean resolved = false;
+
+        if (isNetworkConnected) {
             if (DEBUG) {
-                Log.d(TAG, "Connection is null, cannot do anything");
+                Log.d(TAG, "Connected.");
             }
-        } else {
-            /**
-             * !mIntent.getBooleanExtra("noConnectivity") == is connected
-             * !mIntent.getBooleanExtra("noConnectivity", false) if doesn't exist is connected
-             */
-            final boolean isNetworkConnected = !mIntent.getBooleanExtra("noConnectivity", false);
-            boolean resolved = false;
 
-            if (isNetworkConnected) {
-                if (DEBUG) {
-                    Log.d(TAG, "Connected.");
-                }
+            if (!isHostnameLinked(extras)) {
+                mSettingsHelper.updateConnectionSettings();
+                mMPDAsyncHelper.reconnect();
+            }
 
-                if (!isHostnameLinked(extras)) {
-                    mSettingsHelper.updateConnectionSettings();
-                    mMPDAsyncHelper.reconnect();
-                }
-
-                if (isHostnameLinked(extras)) {
-                    resolved = true;
-                    if (mMPDAsyncHelper.oMPD.isConnected()) {
-                        if (DEBUG) {
-                            Log.d(TAG, "Media player is already linked and connected.");
-                        }
-                    } else {
-                        if (DEBUG) {
-                            Log.d(TAG, "Linked, but not connected, sending callback.");
-                        }
-                        mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_NETWORK_CONNECTED);
+            if (isHostnameLinked(extras)) {
+                resolved = true;
+                if (mMPDAsyncHelper.oMPD.isConnected()) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Media player is already linked and connected.");
                     }
-                } else if (DEBUG) {
-                    Log.w(TAG, "Host not linked to the current MPD object.");
-                }
-            } else if (DEBUG) {
-                Log.d(TAG, "Not connected to network.");
-            }
-
-            /** Specific to a localhost MPD server. */
-            if (!resolved) {
-                /**
-                 * If network is connected, SettingsHelper has already
-                 * updated ConnectionInfo has already been updated.
-                 */
-                if (!isNetworkConnected) {
-                    mSettingsHelper.updateConnectionSettings();
-                    mMPDAsyncHelper.reconnect();
-                }
-
-                if ("127.0.0.1".equals(mMPDAsyncHelper.getConnectionSettings().server) &&
-                        canConnectToLocalhost()) {
+                } else {
+                    if (DEBUG) {
+                        Log.d(TAG, "Linked, but not connected, sending callback.");
+                    }
                     mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_NETWORK_CONNECTED);
                 }
+            } else if (DEBUG) {
+                Log.w(TAG, "Host not linked to the current MPD object.");
+            }
+        } else if (DEBUG) {
+            Log.d(TAG, "Not connected to network.");
+        }
+
+        /** Specific to a localhost MPD server. */
+        if (!resolved) {
+            /**
+             * If network is connected, SettingsHelper has already
+             * updated ConnectionInfo has already been updated.
+             */
+            if (!isNetworkConnected) {
+                mSettingsHelper.updateConnectionSettings();
+                mMPDAsyncHelper.reconnect();
+            }
+
+            if ("127.0.0.1".equals(mMPDAsyncHelper.getConnectionSettings().server) &&
+                    canConnectToLocalhost()) {
+                mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_NETWORK_CONNECTED);
             }
         }
     }
