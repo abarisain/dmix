@@ -152,6 +152,8 @@ public class MPDCommand {
 
     public static final String MPD_TAG_GENRE = "genre";
 
+    public static final char MPD_CMD_NEWLINE = '\n';
+
     private static final String TAG = "MPDCommand";
 
     private static final boolean DEBUG = false;
@@ -172,31 +174,39 @@ public class MPDCommand {
         return !NON_RETRYABLE_COMMANDS.contains(command);
     }
 
+    @Override
     public String toString() {
-        final int argsLength = Arrays.toString(mArgs).length();
-        final int approximateLength = argsLength + argsLength * (mCommand.length() + 10);
-        final StringBuilder outBuf = new StringBuilder(approximateLength);
-        outBuf.append(mCommand);
-        for (String arg : mArgs) {
-            if (arg == null) {
-                continue;
+        final String outString;
+
+        if (mArgs.length == 0) {
+            outString = mCommand + MPD_CMD_NEWLINE;
+        } else {
+            final int argsLength = Arrays.toString(mArgs).length();
+            final int approximateLength = argsLength + mCommand.length() + 10;
+            final StringBuilder outBuf = new StringBuilder(approximateLength);
+
+            outBuf.append(mCommand);
+            for (final String arg : mArgs) {
+                if (arg != null) {
+                    outBuf.append(" \"");
+                    outBuf.append(QUOTATION_DELIMITER.matcher(arg).replaceAll("\\\\\""));
+                    outBuf.append('"');
+                }
             }
-            arg = QUOTATION_DELIMITER.matcher(arg).replaceAll("\\\\\"");
-            outBuf.append(" \"");
-            outBuf.append(arg);
-            outBuf.append('"');
+            outBuf.append(MPD_CMD_NEWLINE);
+            outString = outBuf.toString();
         }
-        outBuf.append('\n');
-        final String outString = outBuf.toString();
+
         if (DEBUG) {
             final String safeCommand;
-            if (outString.startsWith(MPD_CMD_PASSWORD)) {
+            if (mCommand.equals(MPD_CMD_PASSWORD)) {
                 safeCommand = "password **censored**";
             } else {
                 safeCommand = outString;
             }
-            Log.d("JMPDComm", "MPD command : " + safeCommand);
+            Log.d(TAG, "MPD command: " + safeCommand);
         }
+
         return outString;
     }
 }
