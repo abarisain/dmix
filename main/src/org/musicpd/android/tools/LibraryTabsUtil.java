@@ -22,11 +22,11 @@ public class LibraryTabsUtil {
 	public static final HashMap<String, Integer> TABS = new HashMap<String, Integer>();
 	static {
 		TABS.put(TAB_ARTISTS, R.string.artists);
-		TABS.put(TAB_ALBUMS, R.string.albums);
+		TABS.put(TAB_FILES, R.string.files);
 		TABS.put(TAB_PLAYLISTS, R.string.playlists);
 		TABS.put(TAB_STREAMS, R.string.streams);
-		TABS.put(TAB_FILES, R.string.files);
 		TABS.put(TAB_GENRES, R.string.genres);
+		TABS.put(TAB_ALBUMS, R.string.albums);
 	}
 
 	private static final String LIBRARY_TABS_SETTINGS_KEY = "currentLibraryTabs";
@@ -34,11 +34,11 @@ public class LibraryTabsUtil {
 	private static final String LIBRARY_TABS_DELIMITER = "|";
 
 	private static String DEFAULT_LIBRARY_TABS = TAB_ARTISTS
-			+ LIBRARY_TABS_DELIMITER + TAB_ALBUMS
+			+ LIBRARY_TABS_DELIMITER + TAB_FILES
 			+ LIBRARY_TABS_DELIMITER + TAB_PLAYLISTS
 			+ LIBRARY_TABS_DELIMITER + TAB_STREAMS
-			+ LIBRARY_TABS_DELIMITER + TAB_FILES
-			+ LIBRARY_TABS_DELIMITER + TAB_GENRES;
+			+ LIBRARY_TABS_DELIMITER + TAB_GENRES
+			+ LIBRARY_TABS_DELIMITER + TAB_ALBUMS;
 
 	public static ArrayList<String> getAllLibraryTabs() {
 		String CurrentSettings = DEFAULT_LIBRARY_TABS;
