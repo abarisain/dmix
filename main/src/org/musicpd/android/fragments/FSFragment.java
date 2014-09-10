@@ -127,7 +127,7 @@ public class FSFragment extends BrowseFragment {
 	}
 
 	@Override
-	public void onItemClick(AdapterView l, View v, int position, long id) {
+	public void onItemClick(AdapterView l, final View v, int position, long id) {
 		final FilesystemTreeEntry item = (FilesystemTreeEntry) items.get(position);
 		final ILibraryFragmentActivity activity = (ILibraryFragmentActivity) getActivity();
 		// click on a file
@@ -142,7 +142,11 @@ public class FSFragment extends BrowseFragment {
 						app.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullpath());
 					} else if (item instanceof Directory) {
 						final String dir = item.getFullpath();
-						activity.pushLibraryFragment(new FSFragment().init(dir), "filesystem");
+						v.post(new Runnable() {
+							public void run() {
+								activity.pushLibraryFragment(new FSFragment().init(dir), "filesystem");
+							}
+						});
 					}
 					if (songId > -1) {
 						app.oMPDAsyncHelper.oMPD.skipToId(songId);
