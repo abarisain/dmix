@@ -176,11 +176,12 @@ public class StreamsFragment extends BrowseFragment {
 				addEdit((int) info.id);
 				break;
 			case DELETE:
+				final Activity activity = getActivity();
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 				builder.setTitle(getResources().getString(R.string.deleteStream));
 				builder.setMessage(String.format(getResources().getString(R.string.deleteStreamPrompt), items.get((int) info.id).getName()));
 
-				DeleteDialogClickListener oDialogClickListener = new DeleteDialogClickListener((int) info.id);
+				DeleteDialogClickListener oDialogClickListener = new DeleteDialogClickListener((int) info.id, activity);
 				builder.setNegativeButton(getResources().getString(android.R.string.no), oDialogClickListener);
 				builder.setPositiveButton(getResources().getString(R.string.deleteStream), oDialogClickListener);
 				try {
@@ -197,9 +198,12 @@ public class StreamsFragment extends BrowseFragment {
 
 	class DeleteDialogClickListener implements OnClickListener {
 		private final int itemIndex;
+		private final Activity activity;
 
-		DeleteDialogClickListener(int itemIndex) {
+
+		DeleteDialogClickListener(int itemIndex, Activity activity) {
 			this.itemIndex = itemIndex;
+			this.activity = activity;
 		}
 
 		public void onClick(DialogInterface dialog, int which) {
@@ -214,7 +218,8 @@ public class StreamsFragment extends BrowseFragment {
 						Log.w(e);
 					}
 					items.remove(itemIndex);
-					updateFromItems();
+					saveStreams(activity);
+					UpdateList();
 					break;
 			}
 		}
