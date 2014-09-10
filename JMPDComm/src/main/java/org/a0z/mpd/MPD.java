@@ -27,6 +27,9 @@
 
 package org.a0z.mpd;
 
+import org.a0z.mpd.connection.MPDConnection;
+import org.a0z.mpd.connection.MPDConnectionMonoSocket;
+import org.a0z.mpd.connection.MPDConnectionMultiSocket;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Album;

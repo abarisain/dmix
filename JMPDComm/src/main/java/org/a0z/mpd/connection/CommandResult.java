@@ -25,54 +25,49 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.connection;
 
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
+import org.a0z.mpd.exception.MPDServerException;
 
-/**
- * Class representing a connection to MPD Server.
- */
-class MPDConnectionMultiSocket extends MPDConnection {
+import java.util.Collections;
+import java.util.List;
 
-    private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
+/** This class stores the result for MPDCallable. */
+class CommandResult {
 
-    private static final ThreadLocal<InputStreamReader> INPUT_STREAM = new ThreadLocal<>();
+    private MPDServerException mLastException = null;
 
-    private static final ThreadLocal<OutputStreamWriter> OUTPUT_STREAM = new ThreadLocal<>();
+    private String mConnectionResult;
 
-    MPDConnectionMultiSocket(final int readWriteTimeout, final int maxConnection) {
-        super(readWriteTimeout, maxConnection);
+    private List<String> mResult = null;
+
+    final MPDServerException getLastException() {
+        return mLastException;
     }
 
-    @Override
-    public InputStreamReader getInputStream() {
-        return INPUT_STREAM.get();
+    final void setLastException(final MPDServerException lastException) {
+        mLastException = lastException;
     }
 
-    @Override
-    public void setInputStream(final InputStreamReader inputStream) {
-        INPUT_STREAM.set(inputStream);
+    final String getConnectionResult() {
+        return mConnectionResult;
     }
 
-    @Override
-    public OutputStreamWriter getOutputStream() {
-        return OUTPUT_STREAM.get();
+    final List<String> getResult() {
+        /** No need, we already made the collection immutable on the way in. */
+        //noinspection ReturnOfCollectionOrArrayField
+        return mResult;
     }
 
-    @Override
-    public void setOutputStream(final OutputStreamWriter outputStream) {
-        OUTPUT_STREAM.set(outputStream);
+    final void setConnectionResult(final String result) {
+        mConnectionResult = result;
     }
 
-    @Override
-    protected Socket getSocket() {
-        return SOCKET.get();
-    }
-
-    @Override
-    protected void setSocket(final Socket socket) {
-        SOCKET.set(socket);
+    final void setResult(final List<String> result) {
+        if (result == null) {
+            mResult = null;
+        } else {
+            mResult = Collections.unmodifiableList(result);
+        }
     }
 }

@@ -160,7 +160,7 @@ public class MPDCommand {
 
     private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
 
-    final String mCommand;
+    private final String mCommand;
 
     private final String[] mArgs;
 
@@ -168,6 +168,10 @@ public class MPDCommand {
         super();
         mCommand = command;
         mArgs = args.clone();
+    }
+
+    public String getCommand() {
+        return mCommand;
     }
 
     public static boolean isRetryable(final String command) {

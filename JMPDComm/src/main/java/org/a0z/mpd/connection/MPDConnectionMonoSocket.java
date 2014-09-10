@@ -25,49 +25,54 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.connection;
 
-import org.a0z.mpd.exception.MPDServerException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 
-import java.util.Collections;
-import java.util.List;
+/**
+ * Class representing a connection to MPD Server.
+ */
+public class MPDConnectionMonoSocket extends MPDConnection {
 
-/** This class stores the result for MPDCallable. */
-class CommandResult {
+    private Socket mSocket;
 
-    private MPDServerException mLastException = null;
+    private InputStreamReader mInputStream;
 
-    private String mConnectionResult;
+    private OutputStreamWriter mOutputStream;
 
-    private List<String> mResult = null;
-
-    final MPDServerException getLastException() {
-        return mLastException;
+    public MPDConnectionMonoSocket(final int readWriteTimeout) {
+        super(readWriteTimeout, 1);
     }
 
-    final void setLastException(final MPDServerException lastException) {
-        mLastException = lastException;
+    @Override
+    public InputStreamReader getInputStream() {
+        return mInputStream;
     }
 
-    final String getConnectionResult() {
-        return mConnectionResult;
+    @Override
+    public void setInputStream(final InputStreamReader inputStream) {
+        mInputStream = inputStream;
     }
 
-    final List<String> getResult() {
-        /** No need, we already made the collection immutable on the way in. */
-        //noinspection ReturnOfCollectionOrArrayField
-        return mResult;
+    @Override
+    public OutputStreamWriter getOutputStream() {
+        return mOutputStream;
     }
 
-    final void setConnectionResult(final String result) {
-        mConnectionResult = result;
+    @Override
+    public void setOutputStream(final OutputStreamWriter outputStream) {
+        mOutputStream = outputStream;
     }
 
-    final void setResult(final List<String> result) {
-        if (result == null) {
-            mResult = null;
-        } else {
-            mResult = Collections.unmodifiableList(result);
-        }
+    @Override
+    protected Socket getSocket() {
+        return mSocket;
+    }
+
+    @Override
+    protected void setSocket(final Socket socket) {
+        mSocket = socket;
     }
 }

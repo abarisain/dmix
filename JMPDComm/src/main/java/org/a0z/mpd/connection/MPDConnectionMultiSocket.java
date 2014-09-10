@@ -25,7 +25,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.connection;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -34,45 +34,45 @@ import java.net.Socket;
 /**
  * Class representing a connection to MPD Server.
  */
-class MPDConnectionMonoSocket extends MPDConnection {
+public class MPDConnectionMultiSocket extends MPDConnection {
 
-    private Socket mSocket;
+    private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
 
-    private InputStreamReader mInputStream;
+    private static final ThreadLocal<InputStreamReader> INPUT_STREAM = new ThreadLocal<>();
 
-    private OutputStreamWriter mOutputStream;
+    private static final ThreadLocal<OutputStreamWriter> OUTPUT_STREAM = new ThreadLocal<>();
 
-    MPDConnectionMonoSocket(final int readWriteTimeout) {
-        super(readWriteTimeout, 1);
+    public MPDConnectionMultiSocket(final int readWriteTimeout, final int maxConnection) {
+        super(readWriteTimeout, maxConnection);
     }
 
     @Override
     public InputStreamReader getInputStream() {
-        return mInputStream;
+        return INPUT_STREAM.get();
     }
 
     @Override
     public void setInputStream(final InputStreamReader inputStream) {
-        mInputStream = inputStream;
+        INPUT_STREAM.set(inputStream);
     }
 
     @Override
     public OutputStreamWriter getOutputStream() {
-        return mOutputStream;
+        return OUTPUT_STREAM.get();
     }
 
     @Override
     public void setOutputStream(final OutputStreamWriter outputStream) {
-        mOutputStream = outputStream;
+        OUTPUT_STREAM.set(outputStream);
     }
 
     @Override
     protected Socket getSocket() {
-        return mSocket;
+        return SOCKET.get();
     }
 
     @Override
     protected void setSocket(final Socket socket) {
-        mSocket = socket;
+        SOCKET.set(socket);
     }
 }

@@ -27,6 +27,7 @@
 
 package org.a0z.mpd;
 
+import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;

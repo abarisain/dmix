@@ -27,6 +27,7 @@
 
 package org.a0z.mpd;
 
+import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDConnectionException;

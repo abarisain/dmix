@@ -25,8 +25,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.connection;
 
+import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -53,7 +55,7 @@ import java.util.regex.Pattern;
 /**
  * Class representing a connection to MPD Server.
  */
-abstract class MPDConnection {
+public abstract class MPDConnection {
 
     private static final String MPD_RESPONSE_ERR = "ACK";
 
@@ -122,7 +124,7 @@ abstract class MPDConnection {
      * @throws MPDServerException Thrown upon an error sending a simple command to the {@code
      *                            host}/{@code port} pair with the {@code password}.
      */
-    final void connect(final InetAddress host, final int port, final String password)
+    public final void connect(final InetAddress host, final int port, final String password)
             throws MPDServerException {
         innerDisconnect();
 
@@ -146,7 +148,7 @@ abstract class MPDConnection {
      *
      * @throws MPDConnectionException Thrown upon disconnection error.
      */
-    void disconnect() throws MPDConnectionException {
+    public void disconnect() throws MPDConnectionException {
         mCancelled = true;
         innerDisconnect();
     }
@@ -156,7 +158,7 @@ abstract class MPDConnection {
      *
      * @return The current connected media server host, null if not connected.
      */
-    InetAddress getHostAddress() {
+    public InetAddress getHostAddress() {
         return mSocketAddress.getAddress();
     }
 
@@ -165,7 +167,7 @@ abstract class MPDConnection {
      *
      * @return The current connected media server port, null if not connected.
      */
-    int getHostPort() {
+    public int getHostPort() {
         return mSocketAddress.getPort();
     }
 
@@ -176,7 +178,7 @@ abstract class MPDConnection {
     /**
      * The current MPD protocol version.
      */
-    int[] getMPDVersion() {
+    public int[] getMPDVersion() {
         return mMPDVersion.clone();
     }
 
@@ -211,7 +213,7 @@ abstract class MPDConnection {
      *
      * @return True if socket(s) are connected, false otherwise.
      */
-    boolean isConnected() {
+    public boolean isConnected() {
         return mIsConnected;
     }
 
@@ -251,7 +253,7 @@ abstract class MPDConnection {
      * @return Returns true if the protocol version input is supported or not connected, false
      * otherwise.
      */
-    boolean isProtocolVersionSupported(final int major, final int minor) {
+    public boolean isProtocolVersionSupported(final int major, final int minor) {
         final boolean result;
 
         if (mMPDVersion == null || mMPDVersion[0] <= major && mMPDVersion[1] < minor) {
@@ -309,7 +311,7 @@ abstract class MPDConnection {
      * @return The result from the command sent to the server.
      * @throws MPDServerException Thrown if there are errors sending the command to the server.
      */
-    List<String> sendCommand(final MPDCommand command) throws MPDServerException {
+    public List<String> sendCommand(final MPDCommand command) throws MPDServerException {
         return processCommand(command).getResult();
     }
 
@@ -321,7 +323,7 @@ abstract class MPDConnection {
      * @return The result from the command sent to the server.
      * @throws MPDServerException Thrown if there are errors sending the command to the server.
      */
-    List<String> sendCommand(final String command, final String... args) throws MPDServerException {
+    public List<String> sendCommand(final String command, final String... args) throws MPDServerException {
         return sendCommand(new MPDCommand(command, args));
     }
 
@@ -364,7 +366,7 @@ abstract class MPDConnection {
                     // Do not fail when the IDLE response has not been read (to improve connection
                     // failure robustness). Just send the "changed playlist" result to force the MPD
                     // status to be refreshed.
-                    if (MPDCommand.MPD_CMD_IDLE.equals(mCommand.mCommand)) {
+                    if (MPDCommand.MPD_CMD_IDLE.equals(mCommand.getCommand())) {
                         result.setResult(Collections.singletonList(
                                 "changed: " + MPDStatusMonitor.IDLE_PLAYLIST));
                     }
@@ -379,7 +381,7 @@ abstract class MPDConnection {
                 }
 
                 /** On successful send of non-retryable command, break out. */
-                if (!MPDCommand.isRetryable(mCommand.mCommand) &&
+                if (!MPDCommand.isRetryable(mCommand.getCommand()) &&
                         mIsCommandSent) {
                     break;
                 }
@@ -393,7 +395,7 @@ abstract class MPDConnection {
                     result.setLastException(new MPDConnectionException(
                             "MPD request has been cancelled for disconnection."));
                 }
-                Log.e(TAG, "MPD command " + mCommand.mCommand + " failed after " +
+                Log.e(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
                         retryCount + " attempts.", result.getLastException());
             } else {
                 mIsConnected = true;
@@ -418,7 +420,7 @@ abstract class MPDConnection {
                 write();
                 result = read();
             } catch (final MPDConnectionException e) {
-                if (!mCommand.mCommand.equals(MPDCommand.MPD_CMD_CLOSE)) {
+                if (!mCommand.getCommand().equals(MPDCommand.MPD_CMD_CLOSE)) {
                     throw e;
                 }
             } catch (final IOException e) {
