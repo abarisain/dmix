@@ -38,7 +38,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -50,13 +49,6 @@ import java.util.regex.Pattern;
  * @author Felipe Gustavo de Almeida
  */
 public class Music extends Item implements FilesystemTreeEntry {
-
-    public static class MusicTitleComparator implements Comparator<Music> {
-
-        public int compare(Music o1, Music o2) {
-            return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());
-        }
-    }
 
     // excluded artist names : in lower case
     private static final List<String> ARTIST_BLACK_LIST = Arrays.asList("various artists",
