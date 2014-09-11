@@ -30,7 +30,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 
-public class SettingsHelper implements OnSharedPreferenceChangeListener {
+public class SettingsHelper {
     private static final int DEFAULT_MPD_PORT = 6600;
     private static final int DEFAULT_STREAMING_PORT = 8000;
 
@@ -42,7 +42,6 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
         // Get Settings and register ourself for updates
         final MPDApplication app = MPDApplication.getInstance();
         settings = PreferenceManager.getDefaultSharedPreferences(app);
-        settings.registerOnSharedPreferenceChangeListener(this);
 
         // get reference on WiFi service
         mWifiManager = (WifiManager) app.getSystemService(Context.WIFI_SERVICE);
@@ -83,22 +82,6 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
             return param;
         else
             return wifiSSID + param;
-    }
-
-    public void onSharedPreferenceChanged(SharedPreferences settings, String key) {
-        // Reset the Grace note authentication if a custom client ID has been
-        // sets
-        if (key.equals(GracenoteCover.CUSTOM_CLIENT_ID_KEY)) {
-            removeProperty(GracenoteCover.USER_ID);
-        }
-        updateSettings();
-    }
-
-    private void removeProperty(String property) {
-        SharedPreferences.Editor editor;
-        editor = settings.edit();
-        editor.remove(property);
-        editor.commit();
     }
 
     public final boolean updateConnectionSettings() {
@@ -145,20 +128,5 @@ public class SettingsHelper implements OnSharedPreferenceChangeListener {
         connectionInfo.setPreviousConnectionInfo(oMPDAsyncHelper.getConnectionSettings());
 
         oMPDAsyncHelper.setConnectionSettings(connectionInfo.build());
-    }
-
-    public boolean updateSettings() {
-
-        MPD.setSortByTrackNumber(settings.getBoolean("albumTrackSort", MPD.sortByTrackNumber()));
-        MPD.setSortAlbumsByYear(settings.getBoolean("sortAlbumsByYear", MPD.sortAlbumsByYear()));
-        MPD.setShowAlbumTrackCount(settings.getBoolean("showAlbumTrackCount",
-                MPD.showAlbumTrackCount()));
-
-        oMPDAsyncHelper.setUseCache(settings.getBoolean("useLocalAlbumCache", false));
-        return updateConnectionSettings();
-    }
-
-    public boolean warningShown() {
-        return getBooleanSetting("newWarningShown");
     }
 }

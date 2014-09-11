@@ -17,6 +17,8 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
@@ -26,9 +28,11 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -38,10 +42,15 @@ import java.net.UnknownHostException;
  * Asynchronous worker thread-class for long during operations on JMPDComm.
  */
 public class MPDAsyncWorker implements Handler.Callback,
+        SharedPreferences.OnSharedPreferenceChangeListener,
         StatusChangeListener,
         TrackPositionListener {
 
     private static final int LOCAL_UID = 500;
+
+    private static final String ALBUM_TRACK_SORT_KEY = "albumTrackSort";
+
+    private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
 
     static final int EVENT_CONNECT = LOCAL_UID + 1;
 
@@ -59,10 +68,16 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final int EVENT_STOP_STATUS_MONITOR = LOCAL_UID + 8;
 
+    private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
+
+    private static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
+
     private static final String TAG = "MPDAsyncWorker";
 
     /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
+
+    private final SharedPreferences mPreferences;
 
     private String[] mIdleSubsystems;
 
@@ -78,6 +93,9 @@ public class MPDAsyncWorker implements Handler.Callback,
     MPDAsyncWorker(final Handler helperHandler, final MPD mpd) {
         super();
 
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance());
+        mPreferences.registerOnSharedPreferenceChangeListener(this);
+
         mHelperHandler = helperHandler;
         mMPD = mpd;
     }
@@ -87,12 +105,21 @@ public class MPDAsyncWorker implements Handler.Callback,
         try {
             if (mMPD != null) {
                 mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
-                mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
+
             }
         } catch (final MPDServerException | UnknownHostException e) {
             Log.e(TAG, "Error while connecting to the server.", e);
             mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECT_FAILED,
                     Tools.toObjectArray(e.getMessage())).sendToTarget();
+        }
+
+        if (mMPD != null) {
+            mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
+
+            /** Set MPD defaults. */
+            MPD.setSortByTrackNumber(mPreferences.getBoolean(ALBUM_TRACK_SORT_KEY, true));
+            MPD.setSortAlbumsByYear(mPreferences.getBoolean(ALBUM_YEAR_SORT_KEY, false));
+            MPD.setShowAlbumTrackCount(mPreferences.getBoolean(SHOW_ALBUM_TRACK_COUNT_KEY, true));
         }
     }
 
@@ -174,7 +201,44 @@ public class MPDAsyncWorker implements Handler.Callback,
     @Override
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
         mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_UPDATE_STATE,
-                Tools.toObjectArray(updating,dbChanged)).sendToTarget();
+                Tools.toObjectArray(updating, dbChanged)).sendToTarget();
+    }
+
+    /**
+     * Called when a shared preference is changed, added, or removed. This
+     * may be called even if a preference is set to its existing value.
+     *
+     * <p>This callback will be run on your main thread.
+     *
+     * @param sharedPreferences The {@link android.content.SharedPreferences} that received
+     *                          the change.
+     * @param key               The key of the preference that was changed, added, or
+     */
+    @Override
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
+        switch(key) {
+            case ALBUM_TRACK_SORT_KEY:
+                MPD.setSortByTrackNumber(sharedPreferences.getBoolean(key, true));
+                break;
+            case ALBUM_YEAR_SORT_KEY:
+                MPD.setSortAlbumsByYear(sharedPreferences.getBoolean(key, false));
+                break;
+            case SHOW_ALBUM_TRACK_COUNT_KEY:
+                MPD.setShowAlbumTrackCount(sharedPreferences.getBoolean(key, true));
+                break;
+            case USE_LOCAL_ALBUM_CACHE_KEY:
+                final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);
+
+                mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_SET_USE_CACHE, useAlbumCache);
+                break;
+            case GracenoteCover.CUSTOM_CLIENT_ID_KEY:
+                final SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove(GracenoteCover.USER_ID);
+                editor.commit();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

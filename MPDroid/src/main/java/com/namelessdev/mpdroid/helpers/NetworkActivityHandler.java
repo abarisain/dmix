@@ -276,7 +276,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
                 }
 
                 if (!isHostnameLinked(extras)) {
-                    mSettingsHelper.updateSettings();
+                    mSettingsHelper.updateConnectionSettings();
                     mMPDAsyncHelper.reconnect();
                 }
 
@@ -306,7 +306,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
                  * updated ConnectionInfo has already been updated.
                  */
                 if (!isNetworkConnected) {
-                    mSettingsHelper.updateSettings();
+                    mSettingsHelper.updateConnectionSettings();
                     mMPDAsyncHelper.reconnect();
                 }
 

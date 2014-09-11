@@ -27,7 +27,6 @@ import com.namelessdev.mpdroid.service.StreamHandler;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatusMonitor;
 
 import android.app.Activity;
@@ -93,8 +92,6 @@ public class MPDApplication extends Application implements
 
     private SharedPreferences mSharedPreferences = null;
 
-    private boolean mWarningShown = false;
-
     private boolean mIsNotificationOverridden = false;
 
     public static MPDApplication getInstance() {
@@ -143,7 +140,7 @@ public class MPDApplication extends Application implements
     }
 
     public final void connect() {
-        if (!mSettingsHelper.updateSettings()) {
+        if (!mSettingsHelper.updateConnectionSettings()) {
             // Absolutely no settings defined! Open Settings!
             if (mCurrentActivity != null && !mSettingsShown) {
                 mCurrentActivity.startActivityForResult(new Intent(mCurrentActivity,
@@ -152,9 +149,9 @@ public class MPDApplication extends Application implements
             }
         }
 
-        if (mCurrentActivity != null && !mSettingsHelper.warningShown() && !mWarningShown) {
+        /** If the warning has never been shown before, show it. */
+        if (mCurrentActivity != null && !mSharedPreferences.getBoolean("newWarningShown", false)) {
             mCurrentActivity.startActivity(new Intent(mCurrentActivity, WarningActivity.class));
-            mWarningShown = true;
         }
         connectMPD();
     }
@@ -429,10 +426,6 @@ public class MPDApplication extends Application implements
         oMPDAsyncHelper.addConnectionListener(this);
 
         mDisconnectScheduler = new Timer();
-
-        if (!mSharedPreferences.contains("albumTrackSort")) {
-            mSharedPreferences.edit().putBoolean("albumTrackSort", true).commit();
-        }
     }
 
     /**

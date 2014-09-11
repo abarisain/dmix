@@ -58,15 +58,17 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     static final int EVENT_REPEAT = LOCAL_UID + 8;
 
-    static final int EVENT_STATE = LOCAL_UID + 9;
+    static final int EVENT_SET_USE_CACHE = LOCAL_UID + 9;
 
-    static final int EVENT_TRACK = LOCAL_UID + 10;
+    static final int EVENT_STATE = LOCAL_UID + 10;
 
-    static final int EVENT_TRACK_POSITION = LOCAL_UID + 11;
+    static final int EVENT_TRACK = LOCAL_UID + 11;
 
-    static final int EVENT_UPDATE_STATE = LOCAL_UID + 12;
+    static final int EVENT_TRACK_POSITION = LOCAL_UID + 12;
 
-    static final int EVENT_VOLUME = LOCAL_UID + 13;
+    static final int EVENT_UPDATE_STATE = LOCAL_UID + 13;
+
+    static final int EVENT_VOLUME = LOCAL_UID + 14;
 
     private static int sJobID = 0;
 
@@ -249,6 +251,9 @@ public class MPDAsyncHelper implements Handler.Callback {
                     for (final StatusChangeListener listener : mStatusChangeListeners) {
                         listener.repeatChanged((Boolean) args[0]);
                     }
+                    break;
+                case EVENT_SET_USE_CACHE:
+                    ((CachedMPD) oMPD).setUseCache((Boolean) args[0]);
                     break;
                 case EVENT_STATE:
                     for (final StatusChangeListener listener : mStatusChangeListeners) {
