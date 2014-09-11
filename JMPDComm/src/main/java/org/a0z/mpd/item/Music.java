@@ -677,11 +677,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         track = num;
     }
 
-    @Override
-    public String subText() {
-        return timeToString(time);
-    }
-
     /** Do not implement toString(), JMPDComm is dependent on the implementation in Item.java. */
 
     /**

@@ -95,10 +95,6 @@ public abstract class Item implements Comparable<Item> {
         return getName().toLowerCase(Locale.getDefault());
     }
 
-    public String subText() {
-        return null;
-    }
-
     @Override
     public String toString() {
         return mainText();

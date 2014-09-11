@@ -35,10 +35,6 @@ import android.os.Parcelable;
 
 public class Album extends Item implements Parcelable {
 
-    public static String singleTrackFormat = "%1 Track (%2)";
-
-    public static String multipleTracksFormat = "%1 Tracks (%2)";
-
     private final String name;
 
     private long songCount;
@@ -217,22 +213,6 @@ public class Album extends Item implements Parcelable {
 
     public void setYear(long y) {
         year = y;
-    }
-
-    @Override
-    public String subText() {
-        String construct = null;
-        if (MPD.sortAlbumsByYear() && 0 != year) {
-            construct = Long.toString(year);
-        }
-        if (0 != songCount) {
-            if (construct != null) {
-                construct += " - ";
-            }
-            construct += String.format(1 == songCount ? singleTrackFormat : multipleTracksFormat,
-                    songCount, Music.timeToString(duration));
-        }
-        return construct;
     }
 
     @Override

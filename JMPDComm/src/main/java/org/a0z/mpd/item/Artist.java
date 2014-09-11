@@ -34,10 +34,6 @@ import java.util.Locale;
 
 public class Artist extends Item implements Parcelable {
 
-    public static String singleAlbumFormat = "%1 Album";
-
-    public static String multipleAlbumsFormat = "%1 Albums";
-
     private final String name;
 
     private final String sort;
@@ -114,16 +110,6 @@ public class Artist extends Item implements Parcelable {
 
     public String sortText() {
         return null == sort ? name == null ? "" : super.sortText() : sort;
-    }
-
-    @Override
-    public String subText() {
-        if (0 == albumCount) {
-            return null;
-        }
-
-        return String
-                .format(1 == albumCount ? singleAlbumFormat : multipleAlbumsFormat, albumCount);
     }
 
     @Override
