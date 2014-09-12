@@ -142,7 +142,6 @@ public class MPDStatusMonitor extends Thread {
      */
     public void run() {
         // initialize value cache
-        final MPDStatus status = mpd.getStatus();
         int oldSong = -1;
         int oldSongId = -1;
         int oldPlaylistVersion = -1;
@@ -154,7 +153,11 @@ public class MPDStatusMonitor extends Thread {
         boolean oldRandom = false;
         boolean oldConnectionState = false;
         boolean connectionLost = false;
+
+        /** Objects to keep cached in {@link MPD} */
         final MPDPlaylist playlist = mpd.getPlaylist();
+        final MPDStatistics mpdStatistics = mpd.getStatistics();
+        final MPDStatus status = mpd.getStatus();
 
         while (!giveup) {
             Boolean connectionState = Boolean.valueOf(mpd.isConnected());
@@ -167,6 +170,7 @@ public class MPDStatusMonitor extends Thread {
 
                 if (mpd.isConnected()) {
                     try {
+                        mpd.updateStatistics();
                         mpd.updateStatus();
                         playlist.refresh(status);
                     } catch (final MPDServerException e) {
@@ -195,6 +199,7 @@ public class MPDStatusMonitor extends Thread {
                         for (final String change : changes) {
                             switch(change.substring("changed: ".length())) {
                                 case "database":
+                                    mpd.updateStatistics();
                                     dbChanged = true;
                                     statusChanged = true;
                                     break;
@@ -213,9 +218,6 @@ public class MPDStatusMonitor extends Thread {
                         }
                     }
 
-                    if (dbChanged) {
-                        mpd.getStatistics();
-                    }
                     if (statusChanged) {
                         // playlist
                         if (connectionStateChanged

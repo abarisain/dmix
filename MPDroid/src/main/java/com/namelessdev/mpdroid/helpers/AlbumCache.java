@@ -213,14 +213,9 @@ public class AlbumCache
     }
 
     protected synchronized boolean isUpToDate() {
-        try {
-            Date mpdlast = mpd.getStatistics().getDbUpdate();
-            Log.d(TAG, "lastupdate " + lastUpdate + " mpd date " + mpdlast);
-            return (null != lastUpdate && null != mpdlast && lastUpdate.after(mpdlast));
-        } catch (final Exception e) {
-            Log.e(TAG, "Exception.", e);
-            return false;
-        }
+        Date mpdlast = mpd.getStatistics().getDbUpdate();
+        Log.d(TAG, "lastupdate " + lastUpdate + " mpd date " + mpdlast);
+        return (null != lastUpdate && null != mpdlast && lastUpdate.after(mpdlast));
     }
 
     protected synchronized boolean load() {

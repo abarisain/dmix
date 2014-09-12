@@ -67,6 +67,8 @@ public class MPD {
 
     private MPDStatus mpdStatus;
 
+    private MPDStatistics mMPDStatistics;
+
     protected MPDPlaylist playlist;
 
     protected Directory rootDirectory;
@@ -989,14 +991,12 @@ public class MPD {
     }
 
     /**
-     * Retrieves statistics for the connected server.
+     * Retrieves the current statistics for the connected server.
      *
      * @return statistics for the connected server.
-     * @throws MPDServerException if an error occur while contacting server.
      */
-    public MPDStatistics getStatistics() throws MPDServerException {
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
-        return new MPDStatistics(response);
+    public MPDStatistics getStatistics() {
+        return mMPDStatistics;
     }
 
     /**
@@ -1624,9 +1624,9 @@ public class MPD {
     }
 
     /**
-     * Retrieves status of the connected server. Do not call this unless you absolutely know what
-     * you are doing. If a long running application needs a status update, use the
-     * {@code MPDStatusMonitor} instead.
+     * Retrieves status of the connected server. Do not call this method directly unless you
+     * absolutely know what you are doing. If a long running application needs a status update, use
+     * the {@code MPDStatusMonitor} instead.
      *
      * @throws MPDServerException if an error occur while contacting server.
      * @see MPDStatusMonitor
@@ -1639,5 +1639,19 @@ public class MPD {
         } else {
             mpdStatus.updateStatus(response);
         }
+    }
+
+    /**
+     * Updates the {@link MPDStatistics} object stored in this object. Do not call this
+     * method directly unless you absolutely know what you are doing. If a long running application
+     * needs a status update, use the {@code MPDStatusMonitor} instead.
+     *
+     * @throws MPDServerException if an error occurred while contacting the server.
+     * @see MPDStatusMonitor
+     */
+    public void updateStatistics() throws MPDServerException {
+        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
+
+        mMPDStatistics = new MPDStatistics(response);
     }
 }
