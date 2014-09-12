@@ -1,5 +1,2 @@
-include 'MPDroid'
+include 'MPDroid', ':JMPDComm'
 project(':MPDroid').projectDir = new File('MPDroid')
-
-include 'JMPDComm'
-project(':JMPDComm').projectDir = new File('JMPDComm')

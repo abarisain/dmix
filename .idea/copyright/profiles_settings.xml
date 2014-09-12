@@ -7,5 +7,8 @@
       <element module="AndroidSlidingUpPanel" copyright="Apache" />
       <element module="WeakLinkedList" copyright="Apache (WeakLinkedList)" />
     </module2copyright>
+    <LanguageOptions name="__TEMPLATE__">
+      <option name="lenBefore" value="8080" />
+    </LanguageOptions>
   </settings>
 </component>
