@@ -112,6 +112,8 @@ public class MPD {
     public MPD() {
         mpdConnection = new MPDConnectionMultiSocket(5000, 2);
         mpdIdleConnection = new MPDConnectionMonoSocket(0);
+        mMPDStatistics = new MPDStatistics();
+
 
         this.playlist = new MPDPlaylist(mpdConnection);
         this.mpdStatus = new MPDStatus();
@@ -1652,6 +1654,6 @@ public class MPD {
     public void updateStatistics() throws MPDServerException {
         final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
 
-        mMPDStatistics = new MPDStatistics(response);
+        mMPDStatistics.update(response);
     }
 }

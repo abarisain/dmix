@@ -155,9 +155,8 @@ public class MPDStatusMonitor extends Thread {
         boolean connectionLost = false;
 
         /** Objects to keep cached in {@link MPD} */
-        final MPDPlaylist playlist = mpd.getPlaylist();
-        final MPDStatistics mpdStatistics = mpd.getStatistics();
         final MPDStatus status = mpd.getStatus();
+        final MPDPlaylist playlist = mpd.getPlaylist();
 
         while (!giveup) {
             Boolean connectionState = Boolean.valueOf(mpd.isConnected());
