@@ -30,12 +30,9 @@ package org.a0z.mpd.item;
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+public class Album extends Item {
 
-public class Album extends Item implements Parcelable {
-
-    private final String name;
+    private String name;
 
     private long songCount;
 
@@ -49,30 +46,9 @@ public class Album extends Item implements Parcelable {
 
     private boolean hasAlbumArtist;
 
-    public static final Parcelable.Creator<Album> CREATOR =
-            new Parcelable.Creator<Album>() {
-                public Album createFromParcel(Parcel in) {
-                    return new Album(in);
-                }
-
-                public Album[] newArray(int size) {
-                    return new Album[size];
-                }
-            };
-
     public Album(Album a) {
         this(a.name, a.songCount, a.duration, a.year,
                 new Artist(a.artist), a.hasAlbumArtist, a.path);
-    }
-
-    protected Album(Parcel in) {
-        this.name = in.readString();
-        this.songCount = in.readLong();
-        this.duration = in.readLong();
-        this.year = in.readLong();
-        this.path = in.readString();
-        this.artist = new Artist(in.readString());
-        this.hasAlbumArtist = (in.readInt() > 0);
     }
 
     public Album(String name, Artist artist) {
@@ -120,10 +96,6 @@ public class Album extends Item implements Parcelable {
         return super.compareTo(o);
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -213,17 +185,6 @@ public class Album extends Item implements Parcelable {
 
     public void setYear(long y) {
         year = y;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.name);
-        dest.writeLong(this.songCount);
-        dest.writeLong(this.duration);
-        dest.writeLong(this.year);
-        dest.writeString(this.path);
-        dest.writeString(this.artist == null ? "" : this.artist.getName());
-        dest.writeInt(this.hasAlbumArtist() ? 1 : 0);
     }
 
 }

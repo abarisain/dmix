@@ -25,13 +25,15 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
-import org.a0z.mpd.item.Album;
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Genre;
-import org.a0z.mpd.item.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.ArtistParcelable;
+import org.a0z.mpd.item.Genre;
+import org.a0z.mpd.item.GenreParcelable;
+import org.a0z.mpd.item.Item;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -217,8 +219,13 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(EXTRA_ARTIST, artist);
-        outState.putParcelable(EXTRA_GENRE, genre);
+        if (artist != null) {
+            outState.putParcelable(EXTRA_ARTIST, new ArtistParcelable(artist));
+        }
+
+        if (genre != null) {
+            outState.putParcelable(EXTRA_GENRE, new GenreParcelable(genre));
+        }
         super.onSaveInstanceState(outState);
     }
 

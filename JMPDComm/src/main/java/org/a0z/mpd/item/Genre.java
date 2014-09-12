@@ -27,40 +27,20 @@
 
 package org.a0z.mpd.item;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-public class Genre extends Item implements Parcelable {
+public class Genre extends Item {
 
     private final String name;
 
     private final String sort;
 
-    // private final boolean isVa;
-
-    public static final Parcelable.Creator<Genre> CREATOR = new Parcelable.Creator<Genre>() {
-        public Genre createFromParcel(Parcel in) {
-            return new Genre(in);
-        }
-
-        public Genre[] newArray(int size) {
-            return new Genre[size];
-        }
-    };
-
-    protected Genre(Parcel in) {
-        this.name = in.readString();
-        this.sort = in.readString();
+    public Genre(final Genre genre) {
+        this.name = genre.name;
+        this.sort = genre.sort;
     }
 
     public Genre(String name) {
         this.name = name;
         sort = null;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     @Override
@@ -82,11 +62,5 @@ public class Genre extends Item implements Parcelable {
 
     public String sort() {
         return null == sort ? name : sort;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.name);
-        dest.writeString(this.sort);
     }
 }

@@ -27,72 +27,40 @@
 
 package org.a0z.mpd.item;
 
-import java.util.Locale;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Artist extends Item {
+/** A class to put org.a0z.mpd.item.Genre in a Parcelable wrapper. */
+public class GenreParcelable extends Genre implements Parcelable {
 
-    private String name;
-
-    private String sort;
-
-    private int albumCount;
-
-    public Artist(Artist a) {
-        this(a.name, a.sort, a.albumCount);
-    }
-
-    public Artist(String name) {
-        this(name, 0);
-    }
-
-    public Artist(String name, int albumCount) {
-        this.name = name;
-        if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
-            sort = name.substring(4);
-        } else {
-            sort = null;
+    public static final Creator<Genre> CREATOR = new Creator<Genre>() {
+        @Override
+        public Genre createFromParcel(final Parcel source) {
+            return new GenreParcelable(source);
         }
-        this.albumCount = albumCount;
+
+        @Override
+        public Genre[] newArray(final int size) {
+            return new Genre[size];
+        }
+    };
+
+    public GenreParcelable(final Genre genre) {
+        super(genre);
     }
 
-    protected Artist(final String name, final String sort, final int albumCount) {
-        super();
-
-        this.name = name;
-        this.sort = sort;
-        this.albumCount = albumCount;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return (o instanceof Artist) && ((Artist) o).name.equals(name);
-    }
-
-    protected int getAlbumCount() {
-        return albumCount;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String info() {
-        return getName();
-    }
-
-    /*
-     * text for display Item.toString() returns mainText()
-     */
-    public String mainText() {
-        return name;
+    protected GenreParcelable(final Parcel in) {
+        super(in.readString()); /** name */
     }
 
     @Override
-    public boolean nameEquals(Item o) {
-        return equals(o);
+    public int describeContents() {
+        return 0;
     }
 
-    public String sortText() {
-        return null == sort ? name == null ? "" : super.sortText() : sort;
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeString(getName());
+        dest.writeString(sort());
     }
 }

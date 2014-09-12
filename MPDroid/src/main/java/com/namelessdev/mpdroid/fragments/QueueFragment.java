@@ -34,13 +34,15 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
 
 import org.a0z.mpd.AlbumInfo;
-import org.a0z.mpd.item.Item;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.item.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.AlbumParcelable;
+import org.a0z.mpd.item.ArtistParcelable;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -48,6 +50,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -439,17 +442,22 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 if (music == null || isEmpty(music.getArtist())) {
                     break;
                 }
+
+                final Parcelable artistParcel = new ArtistParcelable(music.getArtistAsArtist());
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", music.getArtistAsArtist());
+                intent.putExtra("artist", artistParcel);
                 startActivityForResult(intent, -1);
                 break;
             case R.id.PLCX_goToAlbum:
                 music = getPlaylistItemSong(popupSongID);
+
                 if (music == null || isEmpty(music.getArtist()) || isEmpty(music.getAlbum())) {
                     break;
                 }
+
+                final Parcelable albumParcel = new AlbumParcelable(music.getAlbumAsAlbum());
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("album", music.getAlbumAsAlbum());
+                intent.putExtra("album", albumParcel);
                 startActivityForResult(intent, -1);
                 break;
             case R.id.PLCX_goToFolder:

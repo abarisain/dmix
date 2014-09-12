@@ -28,9 +28,11 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.item.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.item.AlbumParcelable;
+import org.a0z.mpd.item.ArtistParcelable;
+import org.a0z.mpd.item.Music;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -40,6 +42,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -434,18 +437,24 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         switch (item.getItemId()) {
             case POPUP_ARTIST:
+                final Parcelable artistParcel =
+                        new ArtistParcelable(currentSong.getArtistAsArtist());
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", currentSong.getArtistAsArtist());
+                intent.putExtra("artist", artistParcel);
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ALBUMARTIST:
+                final Parcelable albumArtistParcel =
+                        new ArtistParcelable(currentSong.getAlbumArtistAsArtist());
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", currentSong.getAlbumArtistAsArtist());
+                intent.putExtra("artist", albumArtistParcel);
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ALBUM:
+                final Parcelable albumParcel =
+                        new AlbumParcelable(currentSong.getAlbumAsAlbum());
                 intent = new Intent(activity, SimpleLibraryActivity.class);
-                intent.putExtra("album", currentSong.getAlbumAsAlbum());
+                intent.putExtra("album", albumParcel);
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_FOLDER:

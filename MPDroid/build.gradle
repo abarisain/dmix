@@ -59,7 +59,7 @@ dependencies {
     compile 'com.android.support:support-v4:20.+'
 
     // Projects
-    compile project(':JMPDComm')
+    compile project(':JMPDCommAndroid')
 
     // Libraries from maven
     compile 'com.sothree.slidinguppanel:library:2.0.1'

@@ -27,72 +27,45 @@
 
 package org.a0z.mpd.item;
 
-import java.util.Locale;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Artist extends Item {
+/** A class to put org.a0z.mpd.item.Artist in a Parcelable wrapper. */
+public class ArtistParcelable extends Artist implements Parcelable {
 
-    private String name;
+    public static final Creator<Artist> CREATOR =
+            new Creator<Artist>() {
 
-    private String sort;
+                @Override
+                public Artist createFromParcel(final Parcel source) {
+                    return new ArtistParcelable(source);
+                }
 
-    private int albumCount;
+                @Override
+                public Artist[] newArray(final int size) {
+                    return new Artist[size];
+                }
+            };
 
-    public Artist(Artist a) {
-        this(a.name, a.sort, a.albumCount);
+    public ArtistParcelable(final Artist artist) {
+        super(artist);
     }
 
-    public Artist(String name) {
-        this(name, 0);
-    }
-
-    public Artist(String name, int albumCount) {
-        this.name = name;
-        if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
-            sort = name.substring(4);
-        } else {
-            sort = null;
-        }
-        this.albumCount = albumCount;
-    }
-
-    protected Artist(final String name, final String sort, final int albumCount) {
-        super();
-
-        this.name = name;
-        this.sort = sort;
-        this.albumCount = albumCount;
+    protected ArtistParcelable(final Parcel in) {
+        super(in.readString(), /** name */
+                in.readString(), /** sort */
+                in.readInt()); /** albumCount */
     }
 
     @Override
-    public boolean equals(Object o) {
-        return (o instanceof Artist) && ((Artist) o).name.equals(name);
-    }
-
-    protected int getAlbumCount() {
-        return albumCount;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String info() {
-        return getName();
-    }
-
-    /*
-     * text for display Item.toString() returns mainText()
-     */
-    public String mainText() {
-        return name;
+    public int describeContents() {
+        return 0;
     }
 
     @Override
-    public boolean nameEquals(Item o) {
-        return equals(o);
-    }
-
-    public String sortText() {
-        return null == sort ? name == null ? "" : super.sortText() : sort;
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeString(getName());
+        dest.writeString(sortText());
+        dest.writeInt(getAlbumCount());
     }
 }

@@ -277,6 +277,12 @@ public class Music extends Item implements FilesystemTreeEntry {
         }
     }
 
+    protected Music(final Music music) {
+        this(music.album, music.artist, music.albumartist, music.fullpath, music.disc, music.date,
+                music.time, music.parent, music.title, music.totalTracks, music.track, music.songId,
+                music.pos, music.name);
+    }
+
     protected Music(String album, String artist, String albumartist, String fullpath, int disc,
             long date, long time, Directory parent, String title, int totalTracks, int track,
             int songId, int pos, String name) {

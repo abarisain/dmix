@@ -25,7 +25,9 @@ import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.AlbumParcelable;
 import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Music;
 
 import android.app.ActionBar;
@@ -35,6 +37,7 @@ import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -389,12 +392,14 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         if (selectedItem instanceof Music) {
             add((Music) selectedItem, false, false);
         } else if (selectedItem instanceof Artist) {
+            final Parcelable parcel = new ArtistParcelable((Artist) selectedItem);
             Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("artist", ((Artist) selectedItem));
+            intent.putExtra("artist", parcel);
             startActivityForResult(intent, -1);
         } else if (selectedItem instanceof Album) {
+            final Parcelable parcel = new AlbumParcelable((Album) selectedItem);
             Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("album", ((Album) selectedItem));
+            intent.putExtra("album", parcel);
             startActivityForResult(intent, -1);
         }
     }

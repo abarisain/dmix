@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/JMPDComm/JMPDComm.iml" filepath="$PROJECT_DIR$/JMPDComm/JMPDComm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JMPDComm/android/JMPDCommAndroid.iml" filepath="$PROJECT_DIR$/JMPDComm/android/JMPDCommAndroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JMPDComm/java/JMPDCommJava.iml" filepath="$PROJECT_DIR$/JMPDComm/java/JMPDCommJava.iml" />
       <module fileurl="file://$PROJECT_DIR$/MPDroid/MPDroid.iml" filepath="$PROJECT_DIR$/MPDroid/MPDroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/dmix.iml" filepath="$PROJECT_DIR$/dmix.iml" />
     </modules>
