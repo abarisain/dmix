@@ -30,8 +30,6 @@ package org.a0z.mpd;
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -198,7 +196,7 @@ final class CommandQueue {
         }
 
         if (DEBUG) {
-            Log.d(TAG, toString(separated));
+            Log.debug(TAG, toString(separated));
         }
 
         return mpdConnection.sendCommand(mpdCommand);

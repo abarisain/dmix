@@ -27,8 +27,6 @@
 
 package org.a0z.mpd;
 
-import android.util.Log;
-
 import java.util.Date;
 
 /**
@@ -172,7 +170,7 @@ public class MPDStatistics {
                     mUpTime = Long.parseLong(lines[1]);
                     break;
                 default:
-                    Log.w(TAG, "Undocumented statistic: " + lines[0]);
+                    Log.warning(TAG, "Undocumented statistic: " + lines[0]);
                     break;
             }
         }

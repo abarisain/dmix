@@ -27,8 +27,6 @@
 
 package org.a0z.mpd;
 
-import android.util.Log;
-
 import java.util.Date;
 import java.util.regex.Pattern;
 
@@ -470,7 +468,7 @@ public class MPDStatus {
                         if ("nan".equals(lines[1])) {
                             mixRampDisabled = true;
                         } else {
-                            Log.e(TAG, "Unexpected value from mixrampdb.", e);
+                            Log.error(TAG, "Unexpected value from mixrampdb.", e);
                         }
                     }
                     break;
@@ -481,7 +479,7 @@ public class MPDStatus {
                         if ("nan".equals(lines[1])) {
                             mixRampDisabled = true;
                         } else {
-                            Log.e(TAG, "Unexpected value from mixrampdelay", e);
+                            Log.error(TAG, "Unexpected value from mixrampdelay", e);
                         }
                     }
                     break;
@@ -546,7 +544,7 @@ public class MPDStatus {
                     updating = true;
                     break;
                 default:
-                    Log.d(TAG, "Status was sent an unknown response line:" + lines[1] +
+                    Log.debug(TAG, "Status was sent an unknown response line:" + lines[1] +
                             " from: " + lines[0]);
             }
         }

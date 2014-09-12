@@ -27,7 +27,7 @@
 
 package org.a0z.mpd.exception;
 
-import android.util.Log;
+import org.a0z.mpd.Log;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,7 +108,7 @@ public class MPDServerException extends MPDException {
                     }
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error while extracting MPDServerException error code. ACK line : "
+                Log.error(TAG, "Error while extracting MPDServerException error code. ACK line : "
                         + getMessage(), e);
             }
         }

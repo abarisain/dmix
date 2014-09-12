@@ -28,10 +28,9 @@
 package org.a0z.mpd.item;
 
 import org.a0z.mpd.AlbumInfo;
+import org.a0z.mpd.Log;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.StringsUtils;
-
-import android.util.Log;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -209,7 +208,7 @@ public class Music extends Item implements FilesystemTreeEntry {
                         final Matcher matcher = DATE_DELIMITER.matcher(lines[1]);
                         date = Long.parseLong(matcher.replaceAll(""));
                     } catch (final NumberFormatException e) {
-                        Log.w(TAG, "Not a valid date.", e);
+                        Log.warning(TAG, "Not a valid date.", e);
                     }
                     break;
                 case "Disc":
@@ -218,7 +217,7 @@ public class Music extends Item implements FilesystemTreeEntry {
                         try {
                             disc = Integer.parseInt(discs[0]);
                         } catch (final NumberFormatException e) {
-                            Log.w(TAG, "Not a valid disc number.", e);
+                            Log.warning(TAG, "Not a valid disc number.", e);
                         }
                     }
                     break;
@@ -226,7 +225,7 @@ public class Music extends Item implements FilesystemTreeEntry {
                     try {
                         songId = Integer.parseInt(lines[1]);
                     } catch (final NumberFormatException e) {
-                        Log.e(TAG, "Not a valid song ID.", e);
+                        Log.error(TAG, "Not a valid song ID.", e);
                     }
                     break;
                 case "Name":
@@ -241,14 +240,14 @@ public class Music extends Item implements FilesystemTreeEntry {
                     try {
                         pos = Integer.parseInt(lines[1]);
                     } catch (final NumberFormatException e) {
-                        Log.e(TAG, "Not a valid song position.", e);
+                        Log.error(TAG, "Not a valid song position.", e);
                     }
                     break;
                 case "Time":
                     try {
                         time = Long.parseLong(lines[1]);
                     } catch (final NumberFormatException e) {
-                        Log.e(TAG, "Not a valid time number.", e);
+                        Log.error(TAG, "Not a valid time number.", e);
                     }
                     break;
                 case "Title":
@@ -263,7 +262,7 @@ public class Music extends Item implements FilesystemTreeEntry {
                                 totalTracks = Integer.parseInt(tracks[1]);
                             }
                         } catch (final NumberFormatException e) {
-                            Log.e(TAG, "Not a valid track number", e);
+                            Log.error(TAG, "Not a valid track number", e);
                         }
                     }
                     break;

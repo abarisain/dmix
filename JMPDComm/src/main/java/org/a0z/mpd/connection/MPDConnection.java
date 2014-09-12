@@ -27,13 +27,12 @@
 
 package org.a0z.mpd.connection;
 
+import org.a0z.mpd.Log;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
-
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -285,7 +284,7 @@ public abstract class MPDConnection {
             try {
                 result = mExecutor.submit(new CommandProcessor(command)).get();
                 // Spam the log with the largest pool size
-                //Log.d(TAG, "Largest pool size: " + mExecutor.getLargestPoolSize());
+                //Log.debug(TAG, "Largest pool size: " + mExecutor.getLargestPoolSize());
             } catch (final ExecutionException | InterruptedException e) {
                 throw new MPDServerException(e);
             }
@@ -395,7 +394,7 @@ public abstract class MPDConnection {
                     result.setLastException(new MPDConnectionException(
                             "MPD request has been cancelled for disconnection."));
                 }
-                Log.e(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
+                Log.error(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
                         retryCount + " attempts.", result.getLastException());
             } else {
                 mIsConnected = true;
@@ -544,7 +543,7 @@ public abstract class MPDConnection {
         private void write() throws IOException {
             final String cmdString = mCommand.toString();
             // Uncomment for extreme command debugging
-            //Log.v(TAG, "Sending MPDCommand : " + cmdString);
+            //Log.debug(TAG, "Sending MPDCommand : " + cmdString);
             getOutputStream().write(cmdString);
             getOutputStream().flush();
             mIsCommandSent = true;

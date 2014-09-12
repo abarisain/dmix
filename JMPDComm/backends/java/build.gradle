@@ -5,5 +5,9 @@ sourceSets {
         java {
             srcDir '../../src/main/java'
         }
+
+        java {
+            srcDir 'src/main/java'
+        }
     }
 }

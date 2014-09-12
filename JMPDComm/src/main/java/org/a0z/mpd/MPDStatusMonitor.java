@@ -33,8 +33,6 @@ import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 
-import android.util.Log;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -173,7 +171,7 @@ public class MPDStatusMonitor extends Thread {
                         mpd.updateStatus();
                         playlist.refresh(status);
                     } catch (final MPDServerException e) {
-                        Log.e(TAG, "Failed to force a status update.", e);
+                        Log.error(TAG, "Failed to force a status update.", e);
                     }
                 }
 

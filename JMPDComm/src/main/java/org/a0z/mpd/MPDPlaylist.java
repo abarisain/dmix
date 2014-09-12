@@ -32,8 +32,6 @@ import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;
 
-import android.util.Log;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -320,7 +318,7 @@ public class MPDPlaylist {
 
         if (artist != null && album != null) {
             if (DEBUG) {
-                Log.d(TAG, "Remove album " + album + " of " + artist);
+                Log.debug(TAG, "Remove album " + album + " of " + artist);
             }
             final CommandQueue commandQueue = new CommandQueue();
 
@@ -347,7 +345,7 @@ public class MPDPlaylist {
             commandQueue.send(mConnection);
         }
         if (DEBUG) {
-            Log.d(TAG, "Removed " + num + " songs");
+            Log.debug(TAG, "Removed " + num + " songs");
         }
     }
 

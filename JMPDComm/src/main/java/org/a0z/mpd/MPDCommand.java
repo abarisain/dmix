@@ -27,8 +27,6 @@
 
 package org.a0z.mpd;
 
-import android.util.Log;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -208,7 +206,7 @@ public class MPDCommand {
             } else {
                 safeCommand = outString;
             }
-            Log.d(TAG, "MPD command: " + safeCommand);
+            Log.debug(TAG, "MPD command: " + safeCommand);
         }
 
         return outString;

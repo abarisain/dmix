@@ -41,8 +41,6 @@ import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
 
-import android.util.Log;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -518,7 +516,7 @@ public class MPD {
         try {
             albumartists = listAlbumArtists(albums);
         } catch (final MPDServerException e) {
-            Log.e(TAG, "Failed to fix album artists.", e);
+            Log.error(TAG, "Failed to fix album artists.", e);
         }
         if (albumartists == null || albumartists.size() != albums.size()) {
             return;
@@ -577,7 +575,7 @@ public class MPD {
         }
         final List<String[]> response = commandQueue.sendSeparated(mpdConnection);
         if (response.size() != albums.size()) {
-            // Log.d("MPD AlbumDetails", "non matching results "+
+            // Log.debug("MPD AlbumDetails", "non matching results "+
             // response.size()+" != "+ albums.size());
             return;
         }
@@ -1090,7 +1088,7 @@ public class MPD {
         }
         final List<String[]> response = commandQueue.sendSeparated(mpdConnection);
         if (response.size() != albums.size()) {
-            Log.d("MPD listAlbumArtists", "ERROR");
+            Log.debug("MPD listAlbumArtists", "ERROR");
             return null;
         }
         for (int i = 0; i < response.size(); i++) {
@@ -1637,7 +1635,7 @@ public class MPD {
         final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
 
         if (response == null) {
-            Log.e(TAG, "No status response from the MPD server.");
+            Log.error(TAG, "No status response from the MPD server.");
         } else {
             mpdStatus.updateStatus(response);
         }
