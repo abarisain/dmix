@@ -106,7 +106,7 @@ public class MPDAsyncWorker implements Handler.Callback,
         try {
             if (mMPD != null) {
                 mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
-
+                mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
             }
         } catch (final MPDServerException | UnknownHostException e) {
             Log.e(TAG, "Error while connecting to the server.", e);
@@ -118,7 +118,6 @@ public class MPDAsyncWorker implements Handler.Callback,
             final MPDApplication app = MPDApplication.getInstance();
             final String unknownAlbum = app.getString(R.string.unknown_metadata_album);
             final String unknownArtist = app.getString(R.string.unknown_metadata_artist);
-            mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
 
             /** Set MPD defaults. */
             MPD.setSortByTrackNumber(mPreferences.getBoolean(ALBUM_TRACK_SORT_KEY, true));
