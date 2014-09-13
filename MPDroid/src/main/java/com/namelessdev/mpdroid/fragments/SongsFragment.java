@@ -185,7 +185,7 @@ public class SongsFragment extends BrowseFragment {
         if (album == null) {
             result = getString(R.string.songs);
         } else {
-            result = Tools.getMainText(album);
+            result = album.mainText();
         }
 
         return result;

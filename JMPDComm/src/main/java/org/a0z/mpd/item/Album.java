@@ -151,7 +151,15 @@ public class Album extends Item {
      */
     @Override
     public String mainText() {
-        return name;
+        final String result;
+
+        if (name.isEmpty()) {
+            result = MPD.getUnknownAlbum();
+        } else {
+            result = name;
+        }
+
+        return result;
     }
 
     @Override

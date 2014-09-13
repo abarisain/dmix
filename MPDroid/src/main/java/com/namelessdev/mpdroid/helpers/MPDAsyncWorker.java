@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -114,12 +115,17 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
 
         if (mMPD != null) {
+            final MPDApplication app = MPDApplication.getInstance();
+            final String unknownAlbum = app.getString(R.string.unknown_metadata_album);
+            final String unknownArtist = app.getString(R.string.unknown_metadata_artist);
             mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
 
             /** Set MPD defaults. */
             MPD.setSortByTrackNumber(mPreferences.getBoolean(ALBUM_TRACK_SORT_KEY, true));
             MPD.setSortAlbumsByYear(mPreferences.getBoolean(ALBUM_YEAR_SORT_KEY, false));
             MPD.setShowAlbumTrackCount(mPreferences.getBoolean(SHOW_ALBUM_TRACK_COUNT_KEY, true));
+            MPD.setUnknownArtist(unknownArtist);
+            MPD.setUnknownAlbum(unknownAlbum);
         }
     }
 

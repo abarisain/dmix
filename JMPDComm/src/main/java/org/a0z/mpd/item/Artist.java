@@ -27,6 +27,8 @@
 
 package org.a0z.mpd.item;
 
+import org.a0z.mpd.MPD;
+
 import java.util.Locale;
 
 public class Artist extends Item {
@@ -83,8 +85,17 @@ public class Artist extends Item {
     /*
      * text for display Item.toString() returns mainText()
      */
+    @Override
     public String mainText() {
-        return name;
+        final String result;
+
+        if(name.isEmpty()) {
+            result = MPD.getUnknownArtist();
+        } else {
+            result = name;
+        }
+
+        return result;
     }
 
     @Override

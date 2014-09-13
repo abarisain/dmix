@@ -80,6 +80,26 @@ public class MPD {
 
     protected static boolean showAlbumTrackCount = true;
 
+    private static String sUnknownAlbum = "";
+
+    private static String sUnknownArtist = "";
+
+    public static String getUnknownArtist() {
+        return sUnknownArtist;
+    }
+
+    public static String getUnknownAlbum() {
+        return sUnknownAlbum;
+    }
+
+    public static void setUnknownArtist(final String unknownArtist) {
+        sUnknownArtist = unknownArtist;
+    }
+
+    public static void setUnknownAlbum(final String unknownAlbum) {
+        sUnknownAlbum = unknownAlbum;
+    }
+
     public static void setShowAlbumTrackCount(boolean v) {
         showAlbumTrackCount = v;
     }

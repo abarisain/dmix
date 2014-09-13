@@ -357,12 +357,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         switch (pager.getCurrentItem()) {
             case 0:
                 final Artist artist = arrayArtistsResults.get((int) info.id);
-                menu.setHeaderTitle(Tools.getMainText(artist));
+                menu.setHeaderTitle(artist.mainText());
                 setContextForObject(artist);
                 break;
             case 1:
                 final Album album = arrayAlbumsResults.get((int) info.id);
-                menu.setHeaderTitle(Tools.getMainText(album));
+                menu.setHeaderTitle(album.mainText());
                 setContextForObject(album);
                 break;
             case 2:
