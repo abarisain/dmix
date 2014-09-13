@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
@@ -28,6 +29,7 @@ import org.a0z.mpd.event.TrackPositionListener;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 
 import java.util.Collection;
 
@@ -97,7 +99,8 @@ public class MPDAsyncHelper implements Handler.Callback {
     private boolean mIsNetworkMonitorActive = false;
 
     public MPDAsyncHelper() {
-        this(true);
+        this(PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance())
+                .getBoolean(MPDAsyncWorker.USE_LOCAL_ALBUM_CACHE_KEY, false));
     }
 
     /**

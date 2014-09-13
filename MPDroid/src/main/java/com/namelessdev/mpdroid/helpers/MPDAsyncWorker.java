@@ -71,7 +71,7 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
 
-    private static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
+    static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
     private static final String TAG = "MPDAsyncWorker";
 
