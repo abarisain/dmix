@@ -93,7 +93,13 @@ public class MPDStatistics {
      * @return last database update time.
      */
     public Date getDbUpdate() {
-        return (Date) mDbUpdate.clone();
+        Date dbUpdate = null;
+
+        if (mDbUpdate != null) {
+            dbUpdate = (Date) mDbUpdate.clone();
+        }
+
+        return dbUpdate;
     }
 
     /**
