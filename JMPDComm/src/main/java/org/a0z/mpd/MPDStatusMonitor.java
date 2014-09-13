@@ -201,7 +201,6 @@ public class MPDStatusMonitor extends Thread {
                                     statusChanged = true;
                                     break;
                                 case "playlist":
-                                    playlist.refresh(status);
                                     statusChanged = true;
                                     break;
                                 default:
@@ -220,7 +219,7 @@ public class MPDStatusMonitor extends Thread {
                         if (connectionStateChanged
                                 || (oldPlaylistVersion != status.getPlaylistVersion() && status
                                 .getPlaylistVersion() != -1)) {
-                            // Lets update our own copy
+                            playlist.refresh(status);
                             for (StatusChangeListener listener : statusChangedListeners) {
                                 listener.playlistChanged(status, oldPlaylistVersion);
                             }
