@@ -112,6 +112,10 @@ public class MPDPlaylist {
             throw new IllegalStateException("Cannot crop when media server is inactive.");
         }
 
+        if (playlistLength == 1) {
+            throw new IllegalStateException("Cannot crop when media server playlist length is 1.");
+        }
+
         commandQueue.add(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(currentTrackID), "0");
         commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, "1:" + playlistLength);
 

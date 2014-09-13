@@ -257,14 +257,17 @@ public class MPD {
         final boolean isPlaying = mpdStatus.isState(MPDStatus.STATE_PLAYING);
         final boolean isConsume = mpdStatus.isConsume();
         final boolean isRandom = mpdStatus.isRandom();
+        final int playlistLength = mpdStatus.getPlaylistLength();
 
         /** Replace */
         if (replace) {
             if (isPlaying) {
-                try {
-                    commandQueue.add(0, MPDPlaylist.cropCommand(this));
-                } catch (final IllegalStateException ignored) {
-                    /** Shouldn't occur, we already checked for playing. */
+                if (playlistLength > 1) {
+                    try {
+                        commandQueue.add(0, MPDPlaylist.cropCommand(this));
+                    } catch (final IllegalStateException ignored) {
+                        /** Shouldn't occur, we already checked for playing. */
+                    }
                 }
             } else {
                 commandQueue.add(0, MPDPlaylist.clearCommand());
