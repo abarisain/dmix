@@ -51,11 +51,11 @@ public class AlbumParcelable extends Album implements Parcelable {
 
     protected AlbumParcelable(final Parcel in) {
         super(in.readString(), /** name */
+                new Artist(in.readString()), /** artist */
+                in.readInt() > 0, /** hasAlbumArtist */
                 in.readLong(), /** songCount */
                 in.readLong(), /** duration */
                 in.readLong(), /** year */
-                new Artist(in.readString()), /** artist */
-                in.readInt() > 0, /** hasAlbumArtist */
                 in.readString()); /** path */
     }
 

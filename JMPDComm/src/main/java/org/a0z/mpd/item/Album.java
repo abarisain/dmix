@@ -47,20 +47,20 @@ public class Album extends Item {
     private boolean hasAlbumArtist;
 
     public Album(Album a) {
-        this(a.name, a.songCount, a.duration, a.year,
-                new Artist(a.artist), a.hasAlbumArtist, a.path);
+        this(a.name, new Artist(a.artist), a.hasAlbumArtist, a.songCount, a.duration, a.year,
+                a.path);
     }
 
     public Album(String name, Artist artist) {
-        this(name, 0L, 0L, 0L, artist, false, "");
+        this(name, artist, false, 0L, 0L, 0L, "");
     }
 
     public Album(String name, Artist artist, boolean hasAlbumArtist) {
-        this(name, 0L, 0L, 0L, artist, hasAlbumArtist, "");
+        this(name, artist, hasAlbumArtist, 0L, 0L, 0L, "");
     }
 
-    public Album(String name, long songCount, long duration, long year,
-            Artist artist, boolean hasAlbumArtist, String path) {
+    public Album(String name, Artist artist, boolean hasAlbumArtist, long songCount, long duration,
+            long year, String path) {
         this.name = name;
         this.songCount = songCount;
         this.duration = duration;
