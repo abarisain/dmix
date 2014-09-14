@@ -418,11 +418,11 @@ public final class CoverManager {
     }
 
     AlbumInfo getNormalizedAlbumInfo(final AlbumInfo albumInfo) {
-        final AlbumInfo normalizedAlbumInfo = new AlbumInfo(albumInfo);
-        normalizedAlbumInfo.setAlbum(cleanGetRequest(normalizedAlbumInfo.getAlbum()));
-        normalizedAlbumInfo.setAlbum(removeDiscReference(normalizedAlbumInfo.getAlbum()));
-        normalizedAlbumInfo.setArtist(cleanGetRequest(normalizedAlbumInfo.getArtist()));
-        return normalizedAlbumInfo;
+        final String artist = cleanGetRequest(albumInfo.getArtist());
+        String album = cleanGetRequest(albumInfo.getAlbum());
+        album = removeDiscReference(album);
+
+        return new AlbumInfo(album, artist, albumInfo.getPath(), albumInfo.getFilename());
     }
 
     private void initializeCoverData() {

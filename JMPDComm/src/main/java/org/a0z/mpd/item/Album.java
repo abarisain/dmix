@@ -29,10 +29,13 @@ package org.a0z.mpd.item;
 
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
+import org.a0z.mpd.Tools;
+
+import java.util.Arrays;
 
 public class Album extends Item {
 
-    private String name;
+    private final String name;
 
     private long songCount;
 
@@ -42,7 +45,7 @@ public class Album extends Item {
 
     private String path;
 
-    private Artist artist;
+    private final Artist artist;
 
     private boolean hasAlbumArtist;
 
@@ -52,11 +55,11 @@ public class Album extends Item {
     }
 
     public Album(String name, Artist artist) {
-        this(name, artist, false, 0L, 0L, 0L, "");
+        this(name, artist, false, 0L, 0L, 0L, null);
     }
 
     public Album(String name, Artist artist, boolean hasAlbumArtist) {
-        this(name, artist, hasAlbumArtist, 0L, 0L, 0L, "");
+        this(name, artist, hasAlbumArtist, 0L, 0L, 0L, null);
     }
 
     public Album(String name, Artist artist, boolean hasAlbumArtist, long songCount, long duration,
@@ -79,23 +82,54 @@ public class Album extends Item {
                     return year < oa.year ? -1 : 1;
                 }
             }
-            //int comp = super.compareTo(o);
-            // if (comp == 0 && artist != null) { // same album name, check artist
-            //    comp = artist.compareTo(oa.artist);
-            // }
         }
         return super.compareTo(o);
     }
 
-
+    /**
+     * Compares an Artist object with a general contract of
+     * comparison that is reflexive, symmetric and transitive.
+     *
+     * @param o The object to compare this instance with.
+     * @return True if the objects are equal with regard to te general contract, false otherwise.
+     * @see Object#equals(Object)
+     */
     @Override
-    public boolean equals(Object o) {
-        if (o instanceof Album) {
-            Album a = (Album) o;
-            return (hasAlbumArtist == a.hasAlbumArtist &&
-                    name.equals(a.getName()) && artist.equals(a.getArtist()));
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
         }
-        return false;
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            final Album album = (Album) o;
+
+            if (Tools.isNotEqual(name, album.name) || Tools.isNotEqual(artist, album.artist)) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
+    }
+
+    /**
+     * Returns an integer hash code for this Artist. By contract, any two objects for which
+     * {@link #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * @return This Artist hash code.
+     * @see Object#equals(Object)
+     */
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{name, artist});
     }
 
     public AlbumInfo getAlbumInfo() {
@@ -155,8 +189,15 @@ public class Album extends Item {
         return false;
     }
 
-    public void setArtist(Artist artist) {
-        this.artist = artist;
+    /**
+     * This sets the artist in a new object, due to the required immutability of name
+     * and artist to satisfy the requirement that the hash code not change over time.
+     *
+     * @param artist The new artist.
+     * @return A new Album object based off this Album object.
+     */
+    public Album setArtist(final Artist artist) {
+        return new Album(name, artist, hasAlbumArtist, songCount, duration, year, path);
     }
 
     public void setDuration(long d) {

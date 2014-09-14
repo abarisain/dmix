@@ -30,7 +30,7 @@ package org.a0z.mpd.item;
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.Log;
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.StringsUtils;
+import org.a0z.mpd.Tools;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -190,7 +190,7 @@ public class Music extends Item implements FilesystemTreeEntry {
     Music(final List<String> response) {
         super();
         for (final String line : response) {
-            final String[] lines = StringsUtils.MPD_DELIMITER.split(line, 2);
+            final String[] lines = Tools.MPD_DELIMITER.split(line, 2);
 
             switch (lines[0]) {
                 case "file":

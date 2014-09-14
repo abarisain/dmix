@@ -552,8 +552,8 @@ public class MPD {
                 Arrays.sort(aartists); // make sure "" is the first one
                 if (aartists[0] != null && !aartists[0].isEmpty()) { // one albumartist, fix this
                     // album
-                    a.setArtist(new Artist(aartists[0]));
-                    a.setHasAlbumArtist(true);
+                    final Artist artist = new Artist(aartists[0]);
+                    a = a.setArtist(artist);
                 } // do nothing if albumartist is ""
                 if (aartists.length > 1) { // it's more than one album, insert
                     for (int n = 1; n < aartists.length; n++) {

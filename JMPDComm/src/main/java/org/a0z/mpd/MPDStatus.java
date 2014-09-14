@@ -434,7 +434,7 @@ public class MPDStatus {
         resetValues();
 
         for (final String line : response) {
-            final String[] lines = StringsUtils.MPD_DELIMITER.split(line, 2);
+            final String[] lines = Tools.MPD_DELIMITER.split(line, 2);
 
             switch (lines[0]) {
                 case "audio":

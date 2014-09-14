@@ -28,7 +28,7 @@
 package org.a0z.mpd.item;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.StringsUtils;
+import org.a0z.mpd.Tools;
 import org.a0z.mpd.exception.InvalidParameterException;
 import org.a0z.mpd.exception.MPDServerException;
 
@@ -144,7 +144,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
             // If we hit anything we know is an item, consume the linecache
             final String line = response.get(i);
-            final String[] lines = StringsUtils.MPD_DELIMITER.split(line, 2);
+            final String[] lines = Tools.MPD_DELIMITER.split(line, 2);
 
             switch (lines[0]) {
                 case "directory":

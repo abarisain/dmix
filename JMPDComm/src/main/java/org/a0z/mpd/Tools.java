@@ -30,7 +30,7 @@ package org.a0z.mpd;
 import java.security.MessageDigest;
 import java.util.regex.Pattern;
 
-public final class StringsUtils {
+public final class Tools {
 
     /**
      * This is a regular expression pattern matcher for the typical MPD protocol response.
@@ -39,7 +39,7 @@ public final class StringsUtils {
 
     private static final Pattern EXTENSION_DELIMITER = Pattern.compile("\\.");
 
-    private StringsUtils() {
+    private Tools() {
         super();
     }
 
@@ -80,6 +80,33 @@ public final class StringsUtils {
             }
         }
         return "";
+    }
+
+    /**
+     * Compares inside objects for an Object.equals(object) implementation.
+     *
+     * @param objectA An object to be compared.
+     * @param objectB An object to be compared.
+     * @return False if objects are both null or are equal, true otherwise.
+     */
+    public static boolean isNotEqual(final Object objectA, final Object objectB) {
+        final boolean isEqual;
+
+        if (objectA == null) {
+            if (objectB == null) {
+                isEqual = true;
+            } else {
+                isEqual = false;
+            }
+        } else {
+            if (objectA.equals(objectB)) {
+                isEqual = true;
+            } else {
+                isEqual = false;
+            }
+        }
+
+        return !isEqual;
     }
 
     /**

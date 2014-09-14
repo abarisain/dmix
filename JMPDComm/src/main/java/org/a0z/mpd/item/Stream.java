@@ -27,10 +27,14 @@
 
 package org.a0z.mpd.item;
 
+import org.a0z.mpd.Tools;
+
+import java.util.Arrays;
+
 public class Stream extends Item {
-    private String name = null;
-    protected String url = null;
-    private int pos = -1;
+    private final String name;
+    protected final String url;
+    private int pos;
 
     public Stream(String name, String url, int pos) {
         this.name = name;
@@ -48,13 +52,45 @@ public class Stream extends Item {
     public int getPos() { return pos; }
     public void setPos(int p) { pos=p; }
 
+    /**
+     * Compares an Artist object with a general contract of
+     * comparison that is reflexive, symmetric and transitive.
+     *
+     * @param o The object to compare this instance with.
+     * @return True if the objects are equal with regard to te general contract, false otherwise.
+     * @see Object#equals(Object)
+     */
     @Override
-    public boolean equals(Object other) {
-        return this==other || (null!=other && other instanceof Stream && null!=url && url.equals(((Stream) other).url));
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
+        }
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            final Stream stream = (Stream) o;
+
+            if (Tools.isNotEqual(name, stream.name)) {
+                isEqual = Boolean.FALSE;
+            }
+
+            if (Tools.isNotEqual(url, stream.url)) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
     }
 
     @Override
     public int hashCode() {
-        return null==url ? 0 : url.hashCode();
+        return Arrays.hashCode(new Object[]{name, url});
     }
 }

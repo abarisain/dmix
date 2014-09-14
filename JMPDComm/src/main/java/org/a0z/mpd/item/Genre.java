@@ -27,6 +27,10 @@
 
 package org.a0z.mpd.item;
 
+import org.a0z.mpd.Tools;
+
+import java.util.Arrays;
+
 public class Genre extends Item {
 
     private final String name;
@@ -43,9 +47,56 @@ public class Genre extends Item {
         sort = null;
     }
 
+    /**
+     * Compares an Artist object with a general contract of
+     * comparison that is reflexive, symmetric and transitive.
+     *
+     * @param o The object to compare this instance with.
+     * @return True if the objects are equal with regard to te general contract, false otherwise.
+     * @see Object#equals(Object)
+     */
     @Override
-    public boolean equals(Object o) {
-        return (o instanceof Genre) && ((Genre) o).name.equals(name);
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            /** This takes care of the reflexive relation part of the general contract. */
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            /** The compared object is null or the same class, obviously not equal. */
+            isEqual = Boolean.FALSE;
+        }
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            final Genre genre = (Genre) o;
+
+            if (Tools.isNotEqual(name, genre.name)) {
+                isEqual = Boolean.FALSE;
+            }
+
+            if (Tools.isNotEqual(sort, genre.sort)) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
+    }
+
+    /**
+     * Returns an integer hash code for this Artist. By contract, any two objects for which
+     * {@link #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * @return This Artist hash code.
+     * @see Object#equals(Object)
+     */
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{name, sort});
     }
 
     public String getName() {

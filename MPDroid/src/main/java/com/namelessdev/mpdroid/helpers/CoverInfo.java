@@ -16,11 +16,11 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import android.graphics.Bitmap;
-
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 
 import org.a0z.mpd.AlbumInfo;
+
+import android.graphics.Bitmap;
 
 public class CoverInfo extends AlbumInfo {
     public enum STATE {
@@ -38,25 +38,14 @@ public class CoverInfo extends AlbumInfo {
     private CoverDownloadListener listener;
     private boolean requestGivenUp = false;
 
-    public CoverInfo() {
-        super();
-    }
-
     public CoverInfo(AlbumInfo albumInfo) {
-        super();
-        this.artist = albumInfo.getArtist();
-        this.album = albumInfo.getAlbum();
-        this.path = albumInfo.getPath();
-        this.filename = albumInfo.getFilename();
+        super(albumInfo.getArtist(), albumInfo.getAlbum(),
+                albumInfo.getPath(), albumInfo.getFilename());
     }
 
     public CoverInfo(CoverInfo coverInfo) {
-        super();
+        super(coverInfo.artist, coverInfo.album, coverInfo.path, coverInfo.filename);
         this.state = coverInfo.state;
-        this.artist = coverInfo.artist;
-        this.album = coverInfo.album;
-        this.path = coverInfo.path;
-        this.filename = coverInfo.filename;
         this.bitmap = coverInfo.bitmap;
         this.coverBytes = coverInfo.coverBytes;
         this.priority = coverInfo.priority;
@@ -65,28 +54,6 @@ public class CoverInfo extends AlbumInfo {
         this.coverRetriever = coverInfo.coverRetriever;
         this.listener = coverInfo.getListener();
         this.requestGivenUp = coverInfo.requestGivenUp;
-    }
-
-    public CoverInfo(String artist, String album) {
-        this.artist = artist;
-        this.album = album;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        CoverInfo coverInfo = (CoverInfo) o;
-
-        if (album != null ? !album.equals(coverInfo.album) : coverInfo.album != null)
-            return false;
-        if (artist != null ? !artist.equals(coverInfo.artist) : coverInfo.artist != null)
-            return false;
-
-        return true;
     }
 
     public String getAlbum() {
@@ -133,27 +100,12 @@ public class CoverInfo extends AlbumInfo {
         return state;
     }
 
-    @Override
-    public int hashCode() {
-        int result = artist != null ? artist.hashCode() : 0;
-        result = 31 * result + (album != null ? album.hashCode() : 0);
-        return result;
-    }
-
     public boolean isPriority() {
         return priority;
     }
 
     public boolean isRequestGivenUp() {
         return requestGivenUp;
-    }
-
-    public void setAlbum(String album) {
-        this.album = album;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
     }
 
     public void setBitmap(Bitmap[] bitmap) {

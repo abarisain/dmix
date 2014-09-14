@@ -30,22 +30,21 @@ package org.a0z.mpd;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 
-import static org.a0z.mpd.StringsUtils.getHashFromString;
+import java.util.Arrays;
+
+import static org.a0z.mpd.Tools.getHashFromString;
 
 public class AlbumInfo {
 
-    protected String artist = "";
+    protected final String artist;
 
-    protected String album = "";
+    protected final String album;
 
-    protected String path = "";
+    protected String path;
 
-    protected String filename = "";
+    protected String filename;
 
     private static final String INVALID_ALBUM_KEY = "INVALID_ALBUM_KEY";
-
-    public AlbumInfo() {
-    }
 
     public AlbumInfo(Album album) {
         Artist a = album.getArtist();
@@ -54,11 +53,8 @@ public class AlbumInfo {
         this.path = album.getPath();
     }
 
-    public AlbumInfo(AlbumInfo a) {
-        this.artist = a.artist;
-        this.album = a.album;
-        this.path = a.path;
-        this.filename = a.filename;
+    public AlbumInfo(AlbumInfo albumInfo) {
+        this(albumInfo.artist, albumInfo.album, albumInfo.path, albumInfo.filename);
     }
 
     public AlbumInfo(String artist, String album) {
@@ -74,24 +70,32 @@ public class AlbumInfo {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
         if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        AlbumInfo albumInfo = (AlbumInfo) o;
-
-        if (album != null ? !album.equals(albumInfo.album) : albumInfo.album != null) {
-            return false;
-        }
-        if (artist != null ? !artist.equals(albumInfo.artist) : albumInfo.artist != null) {
-            return false;
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
         }
 
-        return true;
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            final AlbumInfo albumInfo = (AlbumInfo) o;
+
+            if (Tools.isNotEqual(album, albumInfo.album)) {
+                isEqual = Boolean.FALSE;
+            }
+
+            if (Tools.isNotEqual(artist, albumInfo.artist)) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
     }
 
     public String getAlbum() {
@@ -116,23 +120,13 @@ public class AlbumInfo {
 
     @Override
     public int hashCode() {
-        int result = artist != null ? artist.hashCode() : 0;
-        result = 31 * result + (album != null ? album.hashCode() : 0);
-        return result;
+        return Arrays.hashCode(new Object[] {artist, album});
     }
 
     public boolean isValid() {
         final boolean isArtistEmpty = artist == null || artist.isEmpty();
         final boolean isAlbumEmpty = album == null || album.isEmpty();
         return !isAlbumEmpty && !isArtistEmpty;
-    }
-
-    public void setAlbum(String album) {
-        this.album = album;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
     }
 
     public void setFilename(String filename) {
