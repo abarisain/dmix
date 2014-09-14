@@ -79,10 +79,6 @@ public abstract class Item implements Comparable<Item> {
 
     public abstract String getName();
 
-    public String info() {
-        return toString();
-    }
-
     public boolean isUnknown() {
         return getName().isEmpty();
     }

@@ -66,10 +66,6 @@ public class Artist extends Item {
         return name;
     }
 
-    public String info() {
-        return getName();
-    }
-
     /*
      * text for display Item.toString() returns mainText()
      */

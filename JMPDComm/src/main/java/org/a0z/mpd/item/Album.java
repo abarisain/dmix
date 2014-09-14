@@ -130,13 +130,6 @@ public class Album extends Item {
         return hasAlbumArtist;
     }
 
-    public String info() {
-        return (artist == null ? "null" : artist.info()) +
-                (hasAlbumArtist() ? " (AA)" : "") +
-                " // " + name +
-                (path != null && path.isEmpty() ? "" : " (" + path + ')');
-    }
-
     /*
      * text for display
      */
