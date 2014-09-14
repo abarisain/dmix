@@ -104,28 +104,24 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** Connects the {@code MPD} object to the media server. */
     private void connect() {
         try {
-            if (mMPD != null) {
-                mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
-                mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
-            }
+            mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
+            mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
         } catch (final MPDServerException | UnknownHostException e) {
             Log.e(TAG, "Error while connecting to the server.", e);
             mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECT_FAILED,
                     Tools.toObjectArray(e.getMessage())).sendToTarget();
         }
 
-        if (mMPD != null) {
-            final MPDApplication app = MPDApplication.getInstance();
-            final String unknownAlbum = app.getString(R.string.unknown_metadata_album);
-            final String unknownArtist = app.getString(R.string.unknown_metadata_artist);
+        /** Set MPD defaults. */
+        final MPDApplication app = MPDApplication.getInstance();
+        final String unknownAlbum = app.getString(R.string.unknown_metadata_album);
+        final String unknownArtist = app.getString(R.string.unknown_metadata_artist);
 
-            /** Set MPD defaults. */
-            MPD.setSortByTrackNumber(mPreferences.getBoolean(ALBUM_TRACK_SORT_KEY, true));
-            MPD.setSortAlbumsByYear(mPreferences.getBoolean(ALBUM_YEAR_SORT_KEY, false));
-            MPD.setShowAlbumTrackCount(mPreferences.getBoolean(SHOW_ALBUM_TRACK_COUNT_KEY, true));
-            MPD.setUnknownArtist(unknownArtist);
-            MPD.setUnknownAlbum(unknownAlbum);
-        }
+        MPD.setSortByTrackNumber(mPreferences.getBoolean(ALBUM_TRACK_SORT_KEY, true));
+        MPD.setSortAlbumsByYear(mPreferences.getBoolean(ALBUM_YEAR_SORT_KEY, false));
+        MPD.setShowAlbumTrackCount(mPreferences.getBoolean(SHOW_ALBUM_TRACK_COUNT_KEY, true));
+        MPD.setUnknownArtist(unknownArtist);
+        MPD.setUnknownAlbum(unknownAlbum);
     }
 
     @Override
@@ -137,9 +133,7 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** Disconnects the {@code MPD} object from the media server. */
     private void disconnect() {
         try {
-            if (mMPD != null) {
-                mMPD.disconnect();
-            }
+            mMPD.disconnect();
             Log.d(TAG, "Disconnected.");
         } catch (final MPDServerException e) {
             Log.e(TAG, "Error on disconnect.", e);
@@ -273,9 +267,7 @@ public class MPDAsyncWorker implements Handler.Callback,
             }
         }
 
-        if (mMPD != null && mMPD.isConnected()) {
-            connect();
-        }
+        connect();
 
         if (isMonitorAlive) {
             startStatusMonitor();
