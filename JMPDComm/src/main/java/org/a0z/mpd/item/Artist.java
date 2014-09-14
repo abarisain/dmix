@@ -37,41 +37,29 @@ public class Artist extends Item {
 
     private String sort;
 
-    private int albumCount;
-
     public Artist(Artist a) {
-        this(a.name, a.sort, a.albumCount);
+        this(a.name, a.sort);
     }
 
     public Artist(String name) {
-        this(name, 0);
-    }
-
-    public Artist(String name, int albumCount) {
         this.name = name;
         if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
             sort = name.substring(4);
         } else {
             sort = null;
         }
-        this.albumCount = albumCount;
     }
 
-    protected Artist(final String name, final String sort, final int albumCount) {
+    protected Artist(final String name, final String sort) {
         super();
 
         this.name = name;
         this.sort = sort;
-        this.albumCount = albumCount;
     }
 
     @Override
     public boolean equals(Object o) {
         return (o instanceof Artist) && ((Artist) o).name.equals(name);
-    }
-
-    protected int getAlbumCount() {
-        return albumCount;
     }
 
     public String getName() {

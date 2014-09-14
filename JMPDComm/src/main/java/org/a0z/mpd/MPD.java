@@ -75,9 +75,6 @@ public class MPD {
 
     protected static boolean sortAlbumsByYear = false;
 
-    /** TODO: This was disabled earlier, maybe find out why? */
-    private static final boolean SHOW_ARTIST_ALBUM_COUNT = false;
-
     protected static boolean showAlbumTrackCount = true;
 
     private static String sUnknownAlbum = "";
@@ -710,10 +707,7 @@ public class MPD {
 
         if (null != artistNames && !artistNames.isEmpty()) {
             for (String artist : artistNames) {
-                artists.add(new Artist(artist,
-                        SHOW_ARTIST_ALBUM_COUNT ?
-                                getAlbumCount(artist, useAlbumArtist) : 0
-                ));
+                artists.add(new Artist(artist));
             }
         }
         Collections.sort(artists);
@@ -731,10 +725,7 @@ public class MPD {
 
         if (null != artistNames && !artistNames.isEmpty()) {
             for (String artist : artistNames) {
-                artists.add(new Artist(artist,
-                        SHOW_ARTIST_ALBUM_COUNT ?
-                                getAlbumCount(artist, useAlbumArtist) : 0
-                ));
+                artists.add(new Artist(artist));
             }
         }
         Collections.sort(artists);

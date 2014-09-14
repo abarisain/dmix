@@ -53,8 +53,7 @@ public class ArtistParcelable extends Artist implements Parcelable {
 
     protected ArtistParcelable(final Parcel in) {
         super(in.readString(), /** name */
-                in.readString(), /** sort */
-                in.readInt()); /** albumCount */
+                in.readString()); /** sort */
     }
 
     @Override
@@ -66,6 +65,5 @@ public class ArtistParcelable extends Artist implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(getName());
         dest.writeString(sortText());
-        dest.writeInt(getAlbumCount());
     }
 }
