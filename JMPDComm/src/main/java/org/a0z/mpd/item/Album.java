@@ -35,55 +35,70 @@ import java.util.Arrays;
 
 public class Album extends Item {
 
-    private final String name;
+    private final String mName;
 
-    private long songCount;
+    private long mSongCount;
 
-    private long duration;
+    private long mDuration;
 
-    private long year;
+    private long mYear;
 
-    private String path;
+    private String mPath;
 
-    private final Artist artist;
+    private final Artist mArtist;
 
-    private boolean hasAlbumArtist;
+    private boolean mHasAlbumArtist;
 
-    public Album(Album a) {
-        this(a.name, new Artist(a.artist), a.hasAlbumArtist, a.songCount, a.duration, a.year,
-                a.path);
+    public Album(final Album otherAlbum) {
+        this(otherAlbum.mName,
+                new Artist(otherAlbum.mArtist),
+                otherAlbum.mHasAlbumArtist,
+                otherAlbum.mSongCount,
+                otherAlbum.mDuration,
+                otherAlbum.mYear,
+                otherAlbum.mPath);
     }
 
-    public Album(String name, Artist artist) {
+    public Album(final String name, final Artist artist) {
         this(name, artist, false, 0L, 0L, 0L, null);
     }
 
-    public Album(String name, Artist artist, boolean hasAlbumArtist) {
+    public Album(final String name, final Artist artist, final boolean hasAlbumArtist) {
         this(name, artist, hasAlbumArtist, 0L, 0L, 0L, null);
     }
 
-    public Album(String name, Artist artist, boolean hasAlbumArtist, long songCount, long duration,
-            long year, String path) {
-        this.name = name;
-        this.songCount = songCount;
-        this.duration = duration;
-        this.year = year;
-        this.artist = artist;
-        this.hasAlbumArtist = hasAlbumArtist;
-        this.path = path;
+    public Album(final String name, final Artist artist, final boolean hasAlbumArtist, final long songCount, final long duration,
+            final long year, final String path) {
+        super();
+        mName = name;
+        mSongCount = songCount;
+        mDuration = duration;
+        mYear = year;
+        mArtist = artist;
+        mHasAlbumArtist = hasAlbumArtist;
+        mPath = path;
     }
 
     @Override
-    public int compareTo(Item o) {
-        if (o instanceof Album) {
-            Album oa = (Album) o;
+    public int compareTo(final Item another) {
+        Integer i = null;
+
+        if (another instanceof Album) {
+            final Album oa = (Album) another;
             if (MPD.sortAlbumsByYear()) {
-                if (year != oa.year) {
-                    return year < oa.year ? -1 : 1;
+                if (mYear < oa.mYear) {
+                    i = Integer.valueOf(-1);
+                } else if (mYear > oa.mYear) {
+                    i = Integer.valueOf(1);
                 }
             }
         }
-        return super.compareTo(o);
+
+        if (i == null) {
+            i = Integer.valueOf(super.compareTo(another));
+        }
+
+        return i.intValue();
     }
 
     /**
@@ -107,7 +122,7 @@ public class Album extends Item {
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
             final Album album = (Album) o;
 
-            if (Tools.isNotEqual(name, album.name) || Tools.isNotEqual(artist, album.artist)) {
+            if (Tools.isNotEqual(mName, album.mName) || Tools.isNotEqual(mArtist, album.mArtist)) {
                 isEqual = Boolean.FALSE;
             }
         }
@@ -129,7 +144,7 @@ public class Album extends Item {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{name, artist});
+        return Arrays.hashCode(new Object[]{mName, mArtist});
     }
 
     public AlbumInfo getAlbumInfo() {
@@ -137,31 +152,31 @@ public class Album extends Item {
     }
 
     public Artist getArtist() {
-        return artist;
+        return mArtist;
     }
 
     public long getDuration() {
-        return duration;
+        return mDuration;
     }
 
     public String getName() {
-        return name;
+        return mName;
     }
 
     public String getPath() {
-        return path;
+        return mPath;
     }
 
     public long getSongCount() {
-        return songCount;
+        return mSongCount;
     }
 
     public long getYear() {
-        return year;
+        return mYear;
     }
 
     public boolean hasAlbumArtist() {
-        return hasAlbumArtist;
+        return mHasAlbumArtist;
     }
 
     /*
@@ -171,22 +186,27 @@ public class Album extends Item {
     public String mainText() {
         final String result;
 
-        if (name.isEmpty()) {
+        if (mName.isEmpty()) {
             result = MPD.getUnknownAlbum();
         } else {
-            result = name;
+            result = mName;
         }
 
         return result;
     }
 
     @Override
-    public boolean nameEquals(Item o) {
+    public boolean nameEquals(final Item o) {
+        final boolean result;
+
         if (o instanceof Album) {
-            Album a = (Album) o;
-            return (name.equals(a.getName()) && artist.nameEquals(a.getArtist()));
+            final Album a = (Album) o;
+            result = mName.equals(a.mName) && mArtist.nameEquals(a.mArtist);
+        } else {
+            result = false;
         }
-        return false;
+
+        return result;
     }
 
     /**
@@ -197,27 +217,27 @@ public class Album extends Item {
      * @return A new Album object based off this Album object.
      */
     public Album setArtist(final Artist artist) {
-        return new Album(name, artist, hasAlbumArtist, songCount, duration, year, path);
+        return new Album(mName, artist, mHasAlbumArtist, mSongCount, mDuration, mYear, mPath);
     }
 
-    public void setDuration(long d) {
-        duration = d;
+    public void setDuration(final long d) {
+        mDuration = d;
     }
 
-    public void setHasAlbumArtist(boolean aa) {
-        hasAlbumArtist = aa;
+    public void setHasAlbumArtist(final boolean aa) {
+        mHasAlbumArtist = aa;
     }
 
-    public void setPath(String p) {
-        path = p;
+    public void setPath(final String p) {
+        mPath = p;
     }
 
-    public void setSongCount(long sc) {
-        songCount = sc;
+    public void setSongCount(final long sc) {
+        mSongCount = sc;
     }
 
-    public void setYear(long y) {
-        year = y;
+    public void setYear(final long y) {
+        mYear = y;
     }
 
 }
