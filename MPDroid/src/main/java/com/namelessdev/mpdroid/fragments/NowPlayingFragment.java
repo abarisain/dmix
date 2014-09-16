@@ -528,9 +528,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private float getTrackRating() {
-        final int rating = mApp.oMPDAsyncHelper.oMPD.getStickerManager().getRating(mCurrentSong);
+        float rating = 0.0f;
 
-        return (float) rating / 2.0f;
+        try {
+            rating = (float) mApp.oMPDAsyncHelper.oMPD.getStickerManager().getRating(mCurrentSong);
+        } catch (final MPDServerException e) {
+            Log.e(TAG, "Failed to get the current track rating.", e);
+        }
+
+        return rating / 2.0f;
     }
 
     /**
@@ -918,6 +924,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void stickerChanged(final MPDStatus mpdStatus) {
         if (mSongRating.getVisibility() == View.VISIBLE) {
+            /** This track is not necessarily the track that was changed. */
             final float rating = getTrackRating();
             mSongRating.setRating(rating);
         }

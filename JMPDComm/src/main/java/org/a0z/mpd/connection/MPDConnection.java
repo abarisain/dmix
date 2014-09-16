@@ -64,6 +64,9 @@ public abstract class MPDConnection {
 
     private static final int CONNECTION_TIMEOUT = 10000;
 
+    /** The debug flag to enable or disable debug logging output. */
+    private static final boolean DEBUG = false;
+
     /** Default buffer size for the socket. */
     private static final int DEFAULT_BUFFER_SIZE = 1024;
 
@@ -337,6 +340,22 @@ public abstract class MPDConnection {
         return sendCommand(new MPDCommand(command, args));
     }
 
+    /**
+     * Communicates with the server by sending a command and receiving the response and defining
+     * non-fatal ACK codes.
+     *
+     * @param command        The command to be sent to the server.
+     * @param nonfatalErrors Errors to consider as non-fatal for this command. These MPD error
+     *                       codes with this command will not return any exception.
+     * @param args           Arguments to the command to be sent to the server.
+     * @return The result from the command sent to the server.
+     * @throws MPDServerException Thrown if there are errors sending the command to the server.
+     */
+    public List<String> sendCommand(final String command, final int[] nonfatalErrors,
+            final String... args) throws MPDServerException {
+        return sendCommand(new MPDCommand(command, nonfatalErrors, args));
+    }
+
     protected abstract void setInputStream(InputStreamReader inputStream);
 
     /**
@@ -411,16 +430,16 @@ public abstract class MPDConnection {
                 } catch (final MPDServerException ex1) {
                     mIsConnected = false;
                     // Avoid getting in an infinite loop if an error occurred in the password cmd
-                    if (ex1.getErrorKind() == MPDServerException.ErrorKind.PASSWORD) {
-                        result.setLastException(new MPDServerException("Wrong password"));
+                    if (ex1.mErrorCode == MPDServerException.ACK_ERROR_PASSWORD ||
+                            ex1.mErrorCode == MPDServerException.ACK_ERROR_PERMISSION) {
+                        result.setLastException(new MPDServerException(ex1.mErrorMessage));
                     } else {
                         handleConnectionFailure(result, ex1);
                     }
                 }
 
                 /** On successful send of non-retryable command, break out. */
-                if (!MPDCommand.isRetryable(mCommand.getCommand()) &&
-                        mIsCommandSent) {
+                if (!MPDCommand.isRetryable(mCommand.getCommand()) && mIsCommandSent) {
                     break;
                 }
 
@@ -539,6 +558,29 @@ public abstract class MPDConnection {
         }
 
         /**
+         * This method is a place to specify if a ACK is not actually an error message we don't
+         * consider to be a fatal error.
+         *
+         * @param message The message to check.
+         * @return True if the message indicates a non-fatal error, false otherwise.
+         */
+        private boolean isNonfatalACK(final String message) {
+            final boolean isNonfatalACK;
+            final int errorCode = MPDServerException.getAckErrorCode(message);
+
+            if (mCommand.isErrorNonfatal(errorCode)) {
+                isNonfatalACK = true;
+                if (DEBUG) {
+                    Log.debug(TAG, "Non-fatal ACK emitted, exception suppressed: " + message);
+                }
+            } else {
+                isNonfatalACK = false;
+            }
+
+            return isNonfatalACK;
+        }
+
+        /**
          * Read the server response after a {@code write()} to the server.
          *
          * @return A String list of responses.
@@ -558,11 +600,11 @@ public abstract class MPDConnection {
                     break;
                 }
                 if (line.startsWith(MPD_RESPONSE_ERR)) {
-                    if (line.contains(MPDCommand.MPD_CMD_PERMISSION)) {
-                        throw new MPDConnectionException("MPD Permission failure : " + line);
-                    } else {
-                        throw new MPDServerException(line);
+                    if (isNonfatalACK(line)) {
+                        break;
                     }
+
+                    throw new MPDServerException(line);
                 }
                 result.add(line);
             }

@@ -238,9 +238,10 @@ public class Sticker {
         String foundSticker = null;
 
         if (isAvailable()) {
-            final List<String> response =
-                    mConnection.sendCommand(CMD_ACTION_GET, CMD_STICKER_TYPE_SONG,
-                            entry.getFullPath(), name);
+            /** Do not throw exception when attempting to retrieve a non-existant sticker. */
+            final int[] nonfatalErrors = {MPDServerException.ACK_ERROR_NO_EXIST};
+            final List<String> response = mConnection.sendCommand(CMD_ACTION_GET, nonfatalErrors,
+                    CMD_STICKER_TYPE_SONG, entry.getFullPath(), name);
 
             if (response == null) {
                 if (DEBUG) {
@@ -286,20 +287,13 @@ public class Sticker {
      *
      * @return rating of entry.
      */
-    public int getRating(final FilesystemTreeEntry entry) {
+    public int getRating(final FilesystemTreeEntry entry) throws MPDServerException {
         if (!(entry instanceof Music)) {
             throw new IllegalArgumentException(NOT_SUPPORTED);
         }
 
-        String rating = null;
+        final String rating = get(entry, RATING_STICKER);
         int resultRating;
-
-        try {
-            /** TODO: Replace with get upon better error handling. */
-            rating = list(entry).get(RATING_STICKER);
-        } catch (final MPDServerException ignored) {
-            Log.error(TAG, "Ate the rating error.");
-        }
 
         try {
             /** This will not throw an NullPointerException, only a NumberFormatException. */

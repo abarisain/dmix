@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.R;
 
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Sticker;
+import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Music;
 
 import android.content.SharedPreferences;
@@ -207,12 +208,14 @@ public class UpdateTrackInfo {
          * @return Returns the current rating sticker from the connected media server.
          */
         private float getTrackRating() {
-            final float rating;
+            float rating = 0.0f;
 
             if (mCurrentTrack != null && mSticker.isAvailable()) {
-                rating = (float) mSticker.getRating(mCurrentTrack) / 2.0f;
-            } else {
-                rating = 0.0f;
+                try {
+                    rating = (float) mSticker.getRating(mCurrentTrack) / 2.0f;
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to get the current track rating.", e);
+                }
             }
 
             return rating;

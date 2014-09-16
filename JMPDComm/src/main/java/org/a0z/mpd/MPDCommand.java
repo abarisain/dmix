@@ -158,6 +158,8 @@ public class MPDCommand {
 
     private static final boolean DEBUG = false;
 
+    private static final int[] EMPTY_INT_ARRAY = new int[0];
+
     private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
 
     private static final String TAG = "MPDCommand";
@@ -166,10 +168,37 @@ public class MPDCommand {
 
     private final String mCommand;
 
+    /** This field stores any {@code ACK} errors to be considered as non-fatal. */
+    private final int[] mNonfatalErrors;
+
+    /**
+     * The constructor for a command to be sent to the MPD protocol compatible media server.
+     *
+     * @param command The MPD protocol command to be sent.
+     * @param args    Arguments for the {@code command}.
+     */
     public MPDCommand(final String command, final String... args) {
         super();
         mCommand = command;
         mArgs = args.clone();
+        mNonfatalErrors = EMPTY_INT_ARRAY;
+    }
+
+    /**
+     * The constructor for a command to be sent to the MPD protocol compatible media server when
+     * defining non-fatal ACK codes.
+     *
+     * @param command            The MPD protocol command to be sent.
+     * @param nonfatalErrorCodes Errors to consider as non-fatal for this command. These MPD error
+     *                           codes with this command will not return any exception.
+     * @param args               Arguments for the {@code command}.
+     */
+    public MPDCommand(final String command, final int[] nonfatalErrorCodes, final String... args) {
+        super();
+
+        mCommand = command;
+        mArgs = args.clone();
+        mNonfatalErrors = nonfatalErrorCodes.clone();
     }
 
     /**
@@ -196,6 +225,26 @@ public class MPDCommand {
 
     public String getCommand() {
         return mCommand;
+    }
+
+    /**
+     * This method is used to check if this command was loaded with a command code, specified by
+     * the parameter, which is to be considered as non-fatal.
+     *
+     * @param errorCodeToCheck The {@code ACK} error code to check.
+     * @return True if the {@code ACK} error code was loaded as non-fatal, false otherwise.
+     */
+    public boolean isErrorNonfatal(final int errorCodeToCheck) {
+        boolean result = false;
+
+        for (final int errorCode : mNonfatalErrors) {
+            if (errorCode == errorCodeToCheck) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
     }
 
     @Override
