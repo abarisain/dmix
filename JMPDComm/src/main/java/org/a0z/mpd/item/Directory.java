@@ -29,7 +29,6 @@ package org.a0z.mpd.item;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.Tools;
-import org.a0z.mpd.exception.InvalidParameterException;
 import org.a0z.mpd.exception.MPDServerException;
 
 import java.util.Collections;
@@ -302,7 +301,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         int slashIndex = subPath.indexOf('/');
 
         if (slashIndex == 0) {
-            throw new InvalidParameterException("name starts with '/'");
+            throw new IllegalArgumentException("name starts with '/'");
         }
 
         // split path
