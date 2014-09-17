@@ -20,7 +20,6 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Music;
 
@@ -418,12 +417,8 @@ public class AlbumCache
             return false;
         }
         if (this.server == null) {
-            try {
-                this.server = mpd.getHostAddress().getHostName();
-                this.port = mpd.getHostPort();
-            } catch (final MPDConnectionException ignored) {
-                /** This shouldn't happen, we already checked for a null connection. */
-            }
+            this.server = mpd.getHostAddress().getHostName();
+            this.port = mpd.getHostPort();
             this.filesdir = MPDApplication.getInstance().getCacheDir();
             Log.d(TAG, "server " + server + " port " + port + " dir " + filesdir);
             if (!load()) {

@@ -760,11 +760,11 @@ public class MPD {
         return Directory.getDir(response, this);
     }
 
-    public InetAddress getHostAddress() throws MPDConnectionException {
+    public InetAddress getHostAddress() {
         return mpdConnection.getHostAddress();
     }
 
-    public int getHostPort() throws MPDConnectionException {
+    public int getHostPort() {
         return mpdConnection.getHostPort();
     }
 

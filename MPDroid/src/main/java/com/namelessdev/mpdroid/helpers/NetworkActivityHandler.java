@@ -18,8 +18,6 @@ package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
-import org.a0z.mpd.exception.MPDConnectionException;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -156,11 +154,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
         } else {
             InetAddress hostAddress = null;
 
-            try {
-                hostAddress = mMPDAsyncHelper.oMPD.getHostAddress();
-            } catch (final MPDConnectionException e) {
-                Log.d(TAG, "Failed to get host address.", e);
-            }
+            hostAddress = mMPDAsyncHelper.oMPD.getHostAddress();
 
             if (hostAddress == null) {
                 Log.e(TAG, "This should not happen.");

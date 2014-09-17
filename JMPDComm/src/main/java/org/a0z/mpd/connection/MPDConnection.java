@@ -158,6 +158,9 @@ public abstract class MPDConnection {
      * @return The current connected media server host, null if not connected.
      */
     public InetAddress getHostAddress() {
+        if (mSocketAddress == null) {
+            throw new IllegalStateException("Connection endpoint not yet established.");
+        }
         return mSocketAddress.getAddress();
     }
 
@@ -167,6 +170,9 @@ public abstract class MPDConnection {
      * @return The current connected media server port, null if not connected.
      */
     public int getHostPort() {
+        if (mSocketAddress == null) {
+            throw new IllegalStateException("Connection endpoint not yet established.");
+        }
         return mSocketAddress.getPort();
     }
 
