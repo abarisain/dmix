@@ -1,13 +1,7 @@
 apply plugin: 'java'
 
-sourceSets {
-    main {
-        java {
-            srcDir '../../src/main/java'
-        }
-
-        java {
-            srcDir 'src/main/java'
-        }
+sourceSets.main {
+    java {
+        srcDirs = ['../../src/main/java', 'src/main/java']
     }
 }
