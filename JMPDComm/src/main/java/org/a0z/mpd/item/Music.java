@@ -694,30 +694,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         return getTitle();
     }
 
-    /**
-     * Copies, artist, album, title, time, totalTracks and track from another
-     * {@code music}.
-     *
-     * @param other {@code Music} to copy data from.
-     */
-    void update(final Music other) {
-        mArtist = other.mArtist;
-        mAlbum = other.mAlbum;
-        mTitle = other.getTitle();
-        mTime = other.mTime;
-        mTotalTracks = other.mTotalTracks;
-        mTrack = other.mTrack;
-        mGenre = other.mGenre;
-        /*
-         * this.setSoundtrack(other.getSoundtrack());
-         * this.setComposer(other.getComposer());
-         */
-        mDisc = other.mDisc;
-        mDate = other.mDate;
-    }
-
-    /** Do not implement toString(), JMPDComm is dependent on the implementation in Item.java. */
-
     private static class MusicTitleComparator implements Comparator<Music> {
 
         @Override

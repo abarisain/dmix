@@ -343,12 +343,17 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                     directories.put(dir.getFilename(), dir);
                 }
             } else if (o instanceof Music) {
-                Music music = (Music) o;
-                if (!files.containsKey(music.getFilename())) {
-                    files.put(music.getFilename(), music);
+                final Music music = (Music) o;
+                final String filename = music.getFilename();
+
+                if(files.containsKey(filename)) {
+                    final Music oldMusic = files.get(filename);
+
+                    if(!music.equals(oldMusic)) {
+                        files.put(filename, music);
+                    }
                 } else {
-                    Music old = files.get(music.getFilename());
-                    old.update(music);
+                    files.put(filename, music);
                 }
             } else if (o instanceof PlaylistFile) {
                 PlaylistFile pl = (PlaylistFile) o;
