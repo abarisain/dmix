@@ -327,42 +327,59 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     @Override
-    public int compareTo(final Item o) {
-        if (o instanceof Music) {
-            final Music om = (Music) o;
-            int compare;
+    public int compareTo(final Item another) {
+        Integer compareResult = null;
+
+        if (another instanceof Music) {
+            final Music om = (Music) another;
 
             // songId overrides every other sorting method. It's used for playlists/queue
-            if (mSongId != om.mSongId) {
-                return mSongId < om.mSongId ? -1 : 1;
-            }
-
-            // If enabled, sort by mDisc and track number
-            if (MPD.sortByTrackNumber()) {
+            if (mSongId < om.mSongId) {
+                compareResult = Integer.valueOf(-1);
+            } else if (mSongId > om.mSongId) {
+                compareResult = 1;
+            } else if (MPD.sortByTrackNumber()) {
+                // If enabled, sort by mDisc and track number
                 if (mDisc != om.mDisc && mDisc != -1 && om.mDisc != -1) {
-                    return mDisc < om.mDisc ? -1 : 1;
+                    if (mDisc < om.mDisc) {
+                        compareResult = Integer.valueOf(-1);
+                    } else {
+                        compareResult = Integer.valueOf(1);
+                    }
+                } else if (mTrack != om.mTrack && mTrack != -1 && om.mTrack != -1) {
+                    if (mTrack < om.mTrack) {
+                        compareResult = Integer.valueOf(-1);
+                    } else {
+                        compareResult = Integer.valueOf(1);
+                    }
                 }
-                if (mTrack != om.mTrack && mTrack != -1 && om.mTrack != -1) {
-                    return mTrack < om.mTrack ? -1 : 1;
+            }
+
+            if (compareResult == null) {
+                // Order by song title (getTitle() fallback on filenames)
+                final int compare = compare(getTitle(), om.getTitle());
+                if (compare != 0) {
+                    compareResult = Integer.valueOf(compare);
                 }
             }
 
-            // Order by song title (getTitle() fallback on filenames)
-            compare = compare(getTitle(), om.getTitle());
-            if (0 != compare) {
-                return compare;
+            if (compareResult == null) {
+                // Then order by name (streams)
+                final int compare = compare(mName, om.mName);
+                if (0 != compare) {
+                    compareResult = Integer.valueOf(compare);
+                }
             }
 
-            // Then order by name (streams)
-            compare = compare(mName, om.mName);
-            if (0 != compare) {
-                return compare;
+            if (compareResult == null) {
+                // Last resort is to order by fullpath
+                compareResult = Integer.valueOf(compare(mFullPath, om.mFullPath));
             }
-
-            // Last resort is to order by fullpath
-            return compare(mFullPath, om.mFullPath);
+        } else {
+            compareResult = Integer.valueOf(super.compareTo(another));
         }
-        return super.compareTo(o);
+
+        return compareResult.intValue();
     }
 
     /**
