@@ -143,7 +143,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
             // If we hit anything we know is an item, consume the linecache
             final String line = response.get(i);
-            final String[] lines = Tools.MPD_DELIMITER.split(line, 2);
+            final String[] lines = Tools.splitResponse(line);
 
             switch (lines[0]) {
                 case "directory":

@@ -27,8 +27,8 @@
 
 package org.a0z.mpd;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.regex.Pattern;
 
 /**
  * Class representing MPD Server status.
@@ -66,11 +66,6 @@ public class MPDStatus {
     private static final String MPD_STATE_UNKNOWN = "unknown";
 
     private static final String TAG = "org.a0z.mpd.MPDStatus";
-
-    /**
-     * The time response has it's own delimiter.
-     */
-    private static final Pattern COMMA_DELIMITER = Pattern.compile(":");
 
     private int bitsPerSample;
 
@@ -430,20 +425,21 @@ public class MPDStatus {
      *
      * @param response The response from the server.
      */
-    public final void updateStatus(final Iterable<String> response) {
+    public final void updateStatus(final Collection<String> response) {
         resetValues();
 
-        for (final String line : response) {
-            final String[] lines = Tools.MPD_DELIMITER.split(line, 2);
+        for (final String[] lines : Tools.splitResponse(response)) {
 
             switch (lines[0]) {
                 case "audio":
-                    final String[] audio = COMMA_DELIMITER.split(lines[1]);
+                    final int delimiterIndex = lines[1].indexOf(':');
+                    final String tmp = lines[1].substring(delimiterIndex+1);
+                    final int secondIndex = tmp.indexOf(':');
 
                     try {
-                        sampleRate = Integer.parseInt(audio[0]);
-                        bitsPerSample = Integer.parseInt(audio[1]);
-                        channels = Integer.parseInt(audio[2]);
+                        sampleRate = Integer.parseInt(lines[1].substring(0, delimiterIndex));
+                        bitsPerSample = Integer.parseInt(tmp.substring(0, secondIndex));
+                        channels = Integer.parseInt(tmp.substring(secondIndex+1));
                     } catch (final NumberFormatException ignored) {
                         // Sometimes mpd sends "?" as a sampleRate or
                         // bitsPerSample, etc ... hotfix for a bugreport I had.
@@ -528,10 +524,10 @@ public class MPDStatus {
                     }
                     break;
                 case "time":
-                    final String[] time = COMMA_DELIMITER.split(lines[1]);
+                    final int timeIndex = lines[1].indexOf(':');
 
-                    elapsedTime = Long.parseLong(time[0]);
-                    totalTime = Long.parseLong(time[1]);
+                    elapsedTime = Long.parseLong(lines[1].substring(0, timeIndex));
+                    totalTime = Long.parseLong(lines[1].substring(timeIndex+1));
                     updateTime = new Date().getTime();
                     break;
                 case "volume":

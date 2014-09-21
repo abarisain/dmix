@@ -28,16 +28,9 @@
 package org.a0z.mpd;
 
 import java.security.MessageDigest;
-import java.util.regex.Pattern;
+import java.util.Collection;
 
 public final class Tools {
-
-    /**
-     * This is a regular expression pattern matcher for the typical MPD protocol response.
-     */
-    public static final Pattern MPD_DELIMITER = Pattern.compile(": ");
-
-    private static final Pattern EXTENSION_DELIMITER = Pattern.compile("\\.");
 
     private Tools() {
         super();
@@ -71,15 +64,18 @@ public final class Tools {
         return buffer.toString();
     }
 
-    public static String getExtension(String path) {
-        String[] split = EXTENSION_DELIMITER.split(path);
-        if (split.length > 1) {
-            String ext = split[split.length - 1];
-            if (ext.length() <= 4) {
-                return ext;
-            }
+    public static String getExtension(final String path) {
+        final int index = path.lastIndexOf('.');
+        final int extLength = path.length() - index-1;
+        final int extensionShort = 2;
+        final int extensionLong = 4;
+        String result = null;
+
+        if(extLength >= extensionShort && extLength <= extensionLong) {
+            result = path.substring(index+1);
         }
-        return "";
+
+        return result;
     }
 
     /**
@@ -127,5 +123,42 @@ public final class Tools {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Split the standard MPD protocol response into a three dimensional array consisting of a
+     * two element String array key / value pairs.
+     *
+     * @param list The incoming server response.
+     * @return A three dimensional {@code String} array of two element {@code String arrays}.
+     */
+    public static String[][] splitResponse(final Collection<String> list) {
+        final String[][] results = new String[list.size()][];
+        int iterator = 0;
+
+        for (final String line : list) {
+            results[iterator] = splitResponse(line);
+            iterator++;
+        }
+
+        return results;
+    }
+
+    /**
+     * Split the standard MPD protocol response.
+     *
+     * @param line The MPD response string.
+     * @return A string array with two elements, one the key, the second the value.
+     */
+    public static String[] splitResponse(final String line) {
+        final int delimiterIndex = line.indexOf(':');
+        final String[] result = new String[2];
+
+        result[0] = line.substring(0, delimiterIndex);
+
+        /** Skip ': ' */
+        result[1] = line.substring(delimiterIndex + 2);
+
+        return result;
     }
 }

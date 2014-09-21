@@ -27,6 +27,7 @@
 
 package org.a0z.mpd;
 
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -149,9 +150,8 @@ public class MPDStatistics {
      *
      * @param response The response from the server.
      */
-    public final void update(final Iterable<String> response) {
-        for (final String line : response) {
-            final String[] lines = Tools.MPD_DELIMITER.split(line, 2);
+    public final void update(final Collection<String> response) {
+        for (final String[] lines : Tools.splitResponse(response)) {
 
             switch (lines[0]) {
                 case "albums":

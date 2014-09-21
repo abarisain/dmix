@@ -44,12 +44,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * Class representing a connection to MPD Server.
@@ -71,8 +71,6 @@ public abstract class MPDConnection {
 
     /** Maximum number of times to attempt command processing. */
     private static final int MAX_REQUEST_RETRY = 3;
-
-    private static final Pattern PERIOD_DELIMITER = Pattern.compile("\\.");
 
     /** The {@code ExecutorService} used to process commands. */
     private final ThreadPoolExecutor mExecutor;
@@ -195,11 +193,14 @@ public abstract class MPDConnection {
      */
     private void setMPDVersion(final String response) {
         final String formatResponse = response.substring((MPD_RESPONSE_OK + " MPD ").length());
-        final String[] tmp = PERIOD_DELIMITER.split(formatResponse);
-        final int[] version = new int[tmp.length];
 
-        for (int i = 0; i < tmp.length; i++) {
-            version[i] = Integer.parseInt(tmp[i]);
+        final StringTokenizer stringTokenizer = new StringTokenizer(formatResponse, ".");
+        final int[] version = new int[stringTokenizer.countTokens()];
+        int i = 0;
+
+        while(stringTokenizer.hasMoreElements()) {
+            version[i] = Integer.parseInt(stringTokenizer.nextToken());
+            i++;
         }
 
         mMPDVersion = version;

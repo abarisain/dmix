@@ -36,6 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -173,11 +174,6 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * The time response has it's own delimiter.
-     */
-    private static final Pattern FORWARD_SLASH_DELIMITER = Pattern.compile("/");
-
-    /**
      * The date response has it's own delimiter.
      */
     private static final Pattern DATE_DELIMITER = Pattern.compile("\\D+");
@@ -187,10 +183,10 @@ public class Music extends Item implements FilesystemTreeEntry {
      *
      * @param response server response, which gets parsed into the instance.
      */
-    Music(final List<String> response) {
+    Music(final Collection<String> response) {
         super();
-        for (final String line : response) {
-            final String[] lines = Tools.MPD_DELIMITER.split(line, 2);
+
+        for (final String[] lines : Tools.splitResponse(response)) {
 
             switch (lines[0]) {
                 case "file":
@@ -220,13 +216,16 @@ public class Music extends Item implements FilesystemTreeEntry {
                     }
                     break;
                 case "Disc":
-                    final String[] discs = FORWARD_SLASH_DELIMITER.split(lines[1]);
-                    if (discs.length > 0) {
-                        try {
-                            disc = Integer.parseInt(discs[0]);
-                        } catch (final NumberFormatException e) {
-                            Log.warning(TAG, "Not a valid disc number.", e);
+                    final int discIndex = lines[1].indexOf('/');
+
+                    try {
+                        if (discIndex == -1) {
+                            disc = Integer.parseInt(lines[1]);
+                        } else {
+                            disc = Integer.parseInt(lines[1].substring(0, discIndex));
                         }
+                    } catch (final NumberFormatException e) {
+                        Log.warning(TAG, "Not a valid disc number.", e);
                     }
                     break;
                 case "Id":
@@ -262,16 +261,17 @@ public class Music extends Item implements FilesystemTreeEntry {
                     title = lines[1];
                     break;
                 case "Track":
-                    final String[] tracks = FORWARD_SLASH_DELIMITER.split(lines[1]);
-                    if (tracks.length > 0) {
-                        try {
-                            track = Integer.parseInt(tracks[0]);
-                            if (tracks.length > 1) {
-                                totalTracks = Integer.parseInt(tracks[1]);
-                            }
-                        } catch (final NumberFormatException e) {
-                            Log.error(TAG, "Not a valid track number", e);
+                    final int trackIndex = lines[1].indexOf('/');
+
+                    try {
+                        if (trackIndex == -1) {
+                            track = Integer.parseInt(lines[1]);
+                        } else {
+                            track = Integer.parseInt(lines[1].substring(0, trackIndex));
+                            totalTracks = Integer.parseInt(lines[1].substring(trackIndex + 1));
                         }
+                    } catch (final NumberFormatException e) {
+                        Log.warning(TAG, "Not a valid track number.", e);
                     }
                     break;
                 default:
