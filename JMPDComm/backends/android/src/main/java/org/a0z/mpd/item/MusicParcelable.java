@@ -58,16 +58,13 @@ public class MusicParcelable extends Music implements Parcelable {
     /**
      * Protected constructor, used by the Android framework when reconstructing the object from a
      * {@link android.os.Parcel}<br />
-     * This constructor will instantiate the object through the default {@link
-     * org.a0z.mpd.item.Music#Music(String, String, String, String, int, long, long,
-     * org.a0z.mpd.item.Directory, String, int, int, int, int, String)} constructor.
      *
      * @param in The {@link android.os.Parcel} that contains our object
      */
     protected MusicParcelable(final Parcel in) {
         super(in.readString(), in.readString(), in.readString(), in.readString(), in.readInt(),
-                in.readLong(), in.readLong(), null, in.readString(), in.readInt(), in.readInt(),
-                in.readInt(), in.readInt(), in.readString());
+                in.readLong(), in.readString(), in.readLong(), in.readString(), in.readInt(),
+                in.readInt(), in.readInt(), in.readInt(), in.readString());
     }
 
     @Override
@@ -83,8 +80,8 @@ public class MusicParcelable extends Music implements Parcelable {
         dest.writeString(getFullpath());
         dest.writeInt(getDisc());
         dest.writeLong(getDate());
+        dest.writeString(getGenre());
         dest.writeLong(getTime());
-        //dest.writeString(getParent()); // TODO: is it used?
         dest.writeString(getTitle());
         dest.writeInt(getTotalTracks());
         dest.writeInt(getTrack());

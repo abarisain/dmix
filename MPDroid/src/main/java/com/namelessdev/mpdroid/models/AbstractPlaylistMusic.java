@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.models;
 
-import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.Music;
 
 public abstract class AbstractPlaylistMusic extends Music {
@@ -24,10 +23,10 @@ public abstract class AbstractPlaylistMusic extends Music {
     private boolean forceCoverRefresh = false;
 
     protected AbstractPlaylistMusic(String album, String artist, String albumartist,
-            String fullpath, int disc, long date, long time, Directory parent, String title,
+            String fullpath, int disc, long date, String genre, long time, String title,
             int totalTracks, int track, int songId, int pos, String name) {
-        super(album, artist, albumartist, fullpath, disc, date, time, parent, title, totalTracks,
-                track, songId, pos, name);
+        super(album, artist, albumartist, fullpath, disc, date, genre, time, title,
+                totalTracks, track, songId, pos, name);
     }
 
     public int getCurrentSongIconRefID() {

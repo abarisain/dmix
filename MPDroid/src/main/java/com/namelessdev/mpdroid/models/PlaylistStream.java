@@ -16,15 +16,15 @@
 
 package com.namelessdev.mpdroid.models;
 
-import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
-
 import org.a0z.mpd.item.Music;
+
+import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
 public class PlaylistStream extends AbstractPlaylistMusic {
 
     public PlaylistStream(Music m) {
-        super(m.getAlbum(), m.getArtist(), m.getAlbumArtist(), m.getFullpath(), m.getDisc(), m
-                .getDate(), m.getTime(), m.getParentDirectory(), m.getTitle(), m.getTotalTracks(),
+        super(m.getAlbum(), m.getArtist(), m.getAlbumArtist(), m.getFullpath(), m.getDisc(),
+                m.getDate(), m.getGenre(), m.getTime(), m.getTitle(), m.getTotalTracks(),
                 m.getTrack(), m.getSongId(), m.getPos(), m.getName());
     }
 

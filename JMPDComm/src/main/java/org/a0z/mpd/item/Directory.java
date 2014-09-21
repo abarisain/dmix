@@ -101,21 +101,6 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Adds a file, creating path directories.
-     *
-     * @param file file to be added
-     */
-    public void addFile(Music file) {
-        if (getFullpath().compareTo(file.getPath()) == 0) {
-            file.setParent(this);
-            files.put(file.getFilename(), file);
-        } else {
-            Directory dir = makeDirectory(file.getPath());
-            dir.addFile(file);
-        }
-    }
-
-    /**
      * Check if a given directory exists as a sub-directory.
      *
      * @param filename sub-directory filename.
@@ -155,7 +140,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                     // It could be done every time but it would be a waste to add and
                     // clear immediately when we're parsing a playlist or a directory
                     lineCache.add(line);
-                    result.add(new Music(lineCache));
+                    result.add(Music.build(lineCache));
                     lineCache.clear();
                     break;
                 case "playlist":
