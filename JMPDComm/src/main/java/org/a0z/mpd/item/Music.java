@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,92 +50,23 @@ import java.util.regex.Pattern;
  */
 public class Music extends Item implements FilesystemTreeEntry {
 
-    public static class MusicTitleComparator implements Comparator<Music> {
-
-        public int compare(Music o1, Music o2) {
-            return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());
-        }
-    }
+    // Hack to discard some album artist names very long listing a long list of
+    // people and not useful to fetch covers ...
+    public static final int MAX_ARTIST_NAME_LENGTH = 40;
 
     // excluded artist names : in lower case
     private static final List<String> ARTIST_BLACK_LIST = Arrays.asList("various artists",
             "various artist");
 
-    // Hack to discard some album artist names very long listing a long list of
-    // people and not useful to fetch covers ...
-    public static final int MAX_ARTIST_NAME_LENGTH = 40;
+    /** The maximum number of key/value pairs for a music item response. */
+    private static final int MUSIC_ATTRIBUTES = 30;
 
-    public static int compare(String a, String b) {
-        if (null == a) {
-            return null == b ? 0 : -1;
-        }
-        if (null == b) {
-            return 1;
-        }
-        return a.compareTo(b);
-    }
-
-    public static List<Music> getMusicFromList(List<String> response, boolean sort) {
-        final List<Music> result = new ArrayList<>(response.size());
-        LinkedList<String> lineCache = new LinkedList<>();
-
-        for (String line : response) {
-            if (line.startsWith("file: ")) {
-                if (!lineCache.isEmpty()) {
-                    result.add(new Music(lineCache));
-                    lineCache.clear();
-                }
-            }
-            lineCache.add(line);
-        }
-
-        if (!lineCache.isEmpty()) {
-            result.add(new Music(lineCache));
-        }
-
-        if (sort) {
-            Collections.sort(result);
-        }
-
-        return result;
-    }
-
-    private static boolean isEmpty(String s) {
-        return null == s || s.isEmpty();
-    }
-
-    public static boolean isValidArtist(String artist) {
-        return !isEmpty(artist) && !ARTIST_BLACK_LIST.contains(artist.toLowerCase())
-                && artist.length() < MAX_ARTIST_NAME_LENGTH;
-    }
+    private static final String TAG = "Music";
 
     /**
-     * This method takes seconds and converts it into HH:MM:SS
-     *
-     * @param totalSeconds Seconds to convert to a string.
-     * @return Returns time formatted from the {@code totalSeconds} in format HH:MM:SS.
+     * The date response has it's own delimiter.
      */
-    public static String timeToString(final long totalSeconds) {
-        long seconds = totalSeconds < 0L ? 0L : totalSeconds;
-        final String result;
-
-        final long secondsInHour = 3600L;
-        final long secondsInMinute = 60L;
-
-        final long hours = seconds / secondsInHour;
-        seconds -= secondsInHour * hours;
-
-        final long minutes = seconds / secondsInMinute;
-        seconds -= minutes * secondsInMinute;
-
-        if (hours == 0) {
-            result = String.format("%02d:%02d", minutes, seconds);
-        } else {
-            result = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-        }
-
-        return result;
-    }
+    private static final Pattern DATE_DELIMITER = Pattern.compile("\\D+");
 
     private String album = "";
 
@@ -168,15 +98,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private String name;
 
-    private static final String TAG = "Music";
-
     public Music() {
     }
-
-    /**
-     * The date response has it's own delimiter.
-     */
-    private static final Pattern DATE_DELIMITER = Pattern.compile("\\D+");
 
     /**
      * Constructs a new Music.
@@ -309,6 +232,93 @@ public class Music extends Item implements FilesystemTreeEntry {
         this.name = name;
     }
 
+    public static int compare(String a, String b) {
+        if (null == a) {
+            return null == b ? 0 : -1;
+        }
+        if (null == b) {
+            return 1;
+        }
+        return a.compareTo(b);
+    }
+
+    public static List<Music> getMusicFromList(final Collection<String> response,
+            final boolean sort) {
+        final List<Music> result = new ArrayList<>(response.size());
+        final List<String> lineCache = new ArrayList<>(MUSIC_ATTRIBUTES);
+
+        for (final String line : response) {
+            if (line.startsWith("file: ")) {
+                if (!lineCache.isEmpty()) {
+                    result.add(new Music(lineCache));
+                    lineCache.clear();
+                }
+            }
+            lineCache.add(line);
+        }
+
+        if (!lineCache.isEmpty()) {
+            result.add(new Music(lineCache));
+        }
+
+        if (sort) {
+            Collections.sort(result);
+        }
+
+        return result;
+    }
+
+    private static boolean isEmpty(String s) {
+        return null == s || s.isEmpty();
+    }
+
+    public static boolean isValidArtist(String artist) {
+        return !isEmpty(artist) && !ARTIST_BLACK_LIST.contains(artist.toLowerCase())
+                && artist.length() < MAX_ARTIST_NAME_LENGTH;
+    }
+
+    /**
+     * This method takes seconds and converts it into HH:MM:SS
+     *
+     * @param totalSeconds Seconds to convert to a string.
+     * @return Returns time formatted from the {@code totalSeconds} in format HH:MM:SS.
+     */
+    public static String timeToString(final long totalSeconds) {
+        long seconds = totalSeconds < 0L ? 0L : totalSeconds;
+        final String result;
+
+        final long secondsInHour = 3600L;
+        final long secondsInMinute = 60L;
+
+        final long hours = seconds / secondsInHour;
+        seconds -= secondsInHour * hours;
+
+        final long minutes = seconds / secondsInMinute;
+        seconds -= minutes * secondsInMinute;
+
+        if (hours == 0) {
+            result = String.format("%02d:%02d", minutes, seconds);
+        } else {
+            result = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        }
+
+        return result;
+    }
+
+    public static String addStreamName(String url, String name) {
+        if (null == name || name.isEmpty()) {
+            return url;
+        }
+        try {
+            String path = new URL(url).getPath();
+            if (null == path || path.isEmpty()) {
+                return url + "/#" + name;
+            }
+        } catch (MalformedURLException e) {
+        }
+        return url + "#" + name;
+    }
+
     @Override
     public int compareTo(Item o) {
         if (o instanceof Music) {
@@ -358,12 +368,25 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     /**
+     * Defines album name.
+     *
+     * @param string album name.
+     */
+    public void setAlbum(String string) {
+        album = string;
+    }
+
+    /**
      * Retrieves the original album artist name.
      *
      * @return album artist name or null if it is not set.
      */
     public String getAlbumArtist() {
         return albumartist;
+    }
+
+    public void setAlbumArtist(String albumartist) {
+        this.albumartist = albumartist;
     }
 
     public Artist getAlbumArtistAsArtist() {
@@ -393,6 +416,15 @@ public class Music extends Item implements FilesystemTreeEntry {
         return artist;
     }
 
+    /**
+     * Defines artist name.
+     *
+     * @param string artist name.
+     */
+    public void setArtist(String string) {
+        artist = string;
+    }
+
     public Artist getArtistAsArtist() {
         return new Artist(artist);
     }
@@ -401,12 +433,24 @@ public class Music extends Item implements FilesystemTreeEntry {
         return genre;
     }
 
+    public void setGenre(String string) {
+        genre = string;
+    }
+
     public long getDate() {
         return date;
     }
 
+    public void setDate(long value) {
+        date = value;
+    }
+
     public int getDisc() {
         return disc;
+    }
+
+    public void setDisc(int value) {
+        disc = value;
     }
 
     /**
@@ -477,6 +521,15 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     /**
+     * Set file's parent directory
+     *
+     * @param directory file's parent directory
+     */
+    public void setParent(Directory directory) {
+        parent = directory;
+    }
+
+    /**
      * Retrieves file's parent directory
      *
      * @return file's parent directory
@@ -518,28 +571,18 @@ public class Music extends Item implements FilesystemTreeEntry {
         return songId;
     }
 
+    public void setSongId(int value) {
+        songId = value;
+    }
+
     private void extractStreamName() {
         if (null != fullpath && !fullpath.isEmpty()) {
             int pos = fullpath.indexOf("#");
             if (pos > 1) {
-                name=fullpath.substring(pos + 1, fullpath.length());
-                fullpath=fullpath.substring(0, pos-1);
+                name = fullpath.substring(pos + 1, fullpath.length());
+                fullpath = fullpath.substring(0, pos - 1);
             }
         }
-    }
-
-    public static String addStreamName(String url, String name) {
-        if (null == name || name.isEmpty()) {
-            return url;
-        }
-        try {
-            String path = new URL(url).getPath();
-            if (null == path || path.isEmpty()) {
-                return url + "/#" + name;
-            }
-        } catch (MalformedURLException e) {
-        }
-        return url + "#" + name;
     }
 
     /**
@@ -549,6 +592,15 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public long getTime() {
         return time;
+    }
+
+    /**
+     * Defines playing time.
+     *
+     * @param l playing time.
+     */
+    public void setTime(long l) {
+        time = l;
     }
 
     /**
@@ -565,6 +617,15 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     /**
+     * Defines title.
+     *
+     * @param string title.
+     */
+    public void setTitle(String string) {
+        title = string;
+    }
+
+    /**
      * Retrieves total number of tracks from this music's album when available.
      * This can contain letters!
      *
@@ -575,12 +636,31 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     /**
+     * Defines total number of tracks from this music's album when available.
+     *
+     * @param total total number of tracks from this music's album when
+     *              available.
+     */
+    public void setTotalTracks(int total) {
+        totalTracks = total;
+    }
+
+    /**
      * Retrieves track number. This can contain letters!
      *
      * @return track number.
      */
     public int getTrack() {
         return track;
+    }
+
+    /**
+     * Defines track number.
+     *
+     * @param num track number.
+     */
+    public void setTrack(int num) {
+        track = num;
     }
 
     public boolean haveTitle() {
@@ -595,92 +675,6 @@ public class Music extends Item implements FilesystemTreeEntry {
     public String mainText() {
         return getTitle();
     }
-
-    /**
-     * Defines album name.
-     *
-     * @param string album name.
-     */
-    public void setAlbum(String string) {
-        album = string;
-    }
-
-    public void setAlbumArtist(String albumartist) {
-        this.albumartist = albumartist;
-    }
-
-    /**
-     * Defines artist name.
-     *
-     * @param string artist name.
-     */
-    public void setArtist(String string) {
-        artist = string;
-    }
-
-    public void setGenre(String string) {
-        genre = string;
-    }
-
-    public void setDate(long value) {
-        date = value;
-    }
-
-    public void setDisc(int value) {
-        disc = value;
-    }
-
-    /**
-     * Set file's parent directory
-     *
-     * @param directory file's parent directory
-     */
-    public void setParent(Directory directory) {
-        parent = directory;
-    }
-
-    public void setSongId(int value) {
-        songId = value;
-    }
-
-    /**
-     * Defines playing time.
-     *
-     * @param l playing time.
-     */
-    public void setTime(long l) {
-        time = l;
-    }
-
-    /**
-     * Defines title.
-     *
-     * @param string title.
-     */
-    public void setTitle(String string) {
-        title = string;
-    }
-
-    /**
-     * Defines total number of tracks from this music's album when available.
-     *
-     * @param total total number of tracks from this music's album when
-     *              available.
-     */
-    public void setTotalTracks(int total) {
-        totalTracks = total;
-    }
-
-    /**
-     * Defines track number.
-     *
-     * @param num track number.
-     */
-    public void setTrack(int num) {
-        track = num;
-    }
-
-    /** Do not implement toString(), JMPDComm is dependent on the implementation in Item.java. */
 
     /**
      * Copies, artist, album, title, time, totalTracks and track from another
@@ -702,5 +696,14 @@ public class Music extends Item implements FilesystemTreeEntry {
          */
         this.setDisc(other.getDisc());
         this.setDate(other.getDate());
+    }
+
+    /** Do not implement toString(), JMPDComm is dependent on the implementation in Item.java. */
+
+    public static class MusicTitleComparator implements Comparator<Music> {
+
+        public int compare(Music o1, Music o2) {
+            return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());
+        }
     }
 }
