@@ -30,7 +30,6 @@ package org.a0z.mpd;
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.connection.MPDConnectionMonoSocket;
 import org.a0z.mpd.connection.MPDConnectionMultiSocket;
-import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
@@ -902,13 +901,8 @@ public class MPD {
     public List<Music> getPlaylistSongs(String playlistName) throws MPDServerException {
         String args[] = new String[1];
         args[0] = playlistName;
-        List<Music> music = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
 
-        for (int i = 0; i < music.size(); ++i) {
-            music.get(i).setSongId(i);
-        }
-
-        return music;
+        return genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
     }
 
     public List<Music> getSavedStreams() throws MPDServerException {
@@ -919,13 +913,8 @@ public class MPD {
                 if (null!=name && name.equals(STREAMS_PLAYLIST)) {
                     String args[] = new String[1];
                     args[0] = STREAMS_PLAYLIST;
-                    List<Music> music = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
 
-                    for (int i = 0; i < music.size(); ++i) {
-                        music.get(i).setSongId(i);
-                    }
-
-                    return music;
+                    return genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
                 }
             }
         }

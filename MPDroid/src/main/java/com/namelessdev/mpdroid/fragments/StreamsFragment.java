@@ -215,6 +215,8 @@ public class StreamsFragment extends BrowseFragment {
 
         // Load streams stored in MPD Streams playlist...
         List<Music> mpdStreams = null;
+        int iterator = 0;
+
         try {
             mpdStreams = app.oMPDAsyncHelper.oMPD.getSavedStreams();
         } catch (final MPDServerException e) {
@@ -223,7 +225,8 @@ public class StreamsFragment extends BrowseFragment {
 
         if (null!=mpdStreams) {
             for (Music stream : mpdStreams) {
-                streams.add(new Stream(stream.getName(), stream.getFullpath(), stream.getSongId()));
+                streams.add(new Stream(stream.getName(), stream.getFullpath(), iterator));
+                iterator++;
             }
         }
 

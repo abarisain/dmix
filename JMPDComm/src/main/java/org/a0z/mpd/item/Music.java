@@ -86,6 +86,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private final int mSongPos;
 
+    private final int mSongId;
+
     private final long mTime;
 
     private final String mTitle;
@@ -93,8 +95,6 @@ public class Music extends Item implements FilesystemTreeEntry {
     private final int mTotalTracks;
 
     private final int mTrack;
-
-    private int mSongId;
 
     public Music() {
         this(null, /** Album */
@@ -434,6 +434,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 
             final int[][] equalsInt = {
                     {mDisc, music.mDisc },
+                    {mSongId, music.mSongId},
                     {mSongPos, music.mSongPos },
                     {mTotalTracks, music.mTotalTracks},
                     {mTrack, music.mTrack}
@@ -462,6 +463,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         int result = 31 * mFullPath.hashCode();
         result = 31 * result + mDisc;
         result = 31 * result + (int) (mDate ^ (mDate >>> 32));
+        result = 31 * result + mSongId;
         result = 31 * result + mSongPos;
         result = 31 * result + (int) (mTime ^ (mTime >>> 32));
         result = 31 * result + mTotalTracks;
@@ -624,11 +626,6 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     public int getSongId() {
         return mSongId;
-    }
-
-    /** TODO: This needs to go away to make this class completely immutable. */
-    public void setSongId(final int value) {
-        mSongId = value;
     }
 
     /**
