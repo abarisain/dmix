@@ -37,17 +37,11 @@ import java.util.List;
 
 public class OutputsFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
+    private static final String TAG = "OutputsFragment";
+
     private final MPDApplication app = MPDApplication.getInstance();
 
     private ArrayList<MPDOutput> outputs;
-
-    private static final String TAG = "OutputsFragment";
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        outputs = new ArrayList<>();
-    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -64,6 +58,12 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
         if (!(getActivity() instanceof MainMenuActivity)) {
             refreshOutputs();
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        outputs = new ArrayList<>();
     }
 
     @Override

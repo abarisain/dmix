@@ -98,12 +98,13 @@ public class SpotifyCover extends AbstractWebCover {
                     + albumInfo.getArtist() + " " + albumInfo.getAlbum());
             albumIds = extractAlbumIds(albumResponse);
             for (String albumId : albumIds) {
-                coverResponse = executeGetRequest("https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/"
-                        + albumId);
+                coverResponse = executeGetRequest(
+                        "https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/"
+                                + albumId);
                 coverUrl = extractImageUrl(coverResponse);
                 if (!isEmpty(coverUrl)) {
                     coverUrl = coverUrl.replace("/cover/", "/640/");
-                    return new String[] {
+                    return new String[]{
                             coverUrl
                     };
                 }

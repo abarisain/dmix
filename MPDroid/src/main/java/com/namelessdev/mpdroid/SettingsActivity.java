@@ -28,12 +28,28 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
     private SettingsFragment settingsFragment;
 
     @Override
+    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+        settingsFragment.onConnectionStateChanged();
+    }
+
+    @Override
+    public void libraryStateChanged(boolean updating, boolean dbChanged) {
+
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         settingsFragment = new SettingsFragment();
         app.oMPDAsyncHelper.addStatusChangeListener(this);
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, settingsFragment).commit();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        app.oMPDAsyncHelper.removeStatusChangeListener(this);
     }
 
     @Override
@@ -46,22 +62,6 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
     protected void onStop() {
         super.onStop();
         app.setActivity(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        app.oMPDAsyncHelper.removeStatusChangeListener(this);
-    }
-
-    @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        settingsFragment.onConnectionStateChanged();
-    }
-
-    @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
-
     }
 
     @Override

@@ -26,10 +26,11 @@ import static android.text.TextUtils.join;
 
 public class PlaylistSong extends AbstractPlaylistMusic {
 
-    public PlaylistSong(Music m) {
-        super(m.getAlbum(), m.getArtist(), m.getAlbumArtist(), m.getFullpath(), m.getDisc(),
-                m.getDate(), m.getGenre(), m.getTime(), m.getTitle(), m.getTotalTracks(),
-                m.getTrack(), m.getSongId(), m.getPos(), m.getName());
+    public PlaylistSong(Music music) {
+        super(music.getAlbum(), music.getArtist(), music.getAlbumArtist(), music.getFullpath(),
+                music.getDisc(), music.getDate(), music.getGenre(), music.getTime(),
+                music.getTitle(), music.getTotalTracks(), music.getTrack(), music.getSongId(),
+                music.getPos(), music.getName());
     }
 
     public String getPlayListMainLine() {
@@ -37,13 +38,13 @@ public class PlaylistSong extends AbstractPlaylistMusic {
     }
 
     public String getPlaylistSubLine() {
-        List<String> sublineTexts = new ArrayList<String>();
+        List<String> subLineTexts = new ArrayList<String>();
         if (!isEmpty(getArtist())) {
-            sublineTexts.add(getArtist());
+            subLineTexts.add(getArtist());
         }
         if (!isEmpty(getAlbum())) {
-            sublineTexts.add(getAlbum());
+            subLineTexts.add(getAlbum());
         }
-        return join(" - ", sublineTexts);
+        return join(" - ", subLineTexts);
     }
 }

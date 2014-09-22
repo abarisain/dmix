@@ -41,9 +41,9 @@ public class MPDStatistics {
 
     private static final String TAG = "MPDStatistics";
 
-    private long mArtists = -1L;
-
     private long mAlbums = -1L;
+
+    private long mArtists = -1L;
 
     private long mDBPlaytime = -1L;
 

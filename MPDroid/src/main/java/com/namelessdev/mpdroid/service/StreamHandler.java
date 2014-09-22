@@ -84,14 +84,14 @@ public final class StreamHandler implements
 
     private static final boolean DEBUG = MPDroidService.DEBUG;
 
-    /** Workaround to delay preparation of stream on Android 4.4.2 and earlier. */
-    private static final int PREPARE_ASYNC = 1;
-
     /**
      * Called as an argument to windDownResources() when a
      * message is not required to send to the service.
      */
     private static final int INVALID_INT = -1;
+
+    /** Workaround to delay preparation of stream on Android 4.4.2 and earlier. */
+    private static final int PREPARE_ASYNC = 1;
 
     private static final String TAG = "StreamHandler";
 
@@ -101,10 +101,10 @@ public final class StreamHandler implements
 
     public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
 
-    private final Handler mHandler = new Handler(this);
-
     private final ConnectionInfo mConnectionInfo
             = MPDroidService.MPD_ASYNC_HELPER.getConnectionSettings();
+
+    private final Handler mHandler = new Handler(this);
 
     /** The service context used to acquire the wake lock. */
     private final MPDroidService mServiceContext;
@@ -151,6 +151,36 @@ public final class StreamHandler implements
     }
 
     /**
+     * Translates MediaPlayer.OnErrorListener error codes to applicable resource ids for a local
+     * translated string.
+     *
+     * @param resId MediaPlayer.OnErrorListener resource id.
+     * @return Local resource id for a translated string.
+     */
+    private static int getErrorDetails(final int resId) {
+        final int errorExtraResId;
+
+        switch (resId) {
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                errorExtraResId = R.string.mediaPlayerErrorTimedOut;
+                break;
+            case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                errorExtraResId = R.string.mediaPlayerErrorMalformed;
+                break;
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                errorExtraResId = R.string.mediaPlayerErrorUnsupported;
+                break;
+            case MediaPlayer.MEDIA_ERROR_IO:
+                /** Fall through, nothing else is possible. */
+            default:
+                errorExtraResId = R.string.mediaPlayerErrorIO;
+                break;
+        }
+
+        return errorExtraResId;
+    }
+
+    /**
      * A function to translate 'what' fields to literal debug name, used primarily for debugging.
      *
      * @param what A 'what' field.
@@ -189,42 +219,6 @@ public final class StreamHandler implements
                 break;
         }
         return "StreamHandler." + result;
-    }
-
-    /**
-     * Translates MediaPlayer.OnErrorListener error codes to applicable resource ids for a local
-     * translated string.
-     *
-     * @param resId MediaPlayer.OnErrorListener resource id.
-     * @return Local resource id for a translated string.
-     */
-    private static int getErrorDetails(final int resId) {
-        final int errorExtraResId;
-
-        switch (resId) {
-            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
-                errorExtraResId = R.string.mediaPlayerErrorTimedOut;
-                break;
-            case MediaPlayer.MEDIA_ERROR_MALFORMED:
-                errorExtraResId = R.string.mediaPlayerErrorMalformed;
-                break;
-            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
-                errorExtraResId = R.string.mediaPlayerErrorUnsupported;
-                break;
-            case MediaPlayer.MEDIA_ERROR_IO:
-                /** Fall through, nothing else is possible. */
-            default:
-                errorExtraResId = R.string.mediaPlayerErrorIO;
-                break;
-        }
-
-        return errorExtraResId;
-    }
-
-    /** Get the current server streaming URL. */
-    private String getStreamSource() {
-        return "http://" + mConnectionInfo.streamServer + ':'
-                + mConnectionInfo.streamPort + '/' + mConnectionInfo.streamSuffix;
     }
 
     /** This is where the stream start is managed. */
@@ -272,6 +266,12 @@ public final class StreamHandler implements
          * This order is very specific and if interrupted can cause big problems.
          */
         mHandler.sendEmptyMessageDelayed(PREPARE_ASYNC, asyncIdle); /** Go to onPrepared() */
+    }
+
+    /** Get the current server streaming URL. */
+    private String getStreamSource() {
+        return "http://" + mConnectionInfo.streamServer + ':'
+                + mConnectionInfo.streamPort + '/' + mConnectionInfo.streamSuffix;
     }
 
     /**
@@ -566,20 +566,6 @@ public final class StreamHandler implements
         }
     }
 
-    final void stop() {
-        if (DEBUG) {
-            Log.d(TAG, "StreamHandler.stop()");
-        }
-
-        mHandler.removeMessages(PREPARE_ASYNC);
-
-        mAudioManager.abandonAudioFocus(this);
-
-        windDownResources(REQUEST_NOTIFICATION_STOP);
-
-        mIsActive = false;
-    }
-
     /**
      * A JMPDComm callback which is invoked on MPD status change.
      *
@@ -621,6 +607,20 @@ public final class StreamHandler implements
                     break;
             }
         }
+    }
+
+    final void stop() {
+        if (DEBUG) {
+            Log.d(TAG, "StreamHandler.stop()");
+        }
+
+        mHandler.removeMessages(PREPARE_ASYNC);
+
+        mAudioManager.abandonAudioFocus(this);
+
+        windDownResources(REQUEST_NOTIFICATION_STOP);
+
+        mIsActive = false;
     }
 
     /**

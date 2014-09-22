@@ -78,15 +78,15 @@ public class MPDStatusMonitor extends Thread {
 
     private final long delay;
 
-    private final MPD mpd;
+    private final MPDCommand mIdleCommand;
 
-    private volatile boolean giveup;
+    private final MPD mpd;
 
     private final LinkedList<StatusChangeListener> statusChangedListeners;
 
     private final LinkedList<TrackPositionListener> trackPositionChangedListeners;
 
-    private final MPDCommand mIdleCommand;
+    private volatile boolean giveup;
 
     /**
      * Constructs a MPDStatusMonitor.
@@ -194,7 +194,7 @@ public class MPDStatusMonitor extends Thread {
                         mpd.updateStatus();
 
                         for (final String change : changes) {
-                            switch(change.substring("changed: ".length())) {
+                            switch (change.substring("changed: ".length())) {
                                 case "database":
                                     mpd.updateStatistics();
                                     dbChanged = true;

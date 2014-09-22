@@ -38,9 +38,9 @@ import java.net.Socket;
  */
 public class NetworkActivityHandler extends BroadcastReceiver implements Runnable {
 
-    private static final String TAG = "NetworkActivityHandler";
-
     private static final boolean DEBUG = false;
+
+    private static final String TAG = "NetworkActivityHandler";
 
     /** The handler for the MPDAsyncHelper. */
     private final Handler mHelperHandler;
@@ -139,6 +139,48 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
     }
 
     /**
+     * Checks if the MPD object connection configuration is current
+     * to the current WIFI/SSID network configuration.
+     *
+     * @param bundle The incoming ConnectivityManager intent bundle.
+     * @return True if the MPD object connection configuration is current to the current
+     * WIFI/SSID network configuration, false otherwise.
+     */
+    private boolean isConnectedToWIFI(final Bundle bundle) {
+        final String potentialSSID = bundle.getString(ConnectivityManager.EXTRA_EXTRA_INFO);
+        /** Remove quotes */
+        final String hostPreferenceName =
+                potentialSSID.substring(1, potentialSSID.length() - 1) + "hostname";
+
+        final String hostname = mPreferences.getString(hostPreferenceName, null);
+
+        return isLinkedToHostname(hostname);
+    }
+
+    /**
+     * Checks if the MPD object connection configuration is current
+     * to the network type shared preference configuration.
+     *
+     * @param bundle The incoming ConnectivityManager intent bundle.
+     * @return True if the shared preference configuration is the same as the configured MPD
+     * object
+     * configuration, false otherwise.
+     */
+    private boolean isHostnameLinked(final Bundle bundle) {
+        final boolean result;
+
+        if (bundle.getInt(ConnectivityManager.EXTRA_NETWORK_TYPE) ==
+                ConnectivityManager.TYPE_WIFI) {
+            result = isConnectedToWIFI(bundle);
+        } else {
+            /** "Default" connection */
+            result = isLinkedToHostname(mPreferences.getString("hostname", null));
+        }
+
+        return result;
+    }
+
+    /**
      * Checks that the MPD object connection configuration is current
      * to the network type shared preference configuration hostname.
      *
@@ -184,48 +226,6 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
         }
 
         return isConnectedTo;
-    }
-
-    /**
-     * Checks if the MPD object connection configuration is current
-     * to the current WIFI/SSID network configuration.
-     *
-     * @param bundle The incoming ConnectivityManager intent bundle.
-     * @return True if the MPD object connection configuration is current to the current
-     * WIFI/SSID network configuration, false otherwise.
-     */
-    private boolean isConnectedToWIFI(final Bundle bundle) {
-        final String potentialSSID = bundle.getString(ConnectivityManager.EXTRA_EXTRA_INFO);
-        /** Remove quotes */
-        final String hostPreferenceName =
-                potentialSSID.substring(1, potentialSSID.length() - 1) + "hostname";
-
-        final String hostname = mPreferences.getString(hostPreferenceName, null);
-
-        return isLinkedToHostname(hostname);
-    }
-
-    /**
-     * Checks if the MPD object connection configuration is current
-     * to the network type shared preference configuration.
-     *
-     * @param bundle The incoming ConnectivityManager intent bundle.
-     * @return True if the shared preference configuration is the same as the configured MPD
-     * object
-     * configuration, false otherwise.
-     */
-    private boolean isHostnameLinked(final Bundle bundle) {
-        final boolean result;
-
-        if (bundle.getInt(ConnectivityManager.EXTRA_NETWORK_TYPE) ==
-                ConnectivityManager.TYPE_WIFI) {
-            result = isConnectedToWIFI(bundle);
-        } else {
-            /** "Default" connection */
-            result = isLinkedToHostname(mPreferences.getString("hostname", null));
-        }
-
-        return result;
     }
 
     /**

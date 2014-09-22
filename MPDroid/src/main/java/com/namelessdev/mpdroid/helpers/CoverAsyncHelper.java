@@ -38,9 +38,11 @@ import java.util.LinkedList;
  */
 public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
-    private static final int EVENT_COVER_DOWNLOADED = 1;
-
     public static final int EVENT_COVER_NOT_FOUND = 2;
+
+    private static final Message COVER_NOT_FOUND_MESSAGE;
+
+    private static final int EVENT_COVER_DOWNLOADED = 1;
 
     private static final int EVENT_COVER_DOWNLOAD_STARTED = 3;
 
@@ -49,8 +51,6 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     private int coverMaxSize = MAX_SIZE;
 
     private int cachedCoverMaxSize = MAX_SIZE;
-
-    private static final Message COVER_NOT_FOUND_MESSAGE;
 
     private final MPDApplication app = MPDApplication.getInstance();
 
@@ -69,10 +69,6 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         coverDownloadListener = new LinkedList<>();
     }
 
-    public void addCoverDownloadListener(final CoverDownloadListener listener) {
-        coverDownloadListener.add(listener);
-    }
-
     private static void displayCoverRetrieverName(final CoverInfo coverInfo) {
 
         try {
@@ -84,6 +80,10 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         } catch (final RuntimeException ignored) {
             // Nothing to do
         }
+    }
+
+    public void addCoverDownloadListener(final CoverDownloadListener listener) {
+        coverDownloadListener.add(listener);
     }
 
     public void downloadCover(final AlbumInfo albumInfo) {
@@ -145,13 +145,13 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     }
 
     @Override
-    public void onCoverDownloaded(final CoverInfo cover) {
-        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOADED, cover).sendToTarget();
+    public void onCoverDownloadStarted(final CoverInfo cover) {
+        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, cover).sendToTarget();
     }
 
     @Override
-    public void onCoverDownloadStarted(final CoverInfo cover) {
-        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, cover).sendToTarget();
+    public void onCoverDownloaded(final CoverInfo cover) {
+        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOADED, cover).sendToTarget();
     }
 
     @Override

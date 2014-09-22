@@ -19,7 +19,9 @@ package com.namelessdev.mpdroid.models;
 import org.a0z.mpd.item.Music;
 
 public abstract class AbstractPlaylistMusic extends Music {
+
     private int currentSongIconRefID;
+
     private boolean forceCoverRefresh = false;
 
     protected AbstractPlaylistMusic(String album, String artist, String albumartist,

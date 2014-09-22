@@ -38,31 +38,31 @@ import android.util.Log;
 
 public class SettingsFragment extends PreferenceFragment {
 
-    private PreferenceScreen informationScreen;
+    private static final String TAG = "com.namelessdev.mpdroid.SettingsFragment";
+
+    private final MPDApplication app = MPDApplication.getInstance();
+
+    private CheckBoxPreference albumArtLibrary;
+
+    private EditTextPreference albums;
+
+    private EditTextPreference artists;
 
     private EditTextPreference cacheUsage1;
 
     private EditTextPreference cacheUsage2;
 
-    private Handler handler;
-
-    private EditTextPreference version;
-
-    private EditTextPreference artists;
-
-    private EditTextPreference albums;
-
-    private EditTextPreference songs;
-
-    private CheckBoxPreference localCoverCheckbox;
-
     private Preference coverFilename;
 
-    private Preference musicPath;
+    private Handler handler;
+
+    private PreferenceScreen informationScreen;
 
     private CheckBoxPreference localCoverCache;
 
-    private CheckBoxPreference albumArtLibrary;
+    private CheckBoxPreference localCoverCheckbox;
+
+    private Preference musicPath;
 
     private CheckBoxPreference phonePause;
 
@@ -70,12 +70,46 @@ public class SettingsFragment extends PreferenceFragment {
 
     private boolean preferencesBinded;
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private EditTextPreference songs;
 
-    private static final String TAG = "com.namelessdev.mpdroid.SettingsFragment";
+    private EditTextPreference version;
 
     public SettingsFragment() {
         preferencesBinded = false;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        refreshDynamicFields();
+    }
+
+    public void onConnectionStateChanged() {
+        final MPD mpd = app.oMPDAsyncHelper.oMPD;
+        informationScreen.setEnabled(mpd.isConnected());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final String versionText = mpd.getMpdVersion();
+                    final MPDStatistics mpdStatistics = mpd.getStatistics();
+
+                    handler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            version.setSummary(versionText);
+                            artists.setSummary(String.valueOf(mpdStatistics.getArtists()));
+                            albums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
+                            songs.setSummary(String.valueOf(mpdStatistics.getSongs()));
+                        }
+                    });
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to get MPD statistics.", e);
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -126,51 +160,6 @@ public class SettingsFragment extends PreferenceFragment {
 
         preferencesBinded = true;
         refreshDynamicFields();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        refreshDynamicFields();
-    }
-
-    public void refreshDynamicFields() {
-        if (getActivity() == null || !preferencesBinded) {
-            return;
-        }
-        long size = new CachedCover().getCacheUsage();
-        final String usage = Formatter.formatFileSize(app, size);
-        cacheUsage1.setSummary(usage);
-        cacheUsage2.setSummary(usage);
-        onConnectionStateChanged();
-    }
-
-    public void onConnectionStateChanged() {
-        final MPD mpd = app.oMPDAsyncHelper.oMPD;
-        informationScreen.setEnabled(mpd.isConnected());
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final String versionText = mpd.getMpdVersion();
-                    final MPDStatistics mpdStatistics = mpd.getStatistics();
-
-                    handler.post(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            version.setSummary(versionText);
-                            artists.setSummary(String.valueOf(mpdStatistics.getArtists()));
-                            albums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
-                            songs.setSummary(String.valueOf(mpdStatistics.getSongs()));
-                        }
-                    });
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to get MPD statistics.", e);
-                }
-            }
-        }).start();
     }
 
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
@@ -245,6 +234,17 @@ public class SettingsFragment extends PreferenceFragment {
 
         return false;
 
+    }
+
+    public void refreshDynamicFields() {
+        if (getActivity() == null || !preferencesBinded) {
+            return;
+        }
+        long size = new CachedCover().getCacheUsage();
+        final String usage = Formatter.formatFileSize(app, size);
+        cacheUsage1.setSummary(usage);
+        cacheUsage2.setSummary(usage);
+        onConnectionStateChanged();
     }
 
 }

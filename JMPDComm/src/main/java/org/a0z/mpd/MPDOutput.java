@@ -34,11 +34,11 @@ import java.util.List;
  */
 public class MPDOutput {
 
-    private String name;
+    private boolean enabled;
 
     private int id;
 
-    private boolean enabled;
+    private String name;
 
     MPDOutput(List<String> response) {
         for (String line : response) {

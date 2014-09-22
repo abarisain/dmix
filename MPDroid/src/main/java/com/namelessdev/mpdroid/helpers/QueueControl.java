@@ -29,16 +29,6 @@ import android.util.Log;
  */
 public final class QueueControl {
 
-    private static final String TAG = "QueueControl";
-
-    private static final MPDApplication app = MPDApplication.getInstance();
-
-    private static final MPD mpd = app.oMPDAsyncHelper.oMPD;
-
-    private static final MPDPlaylist playlist = mpd.getPlaylist();
-
-    private static final int INVALID_INT = -1;
-
     public static final int CLEAR = 0;
 
     public static final int MOVE = 1;
@@ -54,6 +44,16 @@ public final class QueueControl {
     public static final int SAVE_PLAYLIST = 6;
 
     public static final int SKIP_TO_ID = 7;
+
+    private static final int INVALID_INT = -1;
+
+    private static final String TAG = "QueueControl";
+
+    private static final MPDApplication app = MPDApplication.getInstance();
+
+    private static final MPD mpd = app.oMPDAsyncHelper.oMPD;
+
+    private static final MPDPlaylist playlist = mpd.getPlaylist();
 
     private QueueControl() {
         super();
@@ -207,7 +207,8 @@ public final class QueueControl {
                             break;
                     }
                 } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to run simple playlist command. Argument 1: " + arg1 + " Argument 2: " + arg2 + " Argument 3: " + arg3, e);
+                    Log.e(TAG, "Failed to run simple playlist command. Argument 1: " + arg1
+                            + " Argument 2: " + arg2 + " Argument 3: " + arg3, e);
                 }
             }
         }).start();

@@ -20,13 +20,13 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Item;
-import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -45,13 +45,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FSFragment extends BrowseFragment {
+
     private static final String EXTRA_DIRECTORY = "directory";
 
-    private Directory currentDirectory = null;
-    private String directory = null;
-    private int numSubdirs = 0; // number of subdirectories including ".."
-
     private static final String TAG = "FSFragment";
+
+    private Directory currentDirectory = null;
+
+    private String directory = null;
+
+    private int numSubdirs = 0; // number of subdirectories including ".."
 
     public FSFragment() {
         super(R.string.addDirectory, R.string.addedDirectoryToPlaylist,
@@ -185,8 +188,15 @@ public class FSFragment extends BrowseFragment {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setHasOptionsMenu(true);
-        if (icicle != null)
+        if (icicle != null) {
             init(icicle.getString(EXTRA_DIRECTORY));
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.mpd_fsmenu, menu);
     }
 
     @Override
@@ -201,7 +211,8 @@ public class FSFragment extends BrowseFragment {
                     try {
                         int songId = -1;
                         if (item instanceof Music) {
-                            app.oMPDAsyncHelper.oMPD.add(item, app.isInSimpleMode(), app.isInSimpleMode());
+                            app.oMPDAsyncHelper.oMPD
+                                    .add(item, app.isInSimpleMode(), app.isInSimpleMode());
                             if (!app.isInSimpleMode()) {
                                 Tools.notifyUser(R.string.songAdded, item);
                             }
@@ -222,18 +233,6 @@ public class FSFragment extends BrowseFragment {
                     new FSFragment().init(dir), "filesystem");
         }
 
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putString(EXTRA_DIRECTORY, directory);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.mpd_fsmenu, menu);
     }
 
     @Override
@@ -258,6 +257,12 @@ public class FSFragment extends BrowseFragment {
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(EXTRA_DIRECTORY, directory);
+        super.onSaveInstanceState(outState);
     }
 
 }

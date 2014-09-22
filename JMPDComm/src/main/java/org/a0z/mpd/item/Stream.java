@@ -47,23 +47,6 @@ public class Stream extends Item {
         mPos = pos;
     }
 
-    @Override
-    public String getName() {
-        return mName;
-    }
-
-    public int getPos() {
-        return mPos;
-    }
-
-    public String getUrl() {
-        return mUrl;
-    }
-
-    public void setPos(final int pos) {
-        mPos = pos;
-    }
-
     /**
      * Compares an Artist object with a general contract of
      * comparison that is reflexive, symmetric and transitive.
@@ -102,7 +85,24 @@ public class Stream extends Item {
     }
 
     @Override
+    public String getName() {
+        return mName;
+    }
+
+    public int getPos() {
+        return mPos;
+    }
+
+    public String getUrl() {
+        return mUrl;
+    }
+
+    @Override
     public int hashCode() {
         return Arrays.hashCode(new Object[]{mName, mUrl});
+    }
+
+    public void setPos(final int pos) {
+        mPos = pos;
     }
 }

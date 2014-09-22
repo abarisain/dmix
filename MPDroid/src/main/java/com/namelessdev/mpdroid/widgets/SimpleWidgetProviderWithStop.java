@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 
 public class SimpleWidgetProviderWithStop extends SimpleWidgetProvider {
+
     protected String TAG = "MPDroidSimpleWidgetProviderWithStop";
 
     /**

@@ -54,42 +54,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class StreamsFragment extends BrowseFragment {
-    class DeleteDialogClickListener implements OnClickListener {
-        private final int itemIndex;
 
-        DeleteDialogClickListener(int itemIndex) {
-            this.itemIndex = itemIndex;
-        }
-
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case AlertDialog.BUTTON_NEGATIVE:
-                    break;
-                case AlertDialog.BUTTON_POSITIVE:
-                    try {
-                        app.oMPDAsyncHelper.oMPD.removeSavedStream(streams.get(itemIndex).getPos());
-                    } catch (final MPDServerException e) {
-                        Log.e(TAG, "Failed to removed a saved stream.", e);
-                    }
-
-                    String name = items.get(itemIndex).getName();
-                    Tools.notifyUser(R.string.streamDeleted, name);
-                    items.remove(itemIndex);
-                    streams.remove(itemIndex);
-                    updateFromItems();
-                    break;
-            }
-        }
-    }
-
-    ArrayList<Stream> streams = new ArrayList<Stream>();
-    public static final int EDIT = 101;
     public static final int DELETE = 102;
+
+    public static final int EDIT = 101;
+
     private static final String FILE_NAME = "streams.xml";
 
     private static final String SERVER_FILE_NAME = "streams.xml.gz";
 
     private static final String TAG = "StreamsFragment";
+
+    ArrayList<Stream> streams = new ArrayList<Stream>();
 
     public StreamsFragment() {
         super(R.string.addStream, R.string.streamAdded, null);
@@ -210,6 +186,37 @@ public class StreamsFragment extends BrowseFragment {
         return R.string.loadingStreams;
     }
 
+    private ArrayList<Stream> loadOldStreams() {
+        ArrayList<Stream> oldStreams = null;
+        try {
+            InputStream in = app.openFileInput(FILE_NAME);
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser xpp = factory.newPullParser();
+
+            xpp.setInput(in, "UTF-8");
+            int eventType = xpp.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG) {
+                    if (xpp.getName().equals("stream")) {
+                        if (null == oldStreams) {
+                            oldStreams = new ArrayList<Stream>();
+                        }
+                        oldStreams.add(new Stream(xpp.getAttributeValue("", "name"), xpp
+                                .getAttributeValue("", "url"), -1));
+                    }
+                }
+                eventType = xpp.next();
+            }
+            in.close();
+            // Now remove file - all streams will be added to MPD...
+            app.deleteFile(FILE_NAME);
+        } catch (final FileNotFoundException ignored) {
+        } catch (final Exception e) {
+            Log.e(TAG, "Error while loading streams", e);
+        }
+        return oldStreams;
+    }
+
     private void loadStreams() {
         streams = new ArrayList<Stream>();
 
@@ -223,7 +230,7 @@ public class StreamsFragment extends BrowseFragment {
             Log.e(TAG, "Failed to retrieve saved streams.", e);
         }
 
-        if (null!=mpdStreams) {
+        if (null != mpdStreams) {
             for (Music stream : mpdStreams) {
                 streams.add(new Stream(stream.getName(), stream.getFullpath(), iterator));
                 iterator++;
@@ -231,8 +238,8 @@ public class StreamsFragment extends BrowseFragment {
         }
 
         // Load any OLD MPDroid streams, and also save these to MPD...
-        ArrayList<Stream> oldStreams=loadOldStreams();
-        if (null!=oldStreams) {
+        ArrayList<Stream> oldStreams = loadOldStreams();
+        if (null != oldStreams) {
             for (Stream stream : streams) {
                 if (!streams.contains(stream)) {
                     try {
@@ -250,37 +257,6 @@ public class StreamsFragment extends BrowseFragment {
         items = streams;
     }
 
-    private ArrayList<Stream> loadOldStreams() {
-        ArrayList<Stream> oldStreams=null;
-        try {
-            InputStream in = app.openFileInput(FILE_NAME);
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            XmlPullParser xpp = factory.newPullParser();
-
-            xpp.setInput(in, "UTF-8");
-            int eventType = xpp.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.getName().equals("stream")) {
-                        if (null==oldStreams) {
-                            oldStreams=new ArrayList<Stream>();
-                        }
-                        oldStreams.add(new Stream(xpp.getAttributeValue("", "name"), xpp
-                                      .getAttributeValue("", "url"), -1));
-                    }
-                }
-                eventType = xpp.next();
-            }
-            in.close();
-            // Now remove file - all streams will be added to MPD...
-            app.deleteFile(FILE_NAME);
-        } catch (final FileNotFoundException ignored) {
-        } catch (final Exception e) {
-            Log.e(TAG, "Error while loading streams", e);
-        }
-        return oldStreams;
-    }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -296,7 +272,8 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         if (info.id >= 0 && info.id < streams.size()) {
@@ -317,7 +294,8 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -337,7 +315,7 @@ public class StreamsFragment extends BrowseFragment {
                 builder.setTitle(R.string.deleteStream);
                 builder.setMessage(
                         getResources().getString(R.string.deleteStreamPrompt,
-                        items.get((int) info.id).getName()));
+                                items.get((int) info.id).getName()));
 
                 DeleteDialogClickListener oDialogClickListener = new DeleteDialogClickListener(
                         (int) info.id);
@@ -363,6 +341,35 @@ public class StreamsFragment extends BrowseFragment {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    class DeleteDialogClickListener implements OnClickListener {
+
+        private final int itemIndex;
+
+        DeleteDialogClickListener(int itemIndex) {
+            this.itemIndex = itemIndex;
+        }
+
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case AlertDialog.BUTTON_NEGATIVE:
+                    break;
+                case AlertDialog.BUTTON_POSITIVE:
+                    try {
+                        app.oMPDAsyncHelper.oMPD.removeSavedStream(streams.get(itemIndex).getPos());
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Failed to removed a saved stream.", e);
+                    }
+
+                    String name = items.get(itemIndex).getName();
+                    Tools.notifyUser(R.string.streamDeleted, name);
+                    items.remove(itemIndex);
+                    streams.remove(itemIndex);
+                    updateFromItems();
+                    break;
+            }
         }
     }
 }

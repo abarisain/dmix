@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class WarningActivity extends Activity {
+
     Activity myWarning;
 
     @Override

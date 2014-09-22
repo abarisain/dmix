@@ -29,12 +29,14 @@ import android.view.MenuItem;
 
 @SuppressWarnings("deprecation")
 public class ConnectionSettings extends PreferenceActivity {
+
     public static final int MAIN = 0;
 
     private static final String KEY_CONNECTION_CATEGORY = "connectionCategory";
 
-    private String mSSID;
     private PreferenceCategory mMasterCategory;
+
+    private String mSSID;
 
     private void createDynamicSettings(String keyPrefix, PreferenceCategory toCategory) {
 

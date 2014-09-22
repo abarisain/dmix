@@ -25,6 +25,34 @@ import android.support.v4.app.FragmentActivity;
 
 public class MPDroidActivities {
 
+    // Forbid this activity from being instanciated
+    private MPDroidActivities() {
+    }
+
+    private static void applyTheme(Activity activity) {
+        final boolean lightTheme = MPDApplication.getInstance().isLightThemeSelected();
+        int themeID = R.style.AppTheme;
+        if (activity instanceof MainMenuActivity) {
+            if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean(
+                    "smallSeekbars", true)) {
+                if (lightTheme) {
+                    themeID = R.style.AppTheme_MainMenu_Light_SmallSeekBars;
+                } else {
+                    themeID = R.style.AppTheme_MainMenu_SmallSeekBars;
+                }
+            } else {
+                if (lightTheme) {
+                    themeID = R.style.AppTheme_MainMenu_Light;
+                } else {
+                    themeID = R.style.AppTheme_MainMenu;
+                }
+            }
+        } else if (lightTheme) {
+            themeID = R.style.AppTheme_Light;
+        }
+        activity.setTheme(themeID);
+    }
+
     @SuppressLint("Registered")
     public static class MPDroidActivity extends Activity {
 
@@ -59,34 +87,6 @@ public class MPDroidActivities {
             super.onCreate(savedInstanceState);
             applyTheme(this);
         }
-    }
-
-    private static void applyTheme(Activity activity) {
-        final boolean lightTheme = MPDApplication.getInstance().isLightThemeSelected();
-        int themeID = R.style.AppTheme;
-        if (activity instanceof MainMenuActivity) {
-            if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean(
-                    "smallSeekbars", true)) {
-                if (lightTheme) {
-                    themeID = R.style.AppTheme_MainMenu_Light_SmallSeekBars;
-                } else {
-                    themeID = R.style.AppTheme_MainMenu_SmallSeekBars;
-                }
-            } else {
-                if (lightTheme) {
-                    themeID = R.style.AppTheme_MainMenu_Light;
-                } else {
-                    themeID = R.style.AppTheme_MainMenu;
-                }
-            }
-        } else if (lightTheme) {
-            themeID = R.style.AppTheme_Light;
-        }
-        activity.setTheme(themeID);
-    }
-
-    // Forbid this activity from being instanciated
-    private MPDroidActivities() {
     }
 
 }

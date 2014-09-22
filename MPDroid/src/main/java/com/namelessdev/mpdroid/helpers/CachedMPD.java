@@ -38,9 +38,9 @@ import java.util.Set;
  */
 public class CachedMPD extends MPD {
 
-    private boolean mIsEnabled = true;
-
     private AlbumCache mCache;
+
+    private boolean mIsEnabled = true;
 
     public CachedMPD() {
         this(true);
@@ -95,15 +95,6 @@ public class CachedMPD extends MPD {
             }
         }
         Log.d("MPD CACHED", "addAlbumPaths " + albums.size());
-    }
-
-    /**
-     * Check whether the AlbumCache is enabled and ready for use.
-     *
-     * @return True if enabled and ready for use, false otherwise.
-     */
-    protected boolean isCached() {
-        return mIsEnabled && mCache.refresh();
     }
 
     /**
@@ -183,6 +174,15 @@ public class CachedMPD extends MPD {
         }
 
         return allAlbums;
+    }
+
+    /**
+     * Check whether the AlbumCache is enabled and ready for use.
+     *
+     * @return True if enabled and ready for use, false otherwise.
+     */
+    protected boolean isCached() {
+        return mIsEnabled && mCache.refresh();
     }
 
     /**

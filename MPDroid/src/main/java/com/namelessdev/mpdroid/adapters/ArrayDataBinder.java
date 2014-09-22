@@ -16,16 +16,17 @@
 
 package com.namelessdev.mpdroid.adapters;
 
-import android.content.Context;
-import android.view.View;
-
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 
 import org.a0z.mpd.item.Item;
 
+import android.content.Context;
+import android.view.View;
+
 import java.util.List;
 
 public interface ArrayDataBinder {
+
     public AbstractViewHolder findInnerViews(View targetView);
 
     public int getLayoutId();

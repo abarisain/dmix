@@ -92,6 +92,10 @@ public class Artist extends Item {
         return isEqual.booleanValue();
     }
 
+    public String getName() {
+        return name;
+    }
+
     /**
      * Returns an integer hash code for this Artist. By contract, any two objects for which
      * {@link #equals} returns {@code true} must return the same hash code value. This means that
@@ -105,10 +109,6 @@ public class Artist extends Item {
         return Arrays.hashCode(new Object[]{name, sort});
     }
 
-    public String getName() {
-        return name;
-    }
-
     /*
      * text for display Item.toString() returns mainText()
      */
@@ -116,7 +116,7 @@ public class Artist extends Item {
     public String mainText() {
         final String result;
 
-        if(name.isEmpty()) {
+        if (name.isEmpty()) {
             result = MPD.getUnknownArtist();
         } else {
             result = name;

@@ -16,10 +16,10 @@
 
 package com.namelessdev.mpdroid.adapters;
 
+import org.a0z.mpd.item.Item;
+
 import android.content.Context;
 import android.widget.SectionIndexer;
-
-import org.a0z.mpd.item.Item;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -37,9 +37,12 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     static final Comparator localeComp = new LocaleComparator();
 
     HashMap<String, Integer> alphaIndexer;
-    String[] sections;
-    ArrayDataBinder dataBinder = null;
+
     Context context;
+
+    ArrayDataBinder dataBinder = null;
+
+    String[] sections;
 
     @SuppressWarnings("unchecked")
     public ArrayIndexerAdapter(Context context, ArrayDataBinder dataBinder,
@@ -48,7 +51,8 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     }
 
     @SuppressWarnings("unchecked")
-    public ArrayIndexerAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
+    public ArrayIndexerAdapter(Context context, int textViewResourceId,
+            List<? extends Item> items) {
         super(context, textViewResourceId, items);
     }
 
@@ -60,17 +64,20 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
 
     @Override
     public int getSectionForPosition(int position) {
-        if (sections.length == 0)
+        if (sections.length == 0) {
             return -1;
+        }
 
-        if (sections.length == 1)
+        if (sections.length == 1) {
             return 1;
+        }
 
         for (int i = 0; i < (sections.length - 1); i++) {
             int begin = alphaIndexer.get(sections[i]);
             int end = alphaIndexer.get(sections[i + 1]) - 1;
-            if (position >= begin && position <= end)
+            if (position >= begin && position <= end) {
                 return i;
+            }
         }
         return sections.length - 1;
     }
@@ -111,9 +118,9 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         // ordered alphabetically
 
         ArrayList<String> keyList = new ArrayList<String>(alphaIndexer.keySet()); // list
-                                                                                  // can
-                                                                                  // be
-                                                                                  // sorted
+        // can
+        // be
+        // sorted
         Collections.sort(keyList, localeComp);
 
         // add "Unknown" at the end after sorting
@@ -123,7 +130,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         }
 
         sections = new String[keyList.size()]; // simple conversion to an array
-                                               // of object
+        // of object
         keyList.toArray(sections);
     }
 
@@ -133,6 +140,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
  * Locale-aware comparator
  */
 class LocaleComparator implements Comparator {
+
     static final Collator defaultCollator = Collator.getInstance(Locale.getDefault());
 
     public int compare(Object str1, Object str2) {

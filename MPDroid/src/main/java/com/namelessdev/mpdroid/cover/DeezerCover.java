@@ -51,7 +51,7 @@ public class DeezerCover extends AbstractWebCover {
                 coverUrl = jsonObject.getString("cover");
                 if (coverUrl != null) {
                     coverUrl += "&size=big";
-                    return new String[] {
+                    return new String[]{
                             coverUrl
                     };
                 }

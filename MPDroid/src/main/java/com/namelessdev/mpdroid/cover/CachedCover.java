@@ -33,10 +33,11 @@ import static com.namelessdev.mpdroid.helpers.CoverManager.getCoverFileName;
 
 public class CachedCover implements ICoverRetriever {
 
-    private final MPDApplication app = MPDApplication.getInstance();
     private static final String FOLDER_SUFFIX = "/covers/";
 
     private static final String TAG = "CachedCover";
+
+    private final MPDApplication app = MPDApplication.getInstance();
 
     public CachedCover() {
     }
@@ -64,15 +65,17 @@ public class CachedCover implements ICoverRetriever {
 
     public String getAbsoluteCoverFolderPath() {
         final File cacheDir = app.getExternalCacheDir();
-        if (cacheDir == null)
+        if (cacheDir == null) {
             return null;
+        }
         return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
     }
 
     public String getAbsolutePathForSong(AlbumInfo albumInfo) {
         final File cacheDir = app.getExternalCacheDir();
-        if (cacheDir == null)
+        if (cacheDir == null) {
             return null;
+        }
         return getAbsoluteCoverFolderPath() + getCoverFileName(albumInfo);
     }
 
@@ -115,10 +118,11 @@ public class CachedCover implements ICoverRetriever {
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState)
                 || Environment.MEDIA_MOUNTED.equals(storageState)) {
             final String url = getAbsolutePathForSong(albumInfo);
-            if (new File(url).exists())
-                return new String[] {
+            if (new File(url).exists()) {
+                return new String[]{
                         url
                 };
+            }
         }
         return null;
     }

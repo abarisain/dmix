@@ -22,6 +22,7 @@ import android.view.View;
 import java.util.List;
 
 public interface SeparatedListDataBinder {
+
     public boolean isEnabled(int position, List<?> items, Object item);
 
     public void onDataBind(Context context, View targetView, List<?> items,

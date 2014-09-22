@@ -38,6 +38,11 @@ import java.util.Date;
 public class MPDStatus {
 
     /**
+     * MPD State: paused.
+     */
+    public static final int STATE_PAUSED = 2;
+
+    /**
      * MPD State: playing.
      */
     public static final int STATE_PLAYING = 0;
@@ -48,28 +53,23 @@ public class MPDStatus {
     public static final int STATE_STOPPED = 1;
 
     /**
-     * MPD State: paused.
-     */
-    public static final int STATE_PAUSED = 2;
-
-    /**
      * MPD State: unknown.
      */
     public static final int STATE_UNKNOWN = 3;
+
+    private static final String MPD_STATE_PAUSED = "pause";
 
     private static final String MPD_STATE_PLAYING = "play";
 
     private static final String MPD_STATE_STOPPED = "stop";
 
-    private static final String MPD_STATE_PAUSED = "pause";
-
     private static final String MPD_STATE_UNKNOWN = "unknown";
 
     private static final String TAG = "org.a0z.mpd.MPDStatus";
 
-    private int bitsPerSample;
-
     private long bitrate;
+
+    private int bitsPerSample;
 
     private int channels;
 
@@ -93,9 +93,9 @@ public class MPDStatus {
 
     private int nextSongId;
 
-    private int playlistVersion;
-
     private int playlistLength;
+
+    private int playlistVersion;
 
     private boolean random;
 
@@ -113,11 +113,11 @@ public class MPDStatus {
 
     private long totalTime;
 
+    private long updateTime;
+
     private boolean updating;
 
     private int volume;
-
-    private long updateTime;
 
     MPDStatus() {
         super();
@@ -282,25 +282,6 @@ public class MPDStatus {
     }
 
     /**
-     * A convenience method to query the current state.
-     *
-     * @param queryState The state to query against.
-     * @return True if the same as the current state.
-     */
-    public final boolean isState(final int queryState) {
-        return state == queryState;
-    }
-
-    /**
-     * Lets callers know if the current status object is valid.
-     *
-     * @return True if valid, false otherwise.
-     */
-    public final boolean isValid() {
-        return state != STATE_UNKNOWN;
-    }
-
-    /**
      * Retrieves current track total time.
      *
      * @return current track total time.
@@ -354,12 +335,31 @@ public class MPDStatus {
     }
 
     /**
+     * A convenience method to query the current state.
+     *
+     * @param queryState The state to query against.
+     * @return True if the same as the current state.
+     */
+    public final boolean isState(final int queryState) {
+        return state == queryState;
+    }
+
+    /**
      * Retrieves the process id of any database update task.
      *
      * @return the process id of any database update task.
      */
     public final boolean isUpdating() {
         return updating;
+    }
+
+    /**
+     * Lets callers know if the current status object is valid.
+     *
+     * @return True if valid, false otherwise.
+     */
+    public final boolean isValid() {
+        return state != STATE_UNKNOWN;
     }
 
     /**
@@ -433,13 +433,13 @@ public class MPDStatus {
             switch (lines[0]) {
                 case "audio":
                     final int delimiterIndex = lines[1].indexOf(':');
-                    final String tmp = lines[1].substring(delimiterIndex+1);
+                    final String tmp = lines[1].substring(delimiterIndex + 1);
                     final int secondIndex = tmp.indexOf(':');
 
                     try {
                         sampleRate = Integer.parseInt(lines[1].substring(0, delimiterIndex));
                         bitsPerSample = Integer.parseInt(tmp.substring(0, secondIndex));
-                        channels = Integer.parseInt(tmp.substring(secondIndex+1));
+                        channels = Integer.parseInt(tmp.substring(secondIndex + 1));
                     } catch (final NumberFormatException ignored) {
                         // Sometimes mpd sends "?" as a sampleRate or
                         // bitsPerSample, etc ... hotfix for a bugreport I had.
@@ -527,7 +527,7 @@ public class MPDStatus {
                     final int timeIndex = lines[1].indexOf(':');
 
                     elapsedTime = Long.parseLong(lines[1].substring(0, timeIndex));
-                    totalTime = Long.parseLong(lines[1].substring(timeIndex+1));
+                    totalTime = Long.parseLong(lines[1].substring(timeIndex + 1));
                     updateTime = new Date().getTime();
                     break;
                 case "volume":

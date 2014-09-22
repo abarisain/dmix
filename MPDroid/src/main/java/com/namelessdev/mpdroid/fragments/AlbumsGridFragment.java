@@ -65,7 +65,8 @@ public class AlbumsGridFragment extends AlbumsFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.browsegrid, container, false);
         list = (GridView) view.findViewById(R.id.grid);
         registerForContextMenu(list);

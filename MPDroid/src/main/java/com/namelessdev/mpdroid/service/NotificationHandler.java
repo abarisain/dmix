@@ -63,9 +63,9 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
 
     private final Notification mNotification;
 
-    private final MPDroidService mServiceContext;
-
     private final NotificationManager mNotificationManager;
+
+    private final MPDroidService mServiceContext;
 
     private Music mCurrentTrack = null;
 
@@ -177,18 +177,6 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
     }
 
     /**
-     * Build a pending intent for use with the notification button controls.
-     *
-     * @param action The ACTION intent string.
-     * @return The pending intent.
-     */
-    private PendingIntent buildPendingIntent(final String action) {
-        final Intent intent = new Intent(mServiceContext, RemoteControlReceiver.class);
-        intent.setAction(action);
-        return PendingIntent.getBroadcast(mServiceContext, 0, intent, 0);
-    }
-
-    /**
      * This method constructs the notification base, otherwise known as the collapsed notification.
      * The expanded notification method builds upon this method.
      *
@@ -224,6 +212,18 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
         resultView.setOnClickPendingIntent(R.id.notificationPrev, previousAction);
 
         mNotification.bigContentView = resultView;
+    }
+
+    /**
+     * Build a pending intent for use with the notification button controls.
+     *
+     * @param action The ACTION intent string.
+     * @return The pending intent.
+     */
+    private PendingIntent buildPendingIntent(final String action) {
+        final Intent intent = new Intent(mServiceContext, RemoteControlReceiver.class);
+        intent.setAction(action);
+        return PendingIntent.getBroadcast(mServiceContext, 0, intent, 0);
     }
 
     final boolean isActive() {

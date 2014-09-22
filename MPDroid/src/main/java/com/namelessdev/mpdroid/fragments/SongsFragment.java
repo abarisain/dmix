@@ -58,25 +58,34 @@ import android.widget.TextView;
 public class SongsFragment extends BrowseFragment {
 
     private static final String EXTRA_ALBUM = "album";
+
     private static final int POPUP_COVER_BLACKLIST = 5;
+
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
     private static final String TAG = "SongsFragment";
 
-    Album album = null;
-    TextView headerArtist;
-    TextView headerInfo;
+    final MPDApplication app = MPDApplication.getInstance();
 
-    private AlbumCoverDownloadListener coverArtListener;
+    Album album = null;
+
+    ImageButton albumMenu;
+
     ImageView coverArt;
+
     ProgressBar coverArtProgress;
 
     CoverAsyncHelper coverHelper;
-    ImageButton albumMenu;
-    PopupMenu popupMenu;
-    private PopupMenu coverPopupMenu;
 
-    final MPDApplication app = MPDApplication.getInstance();
+    TextView headerArtist;
+
+    TextView headerInfo;
+
+    PopupMenu popupMenu;
+
+    private AlbumCoverDownloadListener coverArtListener;
+
+    private PopupMenu coverPopupMenu;
 
     public SongsFragment() {
         super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -106,8 +115,9 @@ public class SongsFragment extends BrowseFragment {
     @Override
     public void asyncUpdate() {
         try {
-            if (getActivity() == null)
+            if (getActivity() == null) {
                 return;
+            }
             items = app.oMPDAsyncHelper.oMPD.getSongs(album);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to async update.", e);
@@ -196,8 +206,9 @@ public class SongsFragment extends BrowseFragment {
         long totalTime = 0;
         for (Item item : items) {
             song = (Music) item;
-            if (song.getTime() > 0)
+            if (song.getTime() > 0) {
                 totalTime += song.getTime();
+            }
         }
         return Music.timeToString(totalTime);
     }
@@ -210,12 +221,14 @@ public class SongsFragment extends BrowseFragment {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        if (icicle != null)
+        if (icicle != null) {
             init((Album) icicle.getParcelable(EXTRA_ALBUM));
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.songs, container, false);
         list = (ListView) view.findViewById(R.id.list);
         registerForContextMenu(list);
@@ -247,8 +260,9 @@ public class SongsFragment extends BrowseFragment {
         final ViewTreeObserver vto = coverArt.getViewTreeObserver();
         vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             public boolean onPreDraw() {
-                if (coverHelper != null)
+                if (coverHelper != null) {
                     coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
+                }
                 return true;
             }
         });
@@ -369,7 +383,7 @@ public class SongsFragment extends BrowseFragment {
                         // Account for the list header
                         int positionCorrection = 0;
                         if (list instanceof ListView) {
-                            positionCorrection = ((ListView)list).getHeaderViewsCount();
+                            positionCorrection = ((ListView) list).getHeaderViewsCount();
                         }
                         app.oMPDAsyncHelper.oMPD.seekByIndex(position - positionCorrection, 0l);
                     } catch (final MPDServerException e) {

@@ -37,54 +37,16 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class PlaylistsFragment extends BrowseFragment {
-    class DialogClickListener implements OnClickListener {
-        private final int itemIndex;
 
-        DialogClickListener(int itemIndex) {
-            this.itemIndex = itemIndex;
-        }
-
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case AlertDialog.BUTTON_NEGATIVE:
-                    break;
-                case AlertDialog.BUTTON_POSITIVE:
-                    String playlist = items.get(itemIndex).getName();
-                    try {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
-                        if (isAdded()) {
-                            Tools.notifyUser(R.string.playlistDeleted, playlist);
-                        }
-                        items.remove(itemIndex);
-                    } catch (final MPDServerException e) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(R.string.deletePlaylist);
-                        builder.setMessage(
-                                getResources().getString(R.string.failedToDelete, playlist));
-                        builder.setPositiveButton(android.R.string.cancel, null);
-
-                        try {
-                            builder.show();
-                        } catch (final BadTokenException ignored) {
-                            // Can't display it. Don't care.
-                        }
-                    }
-                    updateFromItems();
-                    break;
-
-            }
-        }
-    }
+    public static final int DELETE = 102;
 
     public static final int EDIT = 101;
 
-    public static final int DELETE = 102;
+    private static final String TAG = "PlaylistsFragment";
 
     public PlaylistsFragment() {
         super(R.string.addPlaylist, R.string.playlistAdded, null);
     }
-
-    private static final String TAG = "PlaylistsFragment";
 
     @Override
     protected void add(Item item, boolean replace, boolean play) {
@@ -118,7 +80,8 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         android.view.MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0, R.string.editPlaylist);
         editItem.setOnMenuItemClickListener(this);
@@ -167,5 +130,45 @@ public class PlaylistsFragment extends BrowseFragment {
                 break;
         }
         return false;
+    }
+
+    class DialogClickListener implements OnClickListener {
+
+        private final int itemIndex;
+
+        DialogClickListener(int itemIndex) {
+            this.itemIndex = itemIndex;
+        }
+
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case AlertDialog.BUTTON_NEGATIVE:
+                    break;
+                case AlertDialog.BUTTON_POSITIVE:
+                    String playlist = items.get(itemIndex).getName();
+                    try {
+                        app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
+                        if (isAdded()) {
+                            Tools.notifyUser(R.string.playlistDeleted, playlist);
+                        }
+                        items.remove(itemIndex);
+                    } catch (final MPDServerException e) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle(R.string.deletePlaylist);
+                        builder.setMessage(
+                                getResources().getString(R.string.failedToDelete, playlist));
+                        builder.setPositiveButton(android.R.string.cancel, null);
+
+                        try {
+                            builder.show();
+                        } catch (final BadTokenException ignored) {
+                            // Can't display it. Don't care.
+                        }
+                    }
+                    updateFromItems();
+                    break;
+
+            }
+        }
     }
 }

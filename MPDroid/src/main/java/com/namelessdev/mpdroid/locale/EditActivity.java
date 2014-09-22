@@ -39,33 +39,27 @@ import java.util.List;
 
 public class EditActivity extends Activity implements AdapterView.OnItemClickListener {
 
-    public static final String BUNDLE_ACTION_STRING = "ACTION_STRING";
-
     public static final String BUNDLE_ACTION_EXTRA = "ACTION_EXTRA";
 
     @SuppressWarnings("unused")
     public static final String BUNDLE_ACTION_LABEL = "ACTION_LABEL";
 
+    public static final String BUNDLE_ACTION_STRING = "ACTION_STRING";
+
     private List<ActionItem> items;
 
-    /**
-     * Class for listview population
-     */
-    private class ActionItem {
-
-        public String actionString;
-
-        public String label;
-
-        public ActionItem(String _actionString, String _label) {
-            actionString = _actionString;
-            label = _label;
+    private void finishWithAction(ActionItem action, String extra, String overrideLabel) {
+        final Intent i = new Intent();
+        final Bundle b = new Bundle();
+        b.putString(BUNDLE_ACTION_STRING, action.actionString);
+        if (extra != null) {
+            b.putString(BUNDLE_ACTION_EXTRA, extra);
         }
-
-        @Override
-        public String toString() {
-            return label;
-        }
+        i.putExtra(LocaleConstants.EXTRA_BUNDLE, b);
+        i.putExtra(LocaleConstants.EXTRA_STRING_BLURB,
+                overrideLabel == null ? action.label : overrideLabel);
+        setResult(RESULT_OK, i);
+        finish();
     }
 
     @Override
@@ -131,17 +125,23 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
         }
     }
 
-    private void finishWithAction(ActionItem action, String extra, String overrideLabel) {
-        final Intent i = new Intent();
-        final Bundle b = new Bundle();
-        b.putString(BUNDLE_ACTION_STRING, action.actionString);
-        if (extra != null) {
-            b.putString(BUNDLE_ACTION_EXTRA, extra);
+    /**
+     * Class for listview population
+     */
+    private class ActionItem {
+
+        public String actionString;
+
+        public String label;
+
+        public ActionItem(String _actionString, String _label) {
+            actionString = _actionString;
+            label = _label;
         }
-        i.putExtra(LocaleConstants.EXTRA_BUNDLE, b);
-        i.putExtra(LocaleConstants.EXTRA_STRING_BLURB,
-                overrideLabel == null ? action.label : overrideLabel);
-        setResult(RESULT_OK, i);
-        finish();
+
+        @Override
+        public String toString() {
+            return label;
+        }
     }
 }

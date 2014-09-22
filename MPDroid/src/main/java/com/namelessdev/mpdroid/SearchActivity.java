@@ -58,79 +58,60 @@ import java.util.Collections;
 
 public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener,
         AsyncExecListener, OnItemClickListener, TabListener {
-    class SearchResultsPagerAdapter extends PagerAdapter {
 
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
-        }
+    public static final int ADD = 0;
 
-        @Override
-        public int getCount() {
-            return 3;
-        }
+    public static final int ADD_PLAY = 2;
 
-        public Object instantiateItem(View collection, int position) {
+    public static final int ADD_REPLACE = 1;
 
-            View v;
-            switch (position) {
-                default:
-                case 0:
-                    v = listArtistsFrame;
-                    break;
-                case 1:
-                    v = listAlbumsFrame;
-                    break;
-                case 2:
-                    v = listSongsFrame;
-                    break;
-            }
-            if (v.getParent() == null)
-                pager.addView(v);
-            return v;
-        }
-
-        @Override
-        public boolean isViewFromObject(View arg0, Object arg1) {
-            return arg0 == arg1;
-        }
-    }
+    public static final int ADD_REPLACE_PLAY = 3;
 
     public static final int MAIN = 0;
 
     public static final int PLAYLIST = 3;
-    public static final int ADD = 0;
-    public static final int ADD_REPLACE = 1;
-    public static final int ADD_REPLACE_PLAY = 3;
-
-    public static final int ADD_PLAY = 2;
-    private ArrayList<Artist> arrayArtistsResults;
-    private ArrayList<Album> arrayAlbumsResults;
-
-    private ArrayList<Music> arraySongsResults;
-    protected int iJobID = -1;
-    private View listArtistsFrame = null;
-    private View listAlbumsFrame = null;
-    private View listSongsFrame = null;
-    private ListView listArtists = null;
-    private ListView listAlbums = null;
-    private ListView listSongs = null;
-    protected View loadingView;
-    protected View noResultArtistsView;
-    protected View noResultAlbumsView;
-    protected View noResultSongsView;
-
-    protected ViewPager pager;
-    private Tab tabArtists;
-    private Tab tabAlbums;
-
-    private Tab tabSongs;
 
     private static final String TAG = "SearchActivity";
 
+    protected int iJobID = -1;
+
+    protected View loadingView;
+
+    protected View noResultAlbumsView;
+
+    protected View noResultArtistsView;
+
+    protected View noResultSongsView;
+
+    protected ViewPager pager;
+
     private int addString, addedString;
 
+    private ArrayList<Album> arrayAlbumsResults;
+
+    private ArrayList<Artist> arrayArtistsResults;
+
+    private ArrayList<Music> arraySongsResults;
+
+    private ListView listAlbums = null;
+
+    private View listAlbumsFrame = null;
+
+    private ListView listArtists = null;
+
+    private View listArtistsFrame = null;
+
+    private ListView listSongs = null;
+
+    private View listSongsFrame = null;
+
     private String searchKeywords = "";
+
+    private Tab tabAlbums;
+
+    private Tab tabArtists;
+
+    private Tab tabSongs;
 
     public SearchActivity() {
         addString = R.string.addSong;
@@ -220,11 +201,13 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 tmpValue = artist.getName().toLowerCase();
                 if (tmpValue.contains(finalsearch)) {
                     for (Artist artistItem : arrayArtistsResults) {
-                        if (artistItem.getName().equalsIgnoreCase(tmpValue))
+                        if (artistItem.getName().equalsIgnoreCase(tmpValue)) {
                             valueFound = true;
+                        }
                     }
-                    if (!valueFound)
+                    if (!valueFound) {
                         arrayArtistsResults.add(artist);
+                    }
                 }
             }
             valueFound = false;
@@ -233,11 +216,13 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 tmpValue = album.getName().toLowerCase();
                 if (tmpValue.contains(finalsearch)) {
                     for (Album albumItem : arrayAlbumsResults) {
-                        if (albumItem.getName().equalsIgnoreCase(tmpValue))
+                        if (albumItem.getName().equalsIgnoreCase(tmpValue)) {
                             valueFound = true;
+                        }
                     }
-                    if (!valueFound)
+                    if (!valueFound) {
                         arrayAlbumsResults.add(album);
+                    }
                 }
             }
         }
@@ -336,12 +321,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     @Override
-    public void onDestroy() {
-        app.oMPDAsyncHelper.removeAsyncExecListener(this);
-        super.onDestroy();
-    }
-
-    @Override
     public void onCreateContextMenu(final ContextMenu menu, final View v,
             final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -385,6 +364,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
         return true;
+    }
+
+    @Override
+    public void onDestroy() {
+        app.oMPDAsyncHelper.removeAsyncExecListener(this);
+        super.onDestroy();
     }
 
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
@@ -551,6 +536,45 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 asyncUpdate();
             }
         });
+    }
+
+    class SearchResultsPagerAdapter extends PagerAdapter {
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        public Object instantiateItem(View collection, int position) {
+
+            View v;
+            switch (position) {
+                default:
+                case 0:
+                    v = listArtistsFrame;
+                    break;
+                case 1:
+                    v = listAlbumsFrame;
+                    break;
+                case 2:
+                    v = listSongsFrame;
+                    break;
+            }
+            if (v.getParent() == null) {
+                pager.addView(v);
+            }
+            return v;
+        }
+
+        @Override
+        public boolean isViewFromObject(View arg0, Object arg1) {
+            return arg0 == arg1;
+        }
     }
 
 }

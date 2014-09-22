@@ -39,18 +39,13 @@ import java.util.regex.Pattern;
  */
 public class MPDServerException extends MPDException {
 
-    private static final long serialVersionUID = 5986199004785561712L;
-
-    private static final String TAG = "MPDServerException";
+    private static final Pattern ACK_CODE_PATTERN = Pattern.compile("([0-9]+)");
 
     private static final String MPD_RESPONSE_ERR = "ACK";
 
-    private static final Pattern ACK_CODE_PATTERN = Pattern.compile("([0-9]+)");
+    private static final String TAG = "MPDServerException";
 
-    public enum ErrorKind {
-        PASSWORD,
-        UNKNOWN
-    }
+    private static final long serialVersionUID = 5986199004785561712L;
 
     /**
      * Constructor.
@@ -92,6 +87,7 @@ public class MPDServerException extends MPDException {
      * Matches the return code using MPD's ack.h
      * Note : Only used errors are supported for the time being.
      * Other kinds will be recognized as "UNKNOWN"
+     *
      * @return The error kind
      */
     public ErrorKind getErrorKind() {
@@ -113,5 +109,10 @@ public class MPDServerException extends MPDException {
             }
         }
         return errorKind;
+    }
+
+    public enum ErrorKind {
+        PASSWORD,
+        UNKNOWN
     }
 }

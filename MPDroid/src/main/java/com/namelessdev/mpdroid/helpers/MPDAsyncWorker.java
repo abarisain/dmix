@@ -47,11 +47,13 @@ public class MPDAsyncWorker implements Handler.Callback,
         StatusChangeListener,
         TrackPositionListener {
 
-    private static final int LOCAL_UID = 500;
+    static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
     private static final String ALBUM_TRACK_SORT_KEY = "albumTrackSort";
 
     private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
+
+    private static final int LOCAL_UID = 500;
 
     static final int EVENT_CONNECT = LOCAL_UID + 1;
 
@@ -69,21 +71,19 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final int EVENT_STOP_STATUS_MONITOR = LOCAL_UID + 8;
 
-    static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
-
     private static final String TAG = "MPDAsyncWorker";
 
     /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
 
-    private final SharedPreferences mPreferences;
-
-    private String[] mIdleSubsystems;
-
     private final MPD mMPD;
+
+    private final SharedPreferences mPreferences;
 
     /** A store for the current connection information. */
     private ConnectionInfo mConInfo = new ConnectionInfo();
+
+    private String[] mIdleSubsystems;
 
     private MPDStatusMonitor mStatusMonitor;
 
@@ -211,8 +211,9 @@ public class MPDAsyncWorker implements Handler.Callback,
      * @param key               The key of the preference that was changed, added, or
      */
     @Override
-    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
-        switch(key) {
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
+            final String key) {
+        switch (key) {
             case ALBUM_TRACK_SORT_KEY:
                 MPD.setSortByTrackNumber(sharedPreferences.getBoolean(key, true));
                 break;

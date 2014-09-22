@@ -16,6 +16,11 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryTabActivity;
+import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -28,17 +33,84 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.library.ILibraryTabActivity;
-import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
-
 public class LibraryFragment extends Fragment {
+
+    public static final String PREFERENCE_ALBUM_CACHE = "useLocalAlbumCache";
+
+    public static final String PREFERENCE_ALBUM_LIBRARY = "enableAlbumArtLibrary";
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE = "artistTagToUse";
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST = "albumartist";
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ARTIST = "artist";
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
+
+    private final MPDApplication app = MPDApplication.getInstance();
+
+    ILibraryTabActivity activity = null;
+
+    /**
+     * The {@link android.support.v4.view.PagerAdapter} that will provide
+     * fragments for each of the sections. We use a
+     * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
+     * will keep every loaded fragment in memory. If this becomes too memory
+     * intensive, it may be best to switch to a
+     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     */
+    SectionsPagerAdapter sectionsPagerAdapter = null;
+
+    /**
+     * The {@link ViewPager} that will host the section contents.
+     */
+    ViewPager viewPager = null;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (!(activity instanceof ILibraryTabActivity)) {
+            throw new RuntimeException(
+                    "Error : LibraryFragment can only be attached to an activity implementing ILibraryTabActivity");
+        }
+        this.activity = (ILibraryTabActivity) activity;
+        sectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
+        if (viewPager != null) {
+            viewPager.setAdapter(sectionsPagerAdapter);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.library_tabs_fragment, container, false);
+        viewPager = (ViewPager) view;
+        if (sectionsPagerAdapter != null) {
+            viewPager.setAdapter(sectionsPagerAdapter);
+        }
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                if (activity != null) {
+                    activity.pageChanged(position);
+                }
+            }
+        });
+        return view;
+    }
+
+    public void setCurrentItem(int item, boolean smoothScroll) {
+        if (viewPager != null) {
+            viewPager.setCurrentItem(item, smoothScroll);
+        }
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the primary sections of the app.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -74,66 +146,5 @@ public class LibraryFragment extends Fragment {
             return fragment;
         }
 
-    }
-
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
-     * will keep every loaded fragment in memory. If this becomes too memory
-     * intensive, it may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    SectionsPagerAdapter sectionsPagerAdapter = null;
-    public static final String PREFERENCE_ALBUM_LIBRARY = "enableAlbumArtLibrary";
-
-    public static final String PREFERENCE_ALBUM_CACHE = "useLocalAlbumCache";
-
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE = "artistTagToUse";
-
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ARTIST = "artist";
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST = "albumartist";
-    private final MPDApplication app = MPDApplication.getInstance();
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    ViewPager viewPager = null;
-
-    ILibraryTabActivity activity = null;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (!(activity instanceof ILibraryTabActivity)) {
-            throw new RuntimeException(
-                    "Error : LibraryFragment can only be attached to an activity implementing ILibraryTabActivity");
-        }
-        this.activity = (ILibraryTabActivity) activity;
-        sectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
-        if (viewPager != null)
-            viewPager.setAdapter(sectionsPagerAdapter);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.library_tabs_fragment, container, false);
-        viewPager = (ViewPager) view;
-        if (sectionsPagerAdapter != null)
-            viewPager.setAdapter(sectionsPagerAdapter);
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                if (activity != null)
-                    activity.pageChanged(position);
-            }
-        });
-        return view;
-    }
-
-    public void setCurrentItem(int item, boolean smoothScroll) {
-        if (viewPager != null)
-            viewPager.setCurrentItem(item, smoothScroll);
     }
 }

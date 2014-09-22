@@ -23,10 +23,10 @@ import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.StoredPlaylistDataBinder;
 
-import org.a0z.mpd.item.Item;
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.item.Music;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,12 +39,14 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 
 public class StoredPlaylistFragment extends BrowseFragment {
+
     private static final String EXTRA_PLAYLIST_NAME = "playlist";
 
-    private String playlistName;
+    private static final String TAG = "StoredPlaylistFragment";
+
     private static MPDApplication app = MPDApplication.getInstance();
 
-    private static final String TAG = "StoredPlaylistFragment";
+    private String playlistName;
 
     public StoredPlaylistFragment() {
         super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -77,8 +79,9 @@ public class StoredPlaylistFragment extends BrowseFragment {
     @Override
     public void asyncUpdate() {
         try {
-            if (getActivity() == null)
+            if (getActivity() == null) {
                 return;
+            }
             items = app.oMPDAsyncHelper.oMPD.getPlaylistSongs(playlistName);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to update.", e);
@@ -117,8 +120,9 @@ public class StoredPlaylistFragment extends BrowseFragment {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        if (icicle != null)
+        if (icicle != null) {
             init(icicle.getString(EXTRA_PLAYLIST_NAME));
+        }
     }
 
     /*
@@ -136,7 +140,8 @@ public class StoredPlaylistFragment extends BrowseFragment {
         app.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
-                add((Item) adapterView.getAdapter().getItem(position), app.isInSimpleMode(), app.isInSimpleMode());
+                add((Item) adapterView.getAdapter().getItem(position), app.isInSimpleMode(),
+                        app.isInSimpleMode());
             }
         });
     }

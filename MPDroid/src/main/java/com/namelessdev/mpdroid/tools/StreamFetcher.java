@@ -33,11 +33,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class StreamFetcher {
-    private static class LazyHolder {
-        private static final StreamFetcher instance = new StreamFetcher();
-    }
 
     private static final String TAG = "StreamFetcher";
+
+    private List<String> handlers = new LinkedList<String>();
+
+    StreamFetcher() {
+        handlers.add("http");
+        handlers.add("mms");
+        handlers.add("mmsh");
+        handlers.add("mmst");
+        handlers.add("mmsu");
+        handlers.add("rtp");
+        handlers.add("rtsp");
+        handlers.add("rtmp");
+        handlers.add("rtmpt");
+        handlers.add("rtmpts");
+    }
 
     public static StreamFetcher instance() {
         return LazyHolder.instance;
@@ -57,7 +69,7 @@ public class StreamFetcher {
         } else if (data.length() > 5 && start.startsWith("<?xml")) {
             return parseXml(data, handlers);
         } else if ((-1 == data.indexOf("<html") && -1 != data.indexOf("http:/")) || // flat
-                                                                                    // list?
+                // list?
                 (-1 != data.indexOf("#EXTM3U"))) { // m3u with comments?
             return parseExt3Mu(data, handlers);
         }
@@ -151,21 +163,6 @@ public class StreamFetcher {
         return null;
     }
 
-    private List<String> handlers = new LinkedList<String>();
-
-    StreamFetcher() {
-        handlers.add("http");
-        handlers.add("mms");
-        handlers.add("mmsh");
-        handlers.add("mmst");
-        handlers.add("mmsu");
-        handlers.add("rtp");
-        handlers.add("rtsp");
-        handlers.add("rtmp");
-        handlers.add("rtmpt");
-        handlers.add("rtmpts");
-    }
-
     private String check(String url) {
         HttpURLConnection connection = null;
         try {
@@ -204,5 +201,10 @@ public class StreamFetcher {
             }
         }
         return Music.addStreamName(null == parsed ? url : parsed, name);
+    }
+
+    private static class LazyHolder {
+
+        private static final StreamFetcher instance = new StreamFetcher();
     }
 }

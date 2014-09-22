@@ -36,11 +36,11 @@ import java.net.Socket;
  */
 public class MPDConnectionMultiSocket extends MPDConnection {
 
-    private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
-
     private static final ThreadLocal<InputStreamReader> INPUT_STREAM = new ThreadLocal<>();
 
     private static final ThreadLocal<OutputStreamWriter> OUTPUT_STREAM = new ThreadLocal<>();
+
+    private static final ThreadLocal<Socket> SOCKET = new ThreadLocal<>();
 
     public MPDConnectionMultiSocket(final int readWriteTimeout, final int maxConnection) {
         super(readWriteTimeout, maxConnection);
@@ -52,23 +52,23 @@ public class MPDConnectionMultiSocket extends MPDConnection {
     }
 
     @Override
-    public void setInputStream(final InputStreamReader inputStream) {
-        INPUT_STREAM.set(inputStream);
-    }
-
-    @Override
     public OutputStreamWriter getOutputStream() {
         return OUTPUT_STREAM.get();
     }
 
     @Override
-    public void setOutputStream(final OutputStreamWriter outputStream) {
-        OUTPUT_STREAM.set(outputStream);
+    protected Socket getSocket() {
+        return SOCKET.get();
     }
 
     @Override
-    protected Socket getSocket() {
-        return SOCKET.get();
+    public void setInputStream(final InputStreamReader inputStream) {
+        INPUT_STREAM.set(inputStream);
+    }
+
+    @Override
+    public void setOutputStream(final OutputStreamWriter outputStream) {
+        OUTPUT_STREAM.set(outputStream);
     }
 
     @Override

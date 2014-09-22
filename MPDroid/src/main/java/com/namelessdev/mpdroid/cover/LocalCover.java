@@ -31,21 +31,34 @@ import static android.text.TextUtils.isEmpty;
 
 public class LocalCover implements ICoverRetriever {
 
-    // private final static String URL = "%s/%s/%s";
-    private final static String URL_PREFIX = "http://";
+    public static final String RETRIEVER_NAME = "User's HTTP Server";
+
+    private final static String[] EXT = new String[]{
+            "jpg", "png", "jpeg",
+    };
+
     private final static String PLACEHOLDER_FILENAME = "%placeholder_filename";
+
     // Note that having two PLACEHOLDER_FILENAME is on purpose
-    private final static String[] FILENAMES = new String[] {
+    private final static String[] FILENAMES = new String[]{
             "%placeholder_custom", PLACEHOLDER_FILENAME,
             "cover", "folder", "front"
     };
-    private final static String[] EXT = new String[] {
-            "jpg", "png", "jpeg",
-    };
-    private final static String[] SUB_FOLDERS = new String[] {
+
+    private final static String[] SUB_FOLDERS = new String[]{
             "", "artwork", "Covers"
     };
-    public static final String RETRIEVER_NAME = "User's HTTP Server";
+
+    // private final static String URL = "%s/%s/%s";
+    private final static String URL_PREFIX = "http://";
+
+    private final MPDApplication app = MPDApplication.getInstance();
+
+    private final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+
+    public LocalCover() {
+        super();
+    }
 
     static public void appendPathString(Uri.Builder builder, String string) {
         if (string != null && string.length() > 0) {
@@ -76,14 +89,6 @@ public class LocalCover implements ICoverRetriever {
         return uri.toString();
     }
 
-    private final MPDApplication app = MPDApplication.getInstance();
-
-    private final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-
-    public LocalCover() {
-        super();
-    }
-
     @Override
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
 
@@ -108,13 +113,15 @@ public class LocalCover implements ICoverRetriever {
 
                         if (baseFilename == null
                                 || (baseFilename.startsWith("%") && !baseFilename
-                                        .equals(PLACEHOLDER_FILENAME)))
+                                .equals(PLACEHOLDER_FILENAME))) {
                             continue;
+                        }
                         if (baseFilename.equals(PLACEHOLDER_FILENAME)
                                 && albumInfo.getFilename() != null) {
                             final int dotIndex = albumInfo.getFilename().lastIndexOf('.');
-                            if (dotIndex == -1)
+                            if (dotIndex == -1) {
                                 continue;
+                            }
                             baseFilename = albumInfo.getFilename().substring(0, dotIndex);
                         }
 
@@ -128,8 +135,9 @@ public class LocalCover implements ICoverRetriever {
 
                         url = buildCoverUrl(serverName, musicPath, albumInfo.getPath(), lfilename);
 
-                        if (!urls.contains(url))
+                        if (!urls.contains(url)) {
                             urls.add(url);
+                        }
                     }
                 }
             }

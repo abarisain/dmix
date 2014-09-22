@@ -35,19 +35,19 @@ import java.util.Arrays;
 
 public class Album extends Item {
 
-    private final String mName;
+    private final Artist mArtist;
 
-    private long mSongCount;
+    private final String mName;
 
     private long mDuration;
 
-    private long mYear;
+    private boolean mHasAlbumArtist;
 
     private String mPath;
 
-    private final Artist mArtist;
+    private long mSongCount;
 
-    private boolean mHasAlbumArtist;
+    private long mYear;
 
     public Album(final Album otherAlbum) {
         this(otherAlbum.mName,
@@ -67,7 +67,8 @@ public class Album extends Item {
         this(name, artist, hasAlbumArtist, 0L, 0L, 0L, null);
     }
 
-    public Album(final String name, final Artist artist, final boolean hasAlbumArtist, final long songCount, final long duration,
+    public Album(final String name, final Artist artist, final boolean hasAlbumArtist,
+            final long songCount, final long duration,
             final long year, final String path) {
         super();
         mName = name;
@@ -134,19 +135,6 @@ public class Album extends Item {
         return isEqual.booleanValue();
     }
 
-    /**
-     * Returns an integer hash code for this Artist. By contract, any two objects for which
-     * {@link #equals} returns {@code true} must return the same hash code value. This means that
-     * subclasses of {@code Object} usually override both methods or neither method.
-     *
-     * @return This Artist hash code.
-     * @see Object#equals(Object)
-     */
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(new Object[]{mName, mArtist});
-    }
-
     public AlbumInfo getAlbumInfo() {
         return new AlbumInfo(this);
     }
@@ -177,6 +165,19 @@ public class Album extends Item {
 
     public boolean hasAlbumArtist() {
         return mHasAlbumArtist;
+    }
+
+    /**
+     * Returns an integer hash code for this Artist. By contract, any two objects for which
+     * {@link #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * @return This Artist hash code.
+     * @see Object#equals(Object)
+     */
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{mName, mArtist});
     }
 
     /*

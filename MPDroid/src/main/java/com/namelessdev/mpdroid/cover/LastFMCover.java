@@ -31,9 +31,11 @@ import java.io.StringReader;
  */
 public class LastFMCover extends AbstractWebCover {
 
-    private static String KEY = "7fb78a81b20bee7cb6e8fad4cbcb3694";
-    private static final String URL = "http://ws.audioscrobbler.com/2.0/";
     private static final String TAG = "LastFMCover";
+
+    private static final String URL = "http://ws.audioscrobbler.com/2.0/";
+
+    private static String KEY = "7fb78a81b20bee7cb6e8fad4cbcb3694";
 
     @Override
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
@@ -67,7 +69,7 @@ public class LastFMCover extends AbstractWebCover {
                     if (sizeAttribute != null && sizeAttribute.equals("mega")) {
                         imageUrl = xpp.getText();
                         if (imageUrl != null && imageUrl.length() > 0) {
-                            return new String[] {
+                            return new String[]{
                                     imageUrl
                             };
                         }

@@ -90,99 +90,24 @@ import static android.text.TextUtils.isEmpty;
 public class QueueFragment extends ListFragment implements StatusChangeListener,
         OnMenuItemClickListener {
 
-    private class QueueAdapter extends ArrayAdapter {
-
-        QueueAdapter(final Context context, final List<?> data, final int resource) {
-            super(context, resource, data);
-        }
-
-        @Override
-        public View getView(final int position, View convertView, final ViewGroup parent) {
-
-            final PlayQueueViewHolder viewHolder;
-            if (convertView == null) {
-                viewHolder = new PlayQueueViewHolder();
-                convertView = LayoutInflater.from(getContext()).inflate(
-                        R.layout.playlist_queue_item, rootView);
-                viewHolder.artist = (TextView) convertView.findViewById(android.R.id.text2);
-                viewHolder.title = (TextView) convertView.findViewById(android.R.id.text1);
-                viewHolder.play = (ImageView) convertView.findViewById(R.id.picture);
-                viewHolder.cover = (ImageView) convertView.findViewById(R.id.cover);
-                viewHolder.coverHelper = new CoverAsyncHelper();
-                int height = viewHolder.cover.getHeight();
-                // If the list is not displayed yet, the height is 0.
-                // This is a problem, so set a fallback one.
-                final int fallbackHeight = 128;
-                if(height == 0) {
-                    height = fallbackHeight;
-                }
-                viewHolder.coverHelper.setCoverMaxSize(height);
-                final CoverDownloadListener acd = new AlbumCoverDownloadListener(
-                        viewHolder.cover);
-                final AlbumCoverDownloadListener oldAcd
-                        = (AlbumCoverDownloadListener) viewHolder.cover
-                        .getTag(R.id.AlbumCoverDownloadListener);
-                if (oldAcd != null) {
-                    oldAcd.detach();
-                }
-                viewHolder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
-                viewHolder.cover.setTag(R.id.CoverAsyncHelper, viewHolder.coverHelper);
-                viewHolder.coverHelper.addCoverDownloadListener(acd);
-                viewHolder.menuButton = convertView.findViewById(R.id.menu);
-                viewHolder.menuButton.setOnClickListener(itemMenuButtonListener);
-                convertView.setTag(viewHolder);
-            } else {
-                viewHolder = (PlayQueueViewHolder) convertView.getTag();
-            }
-
-            final AbstractPlaylistMusic music = (AbstractPlaylistMusic) getItem(position);
-
-            viewHolder.artist.setText(music.getPlaylistSubLine());
-            viewHolder.title.setText(music.getPlayListMainLine());
-            viewHolder.menuButton.setTag(music.getSongId());
-            viewHolder.play.setImageResource(music.getCurrentSongIconRefID());
-
-            if (music.isForceCoverRefresh() || viewHolder.cover.getTag() == null
-                    || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
-                if (!music.isForceCoverRefresh()) {
-                    final int noCoverResource = AlbumCoverDownloadListener.getNoCoverResource();
-                    viewHolder.cover.setImageResource(noCoverResource);
-                }
-                music.setForceCoverRefresh(false);
-                viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
-            }
-            return convertView;
-        }
-    }
+    protected static final boolean DEBUG = false;
 
     // Minimum number of songs in the queue before the fastscroll thumb is shown
     protected static final int MIN_SONGS_BEFORE_FASTSCROLL = 50;
 
-    protected ArrayList<AbstractPlaylistMusic> songList;
+    private static final String TAG = "QueueFragment";
 
     protected final MPDApplication app = MPDApplication.getInstance();
 
-    protected DragSortListView list;
+    protected final boolean lightTheme = app.isLightThemeSelected();
 
     protected ActionMode actionMode;
 
-    protected SearchView searchView;
-
-    protected String filter = null;
-
-    protected Integer popupSongID;
+    protected FragmentActivity activity;
 
     protected DragSortController controller;
 
-    protected FragmentActivity activity;
-
-    protected ViewGroup rootView;
-
-    protected static final boolean DEBUG = false;
-
-    protected int lastPlayingID = -1;
-
-    protected final boolean lightTheme = app.isLightThemeSelected();
+    protected String filter = null;
 
     protected final DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
         @Override
@@ -195,6 +120,14 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             }
         }
     };
+
+    protected int lastPlayingID = -1;
+
+    protected DragSortListView list;
+
+    protected String playlistToSave = "";
+
+    protected Integer popupSongID;
 
     protected final View.OnClickListener itemMenuButtonListener = new View.OnClickListener() {
         @Override
@@ -209,6 +142,12 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             popupMenu.show();
         }
     };
+
+    protected ViewGroup rootView;
+
+    protected SearchView searchView;
+
+    protected ArrayList<AbstractPlaylistMusic> songList;
 
     @Override
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
@@ -400,8 +339,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         QueueControl.run(QueueControl.SKIP_TO_ID, song);
     }
 
-    private static final String TAG = "QueueFragment";
-
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         final Intent intent;
@@ -474,8 +411,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         }
         return true;
     }
-
-    protected String playlistToSave = "";
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
@@ -555,45 +490,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         return result;
     }
 
-    void savePlaylist(final String name) {
-        if (name.equals(getResources().getString(R.string.newPlaylist))) {
-            // if "new playlist", show dialog with EditText for new playlist:
-            final EditText input = new EditText(activity);
-            new AlertDialog.Builder(activity)
-                    .setTitle(R.string.newPlaylistPrompt)
-                    .setView(input)
-                    .setPositiveButton
-                            (android.R.string.ok,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(final DialogInterface dialog,
-                                                final int whichButton) {
-                                            final String name = input.getText().toString().trim();
-                                            if (!name.isEmpty() && !name
-                                                    .equals(MPD.STREAMS_PLAYLIST)) {
-                                                // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
-                                                savePlaylist(name);
-                                            }
-                                        }
-                                    }
-                            )
-                    .setNegativeButton
-                            (android.R.string.cancel,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(final DialogInterface dialog,
-                                                final int whichButton) {
-                                            // Do nothing.
-                                        }
-                                    }
-                            )
-                    .create().show();
-        } else if (!name.isEmpty()) {
-            // actually save:
-            QueueControl.run(QueueControl.SAVE_PLAYLIST, name);
-        }
-    }
-
     @Override
     public void onPause() {
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
@@ -651,6 +547,45 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     public void repeatChanged(final boolean repeating) {
     }
 
+    void savePlaylist(final String name) {
+        if (name.equals(getResources().getString(R.string.newPlaylist))) {
+            // if "new playlist", show dialog with EditText for new playlist:
+            final EditText input = new EditText(activity);
+            new AlertDialog.Builder(activity)
+                    .setTitle(R.string.newPlaylistPrompt)
+                    .setView(input)
+                    .setPositiveButton
+                            (android.R.string.ok,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(final DialogInterface dialog,
+                                                final int whichButton) {
+                                            final String name = input.getText().toString().trim();
+                                            if (!name.isEmpty() && !name
+                                                    .equals(MPD.STREAMS_PLAYLIST)) {
+                                                // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
+                                                savePlaylist(name);
+                                            }
+                                        }
+                                    }
+                            )
+                    .setNegativeButton
+                            (android.R.string.cancel,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(final DialogInterface dialog,
+                                                final int whichButton) {
+                                            // Do nothing.
+                                        }
+                                    }
+                            )
+                    .create().show();
+        } else if (!name.isEmpty()) {
+            // actually save:
+            QueueControl.run(QueueControl.SAVE_PLAYLIST, name);
+        }
+    }
+
     public void scrollToNowPlaying() {
         final int songPos = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
 
@@ -680,7 +615,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             for (final AbstractPlaylistMusic song : songList) {
                 final int newPlay;
                 if ((song.getSongId()) == mpdStatus.getSongId()) {
-                    if(lightTheme) {
+                    if (lightTheme) {
                         newPlay = R.drawable.ic_media_play_light;
                     } else {
                         newPlay = R.drawable.ic_media_play;
@@ -759,6 +694,20 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         updateScrollbar(newSongList, listPlayingID);
     }
 
+    public void updateCover(final AlbumInfo albumInfo) {
+
+        final List<AbstractPlaylistMusic> musicsToBeUpdated = new ArrayList<>(songList.size());
+
+        for (final AbstractPlaylistMusic playlistMusic : songList) {
+            if (playlistMusic.getAlbumInfo().equals(albumInfo)) {
+                playlistMusic.setForceCoverRefresh(true);
+                musicsToBeUpdated.add(playlistMusic);
+            }
+        }
+        refreshPlaylistItemView(musicsToBeUpdated
+                .toArray(new AbstractPlaylistMusic[musicsToBeUpdated.size()]));
+    }
+
     /**
      * Updates the scrollbar.
      *
@@ -775,7 +724,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
              */
             private void refreshFastScrollStyle(final int scrollbarStyle,
                     final boolean isAlwaysVisible) {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     list.setFastScrollAlwaysVisible(isAlwaysVisible);
                     list.setScrollBarStyle(scrollbarStyle);
                 } else {
@@ -837,21 +786,72 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         });
     }
 
-    public void updateCover(final AlbumInfo albumInfo) {
-
-        final List<AbstractPlaylistMusic> musicsToBeUpdated = new ArrayList<>(songList.size());
-
-        for (final AbstractPlaylistMusic playlistMusic : songList) {
-            if (playlistMusic.getAlbumInfo().equals(albumInfo)) {
-                playlistMusic.setForceCoverRefresh(true);
-                musicsToBeUpdated.add(playlistMusic);
-            }
-        }
-        refreshPlaylistItemView(musicsToBeUpdated
-                .toArray(new AbstractPlaylistMusic[musicsToBeUpdated.size()]));
-    }
-
     @Override
     public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
+    }
+
+    private class QueueAdapter extends ArrayAdapter {
+
+        QueueAdapter(final Context context, final List<?> data, final int resource) {
+            super(context, resource, data);
+        }
+
+        @Override
+        public View getView(final int position, View convertView, final ViewGroup parent) {
+
+            final PlayQueueViewHolder viewHolder;
+            if (convertView == null) {
+                viewHolder = new PlayQueueViewHolder();
+                convertView = LayoutInflater.from(getContext()).inflate(
+                        R.layout.playlist_queue_item, rootView);
+                viewHolder.artist = (TextView) convertView.findViewById(android.R.id.text2);
+                viewHolder.title = (TextView) convertView.findViewById(android.R.id.text1);
+                viewHolder.play = (ImageView) convertView.findViewById(R.id.picture);
+                viewHolder.cover = (ImageView) convertView.findViewById(R.id.cover);
+                viewHolder.coverHelper = new CoverAsyncHelper();
+                int height = viewHolder.cover.getHeight();
+                // If the list is not displayed yet, the height is 0.
+                // This is a problem, so set a fallback one.
+                final int fallbackHeight = 128;
+                if (height == 0) {
+                    height = fallbackHeight;
+                }
+                viewHolder.coverHelper.setCoverMaxSize(height);
+                final CoverDownloadListener acd = new AlbumCoverDownloadListener(
+                        viewHolder.cover);
+                final AlbumCoverDownloadListener oldAcd
+                        = (AlbumCoverDownloadListener) viewHolder.cover
+                        .getTag(R.id.AlbumCoverDownloadListener);
+                if (oldAcd != null) {
+                    oldAcd.detach();
+                }
+                viewHolder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
+                viewHolder.cover.setTag(R.id.CoverAsyncHelper, viewHolder.coverHelper);
+                viewHolder.coverHelper.addCoverDownloadListener(acd);
+                viewHolder.menuButton = convertView.findViewById(R.id.menu);
+                viewHolder.menuButton.setOnClickListener(itemMenuButtonListener);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (PlayQueueViewHolder) convertView.getTag();
+            }
+
+            final AbstractPlaylistMusic music = (AbstractPlaylistMusic) getItem(position);
+
+            viewHolder.artist.setText(music.getPlaylistSubLine());
+            viewHolder.title.setText(music.getPlayListMainLine());
+            viewHolder.menuButton.setTag(music.getSongId());
+            viewHolder.play.setImageResource(music.getCurrentSongIconRefID());
+
+            if (music.isForceCoverRefresh() || viewHolder.cover.getTag() == null
+                    || !viewHolder.cover.getTag().equals(music.getAlbumInfo().getKey())) {
+                if (!music.isForceCoverRefresh()) {
+                    final int noCoverResource = AlbumCoverDownloadListener.getNoCoverResource();
+                    viewHolder.cover.setImageResource(noCoverResource);
+                }
+                music.setForceCoverRefresh(false);
+                viewHolder.coverHelper.downloadCover(music.getAlbumInfo(), false);
+            }
+            return convertView;
+        }
     }
 }

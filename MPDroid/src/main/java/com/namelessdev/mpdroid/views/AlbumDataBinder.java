@@ -90,7 +90,7 @@ public class AlbumDataBinder extends BaseDataBinder {
                 info += " - ";
             }
             info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural
-                    : R.string.tracksInfoHeader),
+                            : R.string.tracksInfoHeader),
                     songCount, Music.timeToString(album.getDuration()));
         }
         holder.albumName.setText(album.mainText());
@@ -104,7 +104,7 @@ public class AlbumDataBinder extends BaseDataBinder {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
         if (artist == null || album.isUnknown()) { // full albums list or
-                                                   // unknown album
+            // unknown album
             holder.albumCover.setVisibility(View.GONE);
         } else {
             holder.albumCover.setVisibility(View.VISIBLE);
@@ -121,7 +121,8 @@ public class AlbumDataBinder extends BaseDataBinder {
                 // listen for new artwork to be loaded
                 final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(
                         holder.albumCover, holder.coverArtProgress, false);
-                final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
+                final AlbumCoverDownloadListener oldAcd
+                        = (AlbumCoverDownloadListener) holder.albumCover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {
                     oldAcd.detach();

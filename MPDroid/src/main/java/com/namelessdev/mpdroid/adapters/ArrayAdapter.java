@@ -16,14 +16,14 @@
 
 package com.namelessdev.mpdroid.adapters;
 
+import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+
+import org.a0z.mpd.item.Item;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
-
-import org.a0z.mpd.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +32,16 @@ import java.util.List;
 //Thanks qlimax !
 
 public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
+
     private static final int TYPE_DEFAULT = 0;
 
-    ArrayDataBinder dataBinder = null;
-    LayoutInflater inflater;
-    List<Item> items;
     Context context;
+
+    ArrayDataBinder dataBinder = null;
+
+    LayoutInflater inflater;
+
+    List<Item> items;
 
     @SuppressWarnings("unchecked")
     public ArrayAdapter(Context context, ArrayDataBinder dataBinder, List<? extends Item> items) {
@@ -92,8 +96,9 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
 
     @SuppressWarnings("unchecked")
     protected void init(Context context, List<? extends Item> items) {
-        if (!(items instanceof ArrayList<?>))
+        if (!(items instanceof ArrayList<?>)) {
             throw new RuntimeException("Items must be contained in an ArrayList<Item>");
+        }
 
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.context = context;

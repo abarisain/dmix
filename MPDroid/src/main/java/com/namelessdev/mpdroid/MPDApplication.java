@@ -80,19 +80,19 @@ public class MPDApplication extends Application implements
 
     private Timer mDisconnectScheduler = null;
 
+    private boolean mIsNotificationActive = false;
+
+    private boolean mIsNotificationOverridden = false;
+
     private boolean mIsStreamActive = false;
 
-    private boolean mIsNotificationActive = false;
+    private ServiceBinder mServiceBinder;
 
     private SettingsHelper mSettingsHelper = null;
 
     private boolean mSettingsShown = false;
 
-    private ServiceBinder mServiceBinder;
-
     private SharedPreferences mSharedPreferences = null;
-
-    private boolean mIsNotificationOverridden = false;
 
     public static MPDApplication getInstance() {
         return sInstance;
@@ -109,6 +109,48 @@ public class MPDApplication extends Application implements
             checkConnectionNeeded();
             cancelDisconnectScheduler();
         }
+    }
+
+    /**
+     * Builds the Connection Failed dialog box for anything other than the settings activity.
+     *
+     * @param message The reason the connection failed.
+     * @return The built {@code AlertDialog} object.
+     */
+    private AlertDialog.Builder buildConnectionFailedMessage(final String message) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
+        final OnClickListener oDialogClickListener = new DialogClickListener();
+
+        builder.setTitle(R.string.connectionFailed);
+        builder.setMessage(
+                getResources().getString(R.string.connectionFailedMessage, message));
+        builder.setCancelable(false);
+
+        builder.setNegativeButton(R.string.quit, oDialogClickListener);
+        builder.setNeutralButton(R.string.settings, oDialogClickListener);
+        builder.setPositiveButton(R.string.retry, oDialogClickListener);
+
+        return builder;
+    }
+
+    /**
+     * Builds the Connection Failed dialog box for the Settings activity.
+     *
+     * @param message The reason the connection failed.
+     * @return The built {@code AlertDialog} object.
+     */
+    private AlertDialog.Builder buildConnectionFailedSettings(final String message) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
+
+        builder.setCancelable(false);
+        builder.setMessage(
+                getResources().getString(R.string.connectionFailedMessageSetting, message));
+        builder.setPositiveButton("OK", new OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialog, final int which) {
+            }
+        });
+        return builder;
     }
 
     private void cancelDisconnectScheduler() {
@@ -156,46 +198,40 @@ public class MPDApplication extends Application implements
         connectMPD();
     }
 
-    /**
-     * Builds the Connection Failed dialog box for anything other than the settings activity.
-     *
-     * @param message The reason the connection failed.
-     * @return The built {@code AlertDialog} object.
-     */
-    private AlertDialog.Builder buildConnectionFailedMessage(final String message) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
-        final OnClickListener oDialogClickListener = new DialogClickListener();
+    private void connectMPD() {
+        // dismiss possible dialog
+        dismissAlertDialog();
 
-        builder.setTitle(R.string.connectionFailed);
-        builder.setMessage(
-                getResources().getString(R.string.connectionFailedMessage, message));
-        builder.setCancelable(false);
+        /** Returns null if the calling thread is not associated with a Looper.*/
+        final Looper localLooper = Looper.myLooper();
+        final boolean isUIThread =
+                localLooper != null && localLooper.equals(Looper.getMainLooper());
 
-        builder.setNegativeButton(R.string.quit, oDialogClickListener);
-        builder.setNeutralButton(R.string.settings, oDialogClickListener);
-        builder.setPositiveButton(R.string.retry, oDialogClickListener);
-
-        return builder;
-    }
-
-    /**
-     * Builds the Connection Failed dialog box for the Settings activity.
-     *
-     * @param message The reason the connection failed.
-     * @return The built {@code AlertDialog} object.
-     */
-    private AlertDialog.Builder buildConnectionFailedSettings(final String message) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
-
-        builder.setCancelable(false);
-        builder.setMessage(
-                getResources().getString(R.string.connectionFailedMessageSetting, message));
-        builder.setPositiveButton("OK", new OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface dialog, final int which) {
+        // show connecting to server dialog, only on the main thread.
+        if (mCurrentActivity != null && isUIThread) {
+            mAlertDialog = new ProgressDialog(mCurrentActivity);
+            mAlertDialog.setTitle(R.string.connecting);
+            mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
+            mAlertDialog.setCancelable(false);
+            mAlertDialog.setOnKeyListener(new OnKeyListener() {
+                @Override
+                public boolean onKey(final DialogInterface dialog, final int keyCode,
+                        final KeyEvent event) {
+                    // Handle all keys!
+                    return true;
+                }
+            });
+            try {
+                mAlertDialog.show();
+            } catch (final BadTokenException ignored) {
+                // Can't display it. Don't care.
             }
-        });
-        return builder;
+        }
+
+        cancelDisconnectScheduler();
+
+        // really connect
+        oMPDAsyncHelper.connect();
     }
 
     /**
@@ -231,43 +267,6 @@ public class MPDApplication extends Application implements
     @Override
     public final synchronized void connectionSucceeded(final String message) {
         dismissAlertDialog();
-    }
-
-    private void connectMPD() {
-        // dismiss possible dialog
-        dismissAlertDialog();
-
-
-        /** Returns null if the calling thread is not associated with a Looper.*/
-        final Looper localLooper = Looper.myLooper();
-        final boolean isUIThread =
-                localLooper != null && localLooper.equals(Looper.getMainLooper());
-
-        // show connecting to server dialog, only on the main thread.
-        if (mCurrentActivity != null && isUIThread) {
-            mAlertDialog = new ProgressDialog(mCurrentActivity);
-            mAlertDialog.setTitle(R.string.connecting);
-            mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
-            mAlertDialog.setCancelable(false);
-            mAlertDialog.setOnKeyListener(new OnKeyListener() {
-                @Override
-                public boolean onKey(final DialogInterface dialog, final int keyCode,
-                        final KeyEvent event) {
-                    // Handle all keys!
-                    return true;
-                }
-            });
-            try {
-                mAlertDialog.show();
-            } catch (final BadTokenException ignored) {
-                // Can't display it. Don't care.
-            }
-        }
-
-        cancelDisconnectScheduler();
-
-        // really connect
-        oMPDAsyncHelper.connect();
     }
 
     final void disconnect() {
@@ -401,6 +400,21 @@ public class MPDApplication extends Application implements
                 && mSharedPreferences.getBoolean("tabletUI", true);
     }
 
+    /**
+     * Called upon connection configuration change.
+     *
+     * @param connectionInfo The new connection configuration information object.
+     */
+    @Override
+    public final void onConnectionConfigChange(final ConnectionInfo connectionInfo) {
+        if (mServiceBinder != null && mServiceBinder.isServiceBound()) {
+            final Bundle bundle = new Bundle();
+            bundle.setClassLoader(ConnectionInfo.class.getClassLoader());
+            bundle.putParcelable(ConnectionInfo.BUNDLE_KEY, connectionInfo);
+            mServiceBinder.sendMessageToService(MPDroidService.CONNECTION_INFO_CHANGED, bundle);
+        }
+    }
+
     @Override
     public final void onCreate() {
         super.onCreate();
@@ -426,21 +440,6 @@ public class MPDApplication extends Application implements
         oMPDAsyncHelper.addConnectionListener(this);
 
         mDisconnectScheduler = new Timer();
-    }
-
-    /**
-     * Called upon connection configuration change.
-     *
-     * @param connectionInfo The new connection configuration information object.
-     */
-    @Override
-    public final void onConnectionConfigChange(final ConnectionInfo connectionInfo) {
-        if (mServiceBinder != null && mServiceBinder.isServiceBound()) {
-            final Bundle bundle = new Bundle();
-            bundle.setClassLoader(ConnectionInfo.class.getClassLoader());
-            bundle.putParcelable(ConnectionInfo.BUNDLE_KEY, connectionInfo);
-            mServiceBinder.sendMessageToService(MPDroidService.CONNECTION_INFO_CHANGED, bundle);
-        }
     }
 
     /**
@@ -510,14 +509,6 @@ public class MPDApplication extends Application implements
         }
     }
 
-    public final void stopNotification() {
-        if (DEBUG) {
-            Log.d(TAG, "Stop notification.");
-        }
-        setupServiceBinder();
-        mServiceBinder.sendMessageToService(NotificationHandler.STOP);
-    }
-
     public final void startStreaming() {
         if (!mIsStreamActive) {
             if (DEBUG) {
@@ -526,6 +517,14 @@ public class MPDApplication extends Application implements
             setupServiceBinder();
             mServiceBinder.sendMessageToService(StreamHandler.START);
         }
+    }
+
+    public final void stopNotification() {
+        if (DEBUG) {
+            Log.d(TAG, "Stop notification.");
+        }
+        setupServiceBinder();
+        mServiceBinder.sendMessageToService(NotificationHandler.STOP);
     }
 
     public final void stopStreaming() {

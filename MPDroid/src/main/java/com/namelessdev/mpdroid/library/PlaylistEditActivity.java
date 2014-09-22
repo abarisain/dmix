@@ -24,9 +24,9 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.item.Music;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Music;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -45,11 +45,21 @@ import java.util.List;
 
 public class PlaylistEditActivity extends MPDroidListActivity implements StatusChangeListener,
         OnClickListener {
-    private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
-    private String playlistName = null;
-    private boolean isPlayQueue = true;
-    private boolean isFirstRefresh = true;
+
     private static final String TAG = "PlaylistEditActivity";
+
+    private boolean isFirstRefresh = true;
+
+    private boolean isPlayQueue = true;
+
+    private DragSortListView.RemoveListener mRemoveListener
+            = new DragSortListView.RemoveListener() {
+        public void remove(int which) {
+            // removePlaylistItem(which);
+        }
+    };
+
+    private String playlistName = null;
 
     private DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
         public void drop(int from, int to) {
@@ -58,29 +68,25 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             }
             HashMap<String, Object> itemFrom = songlist.get(from);
             Integer songID = (Integer) itemFrom.get("songid");
-                if (isPlayQueue) {
-                    try {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
-                    } catch (final MPDServerException e) {
-                        Log.e(TAG, "Failed to move a track on the queue.", e);
-                    }
-                } else {
-                    try {
-                        app.oMPDAsyncHelper.oMPD.movePlaylistSong(playlistName, from, to);
-                    } catch (final MPDServerException e) {
-                        Log.e(TAG, "Failed to rename a playlist.");
-                    }
-                    update();
+            if (isPlayQueue) {
+                try {
+                    app.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to move a track on the queue.", e);
                 }
+            } else {
+                try {
+                    app.oMPDAsyncHelper.oMPD.movePlaylistSong(playlistName, from, to);
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to rename a playlist.");
+                }
+                update();
+            }
             Tools.notifyUser("Updating ...");
         }
     };
 
-    private DragSortListView.RemoveListener mRemoveListener = new DragSortListView.RemoveListener() {
-        public void remove(int which) {
-            // removePlaylistItem(which);
-        }
-    };
+    private ArrayList<HashMap<String, Object>> songlist = new ArrayList<HashMap<String, Object>>();
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
@@ -100,7 +106,8 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             case R.id.Remove:
                 int count = 0;
                 try {
-                    ArrayList<HashMap<String, Object>> copy = new ArrayList<HashMap<String, Object>>();
+                    ArrayList<HashMap<String, Object>> copy
+                            = new ArrayList<HashMap<String, Object>>();
                     copy.addAll(songlist);
 
                     List<Integer> positions = new LinkedList<Integer>();
@@ -179,6 +186,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         app.oMPDAsyncHelper.removeStatusChangeListener(this);
         super.onDestroy();
     }
+
     /**
      * Marks the selected item for deletion
      */
@@ -250,14 +258,16 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         if (isPlayQueue) {
             // Mark running track...
             for (HashMap<String, Object> song : songlist) {
-                if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId())
+                if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId()) {
                     song.put("play", android.R.drawable.ic_media_play);
-                else
+                } else {
                     song.put("play", 0);
+                }
             }
             final SimpleAdapter adapter = (SimpleAdapter) getListAdapter();
-            if (adapter != null)
+            if (adapter != null) {
                 adapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -293,18 +303,19 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 songlist.add(item);
             }
             SimpleAdapter songs = new SimpleAdapter(this, songlist,
-                    R.layout.playlist_editlist_item, new String[] {
-                            "play", "title", "artist",
-                            "marked"
-                    }, new int[] {
-                            R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox
-                    });
+                    R.layout.playlist_editlist_item, new String[]{
+                    "play", "title", "artist",
+                    "marked"
+            }, new int[]{
+                    R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox
+            });
 
             setListAdapter(songs);
             if (isFirstRefresh) {
                 isFirstRefresh = false;
-                if (listPlayingId > 0)
+                if (listPlayingId > 0) {
                     setSelection(listPlayingId);
+                }
             } else {
                 if (-1 != pos && -1 != top) {
                     getListView().setSelectionFromTop(pos, top);

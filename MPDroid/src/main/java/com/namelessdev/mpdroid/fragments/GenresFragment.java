@@ -20,10 +20,10 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.item.Genre;
-import org.a0z.mpd.item.Item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Genre;
+import org.a0z.mpd.item.Item;
 
 import android.util.Log;
 import android.view.View;

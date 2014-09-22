@@ -71,10 +71,12 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
         String artist = music.getArtist();
         String album = music.getAlbum();
 
-        if (Tools.isStringEmptyOrNull(artist))
+        if (Tools.isStringEmptyOrNull(artist)) {
             artist = null;
-        if (Tools.isStringEmptyOrNull(album))
+        }
+        if (Tools.isStringEmptyOrNull(album)) {
             album = null;
+        }
 
         String info = "";
         if (artist != null || album != null) {
@@ -111,8 +113,9 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
             final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.cover);
             final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.cover
                     .getTag(R.id.AlbumCoverDownloadListener);
-            if (oldAcd != null)
+            if (oldAcd != null) {
                 oldAcd.detach();
+            }
             holder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
             coverHelper.addCoverDownloadListener(acd);
             loadArtwork(coverHelper, music.getAlbumInfo());

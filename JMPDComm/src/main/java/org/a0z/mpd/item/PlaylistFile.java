@@ -35,9 +35,9 @@ import java.util.regex.Pattern;
  */
 public class PlaylistFile extends Item implements FilesystemTreeEntry {
 
-    private final String fullpath;
-
     private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");
+
+    private final String fullpath;
 
     public PlaylistFile(final String path) {
         super();

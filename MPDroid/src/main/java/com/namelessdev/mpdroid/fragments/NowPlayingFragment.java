@@ -76,101 +76,25 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         OnSharedPreferenceChangeListener, OnMenuItemClickListener,
         UpdateTrackInfo.FullTrackInfoUpdate {
 
-    private class ButtonEventHandler implements Button.OnClickListener, Button.OnLongClickListener {
-
-        public void onClick(final View v) {
-            MPDControl.run(v.getId());
-        }
-
-        public boolean onLongClick(final View v) {
-            if(v.getId() == R.id.playpause) {
-                MPDControl.run(MPDControl.ACTION_STOP);
-            }
-            return true;
-        }
-    }
-
-    /**
-     * This class runs a timer to keep the time elapsed since last track elapsed time updated for
-     * the purpose of keeping the track progress up to date without continual server polling.
-     */
-    private class PosTimerTask extends TimerTask {
-
-        private final long timerStartTime;
-
-        private long startTrackTime = 0L;
-
-        private long totalTrackTime = 0L;
-
-        private long elapsedTime = 0L;
-
-        private PosTimerTask(final long start, final long total) {
-            super();
-            this.startTrackTime = start;
-            this.totalTrackTime = total;
-            this.timerStartTime = new Date().getTime();
-        }
-
-        @Override
-        public void run() {
-            final long elapsedSinceTimerStart = new Date().getTime() - timerStartTime;
-
-            elapsedTime = startTrackTime + elapsedSinceTimerStart / DateUtils.SECOND_IN_MILLIS;
-
-            updateTrackProgress(elapsedTime, totalTrackTime);
-        }
-    }
-
-    private static final int POPUP_ARTIST = 0;
-    private static final int POPUP_ALBUMARTIST = 1;
-    private static final int POPUP_ALBUM = 2;
-    private static final int POPUP_FOLDER = 3;
-    private static final int POPUP_STREAM = 4;
-    private static final int POPUP_SHARE = 5;
-
-    private static final int POPUP_CURRENT = 6;
-    private static final int POPUP_COVER_BLACKLIST = 7;
-    private static final int POPUP_COVER_SELECTIVE_CLEAN = 8;
-    private TextView artistNameText;
-    private TextView songNameText;
-    private TextView albumNameText;
-    private TextView audioNameText = null;
-    private TextView yearNameText;
-    private ImageButton shuffleButton = null;
-    private ImageButton repeatButton = null;
-    private ImageButton stopButton = null;
-    private ImageButton buttonPlayPause = null;
-    private boolean isAudioNameTextEnabled = false;
-    private boolean shuffleCurrent = false;
-    private boolean repeatCurrent = false;
-    private View songInfo = null;
-
-    private View.OnTouchListener popupMenuTouchListener = null;
-
-    private View.OnTouchListener popupMenuStreamTouchListener = null;
-
-    private ImageView volumeIcon = null;
-
-    private SeekBar seekBarTrack = null;
-
-    private SeekBar seekBarVolume = null;
-
-    private TextView trackTime = null;
-    private TextView trackTotalTime = null;
-
-    private CoverAsyncHelper oCoverAsyncHelper = null;
-
-    private AlbumCoverDownloadListener coverArtListener;
-
-    private ImageView coverArt;
-
     private static final int ANIMATION_DURATION_MSEC = 1000;
 
-    private Music currentSong = null;
-    private Timer volTimer = new Timer();
-    private TimerTask volTimerTask = null;
-    private Handler handler;
-    private Timer posTimer = null;
+    private static final int POPUP_ALBUM = 2;
+
+    private static final int POPUP_ALBUMARTIST = 1;
+
+    private static final int POPUP_ARTIST = 0;
+
+    private static final int POPUP_COVER_BLACKLIST = 7;
+
+    private static final int POPUP_COVER_SELECTIVE_CLEAN = 8;
+
+    private static final int POPUP_CURRENT = 6;
+
+    private static final int POPUP_FOLDER = 3;
+
+    private static final int POPUP_SHARE = 5;
+
+    private static final int POPUP_STREAM = 4;
 
     private static final String TAG = "NowPlayingFragment";
 
@@ -178,16 +102,94 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private FragmentActivity activity;
 
-    private void applyViewVisibility(SharedPreferences sharedPreferences, View view, String property) {
+    private TextView albumNameText;
+
+    private TextView artistNameText;
+
+    private TextView audioNameText = null;
+
+    private ImageButton buttonPlayPause = null;
+
+    private ImageView coverArt;
+
+    private AlbumCoverDownloadListener coverArtListener;
+
+    private Music currentSong = null;
+
+    private Handler handler;
+
+    private boolean isAudioNameTextEnabled = false;
+
+    private CoverAsyncHelper oCoverAsyncHelper = null;
+
+    private View.OnTouchListener popupMenuStreamTouchListener = null;
+
+    private View.OnTouchListener popupMenuTouchListener = null;
+
+    private Timer posTimer = null;
+
+    private ImageButton repeatButton = null;
+
+    private boolean repeatCurrent = false;
+
+    private SeekBar seekBarTrack = null;
+
+    private SeekBar seekBarVolume = null;
+
+    private ImageButton shuffleButton = null;
+
+    private boolean shuffleCurrent = false;
+
+    private View songInfo = null;
+
+    private TextView songNameText;
+
+    private ImageButton stopButton = null;
+
+    private TextView trackTime = null;
+
+    private TextView trackTotalTime = null;
+
+    private Timer volTimer = new Timer();
+
+    private TimerTask volTimerTask = null;
+
+    private ImageView volumeIcon = null;
+
+    private TextView yearNameText;
+
+    protected static int getPlayPauseResource(final int state) {
+        final int resource;
+
+        if (MPDApplication.getInstance().isLightThemeSelected()) {
+            if (state == MPDStatus.STATE_PLAYING) {
+                resource = R.drawable.ic_media_pause_light;
+            } else {
+                resource = R.drawable.ic_media_play_light;
+            }
+        } else {
+            if (state == MPDStatus.STATE_PLAYING) {
+                resource = R.drawable.ic_media_pause;
+            } else {
+                resource = R.drawable.ic_media_play;
+            }
+        }
+
+        return resource;
+    }
+
+    private void applyViewVisibility(SharedPreferences sharedPreferences, View view,
+            String property) {
         if (view == null) {
             return;
         }
-        view.setVisibility(sharedPreferences.getBoolean(property, false) ? View.VISIBLE : View.GONE);
+        view.setVisibility(
+                sharedPreferences.getBoolean(property, false) ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        if(connected) {
+        if (connected) {
             forceStatusUpdate();
         } else {
             songNameText.setText(R.string.notConnected);
@@ -215,26 +217,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return queueFragment;
     }
 
-    protected static int getPlayPauseResource(final int state) {
-        final int resource;
-
-        if(MPDApplication.getInstance().isLightThemeSelected()) {
-            if (state == MPDStatus.STATE_PLAYING) {
-                resource = R.drawable.ic_media_pause_light;
-            } else {
-                resource = R.drawable.ic_media_play_light;
-            }
-        } else {
-            if (state == MPDStatus.STATE_PLAYING) {
-                resource = R.drawable.ic_media_pause;
-            } else {
-                resource = R.drawable.ic_media_play;
-            }
-        }
-
-        return resource;
-    }
-
     @Override
     public void libraryStateChanged(boolean updating, boolean dbChanged) {
         // TODO Auto-generated method stub
@@ -258,7 +240,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final int noCoverResource = AlbumCoverDownloadListener.getLargeNoCoverResource();
         coverArt.setImageResource(noCoverResource);
 
-        if(albumInfo != null) {
+        if (albumInfo != null) {
             downloadCover(albumInfo);
         }
     }
@@ -272,7 +254,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         View view = inflater.inflate(app.isTabletUiEnabled() ? R.layout.main_fragment_tablet
                 : R.layout.main_fragment, container, false);
 
@@ -495,32 +478,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance().clear(currentSong.getAlbumInfo());
                 downloadCover(currentSong.getAlbumInfo()); // Update the
-                                                           // playlist covers
+                // playlist covers
                 updatePlaylistCovers(currentSong.getAlbumInfo());
                 break;
             default:
                 return false;
         }
         return true;
-    }
-
-    /**
-     * Called when a track information change has been detected.
-     *
-     * @param updatedSong The currentSong item object.
-     * @param album The album change.
-     * @param artist The artist change.
-     * @param date The date change.
-     * @param title The title change.
-     */
-    @Override
-    public final void onTrackInfoUpdate(final Music updatedSong, final CharSequence album,
-            final CharSequence artist, final CharSequence date, final CharSequence title) {
-        currentSong = updatedSong;
-        albumNameText.setText(album);
-        artistNameText.setText(artist);
-        songNameText.setText(title);
-        yearNameText.setText(date);
     }
 
     @Override
@@ -534,7 +498,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
             final String key) {
-        switch(key) {
+        switch (key) {
             case CoverManager.PREFERENCE_CACHE:
             case CoverManager.PREFERENCE_LASTFM:
             case CoverManager.PREFERENCE_LOCALSERVER:
@@ -576,6 +540,37 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         app.oMPDAsyncHelper.removeTrackPositionListener(this);
         stopPosTimer();
         app.unsetActivity(this);
+    }
+
+    /**
+     * Called when a track information change has been detected.
+     *
+     * @param updatedSong The currentSong item object.
+     * @param album       The album change.
+     * @param artist      The artist change.
+     * @param date        The date change.
+     * @param title       The title change.
+     */
+    @Override
+    public final void onTrackInfoUpdate(final Music updatedSong, final CharSequence album,
+            final CharSequence artist, final CharSequence date, final CharSequence title) {
+        currentSong = updatedSong;
+        albumNameText.setText(album);
+        artistNameText.setText(artist);
+        songNameText.setText(title);
+        yearNameText.setText(date);
+    }
+
+    @Override
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+        /**
+         * If the current song is a stream, the metadata can change in place, and that will only
+         * change the playlist, not the track, so, update if we detect a stream.
+         */
+        if (currentSong != null && currentSong.isStream() ||
+                mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
+            updateTrackInfo(mpdStatus, false);
+        }
     }
 
     /**
@@ -649,18 +644,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
-        /**
-         * If the current song is a stream, the metadata can change in place, and that will only
-         * change the playlist, not the track, so, update if we detect a stream.
-         */
-        if (currentSong != null && currentSong.isStream() ||
-                mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
-            updateTrackInfo(mpdStatus, false);
-        }
-    }
-
-    @Override
     public void randomChanged(boolean random) {
         setShuffleButton(random);
     }
@@ -680,7 +663,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private void setRepeatButton(boolean on) {
         if (null != repeatButton && repeatCurrent != on) {
-            int[] attrs = new int[] {
+            int[] attrs = new int[]{
                     on ? R.attr.repeatEnabled : R.attr.repeatDisabled
             };
             final TypedArray ta = activity.obtainStyledAttributes(attrs);
@@ -693,7 +676,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private void setShuffleButton(boolean on) {
         if (null != shuffleButton && shuffleCurrent != on) {
-            int[] attrs = new int[] {
+            int[] attrs = new int[]{
                     on ? R.attr.shuffleEnabled : R.attr.shuffleDisabled
             };
             final TypedArray ta = activity.obtainStyledAttributes(attrs);
@@ -744,7 +727,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else {
             final long elapsedTime = status.getElapsedTime();
 
-            if(status.isState(MPDStatus.STATE_PLAYING)) {
+            if (status.isState(MPDStatus.STATE_PLAYING)) {
                 startPosTimer(elapsedTime, totalTime);
             } else {
                 stopPosTimer();
@@ -786,35 +769,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         toggleTrackProgress(status);
     }
 
-    private void updatePlaylistCovers(AlbumInfo albumInfo) {
-        QueueFragment queueFragment;
-        queueFragment = getPlaylistFragment();
-        if (queueFragment != null) {
-            queueFragment.updateCover(albumInfo);
-        }
-    }
-
-    private void updateStatus(final MPDStatus status) {
-        toggleTrackProgress(status);
-
-        buttonPlayPause.setImageResource(getPlayPauseResource(status.getState()));
-
-        setShuffleButton(status.isRandom());
-        setRepeatButton(status.isRepeat());
-
-        updateAudioNameText(status);
-
-        View.OnTouchListener currentListener = null;
-        if (currentSong != null) {
-            if(currentSong.isStream()) {
-                currentListener = popupMenuStreamTouchListener;
-            } else {
-                currentListener = popupMenuTouchListener;
-            }
-        }
-        songInfo.setOnTouchListener(currentListener);
-    }
-
     /**
      * This will update the audioNameText (extra track information) field.
      *
@@ -823,7 +777,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void updateAudioNameText(final MPDStatus status) {
         String optionalTrackInfo = null;
 
-        if(currentSong != null && isAudioNameTextEnabled &&
+        if (currentSong != null && isAudioNameTextEnabled &&
                 !status.isState(MPDStatus.STATE_STOPPED)) {
             final String extension = Tools.getExtension(currentSong.getFullpath()).toUpperCase();
             final long bitRate = status.getBitrate();
@@ -866,9 +820,38 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
         }
 
-        if(optionalTrackInfo == null || currentSong == null) {
+        if (optionalTrackInfo == null || currentSong == null) {
             audioNameText.setVisibility(View.GONE);
         }
+    }
+
+    private void updatePlaylistCovers(AlbumInfo albumInfo) {
+        QueueFragment queueFragment;
+        queueFragment = getPlaylistFragment();
+        if (queueFragment != null) {
+            queueFragment.updateCover(albumInfo);
+        }
+    }
+
+    private void updateStatus(final MPDStatus status) {
+        toggleTrackProgress(status);
+
+        buttonPlayPause.setImageResource(getPlayPauseResource(status.getState()));
+
+        setShuffleButton(status.isRandom());
+        setRepeatButton(status.isRepeat());
+
+        updateAudioNameText(status);
+
+        View.OnTouchListener currentListener = null;
+        if (currentSong != null) {
+            if (currentSong.isStream()) {
+                currentListener = popupMenuStreamTouchListener;
+            } else {
+                currentListener = popupMenuTouchListener;
+            }
+        }
+        songInfo.setOnTouchListener(currentListener);
     }
 
     private void updateTrackInfo(final MPDStatus status, final boolean forcedUpdate) {
@@ -881,7 +864,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     /**
      * Update the track progress numbers and track {@code SeekBar} object.
      *
-     * @param elapsed The current track elapsed time.
+     * @param elapsed        The current track elapsed time.
      * @param totalTrackTime The current track total time.
      */
     private void updateTrackProgress(final long elapsed, final long totalTrackTime) {
@@ -904,5 +887,50 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         toggleVolumeBar(volume);
         seekBarVolume.setProgress(volume);
+    }
+
+    private class ButtonEventHandler implements Button.OnClickListener, Button.OnLongClickListener {
+
+        public void onClick(final View v) {
+            MPDControl.run(v.getId());
+        }
+
+        public boolean onLongClick(final View v) {
+            if (v.getId() == R.id.playpause) {
+                MPDControl.run(MPDControl.ACTION_STOP);
+            }
+            return true;
+        }
+    }
+
+    /**
+     * This class runs a timer to keep the time elapsed since last track elapsed time updated for
+     * the purpose of keeping the track progress up to date without continual server polling.
+     */
+    private class PosTimerTask extends TimerTask {
+
+        private final long timerStartTime;
+
+        private long elapsedTime = 0L;
+
+        private long startTrackTime = 0L;
+
+        private long totalTrackTime = 0L;
+
+        private PosTimerTask(final long start, final long total) {
+            super();
+            this.startTrackTime = start;
+            this.totalTrackTime = total;
+            this.timerStartTime = new Date().getTime();
+        }
+
+        @Override
+        public void run() {
+            final long elapsedSinceTimerStart = new Date().getTime() - timerStartTime;
+
+            elapsedTime = startTrackTime + elapsedSinceTimerStart / DateUtils.SECOND_IN_MILLIS;
+
+            updateTrackProgress(elapsedTime, totalTrackTime);
+        }
     }
 }

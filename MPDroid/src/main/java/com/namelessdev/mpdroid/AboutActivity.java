@@ -48,20 +48,6 @@ public class AboutActivity extends Activity {
         }
     }
 
-    private class AboutListItem {
-
-        private String text;
-
-        public AboutListItem(String _text) {
-            text = _text;
-        }
-
-        @Override
-        public String toString() {
-            return text;
-        }
-    }
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -104,6 +90,20 @@ public class AboutActivity extends Activity {
                 ((TextView) targetView.findViewById(android.R.id.text1)).setText(item.toString());
             }
         }, listItems));
+    }
+
+    private class AboutListItem {
+
+        private String text;
+
+        public AboutListItem(String _text) {
+            text = _text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
     }
 
 }

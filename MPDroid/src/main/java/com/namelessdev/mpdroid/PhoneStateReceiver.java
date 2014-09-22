@@ -44,12 +44,6 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
     private static final String TAG = "com.namelessdev.mpdroid.PhoneStateReceiver";
 
-    private static void setPausedMarker(final boolean value) {
-        SETTINGS.edit()
-                .putBoolean(PAUSED_MARKER, value)
-                .commit();
-    }
-
     private static boolean isLocalNetworkConnected() {
         final ConnectivityManager cm =
                 (ConnectivityManager) APP.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -69,6 +63,12 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         }
 
         return isLocalNetwork;
+    }
+
+    private static void setPausedMarker(final boolean value) {
+        SETTINGS.edit()
+                .putBoolean(PAUSED_MARKER, value)
+                .commit();
     }
 
     private static boolean shouldPauseForCall() {

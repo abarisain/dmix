@@ -36,6 +36,7 @@ import android.view.View;
 import java.util.List;
 
 public class AlbumGridDataBinder extends AlbumDataBinder {
+
     SharedPreferences settings;
 
     public AlbumGridDataBinder(MPDApplication app, boolean isLightTheme) {
@@ -84,7 +85,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
                 info += " - ";
             }
             info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural
-                    : R.string.tracksInfoHeader),
+                            : R.string.tracksInfoHeader),
                     songCount, Music.timeToString(album.getDuration()));
         }
         holder.albumName.setText(album.mainText());
@@ -96,12 +97,13 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         }
 
         // listen for new artwork to be loaded
-        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener( holder.albumCover,
+        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.albumCover,
                 holder.coverArtProgress, false);
         final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
                 .getTag(R.id.AlbumCoverDownloadListener);
-        if (oldAcd != null)
+        if (oldAcd != null) {
             oldAcd.detach();
+        }
         holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
         holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
         coverHelper.addCoverDownloadListener(acd);

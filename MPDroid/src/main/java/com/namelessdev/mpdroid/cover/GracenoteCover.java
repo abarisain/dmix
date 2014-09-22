@@ -29,24 +29,28 @@ import static android.text.TextUtils.isEmpty;
 
 public class GracenoteCover extends AbstractWebCover {
 
-    private String clientId;
-    public static final String USER_ID = "GRACENOTE_USERID";
     public static final String CUSTOM_CLIENT_ID_KEY = "gracenoteClientId";
 
-    public static boolean isClientIdAvailable(SharedPreferences sharedPreferences) {
-        return !isEmpty(sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null));
-    }
+    public static final String URL_PREFIX = "web.content.cddbp.net";
+
+    public static final String USER_ID = "GRACENOTE_USERID";
 
     private static final String TAG = "GracenoteCover";
 
     private String apiUrl;
-    private SharedPreferences sharedPreferences;
-    private String userId;
 
-    public static final String URL_PREFIX = "web.content.cddbp.net";
+    private String clientId;
+
+    private SharedPreferences sharedPreferences;
+
+    private String userId;
 
     public GracenoteCover(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
+    }
+
+    public static boolean isClientIdAvailable(SharedPreferences sharedPreferences) {
+        return !isEmpty(sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null));
     }
 
     private String extractCoverUrl(String response) {
@@ -143,7 +147,7 @@ public class GracenoteCover extends AbstractWebCover {
         try {
             coverUrl = getCoverUrl(albumInfo.getArtist(), albumInfo.getAlbum());
             if (coverUrl != null) {
-                return new String[] {
+                return new String[]{
                         coverUrl
                 };
             }

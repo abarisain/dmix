@@ -42,13 +42,13 @@ public class MPDPlaylist {
 
     public static final String MPD_CMD_PLAYLIST_ADD = "add";
 
+    public static final String MPD_CMD_PLAYLIST_CHANGES = "plchanges";
+
     public static final String MPD_CMD_PLAYLIST_CLEAR = "clear";
 
     public static final String MPD_CMD_PLAYLIST_DELETE = "rm";
 
     public static final String MPD_CMD_PLAYLIST_LIST = "playlistid";
-
-    public static final String MPD_CMD_PLAYLIST_CHANGES = "plchanges";
 
     public static final String MPD_CMD_PLAYLIST_LOAD = "load";
 
@@ -68,9 +68,9 @@ public class MPDPlaylist {
 
     public static final String MPD_CMD_PLAYLIST_SWAP_ID = "swapid";
 
-    private static final String TAG = "MPDPlaylist";
-
     private static final boolean DEBUG = false;
+
+    private static final String TAG = "MPDPlaylist";
 
     private final MPDConnection mConnection;
 
@@ -88,10 +88,6 @@ public class MPDPlaylist {
         mConnection = mpdConnection;
     }
 
-    static MPDCommand addCommand(final String fullPath) {
-        return new MPDCommand(MPD_CMD_PLAYLIST_ADD, fullPath);
-    }
-
     static CommandQueue addAllCommand(final Iterable<Music> collection) {
         final CommandQueue commandQueue = new CommandQueue();
 
@@ -100,6 +96,14 @@ public class MPDPlaylist {
         }
 
         return commandQueue;
+    }
+
+    static MPDCommand addCommand(final String fullPath) {
+        return new MPDCommand(MPD_CMD_PLAYLIST_ADD, fullPath);
+    }
+
+    static MPDCommand clearCommand() {
+        return new MPDCommand(MPD_CMD_PLAYLIST_CLEAR);
     }
 
     static CommandQueue cropCommand(final MPD mpd) {
@@ -120,10 +124,6 @@ public class MPDPlaylist {
         commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, "1:" + playlistLength);
 
         return commandQueue;
-    }
-
-    static MPDCommand clearCommand() {
-        return new MPDCommand(MPD_CMD_PLAYLIST_CLEAR);
     }
 
     static MPDCommand loadCommand(final String file) {
@@ -152,15 +152,6 @@ public class MPDPlaylist {
     }
 
     /**
-     * Adds a stream to playlist.
-     *
-     * @param url stream URL
-     */
-    public void addStream(final String url) throws MPDServerException {
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_ADD, url);
-    }
-
-    /**
      * Adds a {@code collection} of {@code Music} to playlist.
      *
      * @param collection {@code collection} of {@code Music} to be added to
@@ -170,6 +161,15 @@ public class MPDPlaylist {
      */
     public void addAll(final Iterable<Music> collection) throws MPDServerException {
         addAllCommand(collection).send(mConnection);
+    }
+
+    /**
+     * Adds a stream to playlist.
+     *
+     * @param url stream URL
+     */
+    public void addStream(final String url) throws MPDServerException {
+        mConnection.sendCommand(MPD_CMD_PLAYLIST_ADD, url);
     }
 
     /**

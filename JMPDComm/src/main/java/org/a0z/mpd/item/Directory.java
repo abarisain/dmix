@@ -46,29 +46,19 @@ import java.util.TreeSet;
  */
 public final class Directory extends Item implements FilesystemTreeEntry {
 
-    /**
-     * Creates a new directory.
-     *
-     * @param mpd MPD controller.
-     * @return last path component.
-     */
-    public static Directory makeRootDirectory(MPD mpd) {
-        return new Directory(mpd, null, "");
-    }
-
-    private final Map<String, Music> files;
-
     private final Map<String, Directory> directories;
-
-    private final Map<String, PlaylistFile> playlists;
-
-    private final Directory parent;
 
     private final String filename;
 
-    private String name; // name to display, usually = filename
+    private final Map<String, Music> files;
 
     private final MPD mpd;
+
+    private final Directory parent;
+
+    private final Map<String, PlaylistFile> playlists;
+
+    private String name; // name to display, usually = filename
 
     /**
      * Clones a directory.
@@ -101,25 +91,15 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Check if a given directory exists as a sub-directory.
-     *
-     * @param filename sub-directory filename.
-     * @return true if sub-directory exists, false if not.
-     */
-    public boolean containsDir(String filename) {
-        return directories.containsKey(filename);
-    }
-
-    /**
      * Retrieves a database directory listing of {@code path} directory.
      *
      * @param response The server response.
-     * @param mpd The {@code MPD} object instance.
+     * @param mpd      The {@code MPD} object instance.
      * @return a {@code Collection} of {@code Music} and
      * {@code Directory} representing directory entries.
      * @see Music
      */
-    public static  List<FilesystemTreeEntry> getDir(final List<String> response, final MPD mpd) {
+    public static List<FilesystemTreeEntry> getDir(final List<String> response, final MPD mpd) {
         final LinkedList<String> lineCache = new LinkedList<>();
         final LinkedList<FilesystemTreeEntry> result = new LinkedList<>();
 
@@ -157,6 +137,26 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         // Since we read the list backwards, reverse the results ordering.
         Collections.reverse(result);
         return result;
+    }
+
+    /**
+     * Creates a new directory.
+     *
+     * @param mpd MPD controller.
+     * @return last path component.
+     */
+    public static Directory makeRootDirectory(MPD mpd) {
+        return new Directory(mpd, null, "");
+    }
+
+    /**
+     * Check if a given directory exists as a sub-directory.
+     *
+     * @param filename sub-directory filename.
+     * @return true if sub-directory exists, false if not.
+     */
+    public boolean containsDir(String filename) {
+        return directories.containsKey(filename);
     }
 
     /**
@@ -331,10 +331,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                 final Music music = (Music) o;
                 final String filename = music.getFilename();
 
-                if(files.containsKey(filename)) {
+                if (files.containsKey(filename)) {
                     final Music oldMusic = files.get(filename);
 
-                    if(!music.equals(oldMusic)) {
+                    if (!music.equals(oldMusic)) {
                         files.put(filename, music);
                     }
                 } else {

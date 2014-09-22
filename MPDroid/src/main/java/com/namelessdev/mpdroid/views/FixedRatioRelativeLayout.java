@@ -16,20 +16,24 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.namelessdev.mpdroid.R;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
-import com.namelessdev.mpdroid.R;
-
 public class FixedRatioRelativeLayout extends RelativeLayout {
+
     private static final String FIXED_HEIGHT = "height";
-    private static final String FIXED_WIDTH = "width";
+
     private static final int FIXED_HEIGHT_INT = 1;
-    private static final int FIXED_WIDTH_INT = 2;
 
     private int fixedSide = FIXED_HEIGHT_INT;
+
+    private static final String FIXED_WIDTH = "width";
+
+    private static final int FIXED_WIDTH_INT = 2;
 
     public FixedRatioRelativeLayout(Context context) {
         super(context);

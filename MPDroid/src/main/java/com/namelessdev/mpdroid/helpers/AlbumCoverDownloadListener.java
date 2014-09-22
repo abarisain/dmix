@@ -31,11 +31,16 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
-    ImageView coverArt;
-    ProgressBar coverArtProgress;
-    private static MPDApplication sApp = MPDApplication.getInstance();
-    boolean bigCoverNotFound;
+
     private static final String TAG = "CoverDownloadListener";
+
+    private static MPDApplication sApp = MPDApplication.getInstance();
+
+    boolean bigCoverNotFound;
+
+    ImageView coverArt;
+
+    ProgressBar coverArtProgress;
 
 
     public AlbumCoverDownloadListener(ImageView coverArt) {
@@ -56,12 +61,12 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         freeCoverDrawable();
     }
 
-    public static int getNoCoverResource() {
-        return getNoCoverResource(false);
-    }
-
     public static int getLargeNoCoverResource() {
         return getNoCoverResource(true);
+    }
+
+    public static int getNoCoverResource() {
+        return getNoCoverResource(false);
     }
 
     /**
@@ -100,11 +105,13 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     }
 
     private void freeCoverDrawable(Drawable oldDrawable) {
-        if (coverArt == null)
+        if (coverArt == null) {
             return;
+        }
         final Drawable coverDrawable = oldDrawable == null ? coverArt.getDrawable() : oldDrawable;
-        if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable))
+        if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable)) {
             return;
+        }
         if (oldDrawable == null) {
             final int noCoverDrawable;
             if (bigCoverNotFound) {
@@ -125,6 +132,16 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     private boolean isMatchingCover(CoverInfo coverInfo) {
         return coverInfo != null && coverArt != null &&
                 (coverArt.getTag() == null || coverArt.getTag().equals(coverInfo.getKey()));
+    }
+
+    @Override
+    public void onCoverDownloadStarted(CoverInfo cover) {
+        if (!isMatchingCover(cover)) {
+            return;
+        }
+        if (coverArtProgress != null) {
+            this.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+        }
     }
 
     @Override
@@ -149,23 +166,14 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     }
 
     @Override
-    public void onCoverDownloadStarted(CoverInfo cover) {
-        if (!isMatchingCover(cover)) {
-            return;
-        }
-        if (coverArtProgress != null) {
-            this.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
-        }
-    }
-
-    @Override
     public void onCoverNotFound(CoverInfo cover) {
         if (!isMatchingCover(cover)) {
             return;
         }
         cover.setBitmap(null);
-        if (coverArtProgress != null)
+        if (coverArtProgress != null) {
             coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+        }
         freeCoverDrawable();
     }
 

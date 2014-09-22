@@ -86,6 +86,10 @@ public class Genre extends Item {
         return isEqual.booleanValue();
     }
 
+    public String getName() {
+        return name;
+    }
+
     /**
      * Returns an integer hash code for this Artist. By contract, any two objects for which
      * {@link #equals} returns {@code true} must return the same hash code value. This means that
@@ -97,10 +101,6 @@ public class Genre extends Item {
     @Override
     public int hashCode() {
         return Arrays.hashCode(new Object[]{name, sort});
-    }
-
-    public String getName() {
-        return name;
     }
 
     /*

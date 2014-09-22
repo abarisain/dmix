@@ -56,30 +56,27 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class MPDConnection {
 
-    private static final String MPD_RESPONSE_ERR = "ACK";
-
-    private static final String TAG = "MPDConnection";
-
-    private static final String POOL_THREAD_NAME_PREFIX = "pool";
-
     private static final int CONNECTION_TIMEOUT = 10000;
 
     /** Default buffer size for the socket. */
     private static final int DEFAULT_BUFFER_SIZE = 1024;
 
-    private static final String MPD_RESPONSE_OK = "OK";
-
     /** Maximum number of times to attempt command processing. */
     private static final int MAX_REQUEST_RETRY = 3;
+
+    private static final String MPD_RESPONSE_ERR = "ACK";
+
+    private static final String MPD_RESPONSE_OK = "OK";
+
+    private static final String POOL_THREAD_NAME_PREFIX = "pool";
+
+    private static final String TAG = "MPDConnection";
 
     /** The {@code ExecutorService} used to process commands. */
     private final ThreadPoolExecutor mExecutor;
 
     /** The command communication timeout. */
     private final int mReadWriteTimeout;
-
-    /** The host/port pair used to connect to the media server. */
-    private InetSocketAddress mSocketAddress;
 
     /** If set to true, this will cancel any processing commands at next opportunity. */
     private boolean mCancelled = false;
@@ -93,11 +90,14 @@ public abstract class MPDConnection {
     /** Current media server password. */
     private String mPassword = null;
 
+    /** The host/port pair used to connect to the media server. */
+    private InetSocketAddress mSocketAddress;
+
     /**
      * The constructor method. This method does not connect to the server.
      *
      * @param readWriteTimeout The read write timeout for this connection.
-     * @param maxConnections Maximum number of sockets to allow running at one time.
+     * @param maxConnections   Maximum number of sockets to allow running at one time.
      * @see #connect(java.net.InetAddress, int, String)
      */
     MPDConnection(final int readWriteTimeout, final int maxConnections) {
@@ -176,8 +176,6 @@ public abstract class MPDConnection {
 
     protected abstract InputStreamReader getInputStream();
 
-    protected abstract void setInputStream(InputStreamReader inputStream);
-
     /**
      * The current MPD protocol version.
      */
@@ -185,43 +183,9 @@ public abstract class MPDConnection {
         return mMPDVersion.clone();
     }
 
-    /**
-     * Processes the {@code CommandResult} connection response to store the current media server
-     * MPD protocol version.
-     *
-     * @param response The {@code CommandResult().getConnectionResponse()}.
-     */
-    private void setMPDVersion(final String response) {
-        final String formatResponse = response.substring((MPD_RESPONSE_OK + " MPD ").length());
-
-        final StringTokenizer stringTokenizer = new StringTokenizer(formatResponse, ".");
-        final int[] version = new int[stringTokenizer.countTokens()];
-        int i = 0;
-
-        while(stringTokenizer.hasMoreElements()) {
-            version[i] = Integer.parseInt(stringTokenizer.nextToken());
-            i++;
-        }
-
-        mMPDVersion = version;
-    }
-
     protected abstract OutputStreamWriter getOutputStream();
 
-    protected abstract void setOutputStream(OutputStreamWriter outputStream);
-
     protected abstract Socket getSocket();
-
-    protected abstract void setSocket(Socket socket);
-
-    /**
-     * A user facing connection inquiry method.
-     *
-     * @return True if socket(s) are connected, false otherwise.
-     */
-    public boolean isConnected() {
-        return mIsConnected;
-    }
 
     /**
      * A low level disconnect method for the socket(s).
@@ -238,6 +202,15 @@ public abstract class MPDConnection {
                 throw new MPDConnectionException(e.getMessage(), e);
             }
         }
+    }
+
+    /**
+     * A user facing connection inquiry method.
+     *
+     * @return True if socket(s) are connected, false otherwise.
+     */
+    public boolean isConnected() {
+        return mIsConnected;
     }
 
     /**
@@ -329,9 +302,37 @@ public abstract class MPDConnection {
      * @return The result from the command sent to the server.
      * @throws MPDServerException Thrown if there are errors sending the command to the server.
      */
-    public List<String> sendCommand(final String command, final String... args) throws MPDServerException {
+    public List<String> sendCommand(final String command, final String... args)
+            throws MPDServerException {
         return sendCommand(new MPDCommand(command, args));
     }
+
+    protected abstract void setInputStream(InputStreamReader inputStream);
+
+    /**
+     * Processes the {@code CommandResult} connection response to store the current media server
+     * MPD protocol version.
+     *
+     * @param response The {@code CommandResult().getConnectionResponse()}.
+     */
+    private void setMPDVersion(final String response) {
+        final String formatResponse = response.substring((MPD_RESPONSE_OK + " MPD ").length());
+
+        final StringTokenizer stringTokenizer = new StringTokenizer(formatResponse, ".");
+        final int[] version = new int[stringTokenizer.countTokens()];
+        int i = 0;
+
+        while (stringTokenizer.hasMoreElements()) {
+            version[i] = Integer.parseInt(stringTokenizer.nextToken());
+            i++;
+        }
+
+        mMPDVersion = version;
+    }
+
+    protected abstract void setOutputStream(OutputStreamWriter outputStream);
+
+    protected abstract void setSocket(Socket socket);
 
     /** This class communicates with the server by sending the command and processing the result. */
     private class CommandProcessor implements Callable<CommandResult> {

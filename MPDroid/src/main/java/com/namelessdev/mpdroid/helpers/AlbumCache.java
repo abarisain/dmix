@@ -47,35 +47,39 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-public class AlbumCache
-{
-    class AlbumDetails implements Serializable {
-        private static final long serialVersionUID = 2465675380232237273L;
-        String path = null;
-        // List<Long> times = null;
-        long numtracks = 0;
-        long totaltime = 0;
-        long date = 0;
-
-        private void readObject(java.io.ObjectInputStream in)
-                throws IOException, ClassNotFoundException {
-            path = in.readUTF();
-            // times = (List<Long>)in.readObject();
-            numtracks = in.readLong();
-            totaltime = in.readLong();
-            date = in.readLong();
-        }
-
-        private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-            out.writeUTF(path);
-            // out.writeObject(times);
-            out.writeLong(numtracks);
-            out.writeLong(totaltime);
-            out.writeLong(date);
-        }
-    }
+public class AlbumCache {
 
     static final boolean GZIP = false;
+
+    private static final String TAG = "AlbumCache";
+
+    protected static AlbumCache instance = null;
+
+    protected Map<String, AlbumDetails> albumDetails; // "artist///album" ->
+
+    // list of albumname, artist, albumartist including ""
+    protected Set<List<String>> albumSet;
+
+    protected boolean enabled = true;
+
+    protected File filesdir;
+
+    protected Date lastUpdate = null;
+
+    protected CachedMPD mpd;
+
+    protected int port;
+
+    protected String server;
+
+    // albums that have an albumartist get an empty artist:
+    protected Set<List<String>> uniqueAlbumSet;
+
+    protected AlbumCache(CachedMPD _mpd) {
+        Log.d(TAG, "Starting ...");
+        setMPD(_mpd);
+    }
+    // details
 
     public static AlbumCache getInstance(CachedMPD mpd) {
         if (instance == null) {
@@ -84,32 +88,6 @@ public class AlbumCache
             instance.setMPD(mpd);
         }
         return instance;
-    }
-
-    private static final String TAG = "AlbumCache";
-    
-    protected boolean enabled = true;
-    protected String server;
-
-    protected int port;
-    protected File filesdir;
-    protected CachedMPD mpd;
-    protected Date lastUpdate = null;
-
-    // list of albumname, artist, albumartist including ""
-    protected Set<List<String>> albumSet;
-
-    // albums that have an albumartist get an empty artist:
-    protected Set<List<String>> uniqueAlbumSet;
-
-    protected Map<String, AlbumDetails> albumDetails; // "artist///album" ->
-                                                      // details
-
-    protected static AlbumCache instance = null;
-
-    protected AlbumCache(CachedMPD _mpd) {
-        Log.d(TAG, "Starting ...");
-        setMPD(_mpd);
     }
 
     public String albumCode(String artist, String album, boolean isAlbumArtist) {
@@ -128,8 +106,9 @@ public class AlbumCache
     protected synchronized void deleteFile() {
         File file = new File(filesdir, getFilename());
         Log.d(TAG, "Deleting " + file);
-        if (file.exists())
+        if (file.exists()) {
             file.delete();
+        }
     }
 
     public Set<String> getAlbumArtists(String album, String artist) {
@@ -147,6 +126,10 @@ public class AlbumCache
         return albumDetails.get(albumCode(artist, album, isAlbumArtist));
     }
 
+    public Set<List<String>> getAlbumSet() {
+        return albumSet;
+    }
+
     public Set<String> getAlbums(String artist, boolean albumArtist) {
         Set<String> albums = new HashSet<String>();
         for (List<String> ai : albumSet) {
@@ -156,10 +139,6 @@ public class AlbumCache
             }
         }
         return albums;
-    }
-
-    public Set<List<String>> getAlbumSet() {
-        return albumSet;
     }
 
     public List<String> getArtistsByAlbum(String album, boolean albumArtist) {
@@ -177,8 +156,7 @@ public class AlbumCache
         if (artists != null && artists.size() > 0) {
             result = new ArrayList<String>(artists);
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-        }
-        else {
+        } else {
             result = new ArrayList<String>();
         }
         return result;
@@ -242,10 +220,11 @@ public class AlbumCache
         } catch (final Exception e) {
             Log.e(TAG, "Exception.", e);
         }
-        if (loaded_ok)
+        if (loaded_ok) {
             Log.d(TAG, cacheInfo());
-        else
+        } else {
             Log.d(TAG, "Error on load");
+        }
         return loaded_ok;
     }
 
@@ -271,10 +250,12 @@ public class AlbumCache
      * reloads info from MPD if it is not up to date or if forced
      */
     public synchronized boolean refresh(boolean force) {
-        if (!enabled)
+        if (!enabled) {
             return false;
-        if (!updateConnection())
+        }
+        if (!updateConnection()) {
             return false;
+        }
 
         if (!force && isUpToDate()) {
             Log.d(TAG, "Cache is up to date");
@@ -335,8 +316,9 @@ public class AlbumCache
                 // details.times.add((Long)m.getTime());
                 details.numtracks += 1;
                 details.totaltime += m.getTime();
-                if (details.date == 0)
+                if (details.date == 0) {
                     details.date = m.getDate();
+                }
             }
             Log.d(TAG, "albumDetails: " + albumDetails.size());
             Log.d(TAG, "albumSet: " + albumSet.size());
@@ -360,8 +342,9 @@ public class AlbumCache
         Log.d(TAG, "Saving to " + file);
         File backupfile = new File(file.getAbsolutePath() + ".bak");
         if (file.exists()) {
-            if (backupfile.exists())
+            if (backupfile.exists()) {
                 backupfile.delete();
+            }
             file.renameTo(backupfile);
         }
         ObjectOutputStream save;
@@ -426,6 +409,37 @@ public class AlbumCache
             }
         }
         return true;
+    }
+
+    class AlbumDetails implements Serializable {
+
+        private static final long serialVersionUID = 2465675380232237273L;
+
+        long date = 0;
+
+        // List<Long> times = null;
+        long numtracks = 0;
+
+        String path = null;
+
+        long totaltime = 0;
+
+        private void readObject(java.io.ObjectInputStream in)
+                throws IOException, ClassNotFoundException {
+            path = in.readUTF();
+            // times = (List<Long>)in.readObject();
+            numtracks = in.readLong();
+            totaltime = in.readLong();
+            date = in.readLong();
+        }
+
+        private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+            out.writeUTF(path);
+            // out.writeObject(times);
+            out.writeLong(numtracks);
+            out.writeLong(totaltime);
+            out.writeLong(date);
+        }
     }
 
 }

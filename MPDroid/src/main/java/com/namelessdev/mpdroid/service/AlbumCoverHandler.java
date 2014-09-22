@@ -45,21 +45,21 @@ class AlbumCoverHandler implements CoverDownloadListener {
 
     private final int mIconWidth;
 
-    private Bitmap mFullSizeAlbumCover = null;
-
-    private Bitmap mNotificationCover;
-
-    private NotificationCallback mNotificationListener;
-
     /** The current path to the album cover on the local device */
     private String mAlbumCoverPath = null;
 
     /** The album cover helper instance. */
     private CoverAsyncHelper mCoverAsyncHelper = null;
 
+    private Bitmap mFullSizeAlbumCover = null;
+
     private FullSizeCallback mFullSizeListener = null;
 
     private boolean mIsAlbumCacheEnabled;
+
+    private Bitmap mNotificationCover;
+
+    private NotificationCallback mNotificationListener;
 
     AlbumCoverHandler(final MPDroidService serviceContext) {
         super();
@@ -119,6 +119,15 @@ class AlbumCoverHandler implements CoverDownloadListener {
     }
 
     /**
+     * A method implemented from CoverDownloadListener used for progress.
+     *
+     * @param cover A current {@code CoverInfo object}.
+     */
+    @Override
+    public void onCoverDownloadStarted(final CoverInfo cover) {
+    }
+
+    /**
      * A method implemented from CoverDownloadListener executed
      * after cover download has successfully completed.
      *
@@ -149,15 +158,6 @@ class AlbumCoverHandler implements CoverDownloadListener {
     }
 
     /**
-     * A method implemented from CoverDownloadListener used for progress.
-     *
-     * @param cover A current {@code CoverInfo object}.
-     */
-    @Override
-    public void onCoverDownloadStarted(final CoverInfo cover) {
-    }
-
-    /**
      * A method implemented from CoverDownloadListener
      * executed after an album cover was not found.
      *
@@ -165,6 +165,10 @@ class AlbumCoverHandler implements CoverDownloadListener {
      */
     @Override
     public void onCoverNotFound(final CoverInfo coverInfo) {
+    }
+
+    final void setAlbumCache(final boolean value) {
+        mIsAlbumCacheEnabled = value;
     }
 
     final void stop() {
@@ -176,10 +180,6 @@ class AlbumCoverHandler implements CoverDownloadListener {
         if (mCoverAsyncHelper != null) {
             mCoverAsyncHelper.removeCoverDownloadListener(this);
         }
-    }
-
-    final void setAlbumCache(final boolean value) {
-        mIsAlbumCacheEnabled = value;
     }
 
     /**
@@ -242,22 +242,22 @@ class AlbumCoverHandler implements CoverDownloadListener {
         }
     }
 
-    interface NotificationCallback {
-
-        /**
-         * This is called when cover art needs to be updated due to server information change.
-         *
-         * @param albumCover the current album cover bitmap.
-         */
-        void onCoverUpdate(Bitmap albumCover);
-    }
-
     interface FullSizeCallback {
 
         /**
          * This is called when cover art needs to be updated due to server information change.
          *
          * @param albumCover The current album cover bitmap.
+         */
+        void onCoverUpdate(Bitmap albumCover);
+    }
+
+    interface NotificationCallback {
+
+        /**
+         * This is called when cover art needs to be updated due to server information change.
+         *
+         * @param albumCover the current album cover bitmap.
          */
         void onCoverUpdate(Bitmap albumCover);
     }

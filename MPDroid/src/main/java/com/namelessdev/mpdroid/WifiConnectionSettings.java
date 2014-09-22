@@ -35,11 +35,11 @@ import java.util.regex.Pattern;
 
 public class WifiConnectionSettings extends PreferenceActivity {
 
-    private static final int MAIN = 0;
-
     private static final String KEY_WIFI_BASED_CATEGORY = "wifibasedCategory";
 
     private static final String KEY_WIFI_BASED_SCREEN = "wifibasedScreen";
+
+    private static final int MAIN = 0;
 
     private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
 

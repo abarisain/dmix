@@ -30,6 +30,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 public class SimpleWidgetProvider extends AppWidgetProvider {
+
     static String TAG = "MPDroidSimpleWidgetProvider";
 
     private static SimpleWidgetProvider sInstance;
@@ -88,8 +89,9 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
      * {@link android.media.RemoteControlClient}
      */
     void notifyChange(WidgetHelperService service) {
-        if (hasInstances(service))
+        if (hasInstances(service)) {
             performUpdate(service);
+        }
     }
 
     public void onUpdate(RemoteViews views, Context context, AppWidgetManager appWidgetManager) {

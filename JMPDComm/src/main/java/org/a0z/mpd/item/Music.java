@@ -58,35 +58,35 @@ public class Music extends Item implements FilesystemTreeEntry {
     private static final List<String> ARTIST_BLACK_LIST = Arrays.asList("various artists",
             "various artist");
 
-    /** The maximum number of key/value pairs for a music item response. */
-    private static final int MUSIC_ATTRIBUTES = 30;
-
-    private static final String TAG = "Music";
-
     /**
      * The date response has it's own delimiter.
      */
     private static final Pattern DATE_DELIMITER = Pattern.compile("\\D+");
 
-    private final String mAlbum;
+    /** The maximum number of key/value pairs for a music item response. */
+    private static final int MUSIC_ATTRIBUTES = 30;
 
-    private final String mArtist;
+    private static final String TAG = "Music";
+
+    private final String mAlbum;
 
     private final String mAlbumArtist;
 
-    private final String mGenre;
-
-    private final String mFullPath;
-
-    private final int mDisc;
+    private final String mArtist;
 
     private final long mDate;
 
+    private final int mDisc;
+
+    private final String mFullPath;
+
+    private final String mGenre;
+
     private final String mName;
 
-    private final int mSongPos;
-
     private final int mSongId;
+
+    private final int mSongPos;
 
     private final long mTime;
 
@@ -140,6 +140,20 @@ public class Music extends Item implements FilesystemTreeEntry {
         mSongId = songId;
         mSongPos = songPos;
         mName = name;
+    }
+
+    public static String addStreamName(final String url, final String name) {
+        if (null == name || name.isEmpty()) {
+            return url;
+        }
+        try {
+            final String path = new URL(url).getPath();
+            if (null == path || path.isEmpty()) {
+                return url + "/#" + name;
+            }
+        } catch (final MalformedURLException ignored) {
+        }
+        return url + "#" + name;
     }
 
     static Music build(final Collection<String> response) {
@@ -340,20 +354,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         return result;
     }
 
-    public static String addStreamName(final String url, final String name) {
-        if (null == name || name.isEmpty()) {
-            return url;
-        }
-        try {
-            final String path = new URL(url).getPath();
-            if (null == path || path.isEmpty()) {
-                return url + "/#" + name;
-            }
-        } catch (final MalformedURLException e) {
-        }
-        return url + "#" + name;
-    }
-
     @Override
     public int compareTo(final Item another) {
         Integer compareResult = null;
@@ -433,9 +433,9 @@ public class Music extends Item implements FilesystemTreeEntry {
             };
 
             final int[][] equalsInt = {
-                    {mDisc, music.mDisc },
+                    {mDisc, music.mDisc},
                     {mSongId, music.mSongId},
-                    {mSongPos, music.mSongPos },
+                    {mSongPos, music.mSongPos},
                     {mTotalTracks, music.mTotalTracks},
                     {mTrack, music.mTrack}
             };
@@ -454,22 +454,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         }
 
         return isEqual.booleanValue();
-    }
-
-    @Override
-    public int hashCode() {
-        final Object[] objects = {mAlbum, mArtist, mAlbumArtist, mGenre, mName, mTitle};
-
-        int result = 31 * mFullPath.hashCode();
-        result = 31 * result + mDisc;
-        result = 31 * result + (int) (mDate ^ (mDate >>> 32));
-        result = 31 * result + mSongId;
-        result = 31 * result + mSongPos;
-        result = 31 * result + (int) (mTime ^ (mTime >>> 32));
-        result = 31 * result + mTotalTracks;
-        result = 31 * result + mTrack;
-
-        return result + Arrays.hashCode(objects);
     }
 
     /**
@@ -521,10 +505,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         return new Artist(mArtist);
     }
 
-    public String getGenre() {
-        return mGenre;
-    }
-
     public long getDate() {
         return mDate;
     }
@@ -564,6 +544,10 @@ public class Music extends Item implements FilesystemTreeEntry {
     @Override
     public String getFullpath() {
         return mFullPath;
+    }
+
+    public String getGenre() {
+        return mGenre;
     }
 
     /**
@@ -671,6 +655,22 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     public boolean hasTitle() {
         return null != mTitle && !mTitle.isEmpty();
+    }
+
+    @Override
+    public int hashCode() {
+        final Object[] objects = {mAlbum, mArtist, mAlbumArtist, mGenre, mName, mTitle};
+
+        int result = 31 * mFullPath.hashCode();
+        result = 31 * result + mDisc;
+        result = 31 * result + (int) (mDate ^ (mDate >>> 32));
+        result = 31 * result + mSongId;
+        result = 31 * result + mSongPos;
+        result = 31 * result + (int) (mTime ^ (mTime >>> 32));
+        result = 31 * result + mTotalTracks;
+        result = 31 * result + mTrack;
+
+        return result + Arrays.hashCode(objects);
     }
 
     public boolean isStream() {

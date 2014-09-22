@@ -37,8 +37,6 @@ import java.util.List;
 
 public class LibraryTabsSettings extends PreferenceActivity {
 
-    private SeparatedListAdapter adapter;
-    private ArrayList<Object> tabList;
     private final MPDApplication app = MPDApplication.getInstance();
 
     public DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
@@ -60,6 +58,10 @@ public class LibraryTabsSettings extends PreferenceActivity {
             }
         }
     };
+
+    private SeparatedListAdapter adapter;
+
+    private ArrayList<Object> tabList;
 
     private ArrayList<String> getVisibleTabs() {
         ArrayList<String> visibleTabs = new ArrayList<String>();
@@ -100,22 +102,6 @@ public class LibraryTabsSettings extends PreferenceActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        app.setActivity(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        app.unsetActivity(this);
-    }
-
-    private void saveSettings() {
-        LibraryTabsUtil.saveCurrentLibraryTabs(getVisibleTabs());
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_librarytabsmenu, menu);
@@ -133,6 +119,18 @@ public class LibraryTabsSettings extends PreferenceActivity {
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        app.setActivity(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        app.unsetActivity(this);
     }
 
     private void refreshTable() {
@@ -170,9 +168,14 @@ public class LibraryTabsSettings extends PreferenceActivity {
                 tabList);
         setListAdapter(adapter);
     }
+
+    private void saveSettings() {
+        LibraryTabsUtil.saveCurrentLibraryTabs(getVisibleTabs());
+    }
 }
 
 class TabItem {
+
     String text;
 
     TabItem(String text) {

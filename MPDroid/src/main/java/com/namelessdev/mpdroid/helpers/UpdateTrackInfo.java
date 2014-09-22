@@ -62,25 +62,25 @@ public class UpdateTrackInfo {
         mFullTrackInfoListener = listener;
     }
 
-    public final void refresh(final MPDStatus mpdStatus, final boolean forceCoverUpdate) {
-        mForceCoverUpdate = forceCoverUpdate;
-        new UpdateTrackInfoAsync().execute(mpdStatus);
+    public final void addCallback(final TrackInfoUpdate listener) {
+        mTrackInfoListener = listener;
     }
 
     public final void refresh(final MPDStatus mpdStatus) {
         refresh(mpdStatus, false);
     }
 
-    public final void removeCallback(final FullTrackInfoUpdate ignored) {
-        mFullTrackInfoListener = null;
+    public final void refresh(final MPDStatus mpdStatus, final boolean forceCoverUpdate) {
+        mForceCoverUpdate = forceCoverUpdate;
+        new UpdateTrackInfoAsync().execute(mpdStatus);
     }
 
     public final void removeCallback(final TrackInfoUpdate ignored) {
         mTrackInfoListener = null;
     }
 
-    public final void addCallback(final TrackInfoUpdate listener) {
-        mTrackInfoListener = listener;
+    public final void removeCallback(final FullTrackInfoUpdate ignored) {
+        mFullTrackInfoListener = null;
     }
 
     public interface FullTrackInfoUpdate {
@@ -196,6 +196,11 @@ public class UpdateTrackInfo {
             return (Void) null;
         }
 
+        private boolean hasCoverChanged() {
+            final boolean invalid = mArtist == null || mAlbum == null;
+            return invalid || !mArtist.equals(mLastArtist) || !mAlbum.equals(mLastAlbum);
+        }
+
         /**
          * Send out the messages to listeners.
          */
@@ -232,11 +237,6 @@ public class UpdateTrackInfo {
                     mTrackInfoListener.onCoverUpdate(mAlbumInfo);
                 }
             }
-        }
-
-        private boolean hasCoverChanged() {
-            final boolean invalid = mArtist == null || mAlbum == null;
-            return invalid || !mArtist.equals(mLastArtist) || !mAlbum.equals(mLastAlbum);
         }
 
         /**

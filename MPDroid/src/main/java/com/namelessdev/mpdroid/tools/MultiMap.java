@@ -29,6 +29,7 @@ import java.util.Set;
 public class MultiMap<K, V> implements Serializable {
 
     private static final long serialVersionUID = 6716321360137860110L;
+
     private final Map<K, List<V>> mInternalMap;
 
     public MultiMap() {
@@ -38,10 +39,10 @@ public class MultiMap<K, V> implements Serializable {
     /**
      * Recursive method that will append characters to proposedKey until its
      * unique. Used in case there are collisions with generated key values.
-     * 
-     * @param uniqueMap The haystack.
+     *
+     * @param uniqueMap   The haystack.
      * @param proposedKey The proposed needle.
-     * @param value The value which goes with the needle.
+     * @param value       The value which goes with the needle.
      */
     private String addUniqueEntry(Map<String, V> uniqueMap, String proposedKey, V value) {
         // not the most efficient algorithm, but should work
@@ -62,7 +63,7 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      * Checks whether the map contains the specified key.
-     * 
+     *
      * @see {@link Map#containsKey(Object)} ()}
      */
     public boolean containsKey(K key) {
@@ -71,7 +72,7 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      * Checks whether the map contains the specified value.
-     * 
+     *
      * @see {@link Map#containsValue(Object)} ()}
      */
     public boolean containsValue(V value) {
@@ -113,7 +114,7 @@ public class MultiMap<K, V> implements Serializable {
      * <p/>
      * Current algorithm will construct unique key by appending a unique
      * position number to key's toString() value
-     * 
+     *
      * @return a {@link Map}
      */
     public Map<String, V> getUniqueMap() {
@@ -143,7 +144,7 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      * Check if map is empty.
-     * 
+     *
      * @see {@link Map#isEmpty()}
      */
     public boolean isEmpty() {
@@ -158,7 +159,7 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      * Adds the value to the list associated with a key.
-     * 
+     *
      * @see {@link Map#put(Object, Object)} ()}
      */
     public V put(K key, V value) {

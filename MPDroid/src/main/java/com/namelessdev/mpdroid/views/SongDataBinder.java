@@ -69,8 +69,9 @@ public class SongDataBinder implements ArrayDataBinder {
 
         final Music song = (Music) item;
         int trackNumber = song.getTrack();
-        if (trackNumber < 0)
+        if (trackNumber < 0) {
             trackNumber = 0;
+        }
 
         holder.trackTitle.setText(song.getTitle());
         holder.trackNumber.setText(trackNumber < 10 ? "0" + Integer.toString(trackNumber) : Integer

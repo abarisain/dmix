@@ -32,9 +32,9 @@ public class SettingsHelper {
 
     private static final int DEFAULT_STREAMING_PORT = 8000;
 
-    private final SharedPreferences mSettings;
-
     private final MPDAsyncHelper mMPDAsyncHelper;
+
+    private final SharedPreferences mSettings;
 
     private final WifiManager mWifiManager;
 
@@ -49,6 +49,14 @@ public class SettingsHelper {
         mWifiManager = (WifiManager) app.getSystemService(Context.WIFI_SERVICE);
 
         mMPDAsyncHelper = mpdAsyncHelper;
+    }
+
+    private static String getStringWithSSID(final String param, final String wifiSSID) {
+        if (wifiSSID == null) {
+            return param;
+        } else {
+            return wifiSSID + param;
+        }
     }
 
     private boolean getBooleanSetting(final String name) {
@@ -81,14 +89,6 @@ public class SettingsHelper {
         }
 
         return result;
-    }
-
-    private static String getStringWithSSID(final String param, final String wifiSSID) {
-        if (wifiSSID == null) {
-            return param;
-        } else {
-            return wifiSSID + param;
-        }
     }
 
     public final boolean updateConnectionSettings() {

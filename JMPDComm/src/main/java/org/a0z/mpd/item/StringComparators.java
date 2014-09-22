@@ -43,6 +43,23 @@ final class StringComparators {
 
     /**
      * <p>
+     * A string comparator that does case insensitive comparisons and handles
+     * embedded numbers correctly.
+     * </p>
+     * <p>
+     * <b>Do not use</b> if your app might ever run on any locale that uses more
+     * than 7-bit ascii characters.
+     * </p>
+     */
+    private static final Comparator<String> IGNORE_CASE_NATURAL_COMPARATOR_ASCII
+            = new Comparator<String>() {
+        public int compare(String o1, String o2) {
+            return compareNaturalIgnoreCaseAscii(o1, o2);
+        }
+    };
+
+    /**
+     * <p>
      * A string comparator that does case sensitive comparisons and handles
      * embedded numbers correctly.
      * </p>
@@ -58,21 +75,10 @@ final class StringComparators {
     };
 
     /**
-     * <p>
-     * A string comparator that does case insensitive comparisons and handles
-     * embedded numbers correctly.
-     * </p>
-     * <p>
-     * <b>Do not use</b> if your app might ever run on any locale that uses more
-     * than 7-bit ascii characters.
-     * </p>
+     * This is a utility class (static methods only), don't instantiate.
      */
-    private static final Comparator<String> IGNORE_CASE_NATURAL_COMPARATOR_ASCII
-            = new Comparator<String>() {
-        public int compare(String o1, String o2) {
-            return compareNaturalIgnoreCaseAscii(o1, o2);
-        }
-    };
+    private StringComparators() {
+    }
 
     /**
      * <p>
@@ -413,11 +419,5 @@ final class StringComparators {
      */
     public static Comparator<String> getNaturalComparatorIgnoreCaseAscii() {
         return IGNORE_CASE_NATURAL_COMPARATOR_ASCII;
-    }
-
-    /**
-     * This is a utility class (static methods only), don't instantiate.
-     */
-    private StringComparators() {
     }
 }

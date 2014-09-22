@@ -26,13 +26,14 @@ import android.app.IntentService;
 import android.content.Intent;
 
 public class WidgetHelperService extends IntentService {
-    static final String TAG = "MPDroidWidgetHelperService";
 
     public static final String CMD_UPDATE_WIDGET = "UPDATE_WIDGET";
 
-    private boolean playing = false;
+    static final String TAG = "MPDroidWidgetHelperService";
 
     private final MPDApplication app = MPDApplication.getInstance();
+
+    private boolean playing = false;
 
     public WidgetHelperService() {
         super(TAG);

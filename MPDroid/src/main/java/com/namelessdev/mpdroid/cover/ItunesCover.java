@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import android.util.Log;
 
 public class ItunesCover extends AbstractWebCover {
+
     private static final String TAG = "ItunesCover";
 
     @Override
@@ -48,7 +49,7 @@ public class ItunesCover extends AbstractWebCover {
                     // Based on some tests even if the cover art size returned
                     // is 100x100
                     // Bigger versions also exists.
-                    return new String[] {
+                    return new String[]{
                             coverUrl.replace("100x100", "600x600")
                     };
                 }

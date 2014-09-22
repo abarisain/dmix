@@ -23,20 +23,26 @@ import org.a0z.mpd.AlbumInfo;
 import android.graphics.Bitmap;
 
 public class CoverInfo extends AlbumInfo {
-    public enum STATE {
-        NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
-    }
+
+    public static final int MAX_SIZE = 0;
+
+    private int coverMaxSize = MAX_SIZE;
+
+    private int cachedCoverMaxSize = MAX_SIZE;
+
+    private Bitmap[] bitmap = new Bitmap[0];
+
+    private byte[] coverBytes = new byte[0];
+
+    private ICoverRetriever coverRetriever;
+
+    private CoverDownloadListener listener;
+
+    private boolean priority;
+
+    private boolean requestGivenUp = false;
 
     private STATE state = STATE.NEW;
-    private Bitmap[] bitmap = new Bitmap[0];
-    private byte[] coverBytes = new byte[0];
-    private boolean priority;
-    public static final int MAX_SIZE = 0;
-    private int coverMaxSize = MAX_SIZE;
-    private int cachedCoverMaxSize = MAX_SIZE;
-    private ICoverRetriever coverRetriever;
-    private CoverDownloadListener listener;
-    private boolean requestGivenUp = false;
 
     public CoverInfo(AlbumInfo albumInfo) {
         super(albumInfo.getArtist(), albumInfo.getAlbum(),
@@ -156,5 +162,9 @@ public class CoverInfo extends AlbumInfo {
     public String toString() {
         return "CoverInfo{state=" + state + ", artist=" + artist == null ? "" : artist + ", album="
                 + album == null ? "" : album + " priority=" + priority + "}";
+    }
+
+    public enum STATE {
+        NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
     }
 }

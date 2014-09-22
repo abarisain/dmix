@@ -239,7 +239,7 @@ final class CommandQueue {
         } else {
             commandString.append(MPD_CMD_START_BULK);
         }
-        commandString.append('\n');
+        commandString.append(MPDCommand.MPD_CMD_NEWLINE);
 
         for (final MPDCommand command : mCommandQueue) {
             commandString.append(command);

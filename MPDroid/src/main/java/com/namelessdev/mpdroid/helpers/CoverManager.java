@@ -80,6 +80,8 @@ import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
  */
 public final class CoverManager {
 
+    public static final boolean DEBUG = false;
+
     public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
 
     public static final String PREFERENCE_LASTFM = "enableLastFM";
@@ -88,15 +90,10 @@ public final class CoverManager {
 
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
 
-    public static final boolean DEBUG = false;
-
-    private static final int MAX_REQUESTS = 20;
-
-    private static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";
+    private static final Pattern BLOCK_IN_COMBINING_DIACRITICAL_MARKS =
+            Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
     private static final String COVERS_FILE_NAME = "covers.bin";
-
-    private static final String TAG = "CoverManager";
 
     private static final String[] DISC_REFERENCES = {
             "disc", "cd", "disque"
@@ -104,66 +101,53 @@ public final class CoverManager {
 
     private static final String FOLDER_SUFFIX = "/covers/";
 
+    private static final int MAX_REQUESTS = 20;
+
+    private static final String TAG = "CoverManager";
+
     private static final Pattern TEXT_PATTERN = Pattern.compile("[^\\w .-]+");
 
-    private static final Pattern BLOCK_IN_COMBINING_DIACRITICAL_MARKS =
-            Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-
-    private static CoverManager sInstance = null;
+    private static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";
 
     private static MPDApplication sApp = MPDApplication.getInstance();
 
     private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(sApp);
+
+    private static CoverManager sInstance = null;
+
+    private final ExecutorService mCacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
+
+    private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
+
+    private final ThreadPoolExecutor mCoverFetchExecutor = getCoverFetchExecutor();
+
+    private final MultiMap<CoverInfo, CoverDownloadListener> mHelpersByCoverInfo
+            = new MultiMap<>();
+
+    private final ExecutorService mPriorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
+
+    private final ExecutorService mRequestExecutor = Executors.newFixedThreadPool(1);
 
     private final BlockingDeque<CoverInfo> mRequests = new LinkedBlockingDeque<>();
 
     private final List<CoverInfo> mRunningRequests = Collections
             .synchronizedList(new ArrayList<CoverInfo>());
 
-    private final ExecutorService mRequestExecutor = Executors.newFixedThreadPool(1);
-
-    private final ThreadPoolExecutor mCoverFetchExecutor = getCoverFetchExecutor();
-
-    private final ExecutorService mPriorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
-
-    private final ExecutorService mCacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
-
-    private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
-
-    private final MultiMap<CoverInfo, CoverDownloadListener> mHelpersByCoverInfo
-            = new MultiMap<>();
-
-    private ICoverRetriever[] mCoverRetrievers = null;
-
     private boolean mActive = true;
 
-    private MultiMap<String, String> mWrongCoverUrlMap = null;
+    private ICoverRetriever[] mCoverRetrievers = null;
 
     private Map<String, String> mCoverUrlMap = null;
 
     private Set<String> mNotFoundAlbumKeys;
+
+    private MultiMap<String, String> mWrongCoverUrlMap = null;
 
     private CoverManager() {
         super();
         mRequestExecutor.submit(new RequestProcessorTask());
         setCoverRetrieversFromPreferences();
         initializeCoverData();
-    }
-
-    private static ThreadPoolExecutor getCoverFetchExecutor() {
-        return new ThreadPoolExecutor(2, 2, 0L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>());
-    }
-
-    public static String getCoverFileName(final AlbumInfo albumInfo) {
-        return albumInfo.getKey() + ".jpg";
-    }
-
-    public static synchronized CoverManager getInstance() {
-        if (sInstance == null) {
-            sInstance = new CoverManager();
-        }
-        return sInstance;
     }
 
     /**
@@ -192,6 +176,15 @@ public final class CoverManager {
         }
 
         return url;
+    }
+
+    private static ThreadPoolExecutor getCoverFetchExecutor() {
+        return new ThreadPoolExecutor(2, 2, 0L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
+    }
+
+    public static String getCoverFileName(final AlbumInfo albumInfo) {
+        return albumInfo.getKey() + ".jpg";
     }
 
     /**
@@ -223,6 +216,13 @@ public final class CoverManager {
         }
 
         return connection;
+    }
+
+    public static synchronized CoverManager getInstance() {
+        if (sInstance == null) {
+            sInstance = new CoverManager();
+        }
+        return sInstance;
     }
 
     /**

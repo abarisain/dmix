@@ -16,14 +16,14 @@
 
 package com.namelessdev.mpdroid.adapters;
 
+import com.namelessdev.mpdroid.R;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
-import com.namelessdev.mpdroid.R;
 
 import java.util.List;
 
@@ -39,15 +39,22 @@ import java.util.List;
  */
 
 public class SeparatedListAdapter extends BaseAdapter {
+
     private static final int TYPE_CONTENT = 0;
+
     private static final int TYPE_SEPARATOR = 1;
 
-    private List<?> items; // Content
     private SeparatedListDataBinder binder; // The content -> view 'binding'
-    private int viewId = -1; // The view to be displayed
-    private LayoutInflater inflater;
+
     private Context context;
+
+    private LayoutInflater inflater;
+
+    private List<?> items; // Content
+
     private int separatorLayoutId;
+
+    private int viewId = -1; // The view to be displayed
 
     public SeparatedListAdapter(Context context, int viewId, int separatorViewId,
             SeparatedListDataBinder binder,

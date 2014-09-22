@@ -36,15 +36,15 @@ import static org.a0z.mpd.Tools.getHashFromString;
 
 public class AlbumInfo {
 
-    protected final String artist;
+    private static final String INVALID_ALBUM_KEY = "INVALID_ALBUM_KEY";
 
     protected final String album;
 
-    protected String path;
+    protected final String artist;
 
     protected String filename;
 
-    private static final String INVALID_ALBUM_KEY = "INVALID_ALBUM_KEY";
+    protected String path;
 
     public AlbumInfo(Album album) {
         Artist a = album.getArtist();
@@ -120,7 +120,7 @@ public class AlbumInfo {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[] {artist, album});
+        return Arrays.hashCode(new Object[]{artist, album});
     }
 
     public boolean isValid() {

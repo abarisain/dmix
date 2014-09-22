@@ -86,11 +86,11 @@ public class ServiceBinder implements
     /** If service and bind are persistent. */
     private boolean mIsPersistent = false;
 
-    /** The messenger from the service used for two way service communication. */
-    private Messenger mServiceMessenger = null;
-
     /** The message to send on successful connection. */
     private Message mMessageOnConnection = null;
+
+    /** The messenger from the service used for two way service communication. */
+    private Messenger mServiceMessenger = null;
 
     /**
      * Constructs the service binder helper with a message receiving client.

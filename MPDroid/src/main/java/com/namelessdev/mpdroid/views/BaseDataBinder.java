@@ -35,8 +35,11 @@ import java.util.List;
 public abstract class BaseDataBinder implements ArrayDataBinder {
 
     private final MPDApplication app = MPDApplication.getInstance();
-    boolean lightTheme = false;
+
     boolean enableCache = true;
+
+    boolean lightTheme = false;
+
     boolean onlyDownloadOnWifi = true;
 
     public BaseDataBinder(boolean isLightTheme) {

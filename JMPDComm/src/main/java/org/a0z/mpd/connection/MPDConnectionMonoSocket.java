@@ -36,11 +36,11 @@ import java.net.Socket;
  */
 public class MPDConnectionMonoSocket extends MPDConnection {
 
-    private Socket mSocket;
-
     private InputStreamReader mInputStream;
 
     private OutputStreamWriter mOutputStream;
+
+    private Socket mSocket;
 
     public MPDConnectionMonoSocket(final int readWriteTimeout) {
         super(readWriteTimeout, 1);
@@ -52,23 +52,23 @@ public class MPDConnectionMonoSocket extends MPDConnection {
     }
 
     @Override
-    public void setInputStream(final InputStreamReader inputStream) {
-        mInputStream = inputStream;
-    }
-
-    @Override
     public OutputStreamWriter getOutputStream() {
         return mOutputStream;
     }
 
     @Override
-    public void setOutputStream(final OutputStreamWriter outputStream) {
-        mOutputStream = outputStream;
+    protected Socket getSocket() {
+        return mSocket;
     }
 
     @Override
-    protected Socket getSocket() {
-        return mSocket;
+    public void setInputStream(final InputStreamReader inputStream) {
+        mInputStream = inputStream;
+    }
+
+    @Override
+    public void setOutputStream(final OutputStreamWriter outputStream) {
+        mOutputStream = outputStream;
     }
 
     @Override

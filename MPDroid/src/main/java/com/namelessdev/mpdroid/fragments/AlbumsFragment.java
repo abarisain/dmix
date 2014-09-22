@@ -49,19 +49,26 @@ import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
 public class AlbumsFragment extends BrowseFragment {
+
     private static final String EXTRA_ARTIST = "artist";
+
     private static final String EXTRA_GENRE = "genre";
-    protected Artist artist = null;
-    protected Genre genre = null;
-    protected boolean isCountDisplayed;
-    protected ProgressBar coverArtProgress;
 
     private static final int POPUP_COVER_BLACKLIST = 5;
+
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
+
+    private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
 
     private static final String TAG = "AlbumsFragment";
 
-    private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
+    protected Artist artist = null;
+
+    protected ProgressBar coverArtProgress;
+
+    protected Genre genre = null;
+
+    protected boolean isCountDisplayed;
 
     public AlbumsFragment() {
         this(null);
@@ -116,7 +123,7 @@ public class AlbumsFragment extends BrowseFragment {
     /**
      * Uses CoverManager to clean up a cover.
      *
-     * @param item The MenuItem from the user interaction.
+     * @param item         The MenuItem from the user interaction.
      * @param isWrongCover True to blacklist the cover, false otherwise.
      */
     private void cleanupCover(final MenuItem item, final boolean isWrongCover) {
@@ -126,7 +133,7 @@ public class AlbumsFragment extends BrowseFragment {
         final Album album = (Album) items.get((int) info.id);
         final AlbumInfo albumInfo = album.getAlbumInfo();
 
-        if(isWrongCover) {
+        if (isWrongCover) {
             CoverManager.getInstance()
                     .markWrongCover(albumInfo);
         } else {
@@ -170,13 +177,15 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        if (icicle != null)
+        if (icicle != null) {
             init((Artist) icicle.getParcelable(EXTRA_ARTIST),
                     (Genre) icicle.getParcelable(EXTRA_GENRE));
+        }
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         android.view.MenuItem otherCoverItem = menu.add(POPUP_COVER_BLACKLIST,
                 POPUP_COVER_BLACKLIST, 0, R.string.otherCover);
@@ -187,7 +196,8 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
         return view;
@@ -242,7 +252,8 @@ public class AlbumsFragment extends BrowseFragment {
     private void refreshCover(View view, AlbumInfo album) {
         if (view.getTag() instanceof AlbumViewHolder) {
             AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
-            if (albumViewHolder.albumCover.getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
+            if (albumViewHolder.albumCover
+                    .getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
                 CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.albumCover
                         .getTag(R.id.CoverAsyncHelper);
                 coverAsyncHelper.downloadCover(album, true);

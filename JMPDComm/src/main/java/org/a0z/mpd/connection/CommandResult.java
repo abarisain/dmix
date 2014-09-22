@@ -35,22 +35,18 @@ import java.util.List;
 /** This class stores the result for MPDCallable. */
 class CommandResult {
 
-    private MPDServerException mLastException = null;
-
     private String mConnectionResult;
+
+    private MPDServerException mLastException = null;
 
     private List<String> mResult = null;
 
-    final MPDServerException getLastException() {
-        return mLastException;
-    }
-
-    final void setLastException(final MPDServerException lastException) {
-        mLastException = lastException;
-    }
-
     final String getConnectionResult() {
         return mConnectionResult;
+    }
+
+    final MPDServerException getLastException() {
+        return mLastException;
     }
 
     final List<String> getResult() {
@@ -61,6 +57,10 @@ class CommandResult {
 
     final void setConnectionResult(final String result) {
         mConnectionResult = result;
+    }
+
+    final void setLastException(final MPDServerException lastException) {
+        mLastException = lastException;
     }
 
     final void setResult(final List<String> result) {

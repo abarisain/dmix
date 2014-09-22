@@ -56,6 +56,9 @@ public final class MPDroidService extends Service implements
         MPDAsyncHelper.NetworkMonitorListener,
         StatusChangeListener {
 
+    /** Enable this to get various DEBUG messages from this module. */
+    static final boolean DEBUG = false;
+
     /** This is the class unique Binder identifier. */
     static final int LOCAL_UID = 200;
 
@@ -79,9 +82,6 @@ public final class MPDroidService extends Service implements
 
     /** The {@code MPDAsyncHelper} for this service. */
     static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
-
-    /** Enable this to get various DEBUG messages from this module. */
-    static final boolean DEBUG = false;
 
     private static final String TAG = "MPDroidService";
 
@@ -112,13 +112,6 @@ public final class MPDroidService extends Service implements
     /** True if audio is focused on this service. */
     private boolean mIsAudioFocusedOnThis = false;
 
-    private NotificationHandler mNotificationHandler = null;
-
-    private RemoteControlClientHandler mRemoteControlClientHandler = null;
-
-    /** The audio stream handler. */
-    private StreamHandler mStreamHandler = null;
-
     /** If the media server is playing, and this is true, notification should show. */
     private boolean mIsNotificationStarted = false;
 
@@ -128,8 +121,15 @@ public final class MPDroidService extends Service implements
     /** If the media server is playing, and this is true, audio streaming will be attempted. */
     private boolean mIsStreamStarted = false;
 
+    private NotificationHandler mNotificationHandler = null;
+
     /** If this flag is true, and stream is started/stopped, notification will continue. */
     private boolean mNotificationOwnsService = false;
+
+    private RemoteControlClientHandler mRemoteControlClientHandler = null;
+
+    /** The audio stream handler. */
+    private StreamHandler mStreamHandler = null;
 
     /** If this flag is true, and stream stops, notification should shut itself down. */
     private boolean mStreamOwnsService = false;

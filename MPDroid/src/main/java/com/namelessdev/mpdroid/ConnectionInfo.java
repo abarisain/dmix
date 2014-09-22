@@ -66,13 +66,13 @@ public class ConnectionInfo implements Parcelable {
 
     public final boolean serverInfoChanged;
 
-    public final boolean streamingServerInfoChanged;
+    public final int streamPort;
 
     public final String streamServer;
 
-    public final int streamPort;
-
     public final String streamSuffix;
+
+    public final boolean streamingServerInfoChanged;
 
     public final boolean wasNotificationPersistent;
 
@@ -168,9 +168,11 @@ public class ConnectionInfo implements Parcelable {
 
     public static class Builder {
 
+        private final String mPassword;
+
         private final int mPort;
 
-        private final String mPassword;
+        private boolean mNotificationPersistent;
 
         private boolean mPersistentRunFirst = false;
 
@@ -178,19 +180,17 @@ public class ConnectionInfo implements Parcelable {
 
         private String mServer = null;
 
-        private String mStreamServer = null;
+        private boolean mServerInfoChanged;
 
         private int mStreamPort;
 
+        private String mStreamServer = null;
+
         private String mStreamSuffix;
-
-        private boolean mNotificationPersistent;
-
-        private boolean mWasNotificationPersistent;
 
         private boolean mStreamingServerInfoChanged;
 
-        private boolean mServerInfoChanged;
+        private boolean mWasNotificationPersistent;
 
         public Builder(final String server, final int port, final String password) {
             super();
@@ -200,49 +200,21 @@ public class ConnectionInfo implements Parcelable {
             mPassword = password;
         }
 
-        public final void setPersistentNotification(final boolean isPersistent) {
-            mPersistentRunFirst = true;
-
-            mNotificationPersistent = isPersistent;
-        }
-
         /**
-         * Logically compares the previous {@code ConnectionInfo} object
-         * for changes and changes in the current object.
+         * Builds the {@code ConnectionInfo} after the builder methods are run.
          *
-         * @param connectionInfo The previous {@code ConnectionInfo} object.
-         * @throws IllegalStateException If {@code setPersistentNotification()} and
-         *                               {@code setStreamServer()} are not run prior to this
-         *                               method.
+         * @return The {@code ConnectionInfo} object.
+         * @throws IllegalStateException If {@code setPreviousConnectionInfo()} is not run.
          */
-        public final void setPreviousConnectionInfo(final ConnectionInfo connectionInfo) {
-            if (!mPersistentRunFirst || mStreamServer == null) {
-                throw new IllegalStateException("setPersistentNotification() && setStreamServer()" +
-                        "must be" + " run prior to setPersistentConnectionInfo()");
+        public final ConnectionInfo build() {
+            if (!mPreviousRunFirst) {
+                throw new IllegalStateException("setPreviousConnectionInfo() must be run prior to" +
+                        " build()");
             }
-            mPreviousRunFirst = true;
 
-            if (connectionInfo == null) {
-                mWasNotificationPersistent = false;
-                mServerInfoChanged = true;
-                mStreamingServerInfoChanged = true;
-            } else {
-                mWasNotificationPersistent = connectionInfo.isNotificationPersistent;
-
-                mServerInfoChanged = hasServerChanged(connectionInfo);
-                mStreamingServerInfoChanged = hasStreamingServerChanged(connectionInfo);
-            }
-        }
-
-        public final void setStreamingServer(final String server, final int port,
-                final String suffix) {
-            if (server == null || server.isEmpty()) {
-                mStreamServer = mServer;
-            } else {
-                mStreamServer = server;
-            }
-            mStreamPort = port;
-            mStreamSuffix = suffix;
+            return new ConnectionInfo(mServer, mPort, mPassword,
+                    mStreamServer, mStreamPort, mStreamSuffix, mNotificationPersistent,
+                    mWasNotificationPersistent, mServerInfoChanged, mStreamingServerInfoChanged);
         }
 
         /**
@@ -300,21 +272,49 @@ public class ConnectionInfo implements Parcelable {
             return result;
         }
 
-        /**
-         * Builds the {@code ConnectionInfo} after the builder methods are run.
-         *
-         * @return The {@code ConnectionInfo} object.
-         * @throws IllegalStateException If {@code setPreviousConnectionInfo()} is not run.
-         */
-        public final ConnectionInfo build() {
-            if (!mPreviousRunFirst) {
-                throw new IllegalStateException("setPreviousConnectionInfo() must be run prior to" +
-                        " build()");
-            }
+        public final void setPersistentNotification(final boolean isPersistent) {
+            mPersistentRunFirst = true;
 
-            return new ConnectionInfo(mServer, mPort, mPassword,
-                    mStreamServer, mStreamPort, mStreamSuffix, mNotificationPersistent,
-                    mWasNotificationPersistent, mServerInfoChanged, mStreamingServerInfoChanged);
+            mNotificationPersistent = isPersistent;
+        }
+
+        /**
+         * Logically compares the previous {@code ConnectionInfo} object
+         * for changes and changes in the current object.
+         *
+         * @param connectionInfo The previous {@code ConnectionInfo} object.
+         * @throws IllegalStateException If {@code setPersistentNotification()} and
+         *                               {@code setStreamServer()} are not run prior to this
+         *                               method.
+         */
+        public final void setPreviousConnectionInfo(final ConnectionInfo connectionInfo) {
+            if (!mPersistentRunFirst || mStreamServer == null) {
+                throw new IllegalStateException("setPersistentNotification() && setStreamServer()" +
+                        "must be" + " run prior to setPersistentConnectionInfo()");
+            }
+            mPreviousRunFirst = true;
+
+            if (connectionInfo == null) {
+                mWasNotificationPersistent = false;
+                mServerInfoChanged = true;
+                mStreamingServerInfoChanged = true;
+            } else {
+                mWasNotificationPersistent = connectionInfo.isNotificationPersistent;
+
+                mServerInfoChanged = hasServerChanged(connectionInfo);
+                mStreamingServerInfoChanged = hasStreamingServerChanged(connectionInfo);
+            }
+        }
+
+        public final void setStreamingServer(final String server, final int port,
+                final String suffix) {
+            if (server == null || server.isEmpty()) {
+                mStreamServer = mServer;
+            } else {
+                mStreamServer = server;
+            }
+            mStreamPort = port;
+            mStreamSuffix = suffix;
         }
     }
 }

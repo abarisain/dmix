@@ -38,14 +38,11 @@ import android.util.Log;
  */
 public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCallback {
 
-    private static final String TAG = "RemoteControlClientService";
-
     private static final boolean DEBUG = MPDroidService.DEBUG;
 
-    private final AudioManager mAudioManager;
+    private static final String TAG = "RemoteControlClientService";
 
-    /** The RemoteControlClient Seekbar handled by the {@code RemoteControlClientSeekBarHandler}. */
-    private RemoteControlSeekBarHandler mSeekBar = null;
+    private final AudioManager mAudioManager;
 
     /** A flag used to inform the RemoteControlClient that a buffering event is taking place. */
     private boolean mIsMediaPlayerBuffering = false;
@@ -56,13 +53,16 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
      */
     private ComponentName mMediaButtonReceiverComponent = null;
 
-    private RemoteControlClient mRemoteControlClient = null;
-
     /**
      * This is kept up to date and used when the state didn't change
      * but the remote control client needs the current state.
      */
     private int mPlaybackState = -1;
+
+    private RemoteControlClient mRemoteControlClient = null;
+
+    /** The RemoteControlClient Seekbar handled by the {@code RemoteControlClientSeekBarHandler}. */
+    private RemoteControlSeekBarHandler mSeekBar = null;
 
     RemoteControlClientHandler(final MPDroidService serviceContext) {
         super();
@@ -139,31 +139,6 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                 .apply();
     }
 
-    final void start() {
-        mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
-        mAudioManager.registerRemoteControlClient(mRemoteControlClient);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mSeekBar.start();
-        }
-    }
-
-    /** Cleans up this object prior to closing the parent. */
-    final void stop() {
-        if (mRemoteControlClient != null) {
-            setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-            mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
-        }
-
-        if (mMediaButtonReceiverComponent != null) {
-            mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mSeekBar.stop();
-        }
-    }
-
     /**
      * This updates the current remote control client state and will override any other state.
      *
@@ -191,6 +166,15 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
         }
     }
 
+    final void start() {
+        mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+        mAudioManager.registerRemoteControlClient(mRemoteControlClient);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mSeekBar.start();
+        }
+    }
+
     /**
      * Used to keep the state updated.
      *
@@ -201,6 +185,22 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
             mSeekBar.updateSeekTime(mpdStatus.getElapsedTime());
         }
         getRemoteState(mpdStatus.getState());
+    }
+
+    /** Cleans up this object prior to closing the parent. */
+    final void stop() {
+        if (mRemoteControlClient != null) {
+            setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
+            mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
+        }
+
+        if (mMediaButtonReceiverComponent != null) {
+            mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mSeekBar.stop();
+        }
     }
 
     /**

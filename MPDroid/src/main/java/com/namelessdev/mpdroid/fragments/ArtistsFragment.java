@@ -21,11 +21,11 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -34,9 +34,10 @@ import android.view.View;
 import android.widget.AdapterView;
 
 public class ArtistsFragment extends BrowseFragment {
-    private Genre genre = null;
 
     private static final String TAG = "ArtistsFragment";
+
+    private Genre genre = null;
 
     public ArtistsFragment() {
         super(R.string.addArtist, R.string.artistAdded, MPDCommand.MPD_SEARCH_ARTIST);

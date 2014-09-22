@@ -16,16 +16,16 @@
 
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.view.View;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Music;
+
+import android.content.Context;
+import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
 
     /**
      * Join not empty strings
-     * 
+     *
      * @param parts : parts to join
      * @return the formatted result
      */

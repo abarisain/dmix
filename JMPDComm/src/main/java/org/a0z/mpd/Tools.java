@@ -66,29 +66,36 @@ public final class Tools {
 
     public static String getExtension(final String path) {
         final int index = path.lastIndexOf('.');
-        final int extLength = path.length() - index-1;
+        final int extLength = path.length() - index - 1;
         final int extensionShort = 2;
         final int extensionLong = 4;
         String result = null;
 
-        if(extLength >= extensionShort && extLength <= extensionLong) {
-            result = path.substring(index+1);
+        if (extLength >= extensionShort && extLength <= extensionLong) {
+            result = path.substring(index + 1);
         }
 
         return result;
     }
 
-    public static boolean isNotEqual(final int[][] arrays) {
-        boolean result = false;
-
-        for(final int[] array : arrays) {
-            if (array[0] != array[1]) {
-                result = true;
-                break;
-            }
+    /**
+     * Gets the hash value from the specified string.
+     *
+     * @param value Target string value to get hash from.
+     * @return the hash from string.
+     */
+    public static final String getHashFromString(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
         }
 
-        return result;
+        try {
+            MessageDigest hashEngine = MessageDigest.getInstance("MD5");
+            hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
+            return convertToHex(hashEngine.digest());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -138,24 +145,17 @@ public final class Tools {
         return !isEqual;
     }
 
-    /**
-     * Gets the hash value from the specified string.
-     *
-     * @param value Target string value to get hash from.
-     * @return the hash from string.
-     */
-    public static final String getHashFromString(String value) {
-        if (value == null || value.isEmpty()) {
-            return null;
+    public static boolean isNotEqual(final int[][] arrays) {
+        boolean result = false;
+
+        for (final int[] array : arrays) {
+            if (array[0] != array[1]) {
+                result = true;
+                break;
+            }
         }
 
-        try {
-            MessageDigest hashEngine = MessageDigest.getInstance("MD5");
-            hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
-            return convertToHex(hashEngine.digest());
-        } catch (Exception e) {
-            return null;
-        }
+        return result;
     }
 
     /**
