@@ -410,6 +410,66 @@ public class Music extends Item implements FilesystemTreeEntry {
         return compareResult.intValue();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
+        }
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            final Music music = (Music) o;
+
+            final Object[][] equalsObjects = {
+                    {mAlbum, music.mAlbum},
+                    {mAlbumArtist, music.mAlbumArtist},
+                    {mArtist, music.mArtist},
+                    {mGenre, music.mGenre},
+                    {mName, music.mName},
+                    {mTitle, music.mTitle}
+            };
+
+            final int[][] equalsInt = {
+                    {mDisc, music.mDisc },
+                    {mSongPos, music.mSongPos },
+                    {mTotalTracks, music.mTotalTracks},
+                    {mTrack, music.mTrack}
+            };
+
+            if (mDate != music.mDate || mTime != music.mTime || Tools.isNotEqual(equalsInt)) {
+                isEqual = Boolean.FALSE;
+            }
+
+            if (!mFullPath.equals(music.mFullPath) || Tools.isNotEqual(equalsObjects)) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
+    }
+
+    @Override
+    public int hashCode() {
+        final Object[] objects = {mAlbum, mArtist, mAlbumArtist, mGenre, mName, mTitle};
+
+        int result = 31 * mFullPath.hashCode();
+        result = 31 * result + mDisc;
+        result = 31 * result + (int) (mDate ^ (mDate >>> 32));
+        result = 31 * result + mSongPos;
+        result = 31 * result + (int) (mTime ^ (mTime >>> 32));
+        result = 31 * result + mTotalTracks;
+        result = 31 * result + mTrack;
+
+        return result + Arrays.hashCode(objects);
+    }
+
     /**
      * Retrieves album name.
      *

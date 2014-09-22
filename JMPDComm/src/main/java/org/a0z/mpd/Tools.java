@@ -78,6 +78,39 @@ public final class Tools {
         return result;
     }
 
+    public static boolean isNotEqual(final int[][] arrays) {
+        boolean result = false;
+
+        for(final int[] array : arrays) {
+            if (array[0] != array[1]) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * This method iterates through a 3 dimensional array to check each two element inner array
+     * for equality of it's inner objects with the isNotEqual(object, object) method.
+     *
+     * @param arrays The 3 dimensional array with objects to check for equality.
+     * @return Returns true if an inner array was not equal.
+     */
+    public static boolean isNotEqual(final Object[][] arrays) {
+        boolean result = false;
+
+        for (final Object[] array : arrays) {
+            if (isNotEqual(array[0], array[1])) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Compares inside objects for an Object.equals(object) implementation.
      *
