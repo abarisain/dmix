@@ -69,8 +69,6 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final int EVENT_STOP_STATUS_MONITOR = LOCAL_UID + 8;
 
-    private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
-
     static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
     private static final String TAG = "MPDAsyncWorker";
@@ -119,7 +117,6 @@ public class MPDAsyncWorker implements Handler.Callback,
 
         MPD.setSortByTrackNumber(mPreferences.getBoolean(ALBUM_TRACK_SORT_KEY, true));
         MPD.setSortAlbumsByYear(mPreferences.getBoolean(ALBUM_YEAR_SORT_KEY, false));
-        MPD.setShowAlbumTrackCount(mPreferences.getBoolean(SHOW_ALBUM_TRACK_COUNT_KEY, true));
         MPD.setUnknownArtist(unknownArtist);
         MPD.setUnknownAlbum(unknownAlbum);
     }
@@ -221,9 +218,6 @@ public class MPDAsyncWorker implements Handler.Callback,
                 break;
             case ALBUM_YEAR_SORT_KEY:
                 MPD.setSortAlbumsByYear(sharedPreferences.getBoolean(key, false));
-                break;
-            case SHOW_ALBUM_TRACK_COUNT_KEY:
-                MPD.setShowAlbumTrackCount(sharedPreferences.getBoolean(key, true));
                 break;
             case USE_LOCAL_ALBUM_CACHE_KEY:
                 final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);

@@ -37,6 +37,7 @@ import org.a0z.mpd.item.Item;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -52,13 +53,15 @@ public class AlbumsFragment extends BrowseFragment {
     private static final String EXTRA_GENRE = "genre";
     protected Artist artist = null;
     protected Genre genre = null;
-    protected boolean isCountPossiblyDisplayed;
+    protected boolean isCountDisplayed;
     protected ProgressBar coverArtProgress;
 
     private static final int POPUP_COVER_BLACKLIST = 5;
     private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
     private static final String TAG = "AlbumsFragment";
+
+    private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
 
     public AlbumsFragment() {
         this(null);
@@ -97,7 +100,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         try {
-            items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountPossiblyDisplayed);
+            items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountDisplayed);
             if (genre != null) { // filter albums not in genre
                 for (int i = items.size() - 1; i >= 0; i--) {
                     if (!app.oMPDAsyncHelper.oMPD.albumInGenre((Album) items.get(i), genre)) {
@@ -159,7 +162,6 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     public AlbumsFragment init(Artist artist, Genre genre) {
-        isCountPossiblyDisplayed = true;
         this.artist = artist;
         this.genre = genre;
         return this;
@@ -215,6 +217,14 @@ public class AlbumsFragment extends BrowseFragment {
                 break;
         }
         return result;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        isCountDisplayed = PreferenceManager.getDefaultSharedPreferences(app)
+                .getBoolean(SHOW_ALBUM_TRACK_COUNT_KEY, true);
     }
 
     @Override

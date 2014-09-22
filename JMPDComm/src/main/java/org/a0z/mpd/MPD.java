@@ -75,8 +75,6 @@ public class MPD {
 
     protected static boolean sortAlbumsByYear = false;
 
-    protected static boolean showAlbumTrackCount = true;
-
     private static String sUnknownAlbum = "";
 
     private static String sUnknownArtist = "";
@@ -97,20 +95,12 @@ public class MPD {
         sUnknownAlbum = unknownAlbum;
     }
 
-    public static void setShowAlbumTrackCount(boolean v) {
-        showAlbumTrackCount = v;
-    }
-
     public static void setSortAlbumsByYear(boolean v) {
         sortAlbumsByYear = v;
     }
 
     public static void setSortByTrackNumber(boolean v) {
         sortByTrackNumber = v;
-    }
-
-    public static boolean showAlbumTrackCount() {
-        return showAlbumTrackCount;
     }
 
     public static boolean sortAlbumsByYear() {
@@ -659,7 +649,7 @@ public class MPD {
             }
 
             // after fixing albumartists
-            if (MPD.showAlbumTrackCount() && trackCountNeeded || MPD.sortAlbumsByYear()) {
+            if (trackCountNeeded || MPD.sortAlbumsByYear()) {
                 getAlbumDetails(albums, MPD.sortAlbumsByYear());
             }
             if (!MPD.sortAlbumsByYear()) {

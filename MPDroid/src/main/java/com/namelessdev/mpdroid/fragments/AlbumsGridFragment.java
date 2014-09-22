@@ -48,7 +48,6 @@ public class AlbumsGridFragment extends AlbumsFragment {
 
     public AlbumsGridFragment(Artist artist, Genre genre) {
         super(artist, genre);
-        isCountPossiblyDisplayed = false;
     }
 
     @Override
@@ -79,6 +78,13 @@ public class AlbumsGridFragment extends AlbumsFragment {
         pullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.pullToRefresh);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        isCountDisplayed = false;
     }
 
     /**
