@@ -32,25 +32,37 @@ import org.a0z.mpd.Tools;
 import java.util.Arrays;
 
 public class Stream extends Item {
-    private final String name;
-    protected final String url;
-    private int pos;
 
-    public Stream(String name, String url, int pos) {
-        this.name = name;
-        this.url = url;
-        this.pos = pos;
+    private final String mName;
+
+    private final String mUrl;
+
+    private int mPos;
+
+    public Stream(final String name, final String url, final int pos) {
+        super();
+
+        mName = name;
+        mUrl = url;
+        mPos = pos;
     }
 
     @Override
     public String getName() {
-        return name;
+        return mName;
     }
+
+    public int getPos() {
+        return mPos;
+    }
+
     public String getUrl() {
-        return url;
+        return mUrl;
     }
-    public int getPos() { return pos; }
-    public void setPos(int p) { pos=p; }
+
+    public void setPos(final int pos) {
+        mPos = pos;
+    }
 
     /**
      * Compares an Artist object with a general contract of
@@ -73,11 +85,11 @@ public class Stream extends Item {
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
             final Stream stream = (Stream) o;
 
-            if (Tools.isNotEqual(name, stream.name)) {
+            if (Tools.isNotEqual(mName, stream.mName)) {
                 isEqual = Boolean.FALSE;
             }
 
-            if (Tools.isNotEqual(url, stream.url)) {
+            if (Tools.isNotEqual(mUrl, stream.mUrl)) {
                 isEqual = Boolean.FALSE;
             }
         }
@@ -91,6 +103,6 @@ public class Stream extends Item {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{name, url});
+        return Arrays.hashCode(new Object[]{mName, mUrl});
     }
 }
