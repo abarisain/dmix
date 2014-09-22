@@ -28,6 +28,7 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.Tools;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.item.AlbumParcelable;
@@ -69,8 +70,6 @@ import android.widget.TextView;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener,
         TrackPositionListener,
@@ -826,7 +825,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         if(currentSong != null && isAudioNameTextEnabled &&
                 !status.isState(MPDStatus.STATE_STOPPED)) {
-            final String extension = getExtension(currentSong.getFullpath()).toUpperCase();
+            final String extension = Tools.getExtension(currentSong.getFullpath()).toUpperCase();
             final long bitRate = status.getBitrate();
             final int bitsPerSample = status.getBitsPerSample();
             final int sampleRate = status.getSampleRate();

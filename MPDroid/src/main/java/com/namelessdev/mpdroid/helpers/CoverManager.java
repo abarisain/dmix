@@ -28,7 +28,6 @@ import com.namelessdev.mpdroid.cover.LocalCover;
 import com.namelessdev.mpdroid.cover.MusicBrainzCover;
 import com.namelessdev.mpdroid.cover.SpotifyCover;
 import com.namelessdev.mpdroid.tools.MultiMap;
-import com.namelessdev.mpdroid.tools.StringUtils;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.AlbumInfo;
@@ -175,7 +174,11 @@ public final class CoverManager {
      */
     public static URL buildURLForConnection(final String incomingRequest) {
         URL url = null;
-        String request = StringUtils.trim(incomingRequest);
+        String request = null;
+
+        if (incomingRequest != null) {
+            request = incomingRequest.trim();
+        }
 
         if (isEmpty(request)) {
             return null;

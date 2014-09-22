@@ -16,9 +16,8 @@
 
 package com.namelessdev.mpdroid.models;
 
+import org.a0z.mpd.Tools;
 import org.a0z.mpd.item.Music;
-
-import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
 
 public class PlaylistStream extends AbstractPlaylistMusic {
 
@@ -29,7 +28,9 @@ public class PlaylistStream extends AbstractPlaylistMusic {
     }
 
     public String getPlayListMainLine() {
-        return getName().replace("." + getExtension(getName()), "");
+        final String name = getName();
+
+        return name.replace('.' + Tools.getExtension(name), "");
     }
 
     public String getPlaylistSubLine() {
