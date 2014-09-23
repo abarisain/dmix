@@ -75,6 +75,9 @@ public abstract class MPDConnection {
     /** The {@code ExecutorService} used to process commands. */
     private final ThreadPoolExecutor mExecutor;
 
+    /** The lock for this connection. */
+    private final Object mLock = new Object();
+
     /** The command communication timeout. */
     private final int mReadWriteTimeout;
 
@@ -194,12 +197,14 @@ public abstract class MPDConnection {
      */
     private void innerDisconnect() throws MPDConnectionException {
         mIsConnected = false;
-        if (isInnerConnected()) {
-            try {
-                getSocket().close();
-                setSocket(null);
-            } catch (final IOException e) {
-                throw new MPDConnectionException(e.getMessage(), e);
+        synchronized (mLock) {
+            if (getSocket() != null) {
+                try {
+                    getSocket().close();
+                    setSocket(null);
+                } catch (final IOException e) {
+                    throw new MPDConnectionException(e.getMessage(), e);
+                }
             }
         }
     }
@@ -211,16 +216,6 @@ public abstract class MPDConnection {
      */
     public boolean isConnected() {
         return mIsConnected;
-    }
-
-    /**
-     * A low level connection check for the socket(s). Don't rely on this for actual connection
-     * status. Use {@code isConnected()} for actual connection status.
-     *
-     * @return True if the socket is supposed to be connected, false otherwise.
-     */
-    private boolean isInnerConnected() {
-        return getSocket() != null && getSocket().isConnected() && !getSocket().isClosed();
     }
 
     /**
@@ -361,7 +356,8 @@ public abstract class MPDConnection {
 
             while (result.getResult() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
                 try {
-                    if (!isInnerConnected()) {
+                    if (getSocket() == null || !getSocket().isConnected() ||
+                            getSocket().isClosed()) {
                         result.setConnectionResult(innerConnect());
                     }
 
