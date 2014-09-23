@@ -175,8 +175,14 @@ public class MPD {
      * get raw command String for listAllAlbumsGrouped
      */
     public static MPDCommand listAllAlbumsGroupedCommand(final boolean useAlbumArtist) {
-        final String artistTag = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
-                MPDCommand.MPD_TAG_ARTIST;
+        final String artistTag;
+
+        if (useAlbumArtist) {
+            artistTag = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+        } else {
+            artistTag = MPDCommand.MPD_TAG_ARTIST;
+        }
+
         return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM,
                 MPDCommand.MPD_CMD_GROUP, artistTag);
     }
