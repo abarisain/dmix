@@ -62,13 +62,13 @@ public class AlbumsFragment extends BrowseFragment {
 
     private static final String TAG = "AlbumsFragment";
 
-    protected Artist artist = null;
+    protected Artist mArtist = null;
 
-    protected ProgressBar coverArtProgress;
+    protected ProgressBar mCoverArtProgress;
 
-    protected Genre genre = null;
+    protected Genre mGenre = null;
 
-    protected boolean isCountDisplayed;
+    protected boolean mIsCountDisplayed;
 
     public AlbumsFragment() {
         this(null);
@@ -87,8 +87,8 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void add(Item item, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
-            Tools.notifyUser(irAdded, item);
+            mApp.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
+            Tools.notifyUser(mIrAdded, item);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add.", e);
         }
@@ -97,8 +97,8 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void add(Item item, String playlist) {
         try {
-            app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ((Album) item));
-            Tools.notifyUser(irAdded, item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ((Album) item));
+            Tools.notifyUser(mIrAdded, item);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add.", e);
         }
@@ -107,11 +107,11 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         try {
-            items = app.oMPDAsyncHelper.oMPD.getAlbums(artist, isCountDisplayed);
-            if (genre != null) { // filter albums not in genre
-                for (int i = items.size() - 1; i >= 0; i--) {
-                    if (!app.oMPDAsyncHelper.oMPD.albumInGenre((Album) items.get(i), genre)) {
-                        items.remove(i);
+            mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, mIsCountDisplayed);
+            if (mGenre != null) { // filter albums not in genre
+                for (int i = mItems.size() - 1; i >= 0; i--) {
+                    if (!mApp.oMPDAsyncHelper.oMPD.albumInGenre((Album) mItems.get(i), mGenre)) {
+                        mItems.remove(i);
                     }
                 }
             }
@@ -130,7 +130,7 @@ public class AlbumsFragment extends BrowseFragment {
         final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
                 .getMenuInfo();
 
-        final Album album = (Album) items.get((int) info.id);
+        final Album album = (Album) mItems.get((int) info.id);
         final AlbumInfo albumInfo = album.getAlbumInfo();
 
         if (isWrongCover) {
@@ -147,9 +147,9 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        if (items != null) {
+        if (mItems != null) {
             return new ArrayIndexerAdapter(getActivity(),
-                    new AlbumDataBinder(app.isLightThemeSelected()), items);
+                    new AlbumDataBinder(mApp.isLightThemeSelected()), mItems);
         }
         return super.getCustomListAdapter();
     }
@@ -161,16 +161,16 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        if (artist != null) {
-            return artist.mainText();
+        if (mArtist != null) {
+            return mArtist.mainText();
         } else {
             return getString(R.string.albums);
         }
     }
 
     public AlbumsFragment init(Artist artist, Genre genre) {
-        this.artist = artist;
-        this.genre = genre;
+        this.mArtist = artist;
+        this.mGenre = genre;
         return this;
     }
 
@@ -199,7 +199,7 @@ public class AlbumsFragment extends BrowseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+        mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
         return view;
 
     }
@@ -207,7 +207,7 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new SongsFragment().init((Album) items.get(position)),
+                new SongsFragment().init((Album) mItems.get(position)),
                 "songs");
     }
 
@@ -233,18 +233,18 @@ public class AlbumsFragment extends BrowseFragment {
     public void onResume() {
         super.onResume();
 
-        isCountDisplayed = PreferenceManager.getDefaultSharedPreferences(app)
+        mIsCountDisplayed = PreferenceManager.getDefaultSharedPreferences(mApp)
                 .getBoolean(SHOW_ALBUM_TRACK_COUNT_KEY, true);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (artist != null) {
-            outState.putParcelable(EXTRA_ARTIST, new ArtistParcelable(artist));
+        if (mArtist != null) {
+            outState.putParcelable(EXTRA_ARTIST, new ArtistParcelable(mArtist));
         }
 
-        if (genre != null) {
-            outState.putParcelable(EXTRA_GENRE, new GenreParcelable(genre));
+        if (mGenre != null) {
+            outState.putParcelable(EXTRA_GENRE, new GenreParcelable(mGenre));
         }
         super.onSaveInstanceState(outState);
     }
@@ -252,9 +252,9 @@ public class AlbumsFragment extends BrowseFragment {
     private void refreshCover(View view, AlbumInfo album) {
         if (view.getTag() instanceof AlbumViewHolder) {
             AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
-            if (albumViewHolder.albumCover
+            if (albumViewHolder.mAlbumCover
                     .getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
-                CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.albumCover
+                CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.mAlbumCover
                         .getTag(R.id.CoverAsyncHelper);
                 coverAsyncHelper.downloadCover(album, true);
             }

@@ -542,7 +542,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return full path name.
      */
     @Override
-    public String getFullpath() {
+    public String getFullPath() {
         return mFullPath;
     }
 

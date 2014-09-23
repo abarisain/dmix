@@ -40,7 +40,7 @@ import java.util.List;
 
 public class AlbumDataBinder extends BaseDataBinder {
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
     public AlbumDataBinder(boolean isLightTheme) {
         super(isLightTheme);
@@ -50,10 +50,10 @@ public class AlbumDataBinder extends BaseDataBinder {
     public AbstractViewHolder findInnerViews(View targetView) {
         // look up all references to inner views
         AlbumViewHolder viewHolder = new AlbumViewHolder();
-        viewHolder.albumName = (TextView) targetView.findViewById(R.id.album_name);
-        viewHolder.albumInfo = (TextView) targetView.findViewById(R.id.album_info);
-        viewHolder.albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
-        viewHolder.coverArtProgress = (ProgressBar) targetView
+        viewHolder.mAlbumName = (TextView) targetView.findViewById(R.id.album_name);
+        viewHolder.mAlbumInfo = (TextView) targetView.findViewById(R.id.album_info);
+        viewHolder.mAlbumCover = (ImageView) targetView.findViewById(R.id.albumCover);
+        viewHolder.mCoverArtProgress = (ProgressBar) targetView
                 .findViewById(R.id.albumCoverProgress);
         return viewHolder;
     }
@@ -93,23 +93,23 @@ public class AlbumDataBinder extends BaseDataBinder {
                             : R.string.tracksInfoHeader),
                     songCount, Music.timeToString(album.getDuration()));
         }
-        holder.albumName.setText(album.mainText());
+        holder.mAlbumName.setText(album.mainText());
         if (info != null && info.length() > 0) {
-            holder.albumInfo.setVisibility(View.VISIBLE);
-            holder.albumInfo.setText(info);
+            holder.mAlbumInfo.setVisibility(View.VISIBLE);
+            holder.mAlbumInfo.setText(info);
         } else {
-            holder.albumInfo.setVisibility(View.GONE);
+            holder.mAlbumInfo.setVisibility(View.GONE);
         }
 
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
         if (artist == null || album.isUnknown()) { // full albums list or
             // unknown album
-            holder.albumCover.setVisibility(View.GONE);
+            holder.mAlbumCover.setVisibility(View.GONE);
         } else {
-            holder.albumCover.setVisibility(View.VISIBLE);
+            holder.mAlbumCover.setVisibility(View.VISIBLE);
             final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
-            final int height = holder.albumCover.getHeight();
+            final int height = holder.mAlbumCover.getHeight();
             // If the list is not displayed yet, the height is 0. This is a
             // problem, so set a fallback one.
             coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
@@ -117,19 +117,19 @@ public class AlbumDataBinder extends BaseDataBinder {
             loadPlaceholder(coverHelper);
 
             // display cover art in album listing if caching is on
-            if (album.getAlbumInfo().isValid() && enableCache) {
+            if (album.getAlbumInfo().isValid() && mEnableCache) {
                 // listen for new artwork to be loaded
                 final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(
-                        holder.albumCover, holder.coverArtProgress, false);
+                        holder.mAlbumCover, holder.mCoverArtProgress, false);
                 final AlbumCoverDownloadListener oldAcd
-                        = (AlbumCoverDownloadListener) holder.albumCover
+                        = (AlbumCoverDownloadListener) holder.mAlbumCover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {
                     oldAcd.detach();
                 }
 
-                holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-                holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
+                holder.mAlbumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+                holder.mAlbumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
                 coverHelper.addCoverDownloadListener(acd);
                 loadArtwork(coverHelper, album.getAlbumInfo());
             }
@@ -139,7 +139,7 @@ public class AlbumDataBinder extends BaseDataBinder {
     @Override
     public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
         targetView.findViewById(R.id.albumCover).setVisibility(
-                enableCache ? View.VISIBLE : View.GONE);
+                mEnableCache ? View.VISIBLE : View.GONE);
         return targetView;
     }
 }

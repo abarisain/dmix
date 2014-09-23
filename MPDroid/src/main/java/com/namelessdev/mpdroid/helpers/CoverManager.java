@@ -708,8 +708,8 @@ public final class CoverManager {
                     mCoverRetrievers[i] = new LocalCover();
                     break;
                 case GRACENOTE:
-                    if (GracenoteCover.isClientIdAvailable(mSettings)) {
-                        mCoverRetrievers[i] = new GracenoteCover(mSettings);
+                    if (GracenoteCover.isClientIdAvailable()) {
+                        mCoverRetrievers[i] = new GracenoteCover();
                     }
                     break;
                 case DEEZER:

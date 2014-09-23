@@ -36,26 +36,26 @@ public class StreamFetcher {
 
     private static final String TAG = "StreamFetcher";
 
-    private List<String> handlers = new LinkedList<String>();
+    private List<String> mHandlers = new LinkedList<String>();
 
     StreamFetcher() {
-        handlers.add("http");
-        handlers.add("mms");
-        handlers.add("mmsh");
-        handlers.add("mmst");
-        handlers.add("mmsu");
-        handlers.add("rtp");
-        handlers.add("rtsp");
-        handlers.add("rtmp");
-        handlers.add("rtmpt");
-        handlers.add("rtmpts");
+        mHandlers.add("http");
+        mHandlers.add("mms");
+        mHandlers.add("mmsh");
+        mHandlers.add("mmst");
+        mHandlers.add("mmsu");
+        mHandlers.add("rtp");
+        mHandlers.add("rtsp");
+        mHandlers.add("rtmp");
+        mHandlers.add("rtmpt");
+        mHandlers.add("rtmpts");
     }
 
     public static StreamFetcher instance() {
-        return LazyHolder.instance;
+        return LazyHolder.INSTANCE;
     }
 
-    static private String parse(String data, List<String> handlers) {
+    private static String parse(String data, List<String> handlers) {
         String start = data.substring(0, data.length() < 10 ? data.length() : 10).toLowerCase();
         if (data.length() > 10 && start.startsWith("[playlist]")) {
             return parsePlaylist(data, "file", handlers);
@@ -175,7 +175,7 @@ public class StreamFetcher {
             if (read < buffer.length) {
                 buffer[read] = '\0';
             }
-            return parse(new String(buffer), handlers);
+            return parse(new String(buffer), mHandlers);
         } catch (final IOException e) {
             Log.e(TAG, "Failed to check and parse an incoming playlist.", e);
         } finally {
@@ -205,6 +205,6 @@ public class StreamFetcher {
 
     private static class LazyHolder {
 
-        private static final StreamFetcher instance = new StreamFetcher();
+        private static final StreamFetcher INSTANCE = new StreamFetcher();
     }
 }

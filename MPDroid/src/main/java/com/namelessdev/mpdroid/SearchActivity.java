@@ -73,67 +73,67 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     private static final String TAG = "SearchActivity";
 
-    protected int iJobID = -1;
+    protected int mJobID = -1;
 
-    protected View loadingView;
+    protected View mLoadingView;
 
-    protected View noResultAlbumsView;
+    protected View mNoResultAlbumsView;
 
-    protected View noResultArtistsView;
+    protected View mNoResultArtistsView;
 
-    protected View noResultSongsView;
+    protected View mNoResultSongsView;
 
-    protected ViewPager pager;
+    protected ViewPager mPager;
 
-    private int addString, addedString;
+    private int mAddString, mAddedString;
 
-    private ArrayList<Album> arrayAlbumsResults;
+    private ArrayList<Album> mAlbumResults;
 
-    private ArrayList<Artist> arrayArtistsResults;
+    private ArrayList<Artist> mArtistResults;
 
-    private ArrayList<Music> arraySongsResults;
+    private ListView mListAlbums = null;
 
-    private ListView listAlbums = null;
+    private View mListAlbumsFrame = null;
 
-    private View listAlbumsFrame = null;
+    private ListView mListArtists = null;
 
-    private ListView listArtists = null;
+    private View mListArtistsFrame = null;
 
-    private View listArtistsFrame = null;
+    private ListView mListSongs = null;
 
-    private ListView listSongs = null;
+    private View mListSongsFrame = null;
 
-    private View listSongsFrame = null;
+    private String mSearchKeywords = "";
 
-    private String searchKeywords = "";
+    private ArrayList<Music> mSongResults;
 
-    private Tab tabAlbums;
+    private Tab mTabAlbums;
 
-    private Tab tabArtists;
+    private Tab mTabArtists;
 
-    private Tab tabSongs;
+    private Tab mTabSongs;
 
     public SearchActivity() {
-        addString = R.string.addSong;
-        addedString = R.string.songAdded;
-        arrayArtistsResults = new ArrayList<Artist>();
-        arrayAlbumsResults = new ArrayList<Album>();
-        arraySongsResults = new ArrayList<Music>();
+        mAddString = R.string.addSong;
+        mAddedString = R.string.songAdded;
+        mArtistResults = new ArrayList<Artist>();
+        mAlbumResults = new ArrayList<Album>();
+        mSongResults = new ArrayList<Music>();
     }
 
     protected void add(Artist artist, Album album, boolean replace, boolean play) {
         try {
             String note;
             if (artist == null) {
-                app.oMPDAsyncHelper.oMPD.add(album, replace, play);
+                mApp.oMPDAsyncHelper.oMPD.add(album, replace, play);
                 note = album.getArtist().getName() + " - " + album.getName();
             } else if (album == null) {
-                app.oMPDAsyncHelper.oMPD.add(artist, replace, play);
+                mApp.oMPDAsyncHelper.oMPD.add(artist, replace, play);
                 note = artist.getName();
             } else {
                 return;
             }
-            Tools.notifyUser(addedString, note);
+            Tools.notifyUser(mAddedString, note);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add.", e);
         }
@@ -141,7 +141,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     protected void add(Music music, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add(music, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
             Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -161,18 +161,18 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void asyncExecSucceeded(int jobID) {
-        if (iJobID == jobID) {
+        if (mJobID == jobID) {
             updateFromItems();
         }
     }
 
     protected void asyncUpdate() {
-        final String finalsearch = this.searchKeywords.toLowerCase();
+        final String finalsearch = this.mSearchKeywords.toLowerCase();
 
         ArrayList<Music> arrayMusic = null;
 
         try {
-            arrayMusic = (ArrayList<Music>) app.oMPDAsyncHelper.oMPD.search("any", finalsearch);
+            arrayMusic = (ArrayList<Music>) mApp.oMPDAsyncHelper.oMPD.search("any", finalsearch);
         } catch (final MPDServerException e) {
             Log.e(TAG, "MPD search failure.", e);
 
@@ -182,15 +182,15 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             return;
         }
 
-        arrayArtistsResults.clear();
-        arrayAlbumsResults.clear();
-        arraySongsResults.clear();
+        mArtistResults.clear();
+        mAlbumResults.clear();
+        mSongResults.clear();
 
         String tmpValue;
         boolean valueFound;
         for (Music music : arrayMusic) {
             if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalsearch)) {
-                arraySongsResults.add(music);
+                mSongResults.add(music);
             }
             valueFound = false;
             Artist artist = music.getAlbumArtistAsArtist();
@@ -200,13 +200,13 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             if (artist != null) {
                 tmpValue = artist.getName().toLowerCase();
                 if (tmpValue.contains(finalsearch)) {
-                    for (Artist artistItem : arrayArtistsResults) {
+                    for (Artist artistItem : mArtistResults) {
                         if (artistItem.getName().equalsIgnoreCase(tmpValue)) {
                             valueFound = true;
                         }
                     }
                     if (!valueFound) {
-                        arrayArtistsResults.add(artist);
+                        mArtistResults.add(artist);
                     }
                 }
             }
@@ -215,30 +215,30 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             if (album != null && album.getName() != null) {
                 tmpValue = album.getName().toLowerCase();
                 if (tmpValue.contains(finalsearch)) {
-                    for (Album albumItem : arrayAlbumsResults) {
+                    for (Album albumItem : mAlbumResults) {
                         if (albumItem.getName().equalsIgnoreCase(tmpValue)) {
                             valueFound = true;
                         }
                     }
                     if (!valueFound) {
-                        arrayAlbumsResults.add(album);
+                        mAlbumResults.add(album);
                     }
                 }
             }
         }
 
-        Collections.sort(arrayArtistsResults);
-        Collections.sort(arrayAlbumsResults);
-        Collections.sort(arraySongsResults);
+        Collections.sort(mArtistResults);
+        Collections.sort(mAlbumResults);
+        Collections.sort(mSongResults);
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tabArtists.setText(getString(R.string.artists) + " (" + arrayArtistsResults.size()
+                mTabArtists.setText(getString(R.string.artists) + " (" + mArtistResults.size()
                         + ")");
-                tabAlbums.setText(getString(R.string.albums) + " (" + arrayAlbumsResults.size()
+                mTabAlbums.setText(getString(R.string.albums) + " (" + mAlbumResults.size()
                         + ")");
-                tabSongs.setText(getString(R.string.songs) + " (" + arraySongsResults.size() + ")");
+                mTabSongs.setText(getString(R.string.songs) + " (" + mSongResults.size() + ")");
             }
         });
     }
@@ -250,9 +250,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         setContentView(R.layout.search_results);
 
         SearchResultsPagerAdapter adapter = new SearchResultsPagerAdapter();
-        pager = (ViewPager) findViewById(R.id.pager);
-        pager.setAdapter(adapter);
-        pager.setOnPageChangeListener(
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setAdapter(adapter);
+        mPager.setOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(int position) {
@@ -265,56 +265,56 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        tabArtists = actionBar.newTab()
+        mTabArtists = actionBar.newTab()
                 .setText(R.string.artists)
                 .setTabListener(this);
-        actionBar.addTab(tabArtists);
+        actionBar.addTab(mTabArtists);
 
-        tabAlbums = actionBar.newTab()
+        mTabAlbums = actionBar.newTab()
                 .setText(R.string.albums)
                 .setTabListener(this);
-        actionBar.addTab(tabAlbums);
+        actionBar.addTab(mTabAlbums);
 
-        tabSongs = actionBar.newTab()
+        mTabSongs = actionBar.newTab()
                 .setText(R.string.songs)
                 .setTabListener(this);
-        actionBar.addTab(tabSongs);
+        actionBar.addTab(mTabSongs);
 
-        listArtistsFrame = findViewById(R.id.list_artists_frame);
-        noResultArtistsView = listArtistsFrame.findViewById(R.id.no_artist_result);
-        listArtists = (ListView) listArtistsFrame.findViewById(android.R.id.list);
-        listArtists.setOnItemClickListener(this);
+        mListArtistsFrame = findViewById(R.id.list_artists_frame);
+        mNoResultArtistsView = mListArtistsFrame.findViewById(R.id.no_artist_result);
+        mListArtists = (ListView) mListArtistsFrame.findViewById(android.R.id.list);
+        mListArtists.setOnItemClickListener(this);
 
-        listAlbumsFrame = findViewById(R.id.list_albums_frame);
-        noResultAlbumsView = listAlbumsFrame.findViewById(R.id.no_album_result);
-        listAlbums = (ListView) listAlbumsFrame.findViewById(android.R.id.list);
-        listAlbums.setOnItemClickListener(this);
+        mListAlbumsFrame = findViewById(R.id.list_albums_frame);
+        mNoResultAlbumsView = mListAlbumsFrame.findViewById(R.id.no_album_result);
+        mListAlbums = (ListView) mListAlbumsFrame.findViewById(android.R.id.list);
+        mListAlbums.setOnItemClickListener(this);
 
-        listSongsFrame = findViewById(R.id.list_songs_frame);
-        noResultSongsView = listSongsFrame.findViewById(R.id.no_song_result);
-        listSongs = (ListView) listSongsFrame.findViewById(android.R.id.list);
-        listSongs.setOnItemClickListener(this);
+        mListSongsFrame = findViewById(R.id.list_songs_frame);
+        mNoResultSongsView = mListSongsFrame.findViewById(R.id.no_song_result);
+        mListSongs = (ListView) mListSongsFrame.findViewById(android.R.id.list);
+        mListSongs.setOnItemClickListener(this);
 
-        loadingView = findViewById(R.id.loadingLayout);
-        loadingView.setVisibility(View.VISIBLE);
+        mLoadingView = findViewById(R.id.loadingLayout);
+        mLoadingView.setVisibility(View.VISIBLE);
 
         final Intent queryIntent = getIntent();
         final String queryAction = queryIntent.getAction();
 
         if (Intent.ACTION_SEARCH.equals(queryAction)) {
-            searchKeywords = queryIntent.getStringExtra(SearchManager.QUERY).trim();
+            mSearchKeywords = queryIntent.getStringExtra(SearchManager.QUERY).trim();
             final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
-            suggestions.saveRecentQuery(searchKeywords, null);
+            suggestions.saveRecentQuery(mSearchKeywords, null);
         } else {
             return; // Bye !
         }
 
-        setTitle(getTitle() + " : " + searchKeywords);
+        setTitle(getTitle() + " : " + mSearchKeywords);
 
-        registerForContextMenu(listArtists);
-        registerForContextMenu(listAlbums);
-        registerForContextMenu(listSongs);
+        registerForContextMenu(mListArtists);
+        registerForContextMenu(mListAlbums);
+        registerForContextMenu(mListSongs);
 
         updateList();
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -326,26 +326,26 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         super.onCreateContextMenu(menu, v, menuInfo);
 
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        final MenuItem addItem = menu.add(Menu.NONE, ADD, 0, getString(addString));
+        final MenuItem addItem = menu.add(Menu.NONE, ADD, 0, getString(mAddString));
         final MenuItem addAndReplaceItem = menu.add(Menu.NONE, ADD_REPLACE, 0,
                 R.string.addAndReplace);
         final MenuItem addReplacePlayItem = menu.add(Menu.NONE, ADD_REPLACE_PLAY,
                 0, R.string.addAndReplacePlay);
         final MenuItem addAndPlayItem = menu.add(Menu.NONE, ADD_PLAY, 0, R.string.addAndPlay);
 
-        switch (pager.getCurrentItem()) {
+        switch (mPager.getCurrentItem()) {
             case 0:
-                final Artist artist = arrayArtistsResults.get((int) info.id);
+                final Artist artist = mArtistResults.get((int) info.id);
                 menu.setHeaderTitle(artist.mainText());
                 setContextForObject(artist);
                 break;
             case 1:
-                final Album album = arrayAlbumsResults.get((int) info.id);
+                final Album album = mAlbumResults.get((int) info.id);
                 menu.setHeaderTitle(album.mainText());
                 setContextForObject(album);
                 break;
             case 2:
-                final Music music = arraySongsResults.get((int) info.id);
+                final Music music = mSongResults.get((int) info.id);
                 menu.setHeaderTitle(music.mainText());
                 setContextForObject(music);
                 break;
@@ -368,7 +368,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void onDestroy() {
-        app.oMPDAsyncHelper.removeAsyncExecListener(this);
+        mApp.oMPDAsyncHelper.removeAsyncExecListener(this);
         super.onDestroy();
     }
 
@@ -393,20 +393,20 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     public boolean onMenuItemClick(final android.view.MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         ArrayList<?> targetArray;
-        switch (pager.getCurrentItem()) {
+        switch (mPager.getCurrentItem()) {
             default:
             case 0:
-                targetArray = arrayArtistsResults;
+                targetArray = mArtistResults;
                 break;
             case 1:
-                targetArray = arrayAlbumsResults;
+                targetArray = mAlbumResults;
                 break;
             case 2:
-                targetArray = arraySongsResults;
+                targetArray = mSongResults;
                 break;
         }
         final Object selectedItem = targetArray.get((int) info.id);
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
                 boolean replace = false;
@@ -447,13 +447,13 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public void onStart() {
         super.onStart();
-        app.setActivity(this);
+        mApp.setActivity(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        app.unsetActivity(this);
+        mApp.unsetActivity(this);
     }
 
     /**
@@ -466,7 +466,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void onTabSelected(Tab tab, FragmentTransaction ft) {
-        pager.setCurrentItem(tab.getPosition());
+        mPager.setCurrentItem(tab.getPosition());
     }
 
     @Override
@@ -475,14 +475,14 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     private void setContextForObject(Object object) {
         if (object instanceof Music) {
-            addString = R.string.addSong;
-            addedString = R.string.songAdded;
+            mAddString = R.string.addSong;
+            mAddedString = R.string.songAdded;
         } else if (object instanceof Artist) {
-            addString = R.string.addArtist;
-            addedString = R.string.artistAdded;
+            mAddString = R.string.addArtist;
+            mAddedString = R.string.artistAdded;
         } else if (object instanceof Album) {
-            addString = R.string.addAlbum;
-            addedString = R.string.albumAdded;
+            mAddString = R.string.addAlbum;
+            mAddedString = R.string.albumAdded;
         }
     }
 
@@ -490,38 +490,38 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
      * Update the view from the items list if items is set.
      */
     public void updateFromItems() {
-        if (arrayArtistsResults != null) {
-            listArtists.setAdapter(new SeparatedListAdapter(this,
+        if (mArtistResults != null) {
+            mListArtists.setAdapter(new SeparatedListAdapter(this,
                     R.layout.search_list_item,
                     new SearchResultDataBinder(),
-                    arrayArtistsResults));
+                    mArtistResults));
             try {
-                listArtists.setEmptyView(noResultArtistsView);
-                loadingView.setVisibility(View.GONE);
+                mListArtists.setEmptyView(mNoResultArtistsView);
+                mLoadingView.setVisibility(View.GONE);
             } catch (final Exception e) {
                 Log.e(TAG, "Failed to update artists from items.", e);
             }
         }
-        if (arrayAlbumsResults != null) {
-            listAlbums.setAdapter(new SeparatedListAdapter(this,
+        if (mAlbumResults != null) {
+            mListAlbums.setAdapter(new SeparatedListAdapter(this,
                     R.layout.search_list_item,
                     new SearchResultDataBinder(),
-                    arrayAlbumsResults));
+                    mAlbumResults));
             try {
-                listAlbums.setEmptyView(noResultAlbumsView);
-                loadingView.setVisibility(View.GONE);
+                mListAlbums.setEmptyView(mNoResultAlbumsView);
+                mLoadingView.setVisibility(View.GONE);
             } catch (final Exception e) {
                 Log.e(TAG, "Failed to update albums from items.", e);
             }
         }
-        if (arraySongsResults != null) {
-            listSongs.setAdapter(new SeparatedListAdapter(this,
+        if (mSongResults != null) {
+            mListSongs.setAdapter(new SeparatedListAdapter(this,
                     R.layout.search_list_item,
                     new SearchResultDataBinder(),
-                    arraySongsResults));
+                    mSongResults));
             try {
-                listSongs.setEmptyView(noResultSongsView);
-                loadingView.setVisibility(View.GONE);
+                mListSongs.setEmptyView(mNoResultSongsView);
+                mLoadingView.setVisibility(View.GONE);
             } catch (final Exception e) {
                 Log.e(TAG, "Failed to update songs from items.", e);
             }
@@ -529,8 +529,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     public void updateList() {
-        app.oMPDAsyncHelper.addAsyncExecListener(this);
-        iJobID = app.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.oMPDAsyncHelper.addAsyncExecListener(this);
+        mJobID = mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
                 asyncUpdate();
@@ -556,17 +556,17 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             switch (position) {
                 default:
                 case 0:
-                    v = listArtistsFrame;
+                    v = mListArtistsFrame;
                     break;
                 case 1:
-                    v = listAlbumsFrame;
+                    v = mListAlbumsFrame;
                     break;
                 case 2:
-                    v = listSongsFrame;
+                    v = mListSongsFrame;
                     break;
             }
             if (v.getParent() == null) {
-                pager.addView(v);
+                mPager.addView(v);
             }
             return v;
         }

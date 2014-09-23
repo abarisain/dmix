@@ -34,20 +34,20 @@ import java.util.List;
 
 public abstract class BaseDataBinder implements ArrayDataBinder {
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
-    boolean enableCache = true;
+    boolean mEnableCache = true;
 
-    boolean lightTheme = false;
+    boolean mLightTheme = false;
 
-    boolean onlyDownloadOnWifi = true;
+    boolean mOnlyDownloadOnWifi = true;
 
     public BaseDataBinder(boolean isLightTheme) {
-        this.lightTheme = isLightTheme;
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        this.mLightTheme = isLightTheme;
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
-        enableCache = settings.getBoolean(CoverManager.PREFERENCE_CACHE, true);
-        onlyDownloadOnWifi = settings.getBoolean(CoverManager.PREFERENCE_ONLY_WIFI, false);
+        mEnableCache = settings.getBoolean(CoverManager.PREFERENCE_CACHE, true);
+        mOnlyDownloadOnWifi = settings.getBoolean(CoverManager.PREFERENCE_ONLY_WIFI, false);
     }
 
     @Override

@@ -35,12 +35,12 @@ import java.util.List;
 
 public class AboutActivity extends Activity {
 
-    private static final MPDApplication app = MPDApplication.getInstance();
+    private static final MPDApplication APP = MPDApplication.getInstance();
 
     public static String getVersionName(Class<Activity> cls) {
         try {
-            ComponentName comp = new ComponentName(app, cls);
-            PackageInfo pinfo = app.getPackageManager()
+            ComponentName comp = new ComponentName(APP, cls);
+            PackageInfo pinfo = APP.getPackageManager()
                     .getPackageInfo(comp.getPackageName(), 0);
             return pinfo.versionName + " (" + pinfo.versionCode + ")";
         } catch (final PackageManager.NameNotFoundException ignored) {
@@ -94,15 +94,15 @@ public class AboutActivity extends Activity {
 
     private class AboutListItem {
 
-        private String text;
+        private String mText;
 
-        public AboutListItem(String _text) {
-            text = _text;
+        public AboutListItem(String text) {
+            mText = text;
         }
 
         @Override
         public String toString() {
-            return text;
+            return mText;
         }
     }
 

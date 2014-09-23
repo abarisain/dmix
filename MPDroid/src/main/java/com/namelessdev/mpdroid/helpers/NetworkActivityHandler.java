@@ -55,7 +55,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
     private Intent mIntent;
 
     /** The SharedPreferences from the current context. */
-    private SharedPreferences mPreferences;
+    private SharedPreferences mSettings;
 
     NetworkActivityHandler(final MPDAsyncHelper mpdAsyncHelper) {
         super();
@@ -105,7 +105,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
      */
     private boolean canConnectToLocalhost() {
         final int timeout = 1000; // Should easily take less than a second.
-        final int port = Integer.parseInt(mPreferences.getString("port", "6600"));
+        final int port = Integer.parseInt(mSettings.getString("port", "6600"));
         final InetSocketAddress endPoint = new InetSocketAddress("127.0.0.1", port);
 
         boolean isLocalHostAvailable = false;
@@ -152,7 +152,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
         final String hostPreferenceName =
                 potentialSSID.substring(1, potentialSSID.length() - 1) + "hostname";
 
-        final String hostname = mPreferences.getString(hostPreferenceName, null);
+        final String hostname = mSettings.getString(hostPreferenceName, null);
 
         return isLinkedToHostname(hostname);
     }
@@ -174,7 +174,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
             result = isConnectedToWIFI(bundle);
         } else {
             /** "Default" connection */
-            result = isLinkedToHostname(mPreferences.getString("hostname", null));
+            result = isLinkedToHostname(mSettings.getString("hostname", null));
         }
 
         return result;
@@ -235,7 +235,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
     @Override
     public final void onReceive(final Context context, final Intent intent) {
         if (intent != null && ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-            mPreferences = getPreferences(context);
+            mSettings = getPreferences(context);
             mIntent = intent;
             mMPDAsyncHelper.execAsync(this);
         }

@@ -31,29 +31,29 @@ public class WidgetHelperService extends IntentService {
 
     static final String TAG = "MPDroidWidgetHelperService";
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private boolean playing = false;
+    private boolean mPlaying = false;
 
     public WidgetHelperService() {
         super(TAG);
     }
 
     public boolean isPlaying() {
-        return playing;
+        return mPlaying;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         // get MPD connection
-        app.setActivity(this);
+        mApp.setActivity(this);
 
         // prepare values for runnable
-        final MPD mpd = app.oMPDAsyncHelper.oMPD;
+        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
         final String action = intent.getAction();
 
         // schedule real work
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
                 processIntent(action, mpd);
@@ -61,13 +61,13 @@ public class WidgetHelperService extends IntentService {
         });
 
         // clean up
-        app.unsetActivity(this);
+        mApp.unsetActivity(this);
     }
 
     void processIntent(String action, MPD mpd) {
         switch (action) {
             case CMD_UPDATE_WIDGET:
-                playing = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);
+                mPlaying = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);
                 SimpleWidgetProvider.getInstance().notifyChange(this);
                 break;
             default:

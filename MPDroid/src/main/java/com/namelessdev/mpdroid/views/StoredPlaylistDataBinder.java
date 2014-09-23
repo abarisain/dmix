@@ -38,7 +38,7 @@ import java.util.List;
 
 public class StoredPlaylistDataBinder extends BaseDataBinder {
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
     public StoredPlaylistDataBinder(boolean isLightTheme) {
         super(isLightTheme);
@@ -47,9 +47,9 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
     @Override
     public AbstractViewHolder findInnerViews(View targetView) {
         PlaylistViewHolder viewHolder = new PlaylistViewHolder();
-        viewHolder.name = (TextView) targetView.findViewById(R.id.playlist_name);
-        viewHolder.info = (TextView) targetView.findViewById(R.id.playlist_info);
-        viewHolder.cover = (ImageView) targetView.findViewById(R.id.playlist_cover);
+        viewHolder.mName = (TextView) targetView.findViewById(R.id.playlist_name);
+        viewHolder.mInfo = (TextView) targetView.findViewById(R.id.playlist_info);
+        viewHolder.mCover = (ImageView) targetView.findViewById(R.id.playlist_cover);
         return viewHolder;
     }
 
@@ -89,18 +89,18 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
             }
         }
 
-        holder.name.setText(music.getTitle());
+        holder.mName.setText(music.getTitle());
         if (!Tools.isStringEmptyOrNull(info)) {
-            holder.info.setVisibility(View.VISIBLE);
-            holder.info.setText(info);
+            holder.mInfo.setVisibility(View.VISIBLE);
+            holder.mInfo.setText(info);
         } else {
-            holder.info.setVisibility(View.GONE);
+            holder.mInfo.setVisibility(View.GONE);
         }
 
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
         final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
-        final int height = holder.cover.getHeight();
+        final int height = holder.mCover.getHeight();
         // If the list is not displayed yet, the height is 0. This is a problem,
         // so set a fallback one.
         coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
@@ -108,15 +108,15 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
         loadPlaceholder(coverHelper);
 
         // display cover art in album listing if caching is on
-        if (artist != null && album != null && enableCache) {
+        if (artist != null && album != null && mEnableCache) {
             // listen for new artwork to be loaded
-            final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.cover);
-            final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.cover
+            final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.mCover);
+            final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.mCover
                     .getTag(R.id.AlbumCoverDownloadListener);
             if (oldAcd != null) {
                 oldAcd.detach();
             }
-            holder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
+            holder.mCover.setTag(R.id.AlbumCoverDownloadListener, acd);
             coverHelper.addCoverDownloadListener(acd);
             loadArtwork(coverHelper, music.getAlbumInfo());
         }
@@ -125,7 +125,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
     @Override
     public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
         targetView.findViewById(R.id.playlist_cover).setVisibility(
-                enableCache ? View.VISIBLE : View.GONE);
+                mEnableCache ? View.VISIBLE : View.GONE);
         return targetView;
     }
 }

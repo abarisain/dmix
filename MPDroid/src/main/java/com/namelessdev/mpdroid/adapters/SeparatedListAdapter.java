@@ -44,17 +44,17 @@ public class SeparatedListAdapter extends BaseAdapter {
 
     private static final int TYPE_SEPARATOR = 1;
 
-    private SeparatedListDataBinder binder; // The content -> view 'binding'
+    private SeparatedListDataBinder mBinder; // The content -> view 'binding'
 
-    private Context context;
+    private Context mContext;
 
-    private LayoutInflater inflater;
+    private LayoutInflater mInflater;
 
-    private List<?> items; // Content
+    private List<?> mItems; // Content
 
-    private int separatorLayoutId;
+    private int mSeparatorLayoutId;
 
-    private int viewId = -1; // The view to be displayed
+    private int mViewId = -1; // The view to be displayed
 
     public SeparatedListAdapter(Context context, int viewId, int separatorViewId,
             SeparatedListDataBinder binder,
@@ -73,11 +73,11 @@ public class SeparatedListAdapter extends BaseAdapter {
     }
 
     public int getCount() {
-        return items.size();
+        return mItems.size();
     }
 
     public Object getItem(int position) {
-        return items.get(position);
+        return mItems.get(position);
     }
 
     public long getItemId(int position) {
@@ -86,7 +86,7 @@ public class SeparatedListAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (items.get(position) instanceof String) {
+        if (mItems.get(position) instanceof String) {
             return TYPE_SEPARATOR;
         }
         return TYPE_CONTENT;
@@ -97,17 +97,17 @@ public class SeparatedListAdapter extends BaseAdapter {
 
         if (convertView == null) {
             if (itemType == TYPE_SEPARATOR) {
-                convertView = inflater.inflate(separatorLayoutId, parent, false);
+                convertView = mInflater.inflate(mSeparatorLayoutId, parent, false);
             } else {
-                convertView = inflater.inflate(viewId, parent, false);
+                convertView = mInflater.inflate(mViewId, parent, false);
             }
         }
 
         if (itemType == TYPE_SEPARATOR) {
-            ((TextView) convertView.findViewById(R.id.separator_title)).setText((String) items
+            ((TextView) convertView.findViewById(R.id.separator_title)).setText((String) mItems
                     .get(position));
         } else {
-            binder.onDataBind(context, convertView, items, items.get(position), position);
+            mBinder.onDataBind(mContext, convertView, mItems, mItems.get(position), position);
         }
 
         return convertView;
@@ -120,12 +120,12 @@ public class SeparatedListAdapter extends BaseAdapter {
 
     private void init(Context context, int viewId, int separatorViewId,
             SeparatedListDataBinder binder, List<?> items) {
-        this.viewId = viewId;
-        this.binder = binder;
-        this.items = items;
-        this.context = context;
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        separatorLayoutId = separatorViewId;
+        this.mViewId = viewId;
+        this.mBinder = binder;
+        this.mItems = items;
+        this.mContext = context;
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mSeparatorLayoutId = separatorViewId;
     }
 
     @Override
@@ -133,7 +133,7 @@ public class SeparatedListAdapter extends BaseAdapter {
         if (getItemViewType(position) == TYPE_SEPARATOR) {
             return false;
         }
-        return binder.isEnabled(position, items, getItem(position));
+        return mBinder.isEnabled(position, mItems, getItem(position));
     }
 
 }

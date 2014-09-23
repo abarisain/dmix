@@ -31,11 +31,11 @@ import android.util.Log;
 
 public class ActionFireReceiver extends BroadcastReceiver {
 
+    private static final MPDApplication APP = MPDApplication.getInstance();
+
     private static final boolean DEBUG = false;
 
     private static final String TAG = "MPDroid Locale Plugin";
-
-    private static final MPDApplication sApp = MPDApplication.getInstance();
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
@@ -86,15 +86,15 @@ public class ActionFireReceiver extends BroadcastReceiver {
      */
     private void redirectIntentToService(final boolean forceService, final Intent intent,
             final String action) {
-        intent.setClass(sApp, MPDroidService.class);
+        intent.setClass(APP, MPDroidService.class);
         intent.setAction(action);
-        final IBinder iBinder = peekService(sApp, intent);
+        final IBinder iBinder = peekService(APP, intent);
         if (forceService || iBinder != null && iBinder.isBinderAlive()) {
             if (DEBUG) {
                 Log.d(TAG, "Redirecting action " + action + " to the service.");
             }
 
-            sApp.startService(intent);
+            APP.startService(intent);
         }
     }
 }

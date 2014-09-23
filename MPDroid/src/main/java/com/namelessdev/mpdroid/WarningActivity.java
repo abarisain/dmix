@@ -25,7 +25,7 @@ import android.widget.Button;
 
 public class WarningActivity extends Activity {
 
-    Activity myWarning;
+    Activity mWarning;
 
     @Override
     public void onBackPressed() {
@@ -34,13 +34,13 @@ public class WarningActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        myWarning = this;
+        mWarning = this;
         setContentView(R.layout.warning);
         Button btnOK = (Button) findViewById(R.id.buttonOK);
         btnOK.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View view) {
                 SharedPreferences settings = PreferenceManager
-                        .getDefaultSharedPreferences(myWarning);
+                        .getDefaultSharedPreferences(mWarning);
                 settings.edit().putBoolean("newWarningShown", true).commit();
                 finish();
             }

@@ -29,5 +29,5 @@ package org.a0z.mpd.item;
 
 public interface FilesystemTreeEntry {
 
-    String getFullpath();
+    String getFullPath();
 }

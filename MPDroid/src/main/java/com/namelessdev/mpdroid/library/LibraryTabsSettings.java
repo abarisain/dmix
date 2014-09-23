@@ -37,7 +37,7 @@ import java.util.List;
 
 public class LibraryTabsSettings extends PreferenceActivity {
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
     public DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
 
@@ -45,35 +45,35 @@ public class LibraryTabsSettings extends PreferenceActivity {
             if (from == to) {
                 return;
             }
-            Object item = tabList.get(from);
-            tabList.remove(from);
-            tabList.add(to, item);
+            Object item = mTabList.get(from);
+            mTabList.remove(from);
+            mTabList.add(to, item);
             if (getVisibleTabs().size() == 0) {
                 // at least one tab should be visible so revert the changes
-                tabList.remove(to);
-                tabList.add(from, item);
+                mTabList.remove(to);
+                mTabList.add(from, item);
             } else {
                 saveSettings();
-                adapter.notifyDataSetChanged();
+                mAdapter.notifyDataSetChanged();
             }
         }
     };
 
-    private SeparatedListAdapter adapter;
+    private SeparatedListAdapter mAdapter;
 
-    private ArrayList<Object> tabList;
+    private ArrayList<Object> mTabList;
 
     private ArrayList<String> getVisibleTabs() {
         ArrayList<String> visibleTabs = new ArrayList<String>();
         // item 0 is a separator so we start with 1
-        for (int i = 1; i < tabList.size(); i++) {
+        for (int i = 1; i < mTabList.size(); i++) {
             // if the item is a separator break
-            if (tabList.get(i) instanceof String) {
+            if (mTabList.get(i) instanceof String) {
                 break;
             }
             // if item is a TabItem add it to the list
-            if (tabList.get(i) instanceof TabItem) {
-                visibleTabs.add(((TabItem) tabList.get(i)).text);
+            if (mTabList.get(i) instanceof TabItem) {
+                visibleTabs.add(((TabItem) mTabList.get(i)).mText);
             }
         }
         return visibleTabs;
@@ -124,13 +124,13 @@ public class LibraryTabsSettings extends PreferenceActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        app.setActivity(this);
+        mApp.setActivity(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        app.unsetActivity(this);
+        mApp.unsetActivity(this);
     }
 
     private void refreshTable() {
@@ -150,23 +150,23 @@ public class LibraryTabsSettings extends PreferenceActivity {
             }
         }
 
-        tabList = new ArrayList<Object>();
+        mTabList = new ArrayList<Object>();
         // add a separator
-        tabList.add(getString(R.string.visibleTabs));
+        mTabList.add(getString(R.string.visibleTabs));
         // add all visible tabs
         for (int i = 0; i < currentTabs.size(); i++) {
-            tabList.add(new TabItem(currentTabs.get(i)));
+            mTabList.add(new TabItem(currentTabs.get(i)));
         }
         // add a separator
-        tabList.add(getString(R.string.hiddenTabs));
+        mTabList.add(getString(R.string.hiddenTabs));
         // add all hidden tabs
         for (int i = 0; i < hiddenTabs.size(); i++) {
-            tabList.add(new TabItem(hiddenTabs.get(i)));
+            mTabList.add(new TabItem(hiddenTabs.get(i)));
         }
-        adapter = new SeparatedListAdapter(this,
+        mAdapter = new SeparatedListAdapter(this,
                 R.layout.library_tabs_settings_item, new TabListDataBinder(),
-                tabList);
-        setListAdapter(adapter);
+                mTabList);
+        setListAdapter(mAdapter);
     }
 
     private void saveSettings() {
@@ -176,10 +176,10 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
 class TabItem {
 
-    String text;
+    String mText;
 
     TabItem(String text) {
-        this.text = text;
+        this.mText = text;
     }
 }
 
@@ -191,7 +191,7 @@ class TabListDataBinder implements SeparatedListDataBinder {
 
     public void onDataBind(Context context, View targetView,
             List<?> items, Object item, int position) {
-        ((TextView) targetView).setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).text));
+        ((TextView) targetView).setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).mText));
     }
 
 }

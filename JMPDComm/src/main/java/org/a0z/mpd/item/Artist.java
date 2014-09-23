@@ -35,28 +35,28 @@ import java.util.Locale;
 
 public class Artist extends Item {
 
-    private final String name;
+    private final String mName;
 
-    private final String sort;
+    private final String mSort;
 
-    public Artist(Artist a) {
-        this(a.name, a.sort);
+    public Artist(Artist artist) {
+        this(artist.mName, artist.mSort);
     }
 
     public Artist(String name) {
-        this.name = name;
+        this.mName = name;
         if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
-            sort = name.substring(4);
+            mSort = name.substring(4);
         } else {
-            sort = null;
+            mSort = null;
         }
     }
 
     protected Artist(final String name, final String sort) {
         super();
 
-        this.name = name;
-        this.sort = sort;
+        this.mName = name;
+        this.mSort = sort;
     }
 
     /**
@@ -80,7 +80,7 @@ public class Artist extends Item {
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
             final Artist artist = (Artist) o;
 
-            if (Tools.isNotEqual(name, artist.name) || Tools.isNotEqual(sort, artist.sort)) {
+            if (Tools.isNotEqual(mName, artist.mName) || Tools.isNotEqual(mSort, artist.mSort)) {
                 isEqual = Boolean.FALSE;
             }
         }
@@ -93,7 +93,7 @@ public class Artist extends Item {
     }
 
     public String getName() {
-        return name;
+        return mName;
     }
 
     /**
@@ -106,7 +106,7 @@ public class Artist extends Item {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{name, sort});
+        return Arrays.hashCode(new Object[]{mName, mSort});
     }
 
     /*
@@ -116,10 +116,10 @@ public class Artist extends Item {
     public String mainText() {
         final String result;
 
-        if (name.isEmpty()) {
+        if (mName.isEmpty()) {
             result = MPD.getUnknownArtist();
         } else {
-            result = name;
+            result = mName;
         }
 
         return result;
@@ -131,6 +131,6 @@ public class Artist extends Item {
     }
 
     public String sortText() {
-        return null == sort ? name == null ? "" : super.sortText() : sort;
+        return null == mSort ? mName == null ? "" : super.sortText() : mSort;
     }
 }

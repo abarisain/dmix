@@ -23,13 +23,13 @@ import android.os.Bundle;
 
 public class SettingsActivity extends Activity implements StatusChangeListener {
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private SettingsFragment settingsFragment;
+    private SettingsFragment mSettingsFragment;
 
     @Override
     public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        settingsFragment.onConnectionStateChanged();
+        mSettingsFragment.onConnectionStateChanged();
     }
 
     @Override
@@ -40,28 +40,28 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsFragment = new SettingsFragment();
-        app.oMPDAsyncHelper.addStatusChangeListener(this);
+        mSettingsFragment = new SettingsFragment();
+        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
         getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, settingsFragment).commit();
+                .replace(android.R.id.content, mSettingsFragment).commit();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        app.oMPDAsyncHelper.removeStatusChangeListener(this);
+        mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        app.setActivity(this);
+        mApp.setActivity(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        app.setActivity(this);
+        mApp.setActivity(this);
     }
 
     @Override

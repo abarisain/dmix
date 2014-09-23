@@ -27,7 +27,7 @@ import static android.text.TextUtils.join;
 public class PlaylistSong extends AbstractPlaylistMusic {
 
     public PlaylistSong(Music music) {
-        super(music.getAlbum(), music.getArtist(), music.getAlbumArtist(), music.getFullpath(),
+        super(music.getAlbum(), music.getArtist(), music.getAlbumArtist(), music.getFullPath(),
                 music.getDisc(), music.getDate(), music.getGenre(), music.getTime(),
                 music.getTitle(), music.getTotalTracks(), music.getTrack(), music.getSongId(),
                 music.getPos(), music.getName());

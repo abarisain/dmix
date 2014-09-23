@@ -92,7 +92,7 @@ public class MPDPlaylist {
         final CommandQueue commandQueue = new CommandQueue();
 
         for (final Music music : collection) {
-            commandQueue.add(MPD_CMD_PLAYLIST_ADD, music.getFullpath());
+            commandQueue.add(MPD_CMD_PLAYLIST_ADD, music.getFullPath());
         }
 
         return commandQueue;
@@ -148,7 +148,7 @@ public class MPDPlaylist {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void add(final FilesystemTreeEntry entry) throws MPDServerException {
-        mConnection.sendCommand(addCommand(entry.getFullpath()));
+        mConnection.sendCommand(addCommand(entry.getFullPath()));
     }
 
     /**

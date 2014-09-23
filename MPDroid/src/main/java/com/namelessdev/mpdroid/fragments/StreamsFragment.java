@@ -65,7 +65,7 @@ public class StreamsFragment extends BrowseFragment {
 
     private static final String TAG = "StreamsFragment";
 
-    ArrayList<Stream> streams = new ArrayList<Stream>();
+    ArrayList<Stream> mStreams = new ArrayList<Stream>();
 
     public StreamsFragment() {
         super(R.string.addStream, R.string.streamAdded, null);
@@ -75,10 +75,10 @@ public class StreamsFragment extends BrowseFragment {
     protected void add(Item item, boolean replace, boolean play) {
         try {
             final Stream s = (Stream) item;
-            app.oMPDAsyncHelper.oMPD.addStream(
+            mApp.oMPDAsyncHelper.oMPD.addStream(
                     StreamFetcher.instance().get(s.getUrl(), s.getName()),
                     replace, play);
-            Tools.notifyUser(irAdded, item);
+            Tools.notifyUser(mIrAdded, item);
         } catch (final MPDServerException | MalformedURLException e) {
             Log.e(TAG, "Failed to add stream.", e);
         }
@@ -102,8 +102,8 @@ public class StreamsFragment extends BrowseFragment {
         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
         final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
         final int index = idx;
-        if (index >= 0 && index < streams.size()) {
-            Stream s = streams.get(idx);
+        if (index >= 0 && index < mStreams.size()) {
+            Stream s = mStreams.get(idx);
             if (null != nameEdit) {
                 nameEdit.setText(s.getName());
             }
@@ -124,32 +124,33 @@ public class StreamsFragment extends BrowseFragment {
                                 .trim();
                         String url = null == urlEdit ? null : urlEdit.getText().toString().trim();
                         if (null != name && name.length() > 0 && null != url && url.length() > 0) {
-                            if (index >= 0 && index < streams.size()) {
-                                int removedPos = streams.get(idx).getPos();
+                            if (index >= 0 && index < mStreams.size()) {
+                                int removedPos = mStreams.get(idx).getPos();
                                 try {
-                                    app.oMPDAsyncHelper.oMPD.editSavedStream(url, name, removedPos);
+                                    mApp.oMPDAsyncHelper.oMPD
+                                            .editSavedStream(url, name, removedPos);
                                 } catch (final MPDServerException e) {
                                     Log.e(TAG, "Failed to edit a saved stream.", e);
                                 }
-                                streams.remove(idx);
-                                for (Stream stream : streams) {
+                                mStreams.remove(idx);
+                                for (Stream stream : mStreams) {
                                     if (stream.getPos() > removedPos) {
                                         stream.setPos(stream.getPos() - 1);
                                     }
                                 }
-                                streams.add(new Stream(url, name, streams.size()));
+                                mStreams.add(new Stream(url, name, mStreams.size()));
                             } else {
                                 try {
-                                    app.oMPDAsyncHelper.oMPD.saveStream(url, name);
+                                    mApp.oMPDAsyncHelper.oMPD.saveStream(url, name);
                                 } catch (final MPDServerException e) {
                                     Log.e(TAG, "Failed to save stream.", e);
                                 }
-                                streams.add(new Stream(url, name, streams.size()));
+                                mStreams.add(new Stream(url, name, mStreams.size()));
                             }
-                            Collections.sort(streams);
-                            items = streams;
+                            Collections.sort(mStreams);
+                            mItems = mStreams;
                             if (streamUrlToAdd == null) {
-                                UpdateList();
+                                updateList();
                             } else {
                                 Toast.makeText(getActivity(), R.string.streamSaved,
                                         Toast.LENGTH_SHORT).show();
@@ -189,7 +190,7 @@ public class StreamsFragment extends BrowseFragment {
     private ArrayList<Stream> loadOldStreams() {
         ArrayList<Stream> oldStreams = null;
         try {
-            InputStream in = app.openFileInput(FILE_NAME);
+            InputStream in = mApp.openFileInput(FILE_NAME);
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser xpp = factory.newPullParser();
 
@@ -209,7 +210,7 @@ public class StreamsFragment extends BrowseFragment {
             }
             in.close();
             // Now remove file - all streams will be added to MPD...
-            app.deleteFile(FILE_NAME);
+            mApp.deleteFile(FILE_NAME);
         } catch (final FileNotFoundException ignored) {
         } catch (final Exception e) {
             Log.e(TAG, "Error while loading streams", e);
@@ -218,21 +219,21 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     private void loadStreams() {
-        streams = new ArrayList<Stream>();
+        mStreams = new ArrayList<Stream>();
 
         // Load streams stored in MPD Streams playlist...
         List<Music> mpdStreams = null;
         int iterator = 0;
 
         try {
-            mpdStreams = app.oMPDAsyncHelper.oMPD.getSavedStreams();
+            mpdStreams = mApp.oMPDAsyncHelper.oMPD.getSavedStreams();
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to retrieve saved streams.", e);
         }
 
         if (null != mpdStreams) {
             for (Music stream : mpdStreams) {
-                streams.add(new Stream(stream.getName(), stream.getFullpath(), iterator));
+                mStreams.add(new Stream(stream.getName(), stream.getFullPath(), iterator));
                 iterator++;
             }
         }
@@ -240,28 +241,28 @@ public class StreamsFragment extends BrowseFragment {
         // Load any OLD MPDroid streams, and also save these to MPD...
         ArrayList<Stream> oldStreams = loadOldStreams();
         if (null != oldStreams) {
-            for (Stream stream : streams) {
-                if (!streams.contains(stream)) {
+            for (Stream stream : mStreams) {
+                if (!mStreams.contains(stream)) {
                     try {
-                        app.oMPDAsyncHelper.oMPD.saveStream(stream.getUrl(), stream.getName());
+                        mApp.oMPDAsyncHelper.oMPD.saveStream(stream.getUrl(), stream.getName());
                     } catch (final MPDServerException e) {
                         Log.e(TAG, "Failed to save a stream.", e);
                     }
 
-                    stream.setPos(streams.size());
-                    streams.add(stream);
+                    stream.setPos(mStreams.size());
+                    mStreams.add(stream);
                 }
             }
         }
-        Collections.sort(streams);
-        items = streams;
+        Collections.sort(mStreams);
+        mItems = mStreams;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        registerForContextMenu(list);
-        UpdateList();
+        registerForContextMenu(mList);
+        updateList();
         getActivity().setTitle(R.string.streams);
     }
 
@@ -276,8 +277,8 @@ public class StreamsFragment extends BrowseFragment {
             ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        if (info.id >= 0 && info.id < streams.size()) {
-            Stream s = streams.get((int) info.id);
+        if (info.id >= 0 && info.id < mStreams.size()) {
+            Stream s = mStreams.get((int) info.id);
             android.view.MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0,
                     R.string.editStream);
             editItem.setOnMenuItemClickListener(this);
@@ -315,7 +316,7 @@ public class StreamsFragment extends BrowseFragment {
                 builder.setTitle(R.string.deleteStream);
                 builder.setMessage(
                         getResources().getString(R.string.deleteStreamPrompt,
-                                items.get((int) info.id).getName()));
+                                mItems.get((int) info.id).getName()));
 
                 DeleteDialogClickListener oDialogClickListener = new DeleteDialogClickListener(
                         (int) info.id);
@@ -346,10 +347,10 @@ public class StreamsFragment extends BrowseFragment {
 
     class DeleteDialogClickListener implements OnClickListener {
 
-        private final int itemIndex;
+        private final int mItemIndex;
 
         DeleteDialogClickListener(int itemIndex) {
-            this.itemIndex = itemIndex;
+            this.mItemIndex = itemIndex;
         }
 
         public void onClick(DialogInterface dialog, int which) {
@@ -358,15 +359,16 @@ public class StreamsFragment extends BrowseFragment {
                     break;
                 case AlertDialog.BUTTON_POSITIVE:
                     try {
-                        app.oMPDAsyncHelper.oMPD.removeSavedStream(streams.get(itemIndex).getPos());
+                        mApp.oMPDAsyncHelper.oMPD
+                                .removeSavedStream(mStreams.get(mItemIndex).getPos());
                     } catch (final MPDServerException e) {
                         Log.e(TAG, "Failed to removed a saved stream.", e);
                     }
 
-                    String name = items.get(itemIndex).getName();
+                    String name = mItems.get(mItemIndex).getName();
                     Tools.notifyUser(R.string.streamDeleted, name);
-                    items.remove(itemIndex);
-                    streams.remove(itemIndex);
+                    mItems.remove(mItemIndex);
+                    mStreams.remove(mItemIndex);
                     updateFromItems();
                     break;
             }

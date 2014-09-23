@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
@@ -44,9 +43,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     private static final String TAG = "StoredPlaylistFragment";
 
-    private static MPDApplication app = MPDApplication.getInstance();
-
-    private String playlistName;
+    private String mPlaylistName;
 
     public StoredPlaylistFragment() {
         super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
@@ -57,7 +54,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     protected void add(Item item, boolean replace, boolean play) {
         Music music = (Music) item;
         try {
-            app.oMPDAsyncHelper.oMPD.add(music, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
             if (!play) {
                 Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
             }
@@ -69,8 +66,8 @@ public class StoredPlaylistFragment extends BrowseFragment {
     @Override
     protected void add(Item item, String playlist) {
         try {
-            app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
-            Tools.notifyUser(irAdded, item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
+            Tools.notifyUser(mIrAdded, item);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add.", e);
         }
@@ -82,7 +79,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
             if (getActivity() == null) {
                 return;
             }
-            items = app.oMPDAsyncHelper.oMPD.getPlaylistSongs(playlistName);
+            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylistName);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to update.", e);
         }
@@ -90,9 +87,9 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        if (items != null) {
+        if (mItems != null) {
             return new ArrayAdapter(getActivity(),
-                    new StoredPlaylistDataBinder(app.isLightThemeSelected()), items);
+                    new StoredPlaylistDataBinder(mApp.isLightThemeSelected()), mItems);
         }
         return super.getCustomListAdapter();
     }
@@ -104,11 +101,11 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        return playlistName;
+        return mPlaylistName;
     }
 
     public StoredPlaylistFragment init(String name) {
-        playlistName = name;
+        mPlaylistName = name;
         return this;
     }
 
@@ -137,11 +134,11 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     @Override
     public void onItemClick(final AdapterView<?> adapterView, View v, final int position, long id) {
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
-                add((Item) adapterView.getAdapter().getItem(position), app.isInSimpleMode(),
-                        app.isInSimpleMode());
+                add((Item) adapterView.getAdapter().getItem(position), mApp.isInSimpleMode(),
+                        mApp.isInSimpleMode());
             }
         });
     }
@@ -153,7 +150,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
         switch (item.getItemId()) {
             case R.id.PLM_EditPL:
                 i = new Intent(getActivity(), PlaylistEditActivity.class);
-                i.putExtra("playlist", playlistName);
+                i.putExtra("playlist", mPlaylistName);
                 startActivity(i);
                 return true;
             default:
@@ -164,14 +161,14 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(EXTRA_PLAYLIST_NAME, playlistName);
+        outState.putString(EXTRA_PLAYLIST_NAME, mPlaylistName);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public String toString() {
-        if (playlistName != null) {
-            return playlistName;
+        if (mPlaylistName != null) {
+            return mPlaylistName;
         } else {
             return getString(R.string.playlist);
         }

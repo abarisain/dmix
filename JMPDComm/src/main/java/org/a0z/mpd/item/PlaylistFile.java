@@ -37,28 +37,28 @@ public class PlaylistFile extends Item implements FilesystemTreeEntry {
 
     private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");
 
-    private final String fullpath;
+    private final String mFullPath;
 
     public PlaylistFile(final String path) {
         super();
-        fullpath = path;
+        mFullPath = path;
     }
 
     @Override
-    public String getFullpath() {
-        return fullpath;
+    public String getFullPath() {
+        return mFullPath;
     }
 
     @Override
     public String getName() {
         String result = "";
 
-        if (fullpath != null) {
-            final Matcher matcher = PLAYLIST_FILE_REGEXP.matcher(fullpath);
+        if (mFullPath != null) {
+            final Matcher matcher = PLAYLIST_FILE_REGEXP.matcher(mFullPath);
             if (matcher.matches()) {
                 result = matcher.replaceAll("[$2] $1.$2");
             } else {
-                result = fullpath;
+                result = mFullPath;
             }
         }
         return result;

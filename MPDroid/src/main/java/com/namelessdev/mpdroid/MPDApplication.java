@@ -88,11 +88,11 @@ public class MPDApplication extends Application implements
 
     private ServiceBinder mServiceBinder;
 
+    private SharedPreferences mSettings = null;
+
     private SettingsHelper mSettingsHelper = null;
 
     private boolean mSettingsShown = false;
-
-    private SharedPreferences mSharedPreferences = null;
 
     public static MPDApplication getInstance() {
         return sInstance;
@@ -192,7 +192,7 @@ public class MPDApplication extends Application implements
         }
 
         /** If the warning has never been shown before, show it. */
-        if (mCurrentActivity != null && !mSharedPreferences.getBoolean("newWarningShown", false)) {
+        if (mCurrentActivity != null && !mSettings.getBoolean("newWarningShown", false)) {
             mCurrentActivity.startActivity(new Intent(mCurrentActivity, WarningActivity.class));
         }
         connectMPD();
@@ -337,11 +337,11 @@ public class MPDApplication extends Application implements
     }
 
     public final boolean isInSimpleMode() {
-        return mSharedPreferences.getBoolean("simpleMode", false);
+        return mSettings.getBoolean("simpleMode", false);
     }
 
     public final boolean isLightThemeSelected() {
-        return mSharedPreferences.getBoolean("lightTheme", false);
+        return mSettings.getBoolean("lightTheme", false);
     }
 
     /**
@@ -397,7 +397,7 @@ public class MPDApplication extends Application implements
 
     public final boolean isTabletUiEnabled() {
         return getResources().getBoolean(R.bool.isTablet)
-                && mSharedPreferences.getBoolean("tabletUI", true);
+                && mSettings.getBoolean("tabletUI", true);
     }
 
     /**
@@ -424,7 +424,7 @@ public class MPDApplication extends Application implements
         // Don't worry FOSS guys, crashlytics is not included in the "foss" flavour
         CrashlyticsWrapper.start(this);
 
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mSettings = PreferenceManager.getDefaultSharedPreferences(this);
 
         final StrictMode.VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
         final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()

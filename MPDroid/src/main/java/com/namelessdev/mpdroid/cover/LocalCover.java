@@ -33,34 +33,34 @@ public class LocalCover implements ICoverRetriever {
 
     public static final String RETRIEVER_NAME = "User's HTTP Server";
 
-    private final static String[] EXT = new String[]{
+    private static final String[] EXT = new String[]{
             "jpg", "png", "jpeg",
     };
 
-    private final static String PLACEHOLDER_FILENAME = "%placeholder_filename";
+    private static final String PLACEHOLDER_FILENAME = "%placeholder_filename";
 
     // Note that having two PLACEHOLDER_FILENAME is on purpose
-    private final static String[] FILENAMES = new String[]{
+    private static final String[] FILENAMES = new String[]{
             "%placeholder_custom", PLACEHOLDER_FILENAME,
             "cover", "folder", "front"
     };
 
-    private final static String[] SUB_FOLDERS = new String[]{
+    private static final String[] SUB_FOLDERS = new String[]{
             "", "artwork", "Covers"
     };
 
     // private final static String URL = "%s/%s/%s";
-    private final static String URL_PREFIX = "http://";
+    private static final String URL_PREFIX = "http://";
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+    private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
     public LocalCover() {
         super();
     }
 
-    static public void appendPathString(Uri.Builder builder, String string) {
+    public static void appendPathString(Uri.Builder builder, String string) {
         if (string != null && string.length() > 0) {
             final String[] components = string.split("/");
             for (String component : components) {
@@ -69,7 +69,7 @@ public class LocalCover implements ICoverRetriever {
         }
     }
 
-    static public String buildCoverUrl(String serverName, String musicPath, String path,
+    public static String buildCoverUrl(String serverName, String musicPath, String path,
             String fileName) {
 
         if (musicPath.startsWith(URL_PREFIX)) {
@@ -98,12 +98,12 @@ public class LocalCover implements ICoverRetriever {
 
         String lfilename;
         // load URL parts from settings
-        String musicPath = settings.getString("musicPath", "music/");
-        FILENAMES[0] = settings.getString("coverFileName", null);
+        String musicPath = mSettings.getString("musicPath", "music/");
+        FILENAMES[0] = mSettings.getString("coverFileName", null);
 
         if (musicPath != null) {
             // load server name/ip
-            final String serverName = app.oMPDAsyncHelper.getConnectionSettings().server;
+            final String serverName = mApp.oMPDAsyncHelper.getConnectionSettings().server;
 
             String url;
             final List<String> urls = new ArrayList<String>();

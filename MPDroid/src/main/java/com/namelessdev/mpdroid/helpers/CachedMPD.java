@@ -91,7 +91,7 @@ public class CachedMPD extends MPD {
             final AlbumCache.AlbumDetails details =
                     mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
             if (details != null) {
-                album.setPath(details.path);
+                album.setPath(details.mPath);
             }
         }
         Log.d("MPD CACHED", "addAlbumPaths " + albums.size());
@@ -126,10 +126,10 @@ public class CachedMPD extends MPD {
                         mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
 
                 if (null != details) {
-                    album.setSongCount(details.numtracks);
-                    album.setDuration(details.totaltime);
-                    album.setYear(details.date);
-                    album.setPath(details.path);
+                    album.setSongCount(details.mNumTracks);
+                    album.setDuration(details.mTotalTime);
+                    album.setYear(details.mDate);
+                    album.setPath(details.mPath);
                 }
             }
             Log.d("MPD CACHED", "Details of " + albums.size());

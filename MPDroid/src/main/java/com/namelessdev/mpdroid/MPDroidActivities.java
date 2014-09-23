@@ -56,7 +56,7 @@ public class MPDroidActivities {
     @SuppressLint("Registered")
     public static class MPDroidActivity extends Activity {
 
-        protected final MPDApplication app = MPDApplication.getInstance();
+        protected final MPDApplication mApp = MPDApplication.getInstance();
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class MPDroidActivities {
     @SuppressLint("Registered")
     public static class MPDroidFragmentActivity extends FragmentActivity {
 
-        protected final MPDApplication app = MPDApplication.getInstance();
+        protected final MPDApplication mApp = MPDApplication.getInstance();
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +80,7 @@ public class MPDroidActivities {
     @SuppressLint("Registered")
     public static class MPDroidListActivity extends ListActivity {
 
-        protected final MPDApplication app = MPDApplication.getInstance();
+        protected final MPDApplication mApp = MPDApplication.getInstance();
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {

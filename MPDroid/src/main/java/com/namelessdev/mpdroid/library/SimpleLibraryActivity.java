@@ -56,7 +56,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
 
     private static final String EXTRA_STREAM = "streams";
 
-    private TextView titleView;
+    private TextView mTitleView;
 
     private Fragment getRootFragment() {
         final Intent intent = getIntent();
@@ -78,7 +78,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
             } else {
                 if (targetElement instanceof Artist) {
                     final SharedPreferences settings = PreferenceManager
-                            .getDefaultSharedPreferences(app);
+                            .getDefaultSharedPreferences(mApp);
 
                     if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                         rootFragment = new AlbumsGridFragment((Artist) targetElement);
@@ -109,16 +109,16 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         final LayoutInflater inflater = (LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        titleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
+        mTitleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
 
-        titleView.setFocusable(true);
-        titleView.setFocusableInTouchMode(true);
-        titleView.setSelected(true);
-        titleView.requestFocus();
+        mTitleView.setFocusable(true);
+        mTitleView.setFocusableInTouchMode(true);
+        mTitleView.setSelected(true);
+        mTitleView.requestFocus();
 
         final ActionBar actionBar = getActionBar();
         if (actionBar != null) {
-            actionBar.setCustomView(titleView);
+            actionBar.setCustomView(mTitleView);
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayShowCustomEnabled(true);
         }
@@ -151,7 +151,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             // For onKeyLongPress to work
             event.startTracking();
-            result = !app.isLocalAudible();
+            result = !mApp.isLocalAudible();
         } else {
             result = super.onKeyDown(keyCode, event);
         }
@@ -182,7 +182,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
         boolean result = true;
 
-        if (event.isTracking() && !event.isCanceled() && !app.isLocalAudible()) {
+        if (event.isTracking() && !event.isCanceled() && !mApp.isLocalAudible()) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_VOLUME_UP:
                     MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
@@ -250,12 +250,12 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     @Override
     public void setTitle(final CharSequence title) {
         super.setTitle(title);
-        titleView.setText(title);
+        mTitleView.setText(title);
     }
 
     @Override
     public void setTitle(final int titleId) {
         super.setTitle(titleId);
-        titleView.setText(getString(titleId));
+        mTitleView.setText(getString(titleId));
     }
 }

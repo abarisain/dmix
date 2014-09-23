@@ -35,6 +35,8 @@ public final class MPDControl {
 
     public static final long INVALID_LONG = -5L;
 
+    private static final MPDApplication APP = MPDApplication.getInstance();
+
     private static final String TAG = "MPDControl";
 
     private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.helpers" + '.'
@@ -75,8 +77,6 @@ public final class MPDControl {
 
     private static final int VOLUME_STEP = 5;
 
-    private static final MPDApplication app = MPDApplication.getInstance();
-
     private MPDControl() {
         super();
     }
@@ -88,7 +88,7 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      */
     public static void run(final String userCommand) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG, true);
+        run(APP.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG, true);
     }
 
     /**
@@ -99,11 +99,11 @@ public final class MPDControl {
      * @param i           An integer which will be cast to long for run for userCommand argument.
      */
     public static void run(final String userCommand, final int i) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, (long) i, true);
+        run(APP.oMPDAsyncHelper.oMPD, userCommand, (long) i, true);
     }
 
     public static void run(final String userCommand, final long l) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, l, true);
+        run(APP.oMPDAsyncHelper.oMPD, userCommand, l, true);
     }
 
     /**
@@ -200,7 +200,7 @@ public final class MPDControl {
             @Override
             public final void run() {
                 if (internalMPD) {
-                    app.addConnectionLock(this);
+                    APP.addConnectionLock(this);
                 }
                 blockForConnection();
 
@@ -273,7 +273,7 @@ public final class MPDControl {
                     Log.w(TAG, "Failed to send a simple MPD command.", e);
                 } finally {
                     if (internalMPD) {
-                        app.removeConnectionLock(this);
+                        APP.removeConnectionLock(this);
                     }
                 }
             }

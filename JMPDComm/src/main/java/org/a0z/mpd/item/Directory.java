@@ -46,48 +46,48 @@ import java.util.TreeSet;
  */
 public final class Directory extends Item implements FilesystemTreeEntry {
 
-    private final Map<String, Directory> directories;
+    private final Map<String, Directory> mDirectoryEntries;
 
-    private final String filename;
+    private final Map<String, Music> mFileEntries;
 
-    private final Map<String, Music> files;
+    private final String mFilename;
 
-    private final MPD mpd;
+    private final MPD mMPD;
 
-    private final Directory parent;
+    private final Directory mParent;
 
-    private final Map<String, PlaylistFile> playlists;
+    private final Map<String, PlaylistFile> mPlayLists;
 
-    private String name; // name to display, usually = filename
+    private String mName; // name to display, usually = filename
 
     /**
      * Clones a directory.
      */
     public Directory(Directory dir) {
-        this.mpd = dir.mpd;
-        this.name = dir.name;
-        this.filename = dir.filename;
-        this.parent = dir.parent;
-        this.files = dir.files;
-        this.directories = dir.directories;
-        this.playlists = dir.playlists;
+        this.mMPD = dir.mMPD;
+        this.mName = dir.mName;
+        this.mFilename = dir.mFilename;
+        this.mParent = dir.mParent;
+        this.mFileEntries = dir.mFileEntries;
+        this.mDirectoryEntries = dir.mDirectoryEntries;
+        this.mPlayLists = dir.mPlayLists;
     }
 
     /**
      * Creates a new directory.
      *
      * @param mpd      MPD controller.
-     * @param parent   parent directory.
+     * @param parent   mParent directory.
      * @param filename directory filename.
      */
     private Directory(MPD mpd, Directory parent, String filename) {
-        this.mpd = mpd;
-        this.name = filename;
-        this.filename = filename;
-        this.parent = parent;
-        this.files = new HashMap<>();
-        this.directories = new HashMap<>();
-        this.playlists = new HashMap<>();
+        this.mMPD = mpd;
+        this.mName = filename;
+        this.mFilename = filename;
+        this.mParent = parent;
+        this.mFileEntries = new HashMap<>();
+        this.mDirectoryEntries = new HashMap<>();
+        this.mPlayLists = new HashMap<>();
     }
 
     /**
@@ -156,7 +156,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return true if sub-directory exists, false if not.
      */
     public boolean containsDir(String filename) {
-        return directories.containsKey(filename);
+        return mDirectoryEntries.containsKey(filename);
     }
 
     /**
@@ -171,7 +171,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
             }
         });
 
-        for (Directory item : directories.values()) {
+        for (Directory item : mDirectoryEntries.values()) {
             c.add(item);
         }
         return c;
@@ -184,7 +184,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return a sub-directory.
      */
     public Directory getDirectory(String filename) {
-        return directories.get(filename);
+        return mDirectoryEntries.get(filename);
     }
 
     /**
@@ -194,7 +194,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return Returns null if title not found
      */
     public Music getFileByTitle(String title) {
-        for (Music music : files.values()) {
+        for (Music music : mFileEntries.values()) {
             if (music.getTitle().equals(title)) {
                 return music;
             }
@@ -208,7 +208,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return filename
      */
     public String getFilename() {
-        return filename;
+        return mFilename;
     }
 
     /**
@@ -223,7 +223,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
             }
         });
 
-        for (Music item : files.values()) {
+        for (Music item : mFileEntries.values()) {
             c.add(item);
         }
         return c;
@@ -234,9 +234,9 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      *
      * @return full path
      */
-    public String getFullpath() {
+    public String getFullPath() {
         if (getParent() != null && getParent().getParent() != null) {
-            return getParent().getFullpath() + '/' + getFilename();
+            return getParent().getFullPath() + '/' + getFilename();
         } else {
             return getFilename();
         }
@@ -248,26 +248,26 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return directory name.
      */
     public String getName() {
-        return name;
+        return mName;
     }
 
     /**
-     * Retrieves parent directory.
+     * Retrieves mParent directory.
      *
-     * @return parent directory.
+     * @return mParent directory.
      */
     public Directory getParent() {
-        return parent;
+        return mParent;
     }
 
     public TreeSet<PlaylistFile> getPlaylistFiles() {
         TreeSet<PlaylistFile> c = new TreeSet<>(new Comparator<PlaylistFile>() {
             public int compare(PlaylistFile o1, PlaylistFile o2) {
-                return StringComparators.compareNatural(o1.getFullpath(), o2.getFullpath());
+                return StringComparators.compareNatural(o1.getFullPath(), o2.getFullPath());
             }
         });
 
-        for (PlaylistFile item : playlists.values()) {
+        for (PlaylistFile item : mPlayLists.values()) {
             c.add(item);
         }
         return c;
@@ -300,11 +300,11 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
         // create directory
         Directory dir;
-        if (!directories.containsKey(name)) {
-            dir = new Directory(mpd, this, name);
-            directories.put(dir.getFilename(), dir);
+        if (!mDirectoryEntries.containsKey(name)) {
+            dir = new Directory(mMPD, this, name);
+            mDirectoryEntries.put(dir.getFilename(), dir);
         } else {
-            dir = directories.get(name);
+            dir = mDirectoryEntries.get(name);
         }
 
         // create remainder
@@ -320,30 +320,30 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @throws MPDServerException if an error occurs while contacting server.
      */
     public void refreshData() throws MPDServerException {
-        List<FilesystemTreeEntry> c = mpd.getDir(this.getFullpath());
+        List<FilesystemTreeEntry> c = mMPD.getDir(this.getFullPath());
         for (FilesystemTreeEntry o : c) {
             if (o instanceof Directory) {
                 Directory dir = (Directory) o;
-                if (!directories.containsKey(dir.getFilename())) {
-                    directories.put(dir.getFilename(), dir);
+                if (!mDirectoryEntries.containsKey(dir.getFilename())) {
+                    mDirectoryEntries.put(dir.getFilename(), dir);
                 }
             } else if (o instanceof Music) {
                 final Music music = (Music) o;
                 final String filename = music.getFilename();
 
-                if (files.containsKey(filename)) {
-                    final Music oldMusic = files.get(filename);
+                if (mFileEntries.containsKey(filename)) {
+                    final Music oldMusic = mFileEntries.get(filename);
 
                     if (!music.equals(oldMusic)) {
-                        files.put(filename, music);
+                        mFileEntries.put(filename, music);
                     }
                 } else {
-                    files.put(filename, music);
+                    mFileEntries.put(filename, music);
                 }
             } else if (o instanceof PlaylistFile) {
                 PlaylistFile pl = (PlaylistFile) o;
-                if (!playlists.containsKey(pl.getName())) {
-                    playlists.put(pl.getName(), pl);
+                if (!mPlayLists.containsKey(pl.getName())) {
+                    mPlayLists.put(pl.getName(), pl);
                 }
             }
         }
@@ -355,6 +355,6 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param name name to be displayed
      */
     public void setName(String name) {
-        this.name = name;
+        this.mName = name;
     }
 }

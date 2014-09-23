@@ -41,8 +41,7 @@ public class UpdateTrackInfo {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private final SharedPreferences mSharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(mApp);
+    private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
     private boolean mForceCoverUpdate = false;
 
@@ -244,7 +243,7 @@ public class UpdateTrackInfo {
          * information.
          */
         private void setArtist() {
-            final boolean showAlbumArtist = mSharedPreferences.getBoolean("showAlbumArtist", true);
+            final boolean showAlbumArtist = mSettings.getBoolean("showAlbumArtist", true);
             final String albumArtist = mCurrentSong.getAlbumArtist();
 
             mArtist = mCurrentSong.getArtist();

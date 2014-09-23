@@ -35,7 +35,7 @@ public class LastFMCover extends AbstractWebCover {
 
     private static final String URL = "http://ws.audioscrobbler.com/2.0/";
 
-    private static String KEY = "7fb78a81b20bee7cb6e8fad4cbcb3694";
+    private static String sKey = "7fb78a81b20bee7cb6e8fad4cbcb3694";
 
     @Override
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
@@ -50,7 +50,7 @@ public class LastFMCover extends AbstractWebCover {
 
         try {
             request = URL + "?method=album.getInfo&artist=" + albumInfo.getArtist() + "&album="
-                    + albumInfo.getAlbum() + "&api_key=" + KEY;
+                    + albumInfo.getAlbum() + "&api_key=" + sKey;
             response = executeGetRequest(request);
 
             factory = XmlPullParserFactory.newInstance();

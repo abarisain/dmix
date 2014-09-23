@@ -37,7 +37,7 @@ public class CachedCover implements ICoverRetriever {
 
     private static final String TAG = "CachedCover";
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
     public CachedCover() {
     }
@@ -64,7 +64,7 @@ public class CachedCover implements ICoverRetriever {
     }
 
     public String getAbsoluteCoverFolderPath() {
-        final File cacheDir = app.getExternalCacheDir();
+        final File cacheDir = mApp.getExternalCacheDir();
         if (cacheDir == null) {
             return null;
         }
@@ -72,7 +72,7 @@ public class CachedCover implements ICoverRetriever {
     }
 
     public String getAbsolutePathForSong(AlbumInfo albumInfo) {
-        final File cacheDir = app.getExternalCacheDir();
+        final File cacheDir = mApp.getExternalCacheDir();
         if (cacheDir == null) {
             return null;
         }

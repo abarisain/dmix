@@ -77,7 +77,7 @@ public class MusicParcelable extends Music implements Parcelable {
         dest.writeString(getAlbum());
         dest.writeString(getArtist());
         dest.writeString(getAlbumArtist());
-        dest.writeString(getFullpath());
+        dest.writeString(getFullPath());
         dest.writeInt(getDisc());
         dest.writeLong(getDate());
         dest.writeString(getGenre());

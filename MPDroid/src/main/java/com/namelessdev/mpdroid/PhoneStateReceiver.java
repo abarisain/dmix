@@ -42,7 +42,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     // Used to trace when the app pauses / resumes playback
     private static final String PAUSED_MARKER = "wasPausedInCall";
 
-    private static final String TAG = "com.namelessdev.mpdroid.PhoneStateReceiver";
+    private static final String TAG = "PhoneStateReceiver";
 
     private static boolean isLocalNetworkConnected() {
         final ConnectivityManager cm =

@@ -44,7 +44,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
     private static final boolean DEBUG = CoverManager.DEBUG;
 
-    private static final String TAG = "com.namelessdev.mpdroid.AbstractWebCover";
+    private static final String TAG = "AbstractWebCover";
 
     private static String readInputStream(final InputStream content) {
         final InputStreamReader inputStreamReader = new InputStreamReader(content);

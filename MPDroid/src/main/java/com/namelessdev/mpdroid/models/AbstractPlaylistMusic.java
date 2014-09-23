@@ -20,9 +20,9 @@ import org.a0z.mpd.item.Music;
 
 public abstract class AbstractPlaylistMusic extends Music {
 
-    private int currentSongIconRefID;
+    private int mCurrentSongIconRefID;
 
-    private boolean forceCoverRefresh = false;
+    private boolean mForceCoverRefresh = false;
 
     protected AbstractPlaylistMusic(String album, String artist, String albumartist,
             String fullpath, int disc, long date, String genre, long time, String title,
@@ -32,7 +32,7 @@ public abstract class AbstractPlaylistMusic extends Music {
     }
 
     public int getCurrentSongIconRefID() {
-        return currentSongIconRefID;
+        return mCurrentSongIconRefID;
     }
 
     public abstract String getPlayListMainLine();
@@ -40,14 +40,14 @@ public abstract class AbstractPlaylistMusic extends Music {
     public abstract String getPlaylistSubLine();
 
     public boolean isForceCoverRefresh() {
-        return forceCoverRefresh;
+        return mForceCoverRefresh;
     }
 
     public void setCurrentSongIconRefID(int currentSongIconRefID) {
-        this.currentSongIconRefID = currentSongIconRefID;
+        this.mCurrentSongIconRefID = currentSongIconRefID;
     }
 
     public void setForceCoverRefresh(boolean forceCoverRefresh) {
-        this.forceCoverRefresh = forceCoverRefresh;
+        this.mForceCoverRefresh = forceCoverRefresh;
     }
 }

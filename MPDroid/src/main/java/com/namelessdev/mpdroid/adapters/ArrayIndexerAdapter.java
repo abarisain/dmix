@@ -34,15 +34,11 @@ import java.util.Locale;
 
 public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer {
 
-    static final Comparator localeComp = new LocaleComparator();
+    static final Comparator LOCALE_COMPARATOR = new LocaleComparator();
 
-    HashMap<String, Integer> alphaIndexer;
+    HashMap<String, Integer> mAlphaIndexer;
 
-    Context context;
-
-    ArrayDataBinder dataBinder = null;
-
-    String[] sections;
+    String[] mSections;
 
     @SuppressWarnings("unchecked")
     public ArrayIndexerAdapter(Context context, ArrayDataBinder dataBinder,
@@ -58,33 +54,33 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
 
     @Override
     public int getPositionForSection(int section) {
-        String letter = sections[section >= sections.length ? sections.length - 1 : section];
-        return alphaIndexer.get(letter);
+        String letter = mSections[section >= mSections.length ? mSections.length - 1 : section];
+        return mAlphaIndexer.get(letter);
     }
 
     @Override
     public int getSectionForPosition(int position) {
-        if (sections.length == 0) {
+        if (mSections.length == 0) {
             return -1;
         }
 
-        if (sections.length == 1) {
+        if (mSections.length == 1) {
             return 1;
         }
 
-        for (int i = 0; i < (sections.length - 1); i++) {
-            int begin = alphaIndexer.get(sections[i]);
-            int end = alphaIndexer.get(sections[i + 1]) - 1;
+        for (int i = 0; i < (mSections.length - 1); i++) {
+            int begin = mAlphaIndexer.get(mSections[i]);
+            int end = mAlphaIndexer.get(mSections[i + 1]) - 1;
             if (position >= begin && position <= end) {
                 return i;
             }
         }
-        return sections.length - 1;
+        return mSections.length - 1;
     }
 
     @Override
     public Object[] getSections() {
-        return sections;
+        return mSections;
     }
 
     @Override
@@ -92,7 +88,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         super.init(context, items);
 
         // here is the tricky stuff
-        alphaIndexer = new HashMap<String, Integer>();
+        mAlphaIndexer = new HashMap<String, Integer>();
         // in this hashmap we will store here the positions for
         // the sections
 
@@ -101,7 +97,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         for (int i = size - 1; i >= 0; i--) {
             Item element = items.get(i);
             if (element.sortText().length() > 0) {
-                alphaIndexer.put(element.sortText().substring(0, 1).toUpperCase(), i);
+                mAlphaIndexer.put(element.sortText().substring(0, 1).toUpperCase(), i);
             } else {
                 unknownPos = i; // save position
             }
@@ -117,21 +113,21 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         // array .it must contains the keys, and must (I do so...) be
         // ordered alphabetically
 
-        ArrayList<String> keyList = new ArrayList<String>(alphaIndexer.keySet()); // list
+        ArrayList<String> keyList = new ArrayList<String>(mAlphaIndexer.keySet()); // list
         // can
         // be
         // sorted
-        Collections.sort(keyList, localeComp);
+        Collections.sort(keyList, LOCALE_COMPARATOR);
 
         // add "Unknown" at the end after sorting
         if (unknownPos >= 0) {
-            alphaIndexer.put("", unknownPos);
+            mAlphaIndexer.put("", unknownPos);
             keyList.add("");
         }
 
-        sections = new String[keyList.size()]; // simple conversion to an array
+        mSections = new String[keyList.size()]; // simple conversion to an array
         // of object
-        keyList.toArray(sections);
+        keyList.toArray(mSections);
     }
 
 }
@@ -141,9 +137,9 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
  */
 class LocaleComparator implements Comparator {
 
-    static final Collator defaultCollator = Collator.getInstance(Locale.getDefault());
+    static final Collator DEFAULT_COLLATOR = Collator.getInstance(Locale.getDefault());
 
     public int compare(Object str1, Object str2) {
-        return defaultCollator.compare((String) str1, (String) str2);
+        return DEFAULT_COLLATOR.compare((String) str1, (String) str2);
     }
 }

@@ -35,30 +35,30 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
 
     private static final int TYPE_DEFAULT = 0;
 
-    Context context;
+    Context mContext;
 
-    ArrayDataBinder dataBinder = null;
+    ArrayDataBinder mDataBinder = null;
 
-    LayoutInflater inflater;
+    LayoutInflater mInflater;
 
-    List<Item> items;
+    List<Item> mItems;
 
     @SuppressWarnings("unchecked")
     public ArrayAdapter(Context context, ArrayDataBinder dataBinder, List<? extends Item> items) {
         super(context, 0, (List<Item>) items);
-        this.dataBinder = dataBinder;
+        this.mDataBinder = dataBinder;
         init(context, items);
     }
 
     @SuppressWarnings("unchecked")
     public ArrayAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
         super(context, textViewResourceId, (List<Item>) items);
-        dataBinder = null;
+        mDataBinder = null;
         init(context, items);
     }
 
     public ArrayDataBinder getDataBinder() {
-        return dataBinder;
+        return mDataBinder;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (dataBinder == null) {
+        if (mDataBinder == null) {
             return super.getView(position, convertView, parent);
         }
 
@@ -75,17 +75,18 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         AbstractViewHolder holder;
 
         if (convertView == null) {
-            convertView = inflater.inflate(dataBinder.getLayoutId(), parent, false);
-            convertView = dataBinder.onLayoutInflation(context, convertView, items);
+            convertView = mInflater.inflate(mDataBinder.getLayoutId(), parent, false);
+            convertView = mDataBinder.onLayoutInflation(mContext, convertView, mItems);
 
             // use the databinder to look up all references to inner views
-            holder = dataBinder.findInnerViews(convertView);
+            holder = mDataBinder.findInnerViews(convertView);
             convertView.setTag(holder);
         } else {
             holder = (AbstractViewHolder) convertView.getTag();
         }
 
-        dataBinder.onDataBind(context, convertView, holder, items, items.get(position), position);
+        mDataBinder
+                .onDataBind(mContext, convertView, holder, mItems, mItems.get(position), position);
         return convertView;
     }
 
@@ -100,21 +101,21 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
             throw new RuntimeException("Items must be contained in an ArrayList<Item>");
         }
 
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.context = context;
-        this.items = (List<Item>) items;
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.mContext = context;
+        this.mItems = (List<Item>) items;
     }
 
     @Override
     public boolean isEnabled(int position) {
-        if (dataBinder == null) {
+        if (mDataBinder == null) {
             return super.isEnabled(position);
         }
-        return dataBinder.isEnabled(position, items, getItem(position));
+        return mDataBinder.isEnabled(position, mItems, getItem(position));
     }
 
     public void setDataBinder(ArrayDataBinder dataBinder) {
-        this.dataBinder = dataBinder;
+        this.mDataBinder = dataBinder;
     }
 
 }

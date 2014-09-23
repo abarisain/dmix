@@ -34,34 +34,34 @@ import java.util.List;
  */
 public class MPDOutput {
 
-    private boolean enabled;
+    private boolean mEnabled;
 
-    private int id;
+    private int mId;
 
-    private String name;
+    private String mName;
 
     MPDOutput(List<String> response) {
         for (String line : response) {
             if (line.startsWith("outputid:")) {
-                this.id = Integer.parseInt(line.substring("outputid: ".length()));
+                this.mId = Integer.parseInt(line.substring("outputid: ".length()));
             } else if (line.startsWith("outputname:")) {
-                this.name = line.substring("outputname: ".length());
+                this.mName = line.substring("outputname: ".length());
             } else if (line.startsWith("outputenabled:")) {
-                this.enabled = line.substring("outputenabled: ".length()).equals("1");
+                this.mEnabled = line.substring("outputenabled: ".length()).equals("1");
             }
         }
     }
 
     public int getId() {
-        return id;
+        return mId;
     }
 
     public String getName() {
-        return name;
+        return mName;
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return mEnabled;
     }
 
     public String toString() {

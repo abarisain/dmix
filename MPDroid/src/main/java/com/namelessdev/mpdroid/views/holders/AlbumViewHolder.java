@@ -22,11 +22,11 @@ import android.widget.TextView;
 
 public class AlbumViewHolder extends AbstractViewHolder {
 
-    public ImageView albumCover;
+    public ImageView mAlbumCover;
 
-    public TextView albumInfo;
+    public TextView mAlbumInfo;
 
-    public TextView albumName;
+    public TextView mAlbumName;
 
-    public ProgressBar coverArtProgress;
+    public ProgressBar mCoverArtProgress;
 }

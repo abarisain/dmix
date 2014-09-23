@@ -37,7 +37,7 @@ public class ArtistsFragment extends BrowseFragment {
 
     private static final String TAG = "ArtistsFragment";
 
-    private Genre genre = null;
+    private Genre mGenre = null;
 
     public ArtistsFragment() {
         super(R.string.addArtist, R.string.artistAdded, MPDCommand.MPD_SEARCH_ARTIST);
@@ -46,9 +46,9 @@ public class ArtistsFragment extends BrowseFragment {
     @Override
     protected void add(Item item, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
             if (isAdded()) {
-                Tools.notifyUser(irAdded, item);
+                Tools.notifyUser(mIrAdded, item);
             }
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add to queue.", e);
@@ -58,9 +58,9 @@ public class ArtistsFragment extends BrowseFragment {
     @Override
     protected void add(Item item, String playlist) {
         try {
-            app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
             if (isAdded()) {
-                Tools.notifyUser(irAdded, item);
+                Tools.notifyUser(mIrAdded, item);
             }
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add to playlist.", e);
@@ -76,24 +76,24 @@ public class ArtistsFragment extends BrowseFragment {
                     LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
                 default:
-                    if (genre != null) {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre);
+                    if (mGenre != null) {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre);
                     } else {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists();
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists();
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
-                    if (genre != null) {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre, true);
+                    if (mGenre != null) {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, true);
                     } else {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(true);
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(true);
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
-                    if (genre != null) {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre, false);
+                    if (mGenre != null) {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, false);
                     } else {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(false);
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(false);
                     }
                     break;
             }
@@ -109,15 +109,15 @@ public class ArtistsFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        if (genre != null) {
-            return genre.getName();
+        if (mGenre != null) {
+            return mGenre.getName();
         } else {
             return getString(R.string.genres);
         }
     }
 
     public ArtistsFragment init(Genre g) {
-        genre = g;
+        mGenre = g;
         return this;
     }
 
@@ -125,11 +125,11 @@ public class ArtistsFragment extends BrowseFragment {
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
         AlbumsFragment af;
         final SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(app);
+                .getDefaultSharedPreferences(mApp);
         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-            af = new AlbumsGridFragment((Artist) items.get(position), genre);
+            af = new AlbumsGridFragment((Artist) mItems.get(position), mGenre);
         } else {
-            af = new AlbumsFragment((Artist) items.get(position), genre);
+            af = new AlbumsFragment((Artist) mItems.get(position), mGenre);
         }
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, "album");
     }

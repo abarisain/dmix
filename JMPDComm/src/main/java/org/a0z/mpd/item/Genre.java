@@ -33,18 +33,18 @@ import java.util.Arrays;
 
 public class Genre extends Item {
 
-    private final String name;
+    private final String mName;
 
-    private final String sort;
+    private final String mSort;
 
     public Genre(final Genre genre) {
-        this.name = genre.name;
-        this.sort = genre.sort;
+        this.mName = genre.mName;
+        this.mSort = genre.mSort;
     }
 
     public Genre(String name) {
-        this.name = name;
-        sort = null;
+        this.mName = name;
+        mSort = null;
     }
 
     /**
@@ -70,11 +70,11 @@ public class Genre extends Item {
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
             final Genre genre = (Genre) o;
 
-            if (Tools.isNotEqual(name, genre.name)) {
+            if (Tools.isNotEqual(mName, genre.mName)) {
                 isEqual = Boolean.FALSE;
             }
 
-            if (Tools.isNotEqual(sort, genre.sort)) {
+            if (Tools.isNotEqual(mSort, genre.mSort)) {
                 isEqual = Boolean.FALSE;
             }
         }
@@ -87,7 +87,7 @@ public class Genre extends Item {
     }
 
     public String getName() {
-        return name;
+        return mName;
     }
 
     /**
@@ -100,7 +100,7 @@ public class Genre extends Item {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{name, sort});
+        return Arrays.hashCode(new Object[]{mName, mSort});
     }
 
     /*
@@ -108,10 +108,10 @@ public class Genre extends Item {
      */
     @Override
     public String mainText() {
-        return name;
+        return mName;
     }
 
     public String sort() {
-        return null == sort ? name : sort;
+        return null == mSort ? mName : mSort;
     }
 }

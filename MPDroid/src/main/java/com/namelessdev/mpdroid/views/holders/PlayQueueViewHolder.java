@@ -24,16 +24,16 @@ import android.widget.TextView;
 
 public class PlayQueueViewHolder extends AbstractViewHolder {
 
-    public TextView artist;
+    public TextView mArtist;
 
-    public ImageView cover;
+    public ImageView mCover;
 
-    public CoverAsyncHelper coverHelper;
+    public CoverAsyncHelper mCoverHelper;
 
-    public View menuButton;
+    public View mMenuButton;
 
-    public ImageView play;
+    public ImageView mPlay;
 
-    public TextView title;
+    public TextView mTitle;
 
 }

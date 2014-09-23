@@ -20,11 +20,11 @@ import android.widget.TextView;
 
 public class SongViewHolder extends AbstractViewHolder {
 
-    public TextView trackArtist;
+    public TextView mTrackArtist;
 
-    public TextView trackDuration;
+    public TextView mTrackDuration;
 
-    public TextView trackNumber;
+    public TextView mTrackNumber;
 
-    public TextView trackTitle;
+    public TextView mTrackTitle;
 }

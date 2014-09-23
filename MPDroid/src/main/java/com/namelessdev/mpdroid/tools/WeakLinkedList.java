@@ -44,19 +44,19 @@ import java.util.NoSuchElementException;
  */
 public class WeakLinkedList<T> implements List<T> {
 
-    private final Object LOCK = new Object();
+    private final Object mLOCK = new Object();
 
-    private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
+    private final ReferenceQueue<T> mQueue = new ReferenceQueue<T>();
 
-    private WeakListNode head = null;
+    private WeakListNode mHead = null;
 
-    private String listName = null;
+    private String mListName = null;
 
-    private long modcount = 0;
+    private long mModCount = 0;
 
-    private int size = 0;
+    private int mSize = 0;
 
-    private WeakListNode tail = null;
+    private WeakListNode mTail = null;
 
     public WeakLinkedList() {
     }
@@ -75,7 +75,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#add(int, java.lang.Object)
      */
     public void add(final int index, final T element) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             final ListIterator<T> itr = this.listIterator(index);
             itr.add(element);
         }
@@ -85,9 +85,9 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#add(java.lang.Object)
      */
     public boolean add(T o) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
-            this.add(this.size, o);
+            this.add(this.mSize, o);
             return true;
         }
     }
@@ -96,9 +96,9 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#addAll(java.util.Collection)
      */
     public boolean addAll(Collection<? extends T> c) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
-            return this.addAll(this.size, c);
+            return this.addAll(this.mSize, c);
         }
     }
 
@@ -110,7 +110,7 @@ public class WeakLinkedList<T> implements List<T> {
             return false;
         }
 
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
             for (T element : c) {
                 this.add(index++, element);
@@ -126,15 +126,15 @@ public class WeakLinkedList<T> implements List<T> {
      */
     @SuppressWarnings("unchecked")
     private void cleanPhantomReferences() {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             WeakListNode deadNode;
-            while ((deadNode = (WeakListNode) queue.poll()) != null) {
+            while ((deadNode = (WeakListNode) mQueue.poll()) != null) {
                 // Ensure the node hasn't already been removed
                 if (!deadNode.isRemoved()) {
-                    if (listName != null) {
+                    if (mListName != null) {
                         Log.e("WeakLinkedList",
                                 "Error : "
-                                        + listName
+                                        + mListName
                                         + " has leaked. Please be sure to always remove yourself from the listeners.");
                     }
                     this.removeNode(deadNode);
@@ -147,7 +147,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#clear()
      */
     public void clear() {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             for (final ListIterator<?> itr = this.listIterator(); itr.hasNext(); ) {
                 itr.next();
                 itr.remove();
@@ -166,7 +166,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#containsAll(java.util.Collection)
      */
     public boolean containsAll(Collection<?> c) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             boolean foundAll = true;
 
             for (final Iterator<?> elementItr = c.iterator(); elementItr.hasNext() && foundAll; ) {
@@ -191,7 +191,7 @@ public class WeakLinkedList<T> implements List<T> {
             if (this.size() != other.size()) {
                 return false;
             } else {
-                synchronized (LOCK) {
+                synchronized (mLOCK) {
                     final Iterator<?> itr1 = this.iterator();
                     final Iterator<?> itr2 = other.iterator();
 
@@ -214,7 +214,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#get(int)
      */
     public T get(int index) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             final ListIterator<T> itr = this.listIterator(index);
             try {
                 return (itr.next());
@@ -225,7 +225,7 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     public String getName() {
-        return listName;
+        return mListName;
     }
 
     /**
@@ -234,7 +234,7 @@ public class WeakLinkedList<T> implements List<T> {
     public int hashCode() {
         int hashCode = 1;
 
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             for (final Iterator<?> itr = this.iterator(); itr.hasNext(); ) {
                 final Object obj = itr.next();
                 hashCode = 31 * hashCode + (obj == null ? 0 : obj.hashCode());
@@ -248,7 +248,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#indexOf(java.lang.Object)
      */
     public int indexOf(Object o) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             int index = 0;
             for (final ListIterator<T> itr = this.listIterator(); itr.hasNext(); ) {
                 final T value = itr.next();
@@ -267,9 +267,9 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#isEmpty()
      */
     public boolean isEmpty() {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
-            return this.size == 0;
+            return this.mSize == 0;
         }
     }
 
@@ -290,11 +290,11 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#lastIndexOf(java.lang.Object)
      */
     public int lastIndexOf(Object o) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
 
-            int index = this.size - 1;
-            for (final ListIterator<T> itr = this.listIterator(this.size); itr.hasPrevious(); ) {
+            int index = this.mSize - 1;
+            for (final ListIterator<T> itr = this.listIterator(this.mSize); itr.hasPrevious(); ) {
                 final Object value = itr.previous();
                 if (o == value || (o != null && o.equals(value))) {
                     return index;
@@ -318,12 +318,12 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#listIterator(int)
      */
     public ListIterator<T> listIterator(int index) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
 
             if (index < 0) {
                 throw new IndexOutOfBoundsException("index must be >= 0");
-            } else if (index > this.size) {
+            } else if (index > this.mSize) {
                 throw new IndexOutOfBoundsException("index must be <= size()");
             }
 
@@ -335,7 +335,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#remove(int)
      */
     public T remove(int index) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
 
             final ListIterator<T> itr = this.listIterator(index);
@@ -355,7 +355,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#remove(java.lang.Object)
      */
     public boolean remove(Object o) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             for (final ListIterator<?> itr = this.listIterator(); itr.hasNext(); ) {
                 final Object value = itr.next();
                 if (o == value || (o != null && o.equals(value))) {
@@ -372,7 +372,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#removeAll(java.util.Collection)
      */
     public boolean removeAll(Collection<?> c) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             boolean changed = false;
 
             for (final ListIterator<?> itr = this.listIterator(); itr.hasNext(); ) {
@@ -393,7 +393,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @param deadNode The node which gets removed by this method.
      */
     private void removeNode(WeakListNode deadNode) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             if (deadNode.isRemoved()) {
                 throw new IllegalArgumentException("node has already been removed");
             }
@@ -403,17 +403,17 @@ public class WeakLinkedList<T> implements List<T> {
 
             // Removing the only node in the list
             if (deadPrev == null && deadNext == null) {
-                this.head = null;
-                this.tail = null;
+                this.mHead = null;
+                this.mTail = null;
             }
             // Removing the first node in the list
             else if (deadPrev == null) {
-                this.head = deadNext;
+                this.mHead = deadNext;
                 deadNext.setPrev(null);
             }
             // Removing the last node in the list
             else if (deadNext == null) {
-                this.tail = deadPrev;
+                this.mTail = deadPrev;
                 deadPrev.setNext(null);
             }
             // Removing any other node
@@ -426,22 +426,22 @@ public class WeakLinkedList<T> implements List<T> {
             deadNode.setRemoved();
 
             // Update the lists size
-            this.size--;
+            this.mSize--;
 
             // Ensure the list is still valid
-            if (this.size < 0) {
-                throw new IllegalStateException("size is less than zero - '" + this.size + "'");
+            if (this.mSize < 0) {
+                throw new IllegalStateException("size is less than zero - '" + this.mSize + "'");
             }
-            if (this.size == 0 && this.head != null) {
+            if (this.mSize == 0 && this.mHead != null) {
                 throw new IllegalStateException("size is zero but head is not null");
             }
-            if (this.size == 0 && this.tail != null) {
+            if (this.mSize == 0 && this.mTail != null) {
                 throw new IllegalStateException("size is zero but tail is not null");
             }
-            if (this.size > 0 && this.head == null) {
+            if (this.mSize > 0 && this.mHead == null) {
                 throw new IllegalStateException("size is greater than zero but head is null");
             }
-            if (this.size > 0 && this.tail == null) {
+            if (this.mSize > 0 && this.mTail == null) {
                 throw new IllegalStateException("size is greater than zero but tail is null");
             }
         }
@@ -451,7 +451,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#retainAll(java.util.Collection)
      */
     public boolean retainAll(Collection<?> c) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             boolean changed = false;
 
             for (final ListIterator<?> itr = this.listIterator(); itr.hasNext(); ) {
@@ -470,7 +470,7 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#set(int, java.lang.Object)
      */
     public T set(int index, T element) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             final ListIterator<T> itr = this.listIterator(index);
             try {
                 final T oldVal = itr.next();
@@ -483,16 +483,16 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     public void setName(String name) {
-        listName = name;
+        mListName = name;
     }
 
     /**
      * @see java.util.List#size()
      */
     public int size() {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
-            return this.size;
+            return this.mSize;
         }
     }
 
@@ -508,9 +508,9 @@ public class WeakLinkedList<T> implements List<T> {
      * @see java.util.List#toArray()
      */
     public Object[] toArray() {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
-            return this.toArray(new Object[this.size]);
+            return this.toArray(new Object[this.mSize]);
         }
     }
 
@@ -519,11 +519,11 @@ public class WeakLinkedList<T> implements List<T> {
      */
     @SuppressWarnings("unchecked")
     public Object[] toArray(Object[] a) {
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             this.cleanPhantomReferences();
 
-            if (a.length < this.size) {
-                a = (Object[]) Array.newInstance(a.getClass().getComponentType(), this.size);
+            if (a.length < this.mSize) {
+                a = (Object[]) Array.newInstance(a.getClass().getComponentType(), this.mSize);
             }
 
             int index = 0;
@@ -548,7 +548,7 @@ public class WeakLinkedList<T> implements List<T> {
         final StringBuffer buff = new StringBuffer();
 
         buff.append("[");
-        synchronized (LOCK) {
+        synchronized (mLOCK) {
             for (final Iterator<?> itr = this.iterator(); itr.hasNext(); ) {
                 buff.append(itr.next());
 
@@ -567,35 +567,35 @@ public class WeakLinkedList<T> implements List<T> {
      */
     private class DurableListIterator implements ListIterator<T> {
 
-        private long expectedModCount;
+        private long mExpectedModCount;
 
-        private int index;
+        private int mIndex;
 
-        private byte lastDirection;
+        private byte mLastDirection;
 
-        private WeakListNode nextNode;
+        private WeakListNode mNextNode;
 
-        private WeakListNode prevNode;
+        private WeakListNode mPrevNode;
 
-        public DurableListIterator(final int initialIndex) {
-            synchronized (LOCK) {
-                this.expectedModCount = WeakLinkedList.this.modcount;
-                this.lastDirection = 0;
+        private DurableListIterator(final int initialIndex) {
+            synchronized (mLOCK) {
+                this.mExpectedModCount = WeakLinkedList.this.mModCount;
+                this.mLastDirection = 0;
 
                 // Make worst case for initialization O(N/2)
-                if (initialIndex <= (size / 2)) {
-                    this.prevNode = null;
-                    this.nextNode = WeakLinkedList.this.head;
-                    this.index = 0;
+                if (initialIndex <= (mSize / 2)) {
+                    this.mPrevNode = null;
+                    this.mNextNode = WeakLinkedList.this.mHead;
+                    this.mIndex = 0;
 
                     // go head -> tail to find the initial index
                     while (this.nextIndex() < initialIndex) {
                         this.next();
                     }
                 } else {
-                    this.prevNode = WeakLinkedList.this.tail;
-                    this.nextNode = null;
-                    this.index = WeakLinkedList.this.size;
+                    this.mPrevNode = WeakLinkedList.this.mTail;
+                    this.mNextNode = null;
+                    this.mIndex = WeakLinkedList.this.mSize;
 
                     // go tail -> head to find the initial index
                     while (this.nextIndex() > initialIndex) {
@@ -609,46 +609,46 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.ListIterator#add(java.lang.Object)
          */
         public void add(T o) {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
 
                 final WeakListNode newNode = new WeakListNode(o);
 
                 // Add first node
-                if (WeakLinkedList.this.size == 0) {
-                    WeakLinkedList.this.head = newNode;
-                    WeakLinkedList.this.tail = newNode;
+                if (WeakLinkedList.this.mSize == 0) {
+                    WeakLinkedList.this.mHead = newNode;
+                    WeakLinkedList.this.mTail = newNode;
                 }
                 // Add to head
-                else if (this.index == 0) {
-                    newNode.setNext(WeakLinkedList.this.head);
-                    WeakLinkedList.this.head.setPrev(newNode);
-                    WeakLinkedList.this.head = newNode;
+                else if (this.mIndex == 0) {
+                    newNode.setNext(WeakLinkedList.this.mHead);
+                    WeakLinkedList.this.mHead.setPrev(newNode);
+                    WeakLinkedList.this.mHead = newNode;
                 }
                 // Add to tail
-                else if (this.index == WeakLinkedList.this.size) {
-                    newNode.setPrev(WeakLinkedList.this.tail);
-                    WeakLinkedList.this.tail.setNext(newNode);
-                    WeakLinkedList.this.tail = newNode;
+                else if (this.mIndex == WeakLinkedList.this.mSize) {
+                    newNode.setPrev(WeakLinkedList.this.mTail);
+                    WeakLinkedList.this.mTail.setNext(newNode);
+                    WeakLinkedList.this.mTail = newNode;
                 }
                 // Add otherwise
                 else {
-                    newNode.setPrev(this.prevNode);
-                    newNode.setNext(this.nextNode);
+                    newNode.setPrev(this.mPrevNode);
+                    newNode.setNext(this.mNextNode);
                     newNode.getPrev().setNext(newNode);
                     newNode.getNext().setPrev(newNode);
                 }
 
                 // The new node is always set as the previous node
-                this.prevNode = newNode;
+                this.mPrevNode = newNode;
 
                 // Update all the counters
-                WeakLinkedList.this.size++;
-                WeakLinkedList.this.modcount++;
-                this.index++;
-                this.expectedModCount++;
-                this.lastDirection = 0;
+                WeakLinkedList.this.mSize++;
+                WeakLinkedList.this.mModCount++;
+                this.mIndex++;
+                this.mExpectedModCount++;
+                this.mLastDirection = 0;
             }
         }
 
@@ -657,7 +657,7 @@ public class WeakLinkedList<T> implements List<T> {
          * Iterator
          */
         private void checkConcurrentModification() {
-            if (this.expectedModCount != WeakLinkedList.this.modcount) {
+            if (this.mExpectedModCount != WeakLinkedList.this.mModCount) {
                 throw new ConcurrentModificationException(
                         "The WeakLinkedList was modified outside of this Iterator");
             }
@@ -667,10 +667,10 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.Iterator#hasNext()
          */
         public boolean hasNext() {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
-                return this.nextNode != null;
+                return this.mNextNode != null;
             }
         }
 
@@ -678,10 +678,10 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.ListIterator#hasPrevious()
          */
         public boolean hasPrevious() {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
-                return this.prevNode != null;
+                return this.mPrevNode != null;
             }
         }
 
@@ -689,27 +689,27 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.Iterator#next()
          */
         public T next() {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
 
-                if (this.nextNode == null) {
+                if (this.mNextNode == null) {
                     throw new NoSuchElementException("No elements remain to iterate through");
                 }
 
                 // Move the node refs up one
-                this.prevNode = this.nextNode;
-                this.nextNode = this.nextNode.getNext();
+                this.mPrevNode = this.mNextNode;
+                this.mNextNode = this.mNextNode.getNext();
 
                 // Update the list index
-                this.index++;
+                this.mIndex++;
 
                 // Mark the iterator as clean so add/remove/set operations will
                 // work
-                this.lastDirection = 1;
+                this.mLastDirection = 1;
 
                 // Return the appropriate value
-                return this.prevNode.get();
+                return this.mPrevNode.get();
             }
         }
 
@@ -717,10 +717,10 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.ListIterator#nextIndex()
          */
         public int nextIndex() {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
-                return this.index;
+                return this.mIndex;
             }
         }
 
@@ -728,28 +728,28 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.ListIterator#previous()
          */
         public T previous() {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
 
-                if (this.prevNode == null) {
+                if (this.mPrevNode == null) {
                     throw new NoSuchElementException(
                             "No elements previous element to iterate through");
                 }
 
                 // Move the node refs down one
-                this.nextNode = this.prevNode;
-                this.prevNode = this.prevNode.getPrev();
+                this.mNextNode = this.mPrevNode;
+                this.mPrevNode = this.mPrevNode.getPrev();
 
                 // Update the list index
-                this.index--;
+                this.mIndex--;
 
                 // Mark the iterator as clean so add/remove/set operations will
                 // work
-                this.lastDirection = -1;
+                this.mLastDirection = -1;
 
                 // Return the appropriate value
-                return this.nextNode.get();
+                return this.mNextNode.get();
             }
         }
 
@@ -757,10 +757,10 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.ListIterator#previousIndex()
          */
         public int previousIndex() {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
-                return this.index - 1;
+                return this.mIndex - 1;
             }
         }
 
@@ -768,45 +768,45 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.Iterator#remove()
          */
         public void remove() {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
 
-                if (this.lastDirection == 0) {
+                if (this.mLastDirection == 0) {
                     throw new IllegalStateException("next or previous must be called first");
                 }
 
-                if (this.lastDirection == 1) {
-                    if (this.prevNode == null) {
+                if (this.mLastDirection == 1) {
+                    if (this.mPrevNode == null) {
                         throw new IllegalStateException("No element to remove");
                     }
 
                     // Use the remove node method from the List to ensure clean
                     // up
-                    WeakLinkedList.this.removeNode(this.prevNode);
+                    WeakLinkedList.this.removeNode(this.mPrevNode);
 
                     // Update the prevNode reference
-                    this.prevNode = this.prevNode.getPrev();
+                    this.mPrevNode = this.mPrevNode.getPrev();
 
                     // Update position
-                    this.index--;
-                } else if (this.lastDirection == -1) {
-                    if (this.nextNode == null) {
+                    this.mIndex--;
+                } else if (this.mLastDirection == -1) {
+                    if (this.mNextNode == null) {
                         throw new IllegalStateException("No element to remove");
                     }
 
                     // Use the remove node method from the List to ensure clean
                     // up
-                    WeakLinkedList.this.removeNode(this.nextNode);
+                    WeakLinkedList.this.removeNode(this.mNextNode);
 
                     // Update the nextNode reference
-                    this.nextNode = this.nextNode.getNext();
+                    this.mNextNode = this.mNextNode.getNext();
                 }
 
                 // Update the counters
-                this.expectedModCount++;
-                WeakLinkedList.this.modcount++;
-                this.lastDirection = 0;
+                this.mExpectedModCount++;
+                WeakLinkedList.this.mModCount++;
+                this.mLastDirection = 0;
             }
         }
 
@@ -814,23 +814,23 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.util.ListIterator#set(java.lang.Object)
          */
         public void set(T o) {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 this.checkConcurrentModification();
                 this.updateRefs();
 
-                if (this.prevNode == null) {
+                if (this.mPrevNode == null) {
                     throw new IllegalStateException("No element to set");
                 }
-                if (this.lastDirection == 0) {
+                if (this.mLastDirection == 0) {
                     throw new IllegalStateException("next or previous must be called first");
                 }
 
-                final WeakListNode deadNode = this.prevNode;
+                final WeakListNode deadNode = this.mPrevNode;
                 final WeakListNode newNode = new WeakListNode(o);
 
                 // If the replaced node was the head of the list
-                if (deadNode == WeakLinkedList.this.head) {
-                    WeakLinkedList.this.head = newNode;
+                if (deadNode == WeakLinkedList.this.mHead) {
+                    WeakLinkedList.this.mHead = newNode;
                 }
                 // Otherwise replace refs with node before the one being set
                 else {
@@ -839,8 +839,8 @@ public class WeakLinkedList<T> implements List<T> {
                 }
 
                 // If the replaced node was the tail of the list
-                if (deadNode == WeakLinkedList.this.tail) {
-                    WeakLinkedList.this.tail = newNode;
+                if (deadNode == WeakLinkedList.this.mTail) {
+                    WeakLinkedList.this.mTail = newNode;
                 }
                 // Otherwise replace refs with node after the one being set
                 else {
@@ -849,16 +849,16 @@ public class WeakLinkedList<T> implements List<T> {
                 }
 
                 // Update the ListIterator reference
-                this.prevNode = newNode;
+                this.mPrevNode = newNode;
 
                 // Clean up the dead node(WeakLinkedList.this.removeNode is not
                 // used as it does not work with inserting nodes)
                 deadNode.setRemoved();
 
                 // Update counters
-                this.expectedModCount++;
-                WeakLinkedList.this.modcount++;
-                this.lastDirection = 0;
+                this.mExpectedModCount++;
+                WeakLinkedList.this.mModCount++;
+                this.mLastDirection = 0;
             }
         }
 
@@ -868,20 +868,20 @@ public class WeakLinkedList<T> implements List<T> {
         public String toString() {
             final StringBuffer buff = new StringBuffer();
 
-            buff.append("[index='").append(this.index).append("'");
+            buff.append("[index='").append(this.mIndex).append("'");
 
             buff.append(", prev=");
-            if (this.prevNode == null) {
+            if (this.mPrevNode == null) {
                 buff.append("null");
             } else {
-                buff.append("'").append(this.prevNode).append("'");
+                buff.append("'").append(this.mPrevNode).append("'");
             }
 
             buff.append(", next=");
-            if (this.nextNode == null) {
+            if (this.mNextNode == null) {
                 buff.append("null");
             } else {
-                buff.append("'").append(this.nextNode).append("'");
+                buff.append("'").append(this.mNextNode).append("'");
             }
 
             buff.append("]");
@@ -894,34 +894,34 @@ public class WeakLinkedList<T> implements List<T> {
          * removed from the list because of a removed reference
          */
         private void updateRefs() {
-            synchronized (LOCK) {
+            synchronized (mLOCK) {
                 WeakLinkedList.this.cleanPhantomReferences();
 
                 // Update nextNode refs
-                while (this.nextNode != null
-                        && (this.nextNode.isRemoved() || this.nextNode.isEnqueued())) {
-                    this.nextNode = this.nextNode.getNext();
+                while (this.mNextNode != null
+                        && (this.mNextNode.isRemoved() || this.mNextNode.isEnqueued())) {
+                    this.mNextNode = this.mNextNode.getNext();
                 }
 
                 // Update prevNode refs
-                while (this.prevNode != null
-                        && (this.prevNode.isRemoved() || this.prevNode.isEnqueued())) {
-                    this.prevNode = this.prevNode.getPrev();
+                while (this.mPrevNode != null
+                        && (this.mPrevNode.isRemoved() || this.mPrevNode.isEnqueued())) {
+                    this.mPrevNode = this.mPrevNode.getPrev();
                 }
 
                 // Update index
-                this.index = 0;
-                WeakListNode currNode = this.prevNode;
+                this.mIndex = 0;
+                WeakListNode currNode = this.mPrevNode;
                 while (currNode != null) {
                     currNode = currNode.getPrev();
-                    this.index++;
+                    this.mIndex++;
                 }
 
                 // Ensure the iterator is still valid
-                if (this.nextNode != null && this.nextNode.getPrev() != this.prevNode) {
+                if (this.mNextNode != null && this.mNextNode.getPrev() != this.mPrevNode) {
                     throw new IllegalStateException("nextNode.prev != prevNode");
                 }
-                if (this.prevNode != null && this.prevNode.getNext() != this.nextNode) {
+                if (this.mPrevNode != null && this.mPrevNode.getNext() != this.mNextNode) {
                     throw new IllegalStateException("prevNode.next != nextNode");
                 }
             }
@@ -933,56 +933,56 @@ public class WeakLinkedList<T> implements List<T> {
      */
     private class WeakListNode extends WeakReference<T> {
 
-        private WeakListNode next;
+        private WeakListNode mNext;
 
-        private WeakListNode prev;
+        private WeakListNode mPrev;
 
-        private boolean removed = false;
+        private boolean mRemoved = false;
 
         public WeakListNode(T value) {
-            super(value, WeakLinkedList.this.queue);
+            super(value, WeakLinkedList.this.mQueue);
         }
 
         /**
          * @return Returns the next.
          */
         public WeakListNode getNext() {
-            return this.next;
+            return this.mNext;
         }
 
         /**
          * @return Returns the prev.
          */
         public WeakListNode getPrev() {
-            return this.prev;
+            return this.mPrev;
         }
 
         /**
          * @return true if this node has been removed from a list.
          */
         public boolean isRemoved() {
-            return this.removed;
+            return this.mRemoved;
         }
 
         /**
          * @param next The next to set.
          */
         public void setNext(WeakListNode next) {
-            this.next = next;
+            this.mNext = next;
         }
 
         /**
          * @param prev The prev to set.
          */
         public void setPrev(WeakListNode prev) {
-            this.prev = prev;
+            this.mPrev = prev;
         }
 
         /**
          * Marks this node as being removed from a list.
          */
         public void setRemoved() {
-            this.removed = true;
+            this.mRemoved = true;
         }
 
         /**
@@ -993,20 +993,20 @@ public class WeakLinkedList<T> implements List<T> {
 
             buff.append("[prev=");
 
-            if (this.prev == null) {
+            if (this.mPrev == null) {
                 buff.append("null");
             } else {
-                buff.append("'").append(this.prev.get()).append("'");
+                buff.append("'").append(this.mPrev.get()).append("'");
             }
 
             buff.append(", value='");
             buff.append(this.get());
             buff.append("', next=");
 
-            if (this.next == null) {
+            if (this.mNext == null) {
                 buff.append("null");
             } else {
-                buff.append("'").append(this.next.get()).append("'");
+                buff.append("'").append(this.mNext.get()).append("'");
             }
 
             buff.append("]");

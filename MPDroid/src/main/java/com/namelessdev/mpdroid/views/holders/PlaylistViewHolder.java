@@ -21,9 +21,9 @@ import android.widget.TextView;
 
 public class PlaylistViewHolder extends AbstractViewHolder {
 
-    public ImageView cover;
+    public ImageView mCover;
 
-    public TextView info;
+    public TextView mInfo;
 
-    public TextView name;
+    public TextView mName;
 }

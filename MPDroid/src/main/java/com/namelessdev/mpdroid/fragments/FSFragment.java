@@ -50,11 +50,11 @@ public class FSFragment extends BrowseFragment {
 
     private static final String TAG = "FSFragment";
 
-    private Directory currentDirectory = null;
+    private Directory mCurrentDirectory = null;
 
-    private String directory = null;
+    private String mDirectory = null;
 
-    private int numSubdirs = 0; // number of subdirectories including ".."
+    private int mNumSubDirs = 0; // number of subdirectories including ".."
 
     public FSFragment() {
         super(R.string.addDirectory, R.string.addedDirectoryToPlaylist,
@@ -64,13 +64,13 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void add(Item item, boolean replace, boolean play) {
         try {
-            final Directory ToAdd = currentDirectory.getDirectory(item.getName());
+            final Directory ToAdd = mCurrentDirectory.getDirectory(item.getName());
             if (ToAdd != null) {
                 // Valid directory
-                app.oMPDAsyncHelper.oMPD.add(ToAdd, replace, play);
+                mApp.oMPDAsyncHelper.oMPD.add(ToAdd, replace, play);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
-                app.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
+                mApp.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
                 Tools.notifyUser(R.string.songAdded, item);
             }
         } catch (final MPDServerException e) {
@@ -81,21 +81,21 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void add(Item item, String playlist) {
         try {
-            Directory ToAdd = currentDirectory.getDirectory(item.getName());
+            Directory ToAdd = mCurrentDirectory.getDirectory(item.getName());
             if (ToAdd != null) {
                 // Valid directory
-                app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
+                mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 if (item instanceof Music) {
                     ArrayList<Music> songs = new ArrayList<Music>();
                     songs.add((Music) item);
-                    app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
+                    mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
                     Tools.notifyUser(R.string.songAdded, item);
                 }
                 if (item instanceof PlaylistFile) {
-                    app.oMPDAsyncHelper.oMPD.getPlaylist()
-                            .load(((PlaylistFile) item).getFullpath());
+                    mApp.oMPDAsyncHelper.oMPD.getPlaylist()
+                            .load(((PlaylistFile) item).getFullPath());
                 }
             }
         } catch (final MPDServerException e) {
@@ -105,47 +105,48 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     protected void asyncUpdate() {
-        if (!TextUtils.isEmpty(directory)) {
-            currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(directory);
+        if (!TextUtils.isEmpty(mDirectory)) {
+            mCurrentDirectory = mApp.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(
+                    mDirectory);
         } else {
-            currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
+            mCurrentDirectory = mApp.oMPDAsyncHelper.oMPD.getRootDirectory();
         }
 
         try {
-            currentDirectory.refreshData();
+            mCurrentDirectory.refreshData();
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to refresh current directory", e);
         }
 
         ArrayList<Item> newItems = new ArrayList<Item>();
         // add parent directory:
-        if (!"".equals(currentDirectory.getFullpath())) {
-            Directory parent = new Directory(currentDirectory.getParent());
+        if (!"".equals(mCurrentDirectory.getFullPath())) {
+            Directory parent = new Directory(mCurrentDirectory.getParent());
             if (parent != null) {
                 parent.setName("..");
                 newItems.add(parent);
             }
         }
-        newItems.addAll(currentDirectory.getDirectories());
-        numSubdirs = newItems.size(); // store number if subdirs
-        newItems.addAll(currentDirectory.getFiles());
+        newItems.addAll(mCurrentDirectory.getDirectories());
+        mNumSubDirs = newItems.size(); // store number if subdirs
+        newItems.addAll(mCurrentDirectory.getFiles());
         // Do not show playlists for root directory
-        if (!TextUtils.isEmpty(directory)) {
-            newItems.addAll(currentDirectory.getPlaylistFiles());
+        if (!TextUtils.isEmpty(mDirectory)) {
+            newItems.addAll(mCurrentDirectory.getPlaylistFiles());
         }
-        items = newItems;
+        mItems = newItems;
     }
 
     // Disable the indexer for FSFragment
     @SuppressWarnings("unchecked")
     protected ListAdapter getCustomListAdapter() {
         return new ArrayAdapter<Item>(getActivity(), R.layout.fs_list_item,
-                R.id.text1, (List<Item>) items) {
+                R.id.text1, (List<Item>) mItems) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 final View v = super.getView(position, convertView, parent);
                 final TextView subtext = (TextView) v.findViewById(R.id.text2);
-                final Item item = items.get(position);
+                final Item item = mItems.get(position);
                 String filename;
                 if (item instanceof Music) {
                     filename = ((Music) item).getFilename();
@@ -166,7 +167,7 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        if (TextUtils.isEmpty(directory)) {
+        if (TextUtils.isEmpty(mDirectory)) {
             try {
                 return getString(R.string.files);
             } catch (final IllegalStateException ignored) {
@@ -175,12 +176,12 @@ public class FSFragment extends BrowseFragment {
                 return "/";
             }
         } else {
-            return directory;
+            return mDirectory;
         }
     }
 
     public FSFragment init(String path) {
-        directory = path;
+        mDirectory = path;
         return this;
     }
 
@@ -202,25 +203,25 @@ public class FSFragment extends BrowseFragment {
     @Override
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         // click on a file, not dir
-        if (position > numSubdirs - 1 || numSubdirs == 0) {
+        if (position > mNumSubDirs - 1 || mNumSubDirs == 0) {
 
-            final FilesystemTreeEntry item = (FilesystemTreeEntry) items.get(position);
-            app.oMPDAsyncHelper.execAsync(new Runnable() {
+            final FilesystemTreeEntry item = (FilesystemTreeEntry) mItems.get(position);
+            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         int songId = -1;
                         if (item instanceof Music) {
-                            app.oMPDAsyncHelper.oMPD
-                                    .add(item, app.isInSimpleMode(), app.isInSimpleMode());
-                            if (!app.isInSimpleMode()) {
+                            mApp.oMPDAsyncHelper.oMPD
+                                    .add(item, mApp.isInSimpleMode(), mApp.isInSimpleMode());
+                            if (!mApp.isInSimpleMode()) {
                                 Tools.notifyUser(R.string.songAdded, item);
                             }
                         } else if (item instanceof PlaylistFile) {
-                            app.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullpath());
+                            mApp.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullPath());
                         }
                         if (songId > -1) {
-                            app.oMPDAsyncHelper.oMPD.skipToId(songId);
+                            mApp.oMPDAsyncHelper.oMPD.skipToId(songId);
                         }
                     } catch (final MPDServerException e) {
                         Log.e(TAG, "Failed to add.", e);
@@ -228,7 +229,7 @@ public class FSFragment extends BrowseFragment {
                 }
             });
         } else {
-            final String dir = ((Directory) items.toArray()[position]).getFullpath();
+            final String dir = ((Directory) mItems.toArray()[position]).getFullPath();
             ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
                     new FSFragment().init(dir), "filesystem");
         }
@@ -240,14 +241,14 @@ public class FSFragment extends BrowseFragment {
         // Menu actions...
         switch (item.getItemId()) {
             case R.id.menu_update:
-                app.oMPDAsyncHelper.execAsync(new Runnable() {
+                mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            if (TextUtils.isEmpty(directory)) {
-                                app.oMPDAsyncHelper.oMPD.refreshDatabase();
+                            if (TextUtils.isEmpty(mDirectory)) {
+                                mApp.oMPDAsyncHelper.oMPD.refreshDatabase();
                             } else {
-                                app.oMPDAsyncHelper.oMPD.refreshDatabase(directory);
+                                mApp.oMPDAsyncHelper.oMPD.refreshDatabase(mDirectory);
                             }
                         } catch (final MPDServerException e) {
                             Log.e(TAG, "Failed to refresh database.", e);
@@ -261,7 +262,7 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(EXTRA_DIRECTORY, directory);
+        outState.putString(EXTRA_DIRECTORY, mDirectory);
         super.onSaveInstanceState(outState);
     }
 

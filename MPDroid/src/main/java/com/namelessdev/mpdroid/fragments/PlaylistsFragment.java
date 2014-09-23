@@ -51,9 +51,9 @@ public class PlaylistsFragment extends BrowseFragment {
     @Override
     protected void add(Item item, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add((PlaylistFile) item, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add((PlaylistFile) item, replace, play);
             if (isAdded()) {
-                Tools.notifyUser(irAdded, item);
+                Tools.notifyUser(mIrAdded, item);
             }
 
         } catch (final MPDServerException e) {
@@ -68,7 +68,7 @@ public class PlaylistsFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         try {
-            items = app.oMPDAsyncHelper.oMPD.getPlaylists(true);
+            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylists(true);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to update.", e);
         }
@@ -93,7 +93,7 @@ public class PlaylistsFragment extends BrowseFragment {
     @Override
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new StoredPlaylistFragment().init(items.get(position).getName()),
+                new StoredPlaylistFragment().init(mItems.get(position).getName()),
                 "stored_playlist");
     }
 
@@ -103,12 +103,12 @@ public class PlaylistsFragment extends BrowseFragment {
         switch (item.getItemId()) {
             case EDIT:
                 Intent intent = new Intent(getActivity(), PlaylistEditActivity.class);
-                intent.putExtra("playlist", items.get((int) info.id).getName());
+                intent.putExtra("playlist", mItems.get((int) info.id).getName());
                 startActivity(intent);
                 return true;
 
             case DELETE:
-                String playlist = items.get((int) info.id).getName();
+                String playlist = mItems.get((int) info.id).getName();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.deletePlaylist);
@@ -134,10 +134,10 @@ public class PlaylistsFragment extends BrowseFragment {
 
     class DialogClickListener implements OnClickListener {
 
-        private final int itemIndex;
+        private final int mItemIndex;
 
         DialogClickListener(int itemIndex) {
-            this.itemIndex = itemIndex;
+            this.mItemIndex = itemIndex;
         }
 
         public void onClick(DialogInterface dialog, int which) {
@@ -145,13 +145,13 @@ public class PlaylistsFragment extends BrowseFragment {
                 case AlertDialog.BUTTON_NEGATIVE:
                     break;
                 case AlertDialog.BUTTON_POSITIVE:
-                    String playlist = items.get(itemIndex).getName();
+                    String playlist = mItems.get(mItemIndex).getName();
                     try {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
+                        mApp.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
                         if (isAdded()) {
                             Tools.notifyUser(R.string.playlistDeleted, playlist);
                         }
-                        items.remove(itemIndex);
+                        mItems.remove(mItemIndex);
                     } catch (final MPDServerException e) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setTitle(R.string.deletePlaylist);

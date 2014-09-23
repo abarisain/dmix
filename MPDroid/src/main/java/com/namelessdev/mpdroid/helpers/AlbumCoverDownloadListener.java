@@ -36,28 +36,27 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 
     private static MPDApplication sApp = MPDApplication.getInstance();
 
-    boolean bigCoverNotFound;
+    boolean mBigCoverNotFound;
 
-    ImageView coverArt;
+    ImageView mCoverArt;
 
-    ProgressBar coverArtProgress;
-
+    ProgressBar mCoverArtProgress;
 
     public AlbumCoverDownloadListener(ImageView coverArt) {
-        this.coverArt = coverArt;
-        this.coverArt.setVisibility(View.VISIBLE);
+        this.mCoverArt = coverArt;
+        this.mCoverArt.setVisibility(View.VISIBLE);
         freeCoverDrawable();
     }
 
     public AlbumCoverDownloadListener(ImageView coverArt,
             ProgressBar coverArtProgress,
             boolean bigCoverNotFound) {
-        this.coverArt = coverArt;
-        this.bigCoverNotFound = bigCoverNotFound;
-        this.coverArt.setVisibility(View.VISIBLE);
-        this.coverArtProgress = coverArtProgress;
-        this.coverArtProgress.setIndeterminate(true);
-        this.coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+        this.mCoverArt = coverArt;
+        this.mBigCoverNotFound = bigCoverNotFound;
+        this.mCoverArt.setVisibility(View.VISIBLE);
+        this.mCoverArtProgress = coverArtProgress;
+        this.mCoverArtProgress.setIndeterminate(true);
+        this.mCoverArtProgress.setVisibility(ProgressBar.INVISIBLE);
         freeCoverDrawable();
     }
 
@@ -96,8 +95,8 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     }
 
     public void detach() {
-        coverArtProgress = null;
-        coverArt = null;
+        mCoverArtProgress = null;
+        mCoverArt = null;
     }
 
     public void freeCoverDrawable() {
@@ -105,21 +104,21 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     }
 
     private void freeCoverDrawable(Drawable oldDrawable) {
-        if (coverArt == null) {
+        if (mCoverArt == null) {
             return;
         }
-        final Drawable coverDrawable = oldDrawable == null ? coverArt.getDrawable() : oldDrawable;
+        final Drawable coverDrawable = oldDrawable == null ? mCoverArt.getDrawable() : oldDrawable;
         if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable)) {
             return;
         }
         if (oldDrawable == null) {
             final int noCoverDrawable;
-            if (bigCoverNotFound) {
+            if (mBigCoverNotFound) {
                 noCoverDrawable = getLargeNoCoverResource();
             } else {
                 noCoverDrawable = getNoCoverResource();
             }
-            coverArt.setImageResource(noCoverDrawable);
+            mCoverArt.setImageResource(noCoverDrawable);
         }
 
         coverDrawable.setCallback(null);
@@ -130,8 +129,8 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     }
 
     private boolean isMatchingCover(CoverInfo coverInfo) {
-        return coverInfo != null && coverArt != null &&
-                (coverArt.getTag() == null || coverArt.getTag().equals(coverInfo.getKey()));
+        return coverInfo != null && mCoverArt != null &&
+                (mCoverArt.getTag() == null || mCoverArt.getTag().equals(coverInfo.getKey()));
     }
 
     @Override
@@ -139,8 +138,8 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         if (!isMatchingCover(cover)) {
             return;
         }
-        if (coverArtProgress != null) {
-            this.coverArtProgress.setVisibility(ProgressBar.VISIBLE);
+        if (mCoverArtProgress != null) {
+            this.mCoverArtProgress.setVisibility(ProgressBar.VISIBLE);
         }
     }
 
@@ -153,11 +152,11 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
             return;
         }
         try {
-            if (coverArtProgress != null) {
-                coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+            if (mCoverArtProgress != null) {
+                mCoverArtProgress.setVisibility(ProgressBar.INVISIBLE);
             }
-            freeCoverDrawable(coverArt.getDrawable());
-            coverArt.setImageDrawable(new CoverBitmapDrawable(sApp.getResources(), cover
+            freeCoverDrawable(mCoverArt.getDrawable());
+            mCoverArt.setImageDrawable(new CoverBitmapDrawable(sApp.getResources(), cover
                     .getBitmap()[0]));
             cover.setBitmap(null);
         } catch (final Exception e) {
@@ -171,16 +170,16 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
             return;
         }
         cover.setBitmap(null);
-        if (coverArtProgress != null) {
-            coverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+        if (mCoverArtProgress != null) {
+            mCoverArtProgress.setVisibility(ProgressBar.INVISIBLE);
         }
         freeCoverDrawable();
     }
 
     @Override
     public void tagAlbumCover(AlbumInfo albumInfo) {
-        if (coverArt != null && albumInfo != null) {
-            coverArt.setTag(albumInfo.getKey());
+        if (mCoverArt != null && albumInfo != null) {
+            mCoverArt.setTag(albumInfo.getKey());
         }
     }
 }

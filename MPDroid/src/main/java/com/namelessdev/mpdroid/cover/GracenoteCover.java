@@ -16,11 +16,14 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.MPDApplication;
+
 import org.a0z.mpd.AlbumInfo;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.StringReader;
@@ -35,22 +38,19 @@ public class GracenoteCover extends AbstractWebCover {
 
     public static final String USER_ID = "GRACENOTE_USERID";
 
+    private static final SharedPreferences SETTINGS =
+            PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance());
+
     private static final String TAG = "GracenoteCover";
 
-    private String apiUrl;
+    private String mApiUrl;
 
-    private String clientId;
+    private String mClientId;
 
-    private SharedPreferences sharedPreferences;
+    private String mUserId;
 
-    private String userId;
-
-    public GracenoteCover(SharedPreferences sharedPreferences) {
-        this.sharedPreferences = sharedPreferences;
-    }
-
-    public static boolean isClientIdAvailable(SharedPreferences sharedPreferences) {
-        return !isEmpty(sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null));
+    public static boolean isClientIdAvailable() {
+        return !SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, null).isEmpty();
     }
 
     private String extractCoverUrl(String response) {
@@ -124,11 +124,11 @@ public class GracenoteCover extends AbstractWebCover {
 
     private String getClientIdPrefix() {
         String[] splittedString;
-        splittedString = clientId.split("-");
+        splittedString = mClientId.split("-");
         if (splittedString.length == 2) {
             return splittedString[0];
         } else {
-            Log.w(TAG, "Invalid GraceNote User ID (must be XXXX-XXXXXXXXXXXXX) : " + clientId);
+            Log.w(TAG, "Invalid GraceNote User ID (must be XXXX-XXXXXXXXXXXXX) : " + mClientId);
             return "";
         }
     }
@@ -137,11 +137,11 @@ public class GracenoteCover extends AbstractWebCover {
     public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
         String coverUrl;
 
-        if (userId == null) {
+        if (mUserId == null) {
             initializeUserId();
         }
 
-        if (userId == null) {
+        if (mUserId == null) {
             return new String[0];
         }
         try {
@@ -164,8 +164,8 @@ public class GracenoteCover extends AbstractWebCover {
         String request = "<QUERIES>\n" +
                 "  <LANG>eng</LANG>\n" +
                 "  <AUTH>\n" +
-                "    <CLIENT>" + clientId + "</CLIENT>\n" +
-                "    <USER>" + userId + "</USER>\n" +
+                "    <CLIENT>" + mClientId + "</CLIENT>\n" +
+                "    <USER>" + mUserId + "</USER>\n" +
                 "  </AUTH>\n" +
                 "  <QUERY CMD=\"ALBUM_SEARCH\">\n" +
                 "    <MODE>SINGLE_BEST_COVER</MODE>\n" +
@@ -175,7 +175,7 @@ public class GracenoteCover extends AbstractWebCover {
                 "  </QUERY>\n" +
                 "</QUERIES>";
 
-        String response = this.executePostRequest(apiUrl, request);
+        String response = this.executePostRequest(mApiUrl, request);
         return extractCoverUrl(response);
     }
 
@@ -187,34 +187,34 @@ public class GracenoteCover extends AbstractWebCover {
     private void initializeUserId() {
         try {
 
-            if (sharedPreferences == null) {
+            if (SETTINGS == null) {
                 return;
             }
 
-            String customClientId = sharedPreferences.getString(CUSTOM_CLIENT_ID_KEY, null);
+            String customClientId = SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, null);
             if (!isEmpty(customClientId)) {
-                clientId = customClientId;
-                apiUrl = "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
+                mClientId = customClientId;
+                mApiUrl = "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
             } else {
                 return;
             }
-            userId = sharedPreferences.getString(USER_ID, null);
+            mUserId = SETTINGS.getString(USER_ID, null);
 
-            if (userId == null) {
-                userId = register();
-                if (sharedPreferences != null && userId != null) {
+            if (mUserId == null) {
+                mUserId = register();
+                if (SETTINGS != null && mUserId != null) {
                     SharedPreferences.Editor editor;
-                    editor = sharedPreferences.edit();
-                    editor.putString(USER_ID, userId);
+                    editor = SETTINGS.edit();
+                    editor.putString(USER_ID, mUserId);
                     editor.commit();
                 }
             }
         } catch (final Exception e) {
             Log.e(TAG, "Gracenote initialization failure.", e);
-            if (sharedPreferences != null) {
-                if (sharedPreferences != null && userId != null) {
+            if (SETTINGS != null) {
+                if (SETTINGS != null && mUserId != null) {
                     SharedPreferences.Editor editor;
-                    editor = sharedPreferences.edit();
+                    editor = SETTINGS.edit();
                     editor.remove(USER_ID);
                     editor.commit();
                 }
@@ -228,13 +228,13 @@ public class GracenoteCover extends AbstractWebCover {
     // in a persistent form (filesystem, db, etc) otherwise you will hit your
     // user limit.
     public String register() {
-        return this.register(clientId);
+        return this.register(mClientId);
     }
 
     public String register(String clientID) {
         String request = "<QUERIES><QUERY CMD=\"REGISTER\"><CLIENT>" + clientID
                 + "</CLIENT></QUERY></QUERIES>";
-        String response = this.executePostRequest(apiUrl, request);
+        String response = this.executePostRequest(mApiUrl, request);
         return extractUserID(response);
     }
 }

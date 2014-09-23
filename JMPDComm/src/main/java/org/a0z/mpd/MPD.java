@@ -56,7 +56,7 @@ public class MPD {
 
     public static final String STREAMS_PLAYLIST = "[Radio Streams]";
 
-    private static final String TAG = "org.a0z.mpd.MPD";
+    private static final String TAG = "MPD";
 
     protected static boolean sortAlbumsByYear = false;
 
@@ -66,29 +66,29 @@ public class MPD {
 
     private static String sUnknownArtist = "";
 
-    private final MPDConnection mpdConnection;
+    private final MPDConnection mConnection;
 
-    private final MPDConnection mpdIdleConnection;
+    private final MPDConnection mIdleConnection;
 
-    protected MPDPlaylist playlist;
+    protected MPDPlaylist mPlaylist;
 
-    protected Directory rootDirectory;
+    protected Directory mRootDirectory;
 
-    private MPDStatistics mMPDStatistics;
+    private MPDStatistics mStatistics;
 
-    private MPDStatus mpdStatus;
+    private MPDStatus mStatus;
 
     /**
      * Constructs a new MPD server controller without connection.
      */
     public MPD() {
-        mpdConnection = new MPDConnectionMultiSocket(5000, 2);
-        mpdIdleConnection = new MPDConnectionMonoSocket(0);
-        mMPDStatistics = new MPDStatistics();
+        mConnection = new MPDConnectionMultiSocket(5000, 2);
+        mIdleConnection = new MPDConnectionMonoSocket(0);
+        mStatistics = new MPDStatistics();
 
-        this.playlist = new MPDPlaylist(mpdConnection);
-        this.mpdStatus = new MPDStatus();
-        this.rootDirectory = Directory.makeRootDirectory(this);
+        this.mPlaylist = new MPDPlaylist(mConnection);
+        this.mStatus = new MPDStatus();
+        this.mRootDirectory = Directory.makeRootDirectory(this);
     }
 
     /**
@@ -242,7 +242,7 @@ public class MPD {
             throws MPDServerException {
         final CommandQueue commandQueue = new CommandQueue();
 
-        commandQueue.add(MPDPlaylist.addCommand(music.getFullpath()));
+        commandQueue.add(MPDPlaylist.addCommand(music.getFullPath()));
 
         add(commandQueue, replace, play);
     }
@@ -269,10 +269,10 @@ public class MPD {
     public void add(final CommandQueue commandQueue, final boolean replace,
             final boolean playAfterAdd) throws MPDServerException {
         int playPos = 0;
-        final boolean isPlaying = mpdStatus.isState(MPDStatus.STATE_PLAYING);
-        final boolean isConsume = mpdStatus.isConsume();
-        final boolean isRandom = mpdStatus.isRandom();
-        final int playlistLength = mpdStatus.getPlaylistLength();
+        final boolean isPlaying = mStatus.isState(MPDStatus.STATE_PLAYING);
+        final boolean isConsume = mStatus.isConsume();
+        final boolean isRandom = mStatus.isRandom();
+        final int playlistLength = mStatus.getPlaylistLength();
 
         /** Replace */
         if (replace) {
@@ -289,7 +289,7 @@ public class MPD {
             }
         } else if (playAfterAdd && !isRandom) {
             /** Since we didn't clear the playlist queue, we need to play the (current queue+1) */
-            playPos = playlist.size();
+            playPos = mPlaylist.size();
         }
 
         if (replace) {
@@ -308,7 +308,7 @@ public class MPD {
 
         }
 
-        commandQueue.send(mpdConnection);
+        commandQueue.send(mConnection);
     }
 
     /**
@@ -384,15 +384,15 @@ public class MPD {
         final CommandQueue commandQueue = new CommandQueue();
 
         for (Music m : c) {
-            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullpath());
+            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullPath());
         }
-        commandQueue.send(mpdConnection);
+        commandQueue.send(mConnection);
     }
 
     public void addToPlaylist(String playlistName, FilesystemTreeEntry entry)
             throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName,
-                entry.getFullpath());
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName,
+                entry.getFullPath());
     }
 
     public void addToPlaylist(String playlistName, Music music) throws MPDServerException {
@@ -409,10 +409,10 @@ public class MPD {
      */
     public void adjustVolume(int modifier) throws MPDServerException {
         // calculate final volume (clip value with [0, 100])
-        int vol = mpdStatus.getVolume() + modifier;
+        int vol = mStatus.getVolume() + modifier;
         vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, vol));
 
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
+        mConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
     }
 
     /*
@@ -421,7 +421,7 @@ public class MPD {
     public boolean albumInGenre(Album album, Genre genre) throws MPDServerException {
         List<String> response;
         Artist artist = album.getArtist();
-        response = mpdConnection.sendCommand
+        response = mConnection.sendCommand
                 (new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG,
                         MPDCommand.MPD_TAG_ALBUM,
                         MPDCommand.MPD_TAG_ALBUM, album.getName(),
@@ -439,7 +439,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void clearError() throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_CLEARERROR);
+        mConnection.sendCommand(MPDCommand.MPD_CMD_CLEARERROR);
     }
 
     /**
@@ -451,8 +451,8 @@ public class MPD {
     public final synchronized void connect(InetAddress server, int port, String password)
             throws MPDServerException {
         if (!isConnected()) {
-            mpdConnection.connect(server, port, password);
-            mpdIdleConnection.connect(server, port, password);
+            mConnection.connect(server, port, password);
+            mIdleConnection.connect(server, port, password);
         }
     }
 
@@ -489,7 +489,7 @@ public class MPD {
     }
 
     public void disableOutput(int id) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
+        mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
     }
 
     /**
@@ -499,17 +499,17 @@ public class MPD {
      */
     public synchronized void disconnect() throws MPDServerException {
         MPDServerException ex = null;
-        if (mpdConnection != null && mpdConnection.isConnected()) {
+        if (mConnection != null && mConnection.isConnected()) {
             try {
-                mpdConnection.disconnect();
+                mConnection.disconnect();
             } catch (MPDServerException e) {
                 ex = (ex != null) ? ex : e;// Always keep first non null
                 // exception
             }
         }
-        if (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
+        if (mIdleConnection != null && mIdleConnection.isConnected()) {
             try {
-                mpdIdleConnection.disconnect();
+                mIdleConnection.disconnect();
             } catch (MPDServerException e) {
                 ex = (ex != null) ? ex : e;// Always keep non null first
                 // exception
@@ -523,7 +523,7 @@ public class MPD {
     }
 
     public void enableOutput(int id) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
+        mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
     }
 
     /**
@@ -593,12 +593,12 @@ public class MPD {
 
     protected List<Music> genericSearch(String searchCommand, String args[], boolean sort)
             throws MPDServerException {
-        return Music.getMusicFromList(mpdConnection.sendCommand(searchCommand, args), sort);
+        return Music.getMusicFromList(mConnection.sendCommand(searchCommand, args), sort);
     }
 
     protected List<Music> genericSearch(String searchCommand, String type, String strToFind)
             throws MPDServerException {
-        List<String> response = mpdConnection.sendCommand(searchCommand, type, strToFind);
+        List<String> response = mConnection.sendCommand(searchCommand, type, strToFind);
         return Music.getMusicFromList(response, true);
     }
 
@@ -616,7 +616,7 @@ public class MPD {
         for (Album a : albums) {
             commandQueue.add(getAlbumDetailsCommand(a));
         }
-        final List<String[]> response = commandQueue.sendSeparated(mpdConnection);
+        final List<String[]> response = commandQueue.sendSeparated(mConnection);
         if (response.size() != albums.size()) {
             // Log.debug("MPD AlbumDetails", "non matching results "+
             // response.size()+" != "+ albums.size());
@@ -703,7 +703,7 @@ public class MPD {
     public List<Album> getAllAlbums(final boolean trackCountNeeded) throws MPDServerException {
         final List<Album> albums;
         // Use MPD 0.19's album grouping feature if available.
-        if (mpdConnection.isProtocolVersionSupported(0, 19)) {
+        if (mConnection.isProtocolVersionSupported(0, 19)) {
             albums = listAllAlbumsGrouped(false);
         } else {
             final List<String> albumNames = listAlbums();
@@ -780,7 +780,7 @@ public class MPD {
      * @see Directory
      */
     public List<FilesystemTreeEntry> getDir(final String path) throws MPDServerException {
-        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
+        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
         return Directory.getDir(response, this);
     }
 
@@ -838,15 +838,15 @@ public class MPD {
     }
 
     public InetAddress getHostAddress() {
-        return mpdConnection.getHostAddress();
+        return mConnection.getHostAddress();
     }
 
     public int getHostPort() {
-        return mpdConnection.getHostPort();
+        return mConnection.getHostPort();
     }
 
-    MPDConnection getMpdIdleConnection() {
-        return this.mpdIdleConnection;
+    MPDConnection getIdleConnection() {
+        return this.mIdleConnection;
     }
 
     /**
@@ -855,7 +855,7 @@ public class MPD {
      * @return MPD Server version.
      */
     public String getMpdVersion() throws MPDServerException {
-        int[] version = mpdIdleConnection.getMPDVersion();
+        int[] version = mIdleConnection.getMPDVersion();
 
         StringBuffer sb = new StringBuffer(version.length);
         for (int i = 0; i < version.length; i++) {
@@ -874,7 +874,7 @@ public class MPD {
      */
     public List<MPDOutput> getOutputs() throws MPDServerException {
         List<MPDOutput> result = new LinkedList<>();
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTS);
+        List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTS);
 
         LinkedList<String> lineCache = new LinkedList<>();
         for (String line : response) {
@@ -900,7 +900,7 @@ public class MPD {
      * @return playlist.
      */
     public MPDPlaylist getPlaylist() {
-        return this.playlist;
+        return this.mPlaylist;
     }
 
     public List<Music> getPlaylistSongs(String playlistName) throws MPDServerException {
@@ -923,7 +923,7 @@ public class MPD {
      * @param sort whether the return list should be sorted
      */
     public List<Item> getPlaylists(boolean sort) throws MPDServerException {
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
+        List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         final List<Item> result = new ArrayList<>(response.size());
         for (String line : response) {
             if (line.startsWith("playlist")) {
@@ -946,11 +946,11 @@ public class MPD {
      * @return root directory.
      */
     public Directory getRootDirectory() {
-        return rootDirectory;
+        return mRootDirectory;
     }
 
     public List<Music> getSavedStreams() throws MPDServerException {
-        List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
+        List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         for (String line : response) {
             if (line.startsWith("playlist")) {
                 String name = line.substring("playlist: ".length());
@@ -967,7 +967,7 @@ public class MPD {
 
     public List<Music> getSongs(Album album) throws MPDServerException {
         List<Music> songs = Music.getMusicFromList
-                (mpdConnection.sendCommand(getSongsCommand(album)), true);
+                (mConnection.sendCommand(getSongsCommand(album)), true);
         if (album.hasAlbumArtist()) {
             // remove songs that don't have this albumartist
             // (mpd >=0.18 puts them in)
@@ -1020,7 +1020,7 @@ public class MPD {
      * @return statistics for the connected server.
      */
     public MPDStatistics getStatistics() {
-        return mMPDStatistics;
+        return mStatistics;
     }
 
     /**
@@ -1029,7 +1029,7 @@ public class MPD {
      * @return status of the connected server.
      */
     public MPDStatus getStatus() {
-        return mpdStatus;
+        return mStatus;
     }
 
     /**
@@ -1038,7 +1038,7 @@ public class MPD {
      * @return true when connected and false when not connected
      */
     public boolean isConnected() {
-        return mpdIdleConnection.isConnected();
+        return mIdleConnection.isConnected();
     }
 
     public List<String> listAlbumArtists() throws MPDServerException {
@@ -1052,7 +1052,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listAlbumArtists(final boolean sortInsensitive) throws MPDServerException {
-        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ALBUM_ARTIST);
 
         return parseResponse(response, "albumartist", sortInsensitive);
@@ -1070,7 +1070,7 @@ public class MPD {
      */
     public List<String> listAlbumArtists(Genre genre, boolean sortInsensitive)
             throws MPDServerException {
-        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ALBUM_ARTIST, MPDCommand.MPD_TAG_GENRE,
                 genre.getName());
 
@@ -1088,7 +1088,7 @@ public class MPD {
                     MPDCommand.MPD_TAG_ALBUM,
                     a.getName());
         }
-        final List<String[]> response = commandQueue.sendSeparated(mpdConnection);
+        final List<String[]> response = commandQueue.sendSeparated(mConnection);
         if (response.size() != albums.size()) {
             Log.debug("MPD listAlbumArtists", "ERROR");
             return null;
@@ -1151,7 +1151,7 @@ public class MPD {
         boolean foundSongWithoutAlbum = false;
 
         List<String> response =
-                mpdConnection.sendCommand
+                mConnection.sendCommand
                         (listAlbumsCommand(artist, useAlbumArtist));
 
         final List<String> result = new ArrayList<>(response.size());
@@ -1222,7 +1222,7 @@ public class MPD {
     public List<Album> listAllAlbumsGrouped(boolean useAlbumArtist,
             boolean includeUnknownAlbum) throws MPDServerException {
         List<String> response =
-                mpdConnection.sendCommand
+                mConnection.sendCommand
                         (listAllAlbumsGroupedCommand(useAlbumArtist));
 
         final String artistResponse = useAlbumArtist ? "AlbumArtist: " : "Artist: ";
@@ -1273,7 +1273,7 @@ public class MPD {
      * @throws MPDServerException on no connection or failure to send command.
      */
     public List<Music> listAllInfo() throws MPDServerException {
-        final List<String> allInfo = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO);
+        final List<String> allInfo = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO);
         return Music.getMusicFromList(allInfo, false);
     }
 
@@ -1295,7 +1295,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listArtists(final boolean sortInsensitive) throws MPDServerException {
-        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST);
 
         return parseResponse(response, "Artist", sortInsensitive);
@@ -1330,7 +1330,7 @@ public class MPD {
             }
         }
 
-        final List<String[]> responses = commandQueue.sendSeparated(mpdConnection);
+        final List<String[]> responses = commandQueue.sendSeparated(mConnection);
         final List<String[]> result = new ArrayList<>(responses.size());
 
         for (String[] r : responses) {
@@ -1363,7 +1363,7 @@ public class MPD {
      */
     public List<String> listArtists(final String genre, final boolean sortInsensitive)
             throws MPDServerException {
-        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST, MPDCommand.MPD_TAG_GENRE, genre);
 
         return parseResponse(response, "Artist", sortInsensitive);
@@ -1387,14 +1387,14 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public List<String> listGenres(final boolean sortInsensitive) throws MPDServerException {
-        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_GENRE);
 
         return parseResponse(response, "Genre", sortInsensitive);
     }
 
     public void movePlaylistSong(String playlistName, int from, int to) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_MOVE, playlistName,
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_MOVE, playlistName,
                 Integer.toString(from), Integer.toString(to));
     }
 
@@ -1404,7 +1404,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void next() throws MPDServerException {
-        mpdConnection.sendCommand(nextCommand());
+        mConnection.sendCommand(nextCommand());
     }
 
     /**
@@ -1413,7 +1413,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void pause() throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PAUSE);
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PAUSE);
     }
 
     /**
@@ -1422,7 +1422,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void play() throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAY);
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAY);
     }
 
     /**
@@ -1431,7 +1431,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server..
      */
     public void previous() throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PREV);
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PREV);
     }
 
     /**
@@ -1440,7 +1440,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void refreshDatabase() throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH);
+        mConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH);
     }
 
     /**
@@ -1449,21 +1449,21 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void refreshDatabase(String folder) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH, folder);
+        mConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH, folder);
     }
 
     public void removeFromPlaylist(String playlistName, Integer pos) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName,
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName,
                 Integer.toString(pos));
     }
 
     public void removeSavedStream(Integer pos) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, STREAMS_PLAYLIST,
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, STREAMS_PLAYLIST,
                 Integer.toString(pos));
     }
 
     public void saveStream(String url, String name) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
                 Music.addStreamName(url, name));
     }
 
@@ -1495,7 +1495,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void seek(long position) throws MPDServerException {
-        seekById(mpdStatus.getSongId(), position);
+        seekById(mStatus.getSongId(), position);
     }
 
     /**
@@ -1506,7 +1506,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void seekById(int songId, long position) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_SEEK_ID, Integer.toString(songId),
+        mConnection.sendCommand(MPDCommand.MPD_CMD_SEEK_ID, Integer.toString(songId),
                 Long.toString(position));
     }
 
@@ -1518,7 +1518,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void seekByIndex(int index, long position) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_SEEK, Integer.toString(index),
+        mConnection.sendCommand(MPDCommand.MPD_CMD_SEEK, Integer.toString(index),
                 Long.toString(position));
     }
 
@@ -1530,7 +1530,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setConsume(boolean consume) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_CONSUME, consume ? "1" : "0");
+        mConnection.sendCommand(MPDCommand.MPD_CMD_CONSUME, consume ? "1" : "0");
     }
 
     /**
@@ -1540,7 +1540,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setCrossfade(int time) throws MPDServerException {
-        mpdConnection
+        mConnection
                 .sendCommand(MPDCommand.MPD_CMD_CROSSFADE, Integer.toString(Math.max(0, time)));
     }
 
@@ -1552,7 +1552,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setRandom(boolean random) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_RANDOM, random ? "1" : "0");
+        mConnection.sendCommand(MPDCommand.MPD_CMD_RANDOM, random ? "1" : "0");
     }
 
     /**
@@ -1563,7 +1563,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setRepeat(boolean repeat) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_REPEAT, repeat ? "1" : "0");
+        mConnection.sendCommand(MPDCommand.MPD_CMD_REPEAT, repeat ? "1" : "0");
     }
 
     /**
@@ -1574,7 +1574,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void setSingle(boolean single) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_SINGLE, single ? "1" : "0");
+        mConnection.sendCommand(MPDCommand.MPD_CMD_SINGLE, single ? "1" : "0");
     }
 
     /**
@@ -1585,7 +1585,7 @@ public class MPD {
      */
     public void setVolume(int volume) throws MPDServerException {
         int vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, volume));
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
+        mConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
     }
 
     /**
@@ -1594,7 +1594,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void shutdown() throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_KILL);
+        mConnection.sendCommand(MPDCommand.MPD_CMD_KILL);
     }
 
     /**
@@ -1604,7 +1604,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void skipToId(int id) throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_PLAY_ID, Integer.toString(id));
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAY_ID, Integer.toString(id));
     }
 
     /**
@@ -1615,7 +1615,7 @@ public class MPD {
      * @see #skipToId(int)
      */
     public void skipToPosition(int position) throws MPDServerException {
-        mpdConnection.sendCommand(skipToPositionCommand(position));
+        mConnection.sendCommand(skipToPositionCommand(position));
     }
 
     /**
@@ -1624,7 +1624,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      */
     public void stop() throws MPDServerException {
-        mpdConnection.sendCommand(MPDCommand.MPD_CMD_STOP);
+        mConnection.sendCommand(MPDCommand.MPD_CMD_STOP);
     }
 
     /**
@@ -1636,9 +1636,9 @@ public class MPD {
      * @see MPDStatusMonitor
      */
     public void updateStatistics() throws MPDServerException {
-        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
+        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
 
-        mMPDStatistics.update(response);
+        mStatistics.update(response);
     }
 
     /**
@@ -1650,12 +1650,12 @@ public class MPD {
      * @see MPDStatusMonitor
      */
     void updateStatus() throws MPDServerException {
-        final List<String> response = mpdConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
+        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
 
         if (response == null) {
             Log.error(TAG, "No status response from the MPD server.");
         } else {
-            mpdStatus.updateStatus(response);
+            mStatus.updateStatus(response);
         }
     }
 }

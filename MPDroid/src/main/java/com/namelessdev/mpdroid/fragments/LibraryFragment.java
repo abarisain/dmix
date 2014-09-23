@@ -47,9 +47,9 @@ public class LibraryFragment extends Fragment {
 
     public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
-    ILibraryTabActivity activity = null;
+    ILibraryTabActivity mActivity = null;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -59,12 +59,12 @@ public class LibraryFragment extends Fragment {
      * intensive, it may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter sectionsPagerAdapter = null;
+    SectionsPagerAdapter mSectionsPagerAdapter = null;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager viewPager = null;
+    ViewPager mViewPager = null;
 
     @Override
     public void onAttach(Activity activity) {
@@ -73,10 +73,10 @@ public class LibraryFragment extends Fragment {
             throw new RuntimeException(
                     "Error : LibraryFragment can only be attached to an activity implementing ILibraryTabActivity");
         }
-        this.activity = (ILibraryTabActivity) activity;
-        sectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
-        if (viewPager != null) {
-            viewPager.setAdapter(sectionsPagerAdapter);
+        this.mActivity = (ILibraryTabActivity) activity;
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
+        if (mViewPager != null) {
+            mViewPager.setAdapter(mSectionsPagerAdapter);
         }
     }
 
@@ -84,15 +84,15 @@ public class LibraryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.library_tabs_fragment, container, false);
-        viewPager = (ViewPager) view;
-        if (sectionsPagerAdapter != null) {
-            viewPager.setAdapter(sectionsPagerAdapter);
+        mViewPager = (ViewPager) view;
+        if (mSectionsPagerAdapter != null) {
+            mViewPager.setAdapter(mSectionsPagerAdapter);
         }
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                if (activity != null) {
-                    activity.pageChanged(position);
+                if (mActivity != null) {
+                    mActivity.pageChanged(position);
                 }
             }
         });
@@ -100,8 +100,8 @@ public class LibraryFragment extends Fragment {
     }
 
     public void setCurrentItem(int item, boolean smoothScroll) {
-        if (viewPager != null) {
-            viewPager.setCurrentItem(item, smoothScroll);
+        if (mViewPager != null) {
+            mViewPager.setCurrentItem(item, smoothScroll);
         }
     }
 
@@ -117,18 +117,18 @@ public class LibraryFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return activity.getTabList().size();
+            return mActivity.getTabList().size();
         }
 
         @Override
         public Fragment getItem(int i) {
             Fragment fragment = null;
-            String tab = activity.getTabList().get(i);
+            String tab = mActivity.getTabList().get(i);
             if (tab.equals(LibraryTabsUtil.TAB_ARTISTS)) {
                 fragment = new ArtistsFragment().init(null);
             } else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
                 final SharedPreferences settings = PreferenceManager
-                        .getDefaultSharedPreferences(app);
+                        .getDefaultSharedPreferences(mApp);
                 if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                     fragment = new AlbumsGridFragment(null);
                 } else {

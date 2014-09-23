@@ -95,21 +95,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private static final String FRAGMENT_TAG_OUTPUTS = "outputs";
 
-    private static final String TAG = "com.namelessdev.mpdroid.MainMenuActivity";
+    private static final String TAG = "MainMenuActivity";
 
-    private int backPressExitCount;
+    private int mBackPressExitCount;
 
-    private DisplayMode currentDisplayMode;
-
-    private Handler exitCounterReset;
-
-    private FragmentManager fragmentManager;
-
-    private boolean isDualPaneMode;
-
-    private LibraryFragment libraryFragment;
-
-    private View libraryRootFrame;
+    private DisplayMode mCurrentDisplayMode;
 
     private List<DrawerItem> mDrawerItems;
 
@@ -118,6 +108,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private ListView mDrawerList;
 
     private ActionBarDrawerToggle mDrawerToggle;
+
+    private Handler mExitCounterReset;
+
+    private FragmentManager mFragmentManager;
 
     private View mHeaderDragView;
 
@@ -129,23 +123,29 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private TextView mHeaderTitle;
 
+    private boolean mIsDualPaneMode;
+
+    private LibraryFragment mLibraryFragment;
+
+    private View mLibraryRootFrame;
+
+    private View mNowPlayingDualPane;
+
+    private ViewPager mNowPlayingPager;
+
+    private int mOldDrawerPosition;
+
+    private OutputsFragment mOutputsFragment;
+
+    private View mOutputsRootFrame;
+
     private QueueFragment mQueueFragment;
 
     private SlidingUpPanelLayout mSlidingLayout;
 
     private ArrayList<String> mTabList;
 
-    private View nowPlayingDualPane;
-
-    private ViewPager nowPlayingPager;
-
-    private int oldDrawerPosition;
-
-    private OutputsFragment outputsFragment;
-
-    private View outputsRootFrame;
-
-    private TextView titleView;
+    private TextView mTextView;
 
     @Override
     public ArrayList<String> getTabList() {
@@ -159,8 +159,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return;
         }
 
-        if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
-            final int fmStackCount = fragmentManager.getBackStackEntryCount();
+        if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY) {
+            final int fmStackCount = mFragmentManager.getBackStackEntryCount();
             if (fmStackCount > 0) {
                 super.onBackPressed();
                 return;
@@ -173,13 +173,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         final boolean exitConfirmationRequired = settings.getBoolean("enableExitConfirmation",
                 false);
-        if (exitConfirmationRequired && backPressExitCount < 1) {
+        if (exitConfirmationRequired && mBackPressExitCount < 1) {
             Tools.notifyUser(R.string.backpressToQuit);
-            backPressExitCount += 1;
-            exitCounterReset.postDelayed(new Runnable() {
+            mBackPressExitCount += 1;
+            mExitCounterReset.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    backPressExitCount = 0;
+                    mBackPressExitCount = 0;
                 }
             }, 5000);
         } else {
@@ -206,27 +206,27 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        app.setupServiceBinder();
-        setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet
+        mApp.setupServiceBinder();
+        setContentView(mApp.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet
                 : R.layout.main_activity_nagvigation);
 
         LayoutInflater inflater = (LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        titleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
-        titleView.setFocusable(true);
-        titleView.setFocusableInTouchMode(true);
-        titleView.setSelected(true);
-        titleView.requestFocus();
+        mTextView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
+        mTextView.setFocusable(true);
+        mTextView.setFocusableInTouchMode(true);
+        mTextView.setSelected(true);
+        mTextView.requestFocus();
 
-        nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
-        nowPlayingPager = (ViewPager) findViewById(R.id.pager);
-        libraryRootFrame = findViewById(R.id.library_root_frame);
-        outputsRootFrame = findViewById(R.id.outputs_root_frame);
+        mNowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
+        mNowPlayingPager = (ViewPager) findViewById(R.id.pager);
+        mLibraryRootFrame = findViewById(R.id.library_root_frame);
+        mOutputsRootFrame = findViewById(R.id.outputs_root_frame);
 
-        isDualPaneMode = (nowPlayingDualPane != null);
+        mIsDualPaneMode = (mNowPlayingDualPane != null);
         switchMode(DisplayMode.MODE_LIBRARY);
 
-        exitCounterReset = new Handler();
+        mExitCounterReset = new Handler();
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -235,7 +235,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-        actionBar.setCustomView(titleView);
+        actionBar.setCustomView(mTextView);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
 
@@ -254,7 +254,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         final int drawerRes;
 
-        if(app.isLightThemeSelected()) {
+        if (mApp.isLightThemeSelected()) {
             drawerRes = R.drawable.ic_drawer_light;
         } else {
             drawerRes = R.drawable.ic_drawer;
@@ -283,7 +283,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             public void onDrawerOpened(View drawerView) {
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
                 actionBar.setDisplayShowCustomEnabled(true);
-                titleView.setText(R.string.app_name);
+                mTextView.setText(R.string.app_name);
             }
         };
 
@@ -293,16 +293,16 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         // Set the adapter for the list view
         mDrawerList.setAdapter(new ArrayAdapter<DrawerItem>(this,
                 R.layout.drawer_list_item, mDrawerItems));
-        oldDrawerPosition = 0;
-        mDrawerList.setItemChecked(oldDrawerPosition, true);
+        mOldDrawerPosition = 0;
+        mDrawerList.setItemChecked(mOldDrawerPosition, true);
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         /*
          * Setup the library tab
          */
-        fragmentManager = getSupportFragmentManager();
-        fragmentManager.addOnBackStackChangedListener(this);
+        mFragmentManager = getSupportFragmentManager();
+        mFragmentManager.addOnBackStackChangedListener(this);
 
         // Get the list of the currently visible tabs
         mTabList = LibraryTabsUtil.getCurrentLibraryTabs();
@@ -317,28 +317,30 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
-        libraryFragment = (LibraryFragment) fragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
-        if (libraryFragment == null) {
-            libraryFragment = new LibraryFragment();
+        mLibraryFragment = (LibraryFragment) mFragmentManager
+                .findFragmentByTag(FRAGMENT_TAG_LIBRARY);
+        if (mLibraryFragment == null) {
+            mLibraryFragment = new LibraryFragment();
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.replace(R.id.library_root_frame, libraryFragment, FRAGMENT_TAG_LIBRARY);
+            ft.replace(R.id.library_root_frame, mLibraryFragment, FRAGMENT_TAG_LIBRARY);
             ft.commit();
         }
 
-        outputsFragment = (OutputsFragment) fragmentManager.findFragmentByTag(FRAGMENT_TAG_OUTPUTS);
-        if (outputsFragment == null) {
-            outputsFragment = new OutputsFragment();
+        mOutputsFragment = (OutputsFragment) mFragmentManager
+                .findFragmentByTag(FRAGMENT_TAG_OUTPUTS);
+        if (mOutputsFragment == null) {
+            mOutputsFragment = new OutputsFragment();
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.replace(R.id.outputs_root_frame, outputsFragment, FRAGMENT_TAG_OUTPUTS);
+            ft.replace(R.id.outputs_root_frame, mOutputsFragment, FRAGMENT_TAG_OUTPUTS);
             ft.commit();
         }
 
         // Setup the pager
-        if (nowPlayingPager != null) {
-            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
-            nowPlayingPager.setOnPageChangeListener(
+        if (mNowPlayingPager != null) {
+            mNowPlayingPager.setAdapter(new MainMenuPagerAdapter());
+            mNowPlayingPager.setOnPageChangeListener(
                     new ViewPager.SimpleOnPageChangeListener() {
                         @Override
                         public void onPageSelected(int position) {
@@ -352,7 +354,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
 
         final View nowPlayingSmallFragment = findViewById(R.id.now_playing_small_fragment);
-        mQueueFragment = (QueueFragment) fragmentManager.findFragmentById(R.id.playlist_fragment);
+        mQueueFragment = (QueueFragment) mFragmentManager.findFragmentById(R.id.playlist_fragment);
 
         mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
         mHeaderOverflowMenu = (ImageButton) findViewById(R.id.header_overflow_menu);
@@ -362,12 +364,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             mHeaderPlayQueue.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (nowPlayingPager != null && mSlidingLayout != null
+                    if (mNowPlayingPager != null && mSlidingLayout != null
                             && mSlidingLayout.isPanelExpanded()) {
-                        if (nowPlayingPager.getCurrentItem() == 0) {
+                        if (mNowPlayingPager.getCurrentItem() == 0) {
                             showQueue();
                         } else {
-                            nowPlayingPager.setCurrentItem(0, true);
+                            mNowPlayingPager.setCurrentItem(0, true);
                             refreshQueueIndicator(false);
                         }
                     }
@@ -458,7 +460,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         refreshQueueIndicator(false);
 
         /** Reset the persistent override when the application is reset. */
-        app.setPersistentOverride(false);
+        mApp.setPersistentOverride(false);
     }
 
     @Override
@@ -475,7 +477,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             // For onKeyLongPress to work
             event.startTracking();
-            result = !app.isLocalAudible();
+            result = !mApp.isLocalAudible();
         } else {
             result = super.onKeyDown(keyCode, event);
         }
@@ -508,7 +510,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (event.isTracking() && !event.isCanceled() && !app.isLocalAudible()) {
+                if (event.isTracking() && !event.isCanceled() && !mApp.isLocalAudible()) {
                     if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                         MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
                     } else {
@@ -531,7 +533,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     @Override
     public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-        libraryFragment.setCurrentItem(itemPosition, true);
+        mLibraryFragment.setCurrentItem(itemPosition, true);
         return true;
     }
 
@@ -548,13 +550,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     this.onSearchRequested();
                     break;
                 case CONNECT:
-                    app.connect();
+                    mApp.connect();
                     break;
                 case R.id.GMM_Stream:
-                    if (app.isStreamActive()) {
-                        app.stopStreaming();
-                    } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                        app.startStreaming();
+                    if (mApp.isStreamActive()) {
+                        mApp.stopStreaming();
+                    } else if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
+                        mApp.startStreaming();
                     }
                     break;
                 case R.id.GMM_bonjour:
@@ -567,11 +569,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     MPDControl.run(MPDControl.ACTION_SINGLE);
                     break;
                 case R.id.GMM_ShowNotification:
-                    if (app.isNotificationActive()) {
-                        app.stopNotification();
+                    if (mApp.isNotificationActive()) {
+                        mApp.stopNotification();
                     } else {
-                        app.startNotification();
-                        app.setPersistentOverride(false);
+                        mApp.startNotification();
+                        mApp.setPersistentOverride(false);
                     }
                     break;
                 default:
@@ -608,7 +610,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     @Override
     protected void onResume() {
         super.onResume();
-        backPressExitCount = 0;
+        mBackPressExitCount = 0;
         if (DEBUG) {
             registerReceiver(MPDConnectionHandler.getInstance(),
                     new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
@@ -617,7 +619,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(EXTRA_DISPLAY_MODE, currentDisplayMode);
+        outState.putSerializable(EXTRA_DISPLAY_MODE, mCurrentDisplayMode);
         outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isPanelExpanded());
         super.onSaveInstanceState(outState);
     }
@@ -625,10 +627,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     @Override
     public void onStart() {
         super.onStart();
-        app.setActivity(this);
+        mApp.setActivity(this);
 
-        if (app.isNotificationPersistent()) {
-            app.startNotification();
+        if (mApp.isNotificationPersistent()) {
+            mApp.startNotification();
         }
     }
 
@@ -636,21 +638,21 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void onStop() {
         super.onStop();
 
-        app.unsetActivity(this);
+        mApp.unsetActivity(this);
     }
 
     @Override
     public void pageChanged(int position) {
         final ActionBar actionBar = getActionBar();
-        if (currentDisplayMode == DisplayMode.MODE_LIBRARY
+        if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY
                 && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
             actionBar.setSelectedNavigationItem(position);
         }
     }
 
     public void prepareNowPlayingMenu(Menu menu) {
-        final boolean isStreaming = app.isStreamActive();
-        final MPD mpd = app.oMPDAsyncHelper.oMPD;
+        final boolean isStreaming = mApp.isStreamActive();
+        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
         final MPDStatus mpdStatus = mpd.getStatus();
 
         // Reminder : never disable buttons that are shown as actionbar actions
@@ -667,7 +669,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         final MenuItem saveItem = menu.findItem(R.id.PLM_Save);
         final MenuItem clearItem = menu.findItem(R.id.PLM_Clear);
-        if (!isDualPaneMode && nowPlayingPager != null && nowPlayingPager.getCurrentItem() == 0) {
+        if (!mIsDualPaneMode && mNowPlayingPager != null
+                && mNowPlayingPager.getCurrentItem() == 0) {
             saveItem.setVisible(false);
             clearItem.setVisible(false);
         } else {
@@ -678,13 +681,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
         final MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
         if (notificationItem != null) {
-            if (isStreaming || app.isNotificationPersistent()) {
+            if (isStreaming || mApp.isNotificationPersistent()) {
                 notificationItem.setVisible(false);
             } else {
                 notificationItem.setVisible(true);
             }
 
-            setMenuChecked(notificationItem, app.isNotificationActive());
+            setMenuChecked(notificationItem, mApp.isNotificationActive());
         }
 
         setMenuChecked(menu.findItem(R.id.GMM_Stream), isStreaming);
@@ -715,21 +718,21 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private void refreshActionBarTitle() {
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
-        switch (currentDisplayMode) {
+        switch (mCurrentDisplayMode) {
             case MODE_OUTPUTS:
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                if (currentDisplayMode == DisplayMode.MODE_OUTPUTS) {
-                    titleView.setText(R.string.outputs);
+                if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {
+                    mTextView.setText(R.string.outputs);
                 }
                 break;
             case MODE_LIBRARY:
                 int fmStackCount = 0;
-                if (fragmentManager != null) {
-                    fmStackCount = fragmentManager.getBackStackEntryCount();
+                if (mFragmentManager != null) {
+                    fmStackCount = mFragmentManager.getBackStackEntryCount();
                 }
                 if (fmStackCount > 0) {
                     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                    titleView.setText(fragmentManager.getBackStackEntryAt(fmStackCount - 1)
+                    mTextView.setText(mFragmentManager.getBackStackEntryAt(fmStackCount - 1)
                             .getBreadCrumbTitle());
                 } else {
                     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
@@ -745,7 +748,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
         if (mHeaderTitle != null) {
             mHeaderTitle.setText(
-                    queueShown && !isDualPaneMode ? R.string.playQueue : R.string.nowPlaying);
+                    queueShown && !mIsDualPaneMode ? R.string.playQueue : R.string.nowPlaying);
         }
 
         // Restrain the sliding panel sliding zone
@@ -768,24 +771,24 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (mSlidingLayout != null) {
             mSlidingLayout.expandPanel();
         }
-        if (nowPlayingPager != null) {
-            nowPlayingPager.setCurrentItem(1, true);
+        if (mNowPlayingPager != null) {
+            mNowPlayingPager.setCurrentItem(1, true);
         }
         refreshQueueIndicator(true);
     }
 
     /** Swaps fragments in the main content view */
     public void switchMode(DisplayMode newMode) {
-        currentDisplayMode = newMode;
-        switch (currentDisplayMode) {
+        mCurrentDisplayMode = newMode;
+        switch (mCurrentDisplayMode) {
             case MODE_LIBRARY:
-                libraryRootFrame.setVisibility(View.VISIBLE);
-                outputsRootFrame.setVisibility(View.GONE);
+                mLibraryRootFrame.setVisibility(View.VISIBLE);
+                mOutputsRootFrame.setVisibility(View.GONE);
                 break;
             case MODE_OUTPUTS:
-                libraryRootFrame.setVisibility(View.GONE);
-                outputsRootFrame.setVisibility(View.VISIBLE);
-                outputsFragment.refreshOutputs();
+                mLibraryRootFrame.setVisibility(View.GONE);
+                mOutputsRootFrame.setVisibility(View.VISIBLE);
+                mOutputsFragment.refreshOutputs();
                 break;
         }
         refreshActionBarTitle();
@@ -798,18 +801,18 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     public static class DrawerItem {
 
-        public Action action;
+        public Action mAction;
 
-        public String label;
+        public String mLabel;
 
         public DrawerItem(String label, Action action) {
-            this.label = label;
-            this.action = action;
+            this.mLabel = label;
+            this.mAction = action;
         }
 
         @Override
         public String toString() {
-            return label;
+            return mLabel;
         }
 
         public static enum Action {
@@ -825,15 +828,15 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mDrawerLayout.closeDrawer(mDrawerList);
 
-            switch (((DrawerItem) parent.getItemAtPosition(position)).action) {
+            switch (((DrawerItem) parent.getItemAtPosition(position)).mAction) {
                 default:
                 case ACTION_LIBRARY:
                     // If we are already on the library, pop the whole stack.
                     // Acts like an "up" button
-                    if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
-                        final int fmStackCount = fragmentManager.getBackStackEntryCount();
+                    if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY) {
+                        final int fmStackCount = mFragmentManager.getBackStackEntryCount();
                         if (fmStackCount > 0) {
-                            fragmentManager.popBackStack(null,
+                            mFragmentManager.popBackStack(null,
                                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
                         }
                     }
@@ -843,12 +846,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     switchMode(DisplayMode.MODE_OUTPUTS);
                     break;
                 case ACTION_SETTINGS:
-                    mDrawerList.setItemChecked(oldDrawerPosition, true);
+                    mDrawerList.setItemChecked(mOldDrawerPosition, true);
                     final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
                     startActivityForResult(i, SETTINGS);
                     break;
             }
-            oldDrawerPosition = position;
+            mOldDrawerPosition = position;
         }
     }
 

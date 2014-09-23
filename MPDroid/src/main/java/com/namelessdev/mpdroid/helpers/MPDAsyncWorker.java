@@ -78,7 +78,7 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     private final MPD mMPD;
 
-    private final SharedPreferences mPreferences;
+    private final SharedPreferences mSettings;
 
     /** A store for the current connection information. */
     private ConnectionInfo mConInfo = new ConnectionInfo();
@@ -92,8 +92,8 @@ public class MPDAsyncWorker implements Handler.Callback,
     MPDAsyncWorker(final Handler helperHandler, final MPD mpd) {
         super();
 
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance());
-        mPreferences.registerOnSharedPreferenceChangeListener(this);
+        mSettings = PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance());
+        mSettings.registerOnSharedPreferenceChangeListener(this);
 
         mHelperHandler = helperHandler;
         mMPD = mpd;
@@ -115,8 +115,8 @@ public class MPDAsyncWorker implements Handler.Callback,
         final String unknownAlbum = app.getString(R.string.unknown_metadata_album);
         final String unknownArtist = app.getString(R.string.unknown_metadata_artist);
 
-        MPD.setSortByTrackNumber(mPreferences.getBoolean(ALBUM_TRACK_SORT_KEY, true));
-        MPD.setSortAlbumsByYear(mPreferences.getBoolean(ALBUM_YEAR_SORT_KEY, false));
+        MPD.setSortByTrackNumber(mSettings.getBoolean(ALBUM_TRACK_SORT_KEY, true));
+        MPD.setSortAlbumsByYear(mSettings.getBoolean(ALBUM_YEAR_SORT_KEY, false));
         MPD.setUnknownArtist(unknownArtist);
         MPD.setUnknownAlbum(unknownAlbum);
     }

@@ -42,6 +42,10 @@ public class LibraryTabsUtil {
 
     public static final String TAB_STREAMS = "streams";
 
+    private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private static final String LIBRARY_TABS_DELIMITER = "|";
+
     static {
         TABS.put(TAB_ARTISTS, R.string.artists);
         TABS.put(TAB_ALBUMS, R.string.albums);
@@ -50,8 +54,6 @@ public class LibraryTabsUtil {
         TABS.put(TAB_FILES, R.string.files);
         TABS.put(TAB_GENRES, R.string.genres);
     }
-
-    private static final String LIBRARY_TABS_DELIMITER = "|";
 
     private static String DEFAULT_LIBRARY_TABS = TAB_ARTISTS
             + LIBRARY_TABS_DELIMITER + TAB_ALBUMS
@@ -62,8 +64,6 @@ public class LibraryTabsUtil {
 
     private static final String LIBRARY_TABS_SETTINGS_KEY = "currentLibraryTabs";
 
-    private static final MPDApplication app = MPDApplication.getInstance();
-
     public static ArrayList<String> getAllLibraryTabs() {
         String CurrentSettings = DEFAULT_LIBRARY_TABS;
         return new ArrayList<String>(Arrays.asList(CurrentSettings.split("\\"
@@ -71,7 +71,7 @@ public class LibraryTabsUtil {
     }
 
     public static ArrayList<String> getCurrentLibraryTabs() {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
         String currentSettings = settings.getString(LIBRARY_TABS_SETTINGS_KEY, "");
         if (currentSettings.equals("")) {
             currentSettings = DEFAULT_LIBRARY_TABS;
@@ -103,12 +103,12 @@ public class LibraryTabsUtil {
     }
 
     public static void resetLibraryTabs() {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
         settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, DEFAULT_LIBRARY_TABS).commit();
     }
 
     public static void saveCurrentLibraryTabs(ArrayList<String> tabs) {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
         final String currentSettings = getTabsStringFromList(tabs);
         settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, currentSettings).commit();
     }

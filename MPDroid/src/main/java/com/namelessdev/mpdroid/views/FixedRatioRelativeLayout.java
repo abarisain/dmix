@@ -29,7 +29,7 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
 
     private static final int FIXED_HEIGHT_INT = 1;
 
-    private int fixedSide = FIXED_HEIGHT_INT;
+    private int mFixedSide = FIXED_HEIGHT_INT;
 
     private static final String FIXED_WIDTH = "width";
 
@@ -51,7 +51,7 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (fixedSide == FIXED_HEIGHT_INT) {
+        if (mFixedSide == FIXED_HEIGHT_INT) {
             super.onMeasure(heightMeasureSpec, heightMeasureSpec);
         } else {
             super.onMeasure(widthMeasureSpec, widthMeasureSpec);
@@ -64,9 +64,9 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
         if (s != null) {
             final String fixString = s.toString();
             if (fixString.equals(FIXED_HEIGHT)) {
-                fixedSide = FIXED_HEIGHT_INT;
+                mFixedSide = FIXED_HEIGHT_INT;
             } else if (fixString.equals(FIXED_WIDTH)) {
-                fixedSide = FIXED_WIDTH_INT;
+                mFixedSide = FIXED_WIDTH_INT;
             }
         }
         a.recycle();

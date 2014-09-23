@@ -37,11 +37,12 @@ import java.util.List;
 
 public class AlbumGridDataBinder extends AlbumDataBinder {
 
-    SharedPreferences settings;
+    SharedPreferences mSettings;
 
     public AlbumGridDataBinder(MPDApplication app, boolean isLightTheme) {
         super(isLightTheme);
-        settings = PreferenceManager.getDefaultSharedPreferences(app);
+
+        mSettings = PreferenceManager.getDefaultSharedPreferences(app);
     }
 
     @Override
@@ -59,14 +60,14 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 
         // Caching must be switch on to use this view
         final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
-        final int height = holder.albumCover.getHeight();
+        final int height = holder.mAlbumCover.getHeight();
         // If the list is not displayed yet, the height is 0. This is a problem,
         // so set a fallback one.
         coverHelper.setCoverMaxSize(height == 0 ? 256 : height);
 
         // display "artist - album title"
         String text = album.mainText();
-        holder.albumName.setText(text);
+        holder.mAlbumName.setText(text);
 
         Artist artist = album.getArtist();
         String info = "";
@@ -88,30 +89,30 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
                             : R.string.tracksInfoHeader),
                     songCount, Music.timeToString(album.getDuration()));
         }
-        holder.albumName.setText(album.mainText());
+        holder.mAlbumName.setText(album.mainText());
         if (info != null && info.length() > 0) {
-            holder.albumInfo.setVisibility(View.VISIBLE);
-            holder.albumInfo.setText(info);
+            holder.mAlbumInfo.setVisibility(View.VISIBLE);
+            holder.mAlbumInfo.setText(info);
         } else {
-            holder.albumInfo.setVisibility(View.GONE);
+            holder.mAlbumInfo.setVisibility(View.GONE);
         }
 
         // listen for new artwork to be loaded
-        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.albumCover,
-                holder.coverArtProgress, false);
-        final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
+        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.mAlbumCover,
+                holder.mCoverArtProgress, false);
+        final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.mAlbumCover
                 .getTag(R.id.AlbumCoverDownloadListener);
         if (oldAcd != null) {
             oldAcd.detach();
         }
-        holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-        holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
+        holder.mAlbumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+        holder.mAlbumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
         coverHelper.addCoverDownloadListener(acd);
 
         loadPlaceholder(coverHelper);
 
         // Can't get artwork for missing album name
-        if (album.getAlbumInfo().isValid() && enableCache) {
+        if (album.getAlbumInfo().isValid() && mEnableCache) {
             loadArtwork(coverHelper, album.getAlbumInfo());
         }
     }

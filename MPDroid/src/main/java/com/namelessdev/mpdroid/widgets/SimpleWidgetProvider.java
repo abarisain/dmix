@@ -31,7 +31,7 @@ import android.widget.RemoteViews;
 
 public class SimpleWidgetProvider extends AppWidgetProvider {
 
-    static String TAG = "MPDroidSimpleWidgetProvider";
+    private static final String TAG = "MPDroidSimpleWidgetProvider";
 
     private static SimpleWidgetProvider sInstance;
 

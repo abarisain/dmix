@@ -30,7 +30,7 @@ import java.util.List;
 
 public final class Tools {
 
-    private static final MPDApplication app = MPDApplication.getInstance();
+    private static final MPDApplication APP = MPDApplication.getInstance();
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth,
             int reqHeight) {
@@ -165,7 +165,7 @@ public final class Tools {
     }
 
     public static boolean isServerLocalhost() {
-        return "127.0.0.1".equals(app.oMPDAsyncHelper.getConnectionSettings().server);
+        return "127.0.0.1".equals(APP.oMPDAsyncHelper.getConnectionSettings().server);
     }
 
     public static boolean isStringEmptyOrNull(String str) {
@@ -175,15 +175,15 @@ public final class Tools {
     public static void notifyUser(final int resId, final Object... format) {
         final String formattedString =
                 MPDApplication.getInstance().getResources().getString(resId, format);
-        Toast.makeText(app, formattedString, Toast.LENGTH_SHORT).show();
+        Toast.makeText(APP, formattedString, Toast.LENGTH_SHORT).show();
     }
 
     public static void notifyUser(final int resId) {
-        Toast.makeText(app, resId, Toast.LENGTH_SHORT).show();
+        Toast.makeText(APP, resId, Toast.LENGTH_SHORT).show();
     }
 
     public static void notifyUser(final CharSequence message) {
-        Toast.makeText(app, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(APP, message, Toast.LENGTH_SHORT).show();
     }
 
     public static int[] toIntArray(List<Integer> list) {

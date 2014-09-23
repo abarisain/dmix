@@ -40,9 +40,9 @@ public class GenresFragment extends BrowseFragment {
     @Override
     protected void add(Item item, boolean replace, boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.getPlaylist().addAll(
-                    app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
-            Tools.notifyUser(irAdded, item);
+            mApp.oMPDAsyncHelper.oMPD.getPlaylist().addAll(
+                    mApp.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
+            Tools.notifyUser(mIrAdded, item);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add all from playlist.", e);
         }
@@ -51,9 +51,9 @@ public class GenresFragment extends BrowseFragment {
     @Override
     protected void add(Item item, String playlist) {
         try {
-            app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist,
-                    app.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
-            Tools.notifyUser(irAdded, item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist,
+                    mApp.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
+            Tools.notifyUser(mIrAdded, item);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add all genre to playlist.", e);
         }
@@ -62,7 +62,7 @@ public class GenresFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         try {
-            items = app.oMPDAsyncHelper.oMPD.getGenres();
+            mItems = mApp.oMPDAsyncHelper.oMPD.getGenres();
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to update list of genres.", e);
         }
@@ -81,6 +81,6 @@ public class GenresFragment extends BrowseFragment {
     @Override
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new ArtistsFragment().init((Genre) items.get(position)), "artist");
+                new ArtistsFragment().init((Genre) mItems.get(position)), "artist");
     }
 }

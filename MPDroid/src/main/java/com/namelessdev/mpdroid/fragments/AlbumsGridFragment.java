@@ -36,7 +36,7 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 public class AlbumsGridFragment extends AlbumsFragment {
 
-    private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 6;
+    private static final int MIN_ITEMS_BEFORE_FAST_SCROLL = 6;
 
     public AlbumsGridFragment() {
         this(null);
@@ -52,31 +52,31 @@ public class AlbumsGridFragment extends AlbumsFragment {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        if (items != null) {
-            return new ArrayAdapter(getActivity(), new AlbumGridDataBinder(app,
-                    app.isLightThemeSelected()), items);
+        if (mItems != null) {
+            return new ArrayAdapter(getActivity(), new AlbumGridDataBinder(mApp,
+                    mApp.isLightThemeSelected()), mItems);
         }
         return super.getCustomListAdapter();
     }
 
     @Override
     protected int getMinimumItemsCountBeforeFastscroll() {
-        return MIN_ITEMS_BEFORE_FASTSCROLL;
+        return MIN_ITEMS_BEFORE_FAST_SCROLL;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.browsegrid, container, false);
-        list = (GridView) view.findViewById(R.id.grid);
-        registerForContextMenu(list);
-        list.setOnItemClickListener(this);
-        loadingView = view.findViewById(R.id.loadingLayout);
-        loadingTextView = (TextView) view.findViewById(R.id.loadingText);
-        noResultView = view.findViewById(R.id.noResultLayout);
-        loadingTextView.setText(getLoadingText());
-        coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-        pullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.pullToRefresh);
+        mList = (GridView) view.findViewById(R.id.grid);
+        registerForContextMenu(mList);
+        mList.setOnItemClickListener(this);
+        mLoadingView = view.findViewById(R.id.loadingLayout);
+        mLoadingTextView = (TextView) view.findViewById(R.id.loadingText);
+        mNoResultView = view.findViewById(R.id.noResultLayout);
+        mLoadingTextView.setText(getLoadingText());
+        mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.pullToRefresh);
 
         return view;
     }
@@ -85,7 +85,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
     public void onResume() {
         super.onResume();
 
-        isCountDisplayed = false;
+        mIsCountDisplayed = false;
     }
 
     /**
