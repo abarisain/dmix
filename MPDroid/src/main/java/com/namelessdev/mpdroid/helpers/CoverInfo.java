@@ -62,14 +62,6 @@ public class CoverInfo extends AlbumInfo {
         mRequestGivenUp = coverInfo.mRequestGivenUp;
     }
 
-    public String getAlbum() {
-        return mAlbum;
-    }
-
-    public String getArtist() {
-        return mArtist;
-    }
-
     public Bitmap[] getBitmap() {
         return mBitmap;
     }
@@ -90,16 +82,8 @@ public class CoverInfo extends AlbumInfo {
         return mCoverRetriever;
     }
 
-    public String getFilename() {
-        return mFilename;
-    }
-
     public CoverDownloadListener getListener() {
         return mListener;
-    }
-
-    public String getPath() {
-        return mPath;
     }
 
     public STATE getState() {
