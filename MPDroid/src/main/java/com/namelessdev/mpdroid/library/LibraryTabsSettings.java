@@ -40,6 +40,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
     public final DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
 
+        @Override
         public void drop(final int from, final int to) {
             if (from == to) {
                 return;
@@ -187,10 +188,12 @@ class TabItem {
 
 class TabListDataBinder implements SeparatedListDataBinder {
 
+    @Override
     public boolean isEnabled(final int position, final List<?> items, final Object item) {
         return true;
     }
 
+    @Override
     public void onDataBind(final Context context, final View targetView,
             final List<?> items, final Object item, final int position) {
         ((TextView) targetView).setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).mText));

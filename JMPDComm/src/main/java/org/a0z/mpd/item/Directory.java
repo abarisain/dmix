@@ -222,6 +222,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      */
     public Collection<Music> getFiles() {
         final Collection<Music> filesCompared = new TreeSet<>(new Comparator<Music>() {
+            @Override
             public int compare(final Music lhs, final Music rhs) {
                 return StringComparators.compareNatural(lhs.getFilename(), rhs.getFilename());
             }
@@ -238,6 +239,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      *
      * @return full path
      */
+    @Override
     public String getFullPath() {
         if (mParent != null && mParent.mParent != null) {
             return mParent.getFullPath() + '/' + mFilename;
@@ -251,6 +253,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      *
      * @return directory name.
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -267,6 +270,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     public Collection<PlaylistFile> getPlaylistFiles() {
         final Collection<PlaylistFile> playlistFilesCompared = new TreeSet<>(
                 new Comparator<PlaylistFile>() {
+                    @Override
                     public int compare(final PlaylistFile lhs, final PlaylistFile rhs) {
                         return StringComparators
                                 .compareNatural(lhs.getFullPath(), rhs.getFullPath());

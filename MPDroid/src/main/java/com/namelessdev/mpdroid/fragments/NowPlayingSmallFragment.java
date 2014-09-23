@@ -137,6 +137,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         mCoverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = mCoverArt.getViewTreeObserver();
         vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
             public boolean onPreDraw() {
                 if (mCoverHelper != null) {
                     mCoverHelper.setCachedCoverMaxSize(mCoverArt.getMeasuredHeight());

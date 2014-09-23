@@ -72,6 +72,7 @@ public class WeakLinkedList<T> implements List<T> {
         setName(name);
     }
 
+    @Override
     public void add(final int location, final T object) {
         synchronized (mLOCK) {
             final ListIterator<T> itr = listIterator(location);
@@ -79,6 +80,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public boolean add(final T object) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -87,6 +89,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public boolean addAll(final Collection<? extends T> collection) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -94,6 +97,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public boolean addAll(int location, final Collection<? extends T> collection) {
         if (collection.size() <= 0) {
             return false;
@@ -132,6 +136,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public void clear() {
         synchronized (mLOCK) {
             for (final ListIterator<?> itr = listIterator(); itr.hasNext(); ) {
@@ -141,10 +146,12 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public boolean contains(final Object object) {
         return indexOf(object) != -1;
     }
 
+    @Override
     public boolean containsAll(final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean foundAll = true;
@@ -188,6 +195,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public T get(final int location) {
         synchronized (mLOCK) {
             final ListIterator<T> itr = listIterator(location);
@@ -216,6 +224,7 @@ public class WeakLinkedList<T> implements List<T> {
         return hashCode;
     }
 
+    @Override
     public int indexOf(final Object object) {
         synchronized (mLOCK) {
             int index = 0;
@@ -232,6 +241,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public boolean isEmpty() {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -246,10 +256,12 @@ public class WeakLinkedList<T> implements List<T> {
      * expiration due to weak references. <br>
      * The remove method has been implemented
      */
+    @Override
     public Iterator<T> iterator() {
         return listIterator();
     }
 
+    @Override
     public int lastIndexOf(final Object object) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -268,10 +280,12 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public ListIterator<T> listIterator() {
         return listIterator(0);
     }
 
+    @Override
     public ListIterator<T> listIterator(final int location) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -286,6 +300,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public T remove(final int location) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -303,6 +318,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public boolean remove(final Object object) {
         synchronized (mLOCK) {
             for (final ListIterator<?> itr = listIterator(); itr.hasNext(); ) {
@@ -317,6 +333,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public boolean removeAll(final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean changed = false;
@@ -393,6 +410,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public boolean retainAll(final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean changed = false;
@@ -409,6 +427,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public T set(final int location, final T object) {
         synchronized (mLOCK) {
             final ListIterator<T> itr = listIterator(location);
@@ -426,6 +445,7 @@ public class WeakLinkedList<T> implements List<T> {
         mListName = name;
     }
 
+    @Override
     public int size() {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -433,11 +453,13 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     public List<T> subList(final int start, final int end) {
         // TODO
         throw new UnsupportedOperationException("subList is not yet supported");
     }
 
+    @Override
     public Object[] toArray() {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -445,6 +467,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Object[] toArray(Object[] array) {
         synchronized (mLOCK) {
@@ -531,6 +554,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
 
+        @Override
         public void add(final T object) {
             synchronized (mLOCK) {
                 checkConcurrentModification();
@@ -589,6 +613,7 @@ public class WeakLinkedList<T> implements List<T> {
         /**
          * @see java.util.Iterator#hasNext()
          */
+        @Override
         public boolean hasNext() {
             synchronized (mLOCK) {
                 checkConcurrentModification();
@@ -597,6 +622,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
 
+        @Override
         public boolean hasPrevious() {
             synchronized (mLOCK) {
                 checkConcurrentModification();
@@ -608,6 +634,7 @@ public class WeakLinkedList<T> implements List<T> {
         /**
          * @see java.util.Iterator#next()
          */
+        @Override
         public T next() {
             synchronized (mLOCK) {
                 checkConcurrentModification();
@@ -633,6 +660,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
 
+        @Override
         public int nextIndex() {
             synchronized (mLOCK) {
                 checkConcurrentModification();
@@ -641,6 +669,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
 
+        @Override
         public T previous() {
             synchronized (mLOCK) {
                 checkConcurrentModification();
@@ -667,6 +696,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
 
+        @Override
         public int previousIndex() {
             synchronized (mLOCK) {
                 checkConcurrentModification();
@@ -678,6 +708,7 @@ public class WeakLinkedList<T> implements List<T> {
         /**
          * @see java.util.Iterator#remove()
          */
+        @Override
         public void remove() {
             synchronized (mLOCK) {
                 checkConcurrentModification();
@@ -721,6 +752,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
 
+        @Override
         public void set(final T object) {
             synchronized (mLOCK) {
                 checkConcurrentModification();

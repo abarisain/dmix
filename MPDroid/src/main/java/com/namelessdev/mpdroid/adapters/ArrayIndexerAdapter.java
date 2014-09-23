@@ -140,6 +140,7 @@ class LocaleComparator implements Comparator {
 
     static final Collator DEFAULT_COLLATOR = Collator.getInstance(Locale.getDefault());
 
+    @Override
     public int compare(final Object lhs, final Object rhs) {
         return DEFAULT_COLLATOR.compare((String) lhs, (String) rhs);
     }

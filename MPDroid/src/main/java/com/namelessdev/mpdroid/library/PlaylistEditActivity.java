@@ -53,6 +53,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 
     private final DragSortListView.RemoveListener mRemoveListener
             = new DragSortListView.RemoveListener() {
+        @Override
         public void remove(final int which) {
             // removePlaylistItem(which);
         }
@@ -66,6 +67,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 
     private final DragSortListView.DropListener mDropListener
             = new DragSortListView.DropListener() {
+        @Override
         public void drop(final int from, final int to) {
             if (from == to) {
                 return;

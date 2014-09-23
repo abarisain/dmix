@@ -321,7 +321,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         return null == s || s.isEmpty();
     }
 
-    public static boolean isValidArtist(String artist) {
+    public static boolean isValidArtist(final String artist) {
         return !isEmpty(artist) && !ARTIST_BLACK_LIST.contains(artist.toLowerCase())
                 && artist.length() < MAX_ARTIST_NAME_LENGTH;
     }

@@ -98,6 +98,7 @@ public class Artist extends Item {
         return isEqual.booleanValue();
     }
 
+    @Override
     public String getName() {
         return mName;
     }
@@ -131,6 +132,7 @@ public class Artist extends Item {
         return result;
     }
 
+    @Override
     public String sortText() {
         return null == mSort ? mName == null ? "" : super.sortText() : mSort;
     }

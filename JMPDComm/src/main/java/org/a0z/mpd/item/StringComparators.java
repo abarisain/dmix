@@ -53,6 +53,7 @@ final class StringComparators {
      */
     private static final Comparator<String> IGNORE_CASE_NATURAL_COMPARATOR_ASCII
             = new Comparator<String>() {
+        @Override
         public int compare(final String lhs, final String rhs) {
             return compareNaturalIgnoreCaseAscii(lhs, rhs);
         }
@@ -69,6 +70,7 @@ final class StringComparators {
      * </p>
      */
     private static final Comparator<String> NATURAL_COMPARATOR_ASCII = new Comparator<String>() {
+        @Override
         public int compare(final String lhs, final String rhs) {
             return compareNaturalAscii(lhs, rhs);
         }
@@ -380,6 +382,7 @@ final class StringComparators {
             throw new NullPointerException("collator must not be null");
         }
         return new Comparator<String>() {
+            @Override
             public int compare(final String lhs, final String rhs) {
                 return compareNatural(collator, lhs, rhs);
             }

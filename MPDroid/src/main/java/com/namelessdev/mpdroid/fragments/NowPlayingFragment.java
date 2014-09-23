@@ -337,17 +337,20 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         mSeekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
+            @Override
             public void onProgressChanged(final SeekBar seekBar, final int progress,
                     final boolean fromUser) {
 
             }
 
+            @Override
             public void onStartTrackingTouch(final SeekBar seekBar) {
                 mVolTimerTask = new TimerTask() {
                     int mLastSentVol = -1;
 
                     SeekBar mProgress;
 
+                    @Override
                     public void run() {
                         if (mLastSentVol != mProgress.getProgress()) {
                             mLastSentVol = mProgress.getProgress();
@@ -365,6 +368,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         (long) MPDCommand.MAX_VOLUME);
             }
 
+            @Override
             public void onStopTrackingTouch(final SeekBar seekBar) {
                 mVolTimerTask.cancel();
                 mVolTimerTask.run();
@@ -891,10 +895,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private static class ButtonEventHandler
             implements Button.OnClickListener, Button.OnLongClickListener {
 
+        @Override
         public void onClick(final View v) {
             MPDControl.run(v.getId());
         }
 
+        @Override
         public boolean onLongClick(final View v) {
             if (v.getId() == R.id.playpause) {
                 MPDControl.run(MPDControl.ACTION_STOP);

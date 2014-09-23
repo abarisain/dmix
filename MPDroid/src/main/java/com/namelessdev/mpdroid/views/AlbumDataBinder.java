@@ -64,11 +64,13 @@ public class AlbumDataBinder extends BaseDataBinder {
         return R.layout.album_list_item;
     }
 
+    @Override
     public boolean isEnabled(final int position, final List<? extends Item> items,
             final Object item) {
         return true;
     }
 
+    @Override
     public void onDataBind(final Context context, final View targetView,
             final AbstractViewHolder viewHolder, final List<? extends Item> items,
             final Object item, final int position) {

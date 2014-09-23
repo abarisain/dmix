@@ -145,6 +145,7 @@ public class PlaylistsFragment extends BrowseFragment {
             mItemIndex = itemIndex;
         }
 
+        @Override
         public void onClick(final DialogInterface dialog, final int which) {
             switch (which) {
                 case AlertDialog.BUTTON_NEGATIVE:

@@ -161,6 +161,7 @@ public class Album extends Item {
         return mDuration;
     }
 
+    @Override
     public String getName() {
         return mName;
     }

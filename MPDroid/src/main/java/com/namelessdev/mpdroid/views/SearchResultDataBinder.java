@@ -55,10 +55,12 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
         return result.toString();
     }
 
+    @Override
     public boolean isEnabled(final int position, final List<?> items, final Object item) {
         return true;
     }
 
+    @Override
     public void onDataBind(final Context context, final View targetView, final List<?> items,
             final Object item, final int position) {
         final TextView text1 = (TextView) targetView.findViewById(R.id.line1);

@@ -161,6 +161,7 @@ public class SettingsFragment extends PreferenceFragment {
         refreshDynamicFields();
     }
 
+    @Override
     public boolean onPreferenceTreeClick(final PreferenceScreen preferenceScreen,
             final Preference preference) {
         // Is it the connectionscreen which is called?
@@ -180,6 +181,7 @@ public class SettingsFragment extends PreferenceFragment {
                     .setTitle(R.string.clearLocalCoverCache)
                     .setMessage(R.string.clearLocalCoverCachePrompt)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
                         public void onClick(final DialogInterface dialog, final int which) {
                             // Todo : The covermanager must already have been
                             // initialized, get rid of the getInstance arguments
@@ -189,6 +191,7 @@ public class SettingsFragment extends PreferenceFragment {
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
                         public void onClick(final DialogInterface dialog, final int which) {
                             // do nothing
                         }

@@ -118,6 +118,7 @@ public class StreamsFragment extends BrowseFragment {
                 .setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
+                    @Override
                     public void onClick(final DialogInterface dialog, final int which) {
                         final String name = null == nameEdit ? null : nameEdit.getText().toString()
                                 .trim();
@@ -162,6 +163,7 @@ public class StreamsFragment extends BrowseFragment {
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new OnClickListener() {
+                    @Override
                     public void onClick(final DialogInterface dialog, final int which) {
                         if (streamUrlToAdd != null) {
                             getActivity().finish();
@@ -356,6 +358,7 @@ public class StreamsFragment extends BrowseFragment {
             mItemIndex = itemIndex;
         }
 
+        @Override
         public void onClick(final DialogInterface dialog, final int which) {
             switch (which) {
                 case AlertDialog.BUTTON_NEGATIVE:

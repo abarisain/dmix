@@ -68,6 +68,7 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         return TYPE_DEFAULT;
     }
 
+    @Override
     public View getView(final int position, final View convertView, final ViewGroup parent) {
         View resultView;
 

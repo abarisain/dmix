@@ -75,14 +75,17 @@ public class SeparatedListAdapter extends BaseAdapter {
         return false;
     }
 
+    @Override
     public int getCount() {
         return mItems.size();
     }
 
+    @Override
     public Object getItem(final int position) {
         return mItems.get(position);
     }
 
+    @Override
     public long getItemId(final int position) {
         return position;
     }
@@ -95,6 +98,7 @@ public class SeparatedListAdapter extends BaseAdapter {
         return TYPE_CONTENT;
     }
 
+    @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
         final int itemType = getItemViewType(position);
 

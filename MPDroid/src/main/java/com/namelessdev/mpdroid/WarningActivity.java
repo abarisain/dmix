@@ -35,6 +35,7 @@ public class WarningActivity extends Activity {
         setContentView(R.layout.warning);
         final Button btnOK = (Button) findViewById(R.id.buttonOK);
         btnOK.setOnClickListener(new Button.OnClickListener() {
+            @Override
             public void onClick(final View v) {
                 final SharedPreferences settings = PreferenceManager
                         .getDefaultSharedPreferences(getApplicationContext());

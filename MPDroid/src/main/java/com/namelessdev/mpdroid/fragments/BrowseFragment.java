@@ -101,7 +101,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     private boolean mFirstUpdateDone = false;
 
-    public BrowseFragment(final int rAdd, final int rAdded, final String pContext) {
+    protected BrowseFragment(final int rAdd, final int rAdded, final String pContext) {
         super();
         mIrAdd = rAdd;
         mIrAdded = rAdded;
@@ -307,6 +307,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                             .setView(input)
                             .setPositiveButton(android.R.string.ok,
                                     new DialogInterface.OnClickListener() {
+                                        @Override
                                         public void onClick(final DialogInterface dialog,
                                                 final int which) {
                                             final String name = input.getText().toString().trim();
@@ -322,6 +323,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                                     })
                             .setNegativeButton(android.R.string.cancel,
                                     new DialogInterface.OnClickListener() {
+                                        @Override
                                         public void onClick(final DialogInterface dialog,
                                                 final int which) {
                                             // Do nothing.

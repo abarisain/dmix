@@ -377,6 +377,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         super.onDestroy();
     }
 
+    @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         final Object selectedItem = parent.getAdapter().getItem(position);
@@ -559,6 +560,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             return 3;
         }
 
+        @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
 
             final View v;

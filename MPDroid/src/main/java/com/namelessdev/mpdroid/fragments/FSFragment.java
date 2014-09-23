@@ -141,6 +141,7 @@ public class FSFragment extends BrowseFragment {
     }
 
     // Disable the indexer for FSFragment
+    @Override
     @SuppressWarnings("unchecked")
     protected ListAdapter getCustomListAdapter() {
         return new ArrayAdapter<Item>(getActivity(), R.layout.fs_list_item,

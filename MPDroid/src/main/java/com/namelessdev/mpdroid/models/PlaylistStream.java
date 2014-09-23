@@ -28,12 +28,14 @@ public class PlaylistStream extends AbstractPlaylistMusic {
                 music.getPos(), music.getName());
     }
 
+    @Override
     public String getPlayListMainLine() {
         final String name = getName();
 
         return name.replace('.' + Tools.getExtension(name), "");
     }
 
+    @Override
     public String getPlaylistSubLine() {
         return getFullPath();
     }

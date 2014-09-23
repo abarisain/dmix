@@ -40,7 +40,7 @@ public abstract class BaseDataBinder implements ArrayDataBinder {
 
     boolean mOnlyDownloadOnWifi = true;
 
-    public BaseDataBinder(final boolean isLightTheme) {
+    protected BaseDataBinder(final boolean isLightTheme) {
         super();
         mLightTheme = isLightTheme;
         final MPDApplication app = MPDApplication.getInstance();

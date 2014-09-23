@@ -33,10 +33,12 @@ public class PlaylistSong extends AbstractPlaylistMusic {
                 music.getPos(), music.getName());
     }
 
+    @Override
     public String getPlayListMainLine() {
         return getTitle();
     }
 
+    @Override
     public String getPlaylistSubLine() {
         final Collection<String> subLineTexts = new ArrayList<>();
         if (!isEmpty(getArtist())) {

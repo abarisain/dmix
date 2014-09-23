@@ -88,6 +88,7 @@ public class Genre extends Item {
         return isEqual.booleanValue();
     }
 
+    @Override
     public String getName() {
         return mName;
     }

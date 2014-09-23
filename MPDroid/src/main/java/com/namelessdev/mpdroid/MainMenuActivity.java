@@ -271,6 +271,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
              * Called when a drawer has settled in a completely closed
              * state.
              */
+            @Override
             public void onDrawerClosed(final View drawerView) {
                 refreshActionBarTitle();
             }
@@ -279,6 +280,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
              * Called when a drawer has settled in a completely open
              * state.
              */
+            @Override
             public void onDrawerOpened(final View drawerView) {
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
                 actionBar.setDisplayShowCustomEnabled(true);
@@ -864,6 +866,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return 2;
         }
 
+        @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
 
             int resId = 0;

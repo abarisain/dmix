@@ -139,6 +139,7 @@ public class MPDStatusMonitor extends Thread {
     /**
      * Main thread method
      */
+    @Override
     public void run() {
         // initialize value cache
         int oldSong = -1;
