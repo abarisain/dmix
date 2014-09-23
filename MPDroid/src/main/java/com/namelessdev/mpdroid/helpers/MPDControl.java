@@ -198,7 +198,7 @@ public final class MPDControl {
             }
 
             @Override
-            public final void run() {
+            public void run() {
                 if (internalMPD) {
                     APP.addConnectionLock(this);
                 }

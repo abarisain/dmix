@@ -216,10 +216,10 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
-        if (icicle != null) {
-            init((Album) icicle.getParcelable(EXTRA_ALBUM));
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            init((Album) savedInstanceState.getParcelable(EXTRA_ALBUM));
         }
     }
 
@@ -344,7 +344,7 @@ public class SongsFragment extends BrowseFragment {
 
         mCoverArt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public boolean onLongClick(final View view) {
+            public boolean onLongClick(final View v) {
                 mCoverPopupMenu.show();
                 return false;
             }
@@ -370,7 +370,7 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         // If in simple mode : add, replace and play the shown album.
         if (mApp.isInSimpleMode()) {
@@ -394,7 +394,7 @@ public class SongsFragment extends BrowseFragment {
             mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                 @Override
                 public void run() {
-                    add((Item) adapterView.getAdapter().getItem(position), false, false);
+                    add((Item) parent.getAdapter().getItem(position), false, false);
                 }
             });
         }

@@ -102,10 +102,10 @@ public class AlbumCache {
             final String val) {
         final Set<String> result = new HashSet<>();
         final Set<String> keys = map.keySet();
-        for (final String k : keys) {
-            final Set<String> values = map.get(k);
+        for (final String key : keys) {
+            final Set<String> values = map.get(key);
             if (val != null && val.isEmpty() || values.contains(val)) {
-                result.add(k);
+                result.add(key);
             }
         }
         return result;
@@ -180,9 +180,9 @@ public class AlbumCache {
 
     public String getDirByArtistAlbum(final String artist, final String album,
             final boolean isAlbumArtist) {
-        final String aa = albumCode(artist, album, isAlbumArtist);
-        final String result = mAlbumDetails.get(aa).mPath;
-        Log.d(TAG, "key " + aa + " - " + result);
+        final String albumCode = albumCode(artist, album, isAlbumArtist);
+        final String result = mAlbumDetails.get(albumCode).mPath;
+        Log.d(TAG, "key " + albumCode + " - " + result);
         return result;
     }
 
@@ -207,7 +207,7 @@ public class AlbumCache {
         }
         Log.d(TAG, "Loading " + file);
         final ObjectInputStream restore;
-        boolean loaded_ok = false;
+        boolean loadedOk = false;
         try {
             if (GZIP) {
                 restore = new ObjectInputStream(new GZIPInputStream
@@ -220,17 +220,17 @@ public class AlbumCache {
             mAlbumSet = (Set<List<String>>) restore.readObject();
             restore.close();
             makeUniqueAlbumSet();
-            loaded_ok = true;
+            loadedOk = true;
         } catch (final FileNotFoundException ignored) {
         } catch (final Exception e) {
             Log.e(TAG, "Exception.", e);
         }
-        if (loaded_ok) {
+        if (loadedOk) {
             Log.d(TAG, cacheInfo());
         } else {
             Log.d(TAG, "Error on load");
         }
-        return loaded_ok;
+        return loadedOk;
     }
 
     protected void makeUniqueAlbumSet() {
@@ -292,38 +292,38 @@ public class AlbumCache {
         }
 
         try {
-            for (final Music m : allmusic) {
-                final String albumartist = m.getAlbumArtist();
-                final String artist = m.getArtist();
-                String album = m.getAlbum();
+            for (final Music music : allmusic) {
+                final String albumArtist = music.getAlbumArtist();
+                final String artist = music.getArtist();
+                String album = music.getAlbum();
                 if (album == null) {
                     album = "";
                 }
-                final List<String> albuminfo = Arrays.asList
+                final List<String> albumInfo = Arrays.asList
                         (album, artist == null ? "" : artist,
-                                albumartist == null ? "" : albumartist);
-                mAlbumSet.add(albuminfo);
+                                albumArtist == null ? "" : albumArtist);
+                mAlbumSet.add(albumInfo);
 
-                final boolean isAA = albumartist != null && !"".equals(albumartist);
-                final String thisalbum =
-                        albumCode(isAA ? albumartist : artist, album, isAA);
+                final boolean isAlbumArtist = albumArtist != null && !albumArtist.isEmpty();
+                final String thisAlbum =
+                        albumCode(isAlbumArtist ? albumArtist : artist, album, isAlbumArtist);
                 final AlbumDetails details;
-                if (mAlbumDetails.containsKey(thisalbum)) {
-                    details = mAlbumDetails.get(thisalbum);
+                if (mAlbumDetails.containsKey(thisAlbum)) {
+                    details = mAlbumDetails.get(thisAlbum);
                 } else {
                     details = new AlbumDetails();
-                    mAlbumDetails.put(thisalbum, details);
+                    mAlbumDetails.put(thisAlbum, details);
                 }
                 if (details.mPath == null) {
-                    details.mPath = m.getPath();
+                    details.mPath = music.getPath();
                 }
                 // if (details.times == null)
                 // details.times = new ArrayList<Long>();
                 // details.times.add((Long)m.getTime());
                 details.mNumTracks += 1;
-                details.mTotalTime += m.getTime();
+                details.mTotalTime += music.getTime();
                 if (details.mDate == 0) {
-                    details.mDate = m.getDate();
+                    details.mDate = music.getDate();
                 }
             }
             Log.d(TAG, "albumDetails: " + mAlbumDetails.size());
@@ -379,11 +379,11 @@ public class AlbumCache {
         return !error;
     }
 
-    protected void setMPD(final CachedMPD _mpd) {
+    protected void setMPD(final CachedMPD mpd) {
         mEnabled = true;
         try {
             Log.d(TAG, "set MPD");
-            mMPD = _mpd;
+            mMPD = mpd;
         } catch (final Exception e) {
             Log.e(TAG, "Failed to setMPD.", e);
         }

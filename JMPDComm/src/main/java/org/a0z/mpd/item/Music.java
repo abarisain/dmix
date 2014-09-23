@@ -277,15 +277,15 @@ public class Music extends Item implements FilesystemTreeEntry {
                 totalTracks, track, songId, songPos, name);
     }
 
-    private static int compare(final String a, final String b) {
+    private static int compare(final String lhs, final String rhs) {
         final int result;
 
-        if (a == null && b == null) {
+        if (lhs == null && rhs == null) {
             result = 0;
-        } else if (a == null || b == null) {
+        } else if (lhs == null || rhs == null) {
             result = 1;
         } else {
-            result = a.compareTo(b);
+            result = lhs.compareTo(rhs);
         }
 
         return result;
@@ -685,8 +685,8 @@ public class Music extends Item implements FilesystemTreeEntry {
     private static class MusicTitleComparator implements Comparator<Music> {
 
         @Override
-        public int compare(final Music o1, final Music o2) {
-            return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());
+        public int compare(final Music lhs, final Music rhs) {
+            return String.CASE_INSENSITIVE_ORDER.compare(lhs.getTitle(), rhs.getTitle());
         }
     }
 }

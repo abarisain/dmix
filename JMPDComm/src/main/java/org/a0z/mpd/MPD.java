@@ -66,6 +66,10 @@ public class MPD {
 
     private static String sUnknownArtist = "";
 
+    protected final MPDPlaylist mPlaylist;
+
+    protected final Directory mRootDirectory;
+
     private final MPDConnection mConnection;
 
     private final MPDConnection mIdleConnection;
@@ -73,10 +77,6 @@ public class MPD {
     private final MPDStatistics mStatistics;
 
     private final MPDStatus mStatus;
-
-    protected MPDPlaylist mPlaylist;
-
-    protected Directory mRootDirectory;
 
     /**
      * Constructs a new MPD server controller without connection.
@@ -434,15 +434,15 @@ public class MPD {
         addToPlaylist(playlistName, new ArrayList<>(getSongs(artist)));
     }
 
-    public void addToPlaylist(final String playlistName, final Collection<Music> c)
+    public void addToPlaylist(final String playlistName, final Collection<Music> musicCollection)
             throws MPDServerException {
-        if (null == c || c.size() < 1) {
+        if (null == musicCollection || musicCollection.size() < 1) {
             return;
         }
         final CommandQueue commandQueue = new CommandQueue();
 
-        for (final Music m : c) {
-            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, m.getFullPath());
+        for (final Music music : musicCollection) {
+            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, music.getFullPath());
         }
         commandQueue.send(mConnection);
     }
@@ -592,16 +592,17 @@ public class MPD {
      * Similar to {@code search},{@code find} looks for exact matches
      * in the MPD database.
      *
-     * @param type   type of search. Should be one of the following constants:
-     *               MPD_FIND_ARTIST, MPD_FIND_ALBUM
-     * @param string case-insensitive locator string. Anything that exactly
-     *               matches {@code string} will be returned in the results.
+     * @param type          type of search. Should be one of the following constants:
+     *                      MPD_FIND_ARTIST, MPD_FIND_ALBUM
+     * @param locatorString case-insensitive locator locatorString. Anything that exactly
+     *                      matches {@code locatorString} will be returned in the results.
      * @return a Collection of {@code Music}
      * @throws MPDServerException if an error occur while contacting server
      * @see org.a0z.mpd.item.Music
      */
-    public List<Music> find(final String type, final String string) throws MPDServerException {
-        return genericSearch(MPDCommand.MPD_CMD_FIND, type, string);
+    public List<Music> find(final String type, final String locatorString)
+            throws MPDServerException {
+        return genericSearch(MPDCommand.MPD_CMD_FIND, type, locatorString);
     }
 
     public List<Music> find(final String[] args) throws MPDServerException {
@@ -710,13 +711,13 @@ public class MPD {
 
     public List<Album> getAlbums(final Artist artist, final boolean trackCountNeeded)
             throws MPDServerException {
-        final List<Album> a_albums = getAlbums(artist, trackCountNeeded, false);
+        final List<Album> albums = getAlbums(artist, trackCountNeeded, false);
         // 1. the null artist list already contains all albums
         // 2. the "unknown artist" should not list unknown albumartists
         if (artist != null && !artist.isUnknown()) {
-            return Item.merged(a_albums, getAlbums(artist, trackCountNeeded, true));
+            return Item.merged(albums, getAlbums(artist, trackCountNeeded, true));
         }
-        return a_albums;
+        return albums;
     }
 
     public List<Album> getAlbums(final Artist artist, final boolean trackCountNeeded,
@@ -1226,7 +1227,8 @@ public class MPD {
 
         for (final Album artistAlbum : artistAlbums) {
             for (final Album albumArtistAlbum : albumArtistAlbums) {
-                if (artistAlbum.getArtist() != null && artistAlbum.nameEquals(albumArtistAlbum)) {
+                if (artistAlbum.getArtist() != null && artistAlbum
+                        .doesNameExist(albumArtistAlbum)) {
                     albumArtistAlbum.setHasAlbumArtist(false);
                     break;
                 }
@@ -1321,7 +1323,7 @@ public class MPD {
      * @return list of array of artist names for each album.
      * @throws MPDServerException if an error occurs while contacting server.
      */
-    public List<String[]> listArtists(final List<Album> albums, final boolean albumArtist)
+    public List<String[]> listArtists(final List<Album> albums, final boolean useAlbumArtist)
             throws MPDServerException {
         if (albums == null) {
             return new ArrayList<>(0);
@@ -1331,14 +1333,14 @@ public class MPD {
         for (final Album a : albums) {
             // When adding album artist to existing artist check that the artist
             // matches
-            if (albumArtist && a.getArtist() != null && !a.getArtist().isUnknown()) {
+            if (useAlbumArtist && a.getArtist() != null && !a.getArtist().isUnknown()) {
                 commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
                         MPDCommand.MPD_TAG_ALBUM_ARTIST,
                         MPDCommand.MPD_TAG_ALBUM, a.getName(),
                         MPDCommand.MPD_TAG_ARTIST, a.getArtist().getName());
             } else {
                 commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
-                        (albumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
+                        (useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
                                 MPDCommand.MPD_TAG_ARTIST),
                         MPDCommand.MPD_TAG_ALBUM, a.getName()
                 );
@@ -1352,7 +1354,7 @@ public class MPD {
             final ArrayList<String> albumResult = new ArrayList<>(r.length);
             for (final String s : r) {
                 final String name = s
-                        .substring((albumArtist ? "AlbumArtist: " : "Artist: ").length());
+                        .substring((useAlbumArtist ? "AlbumArtist: " : "Artist: ").length());
                 albumResult.add(name);
             }
             result.add(albumResult.toArray(new String[albumResult.size()]));
@@ -1489,18 +1491,18 @@ public class MPD {
      * Similar to {@code find},{@code search} looks for partial
      * matches in the MPD database.
      *
-     * @param type   type of search. Should be one of the following constants:
-     *               MPD_SEARCH_ARTIST, MPD_SEARCH_TITLE, MPD_SEARCH_ALBUM,
-     *               MPD_SEARCH_FILENAME
-     * @param string case-insensitive locator string. Anything that contains
-     *               {@code string} will be returned in the results.
+     * @param type          type of search. Should be one of the following constants:
+     *                      MPD_SEARCH_ARTIST, MPD_SEARCH_TITLE, MPD_SEARCH_ALBUM,
+     *                      MPD_SEARCH_FILENAME
+     * @param locatorString case-insensitive locator locatorString. Anything that contains
+     *                      {@code locatorString} will be returned in the results.
      * @return a Collection of {@code Music}.
      * @throws MPDServerException if an error occur while contacting server.
      * @see org.a0z.mpd.item.Music
      */
-    public Collection<Music> search(final String type, final String string)
+    public Collection<Music> search(final String type, final String locatorString)
             throws MPDServerException {
-        return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, string);
+        return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, locatorString);
     }
 
     public List<Music> search(final String[] args) throws MPDServerException {

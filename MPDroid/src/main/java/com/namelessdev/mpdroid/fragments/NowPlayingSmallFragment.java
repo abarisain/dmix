@@ -61,17 +61,9 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private ImageButton mButtonNext;
-
     private ImageButton mButtonPlayPause;
 
-    private ImageButton mButtonPrev;
-
     private ImageView mCoverArt;
-
-    private AlbumCoverDownloadListener mCoverArtListener;
-
-    private ProgressBar mCoverArtProgress;
 
     private CoverAsyncHelper mCoverHelper;
 
@@ -129,16 +121,18 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         mSongTitle.setSelected(true);
         mSongArtist = (TextView) view.findViewById(R.id.song_artist);
         mSongArtist.setSelected(true);
-        mButtonPrev = (ImageButton) view.findViewById(R.id.prev);
+        final ImageButton buttonPrev = (ImageButton) view.findViewById(R.id.prev);
         mButtonPlayPause = (ImageButton) view.findViewById(R.id.playpause);
-        mButtonNext = (ImageButton) view.findViewById(R.id.next);
-        mButtonPrev.setOnClickListener(mButtonClickListener);
+        final ImageButton buttonNext = (ImageButton) view.findViewById(R.id.next);
+        buttonPrev.setOnClickListener(mButtonClickListener);
         mButtonPlayPause.setOnClickListener(mButtonClickListener);
-        mButtonNext.setOnClickListener(mButtonClickListener);
+        buttonNext.setOnClickListener(mButtonClickListener);
 
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
-        mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-        mCoverArtListener = new AlbumCoverDownloadListener(mCoverArt, mCoverArtProgress, false);
+        final ProgressBar coverArtProgress = (ProgressBar) view
+                .findViewById(R.id.albumCoverProgress);
+        final AlbumCoverDownloadListener coverArtListener = new AlbumCoverDownloadListener(
+                mCoverArt, coverArtProgress, false);
 
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
@@ -153,7 +147,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 return true;
             }
         });
-        mCoverHelper.addCoverDownloadListener(mCoverArtListener);
+        mCoverHelper.addCoverDownloadListener(coverArtListener);
 
         return view;
     }
@@ -248,11 +242,11 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void stateChanged(final MPDStatus status, final int oldState) {
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
         if (mForceStatusUpdate) {
-            mApp.updateTrackInfo.refresh(status);
+            mApp.updateTrackInfo.refresh(mpdStatus);
         }
-        updatePlayPauseButton(status);
+        updatePlayPauseButton(mpdStatus);
 
     }
 

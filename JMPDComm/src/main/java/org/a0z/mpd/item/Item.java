@@ -42,11 +42,11 @@ public abstract class Item implements Comparable<Item> {
      */
     public static <T extends Item> List<T> merged(final List<T> albumArtists,
             final List<T> artists) {
-        int j_start = albumArtists.size() - 1;
+        int jStart = albumArtists.size() - 1;
         for (int i = artists.size() - 1; i >= 0; i--) { // artists
-            for (int j = j_start; j >= 0; j--) { // album artists
-                if (albumArtists.get(j).nameEquals(artists.get(i))) {
-                    j_start = j;
+            for (int j = jStart; j >= 0; j--) { // album artists
+                if (albumArtists.get(j).doesNameExist(artists.get(i))) {
+                    jStart = j;
                     artists.remove(i);
                     break;
                 }
@@ -77,6 +77,10 @@ public abstract class Item implements Comparable<Item> {
         return comparisonResult;
     }
 
+    public boolean doesNameExist(final Item o) {
+        return getName().equals(o.getName());
+    }
+
     public abstract String getName();
 
     public boolean isUnknown() {
@@ -85,10 +89,6 @@ public abstract class Item implements Comparable<Item> {
 
     public String mainText() {
         return getName();
-    }
-
-    public boolean nameEquals(final Item o) {
-        return getName().equals(o.getName());
     }
 
     public String sortText() {

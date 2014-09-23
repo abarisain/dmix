@@ -188,11 +188,11 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
-        if (icicle != null) {
-            init((Artist) icicle.getParcelable(EXTRA_ARTIST),
-                    (Genre) icicle.getParcelable(EXTRA_GENRE));
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            init((Artist) savedInstanceState.getParcelable(EXTRA_ARTIST),
+                    (Genre) savedInstanceState.getParcelable(EXTRA_GENRE));
         }
     }
 
@@ -218,7 +218,7 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
                 new SongsFragment().init((Album) mItems.get(position)),

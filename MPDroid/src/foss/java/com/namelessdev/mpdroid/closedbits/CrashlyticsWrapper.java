@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.closedbits;
 
 import android.content.Context;
 
+@SuppressWarnings("ALL")
 public class CrashlyticsWrapper {
 
     public static void start(final Context context) {

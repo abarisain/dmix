@@ -87,17 +87,17 @@ public class MultiMap<K, V> implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
+    public boolean equals(final Object o) {
+        if (this == o) {
             return true;
         }
-        if (obj == null) {
+        if (o == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != o.getClass()) {
             return false;
         }
-        final MultiMap<?, ?> other = (MultiMap<?, ?>) obj;
+        final MultiMap<?, ?> other = (MultiMap<?, ?>) o;
         return mInternalMap != null && mInternalMap.equals(other.mInternalMap);
     }
 
@@ -171,8 +171,8 @@ public class MultiMap<K, V> implements Serializable {
     /**
      * Adds all entries in given {@link Map} to this .
      */
-    public void putAll(final Map<? extends K, ? extends V> m) {
-        for (final Map.Entry<? extends K, ? extends V> entry : m.entrySet()) {
+    public void putAll(final Map<? extends K, ? extends V> map) {
+        for (final Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
     }
@@ -180,9 +180,9 @@ public class MultiMap<K, V> implements Serializable {
     /**
      * Adds all entries in given  to this .
      */
-    public void putAll(final MultiMap<K, ? extends V> m) {
-        for (final K key : m.keySet()) {
-            for (final V value : m.get(key)) {
+    public void putAll(final MultiMap<K, ? extends V> map) {
+        for (final K key : map.keySet()) {
+            for (final V value : map.get(key)) {
                 put(key, value);
             }
         }

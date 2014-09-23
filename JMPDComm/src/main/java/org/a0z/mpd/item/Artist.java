@@ -60,6 +60,11 @@ public class Artist extends Item {
         mSort = sort;
     }
 
+    @Override
+    public boolean doesNameExist(final Item o) {
+        return equals(o);
+    }
+
     /**
      * Compares an Artist object with a general contract of
      * comparison that is reflexive, symmetric and transitive.
@@ -124,11 +129,6 @@ public class Artist extends Item {
         }
 
         return result;
-    }
-
-    @Override
-    public boolean nameEquals(final Item o) {
-        return equals(o);
     }
 
     public String sortText() {

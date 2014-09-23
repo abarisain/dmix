@@ -64,10 +64,10 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final boolean replace, final boolean play) {
         try {
-            final Directory ToAdd = mCurrentDirectory.getDirectory(item.getName());
-            if (ToAdd != null) {
+            final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
+            if (toAdd != null) {
                 // Valid directory
-                mApp.oMPDAsyncHelper.oMPD.add(ToAdd, replace, play);
+                mApp.oMPDAsyncHelper.oMPD.add(toAdd, replace, play);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 mApp.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
@@ -81,10 +81,10 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final String playlist) {
         try {
-            final Directory ToAdd = mCurrentDirectory.getDirectory(item.getName());
-            if (ToAdd != null) {
+            final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
+            if (toAdd != null) {
                 // Valid directory
-                mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
+                mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, toAdd);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 if (item instanceof Music) {
@@ -189,11 +189,11 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (icicle != null) {
-            init(icicle.getString(EXTRA_DIRECTORY));
+        if (savedInstanceState != null) {
+            init(savedInstanceState.getString(EXTRA_DIRECTORY));
         }
     }
 
@@ -204,7 +204,7 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> l, final View v, final int position,
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         // click on a file, not dir
         if (position > mNumSubDirs - 1 || mNumSubDirs == 0) {

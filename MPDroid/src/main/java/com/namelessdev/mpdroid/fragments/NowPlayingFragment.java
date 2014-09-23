@@ -245,8 +245,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mHandler = new Handler();
         setHasOptionsMenu(false);
         mActivity.setTitle(R.string.nowPlaying);
@@ -290,7 +290,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
         mCoverArt.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(final View view) {
+            public void onClick(final View v) {
                 scrollToNowPlaying();
             }
         });
@@ -338,7 +338,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mSeekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             public void onProgressChanged(final SeekBar seekBar, final int progress,
-                    final boolean fromTouch) {
+                    final boolean fromUser) {
 
             }
 
@@ -584,7 +584,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         coverMenu.setOnMenuItemClickListener(this);
         mCoverArt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public boolean onLongClick(final View view) {
+            public boolean onLongClick(final View v) {
                 if (mCurrentSong != null) {
                     coverMenu.getMenu().setGroupVisible(Menu.NONE,
                             mCurrentSong.getAlbumInfo().isValid());

@@ -376,9 +376,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         super.onDestroy();
     }
 
-    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        final Object selectedItem = adapterView.getAdapter().getItem(position);
+        final Object selectedItem = parent.getAdapter().getItem(position);
         if (selectedItem instanceof Music) {
             add((Music) selectedItem, false, false);
         } else if (selectedItem instanceof Artist) {
@@ -441,10 +441,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 onSearchRequested();
                 return true;
             case android.R.id.home:
-                final Intent i = new Intent(this, MainMenuActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
+                final Intent intent = new Intent(this, MainMenuActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
                 return true;
+            default:
+                break;
         }
         return false;
     }
@@ -556,7 +558,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             return 3;
         }
 
-        public Object instantiateItem(final View collection, final int position) {
+        public Object instantiateItem(final ViewGroup container, final int position) {
 
             final View v;
             switch (position) {

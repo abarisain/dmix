@@ -310,7 +310,7 @@ public final class StreamHandler implements
         return result;
     }
 
-    final boolean isActive() {
+    boolean isActive() {
         return mIsActive;
     }
 
@@ -321,7 +321,7 @@ public final class StreamHandler implements
      * @param focusChange The type of focus change.
      */
     @Override
-    public final void onAudioFocusChange(final int focusChange) {
+    public void onAudioFocusChange(final int focusChange) {
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.onAudioFocusChange() with " + focusChange);
         }
@@ -364,7 +364,7 @@ public final class StreamHandler implements
      * @param mp The MediaPlayer object that reached the end of the stream.
      */
     @Override
-    public final void onCompletion(final MediaPlayer mp) {
+    public void onCompletion(final MediaPlayer mp) {
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.onCompletion()");
         }
@@ -395,7 +395,7 @@ public final class StreamHandler implements
      * having an OnErrorListener at all, will cause the OnCompletionListener to be called.
      */
     @Override
-    public final boolean onError(final MediaPlayer mp, final int what, final int extra) {
+    public boolean onError(final MediaPlayer mp, final int what, final int extra) {
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.onError()");
         }
@@ -457,7 +457,7 @@ public final class StreamHandler implements
      * @param mp The MediaPlayer that is ready for playback.
      */
     @Override
-    public final void onPrepared(final MediaPlayer mp) {
+    public void onPrepared(final MediaPlayer mp) {
         final int focusResult;
 
         if (DEBUG) {
@@ -558,7 +558,7 @@ public final class StreamHandler implements
         Toast.makeText(mServiceContext, toastOutput, Toast.LENGTH_LONG).show();
     }
 
-    final void start(final int mpdState) {
+    void start(final int mpdState) {
         mIsActive = true;
         mIsPlaying = MPDStatus.STATE_PLAYING == mpdState;
         if (!mPreparingStream && mIsPlaying) {
@@ -571,7 +571,7 @@ public final class StreamHandler implements
      *
      * @param mpdStatus MPDStatus after event.
      */
-    final void stateChanged(final MPDStatus mpdStatus) {
+    void stateChanged(final MPDStatus mpdStatus) {
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.stateChanged()");
         }
@@ -609,7 +609,7 @@ public final class StreamHandler implements
         }
     }
 
-    final void stop() {
+    void stop() {
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.stop()");
         }

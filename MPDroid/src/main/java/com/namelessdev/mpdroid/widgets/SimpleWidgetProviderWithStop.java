@@ -27,7 +27,7 @@ import android.widget.RemoteViews;
 
 public class SimpleWidgetProviderWithStop extends SimpleWidgetProvider {
 
-    protected String TAG = "MPDroidSimpleWidgetProviderWithStop";
+    protected static final String TAG = "MPDroidSimpleWidgetProviderWithStop";
 
     /**
      * Link up various button actions using {@link PendingIntent}.

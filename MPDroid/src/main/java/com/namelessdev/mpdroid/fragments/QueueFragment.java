@@ -467,7 +467,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                                         new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(final DialogInterface dialog,
-                                                    final int whichButton) {
+                                                    final int which) {
                                                 savePlaylist(mPlaylistToSave);
                                             }
                                         }
@@ -477,7 +477,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                                         new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(final DialogInterface dialog,
-                                                    final int whichButton) {
+                                                    final int which) {
                                                 // Do nothing.
                                             }
                                         }
@@ -560,7 +560,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(final DialogInterface dialog,
-                                                final int whichButton) {
+                                                final int which) {
                                             final String name = input.getText().toString().trim();
                                             if (!name.isEmpty() && !name
                                                     .equals(MPD.STREAMS_PLAYLIST)) {
@@ -575,7 +575,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(final DialogInterface dialog,
-                                                final int whichButton) {
+                                                final int which) {
                                             // Do nothing.
                                         }
                                     }

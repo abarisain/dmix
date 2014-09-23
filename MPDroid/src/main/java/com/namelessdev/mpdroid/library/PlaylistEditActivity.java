@@ -143,8 +143,8 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mPlaylistName = getIntent().getStringExtra("playlist");
         if (null != mPlaylistName && !mPlaylistName.isEmpty()) {
             mIsPlayQueue = false;
@@ -281,13 +281,13 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             final int top = null == view ? -1 : view.getTop();
             int listPlayingId = 0;
             // Copy list to avoid concurrent exception
-            for (final Music m : new ArrayList<>(musics)) {
+            for (final Music music : new ArrayList<>(musics)) {
                 final HashMap<String, Object> item = new HashMap<>();
-                item.put("songid", m.getSongId());
-                item.put("artist", m.getArtist());
-                item.put("title", m.getTitle());
+                item.put("songid", music.getSongId());
+                item.put("artist", music.getArtist());
+                item.put("title", music.getTitle());
                 item.put("marked", false);
-                if (mIsPlayQueue && m.getSongId() == playingID) {
+                if (mIsPlayQueue && music.getSongId() == playingID) {
                     item.put("play", android.R.drawable.ic_media_play);
                     listPlayingId = mSongList.size() - 1;
                 } else {

@@ -188,7 +188,7 @@ public class UpdateTrackInfo {
             mLastAlbum = mAlbum;
             mLastArtist = mArtist;
 
-            return (Void) null;
+            return null;
         }
 
         private boolean hasCoverChanged() {

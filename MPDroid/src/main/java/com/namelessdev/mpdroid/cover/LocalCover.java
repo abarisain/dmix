@@ -56,9 +56,9 @@ public class LocalCover implements ICoverRetriever {
 
     private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
-    public static void appendPathString(final Uri.Builder builder, final String string) {
-        if (string != null && !string.isEmpty()) {
-            final String[] components = string.split("/");
+    public static void appendPathString(final Uri.Builder builder, final String baseString) {
+        if (baseString != null && !baseString.isEmpty()) {
+            final String[] components = baseString.split("/");
             for (final String component : components) {
                 builder.appendPath(component);
             }
@@ -76,12 +76,12 @@ public class LocalCover implements ICoverRetriever {
             serverName = musicPath.substring(URL_PREFIX.length(), hostPortEnd);
             musicPath = musicPath.substring(hostPortEnd);
         }
-        final Uri.Builder b = Uri.parse(URL_PREFIX + serverName).buildUpon();
-        appendPathString(b, musicPath);
-        appendPathString(b, path);
-        appendPathString(b, fileName);
+        final Uri.Builder uriBuilder = Uri.parse(URL_PREFIX + serverName).buildUpon();
+        appendPathString(uriBuilder, musicPath);
+        appendPathString(uriBuilder, path);
+        appendPathString(uriBuilder, fileName);
 
-        final Uri uri = b.build();
+        final Uri uri = uriBuilder.build();
         return uri.toString();
     }
 

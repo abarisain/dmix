@@ -115,10 +115,10 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
-        if (icicle != null) {
-            init(icicle.getString(EXTRA_PLAYLIST_NAME));
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            init(savedInstanceState.getString(EXTRA_PLAYLIST_NAME));
         }
     }
 
@@ -133,12 +133,12 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
-                add((Item) adapterView.getAdapter().getItem(position), mApp.isInSimpleMode(),
+                add((Item) parent.getAdapter().getItem(position), mApp.isInSimpleMode(),
                         mApp.isInSimpleMode());
             }
         });
@@ -147,12 +147,12 @@ public class StoredPlaylistFragment extends BrowseFragment {
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         // Menu actions...
-        final Intent i;
+        final Intent intent;
         switch (item.getItemId()) {
             case R.id.PLM_EditPL:
-                i = new Intent(getActivity(), PlaylistEditActivity.class);
-                i.putExtra("playlist", mPlaylistName);
-                startActivity(i);
+                intent = new Intent(getActivity(), PlaylistEditActivity.class);
+                intent.putExtra("playlist", mPlaylistName);
+                startActivity(intent);
                 return true;
             default:
                 return false;

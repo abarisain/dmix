@@ -74,9 +74,9 @@ public class StreamsFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final boolean replace, final boolean play) {
         try {
-            final Stream s = (Stream) item;
+            final Stream stream = (Stream) item;
             mApp.oMPDAsyncHelper.oMPD.addStream(
-                    StreamFetcher.instance().get(s.getUrl(), s.getName()),
+                    StreamFetcher.instance().get(stream.getUrl(), stream.getName()),
                     replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final MPDServerException | MalformedURLException e) {
@@ -103,12 +103,12 @@ public class StreamsFragment extends BrowseFragment {
         final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
         final int index = idx;
         if (index >= 0 && index < mStreams.size()) {
-            final Stream s = mStreams.get(idx);
+            final Stream stream = mStreams.get(idx);
             if (null != nameEdit) {
-                nameEdit.setText(s.getName());
+                nameEdit.setText(stream.getName());
             }
             if (null != urlEdit) {
-                urlEdit.setText(s.getUrl());
+                urlEdit.setText(stream.getUrl());
             }
         } else if (streamUrlToAdd != null && urlEdit != null) {
             urlEdit.setText(streamUrlToAdd);
@@ -117,7 +117,7 @@ public class StreamsFragment extends BrowseFragment {
                 .setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
-                    public void onClick(final DialogInterface dialog, final int whichButton) {
+                    public void onClick(final DialogInterface dialog, final int which) {
                         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
                         final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
                         final String name = null == nameEdit ? null : nameEdit.getText().toString()
@@ -163,7 +163,7 @@ public class StreamsFragment extends BrowseFragment {
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new OnClickListener() {
-                    public void onClick(final DialogInterface dialog, final int whichButton) {
+                    public void onClick(final DialogInterface dialog, final int which) {
                         if (streamUrlToAdd != null) {
                             getActivity().finish();
                         }
@@ -268,8 +268,8 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
@@ -279,7 +279,7 @@ public class StreamsFragment extends BrowseFragment {
         super.onCreateContextMenu(menu, v, menuInfo);
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         if (info.id >= 0 && info.id < mStreams.size()) {
-            final Stream s = mStreams.get((int) info.id);
+            final Stream stream = mStreams.get((int) info.id);
             final MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0,
                     R.string.editStream);
             editItem.setOnMenuItemClickListener(this);
@@ -302,7 +302,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
     }
 

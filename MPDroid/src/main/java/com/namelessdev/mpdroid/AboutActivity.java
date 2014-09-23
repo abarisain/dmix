@@ -49,8 +49,8 @@ public class AboutActivity extends Activity {
     }
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
 
         final ListView listView = (ListView) findViewById(android.R.id.list);

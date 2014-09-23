@@ -32,6 +32,9 @@ public final class Tools {
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 
+    private Tools() {
+    }
+
     public static int calculateInSampleSize(final BitmapFactory.Options options, final int reqWidth,
             final int reqHeight) {
         // Raw height and width of image
@@ -81,16 +84,16 @@ public final class Tools {
 
         final StringBuilder buffer = new StringBuilder();
         for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
-            int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
-            int two_halfs = 0;
+            int halfByte = (data[byteIndex] >>> 4) & 0x0F;
+            int twoHalves = 0;
             do {
-                if ((0 <= halfbyte) && (halfbyte <= 9)) {
-                    buffer.append((char) ('0' + halfbyte));
+                if ((0 <= halfByte) && (halfByte <= 9)) {
+                    buffer.append((char) ('0' + halfByte));
                 } else {
-                    buffer.append((char) ('a' + (halfbyte - 10)));
+                    buffer.append((char) ('a' + (halfByte - 10)));
                 }
-                halfbyte = data[byteIndex] & 0x0F;
-            } while (two_halfs++ < 1);
+                halfByte = data[byteIndex] & 0x0F;
+            } while (twoHalves++ < 1);
         }
 
         return buffer.toString();
@@ -152,7 +155,7 @@ public final class Tools {
      * @param value Target string value to get hash from.
      * @return the hash from string.
      */
-    public static final String getHashFromString(final String value) {
+    public static String getHashFromString(final String value) {
         if (value == null || value.isEmpty()) {
             return null;
         }

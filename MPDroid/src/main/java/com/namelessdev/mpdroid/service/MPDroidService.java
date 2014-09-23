@@ -406,7 +406,7 @@ public final class MPDroidService extends Service implements
      * @return @see #stopSelfResult(int)
      */
     @Override
-    public final int onStartCommand(final Intent intent, final int flags, final int startId) {
+    public int onStartCommand(final Intent intent, final int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
 
         if (intent != null) {
@@ -471,7 +471,7 @@ public final class MPDroidService extends Service implements
      *                   removed.
      */
     @Override
-    public final void onTaskRemoved(final Intent rootIntent) {
+    public void onTaskRemoved(final Intent rootIntent) {
         final String pendingAction;
         if (mIsStreamStarted) {
             pendingAction = StreamHandler.ACTION_START;
@@ -513,7 +513,7 @@ public final class MPDroidService extends Service implements
      * @return False if onRebind() on further binds is desired, true otherwise.
      */
     @Override
-    public final boolean onUnbind(final Intent intent) {
+    public boolean onUnbind(final Intent intent) {
         super.onUnbind(intent);
 
         if (DEBUG) {

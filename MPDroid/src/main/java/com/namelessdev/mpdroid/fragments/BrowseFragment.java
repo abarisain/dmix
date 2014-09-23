@@ -77,7 +77,13 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     private static final String TAG = "BrowseFragment";
 
-    protected MPDApplication mApp = MPDApplication.getInstance();
+    protected final MPDApplication mApp = MPDApplication.getInstance();
+
+    final String mContext;
+
+    final int mIrAdd;
+
+    final int mIrAdded;
 
     protected List<? extends Item> mItems = null;
 
@@ -92,12 +98,6 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     protected View mNoResultView;
 
     protected PullToRefreshLayout mPullToRefreshLayout;
-
-    String mContext;
-
-    int mIrAdd;
-
-    int mIrAdded;
 
     private boolean mFirstUpdateDone = false;
 
@@ -127,8 +127,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     }
 
-    // Override if you want setEmptyView to be called on the list even if you
-    // have a header
+    // Override if you want setEmptyView to be called on the list even if you have a header
     protected boolean forceEmptyView() {
         return false;
     }
@@ -309,7 +308,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                             .setPositiveButton(android.R.string.ok,
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(final DialogInterface dialog,
-                                                final int whichButton) {
+                                                final int which) {
                                             final String name = input.getText().toString().trim();
                                             if (null != name && !name.isEmpty()) {
                                                 mApp.oMPDAsyncHelper.execAsync(new Runnable() {
@@ -324,7 +323,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                             .setNegativeButton(android.R.string.cancel,
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(final DialogInterface dialog,
-                                                final int whichButton) {
+                                                final int which) {
                                             // Do nothing.
                                         }
                                     }).show();

@@ -34,10 +34,6 @@ public class ConnectionSettings extends PreferenceActivity {
 
     private static final String KEY_CONNECTION_CATEGORY = "connectionCategory";
 
-    private PreferenceCategory mMasterCategory;
-
-    private String mSSID;
-
     private void createDynamicSettings(final String keyPrefix,
             final PreferenceCategory toCategory) {
 
@@ -117,17 +113,17 @@ public class ConnectionSettings extends PreferenceActivity {
 
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
 
-        mMasterCategory = (PreferenceCategory) preferenceScreen
+        final PreferenceCategory masterCategory = (PreferenceCategory) preferenceScreen
                 .findPreference(KEY_CONNECTION_CATEGORY);
 
         if (getIntent().getStringExtra("SSID") != null) {
             // WiFi-Based Settings
-            mSSID = getIntent().getStringExtra("SSID");
-            createDynamicSettings(mSSID, mMasterCategory);
+            final String SSID = getIntent().getStringExtra("SSID");
+            createDynamicSettings(SSID, masterCategory);
         } else {
             // Default settings
-            createDynamicSettings("", mMasterCategory);
-            mMasterCategory.setTitle(R.string.defaultSettings);
+            createDynamicSettings("", masterCategory);
+            masterCategory.setTitle(R.string.defaultSettings);
 
         }
     }
@@ -146,9 +142,9 @@ public class ConnectionSettings extends PreferenceActivity {
         switch (item.getItemId()) {
 
             case MAIN:
-                final Intent i = new Intent(this, MainMenuActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
+                final Intent intent = new Intent(this, MainMenuActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
                 return true;
         }
         return false;

@@ -23,8 +23,8 @@ import android.widget.ListView;
 public class ServerListActivity extends ListActivity {
 
     @Override
-    public void onCreate(final Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.server_list);
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }

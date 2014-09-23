@@ -193,6 +193,47 @@ public final class CoverManager {
         return processedText;
     }
 
+    /**
+     * This method connects to the HTTP server URL, and gets a HTTP status code. If the
+     * status code is OK or similar this method returns true, otherwise false.
+     *
+     * @param connection An HttpURLConnection object.
+     * @return True if the URL exists, false otherwise.
+     */
+    public static boolean doesUrlExist(final HttpURLConnection connection) {
+        int statusCode = 0;
+
+        if (connection == null) {
+            Log.d(TAG, "Cannot find out if URL exists with a null connection.");
+            return false;
+        }
+
+        try {
+            statusCode = connection.getResponseCode();
+        } catch (final IOException e) {
+            if (DEBUG) {
+                Log.e(TAG, "Failed to get a valid response code.", e);
+            }
+        }
+
+        return doesUrlExist(statusCode);
+    }
+
+    /**
+     * This method connects to the HTTP server URL, gets a HTTP status code and if the
+     * status code is OK or similar this method returns true, otherwise false.
+     *
+     * @param statusCode An HttpURLConnection object.
+     * @return True if the URL exists, false otherwise.
+     */
+    public static boolean doesUrlExist(final int statusCode) {
+        final int temporaryRedirect = 307; /** No constant for 307 exists */
+
+        return statusCode == HttpURLConnection.HTTP_OK ||
+                statusCode == temporaryRedirect ||
+                statusCode == HttpURLConnection.HTTP_MOVED_TEMP;
+    }
+
     private static byte[] download(final String textUrl) {
 
         final URL url = buildURLForConnection(textUrl);
@@ -202,7 +243,7 @@ public final class CoverManager {
         byte[] buffer = null;
         int len;
 
-        if (!urlExists(connection)) {
+        if (!doesUrlExist(connection)) {
             return null;
         }
 

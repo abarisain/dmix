@@ -167,11 +167,11 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     }
 
     @Override
-    public void onCoverNotFound(final CoverInfo cover) {
-        if (!isMatchingCover(cover)) {
+    public void onCoverNotFound(final CoverInfo coverInfo) {
+        if (!isMatchingCover(coverInfo)) {
             return;
         }
-        cover.setBitmap(null);
+        coverInfo.setBitmap(null);
         if (mCoverArtProgress != null) {
             mCoverArtProgress.setVisibility(ProgressBar.INVISIBLE);
         }

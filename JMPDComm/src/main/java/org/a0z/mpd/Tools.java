@@ -50,7 +50,7 @@ public final class Tools {
         final StringBuilder buffer = new StringBuilder(data.length);
         for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
             int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
-            int two_halfs = 0;
+            int twoHalves = 0;
             do {
                 if ((0 <= halfbyte) && (halfbyte <= 9)) {
                     buffer.append((char) ('0' + halfbyte));
@@ -58,7 +58,7 @@ public final class Tools {
                     buffer.append((char) ('a' + (halfbyte - 10)));
                 }
                 halfbyte = data[byteIndex] & 0x0F;
-            } while (two_halfs++ < 1);
+            } while (twoHalves++ < 1);
         }
 
         return buffer.toString();
@@ -84,7 +84,7 @@ public final class Tools {
      * @param value Target string value to get hash from.
      * @return the hash from string.
      */
-    public static final String getHashFromString(final String value) {
+    public static String getHashFromString(final String value) {
         if (value == null || value.isEmpty()) {
             return null;
         }

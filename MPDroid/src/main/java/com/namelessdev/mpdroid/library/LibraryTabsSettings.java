@@ -37,9 +37,7 @@ import java.util.List;
 
 public class LibraryTabsSettings extends PreferenceActivity {
 
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
-    public DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
+    public final DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
 
         public void drop(final int from, final int to) {
             if (from == to) {
@@ -58,6 +56,8 @@ public class LibraryTabsSettings extends PreferenceActivity {
             }
         }
     };
+
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
     private SeparatedListAdapter mAdapter;
 
@@ -176,7 +176,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
 class TabItem {
 
-    String mText;
+    final String mText;
 
     TabItem(final String text) {
         super();

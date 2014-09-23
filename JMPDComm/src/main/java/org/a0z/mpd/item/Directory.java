@@ -167,16 +167,16 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return sub-directories.
      */
     public TreeSet<Directory> getDirectories() {
-        final TreeSet<Directory> c = new TreeSet<>(new Comparator<Directory>() {
-            public int compare(final Directory o1, final Directory o2) {
-                return StringComparators.compareNatural(o1.getName(), o2.getName());
+        final TreeSet<Directory> directoriesCompared = new TreeSet<>(new Comparator<Directory>() {
+            public int compare(final Directory lhs, final Directory rhs) {
+                return StringComparators.compareNatural(lhs.getName(), rhs.getName());
             }
         });
 
         for (final Directory item : mDirectoryEntries.values()) {
-            c.add(item);
+            directoriesCompared.add(item);
         }
-        return c;
+        return directoriesCompared;
     }
 
     /**
@@ -219,16 +219,16 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return files from directory.
      */
     public TreeSet<Music> getFiles() {
-        final TreeSet<Music> c = new TreeSet<>(new Comparator<Music>() {
-            public int compare(final Music o1, final Music o2) {
-                return StringComparators.compareNatural(o1.getFilename(), o2.getFilename());
+        final TreeSet<Music> filesCompared = new TreeSet<>(new Comparator<Music>() {
+            public int compare(final Music lhs, final Music rhs) {
+                return StringComparators.compareNatural(lhs.getFilename(), rhs.getFilename());
             }
         });
 
         for (final Music item : mFileEntries.values()) {
-            c.add(item);
+            filesCompared.add(item);
         }
-        return c;
+        return filesCompared;
     }
 
     /**
@@ -263,16 +263,18 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     public TreeSet<PlaylistFile> getPlaylistFiles() {
-        final TreeSet<PlaylistFile> c = new TreeSet<>(new Comparator<PlaylistFile>() {
-            public int compare(final PlaylistFile o1, final PlaylistFile o2) {
-                return StringComparators.compareNatural(o1.getFullPath(), o2.getFullPath());
-            }
-        });
+        final TreeSet<PlaylistFile> playlistFilesCompared = new TreeSet<>(
+                new Comparator<PlaylistFile>() {
+                    public int compare(final PlaylistFile lhs, final PlaylistFile rhs) {
+                        return StringComparators
+                                .compareNatural(lhs.getFullPath(), rhs.getFullPath());
+                    }
+                });
 
         for (final PlaylistFile item : mPlayLists.values()) {
-            c.add(item);
+            playlistFilesCompared.add(item);
         }
-        return c;
+        return playlistFilesCompared;
     }
 
     /**
@@ -322,15 +324,15 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @throws MPDServerException if an error occurs while contacting server.
      */
     public void refreshData() throws MPDServerException {
-        final List<FilesystemTreeEntry> c = mMPD.getDir(getFullPath());
-        for (final FilesystemTreeEntry o : c) {
-            if (o instanceof Directory) {
-                final Directory dir = (Directory) o;
+        final List<FilesystemTreeEntry> filesystemEntries = mMPD.getDir(getFullPath());
+        for (final FilesystemTreeEntry filesystemEntry : filesystemEntries) {
+            if (filesystemEntry instanceof Directory) {
+                final Directory dir = (Directory) filesystemEntry;
                 if (!mDirectoryEntries.containsKey(dir.mFilename)) {
                     mDirectoryEntries.put(dir.mFilename, dir);
                 }
-            } else if (o instanceof Music) {
-                final Music music = (Music) o;
+            } else if (filesystemEntry instanceof Music) {
+                final Music music = (Music) filesystemEntry;
                 final String filename = music.getFilename();
 
                 if (mFileEntries.containsKey(filename)) {
@@ -342,8 +344,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                 } else {
                     mFileEntries.put(filename, music);
                 }
-            } else if (o instanceof PlaylistFile) {
-                final PlaylistFile pl = (PlaylistFile) o;
+            } else if (filesystemEntry instanceof PlaylistFile) {
+                final PlaylistFile pl = (PlaylistFile) filesystemEntry;
                 if (!mPlayLists.containsKey(pl.getName())) {
                     mPlayLists.put(pl.getName(), pl);
                 }

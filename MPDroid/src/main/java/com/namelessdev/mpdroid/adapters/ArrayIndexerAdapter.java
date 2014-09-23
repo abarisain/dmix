@@ -53,9 +53,9 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     }
 
     @Override
-    public int getPositionForSection(final int section) {
-        final String letter = mSections[section >= mSections.length ? mSections.length - 1
-                : section];
+    public int getPositionForSection(final int sectionIndex) {
+        final String letter = mSections[sectionIndex >= mSections.length ? mSections.length - 1
+                : sectionIndex];
         return mAlphaIndexer.get(letter);
     }
 
@@ -140,7 +140,7 @@ class LocaleComparator implements Comparator {
 
     static final Collator DEFAULT_COLLATOR = Collator.getInstance(Locale.getDefault());
 
-    public int compare(final Object str1, final Object str2) {
-        return DEFAULT_COLLATOR.compare((String) str1, (String) str2);
+    public int compare(final Object lhs, final Object rhs) {
+        return DEFAULT_COLLATOR.compare((String) lhs, (String) rhs);
     }
 }

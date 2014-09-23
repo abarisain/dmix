@@ -34,8 +34,6 @@ import java.util.List;
 
 public abstract class BaseDataBinder implements ArrayDataBinder {
 
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
     boolean mEnableCache = true;
 
     boolean mLightTheme = false;
@@ -45,7 +43,8 @@ public abstract class BaseDataBinder implements ArrayDataBinder {
     public BaseDataBinder(final boolean isLightTheme) {
         super();
         mLightTheme = isLightTheme;
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
+        final MPDApplication app = MPDApplication.getInstance();
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
         mEnableCache = settings.getBoolean(CoverManager.PREFERENCE_CACHE, true);
         mOnlyDownloadOnWifi = settings.getBoolean(CoverManager.PREFERENCE_ONLY_WIFI, false);

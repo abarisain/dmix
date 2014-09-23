@@ -93,7 +93,7 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
                 new StoredPlaylistFragment().init(mItems.get(position).getName()),

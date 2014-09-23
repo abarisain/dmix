@@ -37,7 +37,7 @@ import java.util.List;
 
 public class AlbumGridDataBinder extends AlbumDataBinder {
 
-    SharedPreferences mSettings;
+    final SharedPreferences mSettings;
 
     public AlbumGridDataBinder(final MPDApplication app, final boolean isLightTheme) {
         super(isLightTheme);

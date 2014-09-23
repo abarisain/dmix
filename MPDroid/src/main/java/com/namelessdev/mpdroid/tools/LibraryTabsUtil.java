@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class LibraryTabsUtil {
+public final class LibraryTabsUtil {
 
     public static final String TAB_ALBUMS = "albums";
 
@@ -64,9 +64,11 @@ public class LibraryTabsUtil {
         TABS.put(TAB_GENRES, R.string.genres);
     }
 
+    private LibraryTabsUtil() {
+    }
+
     public static ArrayList<String> getAllLibraryTabs() {
-        final String CurrentSettings = DEFAULT_LIBRARY_TABS;
-        return new ArrayList<>(Arrays.asList(CurrentSettings.split('\\'
+        return new ArrayList<>(Arrays.asList(DEFAULT_LIBRARY_TABS.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }
 

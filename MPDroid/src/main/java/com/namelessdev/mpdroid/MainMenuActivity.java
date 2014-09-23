@@ -101,8 +101,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private DisplayMode mCurrentDisplayMode;
 
-    private List<DrawerItem> mDrawerItems;
-
     private DrawerLayout mDrawerLayout;
 
     private ListView mDrawerList;
@@ -115,8 +113,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private View mHeaderDragView;
 
-    private ImageButton mHeaderOverflowMenu;
-
     private PopupMenu mHeaderOverflowPopupMenu;
 
     private ImageButton mHeaderPlayQueue;
@@ -128,8 +124,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private LibraryFragment mLibraryFragment;
 
     private View mLibraryRootFrame;
-
-    private View mNowPlayingDualPane;
 
     private ViewPager mNowPlayingPager;
 
@@ -222,12 +216,12 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         mTextView.setSelected(true);
         mTextView.requestFocus();
 
-        mNowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
+        final View nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
         mNowPlayingPager = (ViewPager) findViewById(R.id.pager);
         mLibraryRootFrame = findViewById(R.id.library_root_frame);
         mOutputsRootFrame = findViewById(R.id.outputs_root_frame);
 
-        mIsDualPaneMode = mNowPlayingDualPane != null;
+        mIsDualPaneMode = nowPlayingDualPane != null;
         switchMode(DisplayMode.MODE_LIBRARY);
 
         mExitCounterReset = new Handler();
@@ -244,14 +238,14 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        mDrawerItems = new ArrayList<>();
-        mDrawerItems.add(new DrawerItem(getString(R.string.libraryTabActivity),
+        final List<DrawerItem> drawerItems = new ArrayList<>();
+        drawerItems.add(new DrawerItem(getString(R.string.libraryTabActivity),
                 DrawerItem.Action.ACTION_LIBRARY));
 
-        mDrawerItems.add(new DrawerItem(getString(R.string.outputs),
+        drawerItems.add(new DrawerItem(getString(R.string.outputs),
                 DrawerItem.Action.ACTION_OUTPUTS));
 
-        mDrawerItems.add(new DrawerItem(getString(R.string.settings),
+        drawerItems.add(new DrawerItem(getString(R.string.settings),
                 DrawerItem.Action.ACTION_SETTINGS));
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -277,7 +271,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
              * Called when a drawer has settled in a completely closed
              * state.
              */
-            public void onDrawerClosed(final View view) {
+            public void onDrawerClosed(final View drawerView) {
                 refreshActionBarTitle();
             }
 
@@ -297,7 +291,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         // Set the adapter for the list view
         mDrawerList.setAdapter(new ArrayAdapter<>(this,
-                R.layout.drawer_list_item, mDrawerItems));
+                R.layout.drawer_list_item, drawerItems));
         mOldDrawerPosition = 0;
         mDrawerList.setItemChecked(mOldDrawerPosition, true);
         // Set the list's click listener
@@ -362,7 +356,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         mQueueFragment = (QueueFragment) mFragmentManager.findFragmentById(R.id.playlist_fragment);
 
         mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
-        mHeaderOverflowMenu = (ImageButton) findViewById(R.id.header_overflow_menu);
+        final ImageButton headerOverflowMenu = (ImageButton) findViewById(
+                R.id.header_overflow_menu);
         mHeaderTitle = (TextView) findViewById(R.id.header_title);
         mHeaderDragView = findViewById(R.id.header_dragview);
         if (mHeaderPlayQueue != null) {
@@ -381,8 +376,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 }
             });
         }
-        if (mHeaderOverflowMenu != null) {
-            mHeaderOverflowPopupMenu = new PopupMenu(this, mHeaderOverflowMenu);
+        if (headerOverflowMenu != null) {
+            mHeaderOverflowPopupMenu = new PopupMenu(this, headerOverflowMenu);
             mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_mainmenu,
                     mHeaderOverflowPopupMenu.getMenu());
             mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_playlistmenu,
@@ -390,10 +385,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             mHeaderOverflowPopupMenu.getMenu().removeItem(R.id.PLM_EditPL);
             mHeaderOverflowPopupMenu.setOnMenuItemClickListener(this);
 
-            mHeaderOverflowMenu.setOnTouchListener(
+            headerOverflowMenu.setOnTouchListener(
                     PopupMenuCompat.getDragToOpenListener(mHeaderOverflowPopupMenu));
 
-            mHeaderOverflowMenu.setOnClickListener(new View.OnClickListener() {
+            headerOverflowMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
                     if (mSlidingLayout != null && mSlidingLayout.isPanelExpanded()) {
@@ -802,9 +797,9 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     public static class DrawerItem {
 
-        public Action mAction;
+        public final Action mAction;
 
-        public String mLabel;
+        public final String mLabel;
 
         public DrawerItem(final String label, final Action action) {
             super();
@@ -832,7 +827,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             mDrawerLayout.closeDrawer(mDrawerList);
 
             switch (((DrawerItem) parent.getItemAtPosition(position)).mAction) {
-                default:
                 case ACTION_LIBRARY:
                     // If we are already on the library, pop the whole stack.
                     // Acts like an "up" button
@@ -850,8 +844,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     break;
                 case ACTION_SETTINGS:
                     mDrawerList.setItemChecked(mOldDrawerPosition, true);
-                    final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
-                    startActivityForResult(i, SETTINGS);
+                    final Intent intent = new Intent(MainMenuActivity.this, SettingsActivity.class);
+                    startActivityForResult(intent, SETTINGS);
                     break;
             }
             mOldDrawerPosition = position;
@@ -870,7 +864,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return 2;
         }
 
-        public Object instantiateItem(final View collection, final int position) {
+        public Object instantiateItem(final ViewGroup container, final int position) {
 
             int resId = 0;
             switch (position) {

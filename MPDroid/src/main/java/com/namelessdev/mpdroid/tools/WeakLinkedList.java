@@ -62,9 +62,9 @@ public class WeakLinkedList<T> implements List<T> {
         super();
     }
 
-    public WeakLinkedList(final Collection<? extends T> c) {
+    public WeakLinkedList(final Collection<? extends T> collection) {
         this();
-        addAll(c);
+        addAll(collection);
     }
 
     public WeakLinkedList(final String name) {
@@ -72,37 +72,37 @@ public class WeakLinkedList<T> implements List<T> {
         setName(name);
     }
 
-    public void add(final int index, final T element) {
+    public void add(final int location, final T object) {
         synchronized (mLOCK) {
-            final ListIterator<T> itr = listIterator(index);
-            itr.add(element);
+            final ListIterator<T> itr = listIterator(location);
+            itr.add(object);
         }
     }
 
-    public boolean add(final T o) {
+    public boolean add(final T object) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
-            add(mSize, o);
+            add(mSize, object);
             return true;
         }
     }
 
-    public boolean addAll(final Collection<? extends T> c) {
+    public boolean addAll(final Collection<? extends T> collection) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
-            return addAll(mSize, c);
+            return addAll(mSize, collection);
         }
     }
 
-    public boolean addAll(int index, final Collection<? extends T> c) {
-        if (c.size() <= 0) {
+    public boolean addAll(int location, final Collection<? extends T> collection) {
+        if (collection.size() <= 0) {
             return false;
         }
 
         synchronized (mLOCK) {
             cleanPhantomReferences();
-            for (final T element : c) {
-                add(index++, element);
+            for (final T element : collection) {
+                add(location++, element);
             }
 
             return true;
@@ -141,15 +141,16 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
-    public boolean contains(final Object o) {
-        return indexOf(o) != -1;
+    public boolean contains(final Object object) {
+        return indexOf(object) != -1;
     }
 
-    public boolean containsAll(final Collection<?> c) {
+    public boolean containsAll(final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean foundAll = true;
 
-            for (final Iterator<?> elementItr = c.iterator(); elementItr.hasNext() && foundAll; ) {
+            for (final Iterator<?> elementItr = collection.iterator();
+                    elementItr.hasNext() && foundAll; ) {
                 foundAll = contains(elementItr.next());
             }
 
@@ -157,13 +158,13 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
-    public boolean equals(final Object obj) {
-        if (this == obj) {
+    public boolean equals(final Object o) {
+        if (this == o) {
             return true;
-        } else if (!(obj instanceof List)) {
+        } else if (!(o instanceof List)) {
             return false;
         } else {
-            final List<?> other = (List<?>) obj;
+            final List<?> other = (List<?>) o;
 
             if (size() != other.size()) {
                 return false;
@@ -187,13 +188,13 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
-    public T get(final int index) {
+    public T get(final int location) {
         synchronized (mLOCK) {
-            final ListIterator<T> itr = listIterator(index);
+            final ListIterator<T> itr = listIterator(location);
             try {
                 return itr.next();
             } catch (final NoSuchElementException ignored) {
-                throw new IndexOutOfBoundsException("Index: " + index);
+                throw new IndexOutOfBoundsException("Index: " + location);
             }
         }
     }
@@ -215,12 +216,12 @@ public class WeakLinkedList<T> implements List<T> {
         return hashCode;
     }
 
-    public int indexOf(final Object o) {
+    public int indexOf(final Object object) {
         synchronized (mLOCK) {
             int index = 0;
             for (final ListIterator<T> itr = listIterator(); itr.hasNext(); ) {
                 final T value = itr.next();
-                if (o == value || (o != null && o.equals(value))) {
+                if (object == value || (object != null && object.equals(value))) {
                     return index;
                 }
 
@@ -249,14 +250,14 @@ public class WeakLinkedList<T> implements List<T> {
         return listIterator();
     }
 
-    public int lastIndexOf(final Object o) {
+    public int lastIndexOf(final Object object) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
 
             int index = mSize - 1;
             for (final ListIterator<T> itr = listIterator(mSize); itr.hasPrevious(); ) {
                 final Object value = itr.previous();
-                if (o == value || (o != null && o.equals(value))) {
+                if (object == value || (object != null && object.equals(value))) {
                     return index;
                 }
 
@@ -271,30 +272,30 @@ public class WeakLinkedList<T> implements List<T> {
         return listIterator(0);
     }
 
-    public ListIterator<T> listIterator(final int index) {
+    public ListIterator<T> listIterator(final int location) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
 
-            if (index < 0) {
+            if (location < 0) {
                 throw new IndexOutOfBoundsException("index must be >= 0");
-            } else if (index > mSize) {
+            } else if (location > mSize) {
                 throw new IndexOutOfBoundsException("index must be <= size()");
             }
 
-            return new DurableListIterator(index);
+            return new DurableListIterator(location);
         }
     }
 
-    public T remove(final int index) {
+    public T remove(final int location) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
 
-            final ListIterator<T> itr = listIterator(index);
+            final ListIterator<T> itr = listIterator(location);
             final T value;
             try {
                 value = itr.next();
             } catch (final NoSuchElementException ignored) {
-                throw new IndexOutOfBoundsException("Index: " + index);
+                throw new IndexOutOfBoundsException("Index: " + location);
             }
 
             itr.remove();
@@ -302,11 +303,11 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
-    public boolean remove(final Object o) {
+    public boolean remove(final Object object) {
         synchronized (mLOCK) {
             for (final ListIterator<?> itr = listIterator(); itr.hasNext(); ) {
                 final Object value = itr.next();
-                if (o == value || (o != null && o.equals(value))) {
+                if (object == value || (object != null && object.equals(value))) {
                     itr.remove();
                     return true;
                 }
@@ -316,13 +317,13 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
-    public boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean changed = false;
 
             for (final ListIterator<?> itr = listIterator(); itr.hasNext(); ) {
                 final Object value = itr.next();
-                if (c.contains(value)) {
+                if (collection.contains(value)) {
                     itr.remove();
                     changed = true;
                 }
@@ -392,13 +393,13 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
-    public boolean retainAll(final Collection<?> c) {
+    public boolean retainAll(final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean changed = false;
 
             for (final ListIterator<?> itr = listIterator(); itr.hasNext(); ) {
                 final Object value = itr.next();
-                if (!c.contains(value)) {
+                if (!collection.contains(value)) {
                     itr.remove();
                     changed = true;
                 }
@@ -408,15 +409,15 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
-    public T set(final int index, final T element) {
+    public T set(final int location, final T object) {
         synchronized (mLOCK) {
-            final ListIterator<T> itr = listIterator(index);
+            final ListIterator<T> itr = listIterator(location);
             try {
                 final T oldVal = itr.next();
-                itr.set(element);
+                itr.set(object);
                 return oldVal;
             } catch (final NoSuchElementException ignored) {
-                throw new IndexOutOfBoundsException("Index: " + index);
+                throw new IndexOutOfBoundsException("Index: " + location);
             }
         }
     }
@@ -432,7 +433,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
-    public List<T> subList(final int fromIndex, final int toIndex) {
+    public List<T> subList(final int start, final int end) {
         // TODO
         throw new UnsupportedOperationException("subList is not yet supported");
     }
@@ -445,26 +446,26 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public Object[] toArray(Object[] a) {
+    public Object[] toArray(Object[] array) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
 
-            if (a.length < mSize) {
-                a = (Object[]) Array.newInstance(a.getClass().getComponentType(), mSize);
+            if (array.length < mSize) {
+                array = (Object[]) Array.newInstance(array.getClass().getComponentType(), mSize);
             }
 
             int index = 0;
             for (final ListIterator<?> itr = listIterator(); itr.hasNext(); ) {
                 final Object value = itr.next();
-                a[index] = value;
+                array[index] = value;
                 index++;
             }
 
-            if (a.length > index) {
-                a[index] = null;
+            if (array.length > index) {
+                array[index] = null;
             }
 
-            return a;
+            return array;
         }
     }
 
@@ -530,12 +531,12 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
 
-        public void add(final T o) {
+        public void add(final T object) {
             synchronized (mLOCK) {
                 checkConcurrentModification();
                 updateRefs();
 
-                final WeakListNode newNode = new WeakListNode(o);
+                final WeakListNode newNode = new WeakListNode(object);
 
                 // Add first node
                 if (mSize == 0) {
@@ -720,7 +721,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
         }
 
-        public void set(final T o) {
+        public void set(final T object) {
             synchronized (mLOCK) {
                 checkConcurrentModification();
                 updateRefs();
@@ -733,7 +734,7 @@ public class WeakLinkedList<T> implements List<T> {
                 }
 
                 final WeakListNode deadNode = mPrevNode;
-                final WeakListNode newNode = new WeakListNode(o);
+                final WeakListNode newNode = new WeakListNode(object);
 
                 // If the replaced node was the head of the list
                 if (deadNode == mHead) {

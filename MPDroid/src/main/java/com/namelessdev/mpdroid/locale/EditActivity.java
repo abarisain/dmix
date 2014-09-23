@@ -50,16 +50,16 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
 
     private void finishWithAction(final ActionItem action, final String extra,
             final String overrideLabel) {
-        final Intent i = new Intent();
-        final Bundle b = new Bundle();
-        b.putString(BUNDLE_ACTION_STRING, action.mActionString);
+        final Intent intent = new Intent();
+        final Bundle bundle = new Bundle();
+        bundle.putString(BUNDLE_ACTION_STRING, action.mActionString);
         if (extra != null) {
-            b.putString(BUNDLE_ACTION_EXTRA, extra);
+            bundle.putString(BUNDLE_ACTION_EXTRA, extra);
         }
-        i.putExtra(LocaleConstants.EXTRA_BUNDLE, b);
-        i.putExtra(LocaleConstants.EXTRA_STRING_BLURB,
+        intent.putExtra(LocaleConstants.EXTRA_BUNDLE, bundle);
+        intent.putExtra(LocaleConstants.EXTRA_STRING_BLURB,
                 overrideLabel == null ? action.mLabel : overrideLabel);
-        setResult(RESULT_OK, i);
+        setResult(RESULT_OK, intent);
         finish();
     }
 
@@ -101,7 +101,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, final View view, final int position,
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         final ActionItem item = mItems.get(position);
         if (item.mActionString.equals(MPDControl.ACTION_VOLUME_SET)) {
@@ -116,7 +116,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
             alert.setNegativeButton(R.string.cancel, null);
             alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(final DialogInterface dialogInterface, final int i) {
+                public void onClick(final DialogInterface dialog, final int which) {
                     final String progress = Integer.toString(seekBar.getProgress());
                     finishWithAction(item, progress, item.mLabel + " : " + progress);
                 }

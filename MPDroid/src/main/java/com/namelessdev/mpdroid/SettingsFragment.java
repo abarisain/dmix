@@ -64,10 +64,6 @@ public class SettingsFragment extends PreferenceFragment {
 
     private Preference mMusicPath;
 
-    private CheckBoxPreference mPhonePause;
-
-    private CheckBoxPreference mPhoneStateChange;
-
     private boolean mPreferencesBound;
 
     private EditTextPreference mSongs;
@@ -156,8 +152,10 @@ public class SettingsFragment extends PreferenceFragment {
         mAlbumArtLibrary.setEnabled(mCheckBoxPreference.isChecked());
 
         /** Allow these to be changed individually, pauseOnPhoneStateChange might be overridden. */
-        mPhonePause = (CheckBoxPreference) findPreference("pauseOnPhoneStateChange");
-        mPhoneStateChange = (CheckBoxPreference) findPreference("playOnPhoneStateChange");
+        final CheckBoxPreference phonePause = (CheckBoxPreference) findPreference(
+                "pauseOnPhoneStateChange");
+        final CheckBoxPreference phoneStateChange = (CheckBoxPreference) findPreference(
+                "playOnPhoneStateChange");
 
         mPreferencesBound = true;
         refreshDynamicFields();

@@ -102,6 +102,20 @@ public class Album extends Item {
         return i.intValue();
     }
 
+    @Override
+    public boolean doesNameExist(final Item o) {
+        final boolean result;
+
+        if (o instanceof Album) {
+            final Album a = (Album) o;
+            result = mName.equals(a.mName) && mArtist.doesNameExist(a.mArtist);
+        } else {
+            result = false;
+        }
+
+        return result;
+    }
+
     /**
      * Compares an Artist object with a general contract of
      * comparison that is reflexive, symmetric and transitive.
@@ -196,20 +210,6 @@ public class Album extends Item {
         return result;
     }
 
-    @Override
-    public boolean nameEquals(final Item o) {
-        final boolean result;
-
-        if (o instanceof Album) {
-            final Album a = (Album) o;
-            result = mName.equals(a.mName) && mArtist.nameEquals(a.mArtist);
-        } else {
-            result = false;
-        }
-
-        return result;
-    }
-
     /**
      * This sets the artist in a new object, due to the required immutability of name
      * and artist to satisfy the requirement that the hash code not change over time.
@@ -221,12 +221,12 @@ public class Album extends Item {
         return new Album(mName, artist, mHasAlbumArtist, mSongCount, mDuration, mYear, mPath);
     }
 
-    public void setDuration(final long d) {
-        mDuration = d;
+    public void setDuration(final long duration) {
+        mDuration = duration;
     }
 
-    public void setHasAlbumArtist(final boolean aa) {
-        mHasAlbumArtist = aa;
+    public void setHasAlbumArtist(final boolean hasAlbumArtist) {
+        mHasAlbumArtist = hasAlbumArtist;
     }
 
     public void setPath(final String p) {

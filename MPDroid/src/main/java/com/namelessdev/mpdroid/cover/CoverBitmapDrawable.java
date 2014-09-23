@@ -32,7 +32,7 @@ public class CoverBitmapDrawable extends BitmapDrawable {
         super(resources, is);
     }
 
-    public CoverBitmapDrawable(final Resources resources, final String string) {
-        super(resources, string);
+    public CoverBitmapDrawable(final Resources resources, final String filePath) {
+        super(resources, filePath);
     }
 }
