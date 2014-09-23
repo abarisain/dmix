@@ -44,6 +44,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -172,7 +173,7 @@ public class SongsFragment extends BrowseFragment {
         return albumInfo;
     }
 
-    private String getHeaderInfoString() {
+    private CharSequence getHeaderInfoString() {
         final int count = mItems.size();
         return getString(count > 1 ? R.string.tracksInfoHeaderPlural
                         : R.string.tracksInfoHeader, count,
@@ -227,7 +228,7 @@ public class SongsFragment extends BrowseFragment {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.songs, container, false);
-        mList = (ListView) view.findViewById(R.id.list);
+        mList = (AbsListView) view.findViewById(R.id.list);
         registerForContextMenu(mList);
         mList.setOnItemClickListener(this);
 

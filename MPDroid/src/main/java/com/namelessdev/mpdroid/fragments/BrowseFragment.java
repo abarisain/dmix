@@ -228,7 +228,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.browse, container, false);
-        mList = (ListView) view.findViewById(R.id.list);
+        mList = (AbsListView) view.findViewById(R.id.list);
         registerForContextMenu(mList);
         mList.setOnItemClickListener(this);
         mLoadingView = view.findViewById(R.id.loadingLayout);
@@ -433,7 +433,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         }
     }
 
-    public void setActivityTitle(final String title) {
+    public void setActivityTitle(final CharSequence title) {
         getActivity().setTitle(title);
     }
 

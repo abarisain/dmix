@@ -53,6 +53,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -173,7 +174,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     protected void asyncUpdate() {
         final String finalsearch = mSearchKeywords.toLowerCase();
 
-        ArrayList<Music> arrayMusic = null;
+        Iterable<Music> arrayMusic = null;
 
         try {
             arrayMusic = (ArrayList<Music>) mApp.oMPDAsyncHelper.oMPD.search("any", finalsearch);
@@ -397,7 +398,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        final ArrayList<?> targetArray;
+        final AbstractList<?> targetArray;
         switch (mPager.getCurrentItem()) {
             default:
             case 0:

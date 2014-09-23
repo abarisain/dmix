@@ -33,10 +33,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,7 +70,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             if (from == to) {
                 return;
             }
-            final HashMap<String, Object> itemFrom = mSongList.get(from);
+            final AbstractMap<String, Object> itemFrom = mSongList.get(from);
             final Integer songID = (Integer) itemFrom.get("songid");
             if (mIsPlayQueue) {
                 try {
@@ -129,7 +132,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                         }
                     }
                     if (copy.size() != mSongList.size()) {
-                        ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+                        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
                     }
                     Tools.notifyUser(R.string.removeCountSongs, count);
                 } catch (final Exception e) {
@@ -192,7 +195,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     protected void onListItemClick(final ListView l, final View v, final int position,
             final long id) {
         super.onListItemClick(l, v, position, id);
-        final HashMap<String, Object> item = mSongList.get(position);
+        final AbstractMap<String, Object> item = mSongList.get(position);
         item.get("marked");
         if (item.get("marked").equals(true)) {
             item.put("marked", false);
@@ -200,7 +203,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             item.put("marked", true);
         }
 
-        ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
     @Override
@@ -250,7 +253,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         if (mIsPlayQueue) {
             // Mark running track...
-            for (final HashMap<String, Object> song : mSongList) {
+            for (final AbstractMap<String, Object> song : mSongList) {
                 if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId()) {
                     song.put("play", android.R.drawable.ic_media_play);
                 } else {
@@ -295,7 +298,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 }
                 mSongList.add(item);
             }
-            final SimpleAdapter songs = new SimpleAdapter(this, mSongList,
+            final ListAdapter songs = new SimpleAdapter(this, mSongList,
                     R.layout.playlist_editlist_item, new String[]{
                     "play", "title", "artist", "marked"
             }, new int[]{

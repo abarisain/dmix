@@ -20,6 +20,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
@@ -99,7 +100,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         }
 
         // listen for new artwork to be loaded
-        final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.mAlbumCover,
+        final CoverDownloadListener acd = new AlbumCoverDownloadListener(holder.mAlbumCover,
                 holder.mCoverArtProgress, false);
         final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.mAlbumCover
                 .getTag(R.id.AlbumCoverDownloadListener);

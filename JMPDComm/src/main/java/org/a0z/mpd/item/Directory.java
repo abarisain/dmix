@@ -31,6 +31,7 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.Tools;
 import org.a0z.mpd.exception.MPDServerException;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -102,7 +103,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @see Music
      */
     public static List<FilesystemTreeEntry> getDir(final List<String> response, final MPD mpd) {
-        final LinkedList<String> lineCache = new LinkedList<>();
+        final Collection<String> lineCache = new LinkedList<>();
         final LinkedList<FilesystemTreeEntry> result = new LinkedList<>();
 
         // Read the response backwards so it is easier to parse
@@ -166,12 +167,13 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      *
      * @return sub-directories.
      */
-    public TreeSet<Directory> getDirectories() {
-        final TreeSet<Directory> directoriesCompared = new TreeSet<>(new Comparator<Directory>() {
-            public int compare(final Directory lhs, final Directory rhs) {
-                return StringComparators.compareNatural(lhs.getName(), rhs.getName());
-            }
-        });
+    public Collection<Directory> getDirectories() {
+        final Collection<Directory> directoriesCompared = new TreeSet<>(
+                new Comparator<Directory>() {
+                    public int compare(final Directory lhs, final Directory rhs) {
+                        return StringComparators.compareNatural(lhs.getName(), rhs.getName());
+                    }
+                });
 
         for (final Directory item : mDirectoryEntries.values()) {
             directoriesCompared.add(item);
@@ -218,8 +220,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      *
      * @return files from directory.
      */
-    public TreeSet<Music> getFiles() {
-        final TreeSet<Music> filesCompared = new TreeSet<>(new Comparator<Music>() {
+    public Collection<Music> getFiles() {
+        final Collection<Music> filesCompared = new TreeSet<>(new Comparator<Music>() {
             public int compare(final Music lhs, final Music rhs) {
                 return StringComparators.compareNatural(lhs.getFilename(), rhs.getFilename());
             }
@@ -262,8 +264,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         return mParent;
     }
 
-    public TreeSet<PlaylistFile> getPlaylistFiles() {
-        final TreeSet<PlaylistFile> playlistFilesCompared = new TreeSet<>(
+    public Collection<PlaylistFile> getPlaylistFiles() {
+        final Collection<PlaylistFile> playlistFilesCompared = new TreeSet<>(
                 new Comparator<PlaylistFile>() {
                     public int compare(final PlaylistFile lhs, final PlaylistFile rhs) {
                         return StringComparators

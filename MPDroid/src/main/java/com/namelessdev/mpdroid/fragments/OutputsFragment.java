@@ -30,6 +30,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -47,7 +49,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final ArrayAdapter<MPDOutput> arrayAdapter = new ArrayAdapter<>(getActivity(),
+        final ListAdapter arrayAdapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_multiple_choice, mOutputs);
         setListAdapter(arrayAdapter);
 
@@ -113,7 +115,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                         @Override
                         @SuppressWarnings("unchecked")
                         public void run() {
-                            ((ArrayAdapter<MPDOutput>) getListAdapter()).notifyDataSetChanged();
+                            ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
                             final ListView list = getListView();
                             for (int i = 0; i < mOutputs.size(); i++) {
                                 list.setItemChecked(i, mOutputs.get(i).isEnabled());

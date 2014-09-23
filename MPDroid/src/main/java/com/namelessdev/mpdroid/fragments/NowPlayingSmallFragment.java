@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
@@ -31,11 +32,10 @@ import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.item.Music;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -131,11 +131,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
         final ProgressBar coverArtProgress = (ProgressBar) view
                 .findViewById(R.id.albumCoverProgress);
-        final AlbumCoverDownloadListener coverArtListener = new AlbumCoverDownloadListener(
+        final CoverDownloadListener coverArtListener = new AlbumCoverDownloadListener(
                 mCoverArt, coverArtProgress, false);
-
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
-
         mCoverHelper = new CoverAsyncHelper();
         mCoverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = mCoverArt.getViewTreeObserver();
@@ -158,7 +155,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
             final Drawable oldDrawable = mCoverArt.getDrawable();
             mCoverArt.setImageResource(AlbumCoverDownloadListener.getNoCoverResource());
             if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
-                final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
+                final Bitmap oldBitmap = ((BitmapDrawable) oldDrawable).getBitmap();
                 if (oldBitmap != null) {
                     oldBitmap.recycle();
                 }

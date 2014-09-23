@@ -27,7 +27,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
+import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -68,7 +68,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.browsegrid, container, false);
-        mList = (GridView) view.findViewById(R.id.grid);
+        mList = (AbsListView) view.findViewById(R.id.grid);
         registerForContextMenu(mList);
         mList.setOnItemClickListener(this);
         mLoadingView = view.findViewById(R.id.loadingLayout);

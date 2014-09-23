@@ -49,6 +49,7 @@ import android.widget.Toast;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -96,7 +97,7 @@ public class StreamsFragment extends BrowseFragment {
      * StreamUrlToAdd is set when coming from the browser with
      * "android.intent.action.VIEW"
      */
-    public void addEdit(final int idx, final String streamUrlToAdd) {
+    public void addEdit(final int idx, final CharSequence streamUrlToAdd) {
         final LayoutInflater factory = LayoutInflater.from(getActivity());
         final View view = factory.inflate(R.layout.stream_dialog, null);
         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
@@ -186,8 +187,8 @@ public class StreamsFragment extends BrowseFragment {
         return R.string.loadingStreams;
     }
 
-    private ArrayList<Stream> loadOldStreams() {
-        ArrayList<Stream> oldStreams = null;
+    private List<Stream> loadOldStreams() {
+        AbstractList<Stream> oldStreams = null;
         try {
             final InputStream in = mApp.openFileInput(FILE_NAME);
             final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -238,7 +239,7 @@ public class StreamsFragment extends BrowseFragment {
         }
 
         // Load any OLD MPDroid streams, and also save these to MPD...
-        final ArrayList<Stream> oldStreams = loadOldStreams();
+        final List<Stream> oldStreams = loadOldStreams();
         if (null != oldStreams) {
             for (final Stream stream : mStreams) {
                 if (!mStreams.contains(stream)) {
@@ -318,7 +319,7 @@ public class StreamsFragment extends BrowseFragment {
                         getResources().getString(R.string.deleteStreamPrompt,
                                 mItems.get((int) info.id).getName()));
 
-                final DeleteDialogClickListener oDialogClickListener
+                final OnClickListener oDialogClickListener
                         = new DeleteDialogClickListener(
                         (int) info.id);
                 builder.setNegativeButton(android.R.string.no, oDialogClickListener);

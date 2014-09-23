@@ -277,7 +277,7 @@ public class Music extends Item implements FilesystemTreeEntry {
                 totalTracks, track, songId, songPos, name);
     }
 
-    private static int compare(final String lhs, final String rhs) {
+    private static int compare(final Comparable<String> lhs, final String rhs) {
         final int result;
 
         if (lhs == null && rhs == null) {

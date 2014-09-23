@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A {@link Map} that supports multiple values per key.
@@ -149,7 +148,7 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      */
-    public Set<K> keySet() {
+    public Iterable<K> keySet() {
         return mInternalMap.keySet();
     }
 

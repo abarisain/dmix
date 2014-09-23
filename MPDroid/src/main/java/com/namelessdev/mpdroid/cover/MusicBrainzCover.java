@@ -28,6 +28,7 @@ import android.util.Log;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,12 +41,12 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private static final String TAG = "MusicBrainzCover";
 
-    private static List<String> extractImageUrls(final String covertArchiveResponse) {
+    private static Collection<String> extractImageUrls(final String covertArchiveResponse) {
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
         String coverUrl;
         JSONObject jsonObject;
-        final List<String> coverUrls = new ArrayList<>();
+        final Collection<String> coverUrls = new ArrayList<>();
 
         if (covertArchiveResponse == null || covertArchiveResponse.isEmpty()) {
             return Collections.emptyList();

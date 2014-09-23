@@ -26,6 +26,8 @@ import org.a0z.mpd.item.Music;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -216,7 +218,7 @@ public class AlbumCache {
                 restore = new ObjectInputStream(new FileInputStream(file));
             }
             mLastUpdate = (Date) restore.readObject();
-            mAlbumDetails = (HashMap<String, AlbumDetails>) restore.readObject();
+            mAlbumDetails = (Map<String, AlbumDetails>) restore.readObject();
             mAlbumSet = (Set<List<String>>) restore.readObject();
             restore.close();
             makeUniqueAlbumSet();
@@ -430,7 +432,7 @@ public class AlbumCache {
 
         long mTotalTime = 0;
 
-        private void readObject(final ObjectInputStream in)
+        private void readObject(final DataInput in)
                 throws IOException, ClassNotFoundException {
             mPath = in.readUTF();
             // times = (List<Long>)in.readObject();
@@ -439,7 +441,7 @@ public class AlbumCache {
             mDate = in.readLong();
         }
 
-        private void writeObject(final ObjectOutputStream out) throws IOException {
+        private void writeObject(final DataOutput out) throws IOException {
             out.writeUTF(mPath);
             // out.writeObject(times);
             out.writeLong(mNumTracks);

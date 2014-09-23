@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,10 +136,10 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
     private void refreshTable() {
         // get a list of all tabs
-        final ArrayList<String> allTabs = LibraryTabsUtil.getAllLibraryTabs();
+        final Iterable<String> allTabs = LibraryTabsUtil.getAllLibraryTabs();
 
         // get a list of all currently visible tabs
-        final ArrayList<String> currentTabs = LibraryTabsUtil.
+        final AbstractList<String> currentTabs = LibraryTabsUtil.
                 getCurrentLibraryTabs();
 
         // create a list of all currently hidden tabs

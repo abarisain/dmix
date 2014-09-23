@@ -35,6 +35,7 @@ import org.a0z.mpd.exception.MPDServerException;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Monitors MPD Server and sends events on status changes.
@@ -82,9 +83,9 @@ public class MPDStatusMonitor extends Thread {
 
     private final MPD mMPD;
 
-    private final LinkedList<StatusChangeListener> mStatusChangeListeners;
+    private final Queue<StatusChangeListener> mStatusChangeListeners;
 
-    private final LinkedList<TrackPositionListener> mTrackPositionListeners;
+    private final Queue<TrackPositionListener> mTrackPositionListeners;
 
     private volatile boolean mGiveup;
 

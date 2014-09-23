@@ -16,11 +16,11 @@
 
 package com.namelessdev.mpdroid.library;
 
-import java.util.ArrayList;
+import java.util.AbstractList;
 
 public interface ILibraryTabActivity {
 
-    ArrayList<String> getTabList();
+    AbstractList<String> getTabList();
 
     void pageChanged(int position);
 }

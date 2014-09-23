@@ -67,7 +67,7 @@ public final class LibraryTabsUtil {
     private LibraryTabsUtil() {
     }
 
-    public static ArrayList<String> getAllLibraryTabs() {
+    public static Iterable<String> getAllLibraryTabs() {
         return new ArrayList<>(Arrays.asList(DEFAULT_LIBRARY_TABS.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }

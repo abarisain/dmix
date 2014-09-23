@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
 
@@ -93,7 +94,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
         mItems.add(new ActionItem(NotificationHandler.ACTION_STOP,
                 getString(R.string.closeNotification)));
 
-        final ArrayAdapter<ActionItem> adapter = new ArrayAdapter<>(this,
+        final ListAdapter adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, mItems);
 
         list.setAdapter(adapter);

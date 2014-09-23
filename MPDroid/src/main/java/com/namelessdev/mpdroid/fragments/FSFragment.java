@@ -42,6 +42,7 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class FSFragment extends BrowseFragment {
@@ -88,14 +89,14 @@ public class FSFragment extends BrowseFragment {
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 if (item instanceof Music) {
-                    final ArrayList<Music> songs = new ArrayList<>();
+                    final Collection<Music> songs = new ArrayList<>();
                     songs.add((Music) item);
                     mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
                     Tools.notifyUser(R.string.songAdded, item);
                 }
                 if (item instanceof PlaylistFile) {
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist()
-                            .load(((PlaylistFile) item).getFullPath());
+                            .load(((FilesystemTreeEntry) item).getFullPath());
                 }
             }
         } catch (final MPDServerException e) {
@@ -233,7 +234,7 @@ public class FSFragment extends BrowseFragment {
                 }
             });
         } else {
-            final String dir = ((Directory) mItems.toArray()[position]).getFullPath();
+            final String dir = ((FilesystemTreeEntry) mItems.toArray()[position]).getFullPath();
             ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
                     new FSFragment().init(dir), "filesystem");
         }

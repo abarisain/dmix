@@ -310,7 +310,7 @@ public class MPD {
      * @param music {@code Music} item object to be added to the playlist queue.
      * @throws MPDServerException On media server command parsing or connection error.
      */
-    public void add(final Music music) throws MPDServerException {
+    public void add(final FilesystemTreeEntry music) throws MPDServerException {
         add(music, false, false);
     }
 
@@ -600,7 +600,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server
      * @see org.a0z.mpd.item.Music
      */
-    public List<Music> find(final String type, final String locatorString)
+    public Collection<Music> find(final String type, final String locatorString)
             throws MPDServerException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, type, locatorString);
     }
@@ -660,7 +660,7 @@ public class MPD {
         return Music.getMusicFromList(mConnection.sendCommand(searchCommand, args), sort);
     }
 
-    protected List<Music> genericSearch(final String searchCommand, final String type,
+    protected Collection<Music> genericSearch(final String searchCommand, final String type,
             final String strToFind)
             throws MPDServerException {
         final List<String> response = mConnection.sendCommand(searchCommand, type, strToFind);
@@ -1255,7 +1255,7 @@ public class MPD {
         final String artistResponse = useAlbumArtist ? "AlbumArtist: " : "Artist: ";
         final String albumResponse = "Album: ";
 
-        final ArrayList<Album> result = new ArrayList<>();
+        final List<Album> result = new ArrayList<>();
         Album currentAlbum = null;
         for (final String line : response) {
             if (line.startsWith(artistResponse)) {

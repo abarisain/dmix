@@ -107,8 +107,9 @@ public class SeparatedListAdapter extends BaseAdapter {
         }
 
         if (itemType == TYPE_SEPARATOR) {
-            ((TextView) convertView.findViewById(R.id.separator_title)).setText((String) mItems
-                    .get(position));
+            final CharSequence separator = (CharSequence) mItems.get(position);
+
+            ((TextView) convertView.findViewById(R.id.separator_title)).setText(separator);
         } else {
             mBinder.onDataBind(mContext, convertView, mItems, mItems.get(position), position);
         }

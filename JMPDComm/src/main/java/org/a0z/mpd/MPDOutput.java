@@ -27,8 +27,6 @@
 
 package org.a0z.mpd;
 
-import java.util.List;
-
 /*
  * Class representing one configured output
  */
@@ -40,7 +38,7 @@ public class MPDOutput {
 
     private String mName;
 
-    MPDOutput(final List<String> response) {
+    MPDOutput(final Iterable<String> response) {
         super();
         for (final String line : response) {
             if (line.startsWith("outputid:")) {

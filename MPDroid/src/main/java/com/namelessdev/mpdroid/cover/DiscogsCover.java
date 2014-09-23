@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,12 +35,12 @@ public class DiscogsCover extends AbstractWebCover {
 
     private static final String TAG = "DiscogsCover";
 
-    private static List<String> extractImageUrls(final String releaseJson) {
+    private static Collection<String> extractImageUrls(final String releaseJson) {
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
         String imageUrl;
         JSONObject jsonObject;
-        final List<String> imageUrls = new ArrayList<>();
+        final Collection<String> imageUrls = new ArrayList<>();
 
         try {
             jsonRootObject = new JSONObject(releaseJson);

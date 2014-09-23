@@ -29,14 +29,14 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 
 public class StreamFetcher {
 
     private static final String TAG = "StreamFetcher";
 
-    private final List<String> mHandlers = new LinkedList<>();
+    private final Collection<String> mHandlers = new LinkedList<>();
 
     StreamFetcher() {
         super();
@@ -56,7 +56,7 @@ public class StreamFetcher {
         return LazyHolder.INSTANCE;
     }
 
-    private static String parse(final String data, final List<String> handlers) {
+    private static String parse(final String data, final Iterable<String> handlers) {
         final String start = data.substring(0, data.length() < 10 ? data.length() : 10)
                 .toLowerCase();
         if (data.length() > 10 && start.startsWith("[playlist]")) {
@@ -79,7 +79,7 @@ public class StreamFetcher {
         return null;
     }
 
-    private static String parseAsx(final String data, final List<String> handlers) {
+    private static String parseAsx(final String data, final Iterable<String> handlers) {
         final String[] lines = data.split("(\r\n|\n|\r)");
 
         for (final String line : lines) {
@@ -103,7 +103,7 @@ public class StreamFetcher {
         return null;
     }
 
-    private static String parseExt3Mu(final String data, final List<String> handlers) {
+    private static String parseExt3Mu(final String data, final Iterable<String> handlers) {
         final String[] lines = data.split("(\r\n|\n|\r)");
 
         for (final String line : lines) {
@@ -119,7 +119,7 @@ public class StreamFetcher {
     }
 
     private static String parsePlaylist(final String data, final String key,
-            final List<String> handlers) {
+            final Iterable<String> handlers) {
         final String[] lines = data.split("(\r\n|\n|\r)");
 
         for (final String line : lines) {
@@ -136,7 +136,7 @@ public class StreamFetcher {
         return null;
     }
 
-    private static String parseXml(final String data, final List<String> handlers) {
+    private static String parseXml(final String data, final Iterable<String> handlers) {
         // XSPF / SPIFF
         try {
             final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();

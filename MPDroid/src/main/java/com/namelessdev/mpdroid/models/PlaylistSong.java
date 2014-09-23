@@ -19,7 +19,7 @@ package com.namelessdev.mpdroid.models;
 import org.a0z.mpd.item.Music;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import static android.text.TextUtils.isEmpty;
 import static android.text.TextUtils.join;
@@ -38,7 +38,7 @@ public class PlaylistSong extends AbstractPlaylistMusic {
     }
 
     public String getPlaylistSubLine() {
-        List<String> subLineTexts = new ArrayList<>();
+        final Collection<String> subLineTexts = new ArrayList<>();
         if (!isEmpty(getArtist())) {
             subLineTexts.add(getArtist());
         }

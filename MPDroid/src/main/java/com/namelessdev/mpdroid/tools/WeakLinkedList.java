@@ -164,7 +164,7 @@ public class WeakLinkedList<T> implements List<T> {
         } else if (!(o instanceof List)) {
             return false;
         } else {
-            final List<?> other = (List<?>) o;
+            final Collection<?> other = (Collection<?>) o;
 
             if (size() != other.size()) {
                 return false;

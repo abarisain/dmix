@@ -118,7 +118,7 @@ public class PlaylistsFragment extends BrowseFragment {
                 builder.setMessage(
                         getResources().getString(R.string.deletePlaylistPrompt, playlist));
 
-                final DialogClickListener oDialogClickListener = new DialogClickListener(
+                final OnClickListener oDialogClickListener = new DialogClickListener(
                         (int) info.id);
                 builder.setNegativeButton(android.R.string.no, oDialogClickListener);
                 builder.setPositiveButton(R.string.deletePlaylist, oDialogClickListener);
