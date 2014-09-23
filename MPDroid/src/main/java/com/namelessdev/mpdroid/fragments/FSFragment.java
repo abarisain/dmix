@@ -119,8 +119,10 @@ public class FSFragment extends BrowseFragment {
         }
 
         final ArrayList<Item> newItems = new ArrayList<>();
+        final String fullPath = mCurrentDirectory.getFullPath();
+
         // add parent directory:
-        if (!"".equals(mCurrentDirectory.getFullPath())) {
+        if (fullPath != null && !fullPath.isEmpty()) {
             final Directory parent = new Directory(mCurrentDirectory.getParent());
             if (parent != null) {
                 parent.setName("..");

@@ -104,7 +104,7 @@ public class AlbumCache {
         final Set<String> keys = map.keySet();
         for (final String k : keys) {
             final Set<String> values = map.get(k);
-            if (val == null || "".equals(val) || values.contains(val)) {
+            if (val != null && val.isEmpty() || values.contains(val)) {
                 result.add(k);
             }
         }
@@ -234,9 +234,10 @@ public class AlbumCache {
     }
 
     protected void makeUniqueAlbumSet() {
-        mUniqueAlbumSet = new HashSet<>();
+        mUniqueAlbumSet = new HashSet<>(mAlbumSet.size());
         for (final List<String> ai : mAlbumSet) {
-            if ("".equals(ai.get(2))) { // no albumartist
+            final String album = ai.get(2);
+            if (album != null && album.isEmpty()) { // no albumartist
                 mUniqueAlbumSet.add(Arrays.asList(ai.get(0), ai.get(1), ""));
             } else { // with albumartist set artist to ""
                 mUniqueAlbumSet.add(Arrays.asList(ai.get(0), "", ai.get(2)));
