@@ -384,7 +384,7 @@ public class Music extends Item implements FilesystemTreeEntry {
             }
 
             if (compareResult == null) {
-                // Order by song title (getTitle() fallback on filenames)
+                // Order by song title (getTitle() fallback on file names)
                 final int compare = compare(getTitle(), om.getTitle());
                 if (compare != 0) {
                     compareResult = Integer.valueOf(compare);
@@ -400,7 +400,7 @@ public class Music extends Item implements FilesystemTreeEntry {
             }
 
             if (compareResult == null) {
-                // Last resort is to order by fullpath
+                // Last resort is to order by full path
                 compareResult = Integer.valueOf(compare(mFullPath, om.mFullPath));
             }
         } else {

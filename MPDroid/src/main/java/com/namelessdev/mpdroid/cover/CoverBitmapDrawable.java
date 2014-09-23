@@ -24,15 +24,15 @@ import java.io.InputStream;
 
 public class CoverBitmapDrawable extends BitmapDrawable {
 
-    public CoverBitmapDrawable(Resources resources, Bitmap bitmap) {
+    public CoverBitmapDrawable(final Resources resources, final Bitmap bitmap) {
         super(resources, bitmap);
     }
 
-    public CoverBitmapDrawable(Resources resources, InputStream is) {
+    public CoverBitmapDrawable(final Resources resources, final InputStream is) {
         super(resources, is);
     }
 
-    public CoverBitmapDrawable(Resources resources, String string) {
+    public CoverBitmapDrawable(final Resources resources, final String string) {
         super(resources, string);
     }
 }

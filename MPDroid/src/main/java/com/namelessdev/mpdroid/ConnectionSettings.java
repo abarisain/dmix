@@ -38,9 +38,10 @@ public class ConnectionSettings extends PreferenceActivity {
 
     private String mSSID;
 
-    private void createDynamicSettings(String keyPrefix, PreferenceCategory toCategory) {
+    private void createDynamicSettings(final String keyPrefix,
+            final PreferenceCategory toCategory) {
 
-        EditTextPreference prefHost = new EditTextPreference(this);
+        final EditTextPreference prefHost = new EditTextPreference(this);
         prefHost.getEditText().setInputType(
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         prefHost.setDialogTitle(R.string.host);
@@ -50,7 +51,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefHost.setKey(keyPrefix + "hostname");
         toCategory.addPreference(prefHost);
 
-        EditTextPreference prefPort = new EditTextPreference(this);
+        final EditTextPreference prefPort = new EditTextPreference(this);
         prefPort.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
         prefPort.setDialogTitle(R.string.port);
         prefPort.setTitle(R.string.port);
@@ -59,7 +60,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefPort.setKey(keyPrefix + "port");
         toCategory.addPreference(prefPort);
 
-        EditTextPreference prefPassword = new EditTextPreference(this);
+        final EditTextPreference prefPassword = new EditTextPreference(this);
         prefPassword.getEditText().setInputType(
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         prefPassword.setDialogTitle(R.string.password);
@@ -69,7 +70,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefPassword.setKey(keyPrefix + "password");
         toCategory.addPreference(prefPassword);
 
-        EditTextPreference prefHostStreaming = new EditTextPreference(this);
+        final EditTextPreference prefHostStreaming = new EditTextPreference(this);
         prefHostStreaming.getEditText().setInputType(
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         prefHostStreaming.setDialogTitle(R.string.hostStreaming);
@@ -80,7 +81,7 @@ public class ConnectionSettings extends PreferenceActivity {
         toCategory.addPreference(prefHostStreaming);
 
         // Meh.
-        EditTextPreference prefStreamingPort = new EditTextPreference(this);
+        final EditTextPreference prefStreamingPort = new EditTextPreference(this);
         prefStreamingPort.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
         prefStreamingPort.setDialogTitle(R.string.portStreaming);
         prefStreamingPort.setTitle(R.string.portStreaming);
@@ -89,7 +90,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefStreamingPort.setKey(keyPrefix + "portStreaming");
         toCategory.addPreference(prefStreamingPort);
 
-        EditTextPreference suffixStreamingPort = new EditTextPreference(this);
+        final EditTextPreference suffixStreamingPort = new EditTextPreference(this);
         suffixStreamingPort.getEditText().setInputType(
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         suffixStreamingPort.setDialogTitle(R.string.suffixStreaming);
@@ -99,7 +100,7 @@ public class ConnectionSettings extends PreferenceActivity {
         suffixStreamingPort.setKey(keyPrefix + "suffixStreaming");
         toCategory.addPreference(suffixStreamingPort);
 
-        CheckBoxPreference persistentNotification = new CheckBoxPreference(this);
+        final CheckBoxPreference persistentNotification = new CheckBoxPreference(this);
         persistentNotification.setDefaultValue(false);
         persistentNotification.setTitle(R.string.persistentNotification);
         persistentNotification.setSummary(R.string.persistentNotificationDescription);
@@ -110,7 +111,7 @@ public class ConnectionSettings extends PreferenceActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.connectionsettings);
 
@@ -132,20 +133,20 @@ public class ConnectionSettings extends PreferenceActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        final boolean result = super.onCreateOptionsMenu(menu);
         menu.add(0, MAIN, 0, R.string.mainMenu).setIcon(android.R.drawable.ic_menu_revert);
 
         return result;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
 
         switch (item.getItemId()) {
 
             case MAIN:
-                Intent i = new Intent(this, MainMenuActivity.class);
+                final Intent i = new Intent(this, MainMenuActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 return true;

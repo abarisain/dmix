@@ -106,8 +106,8 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.library_tabs);
 
-        final LayoutInflater inflater = (LayoutInflater) this
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final LayoutInflater inflater = (LayoutInflater) getSystemService(
+                Context.LAYOUT_INFLATER_SERVICE);
 
         mTitleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
 

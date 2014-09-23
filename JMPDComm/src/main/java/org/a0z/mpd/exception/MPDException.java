@@ -46,7 +46,7 @@ public class MPDException extends Exception {
      *
      * @param message exception message.
      */
-    public MPDException(String message) {
+    public MPDException(final String message) {
         super(message);
     }
 
@@ -56,7 +56,7 @@ public class MPDException extends Exception {
      * @param message exception message.
      * @param cause   cause of this exception.
      */
-    public MPDException(String message, Throwable cause) {
+    public MPDException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -65,7 +65,7 @@ public class MPDException extends Exception {
      *
      * @param cause cause of this exception.
      */
-    public MPDException(Throwable cause) {
+    public MPDException(final Throwable cause) {
         super(cause);
     }
 

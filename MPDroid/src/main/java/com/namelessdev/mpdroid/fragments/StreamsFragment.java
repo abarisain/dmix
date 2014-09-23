@@ -65,14 +65,14 @@ public class StreamsFragment extends BrowseFragment {
 
     private static final String TAG = "StreamsFragment";
 
-    ArrayList<Stream> mStreams = new ArrayList<Stream>();
+    ArrayList<Stream> mStreams = new ArrayList<>();
 
     public StreamsFragment() {
         super(R.string.addStream, R.string.streamAdded, null);
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
             final Stream s = (Stream) item;
             mApp.oMPDAsyncHelper.oMPD.addStream(
@@ -85,7 +85,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
     }
 
     public void addEdit() {
@@ -97,13 +97,13 @@ public class StreamsFragment extends BrowseFragment {
      * "android.intent.action.VIEW"
      */
     public void addEdit(final int idx, final String streamUrlToAdd) {
-        LayoutInflater factory = LayoutInflater.from(getActivity());
+        final LayoutInflater factory = LayoutInflater.from(getActivity());
         final View view = factory.inflate(R.layout.stream_dialog, null);
         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
         final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
         final int index = idx;
         if (index >= 0 && index < mStreams.size()) {
-            Stream s = mStreams.get(idx);
+            final Stream s = mStreams.get(idx);
             if (null != nameEdit) {
                 nameEdit.setText(s.getName());
             }
@@ -116,16 +116,17 @@ public class StreamsFragment extends BrowseFragment {
         new AlertDialog.Builder(getActivity())
                 .setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
-                        EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
-                        String name = null == nameEdit ? null : nameEdit.getText().toString()
+                .setPositiveButton(android.R.string.ok, new OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int whichButton) {
+                        final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
+                        final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
+                        final String name = null == nameEdit ? null : nameEdit.getText().toString()
                                 .trim();
-                        String url = null == urlEdit ? null : urlEdit.getText().toString().trim();
-                        if (null != name && name.length() > 0 && null != url && url.length() > 0) {
+                        final String url = null == urlEdit ? null
+                                : urlEdit.getText().toString().trim();
+                        if (null != name && !name.isEmpty() && null != url && !url.isEmpty()) {
                             if (index >= 0 && index < mStreams.size()) {
-                                int removedPos = mStreams.get(idx).getPos();
+                                final int removedPos = mStreams.get(idx).getPos();
                                 try {
                                     mApp.oMPDAsyncHelper.oMPD
                                             .editSavedStream(url, name, removedPos);
@@ -133,7 +134,7 @@ public class StreamsFragment extends BrowseFragment {
                                     Log.e(TAG, "Failed to edit a saved stream.", e);
                                 }
                                 mStreams.remove(idx);
-                                for (Stream stream : mStreams) {
+                                for (final Stream stream : mStreams) {
                                     if (stream.getPos() > removedPos) {
                                         stream.setPos(stream.getPos() - 1);
                                     }
@@ -161,15 +162,15 @@ public class StreamsFragment extends BrowseFragment {
                         }
                     }
                 })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+                .setNegativeButton(android.R.string.cancel, new OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int whichButton) {
                         if (streamUrlToAdd != null) {
                             getActivity().finish();
                         }
                     }
                 }).setOnCancelListener(new OnCancelListener() {
             @Override
-            public void onCancel(DialogInterface dialog) {
+            public void onCancel(final DialogInterface dialog) {
                 if (streamUrlToAdd != null) {
                     getActivity().finish();
                 }
@@ -190,17 +191,17 @@ public class StreamsFragment extends BrowseFragment {
     private ArrayList<Stream> loadOldStreams() {
         ArrayList<Stream> oldStreams = null;
         try {
-            InputStream in = mApp.openFileInput(FILE_NAME);
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            XmlPullParser xpp = factory.newPullParser();
+            final InputStream in = mApp.openFileInput(FILE_NAME);
+            final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            final XmlPullParser xpp = factory.newPullParser();
 
             xpp.setInput(in, "UTF-8");
             int eventType = xpp.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.getName().equals("stream")) {
+                    if ("stream".equals(xpp.getName())) {
                         if (null == oldStreams) {
-                            oldStreams = new ArrayList<Stream>();
+                            oldStreams = new ArrayList<>();
                         }
                         oldStreams.add(new Stream(xpp.getAttributeValue("", "name"), xpp
                                 .getAttributeValue("", "url"), -1));
@@ -219,7 +220,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     private void loadStreams() {
-        mStreams = new ArrayList<Stream>();
+        mStreams = new ArrayList<>();
 
         // Load streams stored in MPD Streams playlist...
         List<Music> mpdStreams = null;
@@ -232,16 +233,16 @@ public class StreamsFragment extends BrowseFragment {
         }
 
         if (null != mpdStreams) {
-            for (Music stream : mpdStreams) {
+            for (final Music stream : mpdStreams) {
                 mStreams.add(new Stream(stream.getName(), stream.getFullPath(), iterator));
                 iterator++;
             }
         }
 
         // Load any OLD MPDroid streams, and also save these to MPD...
-        ArrayList<Stream> oldStreams = loadOldStreams();
+        final ArrayList<Stream> oldStreams = loadOldStreams();
         if (null != oldStreams) {
-            for (Stream stream : mStreams) {
+            for (final Stream stream : mStreams) {
                 if (!mStreams.contains(stream)) {
                     try {
                         mApp.oMPDAsyncHelper.oMPD.saveStream(stream.getUrl(), stream.getName());
@@ -259,7 +260,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         registerForContextMenu(mList);
         updateList();
@@ -267,58 +268,60 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         setHasOptionsMenu(true);
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+            final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         if (info.id >= 0 && info.id < mStreams.size()) {
-            Stream s = mStreams.get((int) info.id);
-            android.view.MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0,
+            final Stream s = mStreams.get((int) info.id);
+            final MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0,
                     R.string.editStream);
             editItem.setOnMenuItemClickListener(this);
-            android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
+            final MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
                     R.string.deleteStream);
             addAndReplaceItem.setOnMenuItemClickListener(this);
         }
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.mpd_streamsmenu, menu);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
+    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+            final long id) {
     }
 
     @Override
-    public boolean onMenuItemClick(android.view.MenuItem item) {
+    public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case EDIT:
                 addEdit((int) info.id, null);
                 break;
             case DELETE:
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.deleteStream);
                 builder.setMessage(
                         getResources().getString(R.string.deleteStreamPrompt,
                                 mItems.get((int) info.id).getName()));
 
-                DeleteDialogClickListener oDialogClickListener = new DeleteDialogClickListener(
+                final DeleteDialogClickListener oDialogClickListener
+                        = new DeleteDialogClickListener(
                         (int) info.id);
                 builder.setNegativeButton(android.R.string.no, oDialogClickListener);
                 builder.setPositiveButton(R.string.deleteStream, oDialogClickListener);
@@ -335,7 +338,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add:
                 addEdit();
@@ -349,11 +352,12 @@ public class StreamsFragment extends BrowseFragment {
 
         private final int mItemIndex;
 
-        DeleteDialogClickListener(int itemIndex) {
-            this.mItemIndex = itemIndex;
+        DeleteDialogClickListener(final int itemIndex) {
+            super();
+            mItemIndex = itemIndex;
         }
 
-        public void onClick(DialogInterface dialog, int which) {
+        public void onClick(final DialogInterface dialog, final int which) {
             switch (which) {
                 case AlertDialog.BUTTON_NEGATIVE:
                     break;
@@ -365,7 +369,7 @@ public class StreamsFragment extends BrowseFragment {
                         Log.e(TAG, "Failed to removed a saved stream.", e);
                     }
 
-                    String name = mItems.get(mItemIndex).getName();
+                    final String name = mItems.get(mItemIndex).getName();
                     Tools.notifyUser(R.string.streamDeleted, name);
                     mItems.remove(mItemIndex);
                     mStreams.remove(mItemIndex);

@@ -62,7 +62,7 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
             final Directory ToAdd = mCurrentDirectory.getDirectory(item.getName());
             if (ToAdd != null) {
@@ -79,16 +79,16 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
         try {
-            Directory ToAdd = mCurrentDirectory.getDirectory(item.getName());
+            final Directory ToAdd = mCurrentDirectory.getDirectory(item.getName());
             if (ToAdd != null) {
                 // Valid directory
                 mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             } else {
                 if (item instanceof Music) {
-                    ArrayList<Music> songs = new ArrayList<Music>();
+                    final ArrayList<Music> songs = new ArrayList<>();
                     songs.add((Music) item);
                     mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
                     Tools.notifyUser(R.string.songAdded, item);
@@ -118,10 +118,10 @@ public class FSFragment extends BrowseFragment {
             Log.e(TAG, "Failed to refresh current directory", e);
         }
 
-        ArrayList<Item> newItems = new ArrayList<Item>();
+        final ArrayList<Item> newItems = new ArrayList<>();
         // add parent directory:
         if (!"".equals(mCurrentDirectory.getFullPath())) {
-            Directory parent = new Directory(mCurrentDirectory.getParent());
+            final Directory parent = new Directory(mCurrentDirectory.getParent());
             if (parent != null) {
                 parent.setName("..");
                 newItems.add(parent);
@@ -143,11 +143,12 @@ public class FSFragment extends BrowseFragment {
         return new ArrayAdapter<Item>(getActivity(), R.layout.fs_list_item,
                 R.id.text1, (List<Item>) mItems) {
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
+            public View getView(final int position, final View convertView,
+                    final ViewGroup parent) {
                 final View v = super.getView(position, convertView, parent);
                 final TextView subtext = (TextView) v.findViewById(R.id.text2);
                 final Item item = mItems.get(position);
-                String filename;
+                final String filename;
                 if (item instanceof Music) {
                     filename = ((Music) item).getFilename();
                     if (!TextUtils.isEmpty(filename) && !item.toString().equals(filename)) {
@@ -180,13 +181,13 @@ public class FSFragment extends BrowseFragment {
         }
     }
 
-    public FSFragment init(String path) {
+    public FSFragment init(final String path) {
         mDirectory = path;
         return this;
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         setHasOptionsMenu(true);
         if (icicle != null) {
@@ -195,13 +196,14 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.mpd_fsmenu, menu);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+    public void onItemClick(final AdapterView<?> l, final View v, final int position,
+            final long id) {
         // click on a file, not dir
         if (position > mNumSubDirs - 1 || mNumSubDirs == 0) {
 
@@ -210,7 +212,7 @@ public class FSFragment extends BrowseFragment {
                 @Override
                 public void run() {
                     try {
-                        int songId = -1;
+                        final int songId = -1;
                         if (item instanceof Music) {
                             mApp.oMPDAsyncHelper.oMPD
                                     .add(item, mApp.isInSimpleMode(), mApp.isInSimpleMode());
@@ -237,7 +239,7 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         // Menu actions...
         switch (item.getItemId()) {
             case R.id.menu_update:
@@ -261,7 +263,7 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(final Bundle outState) {
         outState.putString(EXTRA_DIRECTORY, mDirectory);
         super.onSaveInstanceState(outState);
     }

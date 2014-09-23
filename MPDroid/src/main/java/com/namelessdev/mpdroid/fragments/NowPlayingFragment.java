@@ -72,15 +72,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener,
-        TrackPositionListener,
-        OnSharedPreferenceChangeListener, OnMenuItemClickListener,
+        TrackPositionListener, OnSharedPreferenceChangeListener, OnMenuItemClickListener,
         UpdateTrackInfo.FullTrackInfoUpdate {
 
-    private static final int ANIMATION_DURATION_MSEC = 1000;
+    /** In milliseconds. */
+    private static final long ANIMATION_DURATION = 1000L;
 
     private static final int POPUP_ALBUM = 2;
 
-    private static final int POPUP_ALBUMARTIST = 1;
+    private static final int POPUP_ALBUM_ARTIST = 1;
 
     private static final int POPUP_ARTIST = 0;
 
@@ -99,6 +99,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private static final String TAG = "NowPlayingFragment";
 
     private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private final Timer mVolTimer = new Timer();
 
     private FragmentActivity mActivity;
 
@@ -150,8 +152,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private TextView mTrackTotalTime = null;
 
-    private Timer mVolTimer = new Timer();
-
     private TimerTask mVolTimerTask = null;
 
     private ImageView mVolumeIcon = null;
@@ -178,8 +178,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return resource;
     }
 
-    private void applyViewVisibility(SharedPreferences sharedPreferences, View view,
-            String property) {
+    private void applyViewVisibility(final SharedPreferences sharedPreferences, final View view,
+            final String property) {
         if (view == null) {
             return;
         }
@@ -188,7 +188,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
         if (connected) {
             forceStatusUpdate();
         } else {
@@ -211,22 +211,20 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private QueueFragment getPlaylistFragment() {
-        QueueFragment queueFragment;
+        final QueueFragment queueFragment;
         queueFragment = (QueueFragment) mActivity.getSupportFragmentManager()
                 .findFragmentById(R.id.playlist_fragment);
         return queueFragment;
     }
 
     @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
-        // TODO Auto-generated method stub
-
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(final Activity activity) {
         super.onAttach(activity);
-        this.mActivity = (FragmentActivity) activity;
+        mActivity = (FragmentActivity) activity;
 
     }
 
@@ -246,7 +244,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         mHandler = new Handler();
         setHasOptionsMenu(false);
@@ -254,12 +252,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View view = inflater.inflate(mApp.isTabletUiEnabled() ? R.layout.main_fragment_tablet
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
+        final View view = inflater.inflate(mApp.isTabletUiEnabled() ? R.layout.main_fragment_tablet
                 : R.layout.main_fragment, container, false);
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         settings.registerOnSharedPreferenceChangeListener(this);
 
         mArtistNameText = (TextView) view.findViewById(R.id.artistName);
@@ -283,15 +281,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mTrackTime = (TextView) view.findViewById(R.id.trackTime);
         mTrackTotalTime = (TextView) view.findViewById(R.id.trackTotalTime);
 
-        Animation fadeIn = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in);
-        fadeIn.setDuration(ANIMATION_DURATION_MSEC);
-        Animation fadeOut = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out);
-        fadeOut.setDuration(ANIMATION_DURATION_MSEC);
+        final Animation fadeIn = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in);
+        fadeIn.setDuration(ANIMATION_DURATION);
+        final Animation fadeOut = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out);
+        fadeOut.setDuration(ANIMATION_DURATION);
 
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
         mCoverArt.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 scrollToNowPlaying();
             }
         });
@@ -338,11 +336,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         mSeekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
+            public void onProgressChanged(final SeekBar seekBar, final int progress,
+                    final boolean fromTouch) {
 
             }
 
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            public void onStartTrackingTouch(final SeekBar seekBar) {
                 mVolTimerTask = new TimerTask() {
                     int mLastSentVol = -1;
 
@@ -355,7 +354,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         }
                     }
 
-                    public TimerTask setProgress(SeekBar prg) {
+                    public TimerTask setProgress(final SeekBar prg) {
                         mProgress = prg;
                         return this;
                     }
@@ -365,7 +364,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         (long) MPDCommand.MAX_VOLUME);
             }
 
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void onStopTrackingTouch(final SeekBar seekBar) {
                 mVolTimerTask.cancel();
                 mVolTimerTask.run();
             }
@@ -395,7 +394,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void onDestroy() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         settings.unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
     }
@@ -410,12 +409,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onDetach() {
         super.onDetach();
-        this.mActivity = null;
+        mActivity = null;
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        Intent intent;
+    public boolean onMenuItemClick(final MenuItem item) {
+        final Intent intent;
 
         switch (item.getItemId()) {
             case POPUP_ALBUM:
@@ -425,7 +424,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 intent.putExtra("album", albumParcel);
                 startActivityForResult(intent, -1);
                 break;
-            case POPUP_ALBUMARTIST:
+            case POPUP_ALBUM_ARTIST:
                 final Parcelable albumArtistParcel =
                         new ArtistParcelable(mCurrentSong.getAlbumArtistAsArtist());
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
@@ -489,7 +488,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         mIsAudioNameTextEnabled = settings.getBoolean("enableAudioText", false);
         forceStatusUpdate();
     }
@@ -603,7 +602,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final Menu menu = popupMenu.getMenu();
         menu.add(Menu.NONE, POPUP_ALBUM, Menu.NONE, R.string.goToAlbum);
         menu.add(Menu.NONE, POPUP_ARTIST, Menu.NONE, R.string.goToArtist);
-        menu.add(Menu.NONE, POPUP_ALBUMARTIST, Menu.NONE,
+        menu.add(Menu.NONE, POPUP_ALBUM_ARTIST, Menu.NONE,
                 R.string.goToAlbumArtist);
         menu.add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
         menu.add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
@@ -634,7 +633,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                                 .setVisible(!mCurrentSong.getAlbum().isEmpty());
                         popupMenu.getMenu().findItem(POPUP_ARTIST)
                                 .setVisible(!mCurrentSong.getArtist().isEmpty());
-                        popupMenu.getMenu().findItem(POPUP_ALBUMARTIST).setVisible(showAA);
+                        popupMenu.getMenu().findItem(POPUP_ALBUM_ARTIST).setVisible(showAA);
                         popupMenu.show();
                     }
                 }
@@ -643,26 +642,26 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void randomChanged(boolean random) {
+    public void randomChanged(final boolean random) {
         setShuffleButton(random);
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
+    public void repeatChanged(final boolean repeating) {
         setRepeatButton(repeating);
     }
 
     private void scrollToNowPlaying() {
-        QueueFragment queueFragment;
+        final QueueFragment queueFragment;
         queueFragment = getPlaylistFragment();
         if (queueFragment != null) {
             queueFragment.scrollToNowPlaying();
         }
     }
 
-    private void setRepeatButton(boolean on) {
+    private void setRepeatButton(final boolean on) {
         if (null != mRepeatButton && mRepeatCurrent != on) {
-            int[] attrs = new int[]{
+            final int[] attrs = {
                     on ? R.attr.repeatEnabled : R.attr.repeatDisabled
             };
             final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
@@ -673,9 +672,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private void setShuffleButton(boolean on) {
+    private void setShuffleButton(final boolean on) {
         if (null != mShuffleButton && mShuffleCurrent != on) {
-            int[] attrs = new int[]{
+            final int[] attrs = {
                     on ? R.attr.shuffleEnabled : R.attr.shuffleDisabled
             };
             final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
@@ -759,7 +758,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         updateTrackInfo(mpdStatus, false);
     }
 
@@ -824,8 +823,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private void updatePlaylistCovers(AlbumInfo albumInfo) {
-        QueueFragment queueFragment;
+    private void updatePlaylistCovers(final AlbumInfo albumInfo) {
+        final QueueFragment queueFragment;
         queueFragment = getPlaylistFragment();
         if (queueFragment != null) {
             queueFragment.updateCover(albumInfo);
@@ -881,7 +880,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
         final int volume = mpdStatus.getVolume();
 
         toggleVolumeBar(volume);
@@ -918,9 +917,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         private PosTimerTask(final long start, final long total) {
             super();
-            this.mStartTrackTime = start;
-            this.mTotalTrackTime = total;
-            this.mTimerStartTime = new Date().getTime();
+            mStartTrackTime = start;
+            mTotalTrackTime = total;
+            mTimerStartTime = new Date().getTime();
         }
 
         @Override

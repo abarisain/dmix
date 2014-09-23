@@ -39,12 +39,13 @@ public class Artist extends Item {
 
     private final String mSort;
 
-    public Artist(Artist artist) {
+    public Artist(final Artist artist) {
         this(artist.mName, artist.mSort);
     }
 
-    public Artist(String name) {
-        this.mName = name;
+    public Artist(final String name) {
+        super();
+        mName = name;
         if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
             mSort = name.substring(4);
         } else {
@@ -55,8 +56,8 @@ public class Artist extends Item {
     protected Artist(final String name, final String sort) {
         super();
 
-        this.mName = name;
-        this.mSort = sort;
+        mName = name;
+        mSort = sort;
     }
 
     /**
@@ -126,7 +127,7 @@ public class Artist extends Item {
     }
 
     @Override
-    public boolean nameEquals(Item o) {
+    public boolean nameEquals(final Item o) {
         return equals(o);
     }
 

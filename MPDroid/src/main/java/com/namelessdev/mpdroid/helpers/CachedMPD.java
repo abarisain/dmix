@@ -38,7 +38,7 @@ import java.util.Set;
  */
 public class CachedMPD extends MPD {
 
-    private AlbumCache mCache;
+    private final AlbumCache mCache;
 
     private boolean mIsEnabled = true;
 
@@ -47,8 +47,9 @@ public class CachedMPD extends MPD {
     }
 
     public CachedMPD(final boolean isEnabled) {
+        super();
         mCache = AlbumCache.getInstance(this);
-        this.mIsEnabled = isEnabled;
+        mIsEnabled = isEnabled;
     }
 
     /**

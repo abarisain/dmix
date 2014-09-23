@@ -75,17 +75,17 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @SuppressLint("ValidFragment")
-    public AlbumsFragment(Artist artist) {
+    public AlbumsFragment(final Artist artist) {
         this(artist, null);
     }
 
-    public AlbumsFragment(Artist artist, Genre genre) {
+    public AlbumsFragment(final Artist artist, final Genre genre) {
         super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
         init(artist, genre);
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
             mApp.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
             Tools.notifyUser(mIrAdded, item);
@@ -95,9 +95,9 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ((Album) item));
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Album) item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -168,14 +168,14 @@ public class AlbumsFragment extends BrowseFragment {
         }
     }
 
-    public AlbumsFragment init(Artist artist, Genre genre) {
-        this.mArtist = artist;
-        this.mGenre = genre;
+    public AlbumsFragment init(final Artist artist, final Genre genre) {
+        mArtist = artist;
+        mGenre = genre;
         return this;
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         if (icicle != null) {
             init((Artist) icicle.getParcelable(EXTRA_ARTIST),
@@ -184,28 +184,29 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+            final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        android.view.MenuItem otherCoverItem = menu.add(POPUP_COVER_BLACKLIST,
+        final MenuItem otherCoverItem = menu.add(POPUP_COVER_BLACKLIST,
                 POPUP_COVER_BLACKLIST, 0, R.string.otherCover);
         otherCoverItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem resetCoverItem = menu.add(POPUP_COVER_SELECTIVE_CLEAN,
+        final MenuItem resetCoverItem = menu.add(POPUP_COVER_SELECTIVE_CLEAN,
                 POPUP_COVER_SELECTIVE_CLEAN, 0, R.string.resetCover);
         resetCoverItem.setOnMenuItemClickListener(this);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
+        final View view = super.onCreateView(inflater, container, savedInstanceState);
         mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
         return view;
 
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
+    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+            final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
                 new SongsFragment().init((Album) mItems.get(position)),
                 "songs");
@@ -238,7 +239,7 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(final Bundle outState) {
         if (mArtist != null) {
             outState.putParcelable(EXTRA_ARTIST, new ArtistParcelable(mArtist));
         }
@@ -249,20 +250,21 @@ public class AlbumsFragment extends BrowseFragment {
         super.onSaveInstanceState(outState);
     }
 
-    private void refreshCover(View view, AlbumInfo album) {
+    private void refreshCover(final View view, final AlbumInfo album) {
         if (view.getTag() instanceof AlbumViewHolder) {
-            AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
+            final AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
             if (albumViewHolder.mAlbumCover
                     .getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
-                CoverAsyncHelper coverAsyncHelper = (CoverAsyncHelper) albumViewHolder.mAlbumCover
+                final CoverAsyncHelper coverAsyncHelper
+                        = (CoverAsyncHelper) albumViewHolder.mAlbumCover
                         .getTag(R.id.CoverAsyncHelper);
                 coverAsyncHelper.downloadCover(album, true);
             }
         }
     }
 
-    private void updateNowPlayingSmallFragment(AlbumInfo albumInfo) {
-        NowPlayingSmallFragment nowPlayingSmallFragment;
+    private void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {
+        final NowPlayingSmallFragment nowPlayingSmallFragment;
         if (getActivity() != null) {
             nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity()
                     .getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);

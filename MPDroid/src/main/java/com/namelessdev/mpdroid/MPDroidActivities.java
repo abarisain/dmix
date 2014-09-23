@@ -27,9 +27,10 @@ public class MPDroidActivities {
 
     // Forbid this activity from being instanciated
     private MPDroidActivities() {
+        super();
     }
 
-    private static void applyTheme(Activity activity) {
+    private static void applyTheme(final Activity activity) {
         final boolean lightTheme = MPDApplication.getInstance().isLightThemeSelected();
         int themeID = R.style.AppTheme;
         if (activity instanceof MainMenuActivity) {
@@ -59,7 +60,7 @@ public class MPDroidActivities {
         protected final MPDApplication mApp = MPDApplication.getInstance();
 
         @Override
-        protected void onCreate(Bundle savedInstanceState) {
+        protected void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             applyTheme(this);
         }
@@ -71,7 +72,7 @@ public class MPDroidActivities {
         protected final MPDApplication mApp = MPDApplication.getInstance();
 
         @Override
-        protected void onCreate(Bundle savedInstanceState) {
+        protected void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             applyTheme(this);
         }
@@ -83,7 +84,7 @@ public class MPDroidActivities {
         protected final MPDApplication mApp = MPDApplication.getInstance();
 
         @Override
-        protected void onCreate(Bundle savedInstanceState) {
+        protected void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             applyTheme(this);
         }

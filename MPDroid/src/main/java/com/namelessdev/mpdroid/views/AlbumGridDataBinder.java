@@ -39,7 +39,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 
     SharedPreferences mSettings;
 
-    public AlbumGridDataBinder(MPDApplication app, boolean isLightTheme) {
+    public AlbumGridDataBinder(final MPDApplication app, final boolean isLightTheme) {
         super(isLightTheme);
 
         mSettings = PreferenceManager.getDefaultSharedPreferences(app);
@@ -52,9 +52,10 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
 
     @Override
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, List<? extends Item> items, Object item,
-            int position) {
-        AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final Object item,
+            final int position) {
+        final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
 
         final Album album = (Album) item;
 
@@ -66,10 +67,10 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         coverHelper.setCoverMaxSize(height == 0 ? 256 : height);
 
         // display "artist - album title"
-        String text = album.mainText();
+        final String text = album.mainText();
         holder.mAlbumName.setText(text);
 
-        Artist artist = album.getArtist();
+        final Artist artist = album.getArtist();
         String info = "";
         final long songCount = album.getSongCount();
         if (artist != null) {
@@ -90,7 +91,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
                     songCount, Music.timeToString(album.getDuration()));
         }
         holder.mAlbumName.setText(album.mainText());
-        if (info != null && info.length() > 0) {
+        if (info != null && !info.isEmpty()) {
             holder.mAlbumInfo.setVisibility(View.VISIBLE);
             holder.mAlbumInfo.setText(info);
         } else {

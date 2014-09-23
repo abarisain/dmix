@@ -44,7 +44,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     private ArrayList<MPDOutput> mOutputs;
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         final ArrayAdapter<MPDOutput> arrayAdapter = new ArrayAdapter<>(getActivity(),
@@ -61,13 +61,14 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mOutputs = new ArrayList<>();
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+    public void onItemClick(
+            final AdapterView<?> parent, final View view, final int position, final long id) {
         mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
@@ -103,7 +104,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                     final List<MPDOutput> mpdOutputs = mApp.oMPDAsyncHelper.oMPD.getOutputs();
                     mOutputs.clear();
                     mOutputs.addAll(mpdOutputs);
-                } catch (MPDServerException e) {
+                } catch (final MPDServerException e) {
                     Log.e(TAG, "Failed to list outputs.", e);
                 }
                 final Activity activity = getActivity();

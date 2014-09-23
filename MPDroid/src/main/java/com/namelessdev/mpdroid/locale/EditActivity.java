@@ -48,7 +48,8 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
 
     private List<ActionItem> mItems;
 
-    private void finishWithAction(ActionItem action, String extra, String overrideLabel) {
+    private void finishWithAction(final ActionItem action, final String extra,
+            final String overrideLabel) {
         final Intent i = new Intent();
         final Bundle b = new Bundle();
         b.putString(BUNDLE_ACTION_STRING, action.mActionString);
@@ -63,7 +64,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locale_edit);
         setResult(RESULT_CANCELED);
@@ -100,7 +101,8 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+    public void onItemClick(final AdapterView<?> adapterView, final View view, final int position,
+            final long id) {
         final ActionItem item = mItems.get(position);
         if (item.mActionString.equals(MPDControl.ACTION_VOLUME_SET)) {
             final SeekBar seekBar = new SeekBar(this);
@@ -114,7 +116,7 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
             alert.setNegativeButton(R.string.cancel, null);
             alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+                public void onClick(final DialogInterface dialogInterface, final int i) {
                     final String progress = Integer.toString(seekBar.getProgress());
                     finishWithAction(item, progress, item.mLabel + " : " + progress);
                 }
@@ -130,11 +132,12 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
      */
     private static class ActionItem {
 
-        private String mActionString;
+        private final String mActionString;
 
-        private String mLabel;
+        private final String mLabel;
 
-        private ActionItem(String actionString, String label) {
+        private ActionItem(final String actionString, final String label) {
+            super();
             mActionString = actionString;
             mLabel = label;
         }

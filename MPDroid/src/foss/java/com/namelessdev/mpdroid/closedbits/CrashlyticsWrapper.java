@@ -20,7 +20,7 @@ import android.content.Context;
 
 public class CrashlyticsWrapper {
 
-    public static void start(Context context) {
+    public static void start(final Context context) {
         // Stub
     }
 }

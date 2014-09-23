@@ -82,7 +82,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     private TextView mSongTitle;
 
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
         if (connected && isAdded() && mForceStatusUpdate) {
             mApp.updateTrackInfo.refresh(mApp.oMPDAsyncHelper.oMPD.getStatus(), true);
         }
@@ -94,11 +94,11 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(final Activity activity) {
         super.onAttach(activity);
 
         if (!MainMenuActivity.class.equals(activity.getClass())) {
@@ -122,8 +122,8 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.now_playing_small_fragment, container, false);
         mSongTitle = (TextView) view.findViewById(R.id.song_title);
         mSongTitle.setSelected(true);
@@ -239,16 +239,16 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void randomChanged(boolean random) {
+    public void randomChanged(final boolean random) {
 
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
+    public void repeatChanged(final boolean repeating) {
     }
 
     @Override
-    public void stateChanged(MPDStatus status, int oldState) {
+    public void stateChanged(final MPDStatus status, final int oldState) {
         if (mForceStatusUpdate) {
             mApp.updateTrackInfo.refresh(status);
         }
@@ -257,13 +257,13 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         if (mForceStatusUpdate) {
             mApp.updateTrackInfo.refresh(mpdStatus);
         }
     }
 
-    public void updateCover(AlbumInfo albumInfo) {
+    public void updateCover(final AlbumInfo albumInfo) {
         if (mCoverArt != null && null != mCoverArt.getTag()
                 && mCoverArt.getTag().equals(albumInfo.getKey())) {
             mCoverHelper.downloadCover(albumInfo);
@@ -280,6 +280,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 }

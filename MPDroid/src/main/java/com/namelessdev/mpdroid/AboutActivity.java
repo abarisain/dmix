@@ -37,10 +37,10 @@ public class AboutActivity extends Activity {
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 
-    public static String getVersionName(Class<Activity> cls) {
+    public static String getVersionName(final Class<Activity> cls) {
         try {
-            ComponentName comp = new ComponentName(APP, cls);
-            PackageInfo pinfo = APP.getPackageManager()
+            final ComponentName comp = new ComponentName(APP, cls);
+            final PackageInfo pinfo = APP.getPackageManager()
                     .getPackageInfo(comp.getPackageName(), 0);
             return pinfo.versionName + " (" + pinfo.versionCode + ")";
         } catch (final PackageManager.NameNotFoundException ignored) {
@@ -49,7 +49,7 @@ public class AboutActivity extends Activity {
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.about);
 
@@ -57,7 +57,7 @@ public class AboutActivity extends Activity {
 
         final LayoutInflater inflater = LayoutInflater.from(this);
         final View headerView = inflater.inflate(R.layout.about_header, null, false);
-        TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
+        final TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
         versionInfo.setText(R.string.version);
         versionInfo.append(": " + getVersionName(Activity.class));
 
@@ -68,25 +68,26 @@ public class AboutActivity extends Activity {
         final List<Object> listItems = new ArrayList<>();
         listItems.add(getString(R.string.about_libraries));
         tmpStringArray = getResources().getStringArray(R.array.libraries_array);
-        for (String tmpString : tmpStringArray) {
+        for (final String tmpString : tmpStringArray) {
             listItems.add(new AboutListItem(tmpString));
         }
         listItems.add(getString(R.string.about_authors));
         tmpStringArray = getResources().getStringArray(R.array.authors_array);
-        for (String tmpString : tmpStringArray) {
+        for (final String tmpString : tmpStringArray) {
             listItems.add(new AboutListItem(tmpString));
         }
 
         listView.setAdapter(new SeparatedListAdapter(this, android.R.layout.simple_list_item_1,
                 R.layout.list_separator, new SeparatedListDataBinder() {
             @Override
-            public boolean isEnabled(int position, List<?> items, Object item) {
+            public boolean isEnabled(final int position, final List<?> items, final Object item) {
                 return false;
             }
 
             @Override
-            public void onDataBind(Context context, View targetView, List<?> items,
-                    Object item, int position) {
+            public void onDataBind(final Context context, final View targetView,
+                    final List<?> items,
+                    final Object item, final int position) {
                 ((TextView) targetView.findViewById(android.R.id.text1)).setText(item.toString());
             }
         }, listItems));
@@ -94,9 +95,10 @@ public class AboutActivity extends Activity {
 
     private class AboutListItem {
 
-        private String mText;
+        private final String mText;
 
-        public AboutListItem(String text) {
+        public AboutListItem(final String text) {
+            super();
             mText = text;
         }
 

@@ -32,8 +32,8 @@ public final class Tools {
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth,
-            int reqHeight) {
+    public static int calculateInSampleSize(final BitmapFactory.Options options, final int reqWidth,
+            final int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -74,7 +74,7 @@ public final class Tools {
      * @param data Target data array.
      * @return Hex string.
      */
-    private static String convertToHex(byte[] data) {
+    private static String convertToHex(final byte[] data) {
         if (data == null || data.length == 0) {
             return null;
         }
@@ -96,8 +96,9 @@ public final class Tools {
         return buffer.toString();
     }
 
-    public static Bitmap decodeSampledBitmapFromBytes(byte[] bytes, int reqWidth, int reqHeight,
-            boolean resizePerfectly) {
+    public static Bitmap decodeSampledBitmapFromBytes(
+            final byte[] bytes, final int reqWidth, final int reqHeight,
+            final boolean resizePerfectly) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -120,8 +121,9 @@ public final class Tools {
         }
     }
 
-    public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth, int reqHeight,
-            boolean resizePerfectlty) {
+    public static Bitmap decodeSampledBitmapFromPath(
+            final String path, final int reqWidth, final int reqHeight,
+            final boolean resizePerfectlty) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -150,13 +152,13 @@ public final class Tools {
      * @param value Target string value to get hash from.
      * @return the hash from string.
      */
-    public static final String getHashFromString(String value) {
-        if (value == null || value.length() == 0) {
+    public static final String getHashFromString(final String value) {
+        if (value == null || value.isEmpty()) {
             return null;
         }
 
         try {
-            MessageDigest hashEngine = MessageDigest.getInstance("MD5");
+            final MessageDigest hashEngine = MessageDigest.getInstance("MD5");
             hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
             return convertToHex(hashEngine.digest());
         } catch (final Exception ignored) {
@@ -168,8 +170,8 @@ public final class Tools {
         return "127.0.0.1".equals(APP.oMPDAsyncHelper.getConnectionSettings().server);
     }
 
-    public static boolean isStringEmptyOrNull(String str) {
-        return (str == null || "".equals(str));
+    public static boolean isStringEmptyOrNull(final String str) {
+        return str == null || str.isEmpty();
     }
 
     public static void notifyUser(final int resId, final Object... format) {
@@ -186,16 +188,16 @@ public final class Tools {
         Toast.makeText(APP, message, Toast.LENGTH_SHORT).show();
     }
 
-    public static int[] toIntArray(List<Integer> list) {
-        int[] ret = new int[list.size()];
+    public static int[] toIntArray(final List<Integer> list) {
+        final int[] ret = new int[list.size()];
         int i = 0;
-        for (Integer e : list) {
+        for (final Integer e : list) {
             ret[i++] = e.intValue();
         }
         return ret;
     }
 
-    public static Object[] toObjectArray(Object... args) {
+    public static Object[] toObjectArray(final Object... args) {
         return args;
     }
 

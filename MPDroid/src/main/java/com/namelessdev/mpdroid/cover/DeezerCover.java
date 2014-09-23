@@ -32,11 +32,11 @@ public class DeezerCover extends AbstractWebCover {
     private static final String TAG = "DeezerCover";
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
-        String deezerResponse;
-        JSONObject jsonRootObject;
-        JSONArray jsonArray;
+        final String deezerResponse;
+        final JSONObject jsonRootObject;
+        final JSONArray jsonArray;
         String coverUrl;
         JSONObject jsonObject;
 

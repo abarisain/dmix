@@ -53,10 +53,6 @@ public class UpdateTrackInfo {
 
     private TrackInfoUpdate mTrackInfoListener = null;
 
-    public UpdateTrackInfo() {
-        super();
-    }
-
     public final void addCallback(final FullTrackInfoUpdate listener) {
         mFullTrackInfoListener = listener;
     }

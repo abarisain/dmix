@@ -82,6 +82,8 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private final Collection<ConnectionListener> mConnectionListeners;
 
+    private final boolean mIsNetworkMonitorActive = false;
+
     private final Collection<NetworkMonitorListener> mNetworkMonitorListeners;
 
     private final Collection<StatusChangeListener> mStatusChangeListeners;
@@ -93,8 +95,6 @@ public class MPDAsyncHelper implements Handler.Callback {
     private final MPDAsyncWorker oMPDAsyncWorker;
 
     private ConnectionInfo mConnectionInfo = new ConnectionInfo();
-
-    private boolean mIsNetworkMonitorActive = false;
 
     private NetworkActivityHandler mNetworkActivityHandler;
 

@@ -26,7 +26,7 @@ import static android.text.TextUtils.join;
 
 public class PlaylistSong extends AbstractPlaylistMusic {
 
-    public PlaylistSong(Music music) {
+    public PlaylistSong(final Music music) {
         super(music.getAlbum(), music.getArtist(), music.getAlbumArtist(), music.getFullPath(),
                 music.getDisc(), music.getDate(), music.getGenre(), music.getTime(),
                 music.getTitle(), music.getTotalTracks(), music.getTrack(), music.getSongId(),
@@ -38,7 +38,7 @@ public class PlaylistSong extends AbstractPlaylistMusic {
     }
 
     public String getPlaylistSubLine() {
-        List<String> subLineTexts = new ArrayList<String>();
+        List<String> subLineTexts = new ArrayList<>();
         if (!isEmpty(getArtist())) {
             subLineTexts.add(getArtist());
         }

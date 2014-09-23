@@ -48,19 +48,27 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 
     private static final String TAG = "PlaylistEditActivity";
 
+    private final DragSortListView.RemoveListener mRemoveListener
+            = new DragSortListView.RemoveListener() {
+        public void remove(final int which) {
+            // removePlaylistItem(which);
+        }
+    };
+
     private boolean mIsFirstRefresh = true;
 
     private boolean mIsPlayQueue = true;
 
     private String mPlaylistName = null;
 
-    private DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
-        public void drop(int from, int to) {
+    private final DragSortListView.DropListener mDropListener
+            = new DragSortListView.DropListener() {
+        public void drop(final int from, final int to) {
             if (from == to) {
                 return;
             }
-            HashMap<String, Object> itemFrom = mSongList.get(from);
-            Integer songID = (Integer) itemFrom.get("songid");
+            final HashMap<String, Object> itemFrom = mSongList.get(from);
+            final Integer songID = (Integer) itemFrom.get("songid");
             if (mIsPlayQueue) {
                 try {
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
@@ -71,7 +79,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 try {
                     mApp.oMPDAsyncHelper.oMPD.movePlaylistSong(mPlaylistName, from, to);
                 } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to rename a playlist.");
+                    Log.e(TAG, "Failed to rename a playlist.", e);
                 }
                 update();
             }
@@ -79,39 +87,28 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         }
     };
 
-    private DragSortListView.RemoveListener mRemoveListener
-            = new DragSortListView.RemoveListener() {
-        public void remove(int which) {
-            // removePlaylistItem(which);
-        }
-    };
-
-    private ArrayList<HashMap<String, Object>> mSongList = new ArrayList<HashMap<String, Object>>();
+    private ArrayList<HashMap<String, Object>> mSongList = new ArrayList<>();
 
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        // TODO Auto-generated method stub
-
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
     }
 
     @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
-        // TODO Auto-generated method stub
-
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         switch (v.getId()) {
             case R.id.Remove:
                 int count = 0;
                 try {
-                    ArrayList<HashMap<String, Object>> copy
-                            = new ArrayList<HashMap<String, Object>>();
+                    final ArrayList<HashMap<String, Object>> copy
+                            = new ArrayList<>();
                     copy.addAll(mSongList);
 
-                    List<Integer> positions = new LinkedList<Integer>();
-                    for (HashMap<String, Object> item : copy) {
+                    final List<Integer> positions = new LinkedList<>();
+                    for (final HashMap<String, Object> item : copy) {
                         if (item.get("marked").equals(true)) {
                             positions.add((Integer) item.get("songid"));
                             mSongList.remove(copy.indexOf(item) - count);
@@ -146,17 +143,17 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         mPlaylistName = getIntent().getStringExtra("playlist");
-        if (null != mPlaylistName && mPlaylistName.length() > 0) {
+        if (null != mPlaylistName && !mPlaylistName.isEmpty()) {
             mIsPlayQueue = false;
         }
         setContentView(R.layout.playlist_editlist_activity);
         if (mIsPlayQueue) {
-            this.setTitle(R.string.nowPlaying);
+            setTitle(R.string.nowPlaying);
         } else {
-            this.setTitle(mPlaylistName);
+            setTitle(mPlaylistName);
         }
         update();
         mApp.oMPDAsyncHelper.addStatusChangeListener(this);
@@ -176,7 +173,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         trackList.setDragEnabled(true);
         trackList.setCacheColorHint(0);
 
-        Button button = (Button) findViewById(R.id.Remove);
+        final Button button = (Button) findViewById(R.id.Remove);
         button.setOnClickListener(this);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -192,9 +189,10 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
      * Marks the selected item for deletion
      */
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
+    protected void onListItemClick(final ListView l, final View v, final int position,
+            final long id) {
         super.onListItemClick(l, v, position, id);
-        HashMap<String, Object> item = mSongList.get(position);
+        final HashMap<String, Object> item = mSongList.get(position);
         item.get("marked");
         if (item.get("marked").equals(true)) {
             item.put("marked", false);
@@ -206,7 +204,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         // Menu actions...
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -231,34 +229,28 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
         update();
 
     }
 
     @Override
-    public void randomChanged(boolean random) {
-        // TODO Auto-generated method stub
-
+    public void randomChanged(final boolean random) {
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
-        // TODO Auto-generated method stub
-
+    public void repeatChanged(final boolean repeating) {
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, int oldState) {
-        // TODO Auto-generated method stub
-
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         if (mIsPlayQueue) {
             // Mark running track...
-            for (HashMap<String, Object> song : mSongList) {
+            for (final HashMap<String, Object> song : mSongList) {
                 if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId()) {
                     song.put("play", android.R.drawable.ic_media_play);
                 } else {
@@ -275,22 +267,22 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     protected void update() {
         // TODO: Preserve position!!!
         try {
-            List<Music> musics;
+            final List<Music> musics;
             if (mIsPlayQueue) {
-                MPDPlaylist playlist = mApp.oMPDAsyncHelper.oMPD.getPlaylist();
+                final MPDPlaylist playlist = mApp.oMPDAsyncHelper.oMPD.getPlaylist();
                 musics = playlist.getMusicList();
             } else {
                 musics = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylistName);
             }
-            mSongList = new ArrayList<HashMap<String, Object>>();
-            int playingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();
-            int pos = null == getListView() ? -1 : getListView().getFirstVisiblePosition();
-            View view = null == getListView() ? null : getListView().getChildAt(0);
-            int top = null == view ? -1 : view.getTop();
+            mSongList = new ArrayList<>();
+            final int playingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();
+            final int pos = null == getListView() ? -1 : getListView().getFirstVisiblePosition();
+            final View view = null == getListView() ? null : getListView().getChildAt(0);
+            final int top = null == view ? -1 : view.getTop();
             int listPlayingId = 0;
             // Copy list to avoid concurrent exception
-            for (Music m : new ArrayList<Music>(musics)) {
-                HashMap<String, Object> item = new HashMap<String, Object>();
+            for (final Music m : new ArrayList<>(musics)) {
+                final HashMap<String, Object> item = new HashMap<>();
                 item.put("songid", m.getSongId());
                 item.put("artist", m.getArtist());
                 item.put("title", m.getTitle());
@@ -303,10 +295,9 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 }
                 mSongList.add(item);
             }
-            SimpleAdapter songs = new SimpleAdapter(this, mSongList,
+            final SimpleAdapter songs = new SimpleAdapter(this, mSongList,
                     R.layout.playlist_editlist_item, new String[]{
-                    "play", "title", "artist",
-                    "marked"
+                    "play", "title", "artist", "marked"
             }, new int[]{
                     R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox
             });
@@ -323,7 +314,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 }
             }
 
-        } catch (MPDServerException e) {
+        } catch (final MPDServerException e) {
             Log.d(TAG, "Playlist update failure.", e);
 
         }
@@ -331,9 +322,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
-        // TODO Auto-generated method stub
-
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 
 }

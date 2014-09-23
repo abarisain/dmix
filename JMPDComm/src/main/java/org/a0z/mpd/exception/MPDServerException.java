@@ -59,7 +59,7 @@ public class MPDServerException extends MPDException {
      *
      * @param message exception message.
      */
-    public MPDServerException(String message) {
+    public MPDServerException(final String message) {
         super(message);
     }
 
@@ -69,7 +69,7 @@ public class MPDServerException extends MPDException {
      * @param message exception message.
      * @param cause   cause of this exception.
      */
-    public MPDServerException(String message, Throwable cause) {
+    public MPDServerException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -78,7 +78,7 @@ public class MPDServerException extends MPDException {
      *
      * @param cause cause of this exception.
      */
-    public MPDServerException(Throwable cause) {
+    public MPDServerException(final Throwable cause) {
         super(cause);
     }
 
@@ -91,7 +91,7 @@ public class MPDServerException extends MPDException {
      * @return The error kind
      */
     public ErrorKind getErrorKind() {
-        int errorNumber;
+        final int errorNumber;
         ErrorKind errorKind = ErrorKind.UNKNOWN;
         if (getMessage() != null && getMessage().startsWith(MPD_RESPONSE_ERR)) {
             try {
@@ -103,7 +103,7 @@ public class MPDServerException extends MPDException {
                             errorKind = ErrorKind.PASSWORD;
                     }
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 Log.error(TAG, "Error while extracting MPDServerException error code. ACK line : "
                         + getMessage(), e);
             }

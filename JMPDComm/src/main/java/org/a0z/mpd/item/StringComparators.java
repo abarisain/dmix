@@ -53,7 +53,7 @@ final class StringComparators {
      */
     private static final Comparator<String> IGNORE_CASE_NATURAL_COMPARATOR_ASCII
             = new Comparator<String>() {
-        public int compare(String o1, String o2) {
+        public int compare(final String o1, final String o2) {
             return compareNaturalIgnoreCaseAscii(o1, o2);
         }
     };
@@ -69,7 +69,7 @@ final class StringComparators {
      * </p>
      */
     private static final Comparator<String> NATURAL_COMPARATOR_ASCII = new Comparator<String>() {
-        public int compare(String o1, String o2) {
+        public int compare(final String o1, final String o2) {
             return compareNaturalAscii(o1, o2);
         }
     };
@@ -78,6 +78,7 @@ final class StringComparators {
      * This is a utility class (static methods only), don't instantiate.
      */
     private StringComparators() {
+        super();
     }
 
     /**
@@ -93,7 +94,7 @@ final class StringComparators {
      * {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
-    public static int compareNatural(Collator collator, String s, String t) {
+    public static int compareNatural(final Collator collator, final String s, final String t) {
         return compareNatural(s, t, true, collator);
     }
 
@@ -120,7 +121,7 @@ final class StringComparators {
      * {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
-    public static int compareNatural(String s, String t) {
+    public static int compareNatural(final String s, final String t) {
         return compareNatural(s, t, false, Collator.getInstance());
     }
 
@@ -137,13 +138,13 @@ final class StringComparators {
      * {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
-    private static int compareNatural(String s, String t, boolean caseSensitive,
-            Collator collator) {
+    private static int compareNatural(final String s, final String t, final boolean caseSensitive,
+            final Collator collator) {
         int sIndex = 0;
         int tIndex = 0;
 
-        int sLength = s.length();
-        int tLength = t.length();
+        final int sLength = s.length();
+        final int tLength = t.length();
 
         while (true) {
             // both character indices are after a subword (or at zero)
@@ -188,8 +189,8 @@ final class StringComparators {
                     }
                     tChar = t.charAt(tIndex);
                 }
-                boolean sAllZero = sIndex == sLength || !Character.isDigit(sChar);
-                boolean tAllZero = tIndex == tLength || !Character.isDigit(tChar);
+                final boolean sAllZero = sIndex == sLength || !Character.isDigit(sChar);
+                final boolean tAllZero = tIndex == tLength || !Character.isDigit(tChar);
                 if (sAllZero && tAllZero) {
                     continue;
                 }
@@ -246,8 +247,8 @@ final class StringComparators {
                     // To use the collator the whole subwords have to be
                     // compared - character-by-character comparison
                     // is not possible. So find the two subwords first
-                    int aw = sIndex;
-                    int bw = tIndex;
+                    final int aw = sIndex;
+                    final int bw = tIndex;
                     do {
                         ++sIndex;
                     } while (sIndex < sLength && !Character.isDigit(s.charAt(sIndex)));
@@ -255,9 +256,9 @@ final class StringComparators {
                         ++tIndex;
                     } while (tIndex < tLength && !Character.isDigit(t.charAt(tIndex)));
 
-                    String as = s.substring(aw, sIndex);
-                    String bs = t.substring(bw, tIndex);
-                    int subwordResult = collator.compare(as, bs);
+                    final String as = s.substring(aw, sIndex);
+                    final String bs = t.substring(bw, tIndex);
+                    final int subwordResult = collator.compare(as, bs);
                     if (subwordResult != 0) {
                         return subwordResult;
                     }
@@ -315,7 +316,7 @@ final class StringComparators {
      * {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
-    public static int compareNaturalAscii(String s, String t) {
+    public static int compareNaturalAscii(final String s, final String t) {
         return compareNatural(s, t, true, null);
     }
 
@@ -335,7 +336,7 @@ final class StringComparators {
      * {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
-    public static int compareNaturalIgnoreCaseAscii(String s, String t) {
+    public static int compareNaturalIgnoreCaseAscii(final String s, final String t) {
         return compareNatural(s, t, false, null);
     }
 
@@ -355,7 +356,7 @@ final class StringComparators {
      * @see #getNaturalComparator(java.text.Collator)
      */
     public static Comparator<String> getNaturalComparator() {
-        Collator collator = Collator.getInstance();
+        final Collator collator = Collator.getInstance();
         return getNaturalComparator(collator);
     }
 
@@ -379,7 +380,7 @@ final class StringComparators {
             throw new NullPointerException("collator must not be null");
         }
         return new Comparator<String>() {
-            public int compare(String o1, String o2) {
+            public int compare(final String o1, final String o2) {
                 return compareNatural(collator, o1, o2);
             }
         };

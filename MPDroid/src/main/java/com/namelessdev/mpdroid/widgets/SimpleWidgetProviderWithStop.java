@@ -33,9 +33,9 @@ public class SimpleWidgetProviderWithStop extends SimpleWidgetProvider {
      * Link up various button actions using {@link PendingIntent}.
      */
     @Override
-    protected void linkButtons(Context context, RemoteViews views) {
-        Intent intent;
-        PendingIntent pendingIntent;
+    protected void linkButtons(final Context context, final RemoteViews views) {
+        final Intent intent;
+        final PendingIntent pendingIntent;
 
         super.linkButtons(context, views);
 
@@ -47,21 +47,22 @@ public class SimpleWidgetProviderWithStop extends SimpleWidgetProvider {
     }
 
     @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    public void onUpdate(final Context context, final AppWidgetManager appWidgetManager,
+            final int[] appWidgetIds) {
         final RemoteViews views = new RemoteViews(context.getPackageName(),
                 R.layout.widget_simple_with_stop);
 
-        super.onUpdate(views, context, appWidgetManager);
+        onUpdate(views, context, appWidgetManager);
     }
 
     /**
      * Update all active widget instances by pushing changes
      */
     @Override
-    protected void performUpdate(WidgetHelperService service) {
+    protected void performUpdate(final WidgetHelperService service) {
         final RemoteViews views = new RemoteViews(service.getPackageName(),
                 R.layout.widget_simple_with_stop);
 
-        super.performUpdate(views, service);
+        performUpdate(views, service);
     }
 }

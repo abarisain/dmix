@@ -36,9 +36,10 @@ public class StreamFetcher {
 
     private static final String TAG = "StreamFetcher";
 
-    private List<String> mHandlers = new LinkedList<String>();
+    private final List<String> mHandlers = new LinkedList<>();
 
     StreamFetcher() {
+        super();
         mHandlers.add("http");
         mHandlers.add("mms");
         mHandlers.add("mmsh");
@@ -55,8 +56,9 @@ public class StreamFetcher {
         return LazyHolder.INSTANCE;
     }
 
-    private static String parse(String data, List<String> handlers) {
-        String start = data.substring(0, data.length() < 10 ? data.length() : 10).toLowerCase();
+    private static String parse(final String data, final List<String> handlers) {
+        final String start = data.substring(0, data.length() < 10 ? data.length() : 10)
+                .toLowerCase();
         if (data.length() > 10 && start.startsWith("[playlist]")) {
             return parsePlaylist(data, "file", handlers);
         } else if (data.length() > 7
@@ -68,27 +70,27 @@ public class StreamFetcher {
             return parsePlaylist(data, "ref", handlers);
         } else if (data.length() > 5 && start.startsWith("<?xml")) {
             return parseXml(data, handlers);
-        } else if ((-1 == data.indexOf("<html") && -1 != data.indexOf("http:/")) || // flat
+        } else if ((!data.contains("<html") && data.contains("http:/")) || // flat
                 // list?
-                (-1 != data.indexOf("#EXTM3U"))) { // m3u with comments?
+                (data.contains("#EXTM3U"))) { // m3u with comments?
             return parseExt3Mu(data, handlers);
         }
 
         return null;
     }
 
-    private static String parseAsx(String data, List<String> handlers) {
-        String[] lines = data.split("(\r\n|\n|\r)");
+    private static String parseAsx(final String data, final List<String> handlers) {
+        final String[] lines = data.split("(\r\n|\n|\r)");
 
-        for (String line : lines) {
-            int ref = line.indexOf("<ref href=");
+        for (final String line : lines) {
+            final int ref = line.indexOf("<ref href=");
             if (-1 != ref) {
-                for (String handler : handlers) {
-                    String protocol = handler + "://";
-                    int prot = line.indexOf(protocol);
+                for (final String handler : handlers) {
+                    final String protocol = handler + "://";
+                    final int prot = line.indexOf(protocol);
                     if (-1 != prot) {
-                        String[] parts = line.split("\"");
-                        for (String part : parts) {
+                        final String[] parts = line.split("\"");
+                        for (final String part : parts) {
                             if (part.startsWith(protocol)) {
                                 return part;
                             }
@@ -101,12 +103,12 @@ public class StreamFetcher {
         return null;
     }
 
-    private static String parseExt3Mu(String data, List<String> handlers) {
-        String[] lines = data.split("(\r\n|\n|\r)");
+    private static String parseExt3Mu(final String data, final List<String> handlers) {
+        final String[] lines = data.split("(\r\n|\n|\r)");
 
-        for (String line : lines) {
-            for (String handler : handlers) {
-                String protocol = handler + "://";
+        for (final String line : lines) {
+            for (final String handler : handlers) {
+                final String protocol = handler + "://";
                 if (line.startsWith(protocol)) {
                     return line.replace("\n", "").replace("\r", "");
                 }
@@ -116,14 +118,15 @@ public class StreamFetcher {
         return null;
     }
 
-    private static String parsePlaylist(String data, String key, List<String> handlers) {
-        String[] lines = data.split("(\r\n|\n|\r)");
+    private static String parsePlaylist(final String data, final String key,
+            final List<String> handlers) {
+        final String[] lines = data.split("(\r\n|\n|\r)");
 
-        for (String line : lines) {
+        for (final String line : lines) {
             if (line.toLowerCase().startsWith(key)) {
-                for (String handler : handlers) {
-                    String protocol = handler + "://";
-                    int index = line.indexOf(protocol);
+                for (final String handler : handlers) {
+                    final String protocol = handler + "://";
+                    final int index = line.indexOf(protocol);
                     if (index > -1 && index < 7) {
                         return line.replace("\n", "").replace("\r", "").substring(index);
                     }
@@ -133,11 +136,11 @@ public class StreamFetcher {
         return null;
     }
 
-    private static String parseXml(String data, List<String> handlers) {
+    private static String parseXml(final String data, final List<String> handlers) {
         // XSPF / SPIFF
         try {
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            XmlPullParser xpp = factory.newPullParser();
+            final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            final XmlPullParser xpp = factory.newPullParser();
 
             xpp.setInput(new StringReader(data));
             int eventType = xpp.getEventType();
@@ -145,10 +148,10 @@ public class StreamFetcher {
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (XmlPullParser.START_TAG == eventType) {
-                    inLocation = xpp.getName().equals("location");
+                    inLocation = "location".equals(xpp.getName());
                 } else if (inLocation && XmlPullParser.TEXT == eventType) {
-                    String text = xpp.getText();
-                    for (String handler : handlers) {
+                    final String text = xpp.getText();
+                    for (final String handler : handlers) {
                         if (text.startsWith(handler + "://")) {
                             return text;
                         }
@@ -156,22 +159,22 @@ public class StreamFetcher {
                 }
                 eventType = xpp.next();
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Log.e(TAG, "Failed to parse an XML stream file.", e);
         }
 
         return null;
     }
 
-    private String check(String url) {
+    private String check(final String url) {
         HttpURLConnection connection = null;
         try {
-            URL u = new URL(url);
+            final URL u = new URL(url);
             connection = (HttpURLConnection) u.openConnection();
-            InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
+            final InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
 
-            byte buffer[] = new byte[8192];
-            int read = in.read(buffer);
+            final byte[] buffer = new byte[8192];
+            final int read = in.read(buffer);
             if (read < buffer.length) {
                 buffer[read] = '\0';
             }
@@ -186,7 +189,7 @@ public class StreamFetcher {
         return null;
     }
 
-    public String get(String url, String name) throws MalformedURLException {
+    public String get(final String url, final String name) throws MalformedURLException {
         String parsed = null;
         if (url.startsWith("http://")) {
             parsed = check(url);
@@ -194,7 +197,7 @@ public class StreamFetcher {
                 // If 'check' returned a http link, then see if this points to
                 // the stream or if it points to the playlist (which would point
                 // to the stream). This case is mainly for TuneIn links...
-                String secondParse = check(parsed);
+                final String secondParse = check(parsed);
                 if (null != secondParse) {
                     parsed = secondParse;
                 }

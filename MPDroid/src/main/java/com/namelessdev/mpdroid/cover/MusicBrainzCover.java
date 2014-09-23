@@ -40,12 +40,12 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private static final String TAG = "MusicBrainzCover";
 
-    private List<String> extractImageUrls(String covertArchiveResponse) {
-        JSONObject jsonRootObject;
-        JSONArray jsonArray;
+    private List<String> extractImageUrls(final String covertArchiveResponse) {
+        final JSONObject jsonRootObject;
+        final JSONArray jsonArray;
         String coverUrl;
         JSONObject jsonObject;
-        List<String> coverUrls = new ArrayList<String>();
+        final List<String> coverUrls = new ArrayList<>();
 
         if (covertArchiveResponse == null || covertArchiveResponse.isEmpty()) {
             return Collections.emptyList();
@@ -74,15 +74,15 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     }
 
-    private List<String> extractReleaseIds(String response) {
+    private List<String> extractReleaseIds(final String response) {
 
-        List<String> releaseList = new ArrayList<String>();
+        final List<String> releaseList = new ArrayList<>();
 
         try {
 
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
-            XmlPullParser xpp = factory.newPullParser();
+            final XmlPullParser xpp = factory.newPullParser();
 
             xpp.setInput(new StringReader(response));
             int eventType;
@@ -90,8 +90,8 @@ public class MusicBrainzCover extends AbstractWebCover {
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.getName().equals("release-group")) {
-                        String id = xpp.getAttributeValue(null, "id");
+                    if ("release-group".equals(xpp.getName())) {
+                        final String id = xpp.getAttributeValue(null, "id");
                         if (id != null) {
                             releaseList.add(id);
                         }
@@ -109,21 +109,21 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     }
 
-    private String getCoverArtArchiveResponse(String mbid) {
+    private String getCoverArtArchiveResponse(final String mbid) {
 
-        String request = (COVER_ART_ARCHIVE_URL + mbid + "/");
+        final String request = (COVER_ART_ARCHIVE_URL + mbid + "/");
         return executeGetRequestWithConnection(request);
     }
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
-        List<String> releases;
-        List<String> coverUrls = new ArrayList<String>();
+        final List<String> releases;
+        final List<String> coverUrls = new ArrayList<>();
         String covertArtResponse;
 
         releases = searchForRelease(albumInfo);
-        for (String release : releases) {
+        for (final String release : releases) {
             covertArtResponse = getCoverArtArchiveResponse(release);
             if (!covertArtResponse.isEmpty()) {
                 coverUrls.addAll(extractImageUrls(covertArtResponse));
@@ -142,11 +142,12 @@ public class MusicBrainzCover extends AbstractWebCover {
         return "MUSICBRAINZ";
     }
 
-    private List<String> searchForRelease(AlbumInfo albumInfo) {
+    private List<String> searchForRelease(final AlbumInfo albumInfo) {
 
-        String response;
+        final String response;
 
-        String url = "http://musicbrainz.org/ws/2/release-group/?query=" + albumInfo.getArtist()
+        final String url = "http://musicbrainz.org/ws/2/release-group/?query=" + albumInfo
+                .getArtist()
                 + " " + albumInfo.getAlbum() + "&type=release-group&limit=5";
         response = executeGetRequestWithConnection(url);
         return extractReleaseIds(response);

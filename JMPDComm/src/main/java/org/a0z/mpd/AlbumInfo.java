@@ -46,27 +46,31 @@ public class AlbumInfo {
 
     protected String mPath;
 
-    public AlbumInfo(Album album) {
-        Artist a = album.getArtist();
-        this.mArtist = (a == null ? "" : a.getName());
-        this.mAlbum = album.getName();
-        this.mPath = album.getPath();
+    public AlbumInfo(final Album album) {
+        super();
+        final Artist a = album.getArtist();
+        mArtist = (a == null ? "" : a.getName());
+        mAlbum = album.getName();
+        mPath = album.getPath();
     }
 
-    public AlbumInfo(AlbumInfo albumInfo) {
+    public AlbumInfo(final AlbumInfo albumInfo) {
         this(albumInfo.mArtist, albumInfo.mAlbum, albumInfo.mPath, albumInfo.mFilename);
     }
 
-    public AlbumInfo(String artist, String album) {
-        this.mArtist = artist;
-        this.mAlbum = album;
+    public AlbumInfo(final String artist, final String album) {
+        super();
+        mArtist = artist;
+        mAlbum = album;
     }
 
-    public AlbumInfo(String artist, String album, String path, String filename) {
-        this.mArtist = artist;
-        this.mAlbum = album;
-        this.mPath = path;
-        this.mFilename = filename;
+    public AlbumInfo(final String artist, final String album, final String path,
+            final String filename) {
+        super();
+        mArtist = artist;
+        mAlbum = album;
+        mPath = path;
+        mFilename = filename;
     }
 
     @Override
@@ -129,12 +133,12 @@ public class AlbumInfo {
         return !isAlbumEmpty && !isArtistEmpty;
     }
 
-    public void setFilename(String filename) {
-        this.mFilename = filename;
+    public void setFilename(final String filename) {
+        mFilename = filename;
     }
 
-    public void setPath(String path) {
-        this.mPath = path;
+    public void setPath(final String path) {
+        mPath = path;
     }
 
     @Override

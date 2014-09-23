@@ -35,17 +35,19 @@ public class SongDataBinder implements ArrayDataBinder {
     boolean mShowArtist;
 
     public SongDataBinder() {
+        super();
         mShowArtist = false;
     }
 
-    public SongDataBinder(boolean showArtist) {
-        this.mShowArtist = showArtist;
+    public SongDataBinder(final boolean showArtist) {
+        super();
+        mShowArtist = showArtist;
     }
 
     @Override
-    public AbstractViewHolder findInnerViews(View targetView) {
+    public AbstractViewHolder findInnerViews(final View targetView) {
         // look up all references to inner views
-        SongViewHolder viewHolder = new SongViewHolder();
+        final SongViewHolder viewHolder = new SongViewHolder();
         viewHolder.mTrackTitle = (TextView) targetView.findViewById(R.id.track_title);
         viewHolder.mTrackNumber = (TextView) targetView.findViewById(R.id.track_number);
         viewHolder.mTrackDuration = (TextView) targetView.findViewById(R.id.track_duration);
@@ -58,14 +60,16 @@ public class SongDataBinder implements ArrayDataBinder {
         return R.layout.song_list_item;
     }
 
-    public boolean isEnabled(int position, List<? extends Item> items, Object item) {
+    public boolean isEnabled(final int position, final List<? extends Item> items,
+            final Object item) {
         return true;
     }
 
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, List<? extends Item> items, Object item,
-            int position) {
-        SongViewHolder holder = (SongViewHolder) viewHolder;
+            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final Object item,
+            final int position) {
+        final SongViewHolder holder = (SongViewHolder) viewHolder;
 
         final Music song = (Music) item;
         int trackNumber = song.getTrack();
@@ -88,7 +92,8 @@ public class SongDataBinder implements ArrayDataBinder {
     }
 
     @Override
-    public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
+    public View onLayoutInflation(final Context context, final View targetView,
+            final List<? extends Item> items) {
         targetView.findViewById(R.id.track_artist).setVisibility(
                 mShowArtist ? View.VISIBLE : View.GONE);
         return targetView;

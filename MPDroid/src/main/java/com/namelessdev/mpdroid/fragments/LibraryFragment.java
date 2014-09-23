@@ -67,13 +67,13 @@ public class LibraryFragment extends Fragment {
     ViewPager mViewPager = null;
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(final Activity activity) {
         super.onAttach(activity);
         if (!(activity instanceof ILibraryTabActivity)) {
             throw new RuntimeException(
                     "Error : LibraryFragment can only be attached to an activity implementing ILibraryTabActivity");
         }
-        this.mActivity = (ILibraryTabActivity) activity;
+        mActivity = (ILibraryTabActivity) activity;
         mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
         if (mViewPager != null) {
             mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -81,8 +81,8 @@ public class LibraryFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.library_tabs_fragment, container, false);
         mViewPager = (ViewPager) view;
         if (mSectionsPagerAdapter != null) {
@@ -90,7 +90,7 @@ public class LibraryFragment extends Fragment {
         }
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void onPageSelected(int position) {
+            public void onPageSelected(final int position) {
                 if (mActivity != null) {
                     mActivity.pageChanged(position);
                 }
@@ -99,7 +99,7 @@ public class LibraryFragment extends Fragment {
         return view;
     }
 
-    public void setCurrentItem(int item, boolean smoothScroll) {
+    public void setCurrentItem(final int item, final boolean smoothScroll) {
         if (mViewPager != null) {
             mViewPager.setCurrentItem(item, smoothScroll);
         }
@@ -111,7 +111,7 @@ public class LibraryFragment extends Fragment {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        public SectionsPagerAdapter(final FragmentManager fm) {
             super(fm);
         }
 
@@ -121,15 +121,15 @@ public class LibraryFragment extends Fragment {
         }
 
         @Override
-        public Fragment getItem(int i) {
+        public Fragment getItem(final int i) {
             Fragment fragment = null;
-            String tab = mActivity.getTabList().get(i);
+            final String tab = mActivity.getTabList().get(i);
             if (tab.equals(LibraryTabsUtil.TAB_ARTISTS)) {
                 fragment = new ArtistsFragment().init(null);
             } else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
                 final SharedPreferences settings = PreferenceManager
                         .getDefaultSharedPreferences(mApp);
-                if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
+                if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
                     fragment = new AlbumsGridFragment(null);
                 } else {
                     fragment = new AlbumsFragment(null);

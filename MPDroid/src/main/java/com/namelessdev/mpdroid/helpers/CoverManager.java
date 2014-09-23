@@ -109,7 +109,7 @@ public final class CoverManager {
 
     private static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";
 
-    private static MPDApplication sApp = MPDApplication.getInstance();
+    private static final MPDApplication sApp = MPDApplication.getInstance();
 
     private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(sApp);
 
@@ -789,7 +789,7 @@ public final class CoverManager {
 
         private CreateBitmapTask(final CoverInfo coverInfo) {
             super();
-            this.mCoverInfo = coverInfo;
+            mCoverInfo = coverInfo;
         }
 
         @Override
@@ -889,7 +889,7 @@ public final class CoverManager {
 
         private FetchCoverTask(final CoverInfo coverInfo) {
             super();
-            this.mCoverInfo = coverInfo;
+            mCoverInfo = coverInfo;
         }
 
         @Override

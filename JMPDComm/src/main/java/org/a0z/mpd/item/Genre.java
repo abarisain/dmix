@@ -38,12 +38,14 @@ public class Genre extends Item {
     private final String mSort;
 
     public Genre(final Genre genre) {
-        this.mName = genre.mName;
-        this.mSort = genre.mSort;
+        super();
+        mName = genre.mName;
+        mSort = genre.mSort;
     }
 
-    public Genre(String name) {
-        this.mName = name;
+    public Genre(final String name) {
+        super();
+        mName = name;
         mSort = null;
     }
 

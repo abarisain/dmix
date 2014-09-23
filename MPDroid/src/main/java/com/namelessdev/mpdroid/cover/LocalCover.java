@@ -33,19 +33,19 @@ public class LocalCover implements ICoverRetriever {
 
     public static final String RETRIEVER_NAME = "User's HTTP Server";
 
-    private static final String[] EXT = new String[]{
+    private static final String[] EXT = {
             "jpg", "png", "jpeg",
     };
 
     private static final String PLACEHOLDER_FILENAME = "%placeholder_filename";
 
     // Note that having two PLACEHOLDER_FILENAME is on purpose
-    private static final String[] FILENAMES = new String[]{
+    private static final String[] FILENAMES = {
             "%placeholder_custom", PLACEHOLDER_FILENAME,
             "cover", "folder", "front"
     };
 
-    private static final String[] SUB_FOLDERS = new String[]{
+    private static final String[] SUB_FOLDERS = {
             "", "artwork", "Covers"
     };
 
@@ -56,21 +56,17 @@ public class LocalCover implements ICoverRetriever {
 
     private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
-    public LocalCover() {
-        super();
-    }
-
-    public static void appendPathString(Uri.Builder builder, String string) {
-        if (string != null && string.length() > 0) {
+    public static void appendPathString(final Uri.Builder builder, final String string) {
+        if (string != null && !string.isEmpty()) {
             final String[] components = string.split("/");
-            for (String component : components) {
+            for (final String component : components) {
                 builder.appendPath(component);
             }
         }
     }
 
-    public static String buildCoverUrl(String serverName, String musicPath, String path,
-            String fileName) {
+    public static String buildCoverUrl(String serverName, String musicPath, final String path,
+            final String fileName) {
 
         if (musicPath.startsWith(URL_PREFIX)) {
             int hostPortEnd = musicPath.indexOf(URL_PREFIX.length(), '/');
@@ -80,17 +76,17 @@ public class LocalCover implements ICoverRetriever {
             serverName = musicPath.substring(URL_PREFIX.length(), hostPortEnd);
             musicPath = musicPath.substring(hostPortEnd);
         }
-        Uri.Builder b = Uri.parse(URL_PREFIX + serverName).buildUpon();
+        final Uri.Builder b = Uri.parse(URL_PREFIX + serverName).buildUpon();
         appendPathString(b, musicPath);
         appendPathString(b, path);
         appendPathString(b, fileName);
 
-        Uri uri = b.build();
+        final Uri uri = b.build();
         return uri.toString();
     }
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
         if (isEmpty(albumInfo.getPath())) {
             return new String[0];
@@ -98,7 +94,7 @@ public class LocalCover implements ICoverRetriever {
 
         String lfilename;
         // load URL parts from settings
-        String musicPath = mSettings.getString("musicPath", "music/");
+        final String musicPath = mSettings.getString("musicPath", "music/");
         FILENAMES[0] = mSettings.getString("coverFileName", null);
 
         if (musicPath != null) {
@@ -106,10 +102,10 @@ public class LocalCover implements ICoverRetriever {
             final String serverName = mApp.oMPDAsyncHelper.getConnectionSettings().server;
 
             String url;
-            final List<String> urls = new ArrayList<String>();
-            for (String subfolder : SUB_FOLDERS) {
+            final List<String> urls = new ArrayList<>();
+            for (final String subfolder : SUB_FOLDERS) {
                 for (String baseFilename : FILENAMES) {
-                    for (String ext : EXT) {
+                    for (final String ext : EXT) {
 
                         if (baseFilename == null
                                 || (baseFilename.startsWith("%") && !baseFilename

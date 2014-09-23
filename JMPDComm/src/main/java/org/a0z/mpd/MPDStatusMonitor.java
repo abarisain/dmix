@@ -95,14 +95,14 @@ public class MPDStatusMonitor extends Thread {
      * @param delay         status query interval.
      * @param supportedIdle Idle subsystems to support, see IDLE fields in this class.
      */
-    public MPDStatusMonitor(MPD mpd, long delay, final String[] supportedIdle) {
+    public MPDStatusMonitor(final MPD mpd, final long delay, final String[] supportedIdle) {
         super("MPDStatusMonitor");
 
-        this.mMPD = mpd;
-        this.mDelay = delay;
-        this.mGiveup = false;
-        this.mStatusChangeListeners = new LinkedList<>();
-        this.mTrackPositionListeners = new LinkedList<>();
+        mMPD = mpd;
+        mDelay = delay;
+        mGiveup = false;
+        mStatusChangeListeners = new LinkedList<>();
+        mTrackPositionListeners = new LinkedList<>();
         mIdleCommand = new MPDCommand(MPDCommand.MPD_CMD_IDLE, supportedIdle);
     }
 
@@ -111,7 +111,7 @@ public class MPDStatusMonitor extends Thread {
      *
      * @param listener a {@code StatusChangeListener}.
      */
-    public void addStatusChangeListener(StatusChangeListener listener) {
+    public void addStatusChangeListener(final StatusChangeListener listener) {
         mStatusChangeListeners.add(listener);
     }
 
@@ -120,7 +120,7 @@ public class MPDStatusMonitor extends Thread {
      *
      * @param listener a {@code TrackPositionListener}.
      */
-    public void addTrackPositionListener(TrackPositionListener listener) {
+    public void addTrackPositionListener(final TrackPositionListener listener) {
         mTrackPositionListeners.add(listener);
     }
 
@@ -128,11 +128,11 @@ public class MPDStatusMonitor extends Thread {
      * Gracefully terminate tread.
      */
     public void giveup() {
-        this.mGiveup = true;
+        mGiveup = true;
     }
 
     public boolean isGivingUp() {
-        return this.mGiveup;
+        return mGiveup;
     }
 
     /**
@@ -161,7 +161,7 @@ public class MPDStatusMonitor extends Thread {
             boolean connectionStateChanged = false;
 
             if (connectionLost || oldConnectionState != connectionState) {
-                for (StatusChangeListener listener : mStatusChangeListeners) {
+                for (final StatusChangeListener listener : mStatusChangeListeners) {
                     listener.connectionStateChanged(connectionState.booleanValue(), connectionLost);
                 }
 
@@ -220,7 +220,7 @@ public class MPDStatusMonitor extends Thread {
                                 || (oldPlaylistVersion != status.getPlaylistVersion() && status
                                 .getPlaylistVersion() != -1)) {
                             playlist.refresh(status);
-                            for (StatusChangeListener listener : mStatusChangeListeners) {
+                            for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.playlistChanged(status, oldPlaylistVersion);
                             }
                             oldPlaylistVersion = status.getPlaylistVersion();
@@ -233,7 +233,7 @@ public class MPDStatusMonitor extends Thread {
                          * trackChanged() would never be called.
                          */
                         if (connectionStateChanged || oldSongId != status.getSongId()) {
-                            for (StatusChangeListener listener : mStatusChangeListeners) {
+                            for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.trackChanged(status, oldSong);
                             }
                             oldSong = status.getSongPos();
@@ -242,7 +242,7 @@ public class MPDStatusMonitor extends Thread {
 
                         // time
                         if (connectionStateChanged || oldElapsedTime != status.getElapsedTime()) {
-                            for (TrackPositionListener listener : mTrackPositionListeners) {
+                            for (final TrackPositionListener listener : mTrackPositionListeners) {
                                 listener.trackPositionChanged(status);
                             }
                             oldElapsedTime = status.getElapsedTime();
@@ -250,7 +250,7 @@ public class MPDStatusMonitor extends Thread {
 
                         // state
                         if (connectionStateChanged || !status.isState(oldState)) {
-                            for (StatusChangeListener listener : mStatusChangeListeners) {
+                            for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.stateChanged(status, oldState);
                             }
                             oldState = status.getState();
@@ -258,7 +258,7 @@ public class MPDStatusMonitor extends Thread {
 
                         // volume
                         if (connectionStateChanged || oldVolume != status.getVolume()) {
-                            for (StatusChangeListener listener : mStatusChangeListeners) {
+                            for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.volumeChanged(status, oldVolume);
                             }
                             oldVolume = status.getVolume();
@@ -266,7 +266,7 @@ public class MPDStatusMonitor extends Thread {
 
                         // repeat
                         if (connectionStateChanged || oldRepeat != status.isRepeat()) {
-                            for (StatusChangeListener listener : mStatusChangeListeners) {
+                            for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.repeatChanged(status.isRepeat());
                             }
                             oldRepeat = status.isRepeat();
@@ -274,7 +274,7 @@ public class MPDStatusMonitor extends Thread {
 
                         // volume
                         if (connectionStateChanged || oldRandom != status.isRandom()) {
-                            for (StatusChangeListener listener : mStatusChangeListeners) {
+                            for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.randomChanged(status.isRandom());
                             }
                             oldRandom = status.isRandom();
@@ -282,25 +282,25 @@ public class MPDStatusMonitor extends Thread {
 
                         // update database
                         if (connectionStateChanged || oldUpdating != status.isUpdating()) {
-                            for (StatusChangeListener listener : mStatusChangeListeners) {
+                            for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.libraryStateChanged(status.isUpdating(), dbChanged);
                             }
                             oldUpdating = status.isUpdating();
                         }
                     }
-                } catch (MPDConnectionException e) {
+                } catch (final MPDConnectionException e) {
                     // connection lost
                     connectionState = Boolean.FALSE;
                     connectionLost = true;
-                } catch (MPDServerException e) {
+                } catch (final MPDServerException e) {
                     e.printStackTrace();
                 }
             }
             try {
                 synchronized (this) {
-                    this.wait(mDelay);
+                    wait(mDelay);
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 e.printStackTrace();
             }
 

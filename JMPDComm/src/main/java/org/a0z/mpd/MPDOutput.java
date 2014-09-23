@@ -40,14 +40,15 @@ public class MPDOutput {
 
     private String mName;
 
-    MPDOutput(List<String> response) {
-        for (String line : response) {
+    MPDOutput(final List<String> response) {
+        super();
+        for (final String line : response) {
             if (line.startsWith("outputid:")) {
-                this.mId = Integer.parseInt(line.substring("outputid: ".length()));
+                mId = Integer.parseInt(line.substring("outputid: ".length()));
             } else if (line.startsWith("outputname:")) {
-                this.mName = line.substring("outputname: ".length());
+                mName = line.substring("outputname: ".length());
             } else if (line.startsWith("outputenabled:")) {
-                this.mEnabled = line.substring("outputenabled: ".length()).equals("1");
+                mEnabled = "1".equals(line.substring("outputenabled: ".length()));
             }
         }
     }

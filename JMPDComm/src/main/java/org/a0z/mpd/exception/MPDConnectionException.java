@@ -48,7 +48,7 @@ public class MPDConnectionException extends MPDServerException {
      *
      * @param message exception message.
      */
-    public MPDConnectionException(String message) {
+    public MPDConnectionException(final String message) {
         super(message);
     }
 
@@ -58,7 +58,7 @@ public class MPDConnectionException extends MPDServerException {
      * @param message exception message.
      * @param cause   cause of this exception.
      */
-    public MPDConnectionException(String message, Throwable cause) {
+    public MPDConnectionException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -67,7 +67,7 @@ public class MPDConnectionException extends MPDServerException {
      *
      * @param cause cause of this exception.
      */
-    public MPDConnectionException(Throwable cause) {
+    public MPDConnectionException(final Throwable cause) {
         super(cause);
     }
 

@@ -63,14 +63,15 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     /**
      * Clones a directory.
      */
-    public Directory(Directory dir) {
-        this.mMPD = dir.mMPD;
-        this.mName = dir.mName;
-        this.mFilename = dir.mFilename;
-        this.mParent = dir.mParent;
-        this.mFileEntries = dir.mFileEntries;
-        this.mDirectoryEntries = dir.mDirectoryEntries;
-        this.mPlayLists = dir.mPlayLists;
+    public Directory(final Directory dir) {
+        super();
+        mMPD = dir.mMPD;
+        mName = dir.mName;
+        mFilename = dir.mFilename;
+        mParent = dir.mParent;
+        mFileEntries = dir.mFileEntries;
+        mDirectoryEntries = dir.mDirectoryEntries;
+        mPlayLists = dir.mPlayLists;
     }
 
     /**
@@ -80,14 +81,15 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param parent   mParent directory.
      * @param filename directory filename.
      */
-    private Directory(MPD mpd, Directory parent, String filename) {
-        this.mMPD = mpd;
-        this.mName = filename;
-        this.mFilename = filename;
-        this.mParent = parent;
-        this.mFileEntries = new HashMap<>();
-        this.mDirectoryEntries = new HashMap<>();
-        this.mPlayLists = new HashMap<>();
+    private Directory(final MPD mpd, final Directory parent, final String filename) {
+        super();
+        mMPD = mpd;
+        mName = filename;
+        mFilename = filename;
+        mParent = parent;
+        mFileEntries = new HashMap<>();
+        mDirectoryEntries = new HashMap<>();
+        mPlayLists = new HashMap<>();
     }
 
     /**
@@ -145,7 +147,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param mpd MPD controller.
      * @return last path component.
      */
-    public static Directory makeRootDirectory(MPD mpd) {
+    public static Directory makeRootDirectory(final MPD mpd) {
         return new Directory(mpd, null, "");
     }
 
@@ -155,7 +157,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param filename sub-directory filename.
      * @return true if sub-directory exists, false if not.
      */
-    public boolean containsDir(String filename) {
+    public boolean containsDir(final String filename) {
         return mDirectoryEntries.containsKey(filename);
     }
 
@@ -165,13 +167,13 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return sub-directories.
      */
     public TreeSet<Directory> getDirectories() {
-        TreeSet<Directory> c = new TreeSet<>(new Comparator<Directory>() {
-            public int compare(Directory o1, Directory o2) {
+        final TreeSet<Directory> c = new TreeSet<>(new Comparator<Directory>() {
+            public int compare(final Directory o1, final Directory o2) {
                 return StringComparators.compareNatural(o1.getName(), o2.getName());
             }
         });
 
-        for (Directory item : mDirectoryEntries.values()) {
+        for (final Directory item : mDirectoryEntries.values()) {
             c.add(item);
         }
         return c;
@@ -183,7 +185,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param filename name of sub-directory to retrieve.
      * @return a sub-directory.
      */
-    public Directory getDirectory(String filename) {
+    public Directory getDirectory(final String filename) {
         return mDirectoryEntries.get(filename);
     }
 
@@ -193,8 +195,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param title title of the file to be returned
      * @return Returns null if title not found
      */
-    public Music getFileByTitle(String title) {
-        for (Music music : mFileEntries.values()) {
+    public Music getFileByTitle(final String title) {
+        for (final Music music : mFileEntries.values()) {
             if (music.getTitle().equals(title)) {
                 return music;
             }
@@ -217,13 +219,13 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return files from directory.
      */
     public TreeSet<Music> getFiles() {
-        TreeSet<Music> c = new TreeSet<>(new Comparator<Music>() {
-            public int compare(Music o1, Music o2) {
+        final TreeSet<Music> c = new TreeSet<>(new Comparator<Music>() {
+            public int compare(final Music o1, final Music o2) {
                 return StringComparators.compareNatural(o1.getFilename(), o2.getFilename());
             }
         });
 
-        for (Music item : mFileEntries.values()) {
+        for (final Music item : mFileEntries.values()) {
             c.add(item);
         }
         return c;
@@ -261,13 +263,13 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     public TreeSet<PlaylistFile> getPlaylistFiles() {
-        TreeSet<PlaylistFile> c = new TreeSet<>(new Comparator<PlaylistFile>() {
-            public int compare(PlaylistFile o1, PlaylistFile o2) {
+        final TreeSet<PlaylistFile> c = new TreeSet<>(new Comparator<PlaylistFile>() {
+            public int compare(final PlaylistFile o1, final PlaylistFile o2) {
                 return StringComparators.compareNatural(o1.getFullPath(), o2.getFullPath());
             }
         });
 
-        for (PlaylistFile item : mPlayLists.values()) {
+        for (final PlaylistFile item : mPlayLists.values()) {
             c.add(item);
         }
         return c;
@@ -280,10 +282,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param subPath path, must not start or end with '/'.
      * @return the last component of the path created.
      */
-    public Directory makeDirectory(String subPath) {
-        String name;
-        String remainingPath;
-        int slashIndex = subPath.indexOf('/');
+    public Directory makeDirectory(final String subPath) {
+        final String name;
+        final String remainingPath;
+        final int slashIndex = subPath.indexOf('/');
 
         if (slashIndex == 0) {
             throw new IllegalArgumentException("name starts with '/'");
@@ -299,7 +301,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         }
 
         // create directory
-        Directory dir;
+        final Directory dir;
         if (!mDirectoryEntries.containsKey(name)) {
             dir = new Directory(mMPD, this, name);
             mDirectoryEntries.put(dir.getFilename(), dir);
@@ -320,10 +322,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @throws MPDServerException if an error occurs while contacting server.
      */
     public void refreshData() throws MPDServerException {
-        List<FilesystemTreeEntry> c = mMPD.getDir(this.getFullPath());
-        for (FilesystemTreeEntry o : c) {
+        final List<FilesystemTreeEntry> c = mMPD.getDir(getFullPath());
+        for (final FilesystemTreeEntry o : c) {
             if (o instanceof Directory) {
-                Directory dir = (Directory) o;
+                final Directory dir = (Directory) o;
                 if (!mDirectoryEntries.containsKey(dir.getFilename())) {
                     mDirectoryEntries.put(dir.getFilename(), dir);
                 }
@@ -341,7 +343,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                     mFileEntries.put(filename, music);
                 }
             } else if (o instanceof PlaylistFile) {
-                PlaylistFile pl = (PlaylistFile) o;
+                final PlaylistFile pl = (PlaylistFile) o;
                 if (!mPlayLists.containsKey(pl.getName())) {
                     mPlayLists.put(pl.getName(), pl);
                 }
@@ -354,7 +356,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      *
      * @param name name to be displayed
      */
-    public void setName(String name) {
-        this.mName = name;
+    public void setName(final String name) {
+        mName = name;
     }
 }

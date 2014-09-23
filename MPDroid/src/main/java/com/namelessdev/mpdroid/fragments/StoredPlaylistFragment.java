@@ -51,8 +51,8 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
-        Music music = (Music) item;
+    protected void add(final Item item, final boolean replace, final boolean play) {
+        final Music music = (Music) item;
         try {
             mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
             if (!play) {
@@ -64,7 +64,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(mIrAdded, item);
@@ -104,18 +104,18 @@ public class StoredPlaylistFragment extends BrowseFragment {
         return mPlaylistName;
     }
 
-    public StoredPlaylistFragment init(String name) {
+    public StoredPlaylistFragment init(final String name) {
         mPlaylistName = name;
         return this;
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         if (icicle != null) {
             init(icicle.getString(EXTRA_PLAYLIST_NAME));
@@ -127,13 +127,14 @@ public class StoredPlaylistFragment extends BrowseFragment {
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.mpd_storedplaylistmenu, menu);
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, View v, final int position, long id) {
+    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+            final long id) {
         mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
@@ -144,9 +145,9 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         // Menu actions...
-        Intent i;
+        final Intent i;
         switch (item.getItemId()) {
             case R.id.PLM_EditPL:
                 i = new Intent(getActivity(), PlaylistEditActivity.class);
@@ -160,7 +161,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(final Bundle outState) {
         outState.putString(EXTRA_PLAYLIST_NAME, mPlaylistName);
         super.onSaveInstanceState(outState);
     }

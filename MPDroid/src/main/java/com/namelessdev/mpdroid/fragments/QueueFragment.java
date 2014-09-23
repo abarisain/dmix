@@ -184,7 +184,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        this.mActivity = getActivity();
+        mActivity = getActivity();
         refreshListColorCacheHint();
     }
 
@@ -615,7 +615,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             // Mark running track...
             for (final AbstractPlaylistMusic song : mSongList) {
                 final int newPlay;
-                if ((song.getSongId()) == mpdStatus.getSongId()) {
+                if (song.getSongId() == mpdStatus.getSongId()) {
                     if (mLightTheme) {
                         newPlay = R.drawable.ic_media_play_light;
                     } else {

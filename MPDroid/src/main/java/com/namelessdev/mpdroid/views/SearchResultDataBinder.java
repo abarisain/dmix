@@ -39,12 +39,12 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
      * @param parts : parts to join
      * @return the formatted result
      */
-    public static String join(String... parts) {
-        StringBuilder result = new StringBuilder();
+    public static String join(final String... parts) {
+        final StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < parts.length; i++) {
-            String part = parts[i];
-            if (part != null && part.length() > 0) {
+            final String part = parts[i];
+            if (part != null && !part.isEmpty()) {
                 result.append(part);
                 if (SEPARATOR != null && i < parts.length - 1) {
                     result.append(SEPARATOR);
@@ -54,26 +54,26 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
         return result.toString();
     }
 
-    public boolean isEnabled(int position, List<?> items, Object item) {
+    public boolean isEnabled(final int position, final List<?> items, final Object item) {
         return true;
     }
 
-    public void onDataBind(Context context, View targetView, List<?> items,
-            Object item, int position) {
+    public void onDataBind(final Context context, final View targetView, final List<?> items,
+            final Object item, final int position) {
         final TextView text1 = (TextView) targetView.findViewById(R.id.line1);
         final TextView text2 = (TextView) targetView.findViewById(R.id.line2);
         String formattedResult1 = "";
         String formattedResult2 = null;
 
         if (item instanceof Music) {
-            Music music;
+            final Music music;
             music = (Music) item;
             formattedResult1 = music.getTitle();
             formattedResult2 = join(music.getAlbum(), music.getArtist());
         } else if (item instanceof Artist) {
-            formattedResult1 = (((Artist) item).mainText());
+            formattedResult1 = ((Artist) item).mainText();
         } else if (item instanceof Album) {
-            Album album;
+            final Album album;
             album = (Album) item;
             formattedResult1 = album.mainText();
             formattedResult2 = album.getArtist().mainText();

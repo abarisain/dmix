@@ -31,6 +31,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
@@ -49,7 +50,7 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
             mApp.oMPDAsyncHelper.oMPD.add((PlaylistFile) item, replace, play);
             if (isAdded()) {
@@ -62,7 +63,7 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
     }
 
     @Override
@@ -80,42 +81,45 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+            final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        android.view.MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0, R.string.editPlaylist);
+        final MenuItem editItem = menu
+                .add(ContextMenu.NONE, EDIT, 0, R.string.editPlaylist);
         editItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
+        final MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
                 R.string.deletePlaylist);
         addAndReplaceItem.setOnMenuItemClickListener(this);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
+    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+            final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
                 new StoredPlaylistFragment().init(mItems.get(position).getName()),
                 "stored_playlist");
     }
 
     @Override
-    public boolean onMenuItemClick(android.view.MenuItem item) {
+    public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case EDIT:
-                Intent intent = new Intent(getActivity(), PlaylistEditActivity.class);
+                final Intent intent = new Intent(getActivity(), PlaylistEditActivity.class);
                 intent.putExtra("playlist", mItems.get((int) info.id).getName());
                 startActivity(intent);
                 return true;
 
             case DELETE:
-                String playlist = mItems.get((int) info.id).getName();
+                final String playlist = mItems.get((int) info.id).getName();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.deletePlaylist);
                 builder.setMessage(
                         getResources().getString(R.string.deletePlaylistPrompt, playlist));
 
-                DialogClickListener oDialogClickListener = new DialogClickListener((int) info.id);
+                final DialogClickListener oDialogClickListener = new DialogClickListener(
+                        (int) info.id);
                 builder.setNegativeButton(android.R.string.no, oDialogClickListener);
                 builder.setPositiveButton(R.string.deletePlaylist, oDialogClickListener);
 
@@ -136,16 +140,17 @@ public class PlaylistsFragment extends BrowseFragment {
 
         private final int mItemIndex;
 
-        DialogClickListener(int itemIndex) {
-            this.mItemIndex = itemIndex;
+        DialogClickListener(final int itemIndex) {
+            super();
+            mItemIndex = itemIndex;
         }
 
-        public void onClick(DialogInterface dialog, int which) {
+        public void onClick(final DialogInterface dialog, final int which) {
             switch (which) {
                 case AlertDialog.BUTTON_NEGATIVE:
                     break;
                 case AlertDialog.BUTTON_POSITIVE:
-                    String playlist = mItems.get(mItemIndex).getName();
+                    final String playlist = mItems.get(mItemIndex).getName();
                     try {
                         mApp.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
                         if (isAdded()) {
@@ -153,7 +158,7 @@ public class PlaylistsFragment extends BrowseFragment {
                         }
                         mItems.remove(mItemIndex);
                     } catch (final MPDServerException e) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setTitle(R.string.deletePlaylist);
                         builder.setMessage(
                                 getResources().getString(R.string.failedToDelete, playlist));

@@ -35,23 +35,25 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
 
     private static final int TYPE_DEFAULT = 0;
 
-    Context mContext;
+    private Context mContext;
 
-    ArrayDataBinder mDataBinder = null;
+    private ArrayDataBinder mDataBinder = null;
 
-    LayoutInflater mInflater;
+    private LayoutInflater mInflater;
 
-    List<Item> mItems;
+    private List<Item> mItems;
 
     @SuppressWarnings("unchecked")
-    public ArrayAdapter(Context context, ArrayDataBinder dataBinder, List<? extends Item> items) {
+    public ArrayAdapter(final Context context, final ArrayDataBinder dataBinder,
+            final List<? extends Item> items) {
         super(context, 0, (List<Item>) items);
-        this.mDataBinder = dataBinder;
+        mDataBinder = dataBinder;
         init(context, items);
     }
 
     @SuppressWarnings("unchecked")
-    public ArrayAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
+    public ArrayAdapter(final Context context, final int textViewResourceId,
+            final List<? extends Item> items) {
         super(context, textViewResourceId, (List<Item>) items);
         mDataBinder = null;
         init(context, items);
@@ -62,23 +64,23 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public int getItemViewType(final int position) {
         return TYPE_DEFAULT;
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         if (mDataBinder == null) {
             return super.getView(position, convertView, parent);
         }
 
         // cache all inner view references with ViewHolder pattern
-        AbstractViewHolder holder;
+        final AbstractViewHolder holder;
 
         if (convertView == null) {
             convertView = mInflater.inflate(mDataBinder.getLayoutId(), parent, false);
             convertView = mDataBinder.onLayoutInflation(mContext, convertView, mItems);
 
-            // use the databinder to look up all references to inner views
+            // use the data binder to look up all references to inner views
             holder = mDataBinder.findInnerViews(convertView);
             convertView.setTag(holder);
         } else {
@@ -96,26 +98,26 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
     }
 
     @SuppressWarnings("unchecked")
-    protected void init(Context context, List<? extends Item> items) {
+    protected void init(final Context context, final List<? extends Item> items) {
         if (!(items instanceof ArrayList<?>)) {
             throw new RuntimeException("Items must be contained in an ArrayList<Item>");
         }
 
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.mContext = context;
-        this.mItems = (List<Item>) items;
+        mContext = context;
+        mItems = (List<Item>) items;
     }
 
     @Override
-    public boolean isEnabled(int position) {
+    public boolean isEnabled(final int position) {
         if (mDataBinder == null) {
             return super.isEnabled(position);
         }
         return mDataBinder.isEnabled(position, mItems, getItem(position));
     }
 
-    public void setDataBinder(ArrayDataBinder dataBinder) {
-        this.mDataBinder = dataBinder;
+    public void setDataBinder(final ArrayDataBinder dataBinder) {
+        mDataBinder = dataBinder;
     }
 
 }

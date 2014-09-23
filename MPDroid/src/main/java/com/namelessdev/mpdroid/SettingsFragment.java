@@ -75,11 +75,12 @@ public class SettingsFragment extends PreferenceFragment {
     private EditTextPreference mVersion;
 
     public SettingsFragment() {
+        super();
         mPreferencesBound = false;
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(final Activity activity) {
         super.onAttach(activity);
         refreshDynamicFields();
     }
@@ -113,7 +114,7 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
 
@@ -162,26 +163,26 @@ public class SettingsFragment extends PreferenceFragment {
         refreshDynamicFields();
     }
 
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
-            Preference preference) {
+    public boolean onPreferenceTreeClick(final PreferenceScreen preferenceScreen,
+            final Preference preference) {
         // Is it the connectionscreen which is called?
         if (preference.getKey() == null) {
             return false;
         }
 
-        if (preference.getKey().equals("refreshMPDDatabase")) {
+        if ("refreshMPDDatabase".equals(preference.getKey())) {
             try {
                 mApp.oMPDAsyncHelper.oMPD.refreshDatabase();
             } catch (final MPDServerException e) {
                 Log.e(TAG, "Failed to refresh the database.", e);
             }
             return true;
-        } else if (preference.getKey().equals("clearLocalCoverCache")) {
+        } else if ("clearLocalCoverCache".equals(preference.getKey())) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.clearLocalCoverCache)
                     .setMessage(R.string.clearLocalCoverCachePrompt)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(final DialogInterface dialog, final int which) {
                             // Todo : The covermanager must already have been
                             // initialized, get rid of the getInstance arguments
                             CoverManager.getInstance().clear();
@@ -190,14 +191,14 @@ public class SettingsFragment extends PreferenceFragment {
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(final DialogInterface dialog, final int which) {
                             // do nothing
                         }
                     })
                     .show();
             return true;
 
-        } else if (preference.getKey().equals("enableLocalCover")) {
+        } else if ("enableLocalCover".equals(preference.getKey())) {
             if (mLocalCoverCheckbox.isChecked()) {
                 mMusicPath.setEnabled(true);
                 mCoverFilename.setEnabled(true);
@@ -206,7 +207,7 @@ public class SettingsFragment extends PreferenceFragment {
                 mCoverFilename.setEnabled(false);
             }
             return true;
-        } else if (preference.getKey().equals("enableLocalCoverCache")) {
+        } else if ("enableLocalCoverCache".equals(preference.getKey())) {
             // album art library listing requires cover art cache
             if (mCheckBoxPreference.isChecked()) {
                 mAlbumArtLibrary.setEnabled(true);
@@ -216,16 +217,16 @@ public class SettingsFragment extends PreferenceFragment {
             }
             return true;
 
-        } else if (preference.getKey().equals("pauseOnPhoneStateChange")) {
+        } else if ("pauseOnPhoneStateChange".equals(preference.getKey())) {
             /**
              * Allow these to be changed individually,
              * pauseOnPhoneStateChange might be overridden.
              */
-            CheckBoxPreference phonePause = (CheckBoxPreference) findPreference(
+            final CheckBoxPreference phonePause = (CheckBoxPreference) findPreference(
                     "pauseOnPhoneStateChange");
-            CheckBoxPreference phoneStateChange = (CheckBoxPreference) findPreference(
+            final CheckBoxPreference phoneStateChange = (CheckBoxPreference) findPreference(
                     "playOnPhoneStateChange");
-        } else if (preference.getKey().equals("clearSearchHistory")) {
+        } else if ("clearSearchHistory".equals(preference.getKey())) {
             final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(getActivity(),
                     SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
             suggestions.clearHistory();
@@ -240,7 +241,7 @@ public class SettingsFragment extends PreferenceFragment {
         if (getActivity() == null || !mPreferencesBound) {
             return;
         }
-        long size = new CachedCover().getCacheUsage();
+        final long size = new CachedCover().getCacheUsage();
         final String usage = Formatter.formatFileSize(mApp, size);
         mCacheUsage1.setSummary(usage);
         mCacheUsage2.setSummary(usage);

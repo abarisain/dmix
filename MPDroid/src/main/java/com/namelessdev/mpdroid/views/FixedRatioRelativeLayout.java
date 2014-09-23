@@ -35,22 +35,23 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
 
     private static final int FIXED_WIDTH_INT = 2;
 
-    public FixedRatioRelativeLayout(Context context) {
+    public FixedRatioRelativeLayout(final Context context) {
         super(context);
     }
 
-    public FixedRatioRelativeLayout(Context context, AttributeSet attrs) {
+    public FixedRatioRelativeLayout(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         readAttrs(context, attrs);
     }
 
-    public FixedRatioRelativeLayout(Context context, AttributeSet attrs, int defStyle) {
+    public FixedRatioRelativeLayout(final Context context, final AttributeSet attrs,
+            final int defStyle) {
         super(context, attrs, defStyle);
         readAttrs(context, attrs);
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         if (mFixedSide == FIXED_HEIGHT_INT) {
             super.onMeasure(heightMeasureSpec, heightMeasureSpec);
         } else {
@@ -58,9 +59,10 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
         }
     }
 
-    private void readAttrs(Context context, AttributeSet attrs) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FixedRatioRelativeLayout);
-        CharSequence s = a.getString(R.styleable.FixedRatioRelativeLayout_fixedSide);
+    private void readAttrs(final Context context, final AttributeSet attrs) {
+        final TypedArray a = context
+                .obtainStyledAttributes(attrs, R.styleable.FixedRatioRelativeLayout);
+        final CharSequence s = a.getString(R.styleable.FixedRatioRelativeLayout_fixedSide);
         if (s != null) {
             final String fixString = s.toString();
             if (fixString.equals(FIXED_HEIGHT)) {

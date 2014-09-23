@@ -253,6 +253,7 @@ public final class LocaleConstants {
      * @throws UnsupportedOperationException because this class cannot be instantiated.
      */
     private LocaleConstants() {
+        super();
         throw new UnsupportedOperationException("This class is non-instantiable"); //$NON-NLS-1$
     }
     //$NON-NLS-1$

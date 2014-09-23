@@ -24,9 +24,12 @@ public abstract class AbstractPlaylistMusic extends Music {
 
     private boolean mForceCoverRefresh = false;
 
-    protected AbstractPlaylistMusic(String album, String artist, String albumartist,
-            String fullpath, int disc, long date, String genre, long time, String title,
-            int totalTracks, int track, int songId, int pos, String name) {
+    protected AbstractPlaylistMusic(final String album, final String artist,
+            final String albumartist,
+            final String fullpath, final int disc, final long date, final String genre,
+            final long time, final String title,
+            final int totalTracks, final int track, final int songId, final int pos,
+            final String name) {
         super(album, artist, albumartist, fullpath, disc, date, genre, time, title,
                 totalTracks, track, songId, pos, name);
     }
@@ -43,11 +46,11 @@ public abstract class AbstractPlaylistMusic extends Music {
         return mForceCoverRefresh;
     }
 
-    public void setCurrentSongIconRefID(int currentSongIconRefID) {
-        this.mCurrentSongIconRefID = currentSongIconRefID;
+    public void setCurrentSongIconRefID(final int currentSongIconRefID) {
+        mCurrentSongIconRefID = currentSongIconRefID;
     }
 
-    public void setForceCoverRefresh(boolean forceCoverRefresh) {
-        this.mForceCoverRefresh = forceCoverRefresh;
+    public void setForceCoverRefresh(final boolean forceCoverRefresh) {
+        mForceCoverRefresh = forceCoverRefresh;
     }
 }

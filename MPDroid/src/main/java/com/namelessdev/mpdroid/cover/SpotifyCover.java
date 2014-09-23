@@ -36,12 +36,12 @@ public class SpotifyCover extends AbstractWebCover {
 
     private static final String TAG = "SpotifyCover";
 
-    private List<String> extractAlbumIds(String response) {
-        JSONObject jsonRoot;
-        JSONArray jsonAlbums;
+    private List<String> extractAlbumIds(final String response) {
+        final JSONObject jsonRoot;
+        final JSONArray jsonAlbums;
         JSONObject jsonAlbum;
         String albumId;
-        List<String> albumIds = new ArrayList<String>();
+        final List<String> albumIds = new ArrayList<>();
 
         try {
             jsonRoot = new JSONObject(response);
@@ -51,7 +51,7 @@ public class SpotifyCover extends AbstractWebCover {
                     jsonAlbum = jsonAlbums.optJSONObject(a);
                     if (jsonAlbum != null) {
                         albumId = jsonAlbum.optString("href");
-                        if (albumId != null && albumId.length() > 0) {
+                        if (albumId != null && !albumId.isEmpty()) {
                             albumId = albumId.replace("spotify:album:", "");
                             albumIds.add(albumId);
                         }
@@ -67,10 +67,10 @@ public class SpotifyCover extends AbstractWebCover {
         return albumIds;
     }
 
-    private String extractImageUrl(String response) {
+    private String extractImageUrl(final String response) {
 
-        JSONObject jsonAlbum;
-        String imageUrl;
+        final JSONObject jsonAlbum;
+        final String imageUrl;
 
         try {
             jsonAlbum = new JSONObject(response);
@@ -86,10 +86,10 @@ public class SpotifyCover extends AbstractWebCover {
     }
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
-        String albumResponse;
-        List<String> albumIds;
+        final String albumResponse;
+        final List<String> albumIds;
         String coverResponse;
         String coverUrl;
 
@@ -97,7 +97,7 @@ public class SpotifyCover extends AbstractWebCover {
             albumResponse = executeGetRequest("http://ws.spotify.com/search/1/album.json?q="
                     + albumInfo.getArtist() + " " + albumInfo.getAlbum());
             albumIds = extractAlbumIds(albumResponse);
-            for (String albumId : albumIds) {
+            for (final String albumId : albumIds) {
                 coverResponse = executeGetRequest(
                         "https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/"
                                 + albumId);

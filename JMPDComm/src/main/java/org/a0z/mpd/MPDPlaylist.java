@@ -459,7 +459,7 @@ public class MPDPlaylist {
         synchronized (mList) {
             for (final Music music : mList.getMusic()) {
                 stringBuilder.append(music);
-                stringBuilder.append('\n');
+                stringBuilder.append(MPDCommand.MPD_CMD_NEWLINE);
             }
         }
         return stringBuilder.toString();

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public interface ILibraryTabActivity {
 
-    public ArrayList<String> getTabList();
+    ArrayList<String> getTabList();
 
-    public void pageChanged(int position);
+    void pageChanged(int position);
 }

@@ -42,11 +42,11 @@ public class AlbumsGridFragment extends AlbumsFragment {
         this(null);
     }
 
-    public AlbumsGridFragment(Artist artist) {
+    public AlbumsGridFragment(final Artist artist) {
         this(artist, null);
     }
 
-    public AlbumsGridFragment(Artist artist, Genre genre) {
+    public AlbumsGridFragment(final Artist artist, final Genre genre) {
         super(artist, genre);
     }
 
@@ -65,9 +65,9 @@ public class AlbumsGridFragment extends AlbumsFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.browsegrid, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.browsegrid, container, false);
         mList = (GridView) view.findViewById(R.id.grid);
         registerForContextMenu(mList);
         mList.setOnItemClickListener(this);

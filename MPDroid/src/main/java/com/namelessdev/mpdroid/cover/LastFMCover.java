@@ -35,17 +35,17 @@ public class LastFMCover extends AbstractWebCover {
 
     private static final String URL = "http://ws.audioscrobbler.com/2.0/";
 
-    private static String sKey = "7fb78a81b20bee7cb6e8fad4cbcb3694";
+    private static final String sKey = "7fb78a81b20bee7cb6e8fad4cbcb3694";
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
-        String response;
-        String request;
+        final String response;
+        final String request;
         String sizeAttribute = null;
         String imageUrl;
-        XmlPullParserFactory factory;
-        XmlPullParser xpp;
+        final XmlPullParserFactory factory;
+        final XmlPullParser xpp;
         int eventType;
 
         try {
@@ -62,13 +62,13 @@ public class LastFMCover extends AbstractWebCover {
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.getName().equals("image")) {
+                    if ("image".equals(xpp.getName())) {
                         sizeAttribute = xpp.getAttributeValue(null, "size");
                     }
                 } else if (eventType == XmlPullParser.TEXT) {
-                    if (sizeAttribute != null && sizeAttribute.equals("mega")) {
+                    if ("mega".equals(sizeAttribute)) {
                         imageUrl = xpp.getText();
-                        if (imageUrl != null && imageUrl.length() > 0) {
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
                             return new String[]{
                                     imageUrl
                             };

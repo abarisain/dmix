@@ -142,17 +142,17 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
     @Override
     public void onCoverDownloadStarted(final CoverInfo cover) {
-        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, cover).sendToTarget();
+        obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, cover).sendToTarget();
     }
 
     @Override
     public void onCoverDownloaded(final CoverInfo cover) {
-        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_DOWNLOADED, cover).sendToTarget();
+        obtainMessage(EVENT_COVER_DOWNLOADED, cover).sendToTarget();
     }
 
     @Override
     public void onCoverNotFound(final CoverInfo coverInfo) {
-        CoverAsyncHelper.this.obtainMessage(EVENT_COVER_NOT_FOUND, coverInfo).sendToTarget();
+        obtainMessage(EVENT_COVER_NOT_FOUND, coverInfo).sendToTarget();
     }
 
     public void removeCoverDownloadListener(final CoverDownloadListener listener) {

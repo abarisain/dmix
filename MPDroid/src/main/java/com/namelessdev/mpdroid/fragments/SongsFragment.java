@@ -89,8 +89,8 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
-        Music music = (Music) item;
+    protected void add(final Item item, final boolean replace, final boolean play) {
+        final Music music = (Music) item;
         try {
             mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
             Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
@@ -100,7 +100,7 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(mIrAdded, item);
@@ -132,7 +132,7 @@ public class SongsFragment extends BrowseFragment {
             Music song;
             boolean differentArtists = false;
             String lastArtist = null;
-            for (Item item : mItems) {
+            for (final Item item : mItems) {
                 song = (Music) item;
                 if (lastArtist == null) {
                     lastArtist = song.getArtist();
@@ -153,13 +153,13 @@ public class SongsFragment extends BrowseFragment {
         AlbumInfo albumInfo = null;
         boolean differentArtists = false;
 
-        for (Item item : mItems) {
+        for (final Item item : mItems) {
             song = (Music) item;
             if (albumInfo == null) {
                 albumInfo = song.getAlbumInfo();
                 continue;
             }
-            String a = albumInfo.getArtist();
+            final String a = albumInfo.getArtist();
             if (a != null && !a.equalsIgnoreCase(song.getAlbumArtistOrArtist())) {
                 differentArtists = true;
                 break;
@@ -201,7 +201,7 @@ public class SongsFragment extends BrowseFragment {
     private String getTotalTimeForTrackList() {
         Music song;
         long totalTime = 0;
-        for (Item item : mItems) {
+        for (final Item item : mItems) {
             song = (Music) item;
             if (song.getTime() > 0) {
                 totalTime += song.getTime();
@@ -210,13 +210,13 @@ public class SongsFragment extends BrowseFragment {
         return Music.timeToString(totalTime);
     }
 
-    public SongsFragment init(Album al) {
+    public SongsFragment init(final Album al) {
         mAlbum = al;
         return this;
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         if (icicle != null) {
             init((Album) icicle.getParcelable(EXTRA_ALBUM));
@@ -224,8 +224,8 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.songs, container, false);
         mList = (ListView) view.findViewById(R.id.list);
         registerForContextMenu(mList);
@@ -278,7 +278,7 @@ public class SongsFragment extends BrowseFragment {
         mPopupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
+            public boolean onMenuItemClick(final MenuItem item) {
                 final int itemId = item.getItemId();
                 mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                     @Override
@@ -312,7 +312,7 @@ public class SongsFragment extends BrowseFragment {
         mAlbumMenu.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(mPopupMenu));
         mAlbumMenu.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 mPopupMenu.show();
             }
         });
@@ -325,7 +325,7 @@ public class SongsFragment extends BrowseFragment {
         mCoverPopupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
+            public boolean onMenuItemClick(final MenuItem item) {
                 switch (item.getGroupId()) {
                     case POPUP_COVER_BLACKLIST:
                         CoverManager.getInstance().markWrongCover(mAlbum.getAlbumInfo());
@@ -344,7 +344,7 @@ public class SongsFragment extends BrowseFragment {
 
         mCoverArt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public boolean onLongClick(View view) {
+            public boolean onLongClick(final View view) {
                 mCoverPopupMenu.show();
                 return false;
             }
@@ -370,7 +370,8 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, View v, final int position, long id) {
+    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+            final long id) {
         // If in simple mode : add, replace and play the shown album.
         if (mApp.isInSimpleMode()) {
             mApp.oMPDAsyncHelper.execAsync(new Runnable() {
@@ -401,13 +402,13 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(final Bundle outState) {
         final Parcelable parcel = new AlbumParcelable(mAlbum);
         outState.putParcelable(EXTRA_ALBUM, parcel);
         super.onSaveInstanceState(outState);
     }
 
-    public void updateCover(AlbumInfo albumInfo) {
+    public void updateCover(final AlbumInfo albumInfo) {
         if (mCoverArt != null && null != mCoverArt.getTag()
                 && mCoverArt.getTag().equals(albumInfo.getKey())) {
             mCoverHelper.downloadCover(albumInfo, true);
@@ -418,9 +419,9 @@ public class SongsFragment extends BrowseFragment {
     public void updateFromItems() {
         super.updateFromItems();
         if (mItems != null && mHeaderArtist != null && mHeaderInfo != null) {
-            AlbumInfo fixedAlbumInfo;
+            final AlbumInfo fixedAlbumInfo;
             fixedAlbumInfo = getFixedAlbumInfo();
-            String artist = fixedAlbumInfo.getArtist();
+            final String artist = fixedAlbumInfo.getArtist();
             if (artist.isEmpty()) {
                 mHeaderArtist.setText(R.string.unknown_metadata_artist);
             } else {
@@ -436,8 +437,8 @@ public class SongsFragment extends BrowseFragment {
 
     }
 
-    private void updateNowPlayingSmallFragment(AlbumInfo albumInfo) {
-        NowPlayingSmallFragment nowPlayingSmallFragment;
+    private void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {
+        final NowPlayingSmallFragment nowPlayingSmallFragment;
         if (getActivity() != null) {
             nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity()
                     .getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);

@@ -29,10 +29,10 @@ public class ItunesCover extends AbstractWebCover {
     private static final String TAG = "ItunesCover";
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
-        String response;
-        JSONObject jsonRootObject;
-        JSONArray jsonArray;
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
+        final String response;
+        final JSONObject jsonRootObject;
+        final JSONArray jsonArray;
         String coverUrl;
         JSONObject jsonObject;
 

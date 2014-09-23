@@ -42,7 +42,7 @@ public final class Tools {
      * @param data Target data array.
      * @return Hex string.
      */
-    private static String convertToHex(byte[] data) {
+    private static String convertToHex(final byte[] data) {
         if (data == null || data.length == 0) {
             return null;
         }
@@ -84,16 +84,16 @@ public final class Tools {
      * @param value Target string value to get hash from.
      * @return the hash from string.
      */
-    public static final String getHashFromString(String value) {
+    public static final String getHashFromString(final String value) {
         if (value == null || value.isEmpty()) {
             return null;
         }
 
         try {
-            MessageDigest hashEngine = MessageDigest.getInstance("MD5");
+            final MessageDigest hashEngine = MessageDigest.getInstance("MD5");
             hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
             return convertToHex(hashEngine.digest());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return null;
         }
     }

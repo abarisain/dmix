@@ -75,13 +75,14 @@ public class AlbumCache {
     // albums that have an albumartist get an empty artist:
     protected Set<List<String>> mUniqueAlbumSet;
 
-    protected AlbumCache(CachedMPD mpd) {
+    protected AlbumCache(final CachedMPD mpd) {
+        super();
         Log.d(TAG, "Starting ...");
         setMPD(mpd);
     }
     // details
 
-    public static AlbumCache getInstance(CachedMPD mpd) {
+    public static AlbumCache getInstance(final CachedMPD mpd) {
         if (sInstance == null) {
             sInstance = new AlbumCache(mpd);
         } else {
@@ -90,7 +91,7 @@ public class AlbumCache {
         return sInstance;
     }
 
-    public String albumCode(String artist, String album, boolean isAlbumArtist) {
+    public String albumCode(final String artist, final String album, final boolean isAlbumArtist) {
         return (artist != null ? artist : "") + "//" +
                 (isAlbumArtist ? "AA" : "A") +
                 "//" + (album != null ? album : "");
@@ -104,16 +105,16 @@ public class AlbumCache {
     }
 
     protected synchronized void deleteFile() {
-        File file = new File(mFilesDir, getFilename());
+        final File file = new File(mFilesDir, getFilename());
         Log.d(TAG, "Deleting " + file);
         if (file.exists()) {
             file.delete();
         }
     }
 
-    public Set<String> getAlbumArtists(String album, String artist) {
-        Set<String> aartists = new HashSet<String>();
-        for (List<String> ai : mAlbumSet) {
+    public Set<String> getAlbumArtists(final String album, final String artist) {
+        final Set<String> aartists = new HashSet<>();
+        for (final List<String> ai : mAlbumSet) {
             if (ai.get(0).equals(album) &&
                     ai.get(1).equals(artist)) {
                 aartists.add(ai.get(2));
@@ -122,7 +123,8 @@ public class AlbumCache {
         return aartists;
     }
 
-    public AlbumDetails getAlbumDetails(String artist, String album, boolean isAlbumArtist) {
+    public AlbumDetails getAlbumDetails(final String artist, final String album,
+            final boolean isAlbumArtist) {
         return mAlbumDetails.get(albumCode(artist, album, isAlbumArtist));
     }
 
@@ -130,9 +132,9 @@ public class AlbumCache {
         return mAlbumSet;
     }
 
-    public Set<String> getAlbums(String artist, boolean albumArtist) {
-        Set<String> albums = new HashSet<String>();
-        for (List<String> ai : mAlbumSet) {
+    public Set<String> getAlbums(final String artist, final boolean albumArtist) {
+        final Set<String> albums = new HashSet<>();
+        for (final List<String> ai : mAlbumSet) {
             if (albumArtist && ai.get(2).equals(artist) ||
                     !albumArtist && ai.get(1).equals(artist)) {
                 albums.add(ai.get(0));
@@ -141,9 +143,9 @@ public class AlbumCache {
         return albums;
     }
 
-    public List<String> getArtistsByAlbum(String album, boolean albumArtist) {
-        Set<String> artists = new HashSet<String>();
-        for (List<String> ai : mAlbumSet) {
+    public List<String> getArtistsByAlbum(final String album, final boolean albumArtist) {
+        final Set<String> artists = new HashSet<>();
+        for (final List<String> ai : mAlbumSet) {
             if (ai.get(0).equals(album)) {
                 if (albumArtist) {
                     artists.add(ai.get(2));
@@ -152,19 +154,20 @@ public class AlbumCache {
                 }
             }
         }
-        List<String> result;
-        if (artists != null && artists.size() > 0) {
-            result = new ArrayList<String>(artists);
+        final List<String> result;
+        if (artists != null && !artists.isEmpty()) {
+            result = new ArrayList<>(artists);
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
         } else {
-            result = new ArrayList<String>();
+            result = new ArrayList<>();
         }
         return result;
     }
 
-    public String getDirByArtistAlbum(String artist, String album, boolean isAlbumArtist) {
-        String aa = albumCode(artist, album, isAlbumArtist);
-        String result = mAlbumDetails.get(aa).mPath;
+    public String getDirByArtistAlbum(final String artist, final String album,
+            final boolean isAlbumArtist) {
+        final String aa = albumCode(artist, album, isAlbumArtist);
+        final String result = mAlbumDetails.get(aa).mPath;
         Log.d(TAG, "key " + aa + " - " + result);
         return result;
     }
@@ -173,12 +176,12 @@ public class AlbumCache {
         return mServer + "_" + mPort;
     }
 
-    protected Set<String> getKeysByValue(Map<String, Set<String>> map, String val) {
-        Set<String> result = new HashSet<String>();
-        Set<String> keys = map.keySet();
-        for (String k : keys) {
-            Set<String> values = map.get(k);
-            if (val == null || val.equals("") || values.contains(val)) {
+    protected Set<String> getKeysByValue(final Map<String, Set<String>> map, final String val) {
+        final Set<String> result = new HashSet<>();
+        final Set<String> keys = map.keySet();
+        for (final String k : keys) {
+            final Set<String> values = map.get(k);
+            if (val == null || "".equals(val) || values.contains(val)) {
                 result.add(k);
             }
         }
@@ -190,18 +193,18 @@ public class AlbumCache {
     }
 
     protected synchronized boolean isUpToDate() {
-        Date mpdlast = mMPD.getStatistics().getDbUpdate();
+        final Date mpdlast = mMPD.getStatistics().getDbUpdate();
         Log.d(TAG, "lastupdate " + mLastUpdate + " mpd date " + mpdlast);
         return (null != mLastUpdate && null != mpdlast && mLastUpdate.after(mpdlast));
     }
 
     protected synchronized boolean load() {
-        File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
+        final File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
         if (!file.exists()) {
             return false;
         }
         Log.d(TAG, "Loading " + file);
-        ObjectInputStream restore;
+        final ObjectInputStream restore;
         boolean loaded_ok = false;
         try {
             if (GZIP) {
@@ -229,8 +232,8 @@ public class AlbumCache {
     }
 
     protected void makeUniqueAlbumSet() {
-        mUniqueAlbumSet = new HashSet<List<String>>();
-        for (List<String> ai : mAlbumSet) {
+        mUniqueAlbumSet = new HashSet<>();
+        for (final List<String> ai : mAlbumSet) {
             if ("".equals(ai.get(2))) { // no albumartist
                 mUniqueAlbumSet.add(Arrays.asList(ai.get(0), ai.get(1), ""));
             } else { // with albumartist set artist to ""
@@ -249,7 +252,7 @@ public class AlbumCache {
     /*
      * reloads info from MPD if it is not up to date or if forced
      */
-    public synchronized boolean refresh(boolean force) {
+    public synchronized boolean refresh(final boolean force) {
         if (!mEnabled) {
             return false;
         }
@@ -266,11 +269,11 @@ public class AlbumCache {
 
         Tools.notifyUser(R.string.updatingLocalAlbumCacheNote);
 
-        Date oldUpdate = mLastUpdate;
-        mAlbumDetails = new HashMap<String, AlbumDetails>();
-        mAlbumSet = new HashSet<List<String>>();
+        final Date oldUpdate = mLastUpdate;
+        mAlbumDetails = new HashMap<>();
+        mAlbumSet = new HashSet<>();
 
-        List<Music> allmusic;
+        final List<Music> allmusic;
         try {
             allmusic = mMPD.listAllInfo();
             Log.d(TAG, "allmusic " + allmusic.size());
@@ -286,22 +289,22 @@ public class AlbumCache {
         }
 
         try {
-            for (Music m : allmusic) {
-                String albumartist = m.getAlbumArtist();
-                String artist = m.getArtist();
+            for (final Music m : allmusic) {
+                final String albumartist = m.getAlbumArtist();
+                final String artist = m.getArtist();
                 String album = m.getAlbum();
                 if (album == null) {
                     album = "";
                 }
-                List<String> albuminfo = Arrays.asList
+                final List<String> albuminfo = Arrays.asList
                         (album, artist == null ? "" : artist,
                                 albumartist == null ? "" : albumartist);
                 mAlbumSet.add(albuminfo);
 
-                boolean isAA = albumartist != null && !("".equals(albumartist));
-                String thisalbum =
+                final boolean isAA = albumartist != null && !"".equals(albumartist);
+                final String thisalbum =
                         albumCode(isAA ? albumartist : artist, album, isAA);
-                AlbumDetails details;
+                final AlbumDetails details;
                 if (mAlbumDetails.containsKey(thisalbum)) {
                     details = mAlbumDetails.get(thisalbum);
                 } else {
@@ -338,16 +341,16 @@ public class AlbumCache {
     }
 
     protected synchronized boolean save() {
-        File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
+        final File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
         Log.d(TAG, "Saving to " + file);
-        File backupfile = new File(file.getAbsolutePath() + ".bak");
+        final File backupfile = new File(file.getAbsolutePath() + ".bak");
         if (file.exists()) {
             if (backupfile.exists()) {
                 backupfile.delete();
             }
             file.renameTo(backupfile);
         }
-        ObjectOutputStream save;
+        final ObjectOutputStream save;
         boolean error = false;
         try {
             if (GZIP) {
@@ -373,11 +376,11 @@ public class AlbumCache {
         return !error;
     }
 
-    protected void setMPD(CachedMPD _mpd) {
+    protected void setMPD(final CachedMPD _mpd) {
         mEnabled = true;
         try {
             Log.d(TAG, "set MPD");
-            this.mMPD = _mpd;
+            mMPD = _mpd;
         } catch (final Exception e) {
             Log.e(TAG, "Failed to setMPD.", e);
         }
@@ -399,10 +402,10 @@ public class AlbumCache {
             Log.d(TAG, "no MPDConnection! ");
             return false;
         }
-        if (this.mServer == null) {
-            this.mServer = mMPD.getHostAddress().getHostName();
-            this.mPort = mMPD.getHostPort();
-            this.mFilesDir = MPDApplication.getInstance().getCacheDir();
+        if (mServer == null) {
+            mServer = mMPD.getHostAddress().getHostName();
+            mPort = mMPD.getHostPort();
+            mFilesDir = MPDApplication.getInstance().getCacheDir();
             Log.d(TAG, "server " + mServer + " port " + mPort + " dir " + mFilesDir);
             if (!load()) {
                 refresh(true);
@@ -424,7 +427,7 @@ public class AlbumCache {
 
         long mTotalTime = 0;
 
-        private void readObject(java.io.ObjectInputStream in)
+        private void readObject(final ObjectInputStream in)
                 throws IOException, ClassNotFoundException {
             mPath = in.readUTF();
             // times = (List<Long>)in.readObject();
@@ -433,7 +436,7 @@ public class AlbumCache {
             mDate = in.readLong();
         }
 
-        private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+        private void writeObject(final ObjectOutputStream out) throws IOException {
             out.writeUTF(mPath);
             // out.writeObject(times);
             out.writeLong(mNumTracks);

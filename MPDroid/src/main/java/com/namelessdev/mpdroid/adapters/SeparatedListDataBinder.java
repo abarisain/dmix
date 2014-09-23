@@ -23,8 +23,8 @@ import java.util.List;
 
 public interface SeparatedListDataBinder {
 
-    public boolean isEnabled(int position, List<?> items, Object item);
+    boolean isEnabled(int position, List<?> items, Object item);
 
-    public void onDataBind(Context context, View targetView, List<?> items,
+    void onDataBind(Context context, View targetView, List<?> items,
             Object item, int position);
 }

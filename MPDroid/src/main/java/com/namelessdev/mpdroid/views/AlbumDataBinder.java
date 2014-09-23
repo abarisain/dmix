@@ -42,14 +42,14 @@ public class AlbumDataBinder extends BaseDataBinder {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    public AlbumDataBinder(boolean isLightTheme) {
+    public AlbumDataBinder(final boolean isLightTheme) {
         super(isLightTheme);
     }
 
     @Override
-    public AbstractViewHolder findInnerViews(View targetView) {
+    public AbstractViewHolder findInnerViews(final View targetView) {
         // look up all references to inner views
-        AlbumViewHolder viewHolder = new AlbumViewHolder();
+        final AlbumViewHolder viewHolder = new AlbumViewHolder();
         viewHolder.mAlbumName = (TextView) targetView.findViewById(R.id.album_name);
         viewHolder.mAlbumInfo = (TextView) targetView.findViewById(R.id.album_info);
         viewHolder.mAlbumCover = (ImageView) targetView.findViewById(R.id.albumCover);
@@ -63,17 +63,18 @@ public class AlbumDataBinder extends BaseDataBinder {
         return R.layout.album_list_item;
     }
 
-    public boolean isEnabled(int position, List<? extends Item> items, Object item) {
+    public boolean isEnabled(final int position, final List<? extends Item> items,
+            final Object item) {
         return true;
     }
 
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, List<? extends Item> items,
-            Object item, int position) {
-        AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final Object item, final int position) {
+        final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
 
         final Album album = (Album) item;
-        Artist artist = album.getArtist();
+        final Artist artist = album.getArtist();
         String info = "";
         final long songCount = album.getSongCount();
         if (artist != null) {
@@ -94,7 +95,7 @@ public class AlbumDataBinder extends BaseDataBinder {
                     songCount, Music.timeToString(album.getDuration()));
         }
         holder.mAlbumName.setText(album.mainText());
-        if (info != null && info.length() > 0) {
+        if (info != null && !info.isEmpty()) {
             holder.mAlbumInfo.setVisibility(View.VISIBLE);
             holder.mAlbumInfo.setText(info);
         } else {
@@ -137,7 +138,8 @@ public class AlbumDataBinder extends BaseDataBinder {
     }
 
     @Override
-    public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
+    public View onLayoutInflation(final Context context, final View targetView,
+            final List<? extends Item> items) {
         targetView.findViewById(R.id.albumCover).setVisibility(
                 mEnableCache ? View.VISIBLE : View.GONE);
         return targetView;

@@ -42,8 +42,9 @@ public abstract class BaseDataBinder implements ArrayDataBinder {
 
     boolean mOnlyDownloadOnWifi = true;
 
-    public BaseDataBinder(boolean isLightTheme) {
-        this.mLightTheme = isLightTheme;
+    public BaseDataBinder(final boolean isLightTheme) {
+        super();
+        mLightTheme = isLightTheme;
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
         mEnableCache = settings.getBoolean(CoverManager.PREFERENCE_CACHE, true);
@@ -59,11 +60,11 @@ public abstract class BaseDataBinder implements ArrayDataBinder {
     @Override
     public abstract boolean isEnabled(int position, List<? extends Item> items, Object item);
 
-    protected void loadArtwork(CoverAsyncHelper coverHelper, AlbumInfo albumInfo) {
+    protected void loadArtwork(final CoverAsyncHelper coverHelper, final AlbumInfo albumInfo) {
         coverHelper.downloadCover(albumInfo);
     }
 
-    protected void loadPlaceholder(CoverAsyncHelper coverHelper) {
+    protected void loadPlaceholder(final CoverAsyncHelper coverHelper) {
         coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
     }
 

@@ -35,35 +35,35 @@ import org.a0z.mpd.MPDStatus;
 public abstract class AbstractStatusChangeListener implements StatusChangeListener {
 
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
     }
 
     @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
     }
 
     @Override
-    public void randomChanged(boolean random) {
+    public void randomChanged(final boolean random) {
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
+    public void repeatChanged(final boolean repeating) {
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, int oldState) {
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 
 }

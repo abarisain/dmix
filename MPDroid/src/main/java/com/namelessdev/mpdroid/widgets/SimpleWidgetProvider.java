@@ -46,17 +46,17 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
      * Check against {@link AppWidgetManager} if there are any instances of this
      * widget.
      */
-    private boolean hasInstances(Context context) {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, this
-                .getClass()));
-        return (appWidgetIds.length > 0);
+    private boolean hasInstances(final Context context) {
+        final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        final int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context,
+                getClass()));
+        return appWidgetIds.length > 0;
     }
 
     /**
      * Link up various button actions using {@link PendingIntent}.
      */
-    protected void linkButtons(Context context, RemoteViews views) {
+    protected void linkButtons(final Context context, final RemoteViews views) {
         Intent intent;
         PendingIntent pendingIntent;
 
@@ -88,13 +88,14 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
      * Handle a change notification coming over from
      * {@link android.media.RemoteControlClient}
      */
-    void notifyChange(WidgetHelperService service) {
+    void notifyChange(final WidgetHelperService service) {
         if (hasInstances(service)) {
             performUpdate(service);
         }
     }
 
-    public void onUpdate(RemoteViews views, Context context, AppWidgetManager appWidgetManager) {
+    public void onUpdate(final RemoteViews views, final Context context,
+            final AppWidgetManager appWidgetManager) {
         Log.v(TAG, "Enter onUpdate");
 
         // Initialise given widgets to default state, where we launch MPDroid on
@@ -104,19 +105,20 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
         // Start service intent to WidgetHelperService so it can wrap around
         // with an immediate update
-        Intent updateIntent = new Intent(context, WidgetHelperService.class);
+        final Intent updateIntent = new Intent(context, WidgetHelperService.class);
         updateIntent.setAction(WidgetHelperService.CMD_UPDATE_WIDGET);
         context.startService(updateIntent);
     }
 
     @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    public void onUpdate(final Context context, final AppWidgetManager appWidgetManager,
+            final int[] appWidgetIds) {
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_simple);
 
         onUpdate(views, context, appWidgetManager);
     }
 
-    protected void performUpdate(RemoteViews views, WidgetHelperService service) {
+    protected void performUpdate(final RemoteViews views, final WidgetHelperService service) {
         // Set correct drawable for pause state
         if (service.isPlaying()) {
             views.setImageViewResource(R.id.control_play, R.drawable.ic_appwidget_music_pause);
@@ -132,7 +134,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     /**
      * Update all active widget instances by pushing changes
      */
-    protected void performUpdate(WidgetHelperService service) {
+    protected void performUpdate(final WidgetHelperService service) {
         final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.widget_simple);
 
         performUpdate(views, service);
@@ -141,8 +143,8 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     /**
      * Set the RemoteViews to use for all AppWidget instances
      */
-    protected void pushUpdate(Context context, RemoteViews views) {
+    protected void pushUpdate(final Context context, final RemoteViews views) {
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);
-        gm.updateAppWidget(new ComponentName(context, this.getClass()), views);
+        gm.updateAppWidget(new ComponentName(context, getClass()), views);
     }
 }

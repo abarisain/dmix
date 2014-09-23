@@ -32,14 +32,14 @@ public class WarningActivity extends Activity {
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
+    public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         mWarning = this;
         setContentView(R.layout.warning);
-        Button btnOK = (Button) findViewById(R.id.buttonOK);
+        final Button btnOK = (Button) findViewById(R.id.buttonOK);
         btnOK.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View view) {
-                SharedPreferences settings = PreferenceManager
+            public void onClick(final View view) {
+                final SharedPreferences settings = PreferenceManager
                         .getDefaultSharedPreferences(mWarning);
                 settings.edit().putBoolean("newWarningShown", true).commit();
                 finish();

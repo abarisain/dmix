@@ -40,13 +40,13 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    public StoredPlaylistDataBinder(boolean isLightTheme) {
+    public StoredPlaylistDataBinder(final boolean isLightTheme) {
         super(isLightTheme);
     }
 
     @Override
-    public AbstractViewHolder findInnerViews(View targetView) {
-        PlaylistViewHolder viewHolder = new PlaylistViewHolder();
+    public AbstractViewHolder findInnerViews(final View targetView) {
+        final PlaylistViewHolder viewHolder = new PlaylistViewHolder();
         viewHolder.mName = (TextView) targetView.findViewById(R.id.playlist_name);
         viewHolder.mInfo = (TextView) targetView.findViewById(R.id.playlist_info);
         viewHolder.mCover = (ImageView) targetView.findViewById(R.id.playlist_cover);
@@ -58,14 +58,16 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
         return R.layout.playlist_list_item;
     }
 
-    public boolean isEnabled(int position, List<? extends Item> items, Object item) {
+    public boolean isEnabled(final int position, final List<? extends Item> items,
+            final Object item) {
         return true;
     }
 
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, List<? extends Item> items, Object item,
-            int position) {
-        PlaylistViewHolder holder = (PlaylistViewHolder) viewHolder;
+            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final Object item,
+            final int position) {
+        final PlaylistViewHolder holder = (PlaylistViewHolder) viewHolder;
 
         final Music music = (Music) item;
         String artist = music.getArtist();
@@ -123,7 +125,8 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
     }
 
     @Override
-    public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
+    public View onLayoutInflation(final Context context, final View targetView,
+            final List<? extends Item> items) {
         targetView.findViewById(R.id.playlist_cover).setVisibility(
                 mEnableCache ? View.VISIBLE : View.GONE);
         return targetView;

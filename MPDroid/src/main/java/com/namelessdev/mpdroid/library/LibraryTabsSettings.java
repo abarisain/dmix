@@ -41,14 +41,14 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
     public DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
 
-        public void drop(int from, int to) {
+        public void drop(final int from, final int to) {
             if (from == to) {
                 return;
             }
-            Object item = mTabList.get(from);
+            final Object item = mTabList.get(from);
             mTabList.remove(from);
             mTabList.add(to, item);
-            if (getVisibleTabs().size() == 0) {
+            if (getVisibleTabs().isEmpty()) {
                 // at least one tab should be visible so revert the changes
                 mTabList.remove(to);
                 mTabList.add(from, item);
@@ -64,7 +64,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
     private ArrayList<Object> mTabList;
 
     private ArrayList<String> getVisibleTabs() {
-        ArrayList<String> visibleTabs = new ArrayList<String>();
+        final ArrayList<String> visibleTabs = new ArrayList<>();
         // item 0 is a separator so we start with 1
         for (int i = 1; i < mTabList.size(); i++) {
             // if the item is a separator break
@@ -80,13 +80,13 @@ public class LibraryTabsSettings extends PreferenceActivity {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.library_tabs_settings);
 
         refreshTable();
 
-        DragSortListView mList;
+        final DragSortListView mList;
         mList = (DragSortListView) getListView();
         mList.setDropListener(mDropListener);
 
@@ -102,14 +102,14 @@ public class LibraryTabsSettings extends PreferenceActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_librarytabsmenu, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.reset:
                 LibraryTabsUtil.resetLibraryTabs();
@@ -135,22 +135,22 @@ public class LibraryTabsSettings extends PreferenceActivity {
 
     private void refreshTable() {
         // get a list of all tabs
-        ArrayList<String> allTabs = LibraryTabsUtil.getAllLibraryTabs();
+        final ArrayList<String> allTabs = LibraryTabsUtil.getAllLibraryTabs();
 
         // get a list of all currently visible tabs
-        ArrayList<String> currentTabs = LibraryTabsUtil.
+        final ArrayList<String> currentTabs = LibraryTabsUtil.
                 getCurrentLibraryTabs();
 
         // create a list of all currently hidden tabs
-        ArrayList<String> hiddenTabs = new ArrayList<String>();
-        for (String tab : allTabs) {
+        final ArrayList<String> hiddenTabs = new ArrayList<>();
+        for (final String tab : allTabs) {
             // add all items not in currentTabs
             if (!currentTabs.contains(tab)) {
                 hiddenTabs.add(tab);
             }
         }
 
-        mTabList = new ArrayList<Object>();
+        mTabList = new ArrayList<>();
         // add a separator
         mTabList.add(getString(R.string.visibleTabs));
         // add all visible tabs
@@ -178,19 +178,20 @@ class TabItem {
 
     String mText;
 
-    TabItem(String text) {
-        this.mText = text;
+    TabItem(final String text) {
+        super();
+        mText = text;
     }
 }
 
 class TabListDataBinder implements SeparatedListDataBinder {
 
-    public boolean isEnabled(int position, List<?> items, Object item) {
+    public boolean isEnabled(final int position, final List<?> items, final Object item) {
         return true;
     }
 
-    public void onDataBind(Context context, View targetView,
-            List<?> items, Object item, int position) {
+    public void onDataBind(final Context context, final View targetView,
+            final List<?> items, final Object item, final int position) {
         ((TextView) targetView).setText(LibraryTabsUtil.getTabTitleResId(((TabItem) item).mText));
     }
 

@@ -44,7 +44,7 @@ public class ArtistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
             mApp.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
             if (isAdded()) {
@@ -56,7 +56,7 @@ public class ArtistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
             if (isAdded()) {
@@ -116,14 +116,15 @@ public class ArtistsFragment extends BrowseFragment {
         }
     }
 
-    public ArtistsFragment init(Genre g) {
+    public ArtistsFragment init(final Genre g) {
         mGenre = g;
         return this;
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
-        AlbumsFragment af;
+    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+            final long id) {
+        final AlbumsFragment af;
         final SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(mApp);
         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {

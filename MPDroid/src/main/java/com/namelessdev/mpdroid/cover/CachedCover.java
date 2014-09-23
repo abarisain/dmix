@@ -39,9 +39,6 @@ public class CachedCover implements ICoverRetriever {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    public CachedCover() {
-    }
-
     public void clear() {
         delete(null);
     }
@@ -71,7 +68,7 @@ public class CachedCover implements ICoverRetriever {
         return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
     }
 
-    public String getAbsolutePathForSong(AlbumInfo albumInfo) {
+    public String getAbsolutePathForSong(final AlbumInfo albumInfo) {
         final File cacheDir = mApp.getExternalCacheDir();
         if (cacheDir == null) {
             return null;
@@ -112,7 +109,7 @@ public class CachedCover implements ICoverRetriever {
     }
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
         final String storageState = Environment.getExternalStorageState();
         // If there is no external storage available, don't bother
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState)
@@ -137,7 +134,7 @@ public class CachedCover implements ICoverRetriever {
         return true;
     }
 
-    public void save(AlbumInfo albumInfo, Bitmap cover) {
+    public void save(final AlbumInfo albumInfo, final Bitmap cover) {
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             // External storage is not there or read only, don't do anything
             Log.e(TAG, "No writable external storage, not saving cover to cache");

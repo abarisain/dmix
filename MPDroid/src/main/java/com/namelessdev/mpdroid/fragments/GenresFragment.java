@@ -38,7 +38,7 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
             mApp.oMPDAsyncHelper.oMPD.getPlaylist().addAll(
                     mApp.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
@@ -49,7 +49,7 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist,
                     mApp.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
@@ -79,7 +79,8 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
+    public void onItemClick(final AdapterView<?> adapterView, final View v, final int position,
+            final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
                 new ArtistsFragment().init((Genre) mItems.get(position)), "artist");
     }

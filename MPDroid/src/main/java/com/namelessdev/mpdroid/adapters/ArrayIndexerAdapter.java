@@ -41,25 +41,26 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     String[] mSections;
 
     @SuppressWarnings("unchecked")
-    public ArrayIndexerAdapter(Context context, ArrayDataBinder dataBinder,
-            List<? extends Item> items) {
+    public ArrayIndexerAdapter(final Context context, final ArrayDataBinder dataBinder,
+            final List<? extends Item> items) {
         super(context, dataBinder, items);
     }
 
     @SuppressWarnings("unchecked")
-    public ArrayIndexerAdapter(Context context, int textViewResourceId,
-            List<? extends Item> items) {
+    public ArrayIndexerAdapter(final Context context, final int textViewResourceId,
+            final List<? extends Item> items) {
         super(context, textViewResourceId, items);
     }
 
     @Override
-    public int getPositionForSection(int section) {
-        String letter = mSections[section >= mSections.length ? mSections.length - 1 : section];
+    public int getPositionForSection(final int section) {
+        final String letter = mSections[section >= mSections.length ? mSections.length - 1
+                : section];
         return mAlphaIndexer.get(letter);
     }
 
     @Override
-    public int getSectionForPosition(int position) {
+    public int getSectionForPosition(final int position) {
         if (mSections.length == 0) {
             return -1;
         }
@@ -68,9 +69,9 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
             return 1;
         }
 
-        for (int i = 0; i < (mSections.length - 1); i++) {
-            int begin = mAlphaIndexer.get(mSections[i]);
-            int end = mAlphaIndexer.get(mSections[i + 1]) - 1;
+        for (int i = 0; i < mSections.length - 1; i++) {
+            final int begin = mAlphaIndexer.get(mSections[i]);
+            final int end = mAlphaIndexer.get(mSections[i + 1]) - 1;
             if (position >= begin && position <= end) {
                 return i;
             }
@@ -84,19 +85,19 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     }
 
     @Override
-    protected void init(Context context, List<? extends Item> items) {
+    protected void init(final Context context, final List<? extends Item> items) {
         super.init(context, items);
 
         // here is the tricky stuff
-        mAlphaIndexer = new HashMap<String, Integer>();
+        mAlphaIndexer = new HashMap<>();
         // in this hashmap we will store here the positions for
         // the sections
 
-        int size = items.size();
+        final int size = items.size();
         int unknownPos = -1; // "Unknown" item
         for (int i = size - 1; i >= 0; i--) {
-            Item element = items.get(i);
-            if (element.sortText().length() > 0) {
+            final Item element = items.get(i);
+            if (!element.sortText().isEmpty()) {
                 mAlphaIndexer.put(element.sortText().substring(0, 1).toUpperCase(), i);
             } else {
                 unknownPos = i; // save position
@@ -113,7 +114,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         // array .it must contains the keys, and must (I do so...) be
         // ordered alphabetically
 
-        ArrayList<String> keyList = new ArrayList<String>(mAlphaIndexer.keySet()); // list
+        final ArrayList<String> keyList = new ArrayList<>(mAlphaIndexer.keySet()); // list
         // can
         // be
         // sorted
@@ -139,7 +140,7 @@ class LocaleComparator implements Comparator {
 
     static final Collator DEFAULT_COLLATOR = Collator.getInstance(Locale.getDefault());
 
-    public int compare(Object str1, Object str2) {
+    public int compare(final Object str1, final Object str2) {
         return DEFAULT_COLLATOR.compare((String) str1, (String) str2);
     }
 }

@@ -36,6 +36,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.SubMenu;
 import android.view.View;
@@ -94,11 +95,13 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     String mContext;
 
-    int mIrAdd, mIrAdded;
+    int mIrAdd;
+
+    int mIrAdded;
 
     private boolean mFirstUpdateDone = false;
 
-    public BrowseFragment(int rAdd, int rAdded, String pContext) {
+    public BrowseFragment(final int rAdd, final int rAdded, final String pContext) {
         super();
         mIrAdd = rAdd;
         mIrAdded = rAdded;
@@ -113,7 +116,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     protected abstract void add(Item item, String playlist);
 
     @Override
-    public void asyncExecSucceeded(int jobID) {
+    public void asyncExecSucceeded(final int jobID) {
         if (mJobID == jobID) {
             updateFromItems();
         }
@@ -157,7 +160,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         final Activity activity = getActivity();
         if (activity != null) {
@@ -169,52 +172,53 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+            final ContextMenu.ContextMenuInfo menuInfo) {
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
-        int index = (int) info.id;
+        final int index = (int) info.id;
         if (index >= 0 && mItems.size() > index) {
             menu.setHeaderTitle(mItems.get((int) info.id).toString());
             // If in simple mode, show "Play" (add, replace & play), "Add to queue" and "Add to playlist"
             if (mApp.isInSimpleMode()) {
-                android.view.MenuItem playItem = menu.add(ADD_REPLACE_PLAY,
+                final MenuItem playItem = menu.add(ADD_REPLACE_PLAY,
                         ADD_REPLACE_PLAY, 0, R.string.play);
                 playItem.setOnMenuItemClickListener(this);
-                android.view.MenuItem addItem = menu.add(ADD, ADD, 0, R.string.addToQueue);
+                final MenuItem addItem = menu.add(ADD, ADD, 0, R.string.addToQueue);
                 addItem.setOnMenuItemClickListener(this);
             } else {
-                android.view.MenuItem addItem = menu.add(ADD, ADD, 0, mIrAdd);
+                final MenuItem addItem = menu.add(ADD, ADD, 0, mIrAdd);
                 addItem.setOnMenuItemClickListener(this);
-                android.view.MenuItem addAndReplaceItem = menu.add(ADD_REPLACE, ADD_REPLACE, 0,
-                        R.string.addAndReplace);
+                final MenuItem addAndReplaceItem = menu
+                        .add(ADD_REPLACE, ADD_REPLACE, 0,
+                                R.string.addAndReplace);
                 addAndReplaceItem.setOnMenuItemClickListener(this);
-                android.view.MenuItem addAndReplacePlayItem = menu.add(ADD_REPLACE_PLAY,
+                final MenuItem addAndReplacePlayItem = menu.add(ADD_REPLACE_PLAY,
                         ADD_REPLACE_PLAY, 0, R.string.addAndReplacePlay);
                 addAndReplacePlayItem.setOnMenuItemClickListener(this);
-                android.view.MenuItem addAndPlayItem = menu.add(ADD_PLAY, ADD_PLAY, 0,
+                final MenuItem addAndPlayItem = menu.add(ADD_PLAY, ADD_PLAY, 0,
                         R.string.addAndPlay);
                 addAndPlayItem.setOnMenuItemClickListener(this);
             }
 
             if (R.string.addPlaylist != mIrAdd && R.string.addStream != mIrAdd) {
                 int id = 0;
-                SubMenu playlistMenu = menu.addSubMenu(R.string.addToPlaylist);
-                android.view.MenuItem item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
+                final SubMenu playlistMenu = menu.addSubMenu(R.string.addToPlaylist);
+                MenuItem item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
                         R.string.newPlaylist);
                 item.setOnMenuItemClickListener(this);
 
                 try {
-                    List<Item> playlists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
+                    final List<Item> playlists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
 
                     if (null != playlists) {
-                        for (Item pl : playlists) {
+                        for (final Item pl : playlists) {
                             item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
                                     pl.getName());
                             item.setOnMenuItemClickListener(this);
                         }
                     }
-                } catch (MPDServerException e) {
+                } catch (final MPDServerException e) {
                     Log.e(TAG, "Failed to parse playlists.", e);
                 }
             }
@@ -222,9 +226,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.browse, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.browse, container, false);
         mList = (ListView) view.findViewById(R.id.list);
         registerForContextMenu(mList);
         mList.setOnItemClickListener(this);
@@ -241,7 +245,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     public void onDestroy() {
         try {
             mApp.oMPDAsyncHelper.removeAsyncExecListener(this);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Log.e(TAG, "Error while destroying BrowseFragment", e);
         }
         super.onDestroy();
@@ -257,7 +261,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     @Override
-    public boolean onMenuItemClick(final android.view.MenuItem item) {
+    public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getGroupId()) {
             case ADD_REPLACE_PLAY:
@@ -304,10 +308,10 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                             .setView(input)
                             .setPositiveButton(android.R.string.ok,
                                     new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog,
-                                                int whichButton) {
+                                        public void onClick(final DialogInterface dialog,
+                                                final int whichButton) {
                                             final String name = input.getText().toString().trim();
-                                            if (null != name && name.length() > 0) {
+                                            if (null != name && !name.isEmpty()) {
                                                 mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                                                     @Override
                                                     public void run() {
@@ -319,8 +323,8 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                                     })
                             .setNegativeButton(android.R.string.cancel,
                                     new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog,
-                                                int whichButton) {
+                                        public void onClick(final DialogInterface dialog,
+                                                final int whichButton) {
                                             // Do nothing.
                                         }
                                     }).show();
@@ -344,7 +348,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     @Override
-    public void onRefreshStarted(View view) {
+    public void onRefreshStarted(final View view) {
         mPullToRefreshLayout.setRefreshComplete();
         updateList();
     }
@@ -366,7 +370,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (mItems != null) {
             mList.setAdapter(getCustomListAdapter());
@@ -424,13 +428,13 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     public void scrollToTop() {
         try {
             mList.setSelection(-1);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // What if the list is empty or some other bug ? I don't want any
             // crashes because of that
         }
     }
 
-    public void setActivityTitle(String title) {
+    public void setActivityTitle(final String title) {
         getActivity().setTitle(title);
     }
 
@@ -450,8 +454,8 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         }
         try {
             if (forceEmptyView()
-                    || ((mList instanceof ListView)
-                    && ((ListView) mList).getHeaderViewsCount() == 0)) {
+                    || mList instanceof ListView
+                    && ((ListView) mList).getHeaderViewsCount() == 0) {
                 mList.setEmptyView(mNoResultView);
             } else {
                 if (mItems == null || mItems.isEmpty()) {

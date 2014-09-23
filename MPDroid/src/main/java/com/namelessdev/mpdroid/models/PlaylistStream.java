@@ -21,7 +21,7 @@ import org.a0z.mpd.item.Music;
 
 public class PlaylistStream extends AbstractPlaylistMusic {
 
-    public PlaylistStream(Music m) {
+    public PlaylistStream(final Music m) {
         super(m.getAlbum(), m.getArtist(), m.getAlbumArtist(), m.getFullPath(), m.getDisc(),
                 m.getDate(), m.getGenre(), m.getTime(), m.getTitle(), m.getTotalTracks(),
                 m.getTrack(), m.getSongId(), m.getPos(), m.getName());

@@ -47,7 +47,7 @@ public class MPDNoResponseException extends MPDConnectionException {
      *
      * @param message exception message.
      */
-    public MPDNoResponseException(String message) {
+    public MPDNoResponseException(final String message) {
         super(message);
     }
 
@@ -57,7 +57,7 @@ public class MPDNoResponseException extends MPDConnectionException {
      * @param message exception message.
      * @param cause   cause of this exception.
      */
-    public MPDNoResponseException(String message, Throwable cause) {
+    public MPDNoResponseException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -66,7 +66,7 @@ public class MPDNoResponseException extends MPDConnectionException {
      *
      * @param cause cause of this exception.
      */
-    public MPDNoResponseException(Throwable cause) {
+    public MPDNoResponseException(final Throwable cause) {
         super(cause);
     }
 

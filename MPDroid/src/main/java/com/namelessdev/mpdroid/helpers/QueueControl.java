@@ -134,7 +134,7 @@ public final class QueueControl {
             @Override
             public void run() {
                 int workingCommand = command;
-                int i = arg1;
+                final int i = arg1;
                 int j = arg2;
 
                 try {
@@ -195,9 +195,9 @@ public final class QueueControl {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int i = arg1;
-                int j = arg2;
-                int k = arg3;
+                final int i = arg1;
+                final int j = arg2;
+                final int k = arg3;
                 try {
                     switch (command) {
                         case MOVE:

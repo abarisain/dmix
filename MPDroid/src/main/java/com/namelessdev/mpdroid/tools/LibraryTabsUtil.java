@@ -28,8 +28,6 @@ import java.util.HashMap;
 
 public class LibraryTabsUtil {
 
-    public static final HashMap<String, Integer> TABS = new HashMap<String, Integer>();
-
     public static final String TAB_ALBUMS = "albums";
 
     public static final String TAB_ARTISTS = "artists";
@@ -46,6 +44,17 @@ public class LibraryTabsUtil {
 
     private static final String LIBRARY_TABS_DELIMITER = "|";
 
+    private static final String DEFAULT_LIBRARY_TABS = TAB_ARTISTS
+            + LIBRARY_TABS_DELIMITER + TAB_ALBUMS
+            + LIBRARY_TABS_DELIMITER + TAB_PLAYLISTS
+            + LIBRARY_TABS_DELIMITER + TAB_STREAMS
+            + LIBRARY_TABS_DELIMITER + TAB_FILES
+            + LIBRARY_TABS_DELIMITER + TAB_GENRES;
+
+    private static final String LIBRARY_TABS_SETTINGS_KEY = "currentLibraryTabs";
+
+    private static final HashMap<String, Integer> TABS = new HashMap<>();
+
     static {
         TABS.put(TAB_ARTISTS, R.string.artists);
         TABS.put(TAB_ALBUMS, R.string.albums);
@@ -55,42 +64,33 @@ public class LibraryTabsUtil {
         TABS.put(TAB_GENRES, R.string.genres);
     }
 
-    private static String DEFAULT_LIBRARY_TABS = TAB_ARTISTS
-            + LIBRARY_TABS_DELIMITER + TAB_ALBUMS
-            + LIBRARY_TABS_DELIMITER + TAB_PLAYLISTS
-            + LIBRARY_TABS_DELIMITER + TAB_STREAMS
-            + LIBRARY_TABS_DELIMITER + TAB_FILES
-            + LIBRARY_TABS_DELIMITER + TAB_GENRES;
-
-    private static final String LIBRARY_TABS_SETTINGS_KEY = "currentLibraryTabs";
-
     public static ArrayList<String> getAllLibraryTabs() {
-        String CurrentSettings = DEFAULT_LIBRARY_TABS;
-        return new ArrayList<String>(Arrays.asList(CurrentSettings.split("\\"
+        final String CurrentSettings = DEFAULT_LIBRARY_TABS;
+        return new ArrayList<>(Arrays.asList(CurrentSettings.split("\\"
                 + LIBRARY_TABS_DELIMITER)));
     }
 
     public static ArrayList<String> getCurrentLibraryTabs() {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
         String currentSettings = settings.getString(LIBRARY_TABS_SETTINGS_KEY, "");
-        if (currentSettings.equals("")) {
+        if ("".equals(currentSettings)) {
             currentSettings = DEFAULT_LIBRARY_TABS;
             resetLibraryTabs();
         }
-        return new ArrayList<String>(Arrays.asList(currentSettings.split("\\"
+        return new ArrayList<>(Arrays.asList(currentSettings.split("\\"
                 + LIBRARY_TABS_DELIMITER)));
     }
 
-    public static int getTabTitleResId(String tab) {
+    public static int getTabTitleResId(final String tab) {
         return TABS.get(tab);
     }
 
-    public static ArrayList<String> getTabsListFromString(String tabs) {
-        return new ArrayList<String>(Arrays.asList(tabs.split("\\"
+    public static ArrayList<String> getTabsListFromString(final String tabs) {
+        return new ArrayList<>(Arrays.asList(tabs.split("\\"
                 + LIBRARY_TABS_DELIMITER)));
     }
 
-    public static String getTabsStringFromList(ArrayList<String> tabs) {
+    public static String getTabsStringFromList(final ArrayList<String> tabs) {
         if (tabs == null || tabs.size() <= 0) {
             return "";
         } else {
@@ -107,7 +107,7 @@ public class LibraryTabsUtil {
         settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, DEFAULT_LIBRARY_TABS).commit();
     }
 
-    public static void saveCurrentLibraryTabs(ArrayList<String> tabs) {
+    public static void saveCurrentLibraryTabs(final ArrayList<String> tabs) {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
         final String currentSettings = getTabsStringFromList(tabs);
         settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, currentSettings).commit();

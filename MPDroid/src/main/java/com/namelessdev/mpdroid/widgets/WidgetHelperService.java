@@ -44,7 +44,7 @@ public class WidgetHelperService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void onHandleIntent(final Intent intent) {
         // get MPD connection
         mApp.setActivity(this);
 
@@ -64,7 +64,7 @@ public class WidgetHelperService extends IntentService {
         mApp.unsetActivity(this);
     }
 
-    void processIntent(String action, MPD mpd) {
+    void processIntent(final String action, final MPD mpd) {
         switch (action) {
             case CMD_UPDATE_WIDGET:
                 mPlaying = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);

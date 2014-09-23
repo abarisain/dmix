@@ -42,7 +42,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 
     private static final String TAG = "RemoteControlReceiver";
 
-    private static MPDApplication sApp = MPDApplication.getInstance();
+    private static final MPDApplication sApp = MPDApplication.getInstance();
 
     @Override
     public final void onReceive(final Context context, final Intent intent) {
