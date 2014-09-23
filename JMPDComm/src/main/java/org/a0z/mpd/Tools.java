@@ -165,6 +165,25 @@ public final class Tools {
      * @param list The incoming server response.
      * @return A three dimensional {@code String} array of two element {@code String arrays}.
      */
+    public static String[][] splitResponse(final String... list) {
+        final String[][] results = new String[list.length][];
+        int iterator = 0;
+
+        for (final String line : list) {
+            results[iterator] = splitResponse(line);
+            iterator++;
+        }
+
+        return results;
+    }
+
+    /**
+     * Split the standard MPD protocol response into a three dimensional array consisting of a
+     * two element String array key / value pairs.
+     *
+     * @param list The incoming server response.
+     * @return A three dimensional {@code String} array of two element {@code String arrays}.
+     */
     public static String[][] splitResponse(final Collection<String> list) {
         final String[][] results = new String[list.size()][];
         int iterator = 0;

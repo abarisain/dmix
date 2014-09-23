@@ -697,13 +697,14 @@ public class MPD {
             for (int i = 0; i < response.size(); i++) {
                 final String[] list = response.get(i);
                 final Album a = albums.get(i);
-                for (final String line : list) {
-                    if (line.startsWith("songs: ")) {
-                        a.setSongCount(Long.parseLong(line.substring("songs: ".length())));
-                    } else if (line.startsWith("playtime: ")) {
-                        a.setDuration(Long.parseLong(line.substring("playtime: ".length())));
+                for (final String[] lines : Tools.splitResponse(list)) {
+                    if ("songs".equals(lines[0])) {
+                        a.setSongCount(Long.parseLong(lines[1]));
+                    } else if ("playtime".equals(lines[0])) {
+                        a.setDuration(Long.parseLong(lines[1]));
                     }
                 }
+
                 if (findYear) {
                     final List<Music> songs = getFirstTrack(a);
                     if (null != songs && !songs.isEmpty()) {
@@ -993,11 +994,10 @@ public class MPD {
     public List<Item> getPlaylists(final boolean sort) throws MPDServerException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         final List<Item> result = new ArrayList<>(response.size());
-        for (final String line : response) {
-            if (line.startsWith("playlist")) {
-                final String name = line.substring("playlist: ".length());
-                if (null != name && !name.equals(STREAMS_PLAYLIST)) {
-                    result.add(new PlaylistFile(name));
+        for (final String[] lines : Tools.splitResponse(response)) {
+            if ("playlist".equals(lines[0])) {
+                if (null != lines[1] && !STREAMS_PLAYLIST.equals(lines[1])) {
+                    result.add(new PlaylistFile(lines[1]));
                 }
             }
         }
@@ -1021,12 +1021,10 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         List<Music> savedStreams = null;
 
-        for (final String line : response) {
-            if (line.startsWith("playlist")) {
-                final String name = line.substring("playlist: ".length());
-                if (STREAMS_PLAYLIST.equals(name)) {
-                    final String[] args = new String[1];
-                    args[0] = STREAMS_PLAYLIST;
+        for (final String[] lines : Tools.splitResponse(response)) {
+            if ("playlist".equals(lines[0])) {
+                if (STREAMS_PLAYLIST.equals(lines[1])) {
+                    final String[] args = {lines[1]};
 
                     savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
                     break;
@@ -1278,17 +1276,16 @@ public class MPD {
 
         final List<Album> result = new ArrayList<>();
         Album currentAlbum = null;
-        for (final String line : response) {
-            if (line.startsWith(artistResponse)) {
+        for (final String[] lines : Tools.splitResponse(response)) {
+            if (artistResponse.equals(lines[0])) {
                 // Don't make the check with the other so we don't waste time doing string
                 // comparisons for nothing.
                 if (currentAlbum != null) {
-                    currentAlbum.setArtist(new Artist(line.substring(artistResponse.length())));
+                    currentAlbum.setArtist(new Artist(lines[1]));
                 }
-            } else if (line.startsWith(albumResponse)) {
-                final String name = line.substring(albumResponse.length());
-                if (!name.isEmpty() || includeUnknownAlbum) {
-                    currentAlbum = new Album(name, null);
+            } else if (albumResponse.equals(lines[0])) {
+                if (!lines[1].isEmpty() || includeUnknownAlbum) {
+                    currentAlbum = new Album(lines[1], null);
                     currentAlbum.setHasAlbumArtist(useAlbumArtist);
                     result.add(currentAlbum);
                 } else {
