@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
@@ -37,15 +38,21 @@ public class AboutActivity extends Activity {
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 
+    private static final String TAG = "AboutActivity";
+
     public static String getVersionName(final Class<Activity> cls) {
+        String versionName = null;
+
         try {
             final ComponentName comp = new ComponentName(APP, cls);
-            final PackageInfo pinfo = APP.getPackageManager()
+            final PackageInfo packageInfo = APP.getPackageManager()
                     .getPackageInfo(comp.getPackageName(), 0);
-            return pinfo.versionName + " (" + pinfo.versionCode + ')';
-        } catch (final PackageManager.NameNotFoundException ignored) {
-            return null;
+            versionName = packageInfo.versionName + " (" + packageInfo.versionCode + ')';
+        } catch (final PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Failed to get the version name.", e);
         }
+
+        return versionName;
     }
 
     @Override
