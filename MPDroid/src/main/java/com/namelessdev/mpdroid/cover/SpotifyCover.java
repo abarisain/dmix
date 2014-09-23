@@ -36,7 +36,7 @@ public class SpotifyCover extends AbstractWebCover {
 
     private static final String TAG = "SpotifyCover";
 
-    private List<String> extractAlbumIds(final String response) {
+    private static List<String> extractAlbumIds(final String response) {
         final JSONObject jsonRoot;
         final JSONArray jsonAlbums;
         JSONObject jsonAlbum;
@@ -67,7 +67,7 @@ public class SpotifyCover extends AbstractWebCover {
         return albumIds;
     }
 
-    private String extractImageUrl(final String response) {
+    private static String extractImageUrl(final String response) {
 
         final JSONObject jsonAlbum;
         final String imageUrl;

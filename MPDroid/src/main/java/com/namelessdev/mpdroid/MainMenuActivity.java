@@ -147,6 +147,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private TextView mTextView;
 
+    private static void setMenuChecked(final MenuItem item, final boolean checked) {
+        item.setChecked(checked);
+    }
+
     @Override
     public ArrayList<String> getTabList() {
         return mTabList;
@@ -762,10 +766,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 mHeaderDragView.setClickable(false);
             }
         }
-    }
-
-    private void setMenuChecked(final MenuItem item, final boolean checked) {
-        item.setChecked(checked);
     }
 
     public void showQueue() {

@@ -49,11 +49,7 @@ public class GracenoteCover extends AbstractWebCover {
 
     private String mUserId;
 
-    public static boolean isClientIdAvailable() {
-        return !SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, null).isEmpty();
-    }
-
-    private String extractCoverUrl(final String response) {
+    private static String extractCoverUrl(final String response) {
 
         final String coverUrl;
         String elementName = null;
@@ -88,7 +84,7 @@ public class GracenoteCover extends AbstractWebCover {
         return null;
     }
 
-    private String extractUserID(final String response) {
+    private static String extractUserID(final String response) {
 
         final String userId;
         String elementName = null;
@@ -120,6 +116,10 @@ public class GracenoteCover extends AbstractWebCover {
         }
 
         return null;
+    }
+
+    public static boolean isClientIdAvailable() {
+        return !SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, null).isEmpty();
     }
 
     private String getClientIdPrefix() {

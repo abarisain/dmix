@@ -51,6 +51,15 @@ public abstract class BaseDataBinder implements ArrayDataBinder {
         mOnlyDownloadOnWifi = settings.getBoolean(CoverManager.PREFERENCE_ONLY_WIFI, false);
     }
 
+    protected static void loadArtwork(final CoverAsyncHelper coverHelper,
+            final AlbumInfo albumInfo) {
+        coverHelper.downloadCover(albumInfo);
+    }
+
+    protected static void loadPlaceholder(final CoverAsyncHelper coverHelper) {
+        coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
+    }
+
     @Override
     public abstract AbstractViewHolder findInnerViews(View targetView);
 
@@ -59,14 +68,6 @@ public abstract class BaseDataBinder implements ArrayDataBinder {
 
     @Override
     public abstract boolean isEnabled(int position, List<? extends Item> items, Object item);
-
-    protected void loadArtwork(final CoverAsyncHelper coverHelper, final AlbumInfo albumInfo) {
-        coverHelper.downloadCover(albumInfo);
-    }
-
-    protected void loadPlaceholder(final CoverAsyncHelper coverHelper) {
-        coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
-    }
 
     @Override
     public abstract void onDataBind(Context context, View targetView,

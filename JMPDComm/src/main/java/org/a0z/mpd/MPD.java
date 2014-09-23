@@ -119,12 +119,66 @@ public class MPD {
         connect(server, port, password);
     }
 
+    protected static MPDCommand getAlbumDetailsCommand(final Album album)
+            throws MPDServerException {
+        if (album.hasAlbumArtist()) {
+            return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
+                    MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                    MPDCommand.MPD_TAG_ALBUM_ARTIST, album.getArtist().getName());
+        } else { // only get albums without albumartist
+            return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
+                    MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                    MPDCommand.MPD_TAG_ARTIST, album.getArtist().getName());
+        }
+    }
+
+    public static MPDCommand getSongsCommand(final Album album) {
+        final String albumname = album.getName();
+        final Artist artist = album.getArtist();
+        if (null == artist) { // get songs for ANY artist
+            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
+                    MPDCommand.MPD_TAG_ALBUM, albumname);
+        }
+        final String artistname = artist.getName();
+        if (album.hasAlbumArtist()) {
+            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
+                    MPDCommand.MPD_TAG_ALBUM, albumname,
+                    MPDCommand.MPD_TAG_ALBUM_ARTIST, artistname);
+        } else {
+            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
+                    MPDCommand.MPD_TAG_ALBUM, albumname,
+                    MPDCommand.MPD_TAG_ARTIST, artistname);
+        }
+    }
+
     public static String getUnknownAlbum() {
         return sUnknownAlbum;
     }
 
     public static String getUnknownArtist() {
         return sUnknownArtist;
+    }
+
+    /*
+     * get raw command String for listAlbums
+     */
+    public static MPDCommand listAlbumsCommand(final String artist, final boolean useAlbumArtist) {
+        if (useAlbumArtist) {
+            return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM,
+                    MPDCommand.MPD_TAG_ALBUM_ARTIST, artist);
+        } else {
+            return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
+        }
+    }
+
+    /*
+     * get raw command String for listAllAlbumsGrouped
+     */
+    public static MPDCommand listAllAlbumsGroupedCommand(final boolean useAlbumArtist) {
+        final String artistTag = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
+                MPDCommand.MPD_TAG_ARTIST;
+        return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM,
+                MPDCommand.MPD_CMD_GROUP, artistTag);
     }
 
     static MPDCommand nextCommand() {
@@ -324,8 +378,6 @@ public class MPD {
     public void add(final PlaylistFile databasePlaylist) throws MPDServerException {
         add(databasePlaylist, false, false);
     }
-
-    // Returns a pattern where all punctuation characters are escaped.
 
     /**
      * Add a {@code Playlist} item object to the playlist queue.
@@ -653,18 +705,6 @@ public class MPD {
                     a.setPath(songs.get(0).getPath());
                 }
             }
-        }
-    }
-
-    protected MPDCommand getAlbumDetailsCommand(final Album album) throws MPDServerException {
-        if (album.hasAlbumArtist()) {
-            return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
-                    MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                    MPDCommand.MPD_TAG_ALBUM_ARTIST, album.getArtist().getName());
-        } else { // only get albums without albumartist
-            return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
-                    MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                    MPDCommand.MPD_TAG_ARTIST, album.getArtist().getName());
         }
     }
 
@@ -1010,25 +1050,6 @@ public class MPD {
         return songs;
     }
 
-    public MPDCommand getSongsCommand(final Album album) {
-        final String albumname = album.getName();
-        final Artist artist = album.getArtist();
-        if (null == artist) { // get songs for ANY artist
-            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
-                    MPDCommand.MPD_TAG_ALBUM, albumname);
-        }
-        final String artistname = artist.getName();
-        if (album.hasAlbumArtist()) {
-            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
-                    MPDCommand.MPD_TAG_ALBUM, albumname,
-                    MPDCommand.MPD_TAG_ALBUM_ARTIST, artistname);
-        } else {
-            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
-                    MPDCommand.MPD_TAG_ALBUM, albumname,
-                    MPDCommand.MPD_TAG_ARTIST, artistname);
-        }
-    }
-
     /**
      * Retrieves the current statistics for the connected server.
      *
@@ -1188,18 +1209,6 @@ public class MPD {
         return result;
     }
 
-    /*
-     * get raw command String for listAlbums
-     */
-    public MPDCommand listAlbumsCommand(final String artist, final boolean useAlbumArtist) {
-        if (useAlbumArtist) {
-            return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM,
-                    MPDCommand.MPD_TAG_ALBUM_ARTIST, artist);
-        } else {
-            return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
-        }
-    }
-
     /**
      * List all albums grouped by Artist/AlbumArtist
      * This method queries both Artist/AlbumArtist and tries to detect if the artist is an artist
@@ -1268,16 +1277,6 @@ public class MPD {
         Collections.sort(result);
 
         return result;
-    }
-
-    /*
-     * get raw command String for listAllAlbumsGrouped
-     */
-    public MPDCommand listAllAlbumsGroupedCommand(final boolean useAlbumArtist) {
-        final String artistTag = useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
-                MPDCommand.MPD_TAG_ARTIST;
-        return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM,
-                MPDCommand.MPD_CMD_GROUP, artistTag);
     }
 
     /**

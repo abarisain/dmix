@@ -84,6 +84,19 @@ public class AlbumsFragment extends BrowseFragment {
         init(artist, genre);
     }
 
+    private static void refreshCover(final View view, final AlbumInfo album) {
+        if (view.getTag() instanceof AlbumViewHolder) {
+            final AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
+            if (albumViewHolder.mAlbumCover
+                    .getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
+                final CoverAsyncHelper coverAsyncHelper
+                        = (CoverAsyncHelper) albumViewHolder.mAlbumCover
+                        .getTag(R.id.CoverAsyncHelper);
+                coverAsyncHelper.downloadCover(album, true);
+            }
+        }
+    }
+
     @Override
     protected void add(final Item item, final boolean replace, final boolean play) {
         try {
@@ -248,19 +261,6 @@ public class AlbumsFragment extends BrowseFragment {
             outState.putParcelable(EXTRA_GENRE, new GenreParcelable(mGenre));
         }
         super.onSaveInstanceState(outState);
-    }
-
-    private void refreshCover(final View view, final AlbumInfo album) {
-        if (view.getTag() instanceof AlbumViewHolder) {
-            final AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
-            if (albumViewHolder.mAlbumCover
-                    .getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
-                final CoverAsyncHelper coverAsyncHelper
-                        = (CoverAsyncHelper) albumViewHolder.mAlbumCover
-                        .getTag(R.id.CoverAsyncHelper);
-                coverAsyncHelper.downloadCover(album, true);
-            }
-        }
     }
 
     private void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {

@@ -93,7 +93,7 @@ public class AboutActivity extends Activity {
         }, listItems));
     }
 
-    private class AboutListItem {
+    private static class AboutListItem {
 
         private final String mText;
 

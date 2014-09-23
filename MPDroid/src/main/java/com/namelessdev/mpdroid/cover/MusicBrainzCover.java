@@ -40,7 +40,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private static final String TAG = "MusicBrainzCover";
 
-    private List<String> extractImageUrls(final String covertArchiveResponse) {
+    private static List<String> extractImageUrls(final String covertArchiveResponse) {
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
         String coverUrl;
@@ -74,7 +74,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     }
 
-    private List<String> extractReleaseIds(final String response) {
+    private static List<String> extractReleaseIds(final String response) {
 
         final List<String> releaseList = new ArrayList<>();
 

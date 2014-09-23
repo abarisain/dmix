@@ -158,6 +158,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private TextView mYearNameText;
 
+    private static void applyViewVisibility(final SharedPreferences sharedPreferences,
+            final View view,
+            final String property) {
+        if (view == null) {
+            return;
+        }
+        view.setVisibility(
+                sharedPreferences.getBoolean(property, false) ? View.VISIBLE : View.GONE);
+    }
+
     protected static int getPlayPauseResource(final int state) {
         final int resource;
 
@@ -176,15 +186,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
 
         return resource;
-    }
-
-    private void applyViewVisibility(final SharedPreferences sharedPreferences, final View view,
-            final String property) {
-        if (view == null) {
-            return;
-        }
-        view.setVisibility(
-                sharedPreferences.getBoolean(property, false) ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -887,7 +888,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mSeekBarVolume.setProgress(volume);
     }
 
-    private class ButtonEventHandler implements Button.OnClickListener, Button.OnLongClickListener {
+    private static class ButtonEventHandler
+            implements Button.OnClickListener, Button.OnLongClickListener {
 
         public void onClick(final View v) {
             MPDControl.run(v.getId());

@@ -237,10 +237,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return full path
      */
     public String getFullPath() {
-        if (getParent() != null && getParent().getParent() != null) {
-            return getParent().getFullPath() + '/' + getFilename();
+        if (mParent != null && mParent.mParent != null) {
+            return mParent.getFullPath() + '/' + mFilename;
         } else {
-            return getFilename();
+            return mFilename;
         }
     }
 
@@ -304,7 +304,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         final Directory dir;
         if (!mDirectoryEntries.containsKey(name)) {
             dir = new Directory(mMPD, this, name);
-            mDirectoryEntries.put(dir.getFilename(), dir);
+            mDirectoryEntries.put(dir.mFilename, dir);
         } else {
             dir = mDirectoryEntries.get(name);
         }
@@ -326,8 +326,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         for (final FilesystemTreeEntry o : c) {
             if (o instanceof Directory) {
                 final Directory dir = (Directory) o;
-                if (!mDirectoryEntries.containsKey(dir.getFilename())) {
-                    mDirectoryEntries.put(dir.getFilename(), dir);
+                if (!mDirectoryEntries.containsKey(dir.mFilename)) {
+                    mDirectoryEntries.put(dir.mFilename, dir);
                 }
             } else if (o instanceof Music) {
                 final Music music = (Music) o;

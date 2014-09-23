@@ -58,7 +58,7 @@ public class CoverInfo extends AlbumInfo {
         mCoverMaxSize = coverInfo.mCoverMaxSize;
         mCachedCoverMaxSize = coverInfo.mCachedCoverMaxSize;
         mCoverRetriever = coverInfo.mCoverRetriever;
-        mListener = coverInfo.getListener();
+        mListener = coverInfo.mListener;
         mRequestGivenUp = coverInfo.mRequestGivenUp;
     }
 

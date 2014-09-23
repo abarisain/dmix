@@ -34,7 +34,7 @@ public class DiscogsCover extends AbstractWebCover {
 
     private static final String TAG = "DiscogsCover";
 
-    private List<String> extractImageUrls(final String releaseJson) {
+    private static List<String> extractImageUrls(final String releaseJson) {
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
         String imageUrl;
@@ -62,7 +62,7 @@ public class DiscogsCover extends AbstractWebCover {
         return imageUrls;
     }
 
-    private List<String> extractReleaseIds(final String releaseIdJson) {
+    private static List<String> extractReleaseIds(final String releaseIdJson) {
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
         String releaseId;

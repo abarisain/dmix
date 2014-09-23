@@ -78,6 +78,10 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         }
     }
 
+    public static void setCoverRetrieversFromPreferences() {
+        CoverManager.getInstance().setCoverRetrieversFromPreferences();
+    }
+
     public void addCoverDownloadListener(final CoverDownloadListener listener) {
         mCoverDownloadListeners.add(listener);
     }
@@ -186,10 +190,6 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
         final DisplayMetrics metrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         setCoverMaxSize(Math.min(metrics.widthPixels, metrics.heightPixels));
-    }
-
-    public void setCoverRetrieversFromPreferences() {
-        CoverManager.getInstance().setCoverRetrieversFromPreferences();
     }
 
     @Override

@@ -82,6 +82,13 @@ public class AlbumCache {
     }
     // details
 
+    public static String albumCode(final String artist, final String album,
+            final boolean isAlbumArtist) {
+        return (artist != null ? artist : "") + "//" +
+                (isAlbumArtist ? "AA" : "A") +
+                "//" + (album != null ? album : "");
+    }
+
     public static AlbumCache getInstance(final CachedMPD mpd) {
         if (sInstance == null) {
             sInstance = new AlbumCache(mpd);
@@ -91,10 +98,17 @@ public class AlbumCache {
         return sInstance;
     }
 
-    public String albumCode(final String artist, final String album, final boolean isAlbumArtist) {
-        return (artist != null ? artist : "") + "//" +
-                (isAlbumArtist ? "AA" : "A") +
-                "//" + (album != null ? album : "");
+    protected static Set<String> getKeysByValue(final Map<String, Set<String>> map,
+            final String val) {
+        final Set<String> result = new HashSet<>();
+        final Set<String> keys = map.keySet();
+        for (final String k : keys) {
+            final Set<String> values = map.get(k);
+            if (val == null || "".equals(val) || values.contains(val)) {
+                result.add(k);
+            }
+        }
+        return result;
     }
 
     public String cacheInfo() {
@@ -174,18 +188,6 @@ public class AlbumCache {
 
     protected String getFilename() {
         return mServer + "_" + mPort;
-    }
-
-    protected Set<String> getKeysByValue(final Map<String, Set<String>> map, final String val) {
-        final Set<String> result = new HashSet<>();
-        final Set<String> keys = map.keySet();
-        for (final String k : keys) {
-            final Set<String> values = map.get(k);
-            if (val == null || "".equals(val) || values.contains(val)) {
-                result.add(k);
-            }
-        }
-        return result;
     }
 
     public Set<List<String>> getUniqueAlbumSet() {
@@ -414,7 +416,7 @@ public class AlbumCache {
         return true;
     }
 
-    class AlbumDetails implements Serializable {
+    static class AlbumDetails implements Serializable {
 
         private static final long serialVersionUID = 2465675380232237273L;
 
