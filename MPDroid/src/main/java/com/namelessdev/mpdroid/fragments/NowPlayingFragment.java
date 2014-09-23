@@ -465,7 +465,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
             case POPUP_SHARE:
                 String shareString = getString(R.string.sharePrefix);
-                shareString += " " + mCurrentSong.getTitle();
+                shareString += ' ' + mCurrentSong.getTitle();
                 if (!mCurrentSong.isStream()) {
                     shareString += " - " + mCurrentSong.getArtist();
                 }

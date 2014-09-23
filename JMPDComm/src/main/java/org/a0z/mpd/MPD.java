@@ -912,7 +912,7 @@ public class MPD {
     public String getMpdVersion() throws MPDServerException {
         final int[] version = mIdleConnection.getMPDVersion();
 
-        final StringBuffer sb = new StringBuffer(version.length);
+        final StringBuilder sb = new StringBuilder(version.length);
         for (int i = 0; i < version.length; i++) {
             sb.append(version[i]);
             if (i < version.length - 1) {

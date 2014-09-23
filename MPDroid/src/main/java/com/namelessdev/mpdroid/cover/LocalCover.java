@@ -124,7 +124,7 @@ public class LocalCover implements ICoverRetriever {
                         // Add file extension except for the filename coming
                         // from settings
                         if (!baseFilename.equals(FILENAMES[0])) {
-                            lfilename = subfolder + "/" + baseFilename + "." + ext;
+                            lfilename = subfolder + '/' + baseFilename + '.' + ext;
                         } else {
                             lfilename = baseFilename;
                         }

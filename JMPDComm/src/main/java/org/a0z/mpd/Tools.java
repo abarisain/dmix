@@ -47,7 +47,7 @@ public final class Tools {
             return null;
         }
 
-        final StringBuffer buffer = new StringBuffer(data.length);
+        final StringBuilder buffer = new StringBuilder(data.length);
         for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
             int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
             int two_halfs = 0;

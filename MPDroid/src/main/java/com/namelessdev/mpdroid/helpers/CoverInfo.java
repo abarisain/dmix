@@ -162,7 +162,7 @@ public class CoverInfo extends AlbumInfo {
     public String toString() {
         return "CoverInfo{state=" + mState + ", artist=" + mArtist == null ? ""
                 : mArtist + ", album="
-                        + mAlbum == null ? "" : mAlbum + " priority=" + mPriority + "}";
+                        + mAlbum == null ? "" : mAlbum + " priority=" + mPriority + '}';
     }
 
     public enum STATE {

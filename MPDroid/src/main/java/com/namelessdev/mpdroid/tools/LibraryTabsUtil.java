@@ -66,7 +66,7 @@ public class LibraryTabsUtil {
 
     public static ArrayList<String> getAllLibraryTabs() {
         final String CurrentSettings = DEFAULT_LIBRARY_TABS;
-        return new ArrayList<>(Arrays.asList(CurrentSettings.split("\\"
+        return new ArrayList<>(Arrays.asList(CurrentSettings.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }
 
@@ -77,7 +77,7 @@ public class LibraryTabsUtil {
             currentSettings = DEFAULT_LIBRARY_TABS;
             resetLibraryTabs();
         }
-        return new ArrayList<>(Arrays.asList(currentSettings.split("\\"
+        return new ArrayList<>(Arrays.asList(currentSettings.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }
 
@@ -86,20 +86,25 @@ public class LibraryTabsUtil {
     }
 
     public static ArrayList<String> getTabsListFromString(final String tabs) {
-        return new ArrayList<>(Arrays.asList(tabs.split("\\"
+        return new ArrayList<>(Arrays.asList(tabs.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }
 
     public static String getTabsStringFromList(final ArrayList<String> tabs) {
-        if (tabs == null || tabs.size() <= 0) {
-            return "";
+        final StringBuilder resultTabs;
+
+        if (tabs == null || tabs.isEmpty()) {
+            resultTabs = new StringBuilder("");
         } else {
-            String s = tabs.get(0);
+            resultTabs = new StringBuilder(tabs.size() * 10);
+            resultTabs.append(tabs.get(0));
             for (int i = 1; i < tabs.size(); i++) {
-                s += LIBRARY_TABS_DELIMITER + tabs.get(i);
+                resultTabs.append(LIBRARY_TABS_DELIMITER);
+                resultTabs.append(tabs.get(i));
             }
-            return s;
         }
+
+        return resultTabs.toString();
     }
 
     public static void resetLibraryTabs() {

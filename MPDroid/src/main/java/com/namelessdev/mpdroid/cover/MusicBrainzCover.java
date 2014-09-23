@@ -111,7 +111,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     private String getCoverArtArchiveResponse(final String mbid) {
 
-        final String request = (COVER_ART_ARCHIVE_URL + mbid + "/");
+        final String request = (COVER_ART_ARCHIVE_URL + mbid + '/');
         return executeGetRequestWithConnection(request);
     }
 
@@ -148,7 +148,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
         final String url = "http://musicbrainz.org/ws/2/release-group/?query=" + albumInfo
                 .getArtist()
-                + " " + albumInfo.getAlbum() + "&type=release-group&limit=5";
+                + ' ' + albumInfo.getAlbum() + "&type=release-group&limit=5";
         response = executeGetRequestWithConnection(url);
         return extractReleaseIds(response);
     }

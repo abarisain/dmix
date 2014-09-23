@@ -42,7 +42,7 @@ public class AboutActivity extends Activity {
             final ComponentName comp = new ComponentName(APP, cls);
             final PackageInfo pinfo = APP.getPackageManager()
                     .getPackageInfo(comp.getPackageName(), 0);
-            return pinfo.versionName + " (" + pinfo.versionCode + ")";
+            return pinfo.versionName + " (" + pinfo.versionCode + ')';
         } catch (final PackageManager.NameNotFoundException ignored) {
             return null;
         }

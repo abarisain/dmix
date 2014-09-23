@@ -239,10 +239,10 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             @Override
             public void run() {
                 mTabArtists.setText(getString(R.string.artists) + " (" + mArtistResults.size()
-                        + ")");
+                        + ')');
                 mTabAlbums.setText(getString(R.string.albums) + " (" + mAlbumResults.size()
-                        + ")");
-                mTabSongs.setText(getString(R.string.songs) + " (" + mSongResults.size() + ")");
+                        + ')');
+                mTabSongs.setText(getString(R.string.songs) + " (" + mSongResults.size() + ')');
             }
         });
     }

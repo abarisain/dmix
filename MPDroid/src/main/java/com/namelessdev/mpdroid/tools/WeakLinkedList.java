@@ -375,7 +375,7 @@ public class WeakLinkedList<T> implements List<T> {
 
             // Ensure the list is still valid
             if (mSize < 0) {
-                throw new IllegalStateException("size is less than zero - '" + mSize + "'");
+                throw new IllegalStateException("size is less than zero - '" + mSize + '\'');
             }
             if (mSize == 0 && mHead != null) {
                 throw new IllegalStateException("size is zero but head is not null");
@@ -469,9 +469,9 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     public String toString() {
-        final StringBuffer buff = new StringBuffer();
+        final StringBuilder buff = new StringBuilder();
 
-        buff.append("[");
+        buff.append('[');
         synchronized (mLOCK) {
             for (final Iterator<?> itr = iterator(); itr.hasNext(); ) {
                 buff.append(itr.next());
@@ -481,7 +481,7 @@ public class WeakLinkedList<T> implements List<T> {
                 }
             }
         }
-        buff.append("]");
+        buff.append(']');
 
         return buff.toString();
     }
@@ -770,25 +770,25 @@ public class WeakLinkedList<T> implements List<T> {
         }
 
         public String toString() {
-            final StringBuffer buff = new StringBuffer();
+            final StringBuilder buff = new StringBuilder();
 
-            buff.append("[index='").append(mIndex).append("'");
+            buff.append("[index='").append(mIndex).append('\'');
 
             buff.append(", prev=");
             if (mPrevNode == null) {
                 buff.append("null");
             } else {
-                buff.append("'").append(mPrevNode).append("'");
+                buff.append('\'').append(mPrevNode).append('\'');
             }
 
             buff.append(", next=");
             if (mNextNode == null) {
                 buff.append("null");
             } else {
-                buff.append("'").append(mNextNode).append("'");
+                buff.append('\'').append(mNextNode).append('\'');
             }
 
-            buff.append("]");
+            buff.append(']');
 
             return buff.toString();
         }
@@ -893,14 +893,14 @@ public class WeakLinkedList<T> implements List<T> {
          * @see java.lang.Object#toString()
          */
         public String toString() {
-            final StringBuffer buff = new StringBuffer();
+            final StringBuilder buff = new StringBuilder();
 
             buff.append("[prev=");
 
             if (mPrev == null) {
                 buff.append("null");
             } else {
-                buff.append("'").append(mPrev.get()).append("'");
+                buff.append('\'').append(mPrev.get()).append('\'');
             }
 
             buff.append(", value='");
@@ -912,10 +912,10 @@ public class WeakLinkedList<T> implements List<T> {
             if (mNext == null) {
                 buff.append("null");
             } else {
-                buff.append("'").append(mNext.get()).append("'");
+                buff.append('\'').append(mNext.get()).append('\'');
             }
 
-            buff.append("]");
+            buff.append(']');
 
             return buff.toString();
         }

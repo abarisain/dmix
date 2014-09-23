@@ -153,7 +153,7 @@ public class Music extends Item implements FilesystemTreeEntry {
             }
         } catch (final MalformedURLException ignored) {
         }
-        return url + "#" + name;
+        return url + '#' + name;
     }
 
     static Music build(final Collection<String> response) {

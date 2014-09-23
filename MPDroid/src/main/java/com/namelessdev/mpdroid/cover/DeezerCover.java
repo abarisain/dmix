@@ -37,22 +37,24 @@ public class DeezerCover extends AbstractWebCover {
         final String deezerResponse;
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
-        String coverUrl;
+        StringBuilder coverUrl = new StringBuilder();
         JSONObject jsonObject;
 
         try {
+
             deezerResponse = executeGetRequest("http://api.deezer.com/search/album?q="
-                    + albumInfo.getAlbum() + " " + albumInfo.getArtist()
+                    + albumInfo.getAlbum() + ' ' + albumInfo.getArtist()
                     + "&nb_items=1&output=json");
             jsonRootObject = new JSONObject(deezerResponse);
             jsonArray = jsonRootObject.getJSONArray("data");
             for (int i = 0; i < jsonArray.length(); i++) {
                 jsonObject = jsonArray.getJSONObject(i);
-                coverUrl = jsonObject.getString("cover");
-                if (coverUrl != null) {
-                    coverUrl += "&size=big";
+                coverUrl.setLength(0);
+                coverUrl.append(jsonObject.getString("cover"));
+                if (coverUrl.length() != 0) {
+                    coverUrl.append("&size=big");
                     return new String[]{
-                            coverUrl
+                            coverUrl.toString()
                     };
                 }
             }

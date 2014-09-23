@@ -187,7 +187,7 @@ public class AlbumCache {
     }
 
     protected String getFilename() {
-        return mServer + "_" + mPort;
+        return mServer + '_' + mPort;
     }
 
     public Set<List<String>> getUniqueAlbumSet() {
