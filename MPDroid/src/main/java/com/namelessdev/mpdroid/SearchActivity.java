@@ -579,7 +579,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         @Override
         public boolean isViewFromObject(final View arg0, final Object arg1) {
-            return arg0 == arg1;
+            return arg0.equals(arg1);
         }
     }
 

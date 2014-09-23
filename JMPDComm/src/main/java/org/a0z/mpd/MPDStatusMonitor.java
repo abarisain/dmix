@@ -180,7 +180,7 @@ public class MPDStatusMonitor extends Thread {
                 connectionStateChanged = true;
             }
 
-            if (connectionState == Boolean.TRUE) {
+            if (connectionState.equals(Boolean.TRUE)) {
                 // playlist
                 try {
                     boolean dbChanged = false;

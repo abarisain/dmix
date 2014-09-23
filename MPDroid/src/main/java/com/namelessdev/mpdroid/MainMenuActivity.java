@@ -886,7 +886,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         @Override
         public boolean isViewFromObject(final View arg0, final Object arg1) {
-            return arg0 == arg1;
+            return arg0.equals(arg1);
         }
     }
 }
