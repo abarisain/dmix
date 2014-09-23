@@ -68,7 +68,9 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         return TYPE_DEFAULT;
     }
 
-    public View getView(final int position, View convertView, final ViewGroup parent) {
+    public View getView(final int position, final View convertView, final ViewGroup parent) {
+        View resultView;
+
         if (mDataBinder == null) {
             return super.getView(position, convertView, parent);
         }
@@ -77,19 +79,20 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         final AbstractViewHolder holder;
 
         if (convertView == null) {
-            convertView = mInflater.inflate(mDataBinder.getLayoutId(), parent, false);
-            convertView = mDataBinder.onLayoutInflation(mContext, convertView, mItems);
+            resultView = mInflater.inflate(mDataBinder.getLayoutId(), parent, false);
+            resultView = mDataBinder.onLayoutInflation(mContext, resultView, mItems);
 
             // use the data binder to look up all references to inner views
-            holder = mDataBinder.findInnerViews(convertView);
-            convertView.setTag(holder);
+            holder = mDataBinder.findInnerViews(resultView);
+            resultView.setTag(holder);
         } else {
-            holder = (AbstractViewHolder) convertView.getTag();
+            resultView = convertView;
+            holder = (AbstractViewHolder) resultView.getTag();
         }
 
         mDataBinder
-                .onDataBind(mContext, convertView, holder, mItems, mItems.get(position), position);
-        return convertView;
+                .onDataBind(mContext, resultView, holder, mItems, mItems.get(position), position);
+        return resultView;
     }
 
     @Override
