@@ -99,6 +99,6 @@ public final class Log {
      * @param tr      An exception to log.
      */
     public static void warning(final String tag, final String message, final Throwable tr) {
-        android.util.Log.w(tag, message);
+        android.util.Log.w(tag, message, tr);
     }
 }
