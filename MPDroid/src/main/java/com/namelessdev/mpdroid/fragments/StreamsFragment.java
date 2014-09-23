@@ -118,8 +118,6 @@ public class StreamsFragment extends BrowseFragment {
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
                     public void onClick(final DialogInterface dialog, final int which) {
-                        final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
-                        final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
                         final String name = null == nameEdit ? null : nameEdit.getText().toString()
                                 .trim();
                         final String url = null == urlEdit ? null
