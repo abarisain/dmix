@@ -119,36 +119,38 @@ public class MPD {
         connect(server, port, password);
     }
 
-    protected static MPDCommand getAlbumDetailsCommand(final Album album)
-            throws MPDServerException {
+    protected static MPDCommand getAlbumDetailsCommand(final Album album) {
+        final String artistCommand;
+
         if (album.hasAlbumArtist()) {
-            return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
-                    MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                    MPDCommand.MPD_TAG_ALBUM_ARTIST, album.getArtist().getName());
-        } else { // only get albums without albumartist
-            return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
-                    MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                    MPDCommand.MPD_TAG_ARTIST, album.getArtist().getName());
+            artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+        } else {
+            artistCommand = MPDCommand.MPD_FIND_ARTIST;
         }
+
+        return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
+                MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                artistCommand, album.getArtist().getName());
     }
 
     public static MPDCommand getSongsCommand(final Album album) {
-        final String albumname = album.getName();
+        final String albumName = album.getName();
         final Artist artist = album.getArtist();
-        if (null == artist) { // get songs for ANY artist
-            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
-                    MPDCommand.MPD_TAG_ALBUM, albumname);
+        String artistName = null;
+        String artistCommand = null;
+
+        if (artist != null) {
+            artistName = artist.getName();
+
+            if (album.hasAlbumArtist()) {
+                artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+            } else {
+                artistCommand = MPDCommand.MPD_TAG_ARTIST;
+            }
         }
-        final String artistname = artist.getName();
-        if (album.hasAlbumArtist()) {
-            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
-                    MPDCommand.MPD_TAG_ALBUM, albumname,
-                    MPDCommand.MPD_TAG_ALBUM_ARTIST, artistname);
-        } else {
-            return new MPDCommand(MPDCommand.MPD_CMD_FIND,
-                    MPDCommand.MPD_TAG_ALBUM, albumname,
-                    MPDCommand.MPD_TAG_ARTIST, artistname);
-        }
+
+        return new MPDCommand(MPDCommand.MPD_CMD_FIND, MPDCommand.MPD_TAG_ALBUM, albumName,
+                artistCommand, artistName);
     }
 
     public static String getUnknownAlbum() {
@@ -163,12 +165,14 @@ public class MPD {
      * get raw command String for listAlbums
      */
     public static MPDCommand listAlbumsCommand(final String artist, final boolean useAlbumArtist) {
+        String albumArtist = null;
+
         if (useAlbumArtist) {
-            return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM,
-                    MPDCommand.MPD_TAG_ALBUM_ARTIST, artist);
-        } else {
-            return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, artist);
+            albumArtist = MPDCommand.MPD_TAG_ALBUM_ARTIST;
         }
+
+        return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM, albumArtist,
+                artist);
     }
 
     /*
@@ -406,17 +410,16 @@ public class MPD {
     }
 
     protected void addAlbumPaths(final List<Album> albums) {
-        if (albums == null || albums.isEmpty()) {
-            return;
-        }
-
-        for (final Album a : albums) {
-            try {
-                final List<Music> songs = getFirstTrack(a);
-                if (!songs.isEmpty()) {
-                    a.setPath(songs.get(0).getPath());
+        if (albums != null && !albums.isEmpty()) {
+            for (final Album album : albums) {
+                try {
+                    final List<Music> songs = getFirstTrack(album);
+                    if (!songs.isEmpty()) {
+                        album.setPath(songs.get(0).getPath());
+                    }
+                } catch (final MPDServerException e) {
+                    Log.error(TAG, "Failed to add an album path.", e);
                 }
-            } catch (final MPDServerException e) {
             }
         }
     }
@@ -442,15 +445,15 @@ public class MPD {
 
     public void addToPlaylist(final String playlistName, final Collection<Music> musicCollection)
             throws MPDServerException {
-        if (null == musicCollection || musicCollection.size() < 1) {
-            return;
-        }
-        final CommandQueue commandQueue = new CommandQueue();
+        if (null != musicCollection && !musicCollection.isEmpty()) {
+            final CommandQueue commandQueue = new CommandQueue();
 
-        for (final Music music : musicCollection) {
-            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, music.getFullPath());
+            for (final Music music : musicCollection) {
+                commandQueue
+                        .add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, music.getFullPath());
+            }
+            commandQueue.send(mConnection);
         }
-        commandQueue.send(mConnection);
     }
 
     public void addToPlaylist(final String playlistName, final FilesystemTreeEntry entry)
@@ -616,48 +619,47 @@ public class MPD {
     }
 
     /*
-     * For all given albums, look for albumartists and create as many albums as
-     * there are albumartists, including "" The server call can be slow for long
+     * For all given albums, look for album artists and create as many albums as
+     * there are album artists, including "" The server call can be slow for long
      * album lists
      */
     protected void fixAlbumArtists(final List<Album> albums) {
-        if (albums == null || albums.isEmpty()) {
-            return;
-        }
-        List<String[]> albumartists = null;
-        try {
-            albumartists = listAlbumArtists(albums);
-        } catch (final MPDServerException e) {
-            Log.error(TAG, "Failed to fix album artists.", e);
-        }
-        if (albumartists == null || albumartists.size() != albums.size()) {
-            return;
-        }
-
-        /** Split albums are rare, let it allocate as needed. */
-        @SuppressWarnings("CollectionWithoutInitialCapacity")
-        final Collection<Album> splitalbums = new ArrayList<>();
-        int i = 0;
-        for (Album a : albums) {
-            final String[] aartists = albumartists.get(i);
-            if (aartists.length > 0) {
-                Arrays.sort(aartists); // make sure "" is the first one
-                if (aartists[0] != null && !aartists[0].isEmpty()) { // one albumartist, fix this
-                    // album
-                    final Artist artist = new Artist(aartists[0]);
-                    a = a.setArtist(artist);
-                } // do nothing if albumartist is ""
-                if (aartists.length > 1) { // it's more than one album, insert
-                    for (int n = 1; n < aartists.length; n++) {
-                        final Album newalbum =
-                                new Album(a.getName(), new Artist(aartists[n]), true);
-                        splitalbums.add(newalbum);
-                    }
-                }
+        if (albums != null && !albums.isEmpty()) {
+            List<String[]> albumArtists = null;
+            try {
+                albumArtists = listAlbumArtists(albums);
+            } catch (final MPDServerException e) {
+                Log.error(TAG, "Failed to fix album artists.", e);
             }
-            i++;
+
+            if (albumArtists != null && albumArtists.size() == albums.size()) {
+                /** Split albums are rare, let it allocate as needed. */
+                @SuppressWarnings("CollectionWithoutInitialCapacity")
+                final Collection<Album> splitAlbums = new ArrayList<>();
+                int i = 0;
+                for (Album album : albums) {
+                    final String[] aartists = albumArtists.get(i);
+                    if (aartists.length > 0) {
+                        Arrays.sort(aartists); // make sure "" is the first one
+                        if (aartists[0] != null && !aartists[0]
+                                .isEmpty()) { // one albumartist, fix this
+                            // album
+                            final Artist artist = new Artist(aartists[0]);
+                            album = album.setArtist(artist);
+                        } // do nothing if albumartist is ""
+                        if (aartists.length > 1) { // it's more than one album, insert
+                            for (int n = 1; n < aartists.length; n++) {
+                                final Album newalbum =
+                                        new Album(album.getName(), new Artist(aartists[n]), true);
+                                splitAlbums.add(newalbum);
+                            }
+                        }
+                    }
+                    i++;
+                }
+                albums.addAll(splitAlbums);
+            }
         }
-        albums.addAll(splitalbums);
     }
 
     protected List<Music> genericSearch(
@@ -683,33 +685,31 @@ public class MPD {
         return listAlbums(artist, useAlbumArtistTag).size();
     }
 
-    protected void getAlbumDetails(final List<Album> albums,
-            final boolean findYear) throws MPDServerException {
-        final CommandQueue commandQueue = new CommandQueue();
-        for (final Album a : albums) {
-            commandQueue.add(getAlbumDetailsCommand(a));
+    protected void getAlbumDetails(final List<Album> albums, final boolean findYear)
+            throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue(albums.size());
+        for (final Album album : albums) {
+            commandQueue.add(getAlbumDetailsCommand(album));
         }
         final List<String[]> response = commandQueue.sendSeparated(mConnection);
-        if (response.size() != albums.size()) {
-            // Log.debug("MPD AlbumDetails", "non matching results "+
-            // response.size()+" != "+ albums.size());
-            return;
-        }
-        for (int i = 0; i < response.size(); i++) {
-            final String[] list = response.get(i);
-            final Album a = albums.get(i);
-            for (final String line : list) {
-                if (line.startsWith("songs: ")) {
-                    a.setSongCount(Long.parseLong(line.substring("songs: ".length())));
-                } else if (line.startsWith("playtime: ")) {
-                    a.setDuration(Long.parseLong(line.substring("playtime: ".length())));
+
+        if (response.size() == albums.size()) {
+            for (int i = 0; i < response.size(); i++) {
+                final String[] list = response.get(i);
+                final Album a = albums.get(i);
+                for (final String line : list) {
+                    if (line.startsWith("songs: ")) {
+                        a.setSongCount(Long.parseLong(line.substring("songs: ".length())));
+                    } else if (line.startsWith("playtime: ")) {
+                        a.setDuration(Long.parseLong(line.substring("playtime: ".length())));
+                    }
                 }
-            }
-            if (findYear) {
-                final List<Music> songs = getFirstTrack(a);
-                if (null != songs && !songs.isEmpty()) {
-                    a.setYear(songs.get(0).getDate());
-                    a.setPath(songs.get(0).getPath());
+                if (findYear) {
+                    final List<Music> songs = getFirstTrack(a);
+                    if (null != songs && !songs.isEmpty()) {
+                        a.setYear(songs.get(0).getDate());
+                        a.setPath(songs.get(0).getPath());
+                    }
                 }
             }
         }
@@ -717,41 +717,47 @@ public class MPD {
 
     public List<Album> getAlbums(final Artist artist, final boolean trackCountNeeded)
             throws MPDServerException {
-        final List<Album> albums = getAlbums(artist, trackCountNeeded, false);
+        List<Album> albums = getAlbums(artist, trackCountNeeded, false);
+
         // 1. the null artist list already contains all albums
-        // 2. the "unknown artist" should not list unknown albumartists
+        // 2. the "unknown artist" should not list unknown album artists
         if (artist != null && !artist.isUnknown()) {
-            return Item.merged(albums, getAlbums(artist, trackCountNeeded, true));
+            albums = Item.merged(albums, getAlbums(artist, trackCountNeeded, true));
         }
+
         return albums;
     }
 
     public List<Album> getAlbums(final Artist artist, final boolean trackCountNeeded,
             final boolean useAlbumArtist) throws MPDServerException {
+        final List<Album> albums;
+
         if (artist == null) {
-            return getAllAlbums(trackCountNeeded);
+            albums = getAllAlbums(trackCountNeeded);
+        } else {
+            final List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
+            albums = new ArrayList<>(albumNames.size());
+
+            if (!albumNames.isEmpty()) {
+                for (final String album : albumNames) {
+                    albums.add(new Album(album, artist, useAlbumArtist));
+                }
+                if (!useAlbumArtist) {
+                    fixAlbumArtists(albums);
+                }
+
+                // after fixing albumartists
+                if (trackCountNeeded || sortAlbumsByYear()) {
+                    getAlbumDetails(albums, sortAlbumsByYear());
+                }
+                if (!sortAlbumsByYear()) {
+                    addAlbumPaths(albums);
+                }
+
+                Collections.sort(albums);
+            }
         }
-        final List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
-        final List<Album> albums = new ArrayList<>(albumNames.size());
 
-        if (!albumNames.isEmpty()) {
-            for (final String album : albumNames) {
-                albums.add(new Album(album, artist, useAlbumArtist));
-            }
-            if (!useAlbumArtist) {
-                fixAlbumArtists(albums);
-            }
-
-            // after fixing albumartists
-            if (trackCountNeeded || sortAlbumsByYear()) {
-                getAlbumDetails(albums, sortAlbumsByYear());
-            }
-            if (!sortAlbumsByYear()) {
-                addAlbumPaths(albums);
-            }
-
-            Collections.sort(albums);
-        }
         return albums;
     }
 
@@ -1013,6 +1019,8 @@ public class MPD {
 
     public List<Music> getSavedStreams() throws MPDServerException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
+        List<Music> savedStreams = null;
+
         for (final String line : response) {
             if (line.startsWith("playlist")) {
                 final String name = line.substring("playlist: ".length());
@@ -1020,11 +1028,13 @@ public class MPD {
                     final String[] args = new String[1];
                     args[0] = STREAMS_PLAYLIST;
 
-                    return genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
+                    savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
+                    break;
                 }
             }
         }
-        return null;
+
+        return savedStreams;
     }
 
     public List<Music> getSongs(final Album album) throws MPDServerException {
@@ -1121,7 +1131,9 @@ public class MPD {
     }
 
     public List<String[]> listAlbumArtists(final List<Album> albums) throws MPDServerException {
-        final CommandQueue commandQueue = new CommandQueue();
+        final CommandQueue commandQueue = new CommandQueue(albums.size());
+        final List<String[]> response;
+        List<String[]> albumArtists = null;
 
         for (final Album a : albums) {
             commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
@@ -1131,17 +1143,20 @@ public class MPD {
                     MPDCommand.MPD_TAG_ALBUM,
                     a.getName());
         }
-        final List<String[]> response = commandQueue.sendSeparated(mConnection);
+
+        response = commandQueue.sendSeparated(mConnection);
         if (response.size() != albums.size()) {
             Log.debug("MPD listAlbumArtists", "ERROR");
-            return null;
-        }
-        for (int i = 0; i < response.size(); i++) {
-            for (int j = 0; j < response.get(i).length; j++) {
-                response.get(i)[j] = response.get(i)[j].substring("AlbumArtist: ".length());
+        } else {
+            for (int i = 0; i < response.size(); i++) {
+                for (int j = 0; j < response.get(i).length; j++) {
+                    response.get(i)[j] = response.get(i)[j].substring("AlbumArtist: ".length());
+                }
             }
+            albumArtists = response;
         }
-        return response;
+
+        return albumArtists;
     }
 
     /**
@@ -1325,46 +1340,49 @@ public class MPD {
     }
 
     /*
-     * List all albumartist or artist names of all given albums from database.
+     * List all album artist or artist names of all given albums from database.
      * @return list of array of artist names for each album.
      * @throws MPDServerException if an error occurs while contacting server.
      */
     public List<String[]> listArtists(final List<Album> albums, final boolean useAlbumArtist)
             throws MPDServerException {
+        final List<String[]> result;
+
         if (albums == null) {
-            return new ArrayList<>(0);
-        }
+            result = Collections.emptyList();
+        } else {
 
-        final CommandQueue commandQueue = new CommandQueue();
-        for (final Album a : albums) {
-            // When adding album artist to existing artist check that the artist
-            // matches
-            if (useAlbumArtist && a.getArtist() != null && !a.getArtist().isUnknown()) {
-                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
-                        MPDCommand.MPD_TAG_ALBUM_ARTIST,
-                        MPDCommand.MPD_TAG_ALBUM, a.getName(),
-                        MPDCommand.MPD_TAG_ARTIST, a.getArtist().getName());
+            final List<String[]> responses = listArtistsCommand(albums, useAlbumArtist);
+            result = new ArrayList<>(responses.size());
+            ArrayList<String> albumResult = null;
+            final int artistLength;
+
+            if (useAlbumArtist) {
+                artistLength = "AlbumArtist: ".length();
             } else {
-                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
-                        (useAlbumArtist ? MPDCommand.MPD_TAG_ALBUM_ARTIST :
-                                MPDCommand.MPD_TAG_ARTIST),
-                        MPDCommand.MPD_TAG_ALBUM, a.getName()
-                );
+                artistLength = "Artist: ".length();
+            }
+
+            for (final String[] response : responses) {
+                if (albumResult != null) {
+                    albumResult.clear();
+                }
+
+                for (final String album : response) {
+                    final String name = album.substring(artistLength);
+
+                    if (albumResult == null) {
+                        /** Give the array list an approximate size. */
+                        albumResult = new ArrayList<>(album.length() * response.length);
+                    }
+
+                    albumResult.add(name);
+                }
+
+                result.add(albumResult.toArray(new String[albumResult.size()]));
             }
         }
 
-        final List<String[]> responses = commandQueue.sendSeparated(mConnection);
-        final List<String[]> result = new ArrayList<>(responses.size());
-
-        for (final String[] r : responses) {
-            final ArrayList<String> albumResult = new ArrayList<>(r.length);
-            for (final String s : r) {
-                final String name = s
-                        .substring((useAlbumArtist ? "AlbumArtist: " : "Artist: ").length());
-                albumResult.add(name);
-            }
-            result.add(albumResult.toArray(new String[albumResult.size()]));
-        }
         return result;
     }
 
@@ -1391,6 +1409,32 @@ public class MPD {
                 MPDCommand.MPD_TAG_ARTIST, MPDCommand.MPD_TAG_GENRE, genre);
 
         return parseResponse(response, "Artist", sortInsensitive);
+    }
+
+    private List<String[]> listArtistsCommand(final Iterable<Album> albums,
+            final boolean useAlbumArtist) throws MPDServerException {
+        final CommandQueue commandQueue = new CommandQueue();
+        for (final Album album : albums) {
+            // When adding album artist to existing artist check that the artist matches
+            if (useAlbumArtist && album.getArtist() != null && !album.getArtist().isUnknown()) {
+                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG,
+                        MPDCommand.MPD_TAG_ALBUM_ARTIST,
+                        MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                        MPDCommand.MPD_TAG_ARTIST, album.getArtist().getName());
+            } else {
+                final String artist;
+                if (useAlbumArtist) {
+                    artist = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+                } else {
+                    artist = MPDCommand.MPD_TAG_ARTIST;
+                }
+
+                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG, artist, MPDCommand.MPD_TAG_ALBUM,
+                        album.getName());
+            }
+        }
+
+        return commandQueue.sendSeparated(mConnection);
     }
 
     /**
