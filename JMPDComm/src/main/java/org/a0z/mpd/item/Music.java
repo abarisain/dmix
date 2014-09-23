@@ -68,37 +68,38 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     private static final Pattern DATE_DELIMITER = Pattern.compile("\\D+");
 
-    private String album = "";
+    private String mAlbum;
 
-    private String artist = "";
+    private String mArtist;
 
-    private String albumartist = "";
+    private String mAlbumArtist;
 
-    private String genre = "";
+    private String mGenre;
 
-    private String fullpath;
+    private String mFullPath;
 
-    private int disc = -1;
+    private int mDisc = -1;
 
-    private long date = -1L;
+    private long mDate = -1L;
 
-    private long time = -1L;
+    private String mName;
 
-    private Directory parent;
+    private Directory mParent;
 
-    private String title;
+    private int mSongId = -1;
 
-    private int totalTracks = -1;
+    private int mSongPos = -1;
 
-    private int track = -1;
+    private long mTime = -1L;
 
-    private int songId = -1;
+    private String mTitle;
 
-    private int pos = -1;
+    private int mTotalTracks = -1;
 
-    private String name;
+    private int mTrack = -1;
 
     public Music() {
+        super();
     }
 
     /**
@@ -113,27 +114,27 @@ public class Music extends Item implements FilesystemTreeEntry {
 
             switch (lines[0]) {
                 case "file":
-                    fullpath = lines[1];
-                    if (fullpath.contains("://")) {
+                    mFullPath = lines[1];
+                    if (mFullPath.contains("://")) {
                         extractStreamName();
                     }
                     break;
                 case "Album":
-                    album = lines[1];
+                    mAlbum = lines[1];
                     break;
                 case "AlbumArtist":
-                    albumartist = lines[1];
+                    mAlbumArtist = lines[1];
                     break;
                 case "Artist":
-                    artist = lines[1];
+                    mArtist = lines[1];
                     break;
                 case "Genre":
-                    genre = lines[1];
+                    mGenre = lines[1];
                     break;
                 case "Date":
                     try {
                         final Matcher matcher = DATE_DELIMITER.matcher(lines[1]);
-                        date = Long.parseLong(matcher.replaceAll(""));
+                        mDate = Long.parseLong(matcher.replaceAll(""));
                     } catch (final NumberFormatException e) {
                         Log.warning(TAG, "Not a valid date.", e);
                     }
@@ -143,9 +144,9 @@ public class Music extends Item implements FilesystemTreeEntry {
 
                     try {
                         if (discIndex == -1) {
-                            disc = Integer.parseInt(lines[1]);
+                            mDisc = Integer.parseInt(lines[1]);
                         } else {
-                            disc = Integer.parseInt(lines[1].substring(0, discIndex));
+                            mDisc = Integer.parseInt(lines[1].substring(0, discIndex));
                         }
                     } catch (final NumberFormatException e) {
                         Log.warning(TAG, "Not a valid disc number.", e);
@@ -153,7 +154,7 @@ public class Music extends Item implements FilesystemTreeEntry {
                     break;
                 case "Id":
                     try {
-                        songId = Integer.parseInt(lines[1]);
+                        mSongId = Integer.parseInt(lines[1]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid song ID.", e);
                     }
@@ -162,36 +163,36 @@ public class Music extends Item implements FilesystemTreeEntry {
                     /**
                      * name may already be assigned to the stream name in file conditional
                      */
-                    if (name == null) {
-                        name = lines[1];
+                    if (mName == null) {
+                        mName = lines[1];
                     }
                     break;
                 case "Pos":
                     try {
-                        pos = Integer.parseInt(lines[1]);
+                        mSongPos = Integer.parseInt(lines[1]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid song position.", e);
                     }
                     break;
                 case "Time":
                     try {
-                        time = Long.parseLong(lines[1]);
+                        mTime = Long.parseLong(lines[1]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid time number.", e);
                     }
                     break;
                 case "Title":
-                    title = lines[1];
+                    mTitle = lines[1];
                     break;
                 case "Track":
                     final int trackIndex = lines[1].indexOf('/');
 
                     try {
                         if (trackIndex == -1) {
-                            track = Integer.parseInt(lines[1]);
+                            mTrack = Integer.parseInt(lines[1]);
                         } else {
-                            track = Integer.parseInt(lines[1].substring(0, trackIndex));
-                            totalTracks = Integer.parseInt(lines[1].substring(trackIndex + 1));
+                            mTrack = Integer.parseInt(lines[1].substring(0, trackIndex));
+                            mTotalTracks = Integer.parseInt(lines[1].substring(trackIndex + 1));
                         }
                     } catch (final NumberFormatException e) {
                         Log.warning(TAG, "Not a valid track number.", e);
@@ -208,44 +209,50 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     protected Music(final Music music) {
-        this(music.album, music.artist, music.albumartist, music.fullpath, music.disc, music.date,
-                music.time, music.parent, music.title, music.totalTracks, music.track, music.songId,
-                music.pos, music.name);
+        this(music.mAlbum, music.mArtist, music.mAlbumArtist, music.mFullPath, music.mDisc,
+                music.mDate, music.mTime, music.mParent, music.mTitle, music.mTotalTracks,
+                music.mTrack, music.mSongId, music.mSongPos, music.mName);
     }
 
-    protected Music(String album, String artist, String albumartist, String fullpath, int disc,
-            long date, long time, Directory parent, String title, int totalTracks, int track,
-            int songId, int pos, String name) {
-        this.album = album;
-        this.artist = artist;
-        this.albumartist = albumartist;
-        this.fullpath = fullpath;
-        this.disc = disc;
-        this.date = date;
-        this.time = time;
-        this.parent = parent;
-        this.title = title;
-        this.totalTracks = totalTracks;
-        this.track = track;
-        this.songId = songId;
-        this.pos = pos;
-        this.name = name;
+    protected Music(final String album, final String artist, final String albumArtist,
+            final String fullPath, final int disc, final long date, final long time,
+            final Directory parent, final String title, final int totalTracks, final int track,
+            final int songId, final int songPos, final String name) {
+        super();
+        mAlbum = album;
+        mArtist = artist;
+        mAlbumArtist = albumArtist;
+        mFullPath = fullPath;
+        mDisc = disc;
+        mDate = date;
+        mTime = time;
+        mParent = parent;
+        mTitle = title;
+        mTotalTracks = totalTracks;
+        mTrack = track;
+        mSongId = songId;
+        mSongPos = songPos;
+        mName = name;
     }
 
-    public static int compare(String a, String b) {
-        if (null == a) {
-            return null == b ? 0 : -1;
+    private static int compare(final String a, final String b) {
+        final int result;
+
+        if (a == null && b == null) {
+            result = 0;
+        } else if (a == null || b == null) {
+            result = 1;
+        } else {
+            result = a.compareTo(b);
         }
-        if (null == b) {
-            return 1;
-        }
-        return a.compareTo(b);
+
+        return result;
     }
 
     public static List<Music> getMusicFromList(final Collection<String> response,
             final boolean sort) {
         final List<Music> result = new ArrayList<>(response.size());
-        final List<String> lineCache = new ArrayList<>(MUSIC_ATTRIBUTES);
+        final Collection<String> lineCache = new ArrayList<>(MUSIC_ATTRIBUTES);
 
         for (final String line : response) {
             if (line.startsWith("file: ")) {
@@ -268,7 +275,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         return result;
     }
 
-    private static boolean isEmpty(String s) {
+    private static boolean isEmpty(final String s) {
         return null == s || s.isEmpty();
     }
 
@@ -305,38 +312,38 @@ public class Music extends Item implements FilesystemTreeEntry {
         return result;
     }
 
-    public static String addStreamName(String url, String name) {
+    public static String addStreamName(final String url, final String name) {
         if (null == name || name.isEmpty()) {
             return url;
         }
         try {
-            String path = new URL(url).getPath();
+            final String path = new URL(url).getPath();
             if (null == path || path.isEmpty()) {
                 return url + "/#" + name;
             }
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
         }
         return url + "#" + name;
     }
 
     @Override
-    public int compareTo(Item o) {
+    public int compareTo(final Item o) {
         if (o instanceof Music) {
-            Music om = (Music) o;
+            final Music om = (Music) o;
             int compare;
 
             // songId overrides every other sorting method. It's used for playlists/queue
-            if (songId != om.songId) {
-                return songId < om.songId ? -1 : 1;
+            if (mSongId != om.mSongId) {
+                return mSongId < om.mSongId ? -1 : 1;
             }
 
-            // If enabled, sort by disc and track number
+            // If enabled, sort by mDisc and track number
             if (MPD.sortByTrackNumber()) {
-                if (disc != om.disc && disc != -1 && om.disc != -1) {
-                    return disc < om.disc ? -1 : 1;
+                if (mDisc != om.mDisc && mDisc != -1 && om.mDisc != -1) {
+                    return mDisc < om.mDisc ? -1 : 1;
                 }
-                if (track != om.track && track != -1 && om.track != -1) {
-                    return track < om.track ? -1 : 1;
+                if (mTrack != om.mTrack && mTrack != -1 && om.mTrack != -1) {
+                    return mTrack < om.mTrack ? -1 : 1;
                 }
             }
 
@@ -347,13 +354,13 @@ public class Music extends Item implements FilesystemTreeEntry {
             }
 
             // Then order by name (streams)
-            compare = compare(name, om.name);
+            compare = compare(mName, om.mName);
             if (0 != compare) {
                 return compare;
             }
 
             // Last resort is to order by fullpath
-            return compare(fullpath, om.fullpath);
+            return compare(mFullPath, om.mFullPath);
         }
         return super.compareTo(o);
     }
@@ -364,16 +371,16 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return album name.
      */
     public String getAlbum() {
-        return album;
+        return mAlbum;
     }
 
     /**
      * Defines album name.
      *
-     * @param string album name.
+     * @param album album name.
      */
-    public void setAlbum(String string) {
-        album = string;
+    void setAlbum(final String album) {
+        mAlbum = album;
     }
 
     /**
@@ -382,29 +389,29 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return album artist name or null if it is not set.
      */
     public String getAlbumArtist() {
-        return albumartist;
+        return mAlbumArtist;
     }
 
-    public void setAlbumArtist(String albumartist) {
-        this.albumartist = albumartist;
+    public void setAlbumArtist(final String albumartist) {
+        mAlbumArtist = albumartist;
     }
 
     public Artist getAlbumArtistAsArtist() {
-        return new Artist(albumartist);
+        return new Artist(mAlbumArtist);
     }
 
     public String getAlbumArtistOrArtist() {
-        return isEmpty(albumartist) ? artist : albumartist;
+        return isEmpty(mAlbumArtist) ? mArtist : mAlbumArtist;
     }
 
     public Album getAlbumAsAlbum() {
-        boolean is_aa = !isEmpty(albumartist);
-        Artist art = new Artist((is_aa ? albumartist : artist));
-        return new Album(album, art, is_aa);
+        final boolean isAlbumArtist = !isEmpty(mAlbumArtist);
+        final Artist artist = new Artist(isAlbumArtist ? mAlbumArtist : mArtist);
+        return new Album(mAlbum, artist, isAlbumArtist);
     }
 
     public AlbumInfo getAlbumInfo() {
-        return new AlbumInfo(getAlbumArtistOrArtist(), getAlbum(), getPath(), getFilename());
+        return new AlbumInfo(getAlbumArtistOrArtist(), mAlbum, getPath(), getFilename());
     }
 
     /**
@@ -413,44 +420,44 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return artist name.
      */
     public String getArtist() {
-        return artist;
+        return mArtist;
     }
 
     /**
      * Defines artist name.
      *
-     * @param string artist name.
+     * @param artist artist name.
      */
-    public void setArtist(String string) {
-        artist = string;
+    void setArtist(final String artist) {
+        mArtist = artist;
     }
 
     public Artist getArtistAsArtist() {
-        return new Artist(artist);
+        return new Artist(mArtist);
     }
 
-    public String getGenre() {
-        return genre;
+    String getGenre() {
+        return mGenre;
     }
 
-    public void setGenre(String string) {
-        genre = string;
+    void setGenre(final String genre) {
+        mGenre = genre;
     }
 
     public long getDate() {
-        return date;
+        return mDate;
     }
 
-    public void setDate(long value) {
-        date = value;
+    void setDate(final long value) {
+        mDate = value;
     }
 
     public int getDisc() {
-        return disc;
+        return mDisc;
     }
 
-    public void setDisc(int value) {
-        disc = value;
+    void setDisc(final int value) {
+        mDisc = value;
     }
 
     /**
@@ -459,11 +466,11 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return filename.
      */
     public String getFilename() {
-        int pos = fullpath.lastIndexOf('/');
-        if (pos == -1 || pos == fullpath.length() - 1) {
-            return fullpath;
+        final int pos = mFullPath.lastIndexOf('/');
+        if (pos == -1 || pos == mFullPath.length() - 1) {
+            return mFullPath;
         } else {
-            return fullpath.substring(pos + 1);
+            return mFullPath.substring(pos + 1);
         }
     }
 
@@ -473,16 +480,16 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return album artist name.
      */
     public String getFilteredAlbumArtist() {
-        return isValidArtist(albumartist) ? albumartist : artist;
+        return isValidArtist(mAlbumArtist) ? mAlbumArtist : mArtist;
     }
 
     /**
-     * Retrieves date as string (##:##).
+     * Retrieves mDate as string (##:##).
      *
-     * @return date as string.
+     * @return mDate as string.
      */
-    public String getFormattedTime() {
-        return timeToString(time);
+    public CharSequence getFormattedTime() {
+        return timeToString(mTime);
     }
 
     /**
@@ -490,8 +497,9 @@ public class Music extends Item implements FilesystemTreeEntry {
      *
      * @return full path name.
      */
+    @Override
     public String getFullpath() {
-        return fullpath;
+        return mFullPath;
     }
 
     /**
@@ -499,8 +507,9 @@ public class Music extends Item implements FilesystemTreeEntry {
      *
      * @return stream's name.
      */
+    @Override
     public String getName() {
-        return isEmpty(name) ? getFilename() : name;
+        return isEmpty(mName) ? getFilename() : mName;
     }
 
     /**
@@ -509,15 +518,17 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return file's parent directory
      */
     public String getParent() {
-        if (fullpath == null) {
-            return null;
+        String parent = null;
+
+        if (mFullPath != null) {
+            final int pos = mFullPath.lastIndexOf('/');
+
+            if (pos != -1) {
+                parent = mFullPath.substring(0, pos);
+            }
         }
-        int pos = fullpath.lastIndexOf('/');
-        if (pos == -1) {
-            return null;
-        } else {
-            return fullpath.substring(0, pos);
-        }
+
+        return parent;
     }
 
     /**
@@ -525,8 +536,8 @@ public class Music extends Item implements FilesystemTreeEntry {
      *
      * @param directory file's parent directory
      */
-    public void setParent(Directory directory) {
-        parent = directory;
+    public void setParent(final Directory directory) {
+        mParent = directory;
     }
 
     /**
@@ -535,7 +546,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return file's parent directory
      */
     public Directory getParentDirectory() {
-        return parent;
+        return mParent;
     }
 
     /**
@@ -544,9 +555,9 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return path of music file.
      */
     public String getPath() {
-        String result;
-        if (null != fullpath && fullpath.length() > getFilename().length()) {
-            result = fullpath.substring(0, fullpath.length() - getFilename().length() - 1);
+        final String result;
+        if (null != mFullPath && mFullPath.length() > getFilename().length()) {
+            result = mFullPath.substring(0, mFullPath.length() - getFilename().length() - 1);
         } else {
             result = "";
         }
@@ -559,7 +570,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return current song stopped on or playing, playlist song number.
      */
     public int getPos() {
-        return pos;
+        return mSongPos;
     }
 
     /**
@@ -568,19 +579,19 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return current song playlist id.
      */
     public int getSongId() {
-        return songId;
+        return mSongId;
     }
 
-    public void setSongId(int value) {
-        songId = value;
+    public void setSongId(final int value) {
+        mSongId = value;
     }
 
     private void extractStreamName() {
-        if (null != fullpath && !fullpath.isEmpty()) {
-            int pos = fullpath.indexOf("#");
+        if (null != mFullPath && !mFullPath.isEmpty()) {
+            final int pos = mFullPath.indexOf('#');
             if (pos > 1) {
-                name = fullpath.substring(pos + 1, fullpath.length());
-                fullpath = fullpath.substring(0, pos - 1);
+                mName = mFullPath.substring(pos + 1, mFullPath.length());
+                mFullPath = mFullPath.substring(0, pos - 1);
             }
         }
     }
@@ -591,7 +602,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return playing time.
      */
     public long getTime() {
-        return time;
+        return mTime;
     }
 
     /**
@@ -599,8 +610,8 @@ public class Music extends Item implements FilesystemTreeEntry {
      *
      * @param l playing time.
      */
-    public void setTime(long l) {
-        time = l;
+    void setTime(final long l) {
+        mTime = l;
     }
 
     /**
@@ -609,20 +620,20 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return title.
      */
     public String getTitle() {
-        if (isEmpty(title)) {
+        if (isEmpty(mTitle)) {
             return getFilename();
         } else {
-            return title;
+            return mTitle;
         }
     }
 
     /**
      * Defines title.
      *
-     * @param string title.
+     * @param title title.
      */
-    public void setTitle(String string) {
-        title = string;
+    void setTitle(final String title) {
+        mTitle = title;
     }
 
     /**
@@ -632,17 +643,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return total number of tracks from this music's album when available.
      */
     public int getTotalTracks() {
-        return totalTracks;
-    }
-
-    /**
-     * Defines total number of tracks from this music's album when available.
-     *
-     * @param total total number of tracks from this music's album when
-     *              available.
-     */
-    public void setTotalTracks(int total) {
-        totalTracks = total;
+        return mTotalTracks;
     }
 
     /**
@@ -651,7 +652,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return track number.
      */
     public int getTrack() {
-        return track;
+        return mTrack;
     }
 
     /**
@@ -659,16 +660,16 @@ public class Music extends Item implements FilesystemTreeEntry {
      *
      * @param num track number.
      */
-    public void setTrack(int num) {
-        track = num;
+    void setTrack(final int num) {
+        mTrack = num;
     }
 
-    public boolean haveTitle() {
-        return null != title && !title.isEmpty();
+    public boolean hasTitle() {
+        return null != mTitle && !mTitle.isEmpty();
     }
 
     public boolean isStream() {
-        return null != fullpath && fullpath.contains("://");
+        return null != mFullPath && mFullPath.contains("://");
     }
 
     @Override
@@ -682,27 +683,28 @@ public class Music extends Item implements FilesystemTreeEntry {
      *
      * @param other {@code Music} to copy data from.
      */
-    void update(Music other) {
-        this.setArtist(other.getArtist());
-        this.setAlbum(other.getAlbum());
-        this.setTitle(other.getTitle());
-        this.setTime(other.getTime());
-        this.setTotalTracks(other.getTotalTracks());
-        this.setTrack(other.getTrack());
-        this.setGenre(other.getGenre());
+    void update(final Music other) {
+        mArtist = other.mArtist;
+        mAlbum = other.mAlbum;
+        mTitle = other.getTitle();
+        mTime = other.mTime;
+        mTotalTracks = other.mTotalTracks;
+        mTrack = other.mTrack;
+        mGenre = other.mGenre;
         /*
          * this.setSoundtrack(other.getSoundtrack());
          * this.setComposer(other.getComposer());
          */
-        this.setDisc(other.getDisc());
-        this.setDate(other.getDate());
+        mDisc = other.mDisc;
+        mDate = other.mDate;
     }
 
     /** Do not implement toString(), JMPDComm is dependent on the implementation in Item.java. */
 
-    public static class MusicTitleComparator implements Comparator<Music> {
+    private static class MusicTitleComparator implements Comparator<Music> {
 
-        public int compare(Music o1, Music o2) {
+        @Override
+        public int compare(final Music o1, final Music o2) {
             return String.CASE_INSENSITIVE_ORDER.compare(o1.getTitle(), o2.getTitle());
         }
     }

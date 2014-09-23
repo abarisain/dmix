@@ -152,7 +152,7 @@ public class UpdateTrackInfo {
 
             if (mCurrentSong != null) {
                 if (mCurrentSong.isStream()) {
-                    if (mCurrentSong.haveTitle()) {
+                    if (mCurrentSong.hasTitle()) {
                         mAlbum = mCurrentSong.getName();
                         mTitle = mCurrentSong.getTitle();
                     } else {
