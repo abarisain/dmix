@@ -76,11 +76,11 @@ public class AlbumParcelable extends Album implements Parcelable {
         }
 
         dest.writeString(getName());
+        dest.writeString(artistName);
+        dest.writeInt(hasAlbumArtist() ? 1 : 0);
         dest.writeLong(getSongCount());
         dest.writeLong(getDuration());
         dest.writeLong(getYear());
-        dest.writeString(artistName);
-        dest.writeInt(hasAlbumArtist() ? 1 : 0);
         dest.writeString(getPath());
     }
 }
