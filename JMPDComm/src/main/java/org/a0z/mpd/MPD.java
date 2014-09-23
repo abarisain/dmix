@@ -934,9 +934,9 @@ public class MPD {
 
         final LinkedList<String> lineCache = new LinkedList<>();
         for (final String line : response) {
-            if (line.startsWith("outputid: ")) {
+            if (line.startsWith(MPDOutput.CMD_ID)) {
                 if (!lineCache.isEmpty()) {
-                    result.add(new MPDOutput(lineCache));
+                    result.add(MPDOutput.build(lineCache));
                     lineCache.clear();
                 }
             }
@@ -944,7 +944,7 @@ public class MPD {
         }
 
         if (!lineCache.isEmpty()) {
-            result.add(new MPDOutput(lineCache));
+            result.add(MPDOutput.build(lineCache));
         }
 
         return result;

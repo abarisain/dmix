@@ -27,28 +27,64 @@
 
 package org.a0z.mpd;
 
+import org.a0z.mpd.exception.InvalidResponseException;
+
+import java.util.Collection;
+
 /*
  * Class representing one configured output
  */
 public class MPDOutput {
 
-    private boolean mEnabled;
+    static final String CMD_ID = "outputid";
 
-    private int mId;
+    private static final String CMD_ENABLED = "outputenabled";
 
-    private String mName;
+    private static final String CMD_NAME = "outputname";
 
-    MPDOutput(final Iterable<String> response) {
+    private static final String TAG = "MPDOutput";
+
+    private final boolean mEnabled;
+
+    private final int mId;
+
+    private final String mName;
+
+    MPDOutput(final String name, final int id, final boolean enabled) {
         super();
-        for (final String line : response) {
-            if (line.startsWith("outputid:")) {
-                mId = Integer.parseInt(line.substring("outputid: ".length()));
-            } else if (line.startsWith("outputname:")) {
-                mName = line.substring("outputname: ".length());
-            } else if (line.startsWith("outputenabled:")) {
-                mEnabled = "1".equals(line.substring("outputenabled: ".length()));
+
+        mName = name;
+        mId = id;
+        mEnabled = enabled;
+    }
+
+    public static MPDOutput build(final Collection<String> response) {
+        String name = null;
+        int id = -1;
+        Boolean enabled = null;
+
+        for (final String[] lines : Tools.splitResponse(response)) {
+            switch (lines[0]) {
+                case CMD_ENABLED:
+                    enabled = Boolean.valueOf("1".equals(lines[1]));
+                    break;
+                case CMD_ID:
+                    id = Integer.parseInt(lines[1]);
+                    break;
+                case CMD_NAME:
+                    name = lines[1];
+                    break;
+                default:
+                    Log.warning(TAG, "Non-standard line appeared in output response: " + lines[1]);
+                    break;
             }
         }
+
+        if (name == null || id == -1 || enabled == null) {
+            throw new InvalidResponseException("Failed to parse output information.");
+        }
+
+        return new MPDOutput(name, id, enabled.booleanValue());
     }
 
     public int getId() {
