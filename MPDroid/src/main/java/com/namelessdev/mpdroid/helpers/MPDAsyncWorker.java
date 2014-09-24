@@ -114,11 +114,13 @@ public class MPDAsyncWorker implements Handler.Callback,
         final MPDApplication app = MPDApplication.getInstance();
         final String unknownAlbum = app.getString(R.string.unknown_metadata_album);
         final String unknownArtist = app.getString(R.string.unknown_metadata_artist);
+        final String unknownGenre = app.getString(R.string.unknown_metadata_genre);
 
         MPD.setSortByTrackNumber(mSettings.getBoolean(ALBUM_TRACK_SORT_KEY, true));
         MPD.setSortAlbumsByYear(mSettings.getBoolean(ALBUM_YEAR_SORT_KEY, false));
         MPD.setUnknownArtist(unknownArtist);
         MPD.setUnknownAlbum(unknownAlbum);
+        MPD.setUnknownGenre(unknownGenre);
     }
 
     @Override

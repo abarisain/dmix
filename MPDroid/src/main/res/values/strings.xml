@@ -32,7 +32,6 @@
     <string name="streamingURLDescription">Stream URL (with http://)</string>
     <string name="updateDB">Update</string>
     <string name="track">Track</string>
-    <string name="unknown_metadata_genre">(Unknown Genre)</string>
     <string name="volume">Volume</string>
     <string name="waitForWLAN">Waiting for WLAN to be connected…</string>
     <string name="whatsNew">What\'s new ?</string>
@@ -304,5 +303,6 @@
     <!-- Unknown metadata Strings -->
     <string name="unknown_metadata_album">(Unknown Album)</string>
     <string name="unknown_metadata_artist">(Unknown Artist)</string>
+    <string name="unknown_metadata_genre">(Unknown Genre)</string>
     <!-- End Unknown Metadata Strings -->
 </resources>

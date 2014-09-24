@@ -33,7 +33,6 @@
     <string name="streamingURLDescription">Stream-URL (mit http://)</string>
     <string name="updateDB">Datenbank aktualisieren</string>
     <string name="track">Titel</string>
-    <string name="unknown_metadata_genre">(Unbekanntes Genre)</string>
     <string name="volume">Lautstärke</string>
     <string name="waitForWLAN">Warte auf Verbindung mit WLAN …</string>
     <string name="whatsNew">Neue Funktionen</string>
@@ -287,4 +286,5 @@
 
     <string name="unknown_metadata_album">(Unbekanntes Album)</string>
     <string name="unknown_metadata_artist">(Unbekannter Künstler)</string>
+    <string name="unknown_metadata_genre">(Unbekanntes Genre)</string>
 </resources>

@@ -69,6 +69,8 @@ public class MPD {
 
     private static String sUnknownArtist = "";
 
+    private static String sUnknownGenre = "";
+
     protected final MPDPlaylist mPlaylist;
 
     protected final Directory mRootDirectory;
@@ -164,6 +166,10 @@ public class MPD {
         return sUnknownArtist;
     }
 
+    public static String getUnknownGenre() {
+        return sUnknownGenre;
+    }
+
     /*
      * get raw command String for listAlbums
      */
@@ -234,6 +240,10 @@ public class MPD {
 
     public static void setUnknownArtist(final String unknownArtist) {
         sUnknownArtist = unknownArtist;
+    }
+
+    public static void setUnknownGenre(final String unknownGenre) {
+        sUnknownGenre = unknownGenre;
     }
 
     static MPDCommand skipToPositionCommand(final int position) {
