@@ -285,7 +285,11 @@ public final class StreamHandler implements
         boolean result = false;
 
         if (msg.what == PREPARE_ASYNC) {
-            if (mIsPlaying) {
+            /**
+             * If MediaPlayer is null, the stream has already been
+             * stopped; action is/has already been taken.
+             */
+            if (mIsPlaying && mMediaPlayer != null) {
                 if (DEBUG) {
                     Log.d(TAG, "Start mediaPlayer buffering.");
                 }
