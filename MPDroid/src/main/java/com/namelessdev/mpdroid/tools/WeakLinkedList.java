@@ -42,6 +42,9 @@ import java.util.NoSuchElementException;
  *         href="mailto:edalquist@unicon.net">edalquist@unicon.net</a>
  * @version $Revision$
  */
+
+/** Let's assume the author was smart enough to check object equality. */
+@SuppressWarnings("ObjectEquality")
 public class WeakLinkedList<T> implements List<T> {
 
     private final Object mLOCK = new Object();
@@ -513,6 +516,7 @@ public class WeakLinkedList<T> implements List<T> {
     /**
      * Iterator implementation that can deal with weak nodes.
      */
+    @SuppressWarnings("ObjectEquality")
     private class DurableListIterator implements ListIterator<T> {
 
         private long mExpectedModCount;
