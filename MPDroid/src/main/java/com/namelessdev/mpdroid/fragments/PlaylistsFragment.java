@@ -31,6 +31,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
@@ -85,9 +86,9 @@ public class PlaylistsFragment extends BrowseFragment {
             final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         final MenuItem editItem = menu
-                .add(ContextMenu.NONE, EDIT, 0, R.string.editPlaylist);
+                .add(Menu.NONE, EDIT, 0, R.string.editPlaylist);
         editItem.setOnMenuItemClickListener(this);
-        final MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
+        final MenuItem addAndReplaceItem = menu.add(Menu.NONE, DELETE, 0,
                 R.string.deletePlaylist);
         addAndReplaceItem.setOnMenuItemClickListener(this);
     }

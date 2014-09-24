@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -53,7 +54,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                 android.R.layout.simple_list_item_multiple_choice, mOutputs);
         setListAdapter(arrayAdapter);
 
-        getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        getListView().setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
         getListView().setOnItemClickListener(this);
 
         // Not needed since MainMenuActivity will take care of telling us to refresh

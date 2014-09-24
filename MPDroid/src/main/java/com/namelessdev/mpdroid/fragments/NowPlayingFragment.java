@@ -58,7 +58,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -505,7 +504,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             case CoverManager.PREFERENCE_CACHE:
             case CoverManager.PREFERENCE_LASTFM:
             case CoverManager.PREFERENCE_LOCALSERVER:
-                mCoverAsyncHelper.setCoverRetrieversFromPreferences();
+                CoverAsyncHelper.setCoverRetrieversFromPreferences();
                 break;
             case "enableStopButton":
                 applyViewVisibility(sharedPreferences, mStopButton, key);
@@ -893,7 +892,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private static class ButtonEventHandler
-            implements Button.OnClickListener, Button.OnLongClickListener {
+            implements View.OnClickListener, View.OnLongClickListener {
 
         @Override
         public void onClick(final View v) {

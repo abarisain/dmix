@@ -281,10 +281,10 @@ public class StreamsFragment extends BrowseFragment {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         if (info.id >= 0 && info.id < mStreams.size()) {
             final Stream stream = mStreams.get((int) info.id);
-            final MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0,
+            final MenuItem editItem = menu.add(Menu.NONE, EDIT, 0,
                     R.string.editStream);
             editItem.setOnMenuItemClickListener(this);
-            final MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
+            final MenuItem addAndReplaceItem = menu.add(Menu.NONE, DELETE, 0,
                     R.string.deleteStream);
             addAndReplaceItem.setOnMenuItemClickListener(this);
         }

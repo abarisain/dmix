@@ -58,7 +58,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         mCoverArt.setVisibility(View.VISIBLE);
         mCoverArtProgress = coverArtProgress;
         mCoverArtProgress.setIndeterminate(true);
-        mCoverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+        mCoverArtProgress.setVisibility(View.INVISIBLE);
         freeCoverDrawable();
     }
 
@@ -141,7 +141,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
             return;
         }
         if (mCoverArtProgress != null) {
-            mCoverArtProgress.setVisibility(ProgressBar.VISIBLE);
+            mCoverArtProgress.setVisibility(View.VISIBLE);
         }
     }
 
@@ -155,7 +155,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         }
         try {
             if (mCoverArtProgress != null) {
-                mCoverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+                mCoverArtProgress.setVisibility(View.INVISIBLE);
             }
             freeCoverDrawable(mCoverArt.getDrawable());
             mCoverArt.setImageDrawable(new CoverBitmapDrawable(sApp.getResources(), cover
@@ -173,7 +173,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         }
         coverInfo.setBitmap(null);
         if (mCoverArtProgress != null) {
-            mCoverArtProgress.setVisibility(ProgressBar.INVISIBLE);
+            mCoverArtProgress.setVisibility(View.INVISIBLE);
         }
         freeCoverDrawable();
     }

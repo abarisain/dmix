@@ -821,7 +821,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
     }
 
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+    private class DrawerItemClickListener implements AdapterView.OnItemClickListener {
 
         @Override
         public void onItemClick(final AdapterView<?> parent, final View view, final int position,
