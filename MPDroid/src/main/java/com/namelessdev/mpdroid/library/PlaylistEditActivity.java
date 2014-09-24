@@ -104,46 +104,40 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
 
     @Override
     public void onClick(final View v) {
-        switch (v.getId()) {
-            case R.id.Remove:
-                int count = 0;
-                try {
-                    final ArrayList<HashMap<String, Object>> copy
-                            = new ArrayList<>();
-                    copy.addAll(mSongList);
+        if (v.getId() == R.id.Remove) {
+            int count = 0;
 
-                    final List<Integer> positions = new LinkedList<>();
-                    for (final HashMap<String, Object> item : copy) {
-                        if (item.get("marked").equals(true)) {
-                            positions.add((Integer) item.get("songid"));
-                            mSongList.remove(copy.indexOf(item) - count);
-                            count++;
-                        }
-                    }
-                    Collections.sort(positions);
+            try {
+                final ArrayList<HashMap<String, Object>> copy = new ArrayList<>(mSongList);
 
-                    if (mIsPlayQueue) {
-                        for (count = 0; count < positions.size(); ++count) {
-                            mApp.oMPDAsyncHelper.oMPD.getPlaylist()
-                                    .removeById(positions.get(count));
-                        }
-                    } else {
-                        for (count = 0; count < positions.size(); ++count) {
-                            mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylistName,
-                                    positions.get(count) - count);
-                        }
+                final List<Integer> positions = new LinkedList<>();
+                for (final HashMap<String, Object> item : copy) {
+                    if (item.get("marked").equals(Boolean.TRUE)) {
+                        positions.add((Integer) item.get("songid"));
+                        mSongList.remove(copy.indexOf(item) - count);
+                        count++;
                     }
-                    if (copy.size() != mSongList.size()) {
-                        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-                    }
-                    Tools.notifyUser(R.string.removeCountSongs, count);
-                } catch (final Exception e) {
-                    Log.e(TAG, "General Error.", e);
-                    update();
                 }
-                break;
-            default:
-                break;
+                Collections.sort(positions);
+
+                if (mIsPlayQueue) {
+                    for (count = 0; count < positions.size(); ++count) {
+                        mApp.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions.get(count));
+                    }
+                } else {
+                    for (count = 0; count < positions.size(); ++count) {
+                        mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylistName,
+                                positions.get(count) - count);
+                    }
+                }
+                if (copy.size() != mSongList.size()) {
+                    ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+                }
+                Tools.notifyUser(R.string.removeCountSongs, count);
+            } catch (final Exception e) {
+                Log.e(TAG, "General Error.", e);
+                update();
+            }
         }
     }
 

@@ -401,15 +401,15 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         final AbstractList<?> targetArray;
         switch (mPager.getCurrentItem()) {
-            default:
-            case 0:
-                targetArray = mArtistResults;
-                break;
             case 1:
                 targetArray = mAlbumResults;
                 break;
             case 2:
                 targetArray = mSongResults;
+                break;
+            case 0:
+            default:
+                targetArray = mArtistResults;
                 break;
         }
         final Object selectedItem = targetArray.get((int) info.id);
@@ -428,6 +428,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                         break;
                     case ADD_PLAY:
                         play = true;
+                        break;
+                    default:
                         break;
                 }
                 add(selectedItem, replace, play);
@@ -565,15 +567,15 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
             final View v;
             switch (position) {
-                default:
-                case 0:
-                    v = mListArtistsFrame;
-                    break;
                 case 1:
                     v = mListAlbumsFrame;
                     break;
                 case 2:
                     v = mListSongsFrame;
+                    break;
+                case 0:
+                default:
+                    v = mListArtistsFrame;
                     break;
             }
             if (v.getParent() == null) {

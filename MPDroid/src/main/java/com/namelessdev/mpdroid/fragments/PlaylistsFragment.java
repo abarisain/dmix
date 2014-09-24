@@ -147,33 +147,28 @@ public class PlaylistsFragment extends BrowseFragment {
 
         @Override
         public void onClick(final DialogInterface dialog, final int which) {
-            switch (which) {
-                case AlertDialog.BUTTON_NEGATIVE:
-                    break;
-                case AlertDialog.BUTTON_POSITIVE:
-                    final String playlist = mItems.get(mItemIndex).getName();
-                    try {
-                        mApp.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
-                        if (isAdded()) {
-                            Tools.notifyUser(R.string.playlistDeleted, playlist);
-                        }
-                        mItems.remove(mItemIndex);
-                    } catch (final MPDServerException e) {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(R.string.deletePlaylist);
-                        builder.setMessage(
-                                getResources().getString(R.string.failedToDelete, playlist));
-                        builder.setPositiveButton(android.R.string.cancel, null);
-
-                        try {
-                            builder.show();
-                        } catch (final BadTokenException ignored) {
-                            // Can't display it. Don't care.
-                        }
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                final String playlist = mItems.get(mItemIndex).getName();
+                try {
+                    mApp.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
+                    if (isAdded()) {
+                        Tools.notifyUser(R.string.playlistDeleted, playlist);
                     }
-                    updateFromItems();
-                    break;
+                    mItems.remove(mItemIndex);
+                } catch (final MPDServerException e) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.deletePlaylist);
+                    builder.setMessage(
+                            getResources().getString(R.string.failedToDelete, playlist));
+                    builder.setPositiveButton(android.R.string.cancel, null);
 
+                    try {
+                        builder.show();
+                    } catch (final BadTokenException ignored) {
+                        // Can't display it. Don't care.
+                    }
+                }
+                updateFromItems();
             }
         }
     }

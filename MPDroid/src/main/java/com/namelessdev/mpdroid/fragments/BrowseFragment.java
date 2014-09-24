@@ -115,6 +115,79 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     protected abstract void add(Item item, String playlist);
 
+    private void addAndReplace(final MenuItem item) {
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+
+        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+            @Override
+            public void run() {
+                boolean replace = false;
+                boolean play = false;
+                switch (item.getGroupId()) {
+                    case ADD_REPLACE_PLAY:
+                        replace = true;
+                        play = true;
+                        break;
+                    case ADD_REPLACE:
+                        replace = true;
+                        break;
+                    case ADD_PLAY:
+                        final MPDStatus status = mApp.oMPDAsyncHelper.oMPD.getStatus();
+
+                        /**
+                         * Let the user know if we're not going to play the added music.
+                         */
+                        if (status.isRandom() && status.isState(MPDStatus.STATE_PLAYING)) {
+                            Tools.notifyUser(R.string.notPlayingInRandomMode);
+                        } else {
+                            play = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                add(mItems.get((int) info.id), replace, play);
+            }
+        });
+    }
+
+    private void addToPlaylist(final MenuItem item) {
+        final EditText input = new EditText(getActivity());
+        final int id = item.getOrder();
+        if (item.getItemId() == 0) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.playlistName)
+                    .setMessage(R.string.newPlaylistPrompt)
+                    .setView(input)
+                    .setPositiveButton(android.R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(final DialogInterface dialog,
+                                        final int which) {
+                                    final String name = input.getText().toString().trim();
+                                    if (!name.isEmpty()) {
+                                        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                add(mItems.get(id), name);
+                                            }
+                                        });
+                                    }
+                                }
+                            })
+                    .setNegativeButton(android.R.string.cancel,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(final DialogInterface dialog,
+                                        final int which) {
+                                    // Do nothing.
+                                }
+                            }).show();
+        } else {
+            add(mItems.get(id), item.getTitle().toString());
+        }
+    }
+
     @Override
     public void asyncExecSucceeded(final int jobID) {
         if (mJobID == jobID) {
@@ -261,79 +334,16 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
-        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getGroupId()) {
             case ADD_REPLACE_PLAY:
             case ADD_REPLACE:
             case ADD:
             case ADD_PLAY:
-                mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean replace = false;
-                        boolean play = false;
-                        switch (item.getGroupId()) {
-                            case ADD_REPLACE_PLAY:
-                                replace = true;
-                                play = true;
-                                break;
-                            case ADD_REPLACE:
-                                replace = true;
-                                break;
-                            case ADD_PLAY:
-                                final MPDStatus status = mApp.oMPDAsyncHelper.oMPD.getStatus();
-
-                                /**
-                                 * Let the user know if we're not going to play the added music.
-                                 */
-                                if (status.isRandom() && status.isState(MPDStatus.STATE_PLAYING)) {
-                                    Tools.notifyUser(R.string.notPlayingInRandomMode);
-                                } else {
-                                    play = true;
-                                }
-                                break;
-                        }
-                        add(mItems.get((int) info.id), replace, play);
-                    }
-                });
+                addAndReplace(item);
                 break;
-            case ADD_TO_PLAYLIST: {
-                final EditText input = new EditText(getActivity());
-                final int id = item.getOrder();
-                if (item.getItemId() == 0) {
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle(R.string.playlistName)
-                            .setMessage(R.string.newPlaylistPrompt)
-                            .setView(input)
-                            .setPositiveButton(android.R.string.ok,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(final DialogInterface dialog,
-                                                final int which) {
-                                            final String name = input.getText().toString().trim();
-                                            if (null != name && !name.isEmpty()) {
-                                                mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        add(mItems.get(id), name);
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    })
-                            .setNegativeButton(android.R.string.cancel,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(final DialogInterface dialog,
-                                                final int which) {
-                                            // Do nothing.
-                                        }
-                                    }).show();
-                } else {
-                    add(mItems.get(id), item.getTitle().toString());
-                }
+            case ADD_TO_PLAYLIST:
+                addToPlaylist(item);
                 break;
-            }
             default:
                 final String name = item.getTitle().toString();
                 final int id = item.getOrder();

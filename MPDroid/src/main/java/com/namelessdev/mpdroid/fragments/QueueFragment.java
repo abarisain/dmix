@@ -256,32 +256,29 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 final SparseBooleanArray checkedItems = mList.getCheckedItemPositions();
                 final int count = mList.getCount();
                 final ListAdapter adapter = mList.getAdapter();
+                final int itemId = item.getItemId();
                 int j = 0;
                 int[] positions = null;
                 boolean result = true;
 
-                switch (item.getItemId()) {
-                    case R.id.menu_delete:
-                        positions = new int[mList.getCheckedItemCount()];
-                        for (int i = 0; i < count && j < positions.length; i++) {
-                            if (checkedItems.get(i)) {
-                                positions[j] = ((Music) adapter.getItem(i)).getSongId();
-                                j++;
-                            }
+                if (itemId == R.id.menu_delete) {
+                    positions = new int[mList.getCheckedItemCount()];
+                    for (int i = 0; i < count && j < positions.length; i++) {
+                        if (checkedItems.get(i)) {
+                            positions[j] = ((Music) adapter.getItem(i)).getSongId();
+                            j++;
                         }
-                        break;
-                    case R.id.menu_crop:
-                        positions = new int[mList.getCount() - mList.getCheckedItemCount()];
-                        for (int i = 0; i < count && j < positions.length; i++) {
-                            if (!checkedItems.get(i)) {
-                                positions[j] = ((Music) adapter.getItem(i)).getSongId();
-                                j++;
-                            }
+                    }
+                } else if (itemId == R.id.menu_crop) {
+                    positions = new int[mList.getCount() - mList.getCheckedItemCount()];
+                    for (int i = 0; i < count && j < positions.length; i++) {
+                        if (!checkedItems.get(i)) {
+                            positions[j] = ((Music) adapter.getItem(i)).getSongId();
+                            j++;
                         }
-                        break;
-                    default:
-                        result = false;
-                        break;
+                    }
+                } else {
+                    result = false;
                 }
 
                 if (j > 0) {
@@ -421,73 +418,69 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         boolean result = true;
         final Intent intent;
 
-        switch (item.getItemId()) {
-            case R.id.PLM_Clear:
-                QueueControl.run(QueueControl.CLEAR);
-                mSongList.clear();
-                if (isAdded()) {
-                    Tools.notifyUser(R.string.playlistCleared);
-                }
-                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-                break;
-            case R.id.PLM_EditPL:
-                intent = new Intent(mActivity, PlaylistEditActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.PLM_Save:
-                List<Item> playLists;
-                try {
-                    playLists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to receive list of playlists.", e);
-                    playLists = new ArrayList<>(0);
-                }
-                Collections.sort(playLists);
-                final String[] playlistsArray = new String[playLists.size() + 1];
-                for (int p = 0; p < playLists.size(); p++) {
-                    playlistsArray[p] = playLists.get(p).getName(); // old playlists
-                }
-                playlistsArray[playlistsArray.length - 1] = getResources()
-                        .getString(R.string.newPlaylist); // "new playlist"
-                mPlaylistToSave = playlistsArray[playlistsArray.length - 1];
-                new AlertDialog.Builder(mActivity) // dialog with list of playlists
-                        .setTitle(R.string.playlistName)
-                        .setSingleChoiceItems
-                                (playlistsArray, playlistsArray.length - 1,
-                                        new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(
-                                                    final DialogInterface dialog, final int which) {
-                                                mPlaylistToSave = playlistsArray[which];
-                                            }
+        if (item.getItemId() == R.id.PLM_Clear) {
+            QueueControl.run(QueueControl.CLEAR);
+            mSongList.clear();
+            if (isAdded()) {
+                Tools.notifyUser(R.string.playlistCleared);
+            }
+            ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+        } else if (item.getItemId() == R.id.PLM_EditPL) {
+            intent = new Intent(mActivity, PlaylistEditActivity.class);
+            startActivity(intent);
+        } else if (item.getItemId() == R.id.PLM_Save) {
+            List<Item> playLists;
+            try {
+                playLists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
+            } catch (final MPDServerException e) {
+                Log.e(TAG, "Failed to receive list of playlists.", e);
+                playLists = new ArrayList<>(0);
+            }
+            Collections.sort(playLists);
+            final String[] playlistsArray = new String[playLists.size() + 1];
+            for (int p = 0; p < playLists.size(); p++) {
+                playlistsArray[p] = playLists.get(p).getName(); // old playlists
+            }
+            playlistsArray[playlistsArray.length - 1] = getResources()
+                    .getString(R.string.newPlaylist); // "new playlist"
+            mPlaylistToSave = playlistsArray[playlistsArray.length - 1];
+            new AlertDialog.Builder(mActivity) // dialog with list of playlists
+                    .setTitle(R.string.playlistName)
+                    .setSingleChoiceItems
+                            (playlistsArray, playlistsArray.length - 1,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(
+                                                final DialogInterface dialog, final int which) {
+                                            mPlaylistToSave = playlistsArray[which];
                                         }
-                                )
-                        .setPositiveButton
-                                (android.R.string.ok,
-                                        new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(final DialogInterface dialog,
-                                                    final int which) {
-                                                savePlaylist(mPlaylistToSave);
-                                            }
+                                    }
+                            )
+                    .setPositiveButton
+                            (android.R.string.ok,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(final DialogInterface dialog,
+                                                final int which) {
+                                            savePlaylist(mPlaylistToSave);
                                         }
-                                )
-                        .setNegativeButton
-                                (android.R.string.cancel,
-                                        new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(final DialogInterface dialog,
-                                                    final int which) {
-                                                // Do nothing.
-                                            }
+                                    }
+                            )
+                    .setNegativeButton
+                            (android.R.string.cancel,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(final DialogInterface dialog,
+                                                final int which) {
+                                            // Do nothing.
                                         }
-                                )
-                        .create().show();
-                break;
-            default:
-                result = false;
-                break;
+                                    }
+                            )
+                    .create().show();
+        } else {
+            result = false;
         }
+
         return result;
     }
 

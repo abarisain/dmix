@@ -298,6 +298,8 @@ public class SongsFragment extends BrowseFragment {
                             case ADD_PLAY:
                                 play = true;
                                 break;
+                            default:
+                                break;
                         }
                         try {
                             mApp.oMPDAsyncHelper.oMPD.add(mAlbum, replace, play);
@@ -328,19 +330,22 @@ public class SongsFragment extends BrowseFragment {
 
             @Override
             public boolean onMenuItemClick(final MenuItem item) {
-                switch (item.getGroupId()) {
-                    case POPUP_COVER_BLACKLIST:
-                        CoverManager.getInstance().markWrongCover(mAlbum.getAlbumInfo());
-                        updateCover(mAlbum.getAlbumInfo());
-                        updateNowPlayingSmallFragment(mAlbum.getAlbumInfo());
-                        break;
-                    case POPUP_COVER_SELECTIVE_CLEAN:
-                        CoverManager.getInstance().clear(mAlbum.getAlbumInfo());
-                        updateCover(mAlbum.getAlbumInfo());
-                        updateNowPlayingSmallFragment(mAlbum.getAlbumInfo());
-                        break;
+                final int groupId = item.getGroupId();
+                boolean result = true;
+
+                if (groupId == POPUP_COVER_BLACKLIST) {
+                    CoverManager.getInstance().markWrongCover(mAlbum.getAlbumInfo());
+                    updateCover(mAlbum.getAlbumInfo());
+                    updateNowPlayingSmallFragment(mAlbum.getAlbumInfo());
+                } else if (groupId == POPUP_COVER_SELECTIVE_CLEAN) {
+                    CoverManager.getInstance().clear(mAlbum.getAlbumInfo());
+                    updateCover(mAlbum.getAlbumInfo());
+                    updateNowPlayingSmallFragment(mAlbum.getAlbumInfo());
+                } else {
+                    result = false;
                 }
-                return true;
+
+                return result;
             }
         });
 

@@ -720,27 +720,27 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private void refreshActionBarTitle() {
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
-        switch (mCurrentDisplayMode) {
-            case MODE_OUTPUTS:
+
+        if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {
+                mTextView.setText(R.string.outputs);
+            }
+        } else if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY) {
+            int fmStackCount = 0;
+
+            if (mFragmentManager != null) {
+                fmStackCount = mFragmentManager.getBackStackEntryCount();
+            }
+
+            if (fmStackCount > 0) {
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {
-                    mTextView.setText(R.string.outputs);
-                }
-                break;
-            case MODE_LIBRARY:
-                int fmStackCount = 0;
-                if (mFragmentManager != null) {
-                    fmStackCount = mFragmentManager.getBackStackEntryCount();
-                }
-                if (fmStackCount > 0) {
-                    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                    mTextView.setText(mFragmentManager.getBackStackEntryAt(fmStackCount - 1)
-                            .getBreadCrumbTitle());
-                } else {
-                    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-                    actionBar.setDisplayShowCustomEnabled(false);
-                }
-                break;
+                mTextView.setText(mFragmentManager.getBackStackEntryAt(fmStackCount - 1)
+                        .getBreadCrumbTitle());
+            } else {
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+                actionBar.setDisplayShowCustomEnabled(false);
+            }
         }
     }
 
@@ -868,8 +868,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
-
             int resId = 0;
+
             switch (position) {
                 case 0:
                     resId = R.id.nowplaying_fragment;
@@ -877,7 +877,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 case 1:
                     resId = R.id.playlist_fragment;
                     break;
+                default:
+                    break;
             }
+
             return findViewById(resId);
         }
 

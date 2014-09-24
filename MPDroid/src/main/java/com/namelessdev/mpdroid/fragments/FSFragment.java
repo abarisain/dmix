@@ -244,26 +244,30 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
+        final boolean result;
+
         // Menu actions...
-        switch (item.getItemId()) {
-            case R.id.menu_update:
-                mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (TextUtils.isEmpty(mDirectory)) {
-                                mApp.oMPDAsyncHelper.oMPD.refreshDatabase();
-                            } else {
-                                mApp.oMPDAsyncHelper.oMPD.refreshDatabase(mDirectory);
-                            }
-                        } catch (final MPDServerException e) {
-                            Log.e(TAG, "Failed to refresh database.", e);
+        if (item.getItemId() == R.id.menu_update) {
+            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (TextUtils.isEmpty(mDirectory)) {
+                            mApp.oMPDAsyncHelper.oMPD.refreshDatabase();
+                        } else {
+                            mApp.oMPDAsyncHelper.oMPD.refreshDatabase(mDirectory);
                         }
+                    } catch (final MPDServerException e) {
+                        Log.e(TAG, "Failed to refresh database.", e);
                     }
-                });
-                break;
+                }
+            });
+            result = true;
+        } else {
+            result = super.onOptionsItemSelected(item);
         }
-        return false;
+
+        return result;
     }
 
     @Override

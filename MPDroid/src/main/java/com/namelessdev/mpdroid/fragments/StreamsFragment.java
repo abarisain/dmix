@@ -360,23 +360,18 @@ public class StreamsFragment extends BrowseFragment {
 
         @Override
         public void onClick(final DialogInterface dialog, final int which) {
-            switch (which) {
-                case AlertDialog.BUTTON_NEGATIVE:
-                    break;
-                case AlertDialog.BUTTON_POSITIVE:
-                    try {
-                        mApp.oMPDAsyncHelper.oMPD
-                                .removeSavedStream(mStreams.get(mItemIndex).getPos());
-                    } catch (final MPDServerException e) {
-                        Log.e(TAG, "Failed to removed a saved stream.", e);
-                    }
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                try {
+                    mApp.oMPDAsyncHelper.oMPD.removeSavedStream(mStreams.get(mItemIndex).getPos());
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to removed a saved stream.", e);
+                }
 
-                    final String name = mItems.get(mItemIndex).getName();
-                    Tools.notifyUser(R.string.streamDeleted, name);
-                    mItems.remove(mItemIndex);
-                    mStreams.remove(mItemIndex);
-                    updateFromItems();
-                    break;
+                final String name = mItems.get(mItemIndex).getName();
+                Tools.notifyUser(R.string.streamDeleted, name);
+                mItems.remove(mItemIndex);
+                mStreams.remove(mItemIndex);
+                updateFromItems();
             }
         }
     }

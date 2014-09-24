@@ -74,14 +74,6 @@ public class ArtistsFragment extends BrowseFragment {
                     .getDefaultSharedPreferences(MPDApplication.getInstance());
             switch (settings.getString(LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE,
                     LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
-                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
-                default:
-                    if (mGenre != null) {
-                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre);
-                    } else {
-                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists();
-                    }
-                    break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
                     if (mGenre != null) {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, true);
@@ -94,6 +86,14 @@ public class ArtistsFragment extends BrowseFragment {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, false);
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(false);
+                    }
+                    break;
+                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
+                default:
+                    if (mGenre != null) {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre);
+                    } else {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists();
                     }
                     break;
             }
