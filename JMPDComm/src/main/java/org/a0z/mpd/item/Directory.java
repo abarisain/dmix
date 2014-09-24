@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
+
 /**
  * Class representing a directory.
  *
@@ -111,11 +114,11 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
             // If we hit anything we know is an item, consume the linecache
             final String line = response.get(i);
-            final String[] lines = Tools.splitResponse(line);
+            final String[] pair = Tools.splitResponse(line);
 
-            switch (lines[0]) {
+            switch (pair[KEY]) {
                 case "directory":
-                    result.add(makeRootDirectory(mpd).makeDirectory(lines[1]));
+                    result.add(makeRootDirectory(mpd).makeDirectory(pair[VALUE]));
                     lineCache.clear();
                     break;
                 case "file":
@@ -127,7 +130,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                     lineCache.clear();
                     break;
                 case "playlist":
-                    result.add(new PlaylistFile(lines[1]));
+                    result.add(new PlaylistFile(pair[VALUE]));
                     lineCache.clear();
                     break;
                 default:

@@ -30,6 +30,9 @@ package org.a0z.mpd;
 import java.util.Collection;
 import java.util.Date;
 
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
+
 /**
  * Class representing MPD Server status.
  *
@@ -428,16 +431,16 @@ public class MPDStatus {
     public final void updateStatus(final Collection<String> response) {
         resetValues();
 
-        for (final String[] lines : Tools.splitResponse(response)) {
+        for (final String[] pair : Tools.splitResponse(response)) {
 
-            switch (lines[0]) {
+            switch (pair[KEY]) {
                 case "audio":
-                    final int delimiterIndex = lines[1].indexOf(':');
-                    final String tmp = lines[1].substring(delimiterIndex + 1);
+                    final int delimiterIndex = pair[VALUE].indexOf(':');
+                    final String tmp = pair[VALUE].substring(delimiterIndex + 1);
                     final int secondIndex = tmp.indexOf(':');
 
                     try {
-                        mSampleRate = Integer.parseInt(lines[1].substring(0, delimiterIndex));
+                        mSampleRate = Integer.parseInt(pair[VALUE].substring(0, delimiterIndex));
                         mBitsPerSample = Integer.parseInt(tmp.substring(0, secondIndex));
                         mChannels = Integer.parseInt(tmp.substring(secondIndex + 1));
                     } catch (final NumberFormatException ignored) {
@@ -446,22 +449,22 @@ public class MPDStatus {
                     }
                     break;
                 case "bitrate":
-                    mBitRate = Long.parseLong(lines[1]);
+                    mBitRate = Long.parseLong(pair[VALUE]);
                     break;
                 case "consume":
-                    mConsume = "1".equals(lines[1]);
+                    mConsume = "1".equals(pair[VALUE]);
                     break;
                 case "elapsed":
-                    mElapsedTimeHighResolution = Float.parseFloat(lines[1]);
+                    mElapsedTimeHighResolution = Float.parseFloat(pair[VALUE]);
                     break;
                 case "error":
-                    mError = lines[1];
+                    mError = pair[VALUE];
                     break;
                 case "mixrampdb":
                     try {
-                        mMixRampDB = Float.parseFloat(lines[1]);
+                        mMixRampDB = Float.parseFloat(pair[VALUE]);
                     } catch (final NumberFormatException e) {
-                        if ("nan".equals(lines[1])) {
+                        if ("nan".equals(pair[VALUE])) {
                             mMixRampDisabled = true;
                         } else {
                             Log.error(TAG, "Unexpected value from mixrampdb.", e);
@@ -470,9 +473,9 @@ public class MPDStatus {
                     break;
                 case "mixrampdelay":
                     try {
-                        mMixRampDelay = Float.parseFloat(lines[1]);
+                        mMixRampDelay = Float.parseFloat(pair[VALUE]);
                     } catch (final NumberFormatException e) {
-                        if ("nan".equals(lines[1])) {
+                        if ("nan".equals(pair[VALUE])) {
                             mMixRampDisabled = true;
                         } else {
                             Log.error(TAG, "Unexpected value from mixrampdelay", e);
@@ -480,34 +483,34 @@ public class MPDStatus {
                     }
                     break;
                 case "nextsong":
-                    mNextSong = Integer.parseInt(lines[1]);
+                    mNextSong = Integer.parseInt(pair[VALUE]);
                     break;
                 case "nextsongid":
-                    mNextSongId = Integer.parseInt(lines[1]);
+                    mNextSongId = Integer.parseInt(pair[VALUE]);
                     break;
                 case "playlist":
-                    mPlaylistVersion = Integer.parseInt(lines[1]);
+                    mPlaylistVersion = Integer.parseInt(pair[VALUE]);
                     break;
                 case "playlistlength":
-                    mPlaylistLength = Integer.parseInt(lines[1]);
+                    mPlaylistLength = Integer.parseInt(pair[VALUE]);
                     break;
                 case "random":
-                    mRandom = "1".equals(lines[1]);
+                    mRandom = "1".equals(pair[VALUE]);
                     break;
                 case "repeat":
-                    mRepeat = "1".equals(lines[1]);
+                    mRepeat = "1".equals(pair[VALUE]);
                     break;
                 case "single":
-                    mSingle = "1".equals(lines[1]);
+                    mSingle = "1".equals(pair[VALUE]);
                     break;
                 case "song":
-                    mSong = Integer.parseInt(lines[1]);
+                    mSong = Integer.parseInt(pair[VALUE]);
                     break;
                 case "songid":
-                    mSongId = Integer.parseInt(lines[1]);
+                    mSongId = Integer.parseInt(pair[VALUE]);
                     break;
                 case "state":
-                    switch (lines[1]) {
+                    switch (pair[VALUE]) {
                         case MPD_STATE_PLAYING:
                             mState = STATE_PLAYING;
                             break;
@@ -524,24 +527,25 @@ public class MPDStatus {
                     }
                     break;
                 case "time":
-                    final int timeIndex = lines[1].indexOf(':');
+                    final int timeIndex = pair[VALUE].indexOf(':');
 
-                    mElapsedTime = Long.parseLong(lines[1].substring(0, timeIndex));
-                    mTotalTime = Long.parseLong(lines[1].substring(timeIndex + 1));
+                    mElapsedTime = Long.parseLong(pair[VALUE].substring(0, timeIndex));
+                    mTotalTime = Long.parseLong(pair[VALUE].substring(timeIndex + 1));
                     mUpdateTime = new Date().getTime();
                     break;
                 case "volume":
-                    mVolume = Integer.parseInt(lines[1]);
+                    mVolume = Integer.parseInt(pair[VALUE]);
                     break;
                 case "xfade":
-                    mCrossFade = Integer.parseInt(lines[1]);
+                    mCrossFade = Integer.parseInt(pair[VALUE]);
                     break;
                 case "updating_db":
                     mUpdating = true;
                     break;
                 default:
-                    Log.debug(TAG, "Status was sent an unknown response line:" + lines[1] +
-                            " from: " + lines[0]);
+                    Log.debug(TAG,
+                            "Status was sent an unknown response: key: " + pair[KEY] + " value: "
+                                    + pair[VALUE]);
             }
         }
     }

@@ -31,6 +31,9 @@ import org.a0z.mpd.exception.InvalidResponseException;
 
 import java.util.Collection;
 
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
+
 /*
  * Class representing one configured output
  */
@@ -63,19 +66,21 @@ public class MPDOutput {
         int id = -1;
         Boolean enabled = null;
 
-        for (final String[] lines : Tools.splitResponse(response)) {
-            switch (lines[0]) {
+        for (final String[] pair : Tools.splitResponse(response)) {
+            switch (pair[KEY]) {
                 case CMD_ENABLED:
-                    enabled = Boolean.valueOf("1".equals(lines[1]));
+                    enabled = Boolean.valueOf("1".equals(pair[VALUE]));
                     break;
                 case CMD_ID:
-                    id = Integer.parseInt(lines[1]);
+                    id = Integer.parseInt(pair[VALUE]);
                     break;
                 case CMD_NAME:
-                    name = lines[1];
+                    name = pair[VALUE];
                     break;
                 default:
-                    Log.warning(TAG, "Non-standard line appeared in output response: " + lines[1]);
+                    Log.warning(TAG,
+                            "Non-standard line appeared in output response. Key: " + pair[KEY]
+                                    + " value: " + pair[VALUE]);
                     break;
             }
         }

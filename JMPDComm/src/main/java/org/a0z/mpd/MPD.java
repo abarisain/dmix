@@ -49,6 +49,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
+
 /**
  * MPD Server controller.
  */
@@ -697,11 +700,11 @@ public class MPD {
             for (int i = 0; i < response.size(); i++) {
                 final String[] list = response.get(i);
                 final Album a = albums.get(i);
-                for (final String[] lines : Tools.splitResponse(list)) {
-                    if ("songs".equals(lines[0])) {
-                        a.setSongCount(Long.parseLong(lines[1]));
-                    } else if ("playtime".equals(lines[0])) {
-                        a.setDuration(Long.parseLong(lines[1]));
+                for (final String[] pair : Tools.splitResponse(list)) {
+                    if ("songs".equals(pair[KEY])) {
+                        a.setSongCount(Long.parseLong(pair[VALUE]));
+                    } else if ("playtime".equals(pair[KEY])) {
+                        a.setDuration(Long.parseLong(pair[VALUE]));
                     }
                 }
 
@@ -994,10 +997,10 @@ public class MPD {
     public List<Item> getPlaylists(final boolean sort) throws MPDServerException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         final List<Item> result = new ArrayList<>(response.size());
-        for (final String[] lines : Tools.splitResponse(response)) {
-            if ("playlist".equals(lines[0])) {
-                if (null != lines[1] && !STREAMS_PLAYLIST.equals(lines[1])) {
-                    result.add(new PlaylistFile(lines[1]));
+        for (final String[] pair : Tools.splitResponse(response)) {
+            if ("playlist".equals(pair[KEY])) {
+                if (null != pair[VALUE] && !STREAMS_PLAYLIST.equals(pair[VALUE])) {
+                    result.add(new PlaylistFile(pair[VALUE]));
                 }
             }
         }
@@ -1021,10 +1024,10 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         List<Music> savedStreams = null;
 
-        for (final String[] lines : Tools.splitResponse(response)) {
-            if ("playlist".equals(lines[0])) {
-                if (STREAMS_PLAYLIST.equals(lines[1])) {
-                    final String[] args = {lines[1]};
+        for (final String[] pair : Tools.splitResponse(response)) {
+            if ("playlist".equals(pair[KEY])) {
+                if (STREAMS_PLAYLIST.equals(pair[VALUE])) {
+                    final String[] args = {pair[VALUE]};
 
                     savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
                     break;
@@ -1276,16 +1279,16 @@ public class MPD {
 
         final List<Album> result = new ArrayList<>();
         Album currentAlbum = null;
-        for (final String[] lines : Tools.splitResponse(response)) {
-            if (artistResponse.equals(lines[0])) {
+        for (final String[] pair : Tools.splitResponse(response)) {
+            if (artistResponse.equals(pair[KEY])) {
                 // Don't make the check with the other so we don't waste time doing string
                 // comparisons for nothing.
                 if (currentAlbum != null) {
-                    currentAlbum.setArtist(new Artist(lines[1]));
+                    currentAlbum.setArtist(new Artist(pair[VALUE]));
                 }
-            } else if (albumResponse.equals(lines[0])) {
-                if (!lines[1].isEmpty() || includeUnknownAlbum) {
-                    currentAlbum = new Album(lines[1], null);
+            } else if (albumResponse.equals(pair[KEY])) {
+                if (!pair[VALUE].isEmpty() || includeUnknownAlbum) {
+                    currentAlbum = new Album(pair[VALUE], null);
                     currentAlbum.setHasAlbumArtist(useAlbumArtist);
                     result.add(currentAlbum);
                 } else {

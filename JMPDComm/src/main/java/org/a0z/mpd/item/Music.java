@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
+
 /**
  * Class representing a file/music entry in playlist.
  *
@@ -172,11 +175,11 @@ public class Music extends Item implements FilesystemTreeEntry {
         int songPos = -1;
         String name = null;
 
-        for (final String[] lines : Tools.splitResponse(response)) {
+        for (final String[] pair : Tools.splitResponse(response)) {
 
-            switch (lines[0]) {
+            switch (pair[KEY]) {
                 case "file":
-                    fullPath = lines[1];
+                    fullPath = pair[VALUE];
                     if (!fullPath.isEmpty() && fullPath.contains("://")) {
                         final int pos = fullPath.indexOf('#');
                         if (pos > 1) {
@@ -186,41 +189,41 @@ public class Music extends Item implements FilesystemTreeEntry {
                     }
                     break;
                 case "Album":
-                    album = lines[1];
+                    album = pair[VALUE];
                     break;
                 case "AlbumArtist":
-                    albumArtist = lines[1];
+                    albumArtist = pair[VALUE];
                     break;
                 case "Artist":
-                    artist = lines[1];
+                    artist = pair[VALUE];
                     break;
                 case "Date":
                     try {
-                        final Matcher matcher = DATE_DELIMITER.matcher(lines[1]);
+                        final Matcher matcher = DATE_DELIMITER.matcher(pair[VALUE]);
                         date = Long.parseLong(matcher.replaceAll(""));
                     } catch (final NumberFormatException e) {
                         Log.warning(TAG, "Not a valid date.", e);
                     }
                     break;
                 case "Disc":
-                    final int discIndex = lines[1].indexOf('/');
+                    final int discIndex = pair[VALUE].indexOf('/');
 
                     try {
                         if (discIndex == -1) {
-                            disc = Integer.parseInt(lines[1]);
+                            disc = Integer.parseInt(pair[VALUE]);
                         } else {
-                            disc = Integer.parseInt(lines[1].substring(0, discIndex));
+                            disc = Integer.parseInt(pair[VALUE].substring(0, discIndex));
                         }
                     } catch (final NumberFormatException e) {
                         Log.warning(TAG, "Not a valid disc number.", e);
                     }
                     break;
                 case "Genre":
-                    genre = lines[1];
+                    genre = pair[VALUE];
                     break;
                 case "Id":
                     try {
-                        songId = Integer.parseInt(lines[1]);
+                        songId = Integer.parseInt(pair[VALUE]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid song ID.", e);
                     }
@@ -230,35 +233,35 @@ public class Music extends Item implements FilesystemTreeEntry {
                      * name may already be assigned to the stream name in file conditional
                      */
                     if (name == null) {
-                        name = lines[1];
+                        name = pair[VALUE];
                     }
                     break;
                 case "Pos":
                     try {
-                        songPos = Integer.parseInt(lines[1]);
+                        songPos = Integer.parseInt(pair[VALUE]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid song position.", e);
                     }
                     break;
                 case "Time":
                     try {
-                        time = Long.parseLong(lines[1]);
+                        time = Long.parseLong(pair[VALUE]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid time number.", e);
                     }
                     break;
                 case "Title":
-                    title = lines[1];
+                    title = pair[VALUE];
                     break;
                 case "Track":
-                    final int trackIndex = lines[1].indexOf('/');
+                    final int trackIndex = pair[VALUE].indexOf('/');
 
                     try {
                         if (trackIndex == -1) {
-                            track = Integer.parseInt(lines[1]);
+                            track = Integer.parseInt(pair[VALUE]);
                         } else {
-                            track = Integer.parseInt(lines[1].substring(0, trackIndex));
-                            totalTracks = Integer.parseInt(lines[1].substring(trackIndex + 1));
+                            track = Integer.parseInt(pair[VALUE].substring(0, trackIndex));
+                            totalTracks = Integer.parseInt(pair[VALUE].substring(trackIndex + 1));
                         }
                     } catch (final NumberFormatException e) {
                         Log.warning(TAG, "Not a valid track number.", e);

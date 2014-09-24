@@ -30,6 +30,9 @@ package org.a0z.mpd;
 import java.util.Collection;
 import java.util.Date;
 
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
+
 /**
  * Class representing MPD Server statistics.
  *
@@ -151,32 +154,33 @@ public class MPDStatistics {
      * @param response The response from the server.
      */
     public final void update(final Collection<String> response) {
-        for (final String[] lines : Tools.splitResponse(response)) {
+        for (final String[] pair : Tools.splitResponse(response)) {
 
-            switch (lines[0]) {
+            switch (pair[KEY]) {
                 case "albums":
-                    mAlbums = Long.parseLong(lines[1]);
+                    mAlbums = Long.parseLong(pair[VALUE]);
                     break;
                 case "artists":
-                    mArtists = Long.parseLong(lines[1]);
+                    mArtists = Long.parseLong(pair[VALUE]);
                     break;
                 case "db_playtime":
-                    mDBPlaytime = Long.parseLong(lines[1]);
+                    mDBPlaytime = Long.parseLong(pair[VALUE]);
                     break;
                 case "db_update":
-                    mDbUpdate = new Date(Long.parseLong(lines[1]) * MILLI_TO_SEC);
+                    mDbUpdate = new Date(Long.parseLong(pair[VALUE]) * MILLI_TO_SEC);
                     break;
                 case "playtime":
-                    mPlayTime = Long.parseLong(lines[1]);
+                    mPlayTime = Long.parseLong(pair[VALUE]);
                     break;
                 case "songs":
-                    mSongs = Long.parseLong(lines[1]);
+                    mSongs = Long.parseLong(pair[VALUE]);
                     break;
                 case "uptime":
-                    mUpTime = Long.parseLong(lines[1]);
+                    mUpTime = Long.parseLong(pair[VALUE]);
                     break;
                 default:
-                    Log.warning(TAG, "Undocumented statistic: " + lines[0]);
+                    Log.warning(TAG,
+                            "Undocumented statistic: Key: " + pair[KEY] + " Value: " + pair[VALUE]);
                     break;
             }
         }

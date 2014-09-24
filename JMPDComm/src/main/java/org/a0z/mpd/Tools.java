@@ -32,6 +32,10 @@ import java.util.Collection;
 
 public final class Tools {
 
+    public static final int KEY = 0;
+
+    public static final int VALUE = 1;
+
     private Tools() {
         super();
     }
