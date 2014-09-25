@@ -28,12 +28,13 @@ public class URIHandlerActivity extends FragmentActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_urihandler);
+
         final Intent intent = getIntent();
         final FragmentManager fragmentManager = getSupportFragmentManager();
         final StreamsFragment streamsFragment =
                 (StreamsFragment) fragmentManager.findFragmentById(R.id.streamsFragment);
 
-        setContentView(R.layout.activity_urihandler);
         if (!Intent.ACTION_VIEW.equals(intent.getAction())) {
             finish();
         }
