@@ -122,29 +122,40 @@ public class LibraryFragment extends Fragment {
 
         @Override
         public Fragment getItem(final int i) {
-            Fragment fragment = null;
+            final Fragment fragment;
             final String tab = mActivity.getTabList().get(i);
-            if (tab.equals(LibraryTabsUtil.TAB_ARTISTS)) {
-                fragment = new ArtistsFragment().init(null);
-            } else if (tab.equals(LibraryTabsUtil.TAB_ALBUMS)) {
-                final SharedPreferences settings = PreferenceManager
-                        .getDefaultSharedPreferences(mApp);
-                if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
-                    fragment = new AlbumsGridFragment(null);
-                } else {
-                    fragment = new AlbumsFragment(null);
-                }
-            } else if (tab.equals(LibraryTabsUtil.TAB_PLAYLISTS)) {
-                fragment = new PlaylistsFragment();
-            } else if (tab.equals(LibraryTabsUtil.TAB_STREAMS)) {
-                fragment = new StreamsFragment();
-            } else if (tab.equals(LibraryTabsUtil.TAB_FILES)) {
-                fragment = new FSFragment();
-            } else if (tab.equals(LibraryTabsUtil.TAB_GENRES)) {
-                fragment = new GenresFragment();
+
+            switch (tab) {
+                case LibraryTabsUtil.TAB_ALBUMS:
+                    final SharedPreferences settings = PreferenceManager
+                            .getDefaultSharedPreferences(mApp);
+                    if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
+                        fragment = new AlbumsGridFragment(null);
+                    } else {
+                        fragment = new AlbumsFragment(null);
+                    }
+                    break;
+                case LibraryTabsUtil.TAB_ARTISTS:
+                    fragment = new ArtistsFragment().init(null);
+                    break;
+                case LibraryTabsUtil.TAB_FILES:
+                    fragment = new FSFragment();
+                    break;
+                case LibraryTabsUtil.TAB_GENRES:
+                    fragment = new GenresFragment();
+                    break;
+                case LibraryTabsUtil.TAB_PLAYLISTS:
+                    fragment = new PlaylistsFragment();
+                    break;
+                case LibraryTabsUtil.TAB_STREAMS:
+                    fragment = new StreamsFragment();
+                    break;
+                default:
+                    fragment = null;
+                    break;
             }
+
             return fragment;
         }
-
     }
 }
