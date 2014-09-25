@@ -103,11 +103,11 @@ public class AlbumCache {
     protected static Set<String> getKeysByValue(final Map<String, Set<String>> map,
             final String val) {
         final Set<String> result = new HashSet<>();
-        final Set<String> keys = map.keySet();
-        for (final String key : keys) {
-            final Set<String> values = map.get(key);
+
+        for (final Map.Entry<String, Set<String>> stringSetEntry : map.entrySet()) {
+            final Set<String> values = stringSetEntry.getValue();
             if (val != null && val.isEmpty() || values.contains(val)) {
-                result.add(key);
+                result.add(stringSetEntry.getKey());
             }
         }
         return result;
