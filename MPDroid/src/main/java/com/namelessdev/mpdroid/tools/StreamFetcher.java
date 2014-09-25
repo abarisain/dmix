@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.tools;
 
-import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.Stream;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -203,7 +203,7 @@ public class StreamFetcher {
                 }
             }
         }
-        return Music.addStreamName(null == parsed ? url : parsed, name);
+        return Stream.addStreamName(null == parsed ? url : parsed, name);
     }
 
     private static class LazyHolder {

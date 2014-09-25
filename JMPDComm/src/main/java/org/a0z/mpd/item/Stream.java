@@ -29,6 +29,8 @@ package org.a0z.mpd.item;
 
 import org.a0z.mpd.Tools;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 
 public class Stream extends Item {
@@ -45,6 +47,34 @@ public class Stream extends Item {
         mName = name;
         mUrl = url;
         mPos = pos;
+    }
+
+    public static String addStreamName(final String url, final String name) {
+        final StringBuilder streamName;
+
+        if (name == null) {
+            streamName = new StringBuilder(url.length() + 3);
+        } else {
+            streamName = new StringBuilder(url.length() + name.length() + 3);
+        }
+        streamName.append(url);
+
+        if (name != null && !name.isEmpty()) {
+            String path = null;
+
+            try {
+                path = new URL(url).getPath();
+            } catch (final MalformedURLException ignored) {
+            }
+
+            if (path == null || path.isEmpty()) {
+                streamName.append('/');
+            }
+            streamName.append('#');
+            streamName.append(name);
+        }
+
+        return streamName.toString();
     }
 
     /**

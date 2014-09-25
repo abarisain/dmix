@@ -32,8 +32,6 @@ import org.a0z.mpd.Log;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.Tools;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -143,20 +141,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         mSongId = songId;
         mSongPos = songPos;
         mName = name;
-    }
-
-    public static String addStreamName(final String url, final String name) {
-        if (null == name || name.isEmpty()) {
-            return url;
-        }
-        try {
-            final String path = new URL(url).getPath();
-            if (null == path || path.isEmpty()) {
-                return url + "/#" + name;
-            }
-        } catch (final MalformedURLException ignored) {
-        }
-        return url + '#' + name;
     }
 
     static Music build(final Collection<String> response) {

@@ -39,6 +39,7 @@ import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
+import org.a0z.mpd.item.Stream;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -1568,7 +1569,7 @@ public class MPD {
 
     public void saveStream(final String url, final String name) throws MPDServerException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
-                Music.addStreamName(url, name));
+                Stream.addStreamName(url, name));
     }
 
     /**
