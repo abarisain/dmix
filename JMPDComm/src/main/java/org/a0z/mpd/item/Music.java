@@ -523,7 +523,6 @@ public class Music extends Item implements FilesystemTreeEntry {
             int pos = fullpath.indexOf("#");
             if (pos > 1) {
                 name=fullpath.substring(pos + 1, fullpath.length());
-                name=name.replace("${hash}", "#");
                 fullpath=fullpath.substring(0, pos-1);
             }
         }
@@ -533,15 +532,14 @@ public class Music extends Item implements FilesystemTreeEntry {
         if (null == name || name.isEmpty()) {
             return url;
         }
-        String fixed = name.replace("#", "${hash}");
         try {
             String path = new URL(url).getPath();
             if (null == path || path.isEmpty()) {
-                return url + "/#" + fixed;
+                return url + "/#" + name;
             }
-        } catch (final MalformedURLException ignored) {
+        } catch (MalformedURLException e) {
         }
-        return url + "#" + fixed;
+        return url + "#" + name;
     }
 
     /**
