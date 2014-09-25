@@ -123,7 +123,7 @@ public class AlbumsFragment extends BrowseFragment {
             mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, mIsCountDisplayed);
             if (mGenre != null) { // filter albums not in genre
                 for (int i = mItems.size() - 1; i >= 0; i--) {
-                    if (!mApp.oMPDAsyncHelper.oMPD.albumInGenre((Album) mItems.get(i), mGenre)) {
+                    if (!mApp.oMPDAsyncHelper.oMPD.isAlbumInGenre((Album) mItems.get(i), mGenre)) {
                         mItems.remove(i);
                     }
                 }

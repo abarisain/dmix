@@ -134,6 +134,8 @@ public class MPDCommand {
 
     public static final String MPD_FIND_ARTIST = "artist";
 
+    public static final String MPD_LIST_RESPONSE_ARTIST = "Artist";
+
     public static final String MPD_SEARCH_ALBUM = "album";
 
     public static final String MPD_SEARCH_ARTIST = "artist";
@@ -166,6 +168,24 @@ public class MPDCommand {
         super();
         mCommand = command;
         mArgs = args.clone();
+    }
+
+    /**
+     * Translates a boolean value to the MPD protocol.
+     *
+     * @param valueToTranslate The boolean to translate.
+     * @return The MPD protocol boolean value.
+     */
+    public static String booleanValue(final boolean valueToTranslate) {
+        final String result;
+
+        if (valueToTranslate) {
+            result = "1";
+        } else {
+            result = "0";
+        }
+
+        return result;
     }
 
     public static boolean isRetryable(final String command) {
