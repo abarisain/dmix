@@ -58,36 +58,66 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
     private final Directory mParent;
 
-    private final Map<String, PlaylistFile> mPlayLists;
+    private final Map<String, PlaylistFile> mPlaylistEntries;
 
     private String mName; // name to display, usually = filename
 
     /**
-     * Clones a directory.
+     * Creates a shallow clone of the directory parameter.
+     *
+     * @param directory The directory to shallow clone.
      */
-    public Directory(final Directory dir) {
-        super();
-        mName = dir.mName;
-        mFilename = dir.mFilename;
-        mParent = dir.mParent;
-        mFileEntries = dir.mFileEntries;
-        mDirectoryEntries = dir.mDirectoryEntries;
-        mPlayLists = dir.mPlayLists;
+    public Directory(final Directory directory) {
+        this(directory.mParent, directory.mFilename, directory.mName, directory.mDirectoryEntries,
+                directory.mFileEntries, directory.mPlaylistEntries);
     }
 
     /**
      * Creates a new directory.
-     *  @param parent   mParent directory.
+     *
+     * @param parent   mParent directory.
      * @param filename directory filename.
      */
     private Directory(final Directory parent, final String filename) {
+        this(parent, filename, filename, null, null, null);
+    }
+
+    /**
+     * The base constructor.
+     *
+     * @param parent           The parent directory to this directory.
+     * @param filename         The filename of this directory.
+     * @param name             The name of this directory.
+     * @param directoryEntries Children directories to this directory.
+     * @param fileEntries      Children files to this directory.
+     * @param playlistEntries  Children playlists to this directory.
+     */
+    private Directory(final Directory parent, final String filename, final String name,
+            final Map<String, Directory> directoryEntries, final Map<String, Music> fileEntries,
+            final Map<String, PlaylistFile> playlistEntries) {
         super();
-        mName = filename;
-        mFilename = filename;
+
         mParent = parent;
-        mFileEntries = new HashMap<>();
-        mDirectoryEntries = new HashMap<>();
-        mPlayLists = new HashMap<>();
+        mFilename = filename;
+        mName = name;
+
+        if (fileEntries == null) {
+            mFileEntries = new HashMap<>();
+        } else {
+            mFileEntries = fileEntries;
+        }
+
+        if (directoryEntries == null) {
+            mDirectoryEntries = new HashMap<>();
+        } else {
+            mDirectoryEntries = directoryEntries;
+        }
+
+        if (playlistEntries == null) {
+            mPlaylistEntries = new HashMap<>();
+        } else {
+            mPlaylistEntries = playlistEntries;
+        }
     }
 
     /**
@@ -273,7 +303,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                     }
                 });
 
-        for (final PlaylistFile item : mPlayLists.values()) {
+        for (final PlaylistFile item : mPlaylistEntries.values()) {
             playlistFilesCompared.add(item);
         }
         return playlistFilesCompared;
@@ -348,8 +378,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                 }
             } else if (filesystemEntry instanceof PlaylistFile) {
                 final PlaylistFile pl = (PlaylistFile) filesystemEntry;
-                if (!mPlayLists.containsKey(pl.getName())) {
-                    mPlayLists.put(pl.getName(), pl);
+                if (!mPlaylistEntries.containsKey(pl.getName())) {
+                    mPlaylistEntries.put(pl.getName(), pl);
                 }
             }
         }
