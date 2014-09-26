@@ -242,11 +242,7 @@ public class FSFragment extends BrowseFragment {
                 @Override
                 public void run() {
                     try {
-                        if (TextUtils.isEmpty(mDirectory)) {
-                            mApp.oMPDAsyncHelper.oMPD.refreshDatabase();
-                        } else {
-                            mApp.oMPDAsyncHelper.oMPD.refreshDatabase(mDirectory);
-                        }
+                        mApp.oMPDAsyncHelper.oMPD.refreshDatabase(mDirectory);
                     } catch (final MPDServerException e) {
                         Log.e(TAG, "Failed to refresh database.", e);
                     }
