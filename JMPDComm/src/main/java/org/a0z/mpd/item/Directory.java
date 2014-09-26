@@ -27,15 +27,15 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Tools;
+import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDServerException;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -50,6 +50,8 @@ import static org.a0z.mpd.Tools.VALUE;
  */
 public final class Directory extends Item implements FilesystemTreeEntry {
 
+    private static final Directory ROOT;
+
     private final Map<String, Directory> mDirectoryEntries;
 
     private final Map<String, Music> mFileEntries;
@@ -62,14 +64,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
     private final Map<String, PlaylistFile> mPlaylistEntries;
 
-    /**
-     * Creates a shallow clone of the directory parameter.
-     *
-     * @param directory The directory to shallow clone.
-     */
-    public Directory(final Directory directory) {
-        this(directory.mParent, directory.mFilename, directory.mName, directory.mDirectoryEntries,
-                directory.mFileEntries, directory.mPlaylistEntries);
+    static {
+        ROOT = new Directory(null, null);
     }
 
     /**
@@ -120,62 +116,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         }
     }
 
-    /**
-     * Retrieves a database directory listing of {@code path} directory.
-     *
-     * @param response The server response.
-     * @param mpd      The {@code MPD} object instance.
-     * @return a {@code Collection} of {@code Music} and
-     * {@code Directory} representing directory entries.
-     * @see Music
-     */
-    public static List<FilesystemTreeEntry> getDir(final List<String> response, final MPD mpd) {
-        final Collection<String> lineCache = new LinkedList<>();
-        final LinkedList<FilesystemTreeEntry> result = new LinkedList<>();
-
-        // Read the response backwards so it is easier to parse
-        for (int i = response.size() - 1; i >= 0; i--) {
-
-            // If we hit anything we know is an item, consume the linecache
-            final String line = response.get(i);
-            final String[] pair = Tools.splitResponse(line);
-
-            switch (pair[KEY]) {
-                case "directory":
-                    result.add(makeRootDirectory().makeDirectory(pair[VALUE]));
-                    lineCache.clear();
-                    break;
-                case "file":
-                    // Music requires this line to be cached too.
-                    // It could be done every time but it would be a waste to add and
-                    // clear immediately when we're parsing a playlist or a directory
-                    lineCache.add(line);
-                    result.add(Music.build(lineCache));
-                    lineCache.clear();
-                    break;
-                case "playlist":
-                    result.add(new PlaylistFile(pair[VALUE]));
-                    lineCache.clear();
-                    break;
-                default:
-                    // We're in something unsupported or in an item description, cache the lines
-                    lineCache.add(line);
-                    break;
-            }
-        }
-
-        // Since we read the list backwards, reverse the results ordering.
-        Collections.reverse(result);
-        return result;
-    }
-
-    /**
-     * Creates a new directory.
-     *
-     * @return last path component.
-     */
-    public static Directory makeRootDirectory() {
-        return new Directory(null, "");
+    public static Directory getRoot() {
+        return ROOT;
     }
 
     /**
@@ -353,37 +295,73 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Refresh directory contents (not recursive).
+     * Retrieves a database directory listing of {@code path} directory.
      *
-     * @throws MPDServerException if an error occurs while contacting server.
+     * @param connection A connection to the server.
      */
-    public void refreshData(final MPD mpd) throws MPDServerException {
-        final List<FilesystemTreeEntry> filesystemEntries = mpd.getDir(getFullPath());
-        for (final FilesystemTreeEntry filesystemEntry : filesystemEntries) {
-            if (filesystemEntry instanceof Directory) {
-                final Directory dir = (Directory) filesystemEntry;
-                if (!mDirectoryEntries.containsKey(dir.mFilename)) {
-                    mDirectoryEntries.put(dir.mFilename, dir);
-                }
-            } else if (filesystemEntry instanceof Music) {
-                final Music music = (Music) filesystemEntry;
-                final String filename = music.getFilename();
+    public void refresh(final MPDConnection connection)
+            throws MPDServerException {
+        final int cacheSize = 40; /** Approximate max number of lines per file entry. */
+        final List<String> response =
+                connection.sendCommand(MPDCommand.MPD_CMD_LSDIR, getFullPath());
+        final Collection<String> lineCache = new ArrayList<>(cacheSize);
 
-                if (mFileEntries.containsKey(filename)) {
-                    final Music oldMusic = mFileEntries.get(filename);
+        final Map<String, Directory> directoryEntries = new HashMap<>(mDirectoryEntries.size());
+        final Map<String, Music> fileEntries = new HashMap<>(mFileEntries.size());
+        final Map<String, PlaylistFile> playlistEntries = new HashMap<>(mPlaylistEntries.size());
 
-                    if (!music.equals(oldMusic)) {
-                        mFileEntries.put(filename, music);
-                    }
-                } else {
-                    mFileEntries.put(filename, music);
-                }
-            } else if (filesystemEntry instanceof PlaylistFile) {
-                final PlaylistFile pl = (PlaylistFile) filesystemEntry;
-                if (!mPlaylistEntries.containsKey(pl.getName())) {
-                    mPlaylistEntries.put(pl.getName(), pl);
-                }
+        // Read the response backwards so it is easier to parse
+        for (int i = response.size() - 1; i >= 0; i--) {
+
+            // If we hit anything we know is an item, consume the line cache
+            final String line = response.get(i);
+            final String[] pair = Tools.splitResponse(line);
+
+            switch (pair[KEY]) {
+                case "directory":
+                    final Directory dir = ROOT.makeDirectory(pair[VALUE]);
+
+                    directoryEntries.put(dir.mFilename, dir);
+                    lineCache.clear();
+                    break;
+                case "file":
+                    // Music requires this line to be cached too.
+                    // It could be done every time but it would be a waste to add and
+                    // clear immediately when we're parsing a playlist or a directory
+                    lineCache.add(line);
+
+                    final Music music = Music.build(lineCache);
+                    fileEntries.put(music.getFilename(), music);
+
+                    lineCache.clear();
+                    break;
+                case "playlist":
+                    final PlaylistFile playlistFile = new PlaylistFile(pair[VALUE]);
+
+                    playlistEntries.put(playlistFile.getName(), playlistFile);
+
+                    lineCache.clear();
+                    break;
+                default:
+                    // We're in something unsupported or in an item description, cache the lines
+                    lineCache.add(line);
+                    break;
             }
+        }
+
+        synchronized (mDirectoryEntries) {
+            mDirectoryEntries.clear();
+            mDirectoryEntries.putAll(directoryEntries);
+        }
+
+        synchronized (mFileEntries) {
+            mFileEntries.clear();
+            mFileEntries.putAll(fileEntries);
+        }
+
+        synchronized (mPlaylistEntries) {
+            mPlaylistEntries.clear();
+            mPlaylistEntries.putAll(playlistEntries);
         }
     }
 }

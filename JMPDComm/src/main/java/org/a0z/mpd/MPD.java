@@ -74,8 +74,6 @@ public class MPD {
 
     protected final MPDPlaylist mPlaylist;
 
-    protected final Directory mRootDirectory;
-
     private final MPDConnection mConnection;
 
     private final MPDConnection mIdleConnection;
@@ -95,7 +93,6 @@ public class MPD {
 
         mPlaylist = new MPDPlaylist(mConnection);
         mStatus = new MPDStatus();
-        mRootDirectory = Directory.makeRootDirectory();
     }
 
     /**
@@ -834,34 +831,6 @@ public class MPD {
         return artists;
     }
 
-    /**
-     * Retrieves a database directory listing of the base of the database directory path.
-     *
-     * @return a {@code Collection} of {@code Music} and
-     * {@code Directory} representing directory entries.
-     * @throws MPDServerException if an error occur while contacting server.
-     * @see Music
-     * @see Directory
-     */
-    public List<FilesystemTreeEntry> getDir() throws MPDServerException {
-        return getDir(null);
-    }
-
-    /**
-     * Retrieves a database directory listing of {@code path} directory.
-     *
-     * @param path Directory to be listed.
-     * @return a {@code Collection} of {@code Music} and {@code Directory} representing directory
-     * entries.
-     * @throws MPDServerException if an error occur while contacting server.
-     * @see Music
-     * @see Directory
-     */
-    public List<FilesystemTreeEntry> getDir(final String path) throws MPDServerException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LSDIR, path);
-        return Directory.getDir(response, this);
-    }
-
     protected List<Music> getFirstTrack(final Album album) throws MPDServerException {
         final Artist artist = album.getArtist();
         final String[] args = new String[6];
@@ -1015,15 +984,6 @@ public class MPD {
         }
 
         return result;
-    }
-
-    /**
-     * Retrieves root directory.
-     *
-     * @return root directory.
-     */
-    public Directory getRootDirectory() {
-        return mRootDirectory;
     }
 
     public List<Music> getSavedStreams() throws MPDServerException {
@@ -1554,6 +1514,10 @@ public class MPD {
      */
     public void refreshDatabase(final String folder) throws MPDServerException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH, folder);
+    }
+
+    public void refreshDirectory(final Directory directory) throws MPDServerException {
+        directory.refresh(mConnection);
     }
 
     public void removeFromPlaylist(final String playlistName, final Integer pos)

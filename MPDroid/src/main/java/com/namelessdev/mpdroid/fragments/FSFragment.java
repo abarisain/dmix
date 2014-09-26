@@ -264,14 +264,13 @@ public class FSFragment extends BrowseFragment {
 
     private void refreshDirectory() {
         if (TextUtils.isEmpty(mDirectory)) {
-            mCurrentDirectory = mApp.oMPDAsyncHelper.oMPD.getRootDirectory();
+            mCurrentDirectory = Directory.getRoot();
         } else {
-            mCurrentDirectory =
-                    mApp.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(mDirectory);
+            mCurrentDirectory = Directory.getRoot().makeDirectory(mDirectory);
         }
 
         try {
-            mCurrentDirectory.refreshData(mApp.oMPDAsyncHelper.oMPD);
+            mApp.oMPDAsyncHelper.oMPD.refreshDirectory(mCurrentDirectory);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to refresh current directory", e);
         }
