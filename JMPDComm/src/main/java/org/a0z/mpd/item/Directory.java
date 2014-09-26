@@ -56,8 +56,6 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
     private final String mFilename;
 
-    private final MPD mMPD;
-
     private final Directory mParent;
 
     private final Map<String, PlaylistFile> mPlayLists;
@@ -69,7 +67,6 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      */
     public Directory(final Directory dir) {
         super();
-        mMPD = dir.mMPD;
         mName = dir.mName;
         mFilename = dir.mFilename;
         mParent = dir.mParent;
@@ -80,14 +77,11 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
     /**
      * Creates a new directory.
-     *
-     * @param mpd      MPD controller.
-     * @param parent   mParent directory.
+     *  @param parent   mParent directory.
      * @param filename directory filename.
      */
-    private Directory(final MPD mpd, final Directory parent, final String filename) {
+    private Directory(final Directory parent, final String filename) {
         super();
-        mMPD = mpd;
         mName = filename;
         mFilename = filename;
         mParent = parent;
@@ -118,7 +112,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
             switch (pair[KEY]) {
                 case "directory":
-                    result.add(makeRootDirectory(mpd).makeDirectory(pair[VALUE]));
+                    result.add(makeRootDirectory().makeDirectory(pair[VALUE]));
                     lineCache.clear();
                     break;
                 case "file":
@@ -148,11 +142,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     /**
      * Creates a new directory.
      *
-     * @param mpd MPD controller.
      * @return last path component.
      */
-    public static Directory makeRootDirectory(final MPD mpd) {
-        return new Directory(mpd, null, "");
+    public static Directory makeRootDirectory() {
+        return new Directory(null, "");
     }
 
     /**
@@ -314,7 +307,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         // create directory
         final Directory dir;
         if (!mDirectoryEntries.containsKey(name)) {
-            dir = new Directory(mMPD, this, name);
+            dir = new Directory(this, name);
             mDirectoryEntries.put(dir.mFilename, dir);
         } else {
             dir = mDirectoryEntries.get(name);
@@ -332,8 +325,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      *
      * @throws MPDServerException if an error occurs while contacting server.
      */
-    public void refreshData() throws MPDServerException {
-        final List<FilesystemTreeEntry> filesystemEntries = mMPD.getDir(getFullPath());
+    public void refreshData(final MPD mpd) throws MPDServerException {
+        final List<FilesystemTreeEntry> filesystemEntries = mpd.getDir(getFullPath());
         for (final FilesystemTreeEntry filesystemEntry : filesystemEntries) {
             if (filesystemEntry instanceof Directory) {
                 final Directory dir = (Directory) filesystemEntry;

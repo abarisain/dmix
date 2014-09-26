@@ -276,7 +276,7 @@ public class FSFragment extends BrowseFragment {
         }
 
         try {
-            mCurrentDirectory.refreshData();
+            mCurrentDirectory.refreshData(mApp.oMPDAsyncHelper.oMPD);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to refresh current directory", e);
         }

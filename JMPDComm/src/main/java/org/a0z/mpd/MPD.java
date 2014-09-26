@@ -95,7 +95,7 @@ public class MPD {
 
         mPlaylist = new MPDPlaylist(mConnection);
         mStatus = new MPDStatus();
-        mRootDirectory = Directory.makeRootDirectory(this);
+        mRootDirectory = Directory.makeRootDirectory();
     }
 
     /**
