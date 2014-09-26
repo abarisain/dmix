@@ -56,11 +56,11 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
     private final String mFilename;
 
+    private final String mName; // name to display, usually = filename
+
     private final Directory mParent;
 
     private final Map<String, PlaylistFile> mPlaylistEntries;
-
-    private String mName; // name to display, usually = filename
 
     /**
      * Creates a shallow clone of the directory parameter.
@@ -284,15 +284,6 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         return mName;
     }
 
-    /**
-     * Retrieves mParent directory.
-     *
-     * @return mParent directory.
-     */
-    public Directory getParent() {
-        return mParent;
-    }
-
     public Collection<PlaylistFile> getPlaylistFiles() {
         final Collection<PlaylistFile> playlistFilesCompared = new TreeSet<>(
                 new Comparator<PlaylistFile>() {
@@ -351,6 +342,17 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
+     * Gives the parent to this directory object with the name given in the parameter.
+     *
+     * @param name The string identifier used for the name of the parent directory.
+     * @return The parent directory object of this object.
+     */
+    public Directory makeParentDirectory(final String name) {
+        return new Directory(mParent.mParent, mParent.mFilename, name, mDirectoryEntries,
+                mFileEntries, mPlaylistEntries);
+    }
+
+    /**
      * Refresh directory contents (not recursive).
      *
      * @throws MPDServerException if an error occurs while contacting server.
@@ -383,14 +385,5 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                 }
             }
         }
-    }
-
-    /**
-     * Sets name.
-     *
-     * @param name name to be displayed
-     */
-    public void setName(final String name) {
-        mName = name;
     }
 }
