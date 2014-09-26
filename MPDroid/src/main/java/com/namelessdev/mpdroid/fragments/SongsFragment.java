@@ -429,7 +429,7 @@ public class SongsFragment extends BrowseFragment {
             final AlbumInfo fixedAlbumInfo;
             fixedAlbumInfo = getFixedAlbumInfo();
             final String artist = fixedAlbumInfo.getArtist();
-            if (artist.isEmpty()) {
+            if (artist == null || artist.isEmpty()) {
                 mHeaderArtist.setText(R.string.unknown_metadata_artist);
             } else {
                 mHeaderArtist.setText(artist);

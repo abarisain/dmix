@@ -48,8 +48,14 @@ public class AlbumInfo {
 
     public AlbumInfo(final Album album) {
         super();
-        final Artist a = album.getArtist();
-        mArtist = (a == null ? "" : a.getName());
+
+        final Artist artistName = album.getArtist();
+        if (artistName != null) {
+            mArtist = artistName.getName();
+        } else {
+            mArtist = null;
+        }
+
         mAlbum = album.getName();
         mPath = album.getPath();
     }
