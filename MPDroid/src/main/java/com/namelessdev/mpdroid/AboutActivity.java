@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -72,17 +73,20 @@ public class AboutActivity extends ActionBarActivity {
         listView.setHeaderDividersEnabled(false);
         listView.addHeaderView(headerView);
 
-        String[] tmpStringArray;
-        final List<Object> listItems = new ArrayList<>();
+        final Resources resources = getResources();
+        final String[] librariesArray = resources.getStringArray(R.array.libraries_array);
+        final String[] authorsArray = resources.getStringArray(R.array.authors_array);
+        final List<Object> listItems =
+                new ArrayList<>(authorsArray.length + librariesArray.length + 2);
+
         listItems.add(getString(R.string.about_libraries));
-        tmpStringArray = getResources().getStringArray(R.array.libraries_array);
-        for (final String tmpString : tmpStringArray) {
-            listItems.add(new AboutListItem(tmpString));
+        for (final String libraryLine : librariesArray) {
+            listItems.add(new AboutListItem(libraryLine));
         }
+
         listItems.add(getString(R.string.about_authors));
-        tmpStringArray = getResources().getStringArray(R.array.authors_array);
-        for (final String tmpString : tmpStringArray) {
-            listItems.add(new AboutListItem(tmpString));
+        for (final String authorsLine : authorsArray) {
+            listItems.add(new AboutListItem(authorsLine));
         }
 
         listView.setAdapter(new SeparatedListAdapter(this, android.R.layout.simple_list_item_1,
@@ -105,7 +109,7 @@ public class AboutActivity extends ActionBarActivity {
 
         private final String mText;
 
-        public AboutListItem(final String text) {
+        private AboutListItem(final String text) {
             super();
             mText = text;
         }
