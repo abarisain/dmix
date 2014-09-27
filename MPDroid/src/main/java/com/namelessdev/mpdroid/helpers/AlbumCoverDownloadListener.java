@@ -24,7 +24,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -35,11 +34,11 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 
     private static final MPDApplication sApp = MPDApplication.getInstance();
 
-    boolean mBigCoverNotFound;
+    private boolean mBigCoverNotFound;
 
-    ImageView mCoverArt;
+    private ImageView mCoverArt;
 
-    ProgressBar mCoverArtProgress;
+    private ProgressBar mCoverArtProgress;
 
     public AlbumCoverDownloadListener(final ImageView coverArt) {
         super();
@@ -103,81 +102,83 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         mCoverArt = null;
     }
 
-    public void freeCoverDrawable() {
+    public final void freeCoverDrawable() {
         freeCoverDrawable(null);
     }
 
     private void freeCoverDrawable(final Drawable oldDrawable) {
-        if (mCoverArt == null) {
-            return;
-        }
-        final Drawable coverDrawable = oldDrawable == null ? mCoverArt.getDrawable() : oldDrawable;
-        if (coverDrawable == null || !(coverDrawable instanceof CoverBitmapDrawable)) {
-            return;
-        }
+        final Drawable coverDrawable;
+
         if (oldDrawable == null) {
-            final int noCoverDrawable;
-            if (mBigCoverNotFound) {
-                noCoverDrawable = getLargeNoCoverResource();
-            } else {
-                noCoverDrawable = getNoCoverResource();
-            }
-            mCoverArt.setImageResource(noCoverDrawable);
+            coverDrawable = mCoverArt.getDrawable();
+        } else {
+            coverDrawable = oldDrawable;
         }
 
-        coverDrawable.setCallback(null);
-        final Bitmap coverBitmap = ((BitmapDrawable) coverDrawable).getBitmap();
-        if (coverBitmap != null) {
-            coverBitmap.recycle();
+        if (coverDrawable instanceof CoverBitmapDrawable) {
+            if (oldDrawable == null) {
+                final int noCoverDrawable;
+
+                if (mBigCoverNotFound) {
+                    noCoverDrawable = getLargeNoCoverResource();
+                } else {
+                    noCoverDrawable = getNoCoverResource();
+                }
+                mCoverArt.setImageResource(noCoverDrawable);
+            }
+
+            coverDrawable.setCallback(null);
+            final Bitmap coverBitmap = ((BitmapDrawable) coverDrawable).getBitmap();
+            if (coverBitmap != null) {
+                coverBitmap.recycle();
+            }
         }
     }
 
     private boolean isMatchingCover(final CoverInfo coverInfo) {
-        return coverInfo != null && mCoverArt != null &&
-                (mCoverArt.getTag() == null || mCoverArt.getTag().equals(coverInfo.getKey()));
+        boolean isMatchingCover = false;
+
+        if (coverInfo != null && mCoverArt != null) {
+            if (mCoverArt.getTag() == null || mCoverArt.getTag().equals(coverInfo.getKey())) {
+                isMatchingCover = true;
+            }
+        }
+
+        return isMatchingCover;
     }
 
     @Override
     public void onCoverDownloadStarted(final CoverInfo cover) {
-        if (!isMatchingCover(cover)) {
-            return;
-        }
-        if (mCoverArtProgress != null) {
+        if (isMatchingCover(cover) && mCoverArtProgress != null) {
             mCoverArtProgress.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void onCoverDownloaded(final CoverInfo cover) {
-        if (!isMatchingCover(cover)) {
-            return;
-        }
-        if (cover.getBitmap() == null) {
-            return;
-        }
-        try {
+        if (isMatchingCover(cover) && cover.getBitmap() != null) {
+            final CoverBitmapDrawable coverBitmapDrawable =
+                    new CoverBitmapDrawable(sApp.getResources(), cover.getBitmap()[0]);
+
             if (mCoverArtProgress != null) {
                 mCoverArtProgress.setVisibility(View.INVISIBLE);
             }
+
             freeCoverDrawable(mCoverArt.getDrawable());
-            mCoverArt.setImageDrawable(new CoverBitmapDrawable(sApp.getResources(), cover
-                    .getBitmap()[0]));
+            mCoverArt.setImageDrawable(coverBitmapDrawable);
             cover.setBitmap(null);
-        } catch (final Exception e) {
-            Log.w(TAG, "Exception.", e);
         }
     }
 
     @Override
     public void onCoverNotFound(final CoverInfo coverInfo) {
-        if (!isMatchingCover(coverInfo)) {
-            return;
+        if (isMatchingCover(coverInfo)) {
+            coverInfo.setBitmap(null);
+            if (mCoverArtProgress != null) {
+                mCoverArtProgress.setVisibility(View.INVISIBLE);
+            }
+            freeCoverDrawable();
         }
-        coverInfo.setBitmap(null);
-        if (mCoverArtProgress != null) {
-            mCoverArtProgress.setVisibility(View.INVISIBLE);
-        }
-        freeCoverDrawable();
     }
 
     @Override
