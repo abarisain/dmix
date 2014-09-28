@@ -630,8 +630,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         popupMenuStream.show();
                     } else {
                         // Enable / Disable menu items that need artist and album defined.
-                        final boolean showAA = (!mCurrentSong.getAlbumArtist().isEmpty() &&
-                                !mCurrentSong.getAlbumArtist().equals(mCurrentSong.getArtist()));
+                        final String aa = mCurrentSong.getAlbumArtist();
+                        final boolean showAA = (aa != null && !aa.isEmpty() &&
+                                                !aa.equals(mCurrentSong.getArtist()));
 
                         popupMenu.getMenu().findItem(POPUP_ALBUM)
                                 .setVisible(!mCurrentSong.getAlbum().isEmpty());
