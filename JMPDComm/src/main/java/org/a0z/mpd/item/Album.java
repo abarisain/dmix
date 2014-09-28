@@ -212,14 +212,14 @@ public class Album extends Item {
     }
 
     /**
-     * This sets the artist in a new object, due to the required immutability of name
+     * This sets the album artist in a new album object, due to the required immutability of name
      * and artist to satisfy the requirement that the hash code not change over time.
      *
-     * @param artist The new artist.
+     * @param albumArtist The album artist for this album.
      * @return A new Album object based off this Album object.
      */
-    public Album setArtist(final Artist artist) {
-        return new Album(mName, artist, mHasAlbumArtist, mSongCount, mDuration, mYear, mPath);
+    public Album setAlbumArtist(final Artist albumArtist) {
+        return new Album(mName, albumArtist, true, mSongCount, mDuration, mYear, mPath);
     }
 
     public void setDuration(final long duration) {

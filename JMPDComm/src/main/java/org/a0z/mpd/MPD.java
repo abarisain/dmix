@@ -642,7 +642,7 @@ public class MPD {
                                 .isEmpty()) { // one albumartist, fix this
                             // album
                             final Artist artist = new Artist(aartists[0]);
-                            album = album.setArtist(artist);
+                            albums.set(i, album.setAlbumArtist(artist));
                         } // do nothing if albumartist is ""
                         if (aartists.length > 1) { // it's more than one album, insert
                             for (int n = 1; n < aartists.length; n++) {
@@ -1320,7 +1320,7 @@ public class MPD {
                 // Don't make the check with the other so we don't waste time doing string
                 // comparisons for nothing.
                 if (currentAlbum != null) {
-                    currentAlbum.setArtist(new Artist(pair[VALUE]));
+                    currentAlbum.setAlbumArtist(new Artist(pair[VALUE]));
                 }
             } else if (albumResponse.equals(pair[KEY])) {
                 if (!pair[VALUE].isEmpty() || includeUnknownAlbum) {
