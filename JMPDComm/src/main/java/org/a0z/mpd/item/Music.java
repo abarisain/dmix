@@ -342,8 +342,16 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     public static List<Music> getMusicFromList(final Collection<String> response,
             final boolean sort) {
-        final List<Music> result = new ArrayList<>(response.size());
         final Collection<String> lineCache = new ArrayList<>(MUSIC_ATTRIBUTES);
+        final int size = response.size();
+        final List<Music> result;
+
+        /** This list can be pretty sizable, it's good to give a low estimate of it's size. */
+        if (size > MUSIC_ATTRIBUTES) {
+            result = new ArrayList<>(size / MUSIC_ATTRIBUTES);
+        } else {
+            result = new ArrayList<>(0);
+        }
 
         for (final String line : response) {
             if (line.startsWith("file: ")) {
