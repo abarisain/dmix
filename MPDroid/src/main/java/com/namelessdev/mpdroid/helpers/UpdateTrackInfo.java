@@ -243,7 +243,7 @@ public class UpdateTrackInfo {
             final String albumArtist = mCurrentSong.getAlbumArtist();
 
             mArtist = mCurrentSong.getArtist();
-            if (mArtist.isEmpty()) {
+            if (mArtist == null || mArtist.isEmpty()) {
                 mArtist = albumArtist;
             } else if (showAlbumArtist && albumArtist != null &&
                     !mArtist.toLowerCase().contains(albumArtist.toLowerCase())) {
