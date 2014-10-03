@@ -16,11 +16,9 @@
 
 package com.namelessdev.mpdroid.library;
 
-import java.util.AbstractList;
-
 public interface ILibraryTabActivity {
 
-    AbstractList<String> getTabList();
+    java.util.List<String> getTabList();
 
     void pageChanged(int position);
 }

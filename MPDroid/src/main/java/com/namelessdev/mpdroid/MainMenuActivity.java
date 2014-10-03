@@ -68,6 +68,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener,
@@ -76,13 +77,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     public static final int ARTISTS = 2;
 
-    public static final int CONNECT = 8;
+    private static final int CONNECT = 8;
 
     public static final int LIBRARY = 7;
 
     public static final int PLAYLIST = 1;
 
-    public static final int SETTINGS = 5;
+    private static final int SETTINGS = 5;
 
     public static final int STREAM = 6;
 
@@ -138,7 +139,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private SlidingUpPanelLayout mSlidingLayout;
 
-    private ArrayList<String> mTabList;
+    private List<String> mTabList;
 
     private TextView mTextView;
 
@@ -147,48 +148,35 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    public ArrayList<String> getTabList() {
-        return mTabList;
+    public List<String> getTabList() {
+        return Collections.unmodifiableList(mTabList);
     }
 
     @Override
     public void onBackPressed() {
         if (mSlidingLayout.isPanelExpanded()) {
             mSlidingLayout.collapsePanel();
-            return;
-        }
-
-        if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY) {
-            final int fmStackCount = mFragmentManager.getBackStackEntryCount();
-            if (fmStackCount > 0) {
-                super.onBackPressed();
-                return;
-            }
-        } else {
+        } else if (mCurrentDisplayMode != DisplayMode.MODE_LIBRARY) {
             switchMode(DisplayMode.MODE_LIBRARY);
-            return;
-        }
-
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean exitConfirmationRequired = settings.getBoolean("enableExitConfirmation",
-                false);
-        if (exitConfirmationRequired && mBackPressExitCount < 1) {
-            Tools.notifyUser(R.string.backpressToQuit);
-            mBackPressExitCount += 1;
-            mExitCounterReset.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mBackPressExitCount = 0;
-                }
-            }, 5000);
+        } else if (mFragmentManager.getBackStackEntryCount() > 0) {
+            super.onBackPressed();
         } else {
-            finish();
+            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+            if (settings.getBoolean("enableExitConfirmation", false) && mBackPressExitCount < 1) {
+                Tools.notifyUser(R.string.backpressToQuit);
+                mBackPressExitCount += 1;
+                mExitCounterReset.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mBackPressExitCount = 0;
+                    }
+                }, 5000L);
+            } else {
+                finish();
+            }
         }
     }
-
-    /**
-     * Library methods
-     */
 
     @Override
     public void onBackStackChanged() {
@@ -206,8 +194,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         super.onCreate(savedInstanceState);
 
         mApp.setupServiceBinder();
-        setContentView(mApp.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet
-                : R.layout.main_activity_nagvigation);
+        if (mApp.isTabletUiEnabled()) {
+            setContentView(R.layout.main_activity_nagvigation_tablet);
+        } else {
+            setContentView(R.layout.main_activity_nagvigation);
+        }
 
         final LayoutInflater inflater = (LayoutInflater) getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
@@ -239,7 +230,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        final List<DrawerItem> drawerItems = new ArrayList<>();
+        final List<DrawerItem> drawerItems = new ArrayList<>(3);
         drawerItems.add(new DrawerItem(getString(R.string.libraryTabActivity),
                 DrawerItem.Action.ACTION_LIBRARY));
 
@@ -297,6 +288,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                 R.layout.drawer_list_item, drawerItems));
         mOldDrawerPosition = 0;
         mDrawerList.setItemChecked(mOldDrawerPosition, true);
+
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
@@ -312,8 +304,8 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         final ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<>(
                 actionBar.getThemedContext(),
                 android.R.layout.simple_spinner_item);
-        for (int i = 0; i < mTabList.size(); i++) {
-            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(i))));
+        for (final String tab : mTabList) {
+            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(tab)));
         }
 
         actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -415,14 +407,14 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     @Override
                     public void onPanelCollapsed(final View panel) {
                         nowPlayingSmallFragment.setVisibility(View.VISIBLE);
-                        nowPlayingSmallFragment.setAlpha(1);
+                        nowPlayingSmallFragment.setAlpha(1.0f);
                         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     }
 
                     @Override
                     public void onPanelExpanded(final View panel) {
                         nowPlayingSmallFragment.setVisibility(View.GONE);
-                        nowPlayingSmallFragment.setAlpha(1);
+                        nowPlayingSmallFragment.setAlpha(1.0f);
                         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                     }
 
@@ -432,7 +424,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
                     @Override
                     public void onPanelSlide(final View panel, final float slideOffset) {
-                        if (slideOffset > 0.3) {
+                        if (slideOffset > 0.3f) {
                             if (getActionBar().isShowing()) {
                                 getActionBar().hide();
                             }
@@ -441,9 +433,14 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                                 getActionBar().show();
                             }
                         }
-                        nowPlayingSmallFragment
-                                .setVisibility(slideOffset < 1 ? View.VISIBLE : View.GONE);
-                        nowPlayingSmallFragment.setAlpha(1 - slideOffset);
+
+                        if (slideOffset < 1.0f) {
+                            nowPlayingSmallFragment.setVisibility(View.VISIBLE);
+                        } else {
+                            nowPlayingSmallFragment.setVisibility(View.GONE);
+                        }
+
+                        nowPlayingSmallFragment.setAlpha(1.0f - slideOffset);
                     }
                 };
         mSlidingLayout.setPanelSlideListener(panelSlideListener);
@@ -452,11 +449,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (savedInstanceState != null) {
             if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
                 mSlidingLayout.expandPanel();
-                panelSlideListener.onPanelSlide(mSlidingLayout, 1);
+                panelSlideListener.onPanelSlide(mSlidingLayout, 1.0f);
                 panelSlideListener.onPanelExpanded(mSlidingLayout);
             } else {
                 mSlidingLayout.collapsePanel();
-                panelSlideListener.onPanelSlide(mSlidingLayout, 0);
+                panelSlideListener.onPanelSlide(mSlidingLayout, 0.0f);
                 panelSlideListener.onPanelCollapsed(mSlidingLayout);
             }
         }
@@ -544,7 +541,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public boolean onOptionsItemSelected(final MenuItem item) {
         boolean result = true;
         final boolean itemHandled = mDrawerToggle.onOptionsItemSelected(item) ||
-                (mQueueFragment != null && mQueueFragment.onOptionsItemSelected(item));
+                mQueueFragment != null && mQueueFragment.onOptionsItemSelected(item);
 
         // Handle item selection
         if (!itemHandled) {
@@ -604,8 +601,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
-        // Reminder : never disable buttons that are shown as actionbar actions
-        // here
+        // Reminder: Never disable buttons that are shown as actionbar actions here.
         super.onPrepareOptionsMenu(menu);
         return true;
     }
@@ -653,20 +649,19 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
     }
 
-    public void prepareNowPlayingMenu(final Menu menu) {
+    void prepareNowPlayingMenu(final Menu menu) {
         final boolean isStreaming = mApp.isStreamActive();
         final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
         final MPDStatus mpdStatus = mpd.getStatus();
 
-        // Reminder : never disable buttons that are shown as actionbar actions
-        // here
-        if (!mpd.isConnected()) {
-            if (menu.findItem(CONNECT) == null) {
-                menu.add(0, CONNECT, 0, R.string.connect);
-            }
-        } else {
+        // Reminder : never disable buttons that are shown as actionbar actions here
+        if (mpd.isConnected()) {
             if (menu.findItem(CONNECT) != null) {
                 menu.removeItem(CONNECT);
+            }
+        } else {
+            if (menu.findItem(CONNECT) == null) {
+                menu.add(0, CONNECT, 0, R.string.connect);
             }
         }
 
@@ -745,13 +740,20 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
     }
 
-    public void refreshQueueIndicator(final boolean queueShown) {
+    void refreshQueueIndicator(final boolean queueShown) {
         if (mHeaderPlayQueue != null) {
-            mHeaderPlayQueue.setAlpha((float) (queueShown ? 1 : 0.5));
+            if (queueShown) {
+                mHeaderPlayQueue.setAlpha(1.0f);
+            } else {
+                mHeaderPlayQueue.setAlpha(0.5f);
+            }
         }
         if (mHeaderTitle != null) {
-            mHeaderTitle.setText(
-                    queueShown && !mIsDualPaneMode ? R.string.playQueue : R.string.nowPlaying);
+            if (queueShown && !mIsDualPaneMode) {
+                mHeaderTitle.setText(R.string.playQueue);
+            } else {
+                mHeaderTitle.setText(R.string.nowPlaying);
+            }
         }
 
         // Restrain the sliding panel sliding zone
@@ -777,7 +779,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     /** Swaps fragments in the main content view */
-    public void switchMode(final DisplayMode newMode) {
+    void switchMode(final DisplayMode newMode) {
         mCurrentDisplayMode = newMode;
         switch (mCurrentDisplayMode) {
             case MODE_LIBRARY:
@@ -798,13 +800,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         MODE_OUTPUTS
     }
 
-    public static class DrawerItem {
+    private static class DrawerItem {
 
-        public final Action mAction;
+        private final Action mAction;
 
-        public final String mLabel;
+        private final String mLabel;
 
-        public DrawerItem(final String label, final Action action) {
+        DrawerItem(final String label, final Action action) {
             super();
             mLabel = label;
             mAction = action;
@@ -815,7 +817,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
             return mLabel;
         }
 
-        public enum Action {
+        private enum Action {
             ACTION_LIBRARY,
             ACTION_OUTPUTS,
             ACTION_SETTINGS
@@ -855,7 +857,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
     }
 
-    class MainMenuPagerAdapter extends PagerAdapter {
+    private class MainMenuPagerAdapter extends PagerAdapter {
 
         @Override
         public void destroyItem(final ViewGroup container, final int position,
