@@ -67,7 +67,6 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -77,15 +76,13 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     public static final int ARTISTS = 2;
 
-    private static final int CONNECT = 8;
-
     public static final int LIBRARY = 7;
 
     public static final int PLAYLIST = 1;
 
-    private static final int SETTINGS = 5;
-
     public static final int STREAM = 6;
+
+    private static final int CONNECT = 8;
 
     private static final boolean DEBUG = false;
 
@@ -96,6 +93,10 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private static final String FRAGMENT_TAG_LIBRARY = "library";
 
     private static final String FRAGMENT_TAG_OUTPUTS = "outputs";
+
+    private static final int SETTINGS = 5;
+
+    private static final List<String> TAB_LIST;
 
     private static final String TAG = "MainMenuActivity";
 
@@ -109,7 +110,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private Handler mExitCounterReset;
+    private Handler mExitCounterReset = new Handler();
 
     private FragmentManager mFragmentManager;
 
@@ -129,7 +130,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private ViewPager mNowPlayingPager;
 
-    private int mOldDrawerPosition;
+    private int mOldDrawerPosition = 0;
 
     private OutputsFragment mOutputsFragment;
 
@@ -139,9 +140,16 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private SlidingUpPanelLayout mSlidingLayout;
 
-    private List<String> mTabList;
-
     private TextView mTextView;
+
+    static {
+        // Get the list of the currently visible tabs
+        TAB_LIST = LibraryTabsUtil.getCurrentLibraryTabs();
+
+        final StrictMode.ThreadPolicy policy =
+                new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+    }
 
     private static void setMenuChecked(final MenuItem item, final boolean checked) {
         item.setChecked(checked);
@@ -149,7 +157,282 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     @Override
     public List<String> getTabList() {
-        return Collections.unmodifiableList(mTabList);
+        return Collections.unmodifiableList(TAB_LIST);
+    }
+
+    private ListView initializeDrawerList() {
+        final ListView drawerList = (ListView) findViewById(R.id.left_drawer);
+        final DrawerItem[] drawerItems = {
+                new DrawerItem(getString(R.string.libraryTabActivity),
+                        DrawerItem.Action.ACTION_LIBRARY),
+
+                new DrawerItem(getString(R.string.outputs), DrawerItem.Action.ACTION_OUTPUTS),
+
+                new DrawerItem(getString(R.string.settings), DrawerItem.Action.ACTION_SETTINGS)
+        };
+
+        // Set the adapter for the list view
+        drawerList.setAdapter(new ArrayAdapter<>(this,
+                R.layout.drawer_list_item, drawerItems));
+        drawerList.setItemChecked(mOldDrawerPosition, true);
+
+        // Set the list's click listener
+        drawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        return drawerList;
+    }
+
+    private ActionBarDrawerToggle initializeDrawerToggle() {
+        final int drawerImageRes;
+
+        // Set up the action bar.
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setCustomView(mTextView);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowCustomEnabled(true);
+
+        final ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<>(
+                actionBar.getThemedContext(),
+                android.R.layout.simple_spinner_item);
+        for (final String tab : TAB_LIST) {
+            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(tab)));
+        }
+
+        actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        actionBar.setListNavigationCallbacks(actionBarAdapter, this);
+
+        if (mApp.isLightThemeSelected()) {
+            drawerImageRes = R.drawable.ic_drawer_light;
+        } else {
+            drawerImageRes = R.drawable.ic_drawer;
+        }
+
+        /**
+         * @param Activity activity
+         * @param DrawerLayout
+         * @param drawerImageRes nav drawer icon to replace 'Up' caret
+         * @param openDrawerContentDescRes "open drawer" description
+         * @param closeDrawerContentDescRes "close drawer" description
+         */
+        return new ActionBarDrawerToggle(this, mDrawerLayout, drawerImageRes, R.string.drawer_open,
+                R.string.drawer_close) {
+
+            /**
+             * Called when a drawer has settled in a completely closed
+             * state.
+             */
+            @Override
+            public void onDrawerClosed(final View drawerView) {
+                refreshActionBarTitle();
+            }
+
+            /**
+             * Called when a drawer has settled in a completely open
+             * state.
+             */
+            @Override
+            public void onDrawerOpened(final View drawerView) {
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+                actionBar.setDisplayShowCustomEnabled(true);
+                mTextView.setText(R.string.app_name);
+            }
+        };
+    }
+
+    private PopupMenu initializeHeaderOverflowPopup(final ImageButton headerOverflowMenu) {
+        final PopupMenu resultPopupMenu;
+
+        if (headerOverflowMenu == null) {
+            resultPopupMenu = null;
+        } else {
+            final PopupMenu popupMenu = new PopupMenu(this, headerOverflowMenu);
+            popupMenu.getMenuInflater().inflate(R.menu.mpd_mainmenu, popupMenu.getMenu());
+            popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistmenu, popupMenu.getMenu());
+            popupMenu.getMenu().removeItem(R.id.PLM_EditPL);
+            popupMenu.setOnMenuItemClickListener(this);
+
+            headerOverflowMenu.setOnTouchListener(
+                    PopupMenuCompat.getDragToOpenListener(popupMenu));
+
+            headerOverflowMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    if (mSlidingLayout != null && mSlidingLayout.isPanelExpanded()) {
+                        prepareNowPlayingMenu(popupMenu.getMenu());
+                        popupMenu.show();
+                    }
+                }
+            });
+
+            resultPopupMenu = popupMenu;
+        }
+
+        return resultPopupMenu;
+    }
+
+    private ImageButton initializeHeaderPlayQueue() {
+        final ImageButton headerPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
+
+        if (headerPlayQueue != null) {
+            headerPlayQueue.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    if (mNowPlayingPager != null && mSlidingLayout != null
+                            && mSlidingLayout.isPanelExpanded()) {
+                        if (mNowPlayingPager.getCurrentItem() == 0) {
+                            showQueue();
+                        } else {
+                            mNowPlayingPager.setCurrentItem(0, true);
+                            refreshQueueIndicator(false);
+                        }
+                    }
+                }
+            });
+        }
+
+        return headerPlayQueue;
+    }
+
+    private LibraryFragment initializeLibraryFragment() {
+        LibraryFragment fragment =
+                (LibraryFragment) mFragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
+
+        if (fragment == null) {
+            fragment = new LibraryFragment();
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.replace(R.id.library_root_frame, fragment, FRAGMENT_TAG_LIBRARY);
+            ft.commit();
+        }
+
+        return fragment;
+    }
+
+    private ViewPager initializeNowPlayingPager() {
+        final ViewPager nowPlayingPager = (ViewPager) findViewById(R.id.pager);
+        if (nowPlayingPager != null) {
+            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
+            nowPlayingPager.setOnPageChangeListener(
+                    new ViewPager.SimpleOnPageChangeListener() {
+                        @Override
+                        public void onPageSelected(final int position) {
+                            refreshQueueIndicator(position != 0);
+                        }
+                    });
+        }
+
+        return nowPlayingPager;
+    }
+
+    private OutputsFragment initializeOutputsFragment() {
+        OutputsFragment fragment =
+                (OutputsFragment) mFragmentManager.findFragmentByTag(FRAGMENT_TAG_OUTPUTS);
+
+        if (fragment == null) {
+            fragment = new OutputsFragment();
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.replace(R.id.outputs_root_frame, fragment, FRAGMENT_TAG_OUTPUTS);
+            ft.commit();
+        }
+
+        return fragment;
+    }
+
+    private SlidingUpPanelLayout initializeSlidingLayout(final Bundle savedInstanceState) {
+        final SlidingUpPanelLayout slidingLayout =
+                (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        final SlidingUpPanelLayout.PanelSlideListener panelSlideListener
+                = initializeSlidingPanelLayout();
+
+        slidingLayout.setEnableDragViewTouchEvents(true);
+        slidingLayout.setPanelHeight(
+                (int) getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
+        slidingLayout.setPanelSlideListener(panelSlideListener);
+
+        // Ensure that the view state is consistent (otherwise we end up with a view mess)
+        // The sliding layout should take care of it itself but does not
+        if (savedInstanceState != null) {
+            if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
+                slidingLayout.expandPanel();
+                panelSlideListener.onPanelSlide(slidingLayout, 1.0f);
+                panelSlideListener.onPanelExpanded(slidingLayout);
+            } else {
+                slidingLayout.collapsePanel();
+                panelSlideListener.onPanelSlide(slidingLayout, 0.0f);
+                panelSlideListener.onPanelCollapsed(slidingLayout);
+            }
+        }
+
+        return slidingLayout;
+    }
+
+    private SlidingUpPanelLayout.PanelSlideListener initializeSlidingPanelLayout() {
+
+        return new SlidingUpPanelLayout.PanelSlideListener() {
+            final View nowPlayingSmallFragment =
+                    findViewById(R.id.now_playing_small_fragment);
+
+            @Override
+            public void onPanelAnchored(final View panel) {
+            }
+
+            @Override
+            public void onPanelCollapsed(final View panel) {
+                nowPlayingSmallFragment.setVisibility(View.VISIBLE);
+                nowPlayingSmallFragment.setAlpha(1.0f);
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            }
+
+            @Override
+            public void onPanelExpanded(final View panel) {
+                nowPlayingSmallFragment.setVisibility(View.GONE);
+                nowPlayingSmallFragment.setAlpha(1.0f);
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            }
+
+            @Override
+            public void onPanelHidden(final View view) {
+            }
+
+            @Override
+            public void onPanelSlide(final View panel, final float slideOffset) {
+                final ActionBar actionBar = getActionBar();
+
+                if (slideOffset > 0.3f) {
+                    if (actionBar.isShowing()) {
+                        actionBar.hide();
+                    }
+                } else {
+                    if (!actionBar.isShowing()) {
+                        actionBar.show();
+                    }
+                }
+
+                if (slideOffset < 1.0f) {
+                    nowPlayingSmallFragment.setVisibility(View.VISIBLE);
+                } else {
+                    nowPlayingSmallFragment.setVisibility(View.GONE);
+                }
+
+                nowPlayingSmallFragment.setAlpha(1.0f - slideOffset);
+            }
+        };
+    }
+
+    private TextView initializeTextView() {
+        final LayoutInflater inflater = (LayoutInflater) getSystemService(
+                Context.LAYOUT_INFLATER_SERVICE);
+        final TextView textView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
+
+        textView.setFocusable(true);
+        textView.setFocusableInTouchMode(true);
+        textView.setSelected(true);
+        textView.requestFocus();
+
+        return textView;
     }
 
     @Override
@@ -194,269 +477,56 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         super.onCreate(savedInstanceState);
 
         mApp.setupServiceBinder();
+
         if (mApp.isTabletUiEnabled()) {
             setContentView(R.layout.main_activity_nagvigation_tablet);
         } else {
             setContentView(R.layout.main_activity_nagvigation);
         }
 
-        final LayoutInflater inflater = (LayoutInflater) getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-        mTextView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
-        mTextView.setFocusable(true);
-        mTextView.setFocusableInTouchMode(true);
-        mTextView.setSelected(true);
-        mTextView.requestFocus();
+        mTextView = initializeTextView();
 
-        final View nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
-        mNowPlayingPager = (ViewPager) findViewById(R.id.pager);
         mLibraryRootFrame = findViewById(R.id.library_root_frame);
         mOutputsRootFrame = findViewById(R.id.outputs_root_frame);
 
-        mIsDualPaneMode = nowPlayingDualPane != null;
-        switchMode(DisplayMode.MODE_LIBRARY);
-
-        mExitCounterReset = new Handler();
-
-        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
-                .build();
-        StrictMode.setThreadPolicy(policy);
-
-        // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setCustomView(mTextView);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowCustomEnabled(true);
-
-        final List<DrawerItem> drawerItems = new ArrayList<>(3);
-        drawerItems.add(new DrawerItem(getString(R.string.libraryTabActivity),
-                DrawerItem.Action.ACTION_LIBRARY));
-
-        drawerItems.add(new DrawerItem(getString(R.string.outputs),
-                DrawerItem.Action.ACTION_OUTPUTS));
-
-        drawerItems.add(new DrawerItem(getString(R.string.settings),
-                DrawerItem.Action.ACTION_SETTINGS));
+        mIsDualPaneMode = findViewById(R.id.nowplaying_dual_pane) != null;
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        final int drawerRes;
-
-        if (mApp.isLightThemeSelected()) {
-            drawerRes = R.drawable.ic_drawer_light;
-        } else {
-            drawerRes = R.drawable.ic_drawer;
-        }
-
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this, /* host Activity */
-                mDrawerLayout, /* DrawerLayout object */
-                drawerRes, /* nav drawer icon to replace 'Up' caret */
-                R.string.drawer_open, /* "open drawer" description */
-                R.string.drawer_close /* "close drawer" description */
-        ) {
-
-            /**
-             * Called when a drawer has settled in a completely closed
-             * state.
-             */
-            @Override
-            public void onDrawerClosed(final View drawerView) {
-                refreshActionBarTitle();
-            }
-
-            /**
-             * Called when a drawer has settled in a completely open
-             * state.
-             */
-            @Override
-            public void onDrawerOpened(final View drawerView) {
-                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                actionBar.setDisplayShowCustomEnabled(true);
-                mTextView.setText(R.string.app_name);
-            }
-        };
+        mDrawerToggle = initializeDrawerToggle();
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerList = initializeDrawerList();
 
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<>(this,
-                R.layout.drawer_list_item, drawerItems));
-        mOldDrawerPosition = 0;
-        mDrawerList.setItemChecked(mOldDrawerPosition, true);
-
-        // Set the list's click listener
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        /*
-         * Setup the library tab
-         */
         mFragmentManager = getSupportFragmentManager();
         mFragmentManager.addOnBackStackChangedListener(this);
 
-        // Get the list of the currently visible tabs
-        mTabList = LibraryTabsUtil.getCurrentLibraryTabs();
-
-        final ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<>(
-                actionBar.getThemedContext(),
-                android.R.layout.simple_spinner_item);
-        for (final String tab : mTabList) {
-            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(tab)));
-        }
-
-        actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        actionBar.setListNavigationCallbacks(actionBarAdapter, this);
-
-        mLibraryFragment = (LibraryFragment) mFragmentManager
-                .findFragmentByTag(FRAGMENT_TAG_LIBRARY);
-        if (mLibraryFragment == null) {
-            mLibraryFragment = new LibraryFragment();
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.replace(R.id.library_root_frame, mLibraryFragment, FRAGMENT_TAG_LIBRARY);
-            ft.commit();
-        }
-
-        mOutputsFragment = (OutputsFragment) mFragmentManager
-                .findFragmentByTag(FRAGMENT_TAG_OUTPUTS);
-        if (mOutputsFragment == null) {
-            mOutputsFragment = new OutputsFragment();
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.replace(R.id.outputs_root_frame, mOutputsFragment, FRAGMENT_TAG_OUTPUTS);
-            ft.commit();
-        }
+        mLibraryFragment = initializeLibraryFragment();
+        mOutputsFragment = initializeOutputsFragment();
+        mQueueFragment = (QueueFragment) mFragmentManager.findFragmentById(R.id.queue_fragment);
 
         // Setup the pager
-        if (mNowPlayingPager != null) {
-            mNowPlayingPager.setAdapter(new MainMenuPagerAdapter());
-            mNowPlayingPager.setOnPageChangeListener(
-                    new ViewPager.SimpleOnPageChangeListener() {
-                        @Override
-                        public void onPageSelected(final int position) {
-                            refreshQueueIndicator(position != 0);
-                        }
-                    });
-        }
+        mNowPlayingPager = initializeNowPlayingPager();
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState == null) {
+            switchMode(DisplayMode.MODE_LIBRARY);
+        } else {
             switchMode((DisplayMode) savedInstanceState.getSerializable(EXTRA_DISPLAY_MODE));
         }
 
-        final View nowPlayingSmallFragment = findViewById(R.id.now_playing_small_fragment);
-        mQueueFragment = (QueueFragment) mFragmentManager.findFragmentById(R.id.queue_fragment);
-
-        mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
-        final ImageButton headerOverflowMenu = (ImageButton) findViewById(
-                R.id.header_overflow_menu);
         mHeaderTitle = (TextView) findViewById(R.id.header_title);
         mHeaderDragView = findViewById(R.id.header_dragview);
-        if (mHeaderPlayQueue != null) {
-            mHeaderPlayQueue.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    if (mNowPlayingPager != null && mSlidingLayout != null
-                            && mSlidingLayout.isPanelExpanded()) {
-                        if (mNowPlayingPager.getCurrentItem() == 0) {
-                            showQueue();
-                        } else {
-                            mNowPlayingPager.setCurrentItem(0, true);
-                            refreshQueueIndicator(false);
-                        }
-                    }
-                }
-            });
-        }
+        mHeaderPlayQueue = initializeHeaderPlayQueue();
+
+        final ImageButton headerOverflowMenu = (ImageButton) findViewById(
+                R.id.header_overflow_menu);
         if (headerOverflowMenu != null) {
-            mHeaderOverflowPopupMenu = new PopupMenu(this, headerOverflowMenu);
-            mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_mainmenu,
-                    mHeaderOverflowPopupMenu.getMenu());
-            mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_playlistmenu,
-                    mHeaderOverflowPopupMenu.getMenu());
-            mHeaderOverflowPopupMenu.getMenu().removeItem(R.id.PLM_EditPL);
-            mHeaderOverflowPopupMenu.setOnMenuItemClickListener(this);
-
-            headerOverflowMenu.setOnTouchListener(
-                    PopupMenuCompat.getDragToOpenListener(mHeaderOverflowPopupMenu));
-
-            headerOverflowMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    if (mSlidingLayout != null && mSlidingLayout.isPanelExpanded()) {
-                        prepareNowPlayingMenu(mHeaderOverflowPopupMenu.getMenu());
-                        mHeaderOverflowPopupMenu.show();
-                    }
-                }
-            });
+            mHeaderOverflowPopupMenu = initializeHeaderOverflowPopup(headerOverflowMenu);
         }
+
         // Sliding panel
-        mSlidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        mSlidingLayout.setEnableDragViewTouchEvents(true);
-        mSlidingLayout.setPanelHeight(
-                (int) getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
-        final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
-                new SlidingUpPanelLayout.PanelSlideListener() {
-                    @Override
-                    public void onPanelAnchored(final View panel) {
-                    }
-
-                    @Override
-                    public void onPanelCollapsed(final View panel) {
-                        nowPlayingSmallFragment.setVisibility(View.VISIBLE);
-                        nowPlayingSmallFragment.setAlpha(1.0f);
-                        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                    }
-
-                    @Override
-                    public void onPanelExpanded(final View panel) {
-                        nowPlayingSmallFragment.setVisibility(View.GONE);
-                        nowPlayingSmallFragment.setAlpha(1.0f);
-                        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                    }
-
-                    @Override
-                    public void onPanelHidden(final View view) {
-                    }
-
-                    @Override
-                    public void onPanelSlide(final View panel, final float slideOffset) {
-                        if (slideOffset > 0.3f) {
-                            if (getActionBar().isShowing()) {
-                                getActionBar().hide();
-                            }
-                        } else {
-                            if (!getActionBar().isShowing()) {
-                                getActionBar().show();
-                            }
-                        }
-
-                        if (slideOffset < 1.0f) {
-                            nowPlayingSmallFragment.setVisibility(View.VISIBLE);
-                        } else {
-                            nowPlayingSmallFragment.setVisibility(View.GONE);
-                        }
-
-                        nowPlayingSmallFragment.setAlpha(1.0f - slideOffset);
-                    }
-                };
-        mSlidingLayout.setPanelSlideListener(panelSlideListener);
-        // Ensure that the view state is consistent (otherwise we end up with a view mess)
-        // The sliding layout should take care of it itself but does not
-        if (savedInstanceState != null) {
-            if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
-                mSlidingLayout.expandPanel();
-                panelSlideListener.onPanelSlide(mSlidingLayout, 1.0f);
-                panelSlideListener.onPanelExpanded(mSlidingLayout);
-            } else {
-                mSlidingLayout.collapsePanel();
-                panelSlideListener.onPanelSlide(mSlidingLayout, 0.0f);
-                panelSlideListener.onPanelCollapsed(mSlidingLayout);
-            }
-        }
+        mSlidingLayout = initializeSlidingLayout(savedInstanceState);
         refreshQueueIndicator(false);
 
         /** Reset the persistent override when the application is reset. */
