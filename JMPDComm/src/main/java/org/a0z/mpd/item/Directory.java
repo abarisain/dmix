@@ -50,6 +50,8 @@ import static org.a0z.mpd.Tools.VALUE;
  */
 public final class Directory extends Item implements FilesystemTreeEntry {
 
+    private static final char MPD_SEPARATOR = '/';
+
     private static final Directory ROOT;
 
     private final Map<String, Directory> mDirectoryEntries;
@@ -138,6 +140,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     public Collection<Directory> getDirectories() {
         final Collection<Directory> directoriesCompared = new TreeSet<>(
                 new Comparator<Directory>() {
+                    @Override
                     public int compare(final Directory lhs, final Directory rhs) {
                         return StringComparators.compareNatural(lhs.getName(), rhs.getName());
                     }
@@ -217,11 +220,15 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      */
     @Override
     public String getFullPath() {
-        if (mParent != null && mParent.mParent != null) {
-            return mParent.getFullPath() + '/' + mFilename;
+        final String fullPath;
+
+        if (mParent == null || mParent.mParent == null) {
+            fullPath = mFilename;
         } else {
-            return mFilename;
+            fullPath = mParent.getFullPath() + MPD_SEPARATOR + mFilename;
         }
+
+        return fullPath;
     }
 
     /**
@@ -261,10 +268,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     public Directory makeDirectory(final String subPath) {
         final String name;
         final String remainingPath;
-        final int slashIndex = subPath.indexOf('/');
+        final int slashIndex = subPath.indexOf(MPD_SEPARATOR);
 
         if (slashIndex == 0) {
-            throw new IllegalArgumentException("name starts with '/'");
+            throw new IllegalArgumentException("name starts with '" + MPD_SEPARATOR + '\'');
         }
 
         // split path
@@ -278,11 +285,11 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
         // create directory
         final Directory dir;
-        if (!mDirectoryEntries.containsKey(name)) {
+        if (mDirectoryEntries.containsKey(name)) {
+            dir = mDirectoryEntries.get(name);
+        } else {
             dir = new Directory(this, name);
             mDirectoryEntries.put(dir.mFilename, dir);
-        } else {
-            dir = mDirectoryEntries.get(name);
         }
 
         // create remainder
