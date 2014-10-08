@@ -44,26 +44,34 @@ import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;
 
 /**
- * Class representing a directory.
+ * A class representing a MPD protocol directory.
  *
  * @author Felipe Gustavo de Almeida
  */
 public final class Directory extends Item implements FilesystemTreeEntry {
 
+    /** The MPD protocol directory separator. */
     private static final char MPD_SEPARATOR = '/';
 
+    /** The root directory object. */
     private static final Directory ROOT;
 
+    /** A map of directory entries from the current directory on the media server. */
     private final Map<String, Directory> mDirectoryEntries;
 
+    /** A map of file entries from the current directory on the media server. */
     private final Map<String, Music> mFileEntries;
 
+    /** The filename of this directory. */
     private final String mFilename;
 
-    private final String mName; // name to display, usually = filename
+    /** The name to display for this directory, typically the filename. */
+    private final String mName;
 
+    /** The parent directory object relative to this object. */
     private final Directory mParent;
 
+    /** A map of playlist file entries from the current directory on the media server. */
     private final Map<String, PlaylistFile> mPlaylistEntries;
 
     static {
@@ -73,8 +81,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     /**
      * Creates a new directory.
      *
-     * @param parent   mParent directory.
-     * @param filename directory filename.
+     * @param parent   The parent directory to this directory.
+     * @param filename The filename of this directory.
      */
     private Directory(final Directory parent, final String filename) {
         this(parent, filename, filename, null, null, null);
@@ -118,24 +126,30 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         }
     }
 
+    /**
+     * Gets the root directory for this media server.
+     *
+     * @return The root directory for this media server.
+     * @see #refresh(org.a0z.mpd.connection.MPDConnection)
+     */
     public static Directory getRoot() {
         return ROOT;
     }
 
     /**
-     * Check if a given directory exists as a sub-directory.
+     * Check if a given directory exists as a subdirectory.
      *
-     * @param filename sub-directory filename.
-     * @return true if sub-directory exists, false if not.
+     * @param filename The subdirectory filename.
+     * @return True if subdirectory exists, false otherwise.
      */
     public boolean containsDir(final String filename) {
         return mDirectoryEntries.containsKey(filename);
     }
 
     /**
-     * Retrieves sub-directories.
+     * Retrieves a non-recursive list of subdirectories of this directory in natural order.
      *
-     * @return sub-directories.
+     * @return A non-recursive list of subdirectories of this directory in natural order.
      */
     public Collection<Directory> getDirectories() {
         final Collection<Directory> directoriesCompared = new TreeSet<>(
@@ -164,10 +178,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Gets Music object by title
+     * Gets a {@code Music} object by the title of the music.
      *
-     * @param title title of the file to be returned
-     * @return Returns null if title not found
+     * @param title The title of the file of the music to be found.
+     * @return Returns the {@code Music} object if found, null otherwise.
      */
     public Music getFileByTitle(final String title) {
         Music result = null;
@@ -185,18 +199,18 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Retrieves file name.
+     * Retrieves the filename of the current directory.
      *
-     * @return filename
+     * @return The filename of the current directory.
      */
     public String getFilename() {
         return mFilename;
     }
 
     /**
-     * Retrieves files from directory.
+     * Retrieves a collection of files from directory.
      *
-     * @return files from directory.
+     * @return A collection of files from this directory.
      */
     public Collection<Music> getFiles() {
         final Collection<Music> filesCompared = new TreeSet<>(new Comparator<Music>() {
@@ -214,9 +228,9 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Retrieves directory's full path (does not start with /)
+     * Retrieves a full path without the forward slash prefix.
      *
-     * @return full path
+     * @return The full path without the forward slash prefix.
      */
     @Override
     public String getFullPath() {
@@ -232,15 +246,20 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Retrieves directory name.
+     * Retrieves the name of this directory.
      *
-     * @return directory name.
+     * @return The name of this directory.
      */
     @Override
     public String getName() {
         return mName;
     }
 
+    /**
+     * Creates a collection of playlist files from this directory in their natural order.
+     *
+     * @return A collection of playlist files from this directory in their natural order.
+     */
     public Collection<PlaylistFile> getPlaylistFiles() {
         final Collection<PlaylistFile> playlistFilesCompared = new TreeSet<>(
                 new Comparator<PlaylistFile>() {
@@ -259,28 +278,34 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     }
 
     /**
-     * Given a path not starting or ending with '/', creates all directories on
-     * this path.
+     * Creates a child {@code Directory} object relative to this directory object.
      *
-     * @param subPath path, must not start or end with '/'.
+     * @param subdirectory The subdirectory path of the root to create a {@code Directory} for.
      * @return the last component of the path created.
+     * @throws java.lang.IllegalArgumentException If {@code subdirectory} starts or ends with '/'
+     * @see #getRoot()
+     * @see #refresh(org.a0z.mpd.connection.MPDConnection)
      */
-    public Directory makeDirectory(final String subPath) {
+    public Directory makeChildDirectory(final String subdirectory) {
         final String name;
         final String remainingPath;
-        final int slashIndex = subPath.indexOf(MPD_SEPARATOR);
+        final int slashIndex = subdirectory.indexOf(MPD_SEPARATOR);
 
         if (slashIndex == 0) {
             throw new IllegalArgumentException("name starts with '" + MPD_SEPARATOR + '\'');
         }
 
+        if (slashIndex == subdirectory.length() - 1) {
+            throw new IllegalArgumentException("name ends with " + MPD_SEPARATOR + '\'');
+        }
+
         // split path
         if (slashIndex == -1) {
-            name = subPath;
+            name = subdirectory;
             remainingPath = null;
         } else {
-            name = subPath.substring(0, slashIndex);
-            remainingPath = subPath.substring(slashIndex + 1);
+            name = subdirectory.substring(0, slashIndex);
+            remainingPath = subdirectory.substring(slashIndex + 1);
         }
 
         // create directory
@@ -294,13 +319,14 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
         // create remainder
         if (remainingPath != null) {
-            return dir.makeDirectory(remainingPath);
+            return dir.makeChildDirectory(remainingPath);
         }
         return dir;
     }
 
     /**
-     * Gives the parent to this directory object with the name given in the parameter.
+     * Makes an object which is the immediate parent relative to this directory object with the
+     * name given in the parameter.
      *
      * @param name The string identifier used for the name of the parent directory.
      * @return The parent directory object of this object.
@@ -314,6 +340,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * Retrieves a database directory listing of {@code path} directory.
      *
      * @param connection A connection to the server.
+     * @throws org.a0z.mpd.exception.MPDServerException Upon connection or server error.
      */
     public void refresh(final MPDConnection connection)
             throws MPDServerException {
@@ -335,7 +362,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
 
             switch (pair[KEY]) {
                 case "directory":
-                    final Directory dir = ROOT.makeDirectory(pair[VALUE]);
+                    final Directory dir = ROOT.makeChildDirectory(pair[VALUE]);
 
                     directoryEntries.put(dir.mFilename, dir);
                     lineCache.clear();

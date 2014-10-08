@@ -266,7 +266,7 @@ public class FSFragment extends BrowseFragment {
         if (TextUtils.isEmpty(mDirectory)) {
             mCurrentDirectory = Directory.getRoot();
         } else {
-            mCurrentDirectory = Directory.getRoot().makeDirectory(mDirectory);
+            mCurrentDirectory = Directory.getRoot().makeChildDirectory(mDirectory);
         }
 
         try {
