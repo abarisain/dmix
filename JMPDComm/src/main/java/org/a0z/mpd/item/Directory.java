@@ -143,9 +143,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                     }
                 });
 
-        for (final Directory item : mDirectoryEntries.values()) {
-            directoriesCompared.add(item);
+        synchronized (mDirectoryEntries) {
+            directoriesCompared.addAll(mDirectoryEntries.values());
         }
+
         return directoriesCompared;
     }
 
@@ -166,12 +167,18 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return Returns null if title not found
      */
     public Music getFileByTitle(final String title) {
-        for (final Music music : mFileEntries.values()) {
-            if (music.getTitle().equals(title)) {
-                return music;
+        Music result = null;
+
+        synchronized (mFileEntries) {
+            for (final Music music : mFileEntries.values()) {
+                if (music.getTitle().equals(title)) {
+                    result = music;
+                    break;
+                }
             }
         }
-        return null;
+
+        return result;
     }
 
     /**
@@ -196,9 +203,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
             }
         });
 
-        for (final Music item : mFileEntries.values()) {
-            filesCompared.add(item);
+        synchronized (mFileEntries) {
+            filesCompared.addAll(mFileEntries.values());
         }
+
         return filesCompared;
     }
 
@@ -236,9 +244,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                     }
                 });
 
-        for (final PlaylistFile item : mPlaylistEntries.values()) {
-            playlistFilesCompared.add(item);
+        synchronized (mPlaylistEntries) {
+            playlistFilesCompared.addAll(mPlaylistEntries.values());
         }
+
         return playlistFilesCompared;
     }
 
