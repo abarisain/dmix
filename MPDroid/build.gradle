@@ -51,6 +51,29 @@ android {
             ext.enableCrashlytics = false
         }
     }
+
+    applicationVariants.all { variant ->
+
+        task("${variant.name}Javadoc", type: Javadoc) {
+            title = "$name $version API"
+            description "Generates Javadoc for $variant.name."
+            source = variant.javaCompile.source
+            ext.androidJar =
+                    "${android.plugin.sdkHandler.sdkFolder}" +
+                            "/platforms/${android.compileSdkVersion}/android.jar"
+            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+
+            options {
+                links("http://docs.oracle.com/javase/7/docs/api/");
+                linksOffline("http://developer.android.com/reference",
+                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+            }
+
+            exclude {
+                ['**/BuildConfig.java', '**/R.java']
+            }
+        }
+    }
 }
 
 dependencies {
