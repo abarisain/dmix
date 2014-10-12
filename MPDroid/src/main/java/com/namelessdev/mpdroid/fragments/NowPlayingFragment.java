@@ -159,12 +159,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private static void applyViewVisibility(final SharedPreferences sharedPreferences,
             final View view, final String property) {
-        if (view != null) {
-            if (sharedPreferences.getBoolean(property, false)) {
-                view.setVisibility(View.VISIBLE);
-            } else {
-                view.setVisibility(View.GONE);
-            }
+        if (sharedPreferences.getBoolean(property, false)) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            view.setVisibility(View.GONE);
         }
     }
 
@@ -369,17 +367,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mStopButton.setOnLongClickListener(buttonEventHandler);
         applyViewVisibility(settings, mStopButton, "enableStopButton");
 
-        if (null != mShuffleButton) {
-            mShuffleButton.setOnClickListener(buttonEventHandler);
-        }
-        if (null != mRepeatButton) {
-            mRepeatButton.setOnClickListener(buttonEventHandler);
-        }
+        mShuffleButton.setOnClickListener(buttonEventHandler);
+        mRepeatButton.setOnClickListener(buttonEventHandler);
 
         mSongInfo = view.findViewById(R.id.songInfo);
-        if (mSongInfo != null) {
-            populateSongInfoMenu();
-        }
+        populateSongInfoMenu();
 
         mSeekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -768,7 +760,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void setRepeatButton(final boolean on) {
-        if (null != mRepeatButton && mRepeatCurrent != on) {
+        if (mRepeatCurrent != on) {
             final int[] attrs = {getRepeatAttribute(on)};
             final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
             final Drawable drawableFromTheme = ta.getDrawable(0);
@@ -779,7 +771,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void setShuffleButton(final boolean on) {
-        if (null != mShuffleButton && mShuffleCurrent != on) {
+        if (mShuffleCurrent != on) {
             final int[] attrs = {getShuffleAttribute(on)};
             final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
             final Drawable drawableFromTheme = ta.getDrawable(0);
