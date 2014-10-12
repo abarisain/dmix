@@ -131,15 +131,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private ImageButton mRepeatButton = null;
 
-    private boolean mRepeatCurrent = false;
-
     private SeekBar mSeekBarTrack = null;
 
     private SeekBar mSeekBarVolume = null;
 
     private ImageButton mShuffleButton = null;
-
-    private boolean mShuffleCurrent = false;
 
     private View mSongInfo = null;
 
@@ -238,12 +234,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void forceStatusUpdate() {
-        final MPDStatus mpdStatus = mApp.oMPDAsyncHelper.oMPD.getStatus();
+        final MPDStatus status = mApp.oMPDAsyncHelper.oMPD.getStatus();
 
-        if (mpdStatus.isValid()) {
-            volumeChanged(mpdStatus, -1);
-            updateStatus(mpdStatus);
-            updateTrackInfo(mpdStatus, true);
+        if (status.isValid()) {
+            volumeChanged(status, -1);
+            updateStatus(status);
+            updateTrackInfo(status, true);
+            setButtonAttribute(getRepeatAttribute(status.isRepeat()), mRepeatButton);
+            setButtonAttribute(getShuffleAttribute(status.isRandom()), mShuffleButton);
         }
     }
 
@@ -749,12 +747,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void randomChanged(final boolean random) {
-        setShuffleButton(random);
+        setButtonAttribute(getShuffleAttribute(random), mShuffleButton);
     }
 
     @Override
     public void repeatChanged(final boolean repeating) {
-        setRepeatButton(repeating);
+        setButtonAttribute(getRepeatAttribute(repeating), mRepeatButton);
     }
 
     private void scrollToNowPlaying() {
@@ -765,26 +763,20 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private void setRepeatButton(final boolean on) {
-        if (mRepeatCurrent != on) {
-            final int[] attrs = {getRepeatAttribute(on)};
-            final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
-            final Drawable drawableFromTheme = ta.getDrawable(0);
-            mRepeatButton.setImageDrawable(drawableFromTheme);
-            mRepeatButton.invalidate();
-            mRepeatCurrent = on;
-        }
-    }
+    /**
+     * Sets a buttons attributes.
+     *
+     * @param attribute The attribute resource to set the button to.
+     * @param button    The button with which to set the attribute resource.
+     */
+    private void setButtonAttribute(final int attribute, final ImageButton button) {
+        final int[] attrs = {attribute};
+        final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
+        final Drawable drawableFromTheme = ta.getDrawable(0);
 
-    private void setShuffleButton(final boolean on) {
-        if (mShuffleCurrent != on) {
-            final int[] attrs = {getShuffleAttribute(on)};
-            final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
-            final Drawable drawableFromTheme = ta.getDrawable(0);
-            mShuffleButton.setImageDrawable(drawableFromTheme);
-            mShuffleButton.invalidate();
-            mShuffleCurrent = on;
-        }
+        button.setImageDrawable(drawableFromTheme);
+        button.invalidate();
+        ta.recycle();
     }
 
     private void startPosTimer(final long start, final long total) {
@@ -943,9 +935,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         toggleTrackProgress(status);
 
         mButtonPlayPause.setImageResource(getPlayPauseResource(status.getState()));
-
-        setShuffleButton(status.isRandom());
-        setRepeatButton(status.isRepeat());
 
         updateAudioNameText(status);
 
