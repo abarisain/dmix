@@ -158,13 +158,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private TextView mYearNameText;
 
     private static void applyViewVisibility(final SharedPreferences sharedPreferences,
-            final View view,
-            final String property) {
-        if (view == null) {
-            return;
+            final View view, final String property) {
+        if (view != null) {
+            if (sharedPreferences.getBoolean(property, false)) {
+                view.setVisibility(View.VISIBLE);
+            } else {
+                view.setVisibility(View.GONE);
+            }
         }
-        view.setVisibility(
-                sharedPreferences.getBoolean(property, false) ? View.VISIBLE : View.GONE);
     }
 
     protected static int getPlayPauseResource(final int state) {
@@ -185,6 +186,44 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
 
         return resource;
+    }
+
+    /**
+     * Retrieve styled attribute information for the repeat button.
+     *
+     * @param on True if repeat is enabled, false otherwise.
+     * @return Returns the enabled repeat styled attribute if on, returns the disabled repeat styled
+     * attribute otherwise.
+     */
+    private static int getRepeatAttribute(final boolean on) {
+        final int attribute;
+
+        if (on) {
+            attribute = R.attr.repeatEnabled;
+        } else {
+            attribute = R.attr.repeatDisabled;
+        }
+
+        return attribute;
+    }
+
+    /**
+     * Retrieve styled attribute information for the random button.
+     *
+     * @param on True if random is enabled, false otherwise.
+     * @return Returns the enabled random styled attribute if on, returns the disabled random styled
+     * attribute otherwise.
+     */
+    private static int getShuffleAttribute(final boolean on) {
+        final int attribute;
+
+        if (on) {
+            attribute = R.attr.shuffleEnabled;
+        } else {
+            attribute = R.attr.shuffleDisabled;
+        }
+
+        return attribute;
     }
 
     @Override
@@ -254,11 +293,19 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        final View view = inflater.inflate(mApp.isTabletUiEnabled() ? R.layout.main_fragment_tablet
-                : R.layout.main_fragment, container, false);
-
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        final int viewLayout;
+        final View view;
+
         settings.registerOnSharedPreferenceChangeListener(this);
+
+        if (mApp.isTabletUiEnabled()) {
+            viewLayout = R.layout.main_fragment_tablet;
+        } else {
+            viewLayout = R.layout.main_fragment;
+        }
+
+        view = inflater.inflate(viewLayout, container, false);
 
         mArtistNameText = (TextView) view.findViewById(R.id.artistName);
         mAlbumNameText = (TextView) view.findViewById(R.id.albumName);
@@ -722,9 +769,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private void setRepeatButton(final boolean on) {
         if (null != mRepeatButton && mRepeatCurrent != on) {
-            final int[] attrs = {
-                    on ? R.attr.repeatEnabled : R.attr.repeatDisabled
-            };
+            final int[] attrs = {getRepeatAttribute(on)};
             final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
             final Drawable drawableFromTheme = ta.getDrawable(0);
             mRepeatButton.setImageDrawable(drawableFromTheme);
@@ -735,9 +780,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private void setShuffleButton(final boolean on) {
         if (null != mShuffleButton && mShuffleCurrent != on) {
-            final int[] attrs = {
-                    on ? R.attr.shuffleEnabled : R.attr.shuffleDisabled
-            };
+            final int[] attrs = {getShuffleAttribute(on)};
             final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
             final Drawable drawableFromTheme = ta.getDrawable(0);
             mShuffleButton.setImageDrawable(drawableFromTheme);
@@ -934,7 +977,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      */
     private void updateTrackProgress(final long elapsed, final long totalTrackTime) {
         /** In case the total track time is flawed. */
-        final long elapsedTime = elapsed > totalTrackTime ? totalTrackTime : elapsed;
+        final long elapsedTime;
+
+        if (elapsed > totalTrackTime) {
+            elapsedTime = totalTrackTime;
+        } else {
+            elapsedTime = elapsed;
+        }
+
         mSeekBarTrack.setProgress((int) elapsedTime);
 
         mHandler.post(new Runnable() {
