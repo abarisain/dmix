@@ -589,8 +589,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             @Override
             public boolean onLongClick(final View v) {
                 if (mCurrentSong != null) {
-                    coverMenu.getMenu().setGroupVisible(Menu.NONE,
-                            mCurrentSong.getAlbumInfo().isValid());
+                    menu.setGroupVisible(Menu.NONE, mCurrentSong.getAlbumInfo().isValid());
                     coverMenu.show();
                 }
                 return true;
@@ -623,6 +622,69 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mPopupMenuStreamTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenuStream);
 
         mSongInfo.setOnClickListener(new OnClickListener() {
+
+            /**
+             * Checks whether the album artist should be on the popup menu for the current track.
+             *
+             * @return True if the album artist popup menu entry should be visible, false otherwise.
+             */
+            private boolean isAlbumArtistVisible() {
+                boolean albumArtistEnabled = false;
+                final String albumArtist = mCurrentSong.getAlbumArtist();
+
+                if (albumArtist != null && !albumArtist.isEmpty()) {
+                    final String artist = mCurrentSong.getArtist();
+
+                    if (isArtistVisible() && !albumArtist.equals(artist)) {
+                        albumArtistEnabled = true;
+                    }
+                }
+
+                return albumArtistEnabled;
+            }
+
+            /**
+             * Checks whether the album should be on the popup menu for the current track.
+             *
+             * @return True if the album popup menu entry should be visible, false otherwise.
+             */
+            private boolean isAlbumVisible() {
+                final boolean isAlbumVisible;
+                final String album = mCurrentSong.getAlbum();
+
+                if (album != null && !album.isEmpty()) {
+                    isAlbumVisible = true;
+                } else {
+                    isAlbumVisible = false;
+                }
+
+                return isAlbumVisible;
+            }
+
+            /**
+             * Checks whether the artist should be on the popup menu for the current track.
+             *
+             * @return True if the artist popup menu entry should be visible, false otherwise.
+             */
+            private boolean isArtistVisible() {
+                final boolean isArtistVisible;
+                final String artist = mCurrentSong.getArtist();
+
+                if (artist != null && !artist.isEmpty()) {
+                    isArtistVisible = true;
+                } else {
+                    isArtistVisible = false;
+                }
+
+                return isArtistVisible;
+            }
+
+            /**
+             * This method checks the dynamic entries for visibility prior to showing the song info
+             * popup menu.
+             *
+             * @param v The view for the song info popup menu.
+             */
             @Override
             public void onClick(final View v) {
                 if (mCurrentSong != null) {
@@ -630,15 +692,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                         popupMenuStream.show();
                     } else {
                         // Enable / Disable menu items that need artist and album defined.
-                        final String aa = mCurrentSong.getAlbumArtist();
-                        final boolean showAA = (aa != null && !aa.isEmpty() &&
-                                                !aa.equals(mCurrentSong.getArtist()));
-
-                        popupMenu.getMenu().findItem(POPUP_ALBUM)
-                                .setVisible(!mCurrentSong.getAlbum().isEmpty());
-                        popupMenu.getMenu().findItem(POPUP_ARTIST)
-                                .setVisible(!mCurrentSong.getArtist().isEmpty());
-                        popupMenu.getMenu().findItem(POPUP_ALBUM_ARTIST).setVisible(showAA);
+                        menu.findItem(POPUP_ALBUM).setVisible(isAlbumVisible());
+                        menu.findItem(POPUP_ARTIST).setVisible(isArtistVisible());
+                        menu.findItem(POPUP_ALBUM_ARTIST).setVisible(isAlbumArtistVisible());
                         popupMenu.show();
                     }
                 }
