@@ -627,11 +627,17 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mCoverArt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(final View v) {
+                final boolean isConsumed;
+
                 if (mCurrentSong != null) {
                     menu.setGroupVisible(Menu.NONE, mCurrentSong.getAlbumInfo().isValid());
                     coverMenu.show();
+                    isConsumed = true;
+                } else {
+                    isConsumed = false;
                 }
-                return true;
+
+                return isConsumed;
             }
         });
     }
@@ -996,8 +1002,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mSeekBarVolume.setProgress(volume);
     }
 
-    private static class ButtonEventHandler
-            implements View.OnClickListener, View.OnLongClickListener {
+    private static class ButtonEventHandler implements OnClickListener, View.OnLongClickListener {
 
         @Override
         public void onClick(final View v) {
@@ -1006,10 +1011,18 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         @Override
         public boolean onLongClick(final View v) {
-            if (v.getId() == R.id.playpause) {
+            final boolean isConsumed;
+            final MPDApplication app = MPDApplication.getInstance();
+            final MPDStatus mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus();
+
+            if (v.getId() == R.id.playpause && !mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
                 MPDControl.run(MPDControl.ACTION_STOP);
+                isConsumed = true;
+            } else {
+                isConsumed = false;
             }
-            return true;
+
+            return isConsumed;
         }
     }
 
