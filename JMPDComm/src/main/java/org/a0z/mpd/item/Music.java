@@ -168,7 +168,7 @@ public class Music extends Item implements FilesystemTreeEntry {
                         final int pos = fullPath.indexOf('#');
                         if (pos > 1) {
                             name = fullPath.substring(pos + 1, fullPath.length());
-                            fullPath = fullPath.substring(0, pos - 1);
+                            fullPath = fullPath.substring(0, pos);
                         }
                     }
                     break;
