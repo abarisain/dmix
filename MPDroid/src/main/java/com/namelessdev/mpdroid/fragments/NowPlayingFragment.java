@@ -834,52 +834,58 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * @param status An {@code MPDStatus} object.
      */
     private void updateAudioNameText(final MPDStatus status) {
-        String optionalTrackInfo = null;
+        StringBuilder optionalTrackInfo = null;
 
         if (mCurrentSong != null && mIsAudioNameTextEnabled &&
                 !status.isState(MPDStatus.STATE_STOPPED)) {
-            final String extension = Tools.getExtension(mCurrentSong.getFullPath()).toUpperCase();
+
+            final char[] separator = {' ', '|', ' '};
+            final String fileExtension = Tools.getExtension(mCurrentSong.getFullPath());
             final long bitRate = status.getBitrate();
             final int bitsPerSample = status.getBitsPerSample();
             final int sampleRate = status.getSampleRate();
+            optionalTrackInfo = new StringBuilder(40);
 
             /**
              * Check each individual bit of info, the sever can give
              * out empty (and buggy) information from time to time.
              */
-            if (!extension.isEmpty()) {
-                optionalTrackInfo = extension;
+            if (fileExtension != null) {
+                optionalTrackInfo.append(fileExtension.toUpperCase());
             }
 
             /** The server can give out buggy (and empty) information from time to time. */
             if (bitRate > 0L) {
-                if (optionalTrackInfo != null) {
-                    optionalTrackInfo += " | ";
+                if (optionalTrackInfo.length() > 0) {
+                    optionalTrackInfo.append(separator);
                 }
-                optionalTrackInfo += bitRate + "kbps";
+                optionalTrackInfo.append(bitRate);
+                optionalTrackInfo.append("kbps");
             }
 
             if (bitsPerSample > 0) {
-                if (optionalTrackInfo != null) {
-                    optionalTrackInfo += " | ";
+                if (optionalTrackInfo.length() > 0) {
+                    optionalTrackInfo.append(separator);
                 }
-                optionalTrackInfo += bitsPerSample + "bits";
+                optionalTrackInfo.append(bitsPerSample);
+                optionalTrackInfo.append("bits");
             }
 
             if (sampleRate > 1000) {
-                if (optionalTrackInfo != null) {
-                    optionalTrackInfo += " | ";
+                if (optionalTrackInfo.length() > 0) {
+                    optionalTrackInfo.append(separator);
                 }
-                optionalTrackInfo += sampleRate / 1000 + "kHz";
+                optionalTrackInfo.append(sampleRate / 1000);
+                optionalTrackInfo.append("kHz");
             }
 
-            if (optionalTrackInfo != null) {
+            if (optionalTrackInfo.length() > 0) {
                 mAudioNameText.setText(optionalTrackInfo);
                 mAudioNameText.setVisibility(View.VISIBLE);
             }
         }
 
-        if (optionalTrackInfo == null || mCurrentSong == null) {
+        if (optionalTrackInfo == null || optionalTrackInfo.length() == 0) {
             mAudioNameText.setVisibility(View.GONE);
         }
     }
