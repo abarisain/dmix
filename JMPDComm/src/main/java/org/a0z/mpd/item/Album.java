@@ -80,6 +80,14 @@ public class Album extends Item {
         mPath = path;
     }
 
+    /**
+     * Defines a natural order to this object and another.
+     *
+     * @param another The other object to compare this to.
+     * @return a negative integer if this instance is less than {@code another};
+     *         a positive integer if this instance is greater than {@code another};
+     *         0 if this instance has the same order as {@code another}.
+     */
     @Override
     public int compareTo(final Item another) {
         Integer i = null;

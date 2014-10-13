@@ -34,8 +34,6 @@ import java.util.Locale;
 
 public abstract class Item implements Comparable<Item> {
 
-    public static final Collator DEFAULT_COLLATOR = Collator.getInstance(Locale.getDefault());
-
     /*
      * Merge item lists, for example received by album artist and artist
      * requests. Sorted lists required!
@@ -57,34 +55,53 @@ public abstract class Item implements Comparable<Item> {
         return artists;
     }
 
+    /**
+     * Defines a natural order to this object and another.
+     *
+     * @param another The other object to compare this to.
+     * @return a negative integer if this instance is less than {@code another};
+     *         a positive integer if this instance is greater than {@code another};
+     *         0 if this instance has the same order as {@code another}.
+     */
     @Override
     public int compareTo(final Item another) {
         final int comparisonResult;
+        final String sorted = sortText();
+        final String anotherSorted = another.sortText();
 
         // sort "" behind everything else
-        if (sortText() != null && sortText().isEmpty()) {
-            if (another.sortText() != null && another.sortText().isEmpty()) {
+        if (sorted == null || sorted.isEmpty()) {
+            if (anotherSorted == null || anotherSorted.isEmpty()) {
                 comparisonResult = 0;
             } else {
                 comparisonResult = 1;
             }
-        } else if (another.sortText() != null && another.sortText().isEmpty()) {
+        } else if (anotherSorted == null || anotherSorted.isEmpty()) {
             comparisonResult = -1;
         } else {
-            comparisonResult = DEFAULT_COLLATOR.compare(sortText(), another.sortText());
+            comparisonResult = Collator.getInstance().compare(sorted, anotherSorted);
         }
 
         return comparisonResult;
     }
 
     public boolean doesNameExist(final Item o) {
-        return getName().equals(o.getName());
+        boolean nameExists = false;
+        final String name = getName();
+
+        if (name != null && o != null) {
+            nameExists = name.equals(o.getName());
+        }
+
+        return nameExists;
     }
 
     public abstract String getName();
 
     public boolean isUnknown() {
-        return getName().isEmpty();
+        final String name = getName();
+
+        return name == null || name.isEmpty();
     }
 
     public String mainText() {
@@ -92,7 +109,13 @@ public abstract class Item implements Comparable<Item> {
     }
 
     public String sortText() {
-        return getName().toLowerCase(Locale.getDefault());
+        String name = getName();
+
+        if (name != null) {
+            name = name.toLowerCase(Locale.getDefault());
+        }
+
+        return name;
     }
 
     @Override
