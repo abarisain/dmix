@@ -136,8 +136,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         try {
             if (artist == null) {
+                final Artist albumArtist = album.getArtist();
+
                 mApp.oMPDAsyncHelper.oMPD.add(album, replace, play);
-                note = album.getArtist().getName() + " - " + album.getName();
+                if (albumArtist != null) {
+                    note = albumArtist.getName() + " - " + album.getName();
+                }
             } else if (album == null) {
                 mApp.oMPDAsyncHelper.oMPD.add(artist, replace, play);
                 note = artist.getName();
@@ -210,30 +214,40 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 artist = music.getArtistAsArtist();
             }
             if (artist != null) {
-                tmpValue = artist.getName().toLowerCase();
-                if (tmpValue.contains(finalSearch)) {
-                    for (final Artist artistItem : mArtistResults) {
-                        if (artistItem.getName().equalsIgnoreCase(tmpValue)) {
-                            valueFound = true;
+                final String name = artist.getName();
+                if (name != null) {
+                    tmpValue = name.toLowerCase();
+                    if (tmpValue.contains(finalSearch)) {
+                        for (final Artist artistItem : mArtistResults) {
+                            final String artistItemName = artistItem.getName();
+                            if (artistItemName != null &&
+                                    artistItemName.equalsIgnoreCase(tmpValue)) {
+                                valueFound = true;
+                            }
                         }
-                    }
-                    if (!valueFound) {
-                        mArtistResults.add(artist);
+                        if (!valueFound) {
+                            mArtistResults.add(artist);
+                        }
                     }
                 }
             }
+
             valueFound = false;
             final Album album = music.getAlbumAsAlbum();
-            if (album != null && album.getName() != null) {
-                tmpValue = album.getName().toLowerCase();
-                if (tmpValue.contains(finalSearch)) {
-                    for (final Album albumItem : mAlbumResults) {
-                        if (albumItem.getName().equalsIgnoreCase(tmpValue)) {
-                            valueFound = true;
+            if (album != null) {
+                final String albumName = album.getName();
+                if (albumName != null) {
+                    tmpValue = albumName.toLowerCase();
+                    if (tmpValue.contains(finalSearch)) {
+                        for (final Album albumItem : mAlbumResults) {
+                            final String albumItemName = albumItem.getName();
+                            if (albumItemName.equalsIgnoreCase(tmpValue)) {
+                                valueFound = true;
+                            }
                         }
-                    }
-                    if (!valueFound) {
-                        mAlbumResults.add(album);
+                        if (!valueFound) {
+                            mAlbumResults.add(album);
+                        }
                     }
                 }
             }
