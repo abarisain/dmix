@@ -25,6 +25,7 @@ import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.TextView;
 
@@ -56,6 +57,7 @@ public class SongDataBinder implements ArrayDataBinder {
     }
 
     @Override
+    @LayoutRes
     public int getLayoutId() {
         return R.layout.song_list_item;
     }

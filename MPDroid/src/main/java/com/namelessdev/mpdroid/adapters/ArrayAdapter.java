@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import org.a0z.mpd.item.Item;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +53,7 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
     }
 
     @SuppressWarnings("unchecked")
-    public ArrayAdapter(final Context context, final int textViewResourceId,
+    public ArrayAdapter(final Context context, @LayoutRes final int textViewResourceId,
             final List<? extends Item> items) {
         super(context, textViewResourceId, (List<Item>) items);
         mDataBinder = null;

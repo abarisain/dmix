@@ -32,6 +32,7 @@ import org.a0z.mpd.item.Music;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -60,6 +61,7 @@ public class AlbumDataBinder extends BaseDataBinder {
     }
 
     @Override
+    @LayoutRes
     public int getLayoutId() {
         return R.layout.album_list_item;
     }

@@ -33,6 +33,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
+import android.support.annotation.NonNull;
 import android.text.format.Formatter;
 import android.util.Log;
 
@@ -163,7 +164,7 @@ public class SettingsFragment extends PreferenceFragment {
 
     @Override
     public boolean onPreferenceTreeClick(final PreferenceScreen preferenceScreen,
-            final Preference preference) {
+            @NonNull final Preference preference) {
         // Is it the connectionscreen which is called?
         if (preference.getKey() == null) {
             return false;

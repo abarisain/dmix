@@ -25,6 +25,7 @@ import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
 
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -69,6 +70,7 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
+    @StringRes
     public int getLoadingText() {
         return R.string.loadingGenres;
     }

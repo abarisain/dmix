@@ -31,6 +31,7 @@ import org.a0z.mpd.item.Music;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -55,6 +56,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
     }
 
     @Override
+    @LayoutRes
     public int getLayoutId() {
         return R.layout.playlist_list_item;
     }

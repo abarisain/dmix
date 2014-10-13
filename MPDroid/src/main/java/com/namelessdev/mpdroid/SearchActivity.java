@@ -39,6 +39,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.SearchRecentSuggestions;
+import android.support.annotation.StringRes;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -92,8 +93,10 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     protected ViewPager mPager;
 
+    @StringRes
     private int mAddString;
 
+    @StringRes
     private int mAddedString;
 
     private ListView mListAlbums = null;

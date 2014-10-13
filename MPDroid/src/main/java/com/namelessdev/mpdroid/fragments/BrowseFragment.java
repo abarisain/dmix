@@ -32,6 +32,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -101,7 +102,8 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     private boolean mFirstUpdateDone = false;
 
-    protected BrowseFragment(final int rAdd, final int rAdded, final String pContext) {
+    protected BrowseFragment(@StringRes final int rAdd, @StringRes final int rAdded,
+            final String pContext) {
         super();
         mIrAdd = rAdd;
         mIrAdded = rAdded;
@@ -212,6 +214,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     /*
      * Override this to display a custom loading text
      */
+    @StringRes
     public int getLoadingText() {
         return R.string.loading;
     }

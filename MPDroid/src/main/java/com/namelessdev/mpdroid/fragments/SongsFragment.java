@@ -35,6 +35,7 @@ import org.a0z.mpd.item.Music;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.StringRes;
 import android.support.v4.widget.PopupMenuCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -182,6 +183,7 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
+    @StringRes
     public int getLoadingText() {
         return R.string.loadingSongs;
     }

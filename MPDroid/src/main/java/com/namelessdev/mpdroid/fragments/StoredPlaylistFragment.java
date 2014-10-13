@@ -29,6 +29,7 @@ import org.a0z.mpd.item.Music;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -95,6 +96,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
+    @StringRes
     public int getLoadingText() {
         return R.string.loadingSongs;
     }

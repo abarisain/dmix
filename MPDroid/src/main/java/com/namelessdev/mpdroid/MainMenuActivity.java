@@ -44,6 +44,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -506,7 +507,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    public final boolean onKeyUp(final int keyCode, final KeyEvent event) {
+    public final boolean onKeyUp(final int keyCode, @NonNull final KeyEvent event) {
         boolean result = true;
 
         switch (keyCode) {

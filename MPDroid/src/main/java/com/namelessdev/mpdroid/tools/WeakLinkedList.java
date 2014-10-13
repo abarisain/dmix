@@ -17,6 +17,7 @@
 
 package com.namelessdev.mpdroid.tools;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.lang.ref.ReferenceQueue;
@@ -155,7 +156,7 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     @Override
-    public boolean containsAll(final Collection<?> collection) {
+    public boolean containsAll(@NonNull final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean foundAll = true;
 
@@ -259,6 +260,7 @@ public class WeakLinkedList<T> implements List<T> {
      * expiration due to weak references. <br>
      * The remove method has been implemented
      */
+    @NonNull
     @Override
     public Iterator<T> iterator() {
         return listIterator();
@@ -283,11 +285,13 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @NonNull
     @Override
     public ListIterator<T> listIterator() {
         return listIterator(0);
     }
 
+    @NonNull
     @Override
     public ListIterator<T> listIterator(final int location) {
         synchronized (mLOCK) {
@@ -337,7 +341,7 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     @Override
-    public boolean removeAll(final Collection<?> collection) {
+    public boolean removeAll(@NonNull final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean changed = false;
 
@@ -414,7 +418,7 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     @Override
-    public boolean retainAll(final Collection<?> collection) {
+    public boolean retainAll(@NonNull final Collection<?> collection) {
         synchronized (mLOCK) {
             boolean changed = false;
 
@@ -456,12 +460,14 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @NonNull
     @Override
     public List<T> subList(final int start, final int end) {
         // TODO
         throw new UnsupportedOperationException("subList is not yet supported");
     }
 
+    @NonNull
     @Override
     public Object[] toArray() {
         synchronized (mLOCK) {
@@ -470,9 +476,10 @@ public class WeakLinkedList<T> implements List<T> {
         }
     }
 
+    @NonNull
     @Override
     @SuppressWarnings("unchecked")
-    public Object[] toArray(Object[] array) {
+    public Object[] toArray(@NonNull Object[] array) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
 

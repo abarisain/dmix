@@ -28,6 +28,7 @@ import org.a0z.mpd.item.Item;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.LayoutRes;
 import android.view.View;
 
 import java.util.List;
@@ -63,6 +64,7 @@ public abstract class BaseDataBinder implements ArrayDataBinder {
     public abstract AbstractViewHolder findInnerViews(View targetView);
 
     @Override
+    @LayoutRes
     public abstract int getLayoutId();
 
     @Override

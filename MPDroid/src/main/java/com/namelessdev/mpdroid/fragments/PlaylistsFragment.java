@@ -29,6 +29,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -77,6 +78,7 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
+    @StringRes
     public int getLoadingText() {
         return R.string.loadingPlaylists;
     }

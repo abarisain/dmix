@@ -29,6 +29,7 @@ import org.a0z.mpd.item.Item;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -103,6 +104,7 @@ public class ArtistsFragment extends BrowseFragment {
     }
 
     @Override
+    @StringRes
     public int getLoadingText() {
         return R.string.loadingArtists;
     }

@@ -23,6 +23,7 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 
+import android.support.annotation.IdRes;
 import android.util.Log;
 
 /**
@@ -112,7 +113,7 @@ public final class MPDControl {
      *
      * @param resId A resource id.
      */
-    public static void run(final int resId) {
+    public static void run(@IdRes final int resId) {
         switch (resId) {
             case R.id.next:
                 run(ACTION_NEXT);

@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.adapters;
 import com.namelessdev.mpdroid.R;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,16 +57,16 @@ public class SeparatedListAdapter extends BaseAdapter {
 
     private int mViewId = -1; // The view to be displayed
 
-    public SeparatedListAdapter(final Context context, final int viewId, final int separatorViewId,
-            final SeparatedListDataBinder binder,
+    public SeparatedListAdapter(final Context context, @LayoutRes final int viewId,
+            @LayoutRes final int separatorViewId, final SeparatedListDataBinder binder,
             final List<?> items) {
         super();
         init(context, viewId, separatorViewId, binder, items);
     }
 
     public SeparatedListAdapter(
-            final Context context, final int viewId, final SeparatedListDataBinder binder,
-            final List<?> items) {
+            final Context context, @LayoutRes final int viewId,
+            final SeparatedListDataBinder binder, final List<?> items) {
         super();
         init(context, viewId, R.layout.list_separator, binder, items);
     }

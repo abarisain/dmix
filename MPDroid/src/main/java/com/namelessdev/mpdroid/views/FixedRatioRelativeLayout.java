@@ -20,6 +20,8 @@ import com.namelessdev.mpdroid.R;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.AttrRes;
+import android.support.annotation.StyleRes;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
@@ -39,13 +41,13 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
         super(context);
     }
 
-    public FixedRatioRelativeLayout(final Context context, final AttributeSet attrs) {
+    public FixedRatioRelativeLayout(final Context context, @AttrRes final AttributeSet attrs) {
         super(context, attrs);
         readAttrs(context, attrs);
     }
 
-    public FixedRatioRelativeLayout(final Context context, final AttributeSet attrs,
-            final int defStyle) {
+    public FixedRatioRelativeLayout(final Context context, @AttrRes final AttributeSet attrs,
+            @StyleRes final int defStyle) {
         super(context, attrs, defStyle);
         readAttrs(context, attrs);
     }

@@ -32,6 +32,7 @@ import org.a0z.mpd.item.Music;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.LayoutRes;
 import android.view.View;
 
 import java.util.List;
@@ -47,6 +48,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
     }
 
     @Override
+    @LayoutRes
     public int getLayoutId() {
         return R.layout.album_grid_item;
     }

@@ -38,6 +38,7 @@ import org.a0z.mpd.item.Item;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -168,6 +169,7 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
+    @StringRes
     public int getLoadingText() {
         return R.string.loadingAlbums;
     }

@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.StringRes;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.Toast;
@@ -177,13 +178,13 @@ public final class Tools {
         return str == null || str.isEmpty();
     }
 
-    public static void notifyUser(final int resId, final Object... format) {
+    public static void notifyUser(@StringRes final int resId, final Object... format) {
         final String formattedString =
                 MPDApplication.getInstance().getResources().getString(resId, format);
         Toast.makeText(APP, formattedString, Toast.LENGTH_SHORT).show();
     }
 
-    public static void notifyUser(final int resId) {
+    public static void notifyUser(@StringRes final int resId) {
         Toast.makeText(APP, resId, Toast.LENGTH_SHORT).show();
     }
 

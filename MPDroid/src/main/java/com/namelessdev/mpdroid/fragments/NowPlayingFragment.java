@@ -45,6 +45,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.AttrRes;
+import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.PopupMenuCompat;
@@ -169,7 +171,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * @param resource The resource to find in the view.
      * @return The TextView found in the {@code view}, set as selected.
      */
-    private static TextView findSelected(final View view, final int resource) {
+    private static TextView findSelected(final View view, @IdRes final int resource) {
         final TextView textView = (TextView) view.findViewById(resource);
 
         textView.setSelected(true);
@@ -185,7 +187,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * @param longPress Whether long press is supported by this event button.
      * @return The generated {@code ImageButton}.
      */
-    private static ImageButton getEventButton(final View view, final int resource,
+    private static ImageButton getEventButton(final View view, @IdRes final int resource,
             final boolean longPress) {
         final ImageButton button = (ImageButton) view.findViewById(resource);
         final ButtonEventHandler buttonEventHandler = new ButtonEventHandler();
@@ -841,7 +843,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * @param attribute The attribute resource to set the button to.
      * @param button    The button with which to set the attribute resource.
      */
-    private void setButtonAttribute(final int attribute, final ImageButton button) {
+    private void setButtonAttribute(@AttrRes final int attribute, final ImageButton button) {
         final int[] attrs = {attribute};
         final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
         final Drawable drawableFromTheme = ta.getDrawable(0);

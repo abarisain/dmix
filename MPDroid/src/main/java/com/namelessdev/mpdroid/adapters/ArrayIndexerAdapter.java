@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.adapters;
 import org.a0z.mpd.item.Item;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.widget.SectionIndexer;
 
 import java.text.Collator;
@@ -47,7 +48,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     }
 
     @SuppressWarnings("unchecked")
-    public ArrayIndexerAdapter(final Context context, final int textViewResourceId,
+    public ArrayIndexerAdapter(final Context context, @LayoutRes final int textViewResourceId,
             final List<? extends Item> items) {
         super(context, textViewResourceId, items);
     }

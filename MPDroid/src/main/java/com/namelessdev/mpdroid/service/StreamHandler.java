@@ -33,6 +33,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -154,7 +155,7 @@ public final class StreamHandler implements
      * Translates MediaPlayer.OnErrorListener error codes to applicable resource ids for a local
      * translated string.
      *
-     * @param resId MediaPlayer.OnErrorListener resource id.
+     * @param resId MediaPlayer.OnErrorListener constant.
      * @return Local resource id for a translated string.
      */
     private static int getErrorDetails(final int resId) {
@@ -497,7 +498,6 @@ public final class StreamHandler implements
      */
     private void showErrorToUser(final int errorType, final int errorDetails) {
         final Resources resources = mServiceContext.getResources();
-        final String appName = resources.getString(R.string.app_name);
         final String errorTypeString;
 
         if (errorType == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
@@ -525,7 +525,7 @@ public final class StreamHandler implements
      *
      * @param resId The resource ID of the translated string to show the user.
      */
-    private void showErrorToUser(final int resId) {
+    private void showErrorToUser(@StringRes final int resId) {
         showErrorToUser(resId, null);
     }
 
@@ -535,7 +535,7 @@ public final class StreamHandler implements
      * @param resId The resourceID of the translated string to show the user.
      * @param e     The exception to go to the {@code Log}.
      */
-    private void showErrorToUser(final int resId, final Exception e) {
+    private void showErrorToUser(@StringRes final int resId, final Exception e) {
         final Resources resources = mServiceContext.getResources();
         final String error = resources.getString(resId);
 

@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
@@ -179,7 +180,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
     }
 
     @Override
-    public boolean onKeyUp(final int keyCode, final KeyEvent event) {
+    public boolean onKeyUp(final int keyCode, @NonNull final KeyEvent event) {
         boolean result = true;
 
         if (event.isTracking() && !event.isCanceled() && !mApp.isLocalAudible()) {
