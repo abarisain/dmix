@@ -131,10 +131,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private ImageButton mRepeatButton = null;
 
-    private SeekBar mSeekBarTrack = null;
-
-    private SeekBar mSeekBarVolume = null;
-
     private ImageButton mShuffleButton = null;
 
     private View mSongInfo = null;
@@ -143,6 +139,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private ImageButton mStopButton = null;
 
+    private SeekBar mTrackSeekBar = null;
+
     private TextView mTrackTime = null;
 
     private TextView mTrackTotalTime = null;
@@ -150,6 +148,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private TimerTask mVolTimerTask = null;
 
     private ImageView mVolumeIcon = null;
+
+    private SeekBar mVolumeSeekBar = null;
 
     private TextView mYearNameText;
 
@@ -160,6 +160,21 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else {
             view.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * A convenience method to find a resource and set it as selected.
+     *
+     * @param view     The view to find the resource in.
+     * @param resource The resource to find in the view.
+     * @return The TextView found in the {@code view}, set as selected.
+     */
+    private static TextView findSelected(final View view, final int resource) {
+        final TextView textView = (TextView) view.findViewById(resource);
+
+        textView.setSelected(true);
+
+        return textView;
     }
 
     protected static int getPlayPauseResource(final int state) {
@@ -220,6 +235,36 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return attribute;
     }
 
+    /**
+     * Generates the initial track {@link android.widget.SeekBar}.
+     *
+     * @param view The view in which to setup the {@code SeekBar} for.
+     * @return The constructed SeekBar for the track position modification.
+     */
+    private static SeekBar getTrackSeekBar(final View view) {
+        final SeekBar.OnSeekBarChangeListener seekBarTrackListener =
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(final SeekBar seekBar, final int progress,
+                            final boolean fromUser) {
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(final SeekBar seekBar) {
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(final SeekBar seekBar) {
+                        MPDControl.run(MPDControl.ACTION_SEEK, seekBar.getProgress());
+                    }
+                };
+
+        final SeekBar seekBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
+        seekBarTrack.setOnSeekBarChangeListener(seekBarTrackListener);
+
+        return seekBarTrack;
+    }
+
     @Override
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
         if (connected) {
@@ -250,6 +295,61 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         queueFragment = (QueueFragment) mActivity.getSupportFragmentManager()
                 .findFragmentById(R.id.playlist_fragment);
         return queueFragment;
+    }
+
+    /**
+     * Generates the volume {@link android.widget.SeekBar}.
+     *
+     * @param view The view in which to setup the {@code SeekBar} for.
+     * @return The constructed SeekBar for the volume modification.
+     */
+    private SeekBar getVolumeSeekBar(final View view) {
+        final SeekBar.OnSeekBarChangeListener seekBarListener =
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(final SeekBar seekBar, final int progress,
+                            final boolean fromUser) {
+
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(final SeekBar seekBar) {
+                        mVolTimerTask = new TimerTask() {
+                            private int mLastSentVol = -1;
+
+                            private SeekBar mProgress;
+
+                            @Override
+                            public void run() {
+                                final int progress = mProgress.getProgress();
+
+                                if (mLastSentVol != progress) {
+                                    mLastSentVol = progress;
+                                    MPDControl.run(MPDControl.ACTION_VOLUME_SET, progress);
+                                }
+                            }
+
+                            public TimerTask setProgress(final SeekBar prg) {
+                                mProgress = prg;
+                                return this;
+                            }
+                        }.setProgress(seekBar);
+
+                        mVolTimer.scheduleAtFixedRate(mVolTimerTask, (long) MPDCommand.MIN_VOLUME,
+                                (long) MPDCommand.MAX_VOLUME);
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(final SeekBar seekBar) {
+                        mVolTimerTask.cancel();
+                        mVolTimerTask.run();
+                    }
+                };
+
+        final SeekBar volumeSeekBar = (SeekBar) view.findViewById(R.id.progress_volume);
+        volumeSeekBar.setOnSeekBarChangeListener(seekBarListener);
+
+        return volumeSeekBar;
     }
 
     @Override
@@ -303,22 +403,18 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         view = inflater.inflate(viewLayout, container, false);
 
-        mArtistNameText = (TextView) view.findViewById(R.id.artistName);
-        mAlbumNameText = (TextView) view.findViewById(R.id.albumName);
-        mSongNameText = (TextView) view.findViewById(R.id.songName);
-        mAudioNameText = (TextView) view.findViewById(R.id.audioName);
-        mYearNameText = (TextView) view.findViewById(R.id.yearName);
+        mArtistNameText = findSelected(view, R.id.artistName);
+        mAlbumNameText = findSelected(view, R.id.albumName);
+        mSongNameText = findSelected(view, R.id.songName);
+        mAudioNameText = findSelected(view, R.id.audioName);
+        mYearNameText = findSelected(view, R.id.yearName);
         applyViewVisibility(settings, mYearNameText, "enableAlbumYearText");
-        mArtistNameText.setSelected(true);
-        mAlbumNameText.setSelected(true);
-        mSongNameText.setSelected(true);
-        mAudioNameText.setSelected(true);
-        mYearNameText.setSelected(true);
+
         mShuffleButton = (ImageButton) view.findViewById(R.id.shuffle);
         mRepeatButton = (ImageButton) view.findViewById(R.id.repeat);
 
-        mSeekBarVolume = (SeekBar) view.findViewById(R.id.progress_volume);
-        mSeekBarTrack = (SeekBar) view.findViewById(R.id.progress_track);
+        mVolumeSeekBar = getVolumeSeekBar(view);
+        mTrackSeekBar = getTrackSeekBar(view);
         mVolumeIcon = (ImageView) view.findViewById(R.id.volume_icon);
 
         mTrackTime = (TextView) view.findViewById(R.id.trackTime);
@@ -370,62 +466,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         mSongInfo = view.findViewById(R.id.songInfo);
         populateSongInfoMenu();
-
-        mSeekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onProgressChanged(final SeekBar seekBar, final int progress,
-                    final boolean fromUser) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(final SeekBar seekBar) {
-                mVolTimerTask = new TimerTask() {
-                    int mLastSentVol = -1;
-
-                    SeekBar mProgress;
-
-                    @Override
-                    public void run() {
-                        if (mLastSentVol != mProgress.getProgress()) {
-                            mLastSentVol = mProgress.getProgress();
-                            MPDControl.run(MPDControl.ACTION_VOLUME_SET, mLastSentVol);
-                        }
-                    }
-
-                    public TimerTask setProgress(final SeekBar prg) {
-                        mProgress = prg;
-                        return this;
-                    }
-                }.setProgress(seekBar);
-
-                mVolTimer.scheduleAtFixedRate(mVolTimerTask, (long) MPDCommand.MIN_VOLUME,
-                        (long) MPDCommand.MAX_VOLUME);
-            }
-
-            @Override
-            public void onStopTrackingTouch(final SeekBar seekBar) {
-                mVolTimerTask.cancel();
-                mVolTimerTask.run();
-            }
-        });
-
-        mSeekBarTrack.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(final SeekBar seekBar, final int progress,
-                    final boolean fromUser) {
-            }
-
-            @Override
-            public void onStartTrackingTouch(final SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(final SeekBar seekBar) {
-                MPDControl.run(MPDControl.ACTION_SEEK, seekBar.getProgress());
-            }
-        });
 
         mSongNameText.setText(R.string.notConnected);
         Log.i(TAG, "Initialization succeeded");
@@ -814,8 +854,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             mTrackTime.setVisibility(View.INVISIBLE);
             mTrackTotalTime.setVisibility(View.INVISIBLE);
             stopPosTimer();
-            mSeekBarTrack.setProgress(0);
-            mSeekBarTrack.setEnabled(false);
+            mTrackSeekBar.setProgress(0);
+            mTrackSeekBar.setEnabled(false);
         } else {
             final long elapsedTime = status.getElapsedTime();
 
@@ -826,11 +866,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 updateTrackProgress(elapsedTime, totalTime);
             }
 
-            mSeekBarTrack.setMax((int) totalTime);
+            mTrackSeekBar.setMax((int) totalTime);
 
             mTrackTime.setVisibility(View.VISIBLE);
             mTrackTotalTime.setVisibility(View.VISIBLE);
-            mSeekBarTrack.setEnabled(true);
+            mTrackSeekBar.setEnabled(true);
         }
     }
 
@@ -841,12 +881,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      */
     private void toggleVolumeBar(final int volume) {
         if (volume < MPDCommand.MIN_VOLUME || volume > MPDCommand.MAX_VOLUME) {
-            mSeekBarVolume.setEnabled(false);
-            mSeekBarVolume.setVisibility(View.GONE);
+            mVolumeSeekBar.setEnabled(false);
+            mVolumeSeekBar.setVisibility(View.GONE);
             mVolumeIcon.setVisibility(View.GONE);
         } else {
-            mSeekBarVolume.setEnabled(true);
-            mSeekBarVolume.setVisibility(View.VISIBLE);
+            mVolumeSeekBar.setEnabled(true);
+            mVolumeSeekBar.setVisibility(View.VISIBLE);
             mVolumeIcon.setVisibility(View.VISIBLE);
         }
     }
@@ -972,7 +1012,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             elapsedTime = elapsed;
         }
 
-        mSeekBarTrack.setProgress((int) elapsedTime);
+        mTrackSeekBar.setProgress((int) elapsedTime);
 
         mHandler.post(new Runnable() {
             @Override
@@ -988,7 +1028,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final int volume = mpdStatus.getVolume();
 
         toggleVolumeBar(volume);
-        mSeekBarVolume.setProgress(volume);
+        mVolumeSeekBar.setProgress(volume);
     }
 
     private static class ButtonEventHandler implements OnClickListener, View.OnLongClickListener {
