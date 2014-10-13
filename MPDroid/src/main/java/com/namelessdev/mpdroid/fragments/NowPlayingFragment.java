@@ -374,13 +374,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return coverAsyncHelper;
     }
 
-    private QueueFragment getPlaylistFragment() {
-        final QueueFragment queueFragment;
-        queueFragment = (QueueFragment) mActivity.getSupportFragmentManager()
-                .findFragmentById(R.id.playlist_fragment);
-        return queueFragment;
-    }
-
     /**
      * Run during fragment initialization, this sets up the song info popup menu.
      *
@@ -691,13 +684,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             case POPUP_COVER_BLACKLIST:
                 CoverManager.getInstance().markWrongCover(mCurrentSong.getAlbumInfo());
                 downloadCover(mCurrentSong.getAlbumInfo());
-                updatePlaylistCovers(mCurrentSong.getAlbumInfo());
+                updateQueueCovers(mCurrentSong.getAlbumInfo());
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 CoverManager.getInstance().clear(mCurrentSong.getAlbumInfo());
                 downloadCover(mCurrentSong.getAlbumInfo()); // Update the
-                // playlist covers
-                updatePlaylistCovers(mCurrentSong.getAlbumInfo());
+                // Queue covers
+                updateQueueCovers(mCurrentSong.getAlbumInfo());
                 break;
             case POPUP_CURRENT:
                 scrollToNowPlaying();
@@ -832,9 +825,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     private void scrollToNowPlaying() {
-        final QueueFragment queueFragment;
-        queueFragment = getPlaylistFragment();
-        if (queueFragment != null) {
+        final QueueFragment queueFragment = (QueueFragment) mActivity.getSupportFragmentManager()
+                .findFragmentById(R.id.queue_fragment);
+
+        if (queueFragment == null) {
+            Log.w(TAG, "Queue fragment was not available when scrolling to playing track.");
+        } else {
             queueFragment.scrollToNowPlaying();
         }
     }
@@ -999,10 +995,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private void updatePlaylistCovers(final AlbumInfo albumInfo) {
-        final QueueFragment queueFragment;
-        queueFragment = getPlaylistFragment();
-        if (queueFragment != null) {
+    private void updateQueueCovers(final AlbumInfo albumInfo) {
+        final QueueFragment queueFragment = (QueueFragment) mActivity.getSupportFragmentManager()
+                .findFragmentById(R.id.queue_fragment);
+
+        if (queueFragment == null) {
+            Log.w(TAG, "Queue fragment was not available for cover update.");
+        } else {
             queueFragment.updateCover(albumInfo);
         }
     }

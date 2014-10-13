@@ -355,7 +355,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         }
 
         final View nowPlayingSmallFragment = findViewById(R.id.now_playing_small_fragment);
-        mQueueFragment = (QueueFragment) mFragmentManager.findFragmentById(R.id.playlist_fragment);
+        mQueueFragment = (QueueFragment) mFragmentManager.findFragmentById(R.id.queue_fragment);
 
         mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
         final ImageButton headerOverflowMenu = (ImageButton) findViewById(
@@ -875,7 +875,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     resId = R.id.nowplaying_fragment;
                     break;
                 case 1:
-                    resId = R.id.playlist_fragment;
+                    resId = R.id.queue_fragment;
                     break;
                 default:
                     break;

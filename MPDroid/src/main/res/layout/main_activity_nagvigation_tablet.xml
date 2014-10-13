@@ -91,7 +91,7 @@
                         tools:layout="@layout/main_fragment_port" />
 
                     <fragment
-                        android:id="@+id/playlist_fragment"
+                        android:id="@+id/queue_fragment"
                         android:name="com.namelessdev.mpdroid.fragments.QueueFragment"
                         android:layout_width="match_parent"
                         android:layout_height="0dip"
