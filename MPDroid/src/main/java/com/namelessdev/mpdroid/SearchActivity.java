@@ -28,6 +28,7 @@ import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.AlbumParcelable;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.ArtistParcelable;
+import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
 import android.app.ActionBar;
@@ -52,11 +53,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener,
         AsyncExecListener, OnItemClickListener, TabListener {
@@ -111,7 +113,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     private View mListSongsFrame = null;
 
-    private String mSearchKeywords = "";
+    private String mSearchKeywords = null;
 
     private Tab mTabAlbums;
 
@@ -130,20 +132,22 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     protected void add(final Artist artist, final Album album, final boolean replace,
             final boolean play) {
+        String note = null;
+
         try {
-            final String note;
             if (artist == null) {
                 mApp.oMPDAsyncHelper.oMPD.add(album, replace, play);
                 note = album.getArtist().getName() + " - " + album.getName();
             } else if (album == null) {
                 mApp.oMPDAsyncHelper.oMPD.add(artist, replace, play);
                 note = artist.getName();
-            } else {
-                return;
             }
-            Tools.notifyUser(mAddedString, note);
         } catch (final MPDServerException e) {
             Log.e(TAG, "Failed to add.", e);
+        }
+
+        if (note != null) {
+            Tools.notifyUser(mAddedString, note);
         }
     }
 
@@ -175,12 +179,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     protected void asyncUpdate() {
-        final String finalsearch = mSearchKeywords.toLowerCase();
+        final String finalSearch = mSearchKeywords.toLowerCase();
 
         Iterable<Music> arrayMusic = null;
 
         try {
-            arrayMusic = (ArrayList<Music>) mApp.oMPDAsyncHelper.oMPD.search("any", finalsearch);
+            arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
         } catch (final MPDServerException e) {
             Log.e(TAG, "MPD search failure.", e);
 
@@ -197,7 +201,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         String tmpValue;
         boolean valueFound;
         for (final Music music : arrayMusic) {
-            if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalsearch)) {
+            if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalSearch)) {
                 mSongResults.add(music);
             }
             valueFound = false;
@@ -207,7 +211,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             }
             if (artist != null) {
                 tmpValue = artist.getName().toLowerCase();
-                if (tmpValue.contains(finalsearch)) {
+                if (tmpValue.contains(finalSearch)) {
                     for (final Artist artistItem : mArtistResults) {
                         if (artistItem.getName().equalsIgnoreCase(tmpValue)) {
                             valueFound = true;
@@ -222,7 +226,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             final Album album = music.getAlbumAsAlbum();
             if (album != null && album.getName() != null) {
                 tmpValue = album.getName().toLowerCase();
-                if (tmpValue.contains(finalsearch)) {
+                if (tmpValue.contains(finalSearch)) {
                     for (final Album albumItem : mAlbumResults) {
                         if (albumItem.getName().equalsIgnoreCase(tmpValue)) {
                             valueFound = true;
@@ -242,10 +246,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mTabArtists.setText(getString(R.string.artists) + " (" + mArtistResults.size()
-                        + ')');
-                mTabAlbums.setText(getString(R.string.albums) + " (" + mAlbumResults.size()
-                        + ')');
+                mTabArtists
+                        .setText(getString(R.string.artists) + " (" + mArtistResults.size() + ')');
+                mTabAlbums.setText(getString(R.string.albums) + " (" + mAlbumResults.size() + ')');
                 mTabSongs.setText(getString(R.string.songs) + " (" + mSongResults.size() + ')');
             }
         });
@@ -258,19 +261,19 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         setContentView(R.layout.search_results);
 
         final SearchResultsPagerAdapter adapter = new SearchResultsPagerAdapter();
+        final ActionBar actionBar = getActionBar();
+
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(adapter);
         mPager.setOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(final int position) {
-                        // When swiping between pages, select the
-                        // corresponding tab.
-                        getActionBar().setSelectedNavigationItem(position);
+                        // When swiping between pages, select the corresponding tab.
+                        actionBar.setSelectedNavigationItem(position);
                     }
                 });
 
-        final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         mTabArtists = actionBar.newTab()
@@ -325,7 +328,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         registerForContextMenu(mListSongs);
 
         updateList();
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -402,7 +405,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        final AbstractList<?> targetArray;
+        final List<? extends Item> targetArray;
         switch (mPager.getCurrentItem()) {
             case 1:
                 targetArray = mAlbumResults;
@@ -443,19 +446,23 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
+        boolean handled = true;
+
         switch (item.getItemId()) {
             case R.id.menu_search:
                 onSearchRequested();
-                return true;
+                break;
             case android.R.id.home:
                 final Intent intent = new Intent(this, MainMenuActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                return true;
+                break;
             default:
+                handled = false;
                 break;
         }
-        return false;
+
+        return handled;
     }
 
     @Override
@@ -469,10 +476,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         super.onStop();
         mApp.unsetActivity(this);
     }
-
-    /**
-     * *** ActionBar TabListener methods ****
-     */
 
     @Override
     public void onTabReselected(final Tab tab, final FragmentTransaction ft) {
@@ -501,45 +504,36 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     /**
+     * This updates a specific ListView for search results.
+     *
+     * @param listView      The ListView to update with search results.
+     * @param resultList    The List of results to enter into the ListView.
+     * @param noResultsView The View to hide if there are no results.
+     */
+    private void update(final ListView listView, final List<? extends Item> resultList,
+            final View noResultsView) {
+        final ListAdapter separatedListAdapter = new SeparatedListAdapter(this,
+                R.layout.search_list_item,
+                new SearchResultDataBinder(),
+                resultList);
+
+        listView.setAdapter(separatedListAdapter);
+
+        try {
+            listView.setEmptyView(noResultsView);
+            mLoadingView.setVisibility(View.GONE);
+        } catch (final RuntimeException e) {
+            Log.e(TAG, "Failed to update items.", e);
+        }
+    }
+
+    /**
      * Update the view from the items list if items is set.
      */
     public void updateFromItems() {
-        if (mArtistResults != null) {
-            mListArtists.setAdapter(new SeparatedListAdapter(this,
-                    R.layout.search_list_item,
-                    new SearchResultDataBinder(),
-                    mArtistResults));
-            try {
-                mListArtists.setEmptyView(mNoResultArtistsView);
-                mLoadingView.setVisibility(View.GONE);
-            } catch (final Exception e) {
-                Log.e(TAG, "Failed to update artists from items.", e);
-            }
-        }
-        if (mAlbumResults != null) {
-            mListAlbums.setAdapter(new SeparatedListAdapter(this,
-                    R.layout.search_list_item,
-                    new SearchResultDataBinder(),
-                    mAlbumResults));
-            try {
-                mListAlbums.setEmptyView(mNoResultAlbumsView);
-                mLoadingView.setVisibility(View.GONE);
-            } catch (final Exception e) {
-                Log.e(TAG, "Failed to update albums from items.", e);
-            }
-        }
-        if (mSongResults != null) {
-            mListSongs.setAdapter(new SeparatedListAdapter(this,
-                    R.layout.search_list_item,
-                    new SearchResultDataBinder(),
-                    mSongResults));
-            try {
-                mListSongs.setEmptyView(mNoResultSongsView);
-                mLoadingView.setVisibility(View.GONE);
-            } catch (final Exception e) {
-                Log.e(TAG, "Failed to update songs from items.", e);
-            }
-        }
+        update(mListArtists, mArtistResults, mNoResultArtistsView);
+        update(mListAlbums, mAlbumResults, mNoResultAlbumsView);
+        update(mListSongs, mSongResults, mNoResultSongsView);
     }
 
     public void updateList() {
