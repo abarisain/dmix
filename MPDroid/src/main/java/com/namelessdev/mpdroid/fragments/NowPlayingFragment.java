@@ -109,8 +109,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private TextView mAudioNameText = null;
 
-    private ImageButton mButtonPlayPause = null;
-
     private ImageView mCoverArt;
 
     private CoverAsyncHelper mCoverAsyncHelper = null;
@@ -122,6 +120,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private Handler mHandler;
 
     private boolean mIsAudioNameTextEnabled = false;
+
+    private ImageButton mPlayPauseButton = null;
 
     private View.OnTouchListener mPopupMenuStreamTouchListener = null;
 
@@ -175,6 +175,27 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         textView.setSelected(true);
 
         return textView;
+    }
+
+    /**
+     * This method sets up a resource with the button event handler.
+     *
+     * @param view      The {@code View} with which to setup the {@code ImageButton}.
+     * @param resource  The resource to find in the view.
+     * @param longPress Whether long press is supported by this event button.
+     * @return The generated {@code ImageButton}.
+     */
+    private static ImageButton getEventButton(final View view, final int resource,
+            final boolean longPress) {
+        final ImageButton button = (ImageButton) view.findViewById(resource);
+        final ButtonEventHandler buttonEventHandler = new ButtonEventHandler();
+
+        button.setOnClickListener(buttonEventHandler);
+        if (longPress) {
+            button.setOnLongClickListener(buttonEventHandler);
+        }
+
+        return button;
     }
 
     protected static int getPlayPauseResource(final int state) {
@@ -290,11 +311,186 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
+    /**
+     * Run during fragment initialization, this sets up the cover art popup menu and the coverArt
+     * ImageView.
+     *
+     * @param view The view to setup the coverArt ImageView in.
+     * @return The resulting ImageView.
+     */
+    private ImageView getCoverArt(final View view) {
+        final ImageView coverArt = (ImageView) view.findViewById(R.id.albumCover);
+        final PopupMenu coverMenu = new PopupMenu(mActivity, coverArt);
+        final Menu menu = coverMenu.getMenu();
+
+        coverArt.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                scrollToNowPlaying();
+            }
+        });
+
+        menu.add(Menu.NONE, POPUP_COVER_BLACKLIST, Menu.NONE, R.string.otherCover);
+        menu.add(Menu.NONE, POPUP_COVER_SELECTIVE_CLEAN, Menu.NONE, R.string.resetCover);
+        coverMenu.setOnMenuItemClickListener(this);
+        coverArt.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(final View v) {
+                final boolean isConsumed;
+
+                if (mCurrentSong != null) {
+                    menu.setGroupVisible(Menu.NONE, mCurrentSong.getAlbumInfo().isValid());
+                    coverMenu.show();
+                    isConsumed = true;
+                } else {
+                    isConsumed = false;
+                }
+
+                return isConsumed;
+            }
+        });
+
+        return coverArt;
+    }
+
+    /**
+     * This sets up the {@code CoverAsyncHelper} for this class.
+     *
+     * @param view The view in which to setup the {@code CoverAsyncHelper} for.
+     * @return The CoverAsyncHelper used as a field in this class.
+     */
+    private CoverAsyncHelper getCoverAsyncHelper(final View view) {
+        final CoverAsyncHelper coverAsyncHelper = new CoverAsyncHelper();
+        final ProgressBar coverArtProgress =
+                (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+
+        // Scale cover images down to screen width
+        coverAsyncHelper.setCoverMaxSizeFromScreen(mActivity);
+        coverAsyncHelper.setCachedCoverMaxSize(mCoverArt.getWidth());
+
+        mCoverDownloadListener = new AlbumCoverDownloadListener(mCoverArt, coverArtProgress, true);
+        coverAsyncHelper.addCoverDownloadListener(mCoverDownloadListener);
+
+        return coverAsyncHelper;
+    }
+
     private QueueFragment getPlaylistFragment() {
         final QueueFragment queueFragment;
         queueFragment = (QueueFragment) mActivity.getSupportFragmentManager()
                 .findFragmentById(R.id.playlist_fragment);
         return queueFragment;
+    }
+
+    /**
+     * Run during fragment initialization, this sets up the song info popup menu.
+     *
+     * @param view The view in which to setup the song info View for this class.
+     * @return The song info view used as a field in this class.
+     */
+    private View getSongInfo(final View view) {
+        final View songInfo = view.findViewById(R.id.songInfo);
+
+        final PopupMenu popupMenu = new PopupMenu(mActivity, songInfo);
+        final Menu menu = popupMenu.getMenu();
+        menu.add(Menu.NONE, POPUP_ALBUM, Menu.NONE, R.string.goToAlbum);
+        menu.add(Menu.NONE, POPUP_ARTIST, Menu.NONE, R.string.goToArtist);
+        menu.add(Menu.NONE, POPUP_ALBUM_ARTIST, Menu.NONE,
+                R.string.goToAlbumArtist);
+        menu.add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
+        menu.add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
+        menu.add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
+        popupMenu.setOnMenuItemClickListener(this);
+        mPopupMenuTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenu);
+
+        final PopupMenu popupMenuStream = new PopupMenu(mActivity, songInfo);
+        final Menu menuStream = popupMenuStream.getMenu();
+        menuStream.add(Menu.NONE, POPUP_STREAM, Menu.NONE, R.string.goToStream);
+        menuStream.add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
+        menuStream.add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
+        popupMenuStream.setOnMenuItemClickListener(this);
+        mPopupMenuStreamTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenuStream);
+
+        songInfo.setOnClickListener(new OnClickListener() {
+
+            /**
+             * Checks whether the album artist should be on the popup menu for the current track.
+             *
+             * @return True if the album artist popup menu entry should be visible, false otherwise.
+             */
+            private boolean isAlbumArtistVisible() {
+                boolean albumArtistEnabled = false;
+                final String albumArtist = mCurrentSong.getAlbumArtist();
+
+                if (albumArtist != null && !albumArtist.isEmpty()) {
+                    final String artist = mCurrentSong.getArtist();
+
+                    if (isArtistVisible() && !albumArtist.equals(artist)) {
+                        albumArtistEnabled = true;
+                    }
+                }
+
+                return albumArtistEnabled;
+            }
+
+            /**
+             * Checks whether the album should be on the popup menu for the current track.
+             *
+             * @return True if the album popup menu entry should be visible, false otherwise.
+             */
+            private boolean isAlbumVisible() {
+                final boolean isAlbumVisible;
+                final String album = mCurrentSong.getAlbum();
+
+                if (album != null && !album.isEmpty()) {
+                    isAlbumVisible = true;
+                } else {
+                    isAlbumVisible = false;
+                }
+
+                return isAlbumVisible;
+            }
+
+            /**
+             * Checks whether the artist should be on the popup menu for the current track.
+             *
+             * @return True if the artist popup menu entry should be visible, false otherwise.
+             */
+            private boolean isArtistVisible() {
+                final boolean isArtistVisible;
+                final String artist = mCurrentSong.getArtist();
+
+                if (artist != null && !artist.isEmpty()) {
+                    isArtistVisible = true;
+                } else {
+                    isArtistVisible = false;
+                }
+
+                return isArtistVisible;
+            }
+
+            /**
+             * This method checks the dynamic entries for visibility prior to showing the song info
+             * popup menu.
+             *
+             * @param v The view for the song info popup menu.
+             */
+            @Override
+            public void onClick(final View v) {
+                if (mCurrentSong != null) {
+                    if (mCurrentSong.isStream()) {
+                        popupMenuStream.show();
+                    } else {
+                        // Enable / Disable menu items that need artist and album defined.
+                        menu.findItem(POPUP_ALBUM).setVisible(isAlbumVisible());
+                        menu.findItem(POPUP_ARTIST).setVisible(isArtistVisible());
+                        menu.findItem(POPUP_ALBUM_ARTIST).setVisible(isAlbumArtistVisible());
+                        popupMenu.show();
+                    }
+                }
+            }
+        });
+
+        return songInfo;
     }
 
     /**
@@ -389,6 +585,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
+        final Animation fadeIn = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in);
+        final Animation fadeOut = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out);
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         final int viewLayout;
         final View view;
@@ -403,71 +603,40 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         view = inflater.inflate(viewLayout, container, false);
 
-        mArtistNameText = findSelected(view, R.id.artistName);
+        mTrackTime = (TextView) view.findViewById(R.id.trackTime);
+        mTrackTotalTime = (TextView) view.findViewById(R.id.trackTotalTime);
+        mVolumeIcon = (ImageView) view.findViewById(R.id.volume_icon);
+
+        /** These load the TextView resource, and set it as selected. */
         mAlbumNameText = findSelected(view, R.id.albumName);
-        mSongNameText = findSelected(view, R.id.songName);
+        mArtistNameText = findSelected(view, R.id.artistName);
         mAudioNameText = findSelected(view, R.id.audioName);
+        mSongNameText = findSelected(view, R.id.songName);
+        mSongNameText.setText(R.string.notConnected);
         mYearNameText = findSelected(view, R.id.yearName);
         applyViewVisibility(settings, mYearNameText, "enableAlbumYearText");
 
-        mShuffleButton = (ImageButton) view.findViewById(R.id.shuffle);
-        mRepeatButton = (ImageButton) view.findViewById(R.id.repeat);
-
-        mVolumeSeekBar = getVolumeSeekBar(view);
-        mTrackSeekBar = getTrackSeekBar(view);
-        mVolumeIcon = (ImageView) view.findViewById(R.id.volume_icon);
-
-        mTrackTime = (TextView) view.findViewById(R.id.trackTime);
-        mTrackTotalTime = (TextView) view.findViewById(R.id.trackTotalTime);
-
-        final Animation fadeIn = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in);
-        fadeIn.setDuration(ANIMATION_DURATION);
-        final Animation fadeOut = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out);
-        fadeOut.setDuration(ANIMATION_DURATION);
-
-        mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
-        mCoverArt.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                scrollToNowPlaying();
-            }
-        });
-
-        populateCoverArtMenu();
-
-        mCoverAsyncHelper = new CoverAsyncHelper();
-        // Scale cover images down to screen width
-        mCoverAsyncHelper.setCoverMaxSizeFromScreen(mActivity);
-        mCoverAsyncHelper.setCachedCoverMaxSize(mCoverArt.getWidth());
-
-        final ProgressBar coverArtProgress =
-                (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-        mCoverDownloadListener = new AlbumCoverDownloadListener(mCoverArt, coverArtProgress, true);
-        mCoverAsyncHelper.addCoverDownloadListener(mCoverDownloadListener);
-
-        final ButtonEventHandler buttonEventHandler = new ButtonEventHandler();
-        ImageButton button = (ImageButton) view.findViewById(R.id.next);
-        button.setOnClickListener(buttonEventHandler);
-
-        button = (ImageButton) view.findViewById(R.id.prev);
-        button.setOnClickListener(buttonEventHandler);
-
-        mButtonPlayPause = (ImageButton) view.findViewById(R.id.playpause);
-        mButtonPlayPause.setOnClickListener(buttonEventHandler);
-        mButtonPlayPause.setOnLongClickListener(buttonEventHandler);
-
-        mStopButton = (ImageButton) view.findViewById(R.id.stop);
-        mStopButton.setOnClickListener(buttonEventHandler);
-        mStopButton.setOnLongClickListener(buttonEventHandler);
+        /** These get the event button, then setup listeners for them. */
+        mPlayPauseButton = getEventButton(view, R.id.playpause, true);
+        mRepeatButton = getEventButton(view, R.id.repeat, false);
+        mShuffleButton = getEventButton(view, R.id.shuffle, false);
+        mStopButton = getEventButton(view, R.id.stop, true);
         applyViewVisibility(settings, mStopButton, "enableStopButton");
 
-        mShuffleButton.setOnClickListener(buttonEventHandler);
-        mRepeatButton.setOnClickListener(buttonEventHandler);
+        /** Same as above, but these don't require a stored field. */
+        getEventButton(view, R.id.next, false);
+        getEventButton(view, R.id.prev, false);
 
-        mSongInfo = view.findViewById(R.id.songInfo);
-        populateSongInfoMenu();
+        /** These have methods to initialize everything required to get them setup. */
+        mCoverArt = getCoverArt(view);
+        mCoverAsyncHelper = getCoverAsyncHelper(view);
+        mSongInfo = getSongInfo(view);
+        mTrackSeekBar = getTrackSeekBar(view);
+        mVolumeSeekBar = getVolumeSeekBar(view);
 
-        mSongNameText.setText(R.string.notConnected);
+        fadeIn.setDuration(ANIMATION_DURATION);
+        fadeOut.setDuration(ANIMATION_DURATION);
+
         Log.i(TAG, "Initialization succeeded");
 
         return view;
@@ -650,139 +819,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
             updateTrackInfo(mpdStatus, false);
         }
-    }
-
-    /**
-     * Run during fragment initialization, this sets up the cover art popup menu.
-     */
-    private void populateCoverArtMenu() {
-        final PopupMenu coverMenu = new PopupMenu(mActivity, mCoverArt);
-        final Menu menu = coverMenu.getMenu();
-
-        menu.add(Menu.NONE, POPUP_COVER_BLACKLIST, Menu.NONE, R.string.otherCover);
-        menu.add(Menu.NONE, POPUP_COVER_SELECTIVE_CLEAN, Menu.NONE, R.string.resetCover);
-        coverMenu.setOnMenuItemClickListener(this);
-        mCoverArt.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(final View v) {
-                final boolean isConsumed;
-
-                if (mCurrentSong != null) {
-                    menu.setGroupVisible(Menu.NONE, mCurrentSong.getAlbumInfo().isValid());
-                    coverMenu.show();
-                    isConsumed = true;
-                } else {
-                    isConsumed = false;
-                }
-
-                return isConsumed;
-            }
-        });
-    }
-
-    /**
-     * Run during fragment initialization, this sets up the song info popup menu.
-     */
-    private void populateSongInfoMenu() {
-        final PopupMenu popupMenu = new PopupMenu(mActivity, mSongInfo);
-        final Menu menu = popupMenu.getMenu();
-        menu.add(Menu.NONE, POPUP_ALBUM, Menu.NONE, R.string.goToAlbum);
-        menu.add(Menu.NONE, POPUP_ARTIST, Menu.NONE, R.string.goToArtist);
-        menu.add(Menu.NONE, POPUP_ALBUM_ARTIST, Menu.NONE,
-                R.string.goToAlbumArtist);
-        menu.add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
-        menu.add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
-        menu.add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
-        popupMenu.setOnMenuItemClickListener(this);
-        mPopupMenuTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenu);
-
-        final PopupMenu popupMenuStream = new PopupMenu(mActivity, mSongInfo);
-        final Menu menuStream = popupMenuStream.getMenu();
-        menuStream.add(Menu.NONE, POPUP_STREAM, Menu.NONE, R.string.goToStream);
-        menuStream.add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
-        menuStream.add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
-        popupMenuStream.setOnMenuItemClickListener(this);
-        mPopupMenuStreamTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenuStream);
-
-        mSongInfo.setOnClickListener(new OnClickListener() {
-
-            /**
-             * Checks whether the album artist should be on the popup menu for the current track.
-             *
-             * @return True if the album artist popup menu entry should be visible, false otherwise.
-             */
-            private boolean isAlbumArtistVisible() {
-                boolean albumArtistEnabled = false;
-                final String albumArtist = mCurrentSong.getAlbumArtist();
-
-                if (albumArtist != null && !albumArtist.isEmpty()) {
-                    final String artist = mCurrentSong.getArtist();
-
-                    if (isArtistVisible() && !albumArtist.equals(artist)) {
-                        albumArtistEnabled = true;
-                    }
-                }
-
-                return albumArtistEnabled;
-            }
-
-            /**
-             * Checks whether the album should be on the popup menu for the current track.
-             *
-             * @return True if the album popup menu entry should be visible, false otherwise.
-             */
-            private boolean isAlbumVisible() {
-                final boolean isAlbumVisible;
-                final String album = mCurrentSong.getAlbum();
-
-                if (album != null && !album.isEmpty()) {
-                    isAlbumVisible = true;
-                } else {
-                    isAlbumVisible = false;
-                }
-
-                return isAlbumVisible;
-            }
-
-            /**
-             * Checks whether the artist should be on the popup menu for the current track.
-             *
-             * @return True if the artist popup menu entry should be visible, false otherwise.
-             */
-            private boolean isArtistVisible() {
-                final boolean isArtistVisible;
-                final String artist = mCurrentSong.getArtist();
-
-                if (artist != null && !artist.isEmpty()) {
-                    isArtistVisible = true;
-                } else {
-                    isArtistVisible = false;
-                }
-
-                return isArtistVisible;
-            }
-
-            /**
-             * This method checks the dynamic entries for visibility prior to showing the song info
-             * popup menu.
-             *
-             * @param v The view for the song info popup menu.
-             */
-            @Override
-            public void onClick(final View v) {
-                if (mCurrentSong != null) {
-                    if (mCurrentSong.isStream()) {
-                        popupMenuStream.show();
-                    } else {
-                        // Enable / Disable menu items that need artist and album defined.
-                        menu.findItem(POPUP_ALBUM).setVisible(isAlbumVisible());
-                        menu.findItem(POPUP_ARTIST).setVisible(isArtistVisible());
-                        menu.findItem(POPUP_ALBUM_ARTIST).setVisible(isAlbumArtistVisible());
-                        popupMenu.show();
-                    }
-                }
-            }
-        });
     }
 
     @Override
@@ -974,7 +1010,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void updateStatus(final MPDStatus status) {
         toggleTrackProgress(status);
 
-        mButtonPlayPause.setImageResource(getPlayPauseResource(status.getState()));
+        mPlayPauseButton.setImageResource(getPlayPauseResource(status.getState()));
 
         updateAudioNameText(status);
 
