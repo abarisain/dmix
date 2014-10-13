@@ -733,8 +733,9 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 final int firstVisibleElementIndex = mList.getFirstVisiblePosition();
                 final View firstVisibleItem = mList.getChildAt(0);
                 final int firstVisiblePosition;
-                final ArrayAdapter songs = new QueueAdapter(mActivity, newSongList,
-                        R.layout.playlist_queue_item);
+                final ArrayAdapter songs = new QueueAdapter(mActivity, R.layout.playlist_queue_item,
+                        newSongList
+                );
 
                 if (firstVisibleItem != null) {
                     firstVisiblePosition = firstVisibleItem.getTop();
@@ -785,24 +786,26 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 
-    private class QueueAdapter extends ArrayAdapter {
+    private class QueueAdapter extends ArrayAdapter<AbstractPlaylistMusic> {
 
-        QueueAdapter(final Context context, final List<?> data, @LayoutRes final int resource) {
+        QueueAdapter(final Context context, @LayoutRes final int resource,
+                final List<AbstractPlaylistMusic> data) {
             super(context, resource, data);
         }
 
         @Override
-        public View getView(final int position, View convertView, final ViewGroup parent) {
-
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
             final PlayQueueViewHolder viewHolder;
+            final View view;
+
             if (convertView == null) {
-                viewHolder = new PlayQueueViewHolder();
-                convertView = LayoutInflater.from(getContext()).inflate(
+                view = LayoutInflater.from(getContext()).inflate(
                         R.layout.playlist_queue_item, mRootView);
-                viewHolder.mArtist = (TextView) convertView.findViewById(android.R.id.text2);
-                viewHolder.mTitle = (TextView) convertView.findViewById(android.R.id.text1);
-                viewHolder.mPlay = (ImageView) convertView.findViewById(R.id.picture);
-                viewHolder.mCover = (ImageView) convertView.findViewById(R.id.cover);
+                viewHolder = new PlayQueueViewHolder();
+                viewHolder.mArtist = (TextView) view.findViewById(android.R.id.text2);
+                viewHolder.mTitle = (TextView) view.findViewById(android.R.id.text1);
+                viewHolder.mPlay = (ImageView) view.findViewById(R.id.picture);
+                viewHolder.mCover = (ImageView) view.findViewById(R.id.cover);
                 viewHolder.mCoverHelper = new CoverAsyncHelper();
                 int height = viewHolder.mCover.getHeight();
                 // If the list is not displayed yet, the height is 0.
@@ -823,14 +826,15 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 viewHolder.mCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 viewHolder.mCover.setTag(R.id.CoverAsyncHelper, viewHolder.mCoverHelper);
                 viewHolder.mCoverHelper.addCoverDownloadListener(acd);
-                viewHolder.mMenuButton = convertView.findViewById(R.id.menu);
+                viewHolder.mMenuButton = view.findViewById(R.id.menu);
                 viewHolder.mMenuButton.setOnClickListener(mItemMenuButtonListener);
-                convertView.setTag(viewHolder);
+                view.setTag(viewHolder);
             } else {
                 viewHolder = (PlayQueueViewHolder) convertView.getTag();
+                view = convertView;
             }
 
-            final AbstractPlaylistMusic music = (AbstractPlaylistMusic) getItem(position);
+            final AbstractPlaylistMusic music = getItem(position);
 
             viewHolder.mArtist.setText(music.getPlaylistSubLine());
             viewHolder.mTitle.setText(music.getPlayListMainLine());
@@ -846,7 +850,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 music.setForceCoverRefresh(false);
                 viewHolder.mCoverHelper.downloadCover(music.getAlbumInfo(), false);
             }
-            return convertView;
+            return view;
         }
     }
 }
