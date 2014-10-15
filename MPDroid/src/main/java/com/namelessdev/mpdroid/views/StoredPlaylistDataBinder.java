@@ -87,7 +87,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
             } else if (album == null) {
                 info = artist;
             } else {
-                info = artist + " - " + album;
+                info = artist + SEPARATOR + album;
             }
         }
 

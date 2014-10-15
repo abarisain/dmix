@@ -38,6 +38,43 @@ import android.widget.TextView;
 import java.util.List;
 
 public class AlbumDataBinder extends BaseDataBinder {
+
+    protected static CoverAsyncHelper getCoverHelper(final AlbumViewHolder holder,
+            final int defaultSize) {
+        final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
+        final int height = holder.mAlbumCover.getHeight();
+
+        // If the list is not displayed yet, the height is 0. This is a
+        // problem, so set a fallback one.
+        if (height == 0) {
+            coverHelper.setCoverMaxSize(defaultSize);
+        } else {
+            coverHelper.setCoverMaxSize(height);
+        }
+
+        return coverHelper;
+    }
+
+    protected static CoverDownloadListener setCoverListener(final AlbumViewHolder holder,
+            final CoverAsyncHelper coverHelper) {
+        // listen for new artwork to be loaded
+        final CoverDownloadListener acd =
+                new AlbumCoverDownloadListener(holder.mAlbumCover, holder.mCoverArtProgress, false);
+        final AlbumCoverDownloadListener oldAcd
+                = (AlbumCoverDownloadListener) holder.mAlbumCover
+                .getTag(R.id.AlbumCoverDownloadListener);
+
+        if (oldAcd != null) {
+            oldAcd.detach();
+        }
+
+        holder.mAlbumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+        holder.mAlbumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
+        coverHelper.addCoverDownloadListener(acd);
+
+        return acd;
+    }
+
     @Override
     public AbstractViewHolder findInnerViews(final View targetView) {
         // look up all references to inner views
@@ -62,79 +99,86 @@ public class AlbumDataBinder extends BaseDataBinder {
         return true;
     }
 
-    @Override
-    public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, final List<? extends Item> items,
-            final Object item, final int position) {
-        final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
-
-        final Album album = (Album) item;
+    protected void loadAlbumCovers(final AlbumViewHolder holder, final Album album) {
         final Artist artist = album.getArtist();
-        String info = "";
-        final long songCount = album.getSongCount();
-        if (artist != null) {
-            info += artist.mainText();
-        }
-        if (album.getYear() > 0) {
-            if (!info.isEmpty()) {
-                info += " - ";
-            }
-            info += Long.toString(album.getYear());
-        }
-        if (songCount > 0) {
-            if (!info.isEmpty()) {
-                info += " - ";
-            }
-            info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural
-                            : R.string.tracksInfoHeader),
-                    songCount, Music.timeToString(album.getDuration()));
-        }
-        holder.mAlbumName.setText(album.mainText());
-        if (info != null && !info.isEmpty()) {
-            holder.mAlbumInfo.setVisibility(View.VISIBLE);
-            holder.mAlbumInfo.setText(info);
-        } else {
-            holder.mAlbumInfo.setVisibility(View.GONE);
-        }
 
-        if (artist == null || album.isUnknown()) { // full albums list or
-            // unknown album
+        if (artist == null || album.isUnknown()) {
+            // full albums list or unknown album
             holder.mAlbumCover.setVisibility(View.GONE);
         } else {
             holder.mAlbumCover.setVisibility(View.VISIBLE);
-            final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
-            final int height = holder.mAlbumCover.getHeight();
-            // If the list is not displayed yet, the height is 0. This is a
-            // problem, so set a fallback one.
-            coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
 
+            final CoverAsyncHelper coverHelper = getCoverHelper(holder, 128);
             loadPlaceholder(coverHelper);
 
             // display cover art in album listing if caching is on
             if (album.getAlbumInfo().isValid() && mEnableCache) {
-                // listen for new artwork to be loaded
-                final CoverDownloadListener acd = new AlbumCoverDownloadListener(
-                        holder.mAlbumCover, holder.mCoverArtProgress, false);
-                final AlbumCoverDownloadListener oldAcd
-                        = (AlbumCoverDownloadListener) holder.mAlbumCover
-                        .getTag(R.id.AlbumCoverDownloadListener);
-                if (oldAcd != null) {
-                    oldAcd.detach();
-                }
-
-                holder.mAlbumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-                holder.mAlbumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
-                coverHelper.addCoverDownloadListener(acd);
+                setCoverListener(holder, coverHelper);
                 loadArtwork(coverHelper, album.getAlbumInfo());
             }
         }
     }
 
     @Override
+    public void onDataBind(final Context context, final View targetView,
+            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final Object item, final int position) {
+        final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+        final Album album = (Album) item;
+        final Artist artist = album.getArtist();
+        final StringBuilder info = new StringBuilder();
+        final long songCount = album.getSongCount();
+
+        if (artist != null) {
+            info.append(artist.mainText());
+        }
+
+        if (album.getYear() > 0L) {
+            if (info.length() != 0) {
+                info.append(SEPARATOR);
+            }
+            info.append(Long.toString(album.getYear()));
+        }
+
+        if (songCount > 0L) {
+            final String trackHeader;
+            final String duration = Music.timeToString(album.getDuration());
+
+            if (info.length() != 0) {
+                info.append(SEPARATOR);
+            }
+
+            if (songCount > 1L) {
+                trackHeader =
+                        context.getString(R.string.tracksInfoHeaderPlural, songCount, duration);
+            } else {
+                trackHeader = context.getString(R.string.tracksInfoHeader, songCount, duration);
+            }
+
+            info.append(trackHeader);
+        }
+
+        // display "artist - album title"
+        holder.mAlbumName.setText(album.mainText());
+        if (info.length() == 0) {
+            holder.mAlbumInfo.setVisibility(View.GONE);
+        } else {
+            holder.mAlbumInfo.setVisibility(View.VISIBLE);
+            holder.mAlbumInfo.setText(info);
+        }
+
+        loadAlbumCovers(holder, album);
+    }
+
+    @Override
     public View onLayoutInflation(final Context context, final View targetView,
             final List<? extends Item> items) {
-        targetView.findViewById(R.id.albumCover).setVisibility(
-                mEnableCache ? View.VISIBLE : View.GONE);
+        if (mEnableCache) {
+            targetView.findViewById(R.id.albumCover).setVisibility(View.VISIBLE);
+        } else {
+            targetView.findViewById(R.id.albumCover).setVisibility(View.GONE);
+        }
+
         return targetView;
     }
 }

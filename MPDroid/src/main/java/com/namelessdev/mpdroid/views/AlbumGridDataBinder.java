@@ -17,24 +17,15 @@
 package com.namelessdev.mpdroid.views;
 
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
-import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
 
-import android.content.Context;
 import android.support.annotation.LayoutRes;
-import android.view.View;
-
-import java.util.List;
 
 public class AlbumGridDataBinder extends AlbumDataBinder {
+
     @Override
     @LayoutRes
     public int getLayoutId() {
@@ -42,65 +33,10 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
     }
 
     @Override
-    public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, final List<? extends Item> items,
-            final Object item,
-            final int position) {
-        final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+    protected void loadAlbumCovers(final AlbumViewHolder holder, final Album album) {
+        final CoverAsyncHelper coverHelper = getCoverHelper(holder, 256);
 
-        final Album album = (Album) item;
-
-        // Caching must be switch on to use this view
-        final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
-        final int height = holder.mAlbumCover.getHeight();
-        // If the list is not displayed yet, the height is 0. This is a problem,
-        // so set a fallback one.
-        coverHelper.setCoverMaxSize(height == 0 ? 256 : height);
-
-        // display "artist - album title"
-        final String text = album.mainText();
-        holder.mAlbumName.setText(text);
-
-        final Artist artist = album.getArtist();
-        String info = "";
-        final long songCount = album.getSongCount();
-        if (artist != null) {
-            info += artist.mainText();
-        }
-        if (album.getYear() > 0) {
-            if (!info.isEmpty()) {
-                info += " - ";
-            }
-            info += Long.toString(album.getYear());
-        }
-        if (songCount > 0) {
-            if (!info.isEmpty()) {
-                info += " - ";
-            }
-            info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural
-                            : R.string.tracksInfoHeader),
-                    songCount, Music.timeToString(album.getDuration()));
-        }
-        holder.mAlbumName.setText(album.mainText());
-        if (info != null && !info.isEmpty()) {
-            holder.mAlbumInfo.setVisibility(View.VISIBLE);
-            holder.mAlbumInfo.setText(info);
-        } else {
-            holder.mAlbumInfo.setVisibility(View.GONE);
-        }
-
-        // listen for new artwork to be loaded
-        final CoverDownloadListener acd = new AlbumCoverDownloadListener(holder.mAlbumCover,
-                holder.mCoverArtProgress, false);
-        final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.mAlbumCover
-                .getTag(R.id.AlbumCoverDownloadListener);
-        if (oldAcd != null) {
-            oldAcd.detach();
-        }
-        holder.mAlbumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-        holder.mAlbumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
-        coverHelper.addCoverDownloadListener(acd);
-
+        setCoverListener(holder, coverHelper);
         loadPlaceholder(coverHelper);
 
         // Can't get artwork for missing album name
@@ -108,5 +44,4 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
             loadArtwork(coverHelper, album.getAlbumInfo());
         }
     }
-
 }

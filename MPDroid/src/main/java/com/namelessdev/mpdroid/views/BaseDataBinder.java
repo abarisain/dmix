@@ -35,6 +35,8 @@ import java.util.List;
 
 abstract class BaseDataBinder implements ArrayDataBinder {
 
+    static final CharSequence SEPARATOR = " - ";
+
     final boolean mEnableCache;
 
     protected BaseDataBinder() {
