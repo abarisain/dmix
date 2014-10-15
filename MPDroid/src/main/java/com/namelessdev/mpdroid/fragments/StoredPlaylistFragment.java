@@ -90,7 +90,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     protected ListAdapter getCustomListAdapter() {
         if (mItems != null) {
             return new ArrayAdapter(getActivity(),
-                    new StoredPlaylistDataBinder(mApp.isLightThemeSelected()), mItems);
+                    new StoredPlaylistDataBinder(), mItems);
         }
         return super.getCustomListAdapter();
     }

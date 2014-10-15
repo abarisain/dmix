@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.views;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -29,8 +28,6 @@ import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,10 +37,8 @@ import java.util.List;
 
 public class StoredPlaylistDataBinder extends BaseDataBinder {
 
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
-    public StoredPlaylistDataBinder(final boolean isLightTheme) {
-        super(isLightTheme);
+    public StoredPlaylistDataBinder() {
+        super();
     }
 
     @Override
@@ -103,8 +98,6 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
         } else {
             holder.mInfo.setVisibility(View.GONE);
         }
-
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
         final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
         final int height = holder.mCover.getHeight();

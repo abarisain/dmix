@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.views;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -30,8 +29,6 @@ import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.ImageView;
@@ -41,13 +38,6 @@ import android.widget.TextView;
 import java.util.List;
 
 public class AlbumDataBinder extends BaseDataBinder {
-
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
-    public AlbumDataBinder(final boolean isLightTheme) {
-        super(isLightTheme);
-    }
-
     @Override
     public AbstractViewHolder findInnerViews(final View targetView) {
         // look up all references to inner views
@@ -106,8 +96,6 @@ public class AlbumDataBinder extends BaseDataBinder {
         } else {
             holder.mAlbumInfo.setVisibility(View.GONE);
         }
-
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
         if (artist == null || album.isUnknown()) { // full albums list or
             // unknown album

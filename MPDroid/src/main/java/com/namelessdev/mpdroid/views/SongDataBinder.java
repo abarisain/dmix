@@ -33,11 +33,10 @@ import java.util.List;
 
 public class SongDataBinder implements ArrayDataBinder {
 
-    final boolean mShowArtist;
+    private final boolean mShowArtist;
 
     public SongDataBinder() {
-        super();
-        mShowArtist = false;
+        this(true);
     }
 
     public SongDataBinder(final boolean showArtist) {

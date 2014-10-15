@@ -163,7 +163,7 @@ public class AlbumsFragment extends BrowseFragment {
     protected ListAdapter getCustomListAdapter() {
         if (mItems != null) {
             return new ArrayIndexerAdapter(getActivity(),
-                    new AlbumDataBinder(mApp.isLightThemeSelected()), mItems);
+                    new AlbumDataBinder(), mItems);
         }
         return super.getCustomListAdapter();
     }

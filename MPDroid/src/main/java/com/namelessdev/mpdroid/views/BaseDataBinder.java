@@ -33,22 +33,16 @@ import android.view.View;
 
 import java.util.List;
 
-public abstract class BaseDataBinder implements ArrayDataBinder {
+abstract class BaseDataBinder implements ArrayDataBinder {
 
-    boolean mEnableCache = true;
+    final boolean mEnableCache;
 
-    boolean mLightTheme = false;
-
-    boolean mOnlyDownloadOnWifi = true;
-
-    protected BaseDataBinder(final boolean isLightTheme) {
+    protected BaseDataBinder() {
         super();
-        mLightTheme = isLightTheme;
         final MPDApplication app = MPDApplication.getInstance();
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
         mEnableCache = settings.getBoolean(CoverManager.PREFERENCE_CACHE, true);
-        mOnlyDownloadOnWifi = settings.getBoolean(CoverManager.PREFERENCE_ONLY_WIFI, false);
     }
 
     protected static void loadArtwork(final CoverAsyncHelper coverHelper,
