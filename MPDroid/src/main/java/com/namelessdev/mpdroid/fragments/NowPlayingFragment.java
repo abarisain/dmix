@@ -377,6 +377,41 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     /**
+     * This method generates selected track information to send to another application.
+     *
+     * The current format of this method should output:
+     * header artist - title and if the output is a stream, the URL should be suffixed on the end.
+     *
+     * @return The track information to send to another application.
+     */
+    private String getShareString() {
+        final char[] separator = {' ', '-', ' '};
+        final String fullPath = mCurrentSong.getFullPath();
+        final String sharePrefix = getString(R.string.sharePrefix);
+        final String trackArtist = mCurrentSong.getArtist();
+        final String trackTitle = mCurrentSong.getTitle();
+        final int initialLength = trackTitle.length() + sharePrefix.length() + 64;
+        final StringBuilder shareString = new StringBuilder(initialLength);
+
+        shareString.append(sharePrefix);
+        shareString.append(' ');
+
+        if (trackArtist != null) {
+            shareString.append(trackArtist);
+            shareString.append(separator);
+        }
+        shareString.append(trackTitle);
+
+        /** If track title is empty, the full path will have been substituted.*/
+        if (mCurrentSong.isStream() && !fullPath.startsWith(trackTitle)) {
+            shareString.append(separator);
+            shareString.append(fullPath);
+        }
+
+        return shareString.toString();
+    }
+
+    /**
      * Run during fragment initialization, this sets up the song info popup menu.
      *
      * @param view The view in which to setup the song info View for this class.
@@ -660,6 +695,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         final Intent intent;
+        boolean result = true;
 
         switch (item.getItemId()) {
             case POPUP_ALBUM:
@@ -708,16 +744,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_SHARE:
-                String shareString = getString(R.string.sharePrefix);
-                shareString += ' ' + mCurrentSong.getTitle();
-                if (!mCurrentSong.isStream()) {
-                    shareString += " - " + mCurrentSong.getArtist();
-                }
-                final Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, shareString);
-                sendIntent.setType("text/plain");
-                startActivity(sendIntent);
+                intent = new Intent(Intent.ACTION_SEND, null);
+                intent.putExtra(Intent.EXTRA_TEXT, getShareString());
+                intent.setType("text/plain");
+                startActivity(intent);
                 break;
             case POPUP_STREAM:
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
@@ -725,9 +755,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 startActivityForResult(intent, -1);
                 break;
             default:
-                return false;
+                result = false;
         }
-        return true;
+
+        return result;
     }
 
     @Override
