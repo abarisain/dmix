@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
@@ -36,28 +37,42 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
 
     private static final int TYPE_DEFAULT = 0;
 
-    private Context mContext;
+    private final Context mContext;
 
-    private ArrayDataBinder mDataBinder = null;
+    private final ArrayDataBinder mDataBinder;
 
-    private LayoutInflater mInflater;
+    private final LayoutInflater mInflater;
 
-    private List<Item> mItems;
+    private final List<Item> mItems;
 
-    @SuppressWarnings("unchecked")
     public ArrayAdapter(final Context context, final ArrayDataBinder dataBinder,
             final List<? extends Item> items) {
         super(context, 0, (List<Item>) items);
         mDataBinder = dataBinder;
-        init(context, items);
+
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContext = context;
+        mItems = Collections.unmodifiableList(items);
+
+        if (!(items instanceof ArrayList<?>)) {
+            throw new UnsupportedOperationException(
+                    "Items must be contained in an ArrayList<Item>");
+        }
     }
 
-    @SuppressWarnings("unchecked")
     public ArrayAdapter(final Context context, @LayoutRes final int textViewResourceId,
             final List<? extends Item> items) {
         super(context, textViewResourceId, (List<Item>) items);
         mDataBinder = null;
-        init(context, items);
+
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContext = context;
+        mItems = Collections.unmodifiableList(items);
+
+        if (!(items instanceof ArrayList<?>)) {
+            throw new UnsupportedOperationException(
+                    "Items must be contained in an ArrayList<Item>");
+        }
     }
 
     public ArrayDataBinder getDataBinder() {
@@ -74,26 +89,26 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         View resultView;
 
         if (mDataBinder == null) {
-            return super.getView(position, convertView, parent);
-        }
-
-        // cache all inner view references with ViewHolder pattern
-        final AbstractViewHolder holder;
-
-        if (convertView == null) {
-            resultView = mInflater.inflate(mDataBinder.getLayoutId(), parent, false);
-            resultView = mDataBinder.onLayoutInflation(mContext, resultView, mItems);
-
-            // use the data binder to look up all references to inner views
-            holder = mDataBinder.findInnerViews(resultView);
-            resultView.setTag(holder);
+            resultView = super.getView(position, convertView, parent);
         } else {
-            resultView = convertView;
-            holder = (AbstractViewHolder) resultView.getTag();
-        }
+            // cache all inner view references with ViewHolder pattern
+            final AbstractViewHolder holder;
 
-        mDataBinder
-                .onDataBind(mContext, resultView, holder, mItems, mItems.get(position), position);
+            if (convertView == null) {
+                resultView = mInflater.inflate(mDataBinder.getLayoutId(), parent, false);
+                resultView = mDataBinder.onLayoutInflation(mContext, resultView, mItems);
+
+                // use the data binder to look up all references to inner views
+                holder = mDataBinder.findInnerViews(resultView);
+                resultView.setTag(holder);
+            } else {
+                resultView = convertView;
+                holder = (AbstractViewHolder) resultView.getTag();
+            }
+
+            mDataBinder.onDataBind(mContext, resultView, holder, mItems, mItems.get(position),
+                    position);
+        }
         return resultView;
     }
 
@@ -102,27 +117,16 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         return 1;
     }
 
-    @SuppressWarnings("unchecked")
-    protected void init(final Context context, final List<? extends Item> items) {
-        if (!(items instanceof ArrayList<?>)) {
-            throw new RuntimeException("Items must be contained in an ArrayList<Item>");
-        }
-
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mContext = context;
-        mItems = (List<Item>) items;
-    }
-
     @Override
     public boolean isEnabled(final int position) {
+        final boolean isEnabled;
+
         if (mDataBinder == null) {
-            return super.isEnabled(position);
+            isEnabled = super.isEnabled(position);
+        } else {
+            isEnabled = mDataBinder.isEnabled(position, mItems, getItem(position));
         }
-        return mDataBinder.isEnabled(position, mItems, getItem(position));
-    }
 
-    public void setDataBinder(final ArrayDataBinder dataBinder) {
-        mDataBinder = dataBinder;
+        return isEnabled;
     }
-
 }
