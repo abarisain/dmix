@@ -123,17 +123,23 @@ public class MPD {
     }
 
     private static MPDCommand getAlbumDetailsCommand(final Album album) {
-        final String artistCommand;
+        final Artist artist = album.getArtist();
+        String artistCommand = null;
+        String artistName = null;
 
-        if (album.hasAlbumArtist()) {
-            artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
-        } else {
-            artistCommand = MPDCommand.MPD_FIND_ARTIST;
+        if (artist != null) {
+            artistName = artist.getName();
+
+            if (album.hasAlbumArtist()) {
+                artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+            } else {
+                artistCommand = MPDCommand.MPD_FIND_ARTIST;
+            }
         }
 
         return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
                 MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                artistCommand, album.getArtist().getName());
+                artistCommand, artistName);
     }
 
     private static MPDCommand getSongsCommand(final Album album) {
@@ -1009,11 +1015,17 @@ public class MPD {
                 (mConnection.sendCommand(getSongsCommand(album)), true);
         if (album.hasAlbumArtist()) {
             // remove songs that don't have this album artist (mpd >=0.18 puts them in)
-            final String artistName = album.getArtist().getName();
+            final Artist artist = album.getArtist();
+            String artistName = null;
+
+            if (artist != null) {
+                artistName = artist.getName();
+            }
+
             for (int i = songs.size() - 1; i >= 0; i--) {
                 final String albumArtist = songs.get(i).getAlbumArtist();
                 if (albumArtist != null && !albumArtist.isEmpty()
-                        && !artistName.equals(albumArtist)) {
+                        && !albumArtist.equals(artistName)) {
                     songs.remove(i);
                 }
             }
@@ -1057,19 +1069,17 @@ public class MPD {
     public boolean isAlbumInGenre(final Album album, final Genre genre) throws MPDServerException {
         final List<String> response;
         final Artist artist = album.getArtist();
-        final String artistName;
-        final String artistType;
+        String artistName = null;
+        String artistType = null;
 
-        if (album.hasAlbumArtist()) {
-            artistType = MPDCommand.MPD_TAG_ALBUM_ARTIST;
-        } else {
-            artistType = MPDCommand.MPD_TAG_ARTIST;
-        }
-
-        if (artist == null) {
-            artistName = "";
-        } else {
+        if (artist != null) {
             artistName = artist.getName();
+
+            if (album.hasAlbumArtist()) {
+                artistType = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+            } else {
+                artistType = MPDCommand.MPD_TAG_ARTIST;
+            }
         }
 
         response = mConnection.sendCommand(new MPDCommand(
@@ -1132,8 +1142,17 @@ public class MPD {
         List<String[]> albumArtists = null;
 
         for (final Album album : albums) {
+            final Artist artist = album.getArtist();
+            String artistCommand = null;
+            String artistName = null;
+
+            if (artist != null) {
+                artistCommand = MPDCommand.MPD_TAG_ARTIST;
+                artistName = artist.getName();
+            }
+
             commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM_ARTIST,
-                    MPDCommand.MPD_TAG_ARTIST, album.getArtist().getName(),
+                    artistCommand, artistName,
                     MPDCommand.MPD_TAG_ALBUM, album.getName());
         }
 
@@ -1410,21 +1429,24 @@ public class MPD {
     private List<String[]> listArtistsCommand(final Iterable<Album> albums,
             final boolean useAlbumArtist) throws MPDServerException {
         final CommandQueue commandQueue = new CommandQueue();
+
         for (final Album album : albums) {
+            final Artist artist = album.getArtist();
+
             // When adding album artist to existing artist check that the artist matches
-            if (useAlbumArtist && album.getArtist() != null && !album.getArtist().isUnknown()) {
+            if (useAlbumArtist && artist != null && !artist.isUnknown()) {
                 commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM_ARTIST,
                         MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                        MPDCommand.MPD_TAG_ARTIST, album.getArtist().getName());
+                        MPDCommand.MPD_TAG_ARTIST, artist.getName());
             } else {
-                final String artist;
+                final String artistCommand;
                 if (useAlbumArtist) {
-                    artist = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+                    artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
                 } else {
-                    artist = MPDCommand.MPD_TAG_ARTIST;
+                    artistCommand = MPDCommand.MPD_TAG_ARTIST;
                 }
 
-                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG, artist,
+                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG, artistCommand,
                         MPDCommand.MPD_TAG_ALBUM, album.getName());
             }
         }
