@@ -64,8 +64,6 @@ public class MPD {
 
     protected static boolean sortAlbumsByYear = false;
 
-    protected static boolean sortByTrackNumber = true;
-
     private static String sUnknownAlbum = "";
 
     private static String sUnknownArtist = "";
@@ -234,10 +232,6 @@ public class MPD {
         sortAlbumsByYear = v;
     }
 
-    public static void setSortByTrackNumber(final boolean v) {
-        sortByTrackNumber = v;
-    }
-
     public static void setUnknownAlbum(final String unknownAlbum) {
         sUnknownAlbum = unknownAlbum;
     }
@@ -256,10 +250,6 @@ public class MPD {
 
     public static boolean sortAlbumsByYear() {
         return sortAlbumsByYear;
-    }
-
-    public static boolean sortByTrackNumber() {
-        return sortByTrackNumber;
     }
 
     /**
@@ -667,7 +657,7 @@ public class MPD {
         return Music.getMusicFromList(mConnection.sendCommand(searchCommand, args), sort);
     }
 
-    protected Collection<Music> genericSearch(final String searchCommand, final String type,
+    protected List<Music> genericSearch(final String searchCommand, final String type,
             final String strToFind)
             throws MPDServerException {
         final List<String> response = mConnection.sendCommand(searchCommand, type, strToFind);
@@ -1571,7 +1561,7 @@ public class MPD {
      * @throws MPDServerException if an error occur while contacting server.
      * @see org.a0z.mpd.item.Music
      */
-    public Collection<Music> search(final String type, final String locatorString)
+    public List<Music> search(final String type, final String locatorString)
             throws MPDServerException {
         return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, locatorString);
     }

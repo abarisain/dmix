@@ -154,13 +154,6 @@
             android:title="@string/artistTagToUse" />
 
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="albumTrackSort"
-            android:persistent="true"
-            android:summary="@string/albumTrackSortDescription"
-            android:title="@string/albumTrackSort" />
-
-        <CheckBoxPreference
             android:key="sortAlbumsByYear"
             android:persistent="true"
             android:summary="@string/sortAlbumsByYearDescription"

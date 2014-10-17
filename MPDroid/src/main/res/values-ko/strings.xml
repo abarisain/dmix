@@ -87,8 +87,6 @@
     <string name="portDescription">MPD 서버 포트 (기본값: 6600)</string>
     <string name="password">비밀번호</string>
     <string name="passwordDescription">서버 비밀번호</string>
-    <string name="albumTrackSort">음반 곡 정리</string>
-    <string name="albumTrackSortDescription">곡 순서대로 음반을 정리합니다</string>
     <string name="version">버전</string>
     <string name="songs">곡</string>
     <string name="serverInformation">서버 정보</string>

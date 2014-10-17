@@ -29,7 +29,6 @@ package org.a0z.mpd.item;
 
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.Log;
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.Tools;
 
 import java.util.ArrayList;
@@ -51,6 +50,44 @@ import static org.a0z.mpd.Tools.VALUE;
  */
 public class Music extends Item implements FilesystemTreeEntry {
 
+    /**
+     * This is like the default {@code Comparable} for the Music class, without support for
+     * comparing undefined integer values. Depending on use case, using this comparator will
+     * avoid a violation of the general contract during comparison.
+     */
+    public static final Comparator<Music> COMPARE_WITHOUT_EXTRAS = new Comparator<Music>() {
+        /**
+         * Compares the two specified objects to determine their relative ordering. The ordering
+         * implied by the return value of this method for all possible pairs of
+         * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
+         * This means that
+         * <ul>
+         * <li>{@code compare(a, a)} returns zero for all {@code a}</li>
+         * <li>the sign of {@code compare(a, b)} must be the opposite of the sign of {@code
+         * compare(b, a)} for all pairs of (a,b)</li>
+         * <li>From {@code compare(a, b) > 0} and {@code compare(b, c) > 0} it must
+         * follow {@code compare(a, c) > 0} for all possible combinations of {@code
+         * (a, b, c)}</li>
+         * </ul>
+         *
+         * @param lhs an {@code Object}.
+         * @param rhs a second {@code Object} to compare with {@code lhs}.
+         * @return an integer < 0 if {@code lhs} is less than {@code rhs}, 0 if they are
+         * equal, and > 0 if {@code lhs} is greater than {@code rhs}.
+         * @throws ClassCastException if objects are not of the correct type.
+         */
+        @Override
+        public int compare(final Music lhs, final Music rhs) {
+            int compare = 0;
+
+            if (lhs != null) {
+                compare = lhs.compareTo(rhs, false);
+            }
+
+            return compare;
+        }
+    };
+
     // Hack to discard some album artist names very long listing a long list of
     // people and not useful to fetch covers ...
     public static final int MAX_ARTIST_NAME_LENGTH = 40;
@@ -68,6 +105,8 @@ public class Music extends Item implements FilesystemTreeEntry {
     private static final int MUSIC_ATTRIBUTES = 30;
 
     private static final String TAG = "Music";
+
+    private static final int UNDEFINED_INT = -1;
 
     private final String mAlbum;
 
@@ -102,15 +141,15 @@ public class Music extends Item implements FilesystemTreeEntry {
                 null, /** Artist */
                 null, /** AlbumArtist */
                 null, /** FullPath */
-                -1, /** Disc */
+                UNDEFINED_INT, /** Disc */
                 -1L, /** Date */
                 null, /** Genre */
                 -1L, /** Time */
                 null, /** Title */
-                -1, /** TotalTracks*/
-                -1, /** Track */
-                -1, /** SongID */
-                -1, /** SongPos */
+                UNDEFINED_INT, /** TotalTracks*/
+                UNDEFINED_INT, /** Track */
+                UNDEFINED_INT, /** SongID */
+                UNDEFINED_INT, /** SongPos */
                 null); /** Name */
 
     }
@@ -148,15 +187,15 @@ public class Music extends Item implements FilesystemTreeEntry {
         String artist = null;
         String albumArtist = null;
         String fullPath = null;
-        int disc = -1;
+        int disc = UNDEFINED_INT;
         long date = -1L;
         String genre = null;
         long time = -1L;
         String title = null;
-        int totalTracks = -1;
-        int track = -1;
-        int songId = -1;
-        int songPos = -1;
+        int totalTracks = UNDEFINED_INT;
+        int track = UNDEFINED_INT;
+        int songId = UNDEFINED_INT;
+        int songPos = UNDEFINED_INT;
         String name = null;
 
         for (final String[] pair : Tools.splitResponse(response)) {
@@ -264,7 +303,38 @@ public class Music extends Item implements FilesystemTreeEntry {
                 totalTracks, track, songId, songPos, name);
     }
 
-    private static int compare(final Comparable<String> lhs, final String rhs) {
+    /**
+     * This method extends Integer.compare() by adding a undefined integer comparison.
+     *
+     * @param compUndefined If true, will compare by {@code UNDEFINED_INT} value.
+     * @param lhs           The first integer to compare.
+     * @param rhs           The second integer to compare.
+     * @return A negative integer, zero, or a positive integer as the first argument is less than,
+     * equal to, or greater than the second.
+     */
+    private static int compareIntegers(final boolean compUndefined, final int lhs, final int rhs) {
+        int result = 0;
+
+        if (lhs != rhs) {
+
+            /** Compare the two integers against the primitive undefined integer for this class. */
+            if (compUndefined) {
+                if (lhs == UNDEFINED_INT) {
+                    result = -1;
+                } else if (rhs == UNDEFINED_INT) {
+                    result = 1;
+                }
+            }
+        }
+
+        if (result == 0) {
+            result = Integer.compare(lhs, rhs);
+        }
+
+        return result;
+    }
+
+    private static int compareString(final Comparable<String> lhs, final String rhs) {
         final int result;
 
         if (lhs == null && rhs == null) {
@@ -341,60 +411,67 @@ public class Music extends Item implements FilesystemTreeEntry {
         return result;
     }
 
-    @Override
-    public int compareTo(final Item another) {
-        Integer compareResult = null;
+    /**
+     * Defines a natural order to this object and another.
+     *
+     * @param another    The other object to compare this to.
+     * @param withExtras If true, when comparing integers, allow {@code UNDEFINED_INT} to be a
+     *                   determination that the value is undefined.
+     * @return A negative integer if this instance is less than {@code another};
+     * A positive integer if this instance is greater than {@code another};
+     * 0 if this instance has the same order as {@code another}.
+     */
+    private int compareTo(final Item another, final boolean withExtras) {
+        int compareResult = 0;
 
         if (another instanceof Music) {
             final Music om = (Music) another;
 
-            // songId overrides every other sorting method. It's used for playlists/queue
-            if (mSongId < om.mSongId) {
-                compareResult = Integer.valueOf(-1);
-            } else if (mSongId > om.mSongId) {
-                compareResult = 1;
-            } else if (MPD.sortByTrackNumber()) {
-                // If enabled, sort by mDisc and track number
-                if (mDisc != om.mDisc && mDisc != -1 && om.mDisc != -1) {
-                    if (mDisc < om.mDisc) {
-                        compareResult = Integer.valueOf(-1);
-                    } else {
-                        compareResult = Integer.valueOf(1);
-                    }
-                } else if (mTrack != om.mTrack && mTrack != -1 && om.mTrack != -1) {
-                    if (mTrack < om.mTrack) {
-                        compareResult = Integer.valueOf(-1);
-                    } else {
-                        compareResult = Integer.valueOf(1);
-                    }
-                }
+            /** songId overrides every other sorting method. It's used for playlists/queue. */
+            compareResult = compareIntegers(true, mSongId, om.mSongId);
+
+            if (compareResult == 0) {
+                /** Order by the disc number. */
+                compareResult = compareIntegers(withExtras, mDisc, om.mDisc);
             }
 
-            if (compareResult == null) {
-                // Order by song title (getTitle() fallback on file names)
-                final int compare = compare(getTitle(), om.getTitle());
-                if (compare != 0) {
-                    compareResult = Integer.valueOf(compare);
-                }
+            if (compareResult == 0) {
+                /** Order by track number. */
+                compareResult = compareIntegers(withExtras, mTrack, om.mTrack);
             }
 
-            if (compareResult == null) {
-                // Then order by name (streams)
-                final int compare = compare(mName, om.mName);
-                if (0 != compare) {
-                    compareResult = Integer.valueOf(compare);
-                }
+            if (compareResult == 0) {
+                /** Order by song title (getTitle() fallback on file names). */
+                compareResult = compareString(getTitle(), om.getTitle());
             }
 
-            if (compareResult == null) {
-                // Last resort is to order by full path
-                compareResult = Integer.valueOf(compare(mFullPath, om.mFullPath));
+            if (compareResult == 0) {
+                /** Order by name (this is helpful for streams). */
+                compareResult = compareString(mName, om.mName);
+            }
+
+            if (compareResult == 0) {
+                /** As a last resort, order by the full path. */
+                compareResult = compareString(mFullPath, om.mFullPath);
             }
         } else {
-            compareResult = Integer.valueOf(super.compareTo(another));
+            compareResult = super.compareTo(another);
         }
 
-        return compareResult.intValue();
+        return compareResult;
+    }
+
+    /**
+     * Defines a natural order to this object and another.
+     *
+     * @param another The other object to compare this to.
+     * @return A negative integer if this instance is less than {@code another};
+     * A positive integer if this instance is greater than {@code another};
+     * 0 if this instance has the same order as {@code another}.
+     */
+    @Override
+    public int compareTo(final Item another) {
+        return compareTo(another, true);
     }
 
     @Override

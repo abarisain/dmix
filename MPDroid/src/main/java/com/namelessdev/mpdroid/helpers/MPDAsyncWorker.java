@@ -49,8 +49,6 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
-    private static final String ALBUM_TRACK_SORT_KEY = "albumTrackSort";
-
     private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
 
     private static final int LOCAL_UID = 500;
@@ -116,7 +114,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         final String unknownArtist = app.getString(R.string.unknown_metadata_artist);
         final String unknownGenre = app.getString(R.string.unknown_metadata_genre);
 
-        MPD.setSortByTrackNumber(mSettings.getBoolean(ALBUM_TRACK_SORT_KEY, true));
         MPD.setSortAlbumsByYear(mSettings.getBoolean(ALBUM_YEAR_SORT_KEY, false));
         MPD.setUnknownArtist(unknownArtist);
         MPD.setUnknownAlbum(unknownAlbum);
@@ -216,9 +213,6 @@ public class MPDAsyncWorker implements Handler.Callback,
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
             final String key) {
         switch (key) {
-            case ALBUM_TRACK_SORT_KEY:
-                MPD.setSortByTrackNumber(sharedPreferences.getBoolean(key, true));
-                break;
             case ALBUM_YEAR_SORT_KEY:
                 MPD.setSortAlbumsByYear(sharedPreferences.getBoolean(key, false));
                 break;

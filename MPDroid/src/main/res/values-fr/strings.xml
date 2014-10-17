@@ -80,8 +80,6 @@
     <string name="portDescription">Port du serveur MPD (Defaut: 6600)</string>
     <string name="password">Mot de passe</string>
     <string name="passwordDescription">Mot de passe du serveur</string>
-    <string name="albumTrackSort">Tri d\'album par numéro</string>
-    <string name="albumTrackSortDescription">Trier les albums par numéro de piste</string>
     <string name="version">Version</string>
     <string name="songs">Chansons</string>
     <string name="serverInformation">Informations serveur</string>

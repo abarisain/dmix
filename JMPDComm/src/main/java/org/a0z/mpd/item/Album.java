@@ -84,30 +84,30 @@ public class Album extends Item {
      * Defines a natural order to this object and another.
      *
      * @param another The other object to compare this to.
-     * @return a negative integer if this instance is less than {@code another};
-     *         a positive integer if this instance is greater than {@code another};
-     *         0 if this instance has the same order as {@code another}.
+     * @return A negative integer if this instance is less than {@code another};
+     * A positive integer if this instance is greater than {@code another};
+     * 0 if this instance has the same order as {@code another}.
      */
     @Override
     public int compareTo(final Item another) {
-        Integer i = null;
+        int i = 0;
 
         if (another instanceof Album) {
             final Album oa = (Album) another;
             if (MPD.sortAlbumsByYear()) {
                 if (mYear < oa.mYear) {
-                    i = Integer.valueOf(-1);
+                    i = -1;
                 } else if (mYear > oa.mYear) {
-                    i = Integer.valueOf(1);
+                    i = 1;
                 }
             }
         }
 
-        if (i == null) {
-            i = Integer.valueOf(super.compareTo(another));
+        if (i == 0) {
+            i = super.compareTo(another);
         }
 
-        return i.intValue();
+        return i;
     }
 
     @Override

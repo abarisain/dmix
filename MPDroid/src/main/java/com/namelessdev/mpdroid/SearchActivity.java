@@ -185,7 +185,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     protected void asyncUpdate() {
         final String finalSearch = mSearchKeywords.toLowerCase();
 
-        Iterable<Music> arrayMusic = null;
+        List<Music> arrayMusic = null;
 
         try {
             arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
@@ -255,13 +255,13 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         Collections.sort(mArtistResults);
         Collections.sort(mAlbumResults);
-        Collections.sort(mSongResults);
+        Collections.sort(mSongResults, Music.COMPARE_WITHOUT_EXTRAS);
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mTabArtists
-                        .setText(getString(R.string.artists) + " (" + mArtistResults.size() + ')');
+                mTabArtists.setText(
+                        getString(R.string.artists) + " (" + mArtistResults.size() + ')');
                 mTabAlbums.setText(getString(R.string.albums) + " (" + mAlbumResults.size() + ')');
                 mTabSongs.setText(getString(R.string.songs) + " (" + mSongResults.size() + ')');
             }
