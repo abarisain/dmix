@@ -19,8 +19,6 @@ local.properties
 .idea/dictionaries
 .idea/libraries
 
-*.iml
-
 # Local IDEA workspace
 .idea/workspace.xml
 

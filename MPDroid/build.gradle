@@ -21,12 +21,12 @@ def gitShortHash() {
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.0.1"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 19
+        targetSdkVersion 21
         versionCode 48
         versionName "1.07 Beta 8 " + gitShortHash()
     }
@@ -79,7 +79,7 @@ android {
 dependencies {
 
     // Support Libraries
-    compile 'com.android.support:support-v4:20.+'
+    compile 'com.android.support:support-v4:21.0.0'
 
     // Projects
     compile project(':JMPDCommAndroid')
