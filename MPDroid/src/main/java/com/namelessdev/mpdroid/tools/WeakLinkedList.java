@@ -48,19 +48,23 @@ import java.util.NoSuchElementException;
 @SuppressWarnings("ObjectEquality")
 public class WeakLinkedList<T> implements List<T> {
 
+    private static final char QUOTATION = '\'';
+
+    private static final String TAG = "WeakLinkedList";
+
     private final Object mLOCK = new Object();
 
     private final ReferenceQueue<T> mQueue = new ReferenceQueue<>();
 
-    private WeakListNode mHead = null;
+    private WeakListNode mHead;
 
-    private String mListName = null;
+    private String mListName;
 
-    private long mModCount = 0;
+    private long mModCount;
 
-    private int mSize = 0;
+    private int mSize;
 
-    private WeakListNode mTail = null;
+    private WeakListNode mTail;
 
     public WeakLinkedList() {
         super();
@@ -73,7 +77,7 @@ public class WeakLinkedList<T> implements List<T> {
 
     public WeakLinkedList(final String name) {
         super();
-        setName(name);
+        mListName = name;
     }
 
     @Override
@@ -94,7 +98,7 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     @Override
-    public boolean addAll(final Collection<? extends T> collection) {
+    public final boolean addAll(final Collection<? extends T> collection) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
             return addAll(mSize, collection);
@@ -103,18 +107,20 @@ public class WeakLinkedList<T> implements List<T> {
 
     @Override
     public boolean addAll(int location, final Collection<? extends T> collection) {
-        if (collection.size() <= 0) {
-            return false;
-        }
+        boolean result = false;
 
-        synchronized (mLOCK) {
-            cleanPhantomReferences();
-            for (final T element : collection) {
-                add(location++, element);
+        if (!collection.isEmpty()) {
+            synchronized (mLOCK) {
+                cleanPhantomReferences();
+                for (final T element : collection) {
+                    add(location++, element);
+                }
+
+                result = true;
             }
-
-            return true;
         }
+
+        return result;
     }
 
     /**
@@ -129,10 +135,8 @@ public class WeakLinkedList<T> implements List<T> {
                 // Ensure the node hasn't already been removed
                 if (!deadNode.isRemoved()) {
                     if (mListName != null) {
-                        Log.e("WeakLinkedList",
-                                "Error : "
-                                        + mListName
-                                        + " has leaked. Please be sure to always remove yourself from the listeners.");
+                        Log.e(TAG, "Error : " + mListName + " has leaked. Please be sure to always"
+                                + " remove yourself from the listeners.");
                     }
                     removeNode(deadNode);
                 }
@@ -170,16 +174,16 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     public boolean equals(final Object o) {
+        Boolean result = null;
+
         if (this == o) {
-            return true;
+            result = Boolean.TRUE;
         } else if (!(o instanceof List)) {
-            return false;
+            result = Boolean.FALSE;
         } else {
             final Collection<?> other = (Collection<?>) o;
 
-            if (size() != other.size()) {
-                return false;
-            } else {
+            if (size() == other.size()) {
                 synchronized (mLOCK) {
                     final Iterator<?> itr1 = iterator();
                     final Iterator<?> itr2 = other.iterator();
@@ -189,14 +193,21 @@ public class WeakLinkedList<T> implements List<T> {
                         final Object v2 = itr2.next();
 
                         if (v1 != v2 && (v1 == null || !v1.equals(v2))) {
-                            return false;
+                            result = Boolean.FALSE;
+                            break;
                         }
                     }
                 }
 
-                return true;
+                if (result == null) {
+                    result = Boolean.TRUE;
+                }
+            } else {
+                result = Boolean.FALSE;
             }
         }
+
+        return result;
     }
 
     @Override
@@ -219,9 +230,14 @@ public class WeakLinkedList<T> implements List<T> {
         int hashCode = 1;
 
         synchronized (mLOCK) {
-            for (final Iterator<?> itr = iterator(); itr.hasNext(); ) {
-                final Object obj = itr.next();
-                hashCode = 31 * hashCode + (obj == null ? 0 : obj.hashCode());
+            for (final T obj : this) {
+                int thisHash = 0;
+
+                if (obj != null) {
+                    thisHash = obj.hashCode();
+                }
+
+                hashCode = 31 * hashCode + thisHash;
             }
         }
 
@@ -230,19 +246,25 @@ public class WeakLinkedList<T> implements List<T> {
 
     @Override
     public int indexOf(final Object object) {
+        Integer indexOf = null;
+
         synchronized (mLOCK) {
             int index = 0;
-            for (final ListIterator<T> itr = listIterator(); itr.hasNext(); ) {
-                final T value = itr.next();
+            for (final T value : this) {
                 if (object == value || (object != null && object.equals(value))) {
-                    return index;
+                    indexOf = Integer.valueOf(index);
+                    break;
                 }
 
                 index++;
             }
 
-            return -1;
+            if (indexOf == null) {
+                indexOf = Integer.valueOf(-1);
+            }
         }
+
+        return indexOf.intValue();
     }
 
     @Override
@@ -268,6 +290,8 @@ public class WeakLinkedList<T> implements List<T> {
 
     @Override
     public int lastIndexOf(final Object object) {
+        Integer lastIndexOf = null;
+
         synchronized (mLOCK) {
             cleanPhantomReferences();
 
@@ -275,14 +299,19 @@ public class WeakLinkedList<T> implements List<T> {
             for (final ListIterator<T> itr = listIterator(mSize); itr.hasPrevious(); ) {
                 final Object value = itr.previous();
                 if (object == value || (object != null && object.equals(value))) {
-                    return index;
+                    lastIndexOf = Integer.valueOf(index);
+                    break;
                 }
 
                 index--;
             }
 
-            return -1;
+            if (lastIndexOf == null) {
+                lastIndexOf = Integer.valueOf(-1);
+            }
         }
+
+        return lastIndexOf.intValue();
     }
 
     @NonNull
@@ -299,7 +328,9 @@ public class WeakLinkedList<T> implements List<T> {
 
             if (location < 0) {
                 throw new IndexOutOfBoundsException("index must be >= 0");
-            } else if (location > mSize) {
+            }
+
+            if (location > mSize) {
                 throw new IndexOutOfBoundsException("index must be <= size()");
             }
 
@@ -327,17 +358,20 @@ public class WeakLinkedList<T> implements List<T> {
 
     @Override
     public boolean remove(final Object object) {
+        boolean removed = false;
+
         synchronized (mLOCK) {
             for (final ListIterator<?> itr = listIterator(); itr.hasNext(); ) {
                 final Object value = itr.next();
                 if (object == value || (object != null && object.equals(value))) {
                     itr.remove();
-                    return true;
+                    removed = true;
+                    break;
                 }
             }
-
-            return false;
         }
+
+        return removed;
     }
 
     @Override
@@ -463,7 +497,6 @@ public class WeakLinkedList<T> implements List<T> {
     @NonNull
     @Override
     public List<T> subList(final int start, final int end) {
-        // TODO
         throw new UnsupportedOperationException("subList is not yet supported");
     }
 
@@ -478,7 +511,6 @@ public class WeakLinkedList<T> implements List<T> {
 
     @NonNull
     @Override
-    @SuppressWarnings("unchecked")
     public Object[] toArray(@NonNull Object[] array) {
         synchronized (mLOCK) {
             cleanPhantomReferences();
@@ -488,8 +520,7 @@ public class WeakLinkedList<T> implements List<T> {
             }
 
             int index = 0;
-            for (final ListIterator<?> itr = listIterator(); itr.hasNext(); ) {
-                final Object value = itr.next();
+            for (final T value : this) {
                 array[index] = value;
                 index++;
             }
@@ -540,7 +571,7 @@ public class WeakLinkedList<T> implements List<T> {
             super();
             synchronized (mLOCK) {
                 mExpectedModCount = mModCount;
-                mLastDirection = 0;
+                mLastDirection = (byte) 0;
 
                 // Make worst case for initialization O(N/2)
                 if (initialIndex <= mSize / 2) {
@@ -606,7 +637,7 @@ public class WeakLinkedList<T> implements List<T> {
                 mModCount++;
                 mIndex++;
                 mExpectedModCount++;
-                mLastDirection = 0;
+                mLastDirection = (byte) 0;
             }
         }
 
@@ -664,7 +695,7 @@ public class WeakLinkedList<T> implements List<T> {
 
                 // Mark the iterator as clean so add/remove/set operations will
                 // work
-                mLastDirection = 1;
+                mLastDirection = (byte) 1;
 
                 // Return the appropriate value
                 return mPrevNode.get();
@@ -700,7 +731,7 @@ public class WeakLinkedList<T> implements List<T> {
 
                 // Mark the iterator as clean so add/remove/set operations will
                 // work
-                mLastDirection = -1;
+                mLastDirection = (byte) -1;
 
                 // Return the appropriate value
                 return mNextNode.get();
@@ -759,7 +790,7 @@ public class WeakLinkedList<T> implements List<T> {
                 // Update the counters
                 mExpectedModCount++;
                 mModCount++;
-                mLastDirection = 0;
+                mLastDirection = (byte) 0;
             }
         }
 
@@ -809,27 +840,27 @@ public class WeakLinkedList<T> implements List<T> {
                 // Update counters
                 mExpectedModCount++;
                 mModCount++;
-                mLastDirection = 0;
+                mLastDirection = (byte) 0;
             }
         }
 
         public String toString() {
             final StringBuilder buff = new StringBuilder();
 
-            buff.append("[index='").append(mIndex).append('\'');
+            buff.append("[index='").append(mIndex).append(QUOTATION);
 
             buff.append(", prev=");
             if (mPrevNode == null) {
                 buff.append("null");
             } else {
-                buff.append('\'').append(mPrevNode).append('\'');
+                buff.append(QUOTATION).append(mPrevNode).append(QUOTATION);
             }
 
             buff.append(", next=");
             if (mNextNode == null) {
                 buff.append("null");
             } else {
-                buff.append('\'').append(mNextNode).append('\'');
+                buff.append(QUOTATION).append(mNextNode).append(QUOTATION);
             }
 
             buff.append(']');
@@ -885,9 +916,9 @@ public class WeakLinkedList<T> implements List<T> {
 
         private WeakListNode mPrev;
 
-        private boolean mRemoved = false;
+        private boolean mRemoved;
 
-        public WeakListNode(final T value) {
+        WeakListNode(final T value) {
             super(value, mQueue);
         }
 
@@ -944,7 +975,7 @@ public class WeakLinkedList<T> implements List<T> {
             if (mPrev == null) {
                 buff.append("null");
             } else {
-                buff.append('\'').append(mPrev.get()).append('\'');
+                buff.append(QUOTATION).append(mPrev.get()).append(QUOTATION);
             }
 
             buff.append(", value='");
@@ -956,7 +987,7 @@ public class WeakLinkedList<T> implements List<T> {
             if (mNext == null) {
                 buff.append("null");
             } else {
-                buff.append('\'').append(mNext.get()).append('\'');
+                buff.append(QUOTATION).append(mNext.get()).append(QUOTATION);
             }
 
             buff.append(']');
