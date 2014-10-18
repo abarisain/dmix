@@ -29,6 +29,7 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -81,7 +82,7 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
         mServiceContext = serviceContext;
 
         mNotificationManager = (NotificationManager) mServiceContext
-                .getSystemService(serviceContext.NOTIFICATION_SERVICE);
+                .getSystemService(Context.NOTIFICATION_SERVICE);
 
         final RemoteViews resultView = new RemoteViews(mServiceContext.getPackageName(),
                 R.layout.notification);
@@ -286,9 +287,11 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
             mCurrentTrack = currentTrack;
 
             if (mIsMediaPlayerBuffering) {
-                updateBufferingContent(mNotification.contentView, currentTrack.getTitle());
+                final String title = currentTrack.getTitle();
+
+                updateBufferingContent(mNotification.contentView, title);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    updateBufferingContent(mNotification.bigContentView, currentTrack.getTitle());
+                    updateBufferingContent(mNotification.bigContentView, title);
                     mNotification.bigContentView.setTextViewText(R.id.notificationAlbum,
                             currentTrack.getArtist());
                 }

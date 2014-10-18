@@ -822,6 +822,7 @@ public final class MPDroidService extends Service implements
         if (mNotificationHandler != null) {
             mAlbumCoverHandler.stop();
             mRemoteControlClientHandler.stop();
+            mNotificationHandler.setMediaPlayerWoundDown();
             mNotificationHandler.stop();
 
             if (!isNotificationPersistent()) {
