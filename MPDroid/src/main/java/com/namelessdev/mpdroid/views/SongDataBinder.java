@@ -73,16 +73,21 @@ public class SongDataBinder implements ArrayDataBinder {
             final Object item,
             final int position) {
         final SongViewHolder holder = (SongViewHolder) viewHolder;
-
         final Music song = (Music) item;
+        final StringBuilder track = new StringBuilder(3);
         int trackNumber = song.getTrack();
+
         if (trackNumber < 0) {
             trackNumber = 0;
         }
 
+        if (trackNumber < 10) {
+            track.append(0);
+        }
+        track.append(trackNumber);
+
         holder.mTrackTitle.setText(song.getTitle());
-        holder.mTrackNumber.setText(trackNumber < 10 ? '0' + Integer.toString(trackNumber) : Integer
-                .toString(trackNumber));
+        holder.mTrackNumber.setText(track);
         holder.mTrackDuration.setText(song.getFormattedTime());
 
         if (mShowArtist) {
@@ -97,9 +102,7 @@ public class SongDataBinder implements ArrayDataBinder {
     @Override
     public View onLayoutInflation(final Context context, final View targetView,
             final List<? extends Item> items) {
-        targetView.findViewById(R.id.track_artist).setVisibility(
-                mShowArtist ? View.VISIBLE : View.GONE);
-        return targetView;
+        return BaseDataBinder.setViewVisible(targetView, R.id.track_artist, mShowArtist);
     }
 
 }

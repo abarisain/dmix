@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,13 @@
 
 package com.namelessdev.mpdroid.views.holders;
 
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
-public class PlaylistViewHolder extends AlbumCoverHolder {
+/** This class defines a holder for album covers. */
+public class AlbumCoverHolder extends AbstractViewHolder {
 
-    public TextView mInfo;
+    public ImageView mAlbumCover;
 
-    public TextView mName;
+    public ProgressBar mCoverArtProgress;
 }

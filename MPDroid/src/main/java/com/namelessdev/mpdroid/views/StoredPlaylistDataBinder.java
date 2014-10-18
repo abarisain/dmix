@@ -17,9 +17,7 @@
 package com.namelessdev.mpdroid.views;
 
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.PlaylistViewHolder;
@@ -31,22 +29,23 @@ import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
 
 public class StoredPlaylistDataBinder extends BaseDataBinder {
 
-    public StoredPlaylistDataBinder() {
-        super();
-    }
-
     @Override
     public AbstractViewHolder findInnerViews(final View targetView) {
         final PlaylistViewHolder viewHolder = new PlaylistViewHolder();
+
         viewHolder.mName = (TextView) targetView.findViewById(R.id.playlist_name);
         viewHolder.mInfo = (TextView) targetView.findViewById(R.id.playlist_info);
-        viewHolder.mCover = (ImageView) targetView.findViewById(R.id.playlist_cover);
+        viewHolder.mAlbumCover = (ImageView) targetView.findViewById(R.id.playlist_cover);
+        viewHolder.mCoverArtProgress =
+                (ProgressBar) targetView.findViewById(R.id.playlist_cover_progress);
+
         return viewHolder;
     }
 
@@ -65,10 +64,8 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
     @Override
     public void onDataBind(final Context context, final View targetView,
             final AbstractViewHolder viewHolder, final List<? extends Item> items,
-            final Object item,
-            final int position) {
+            final Object item, final int position) {
         final PlaylistViewHolder holder = (PlaylistViewHolder) viewHolder;
-
         final Music music = (Music) item;
         String artist = music.getArtist();
         String album = music.getAlbum();
@@ -80,7 +77,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
             album = null;
         }
 
-        String info = "";
+        String info = null;
         if (artist != null || album != null) {
             if (artist == null) {
                 info = album;
@@ -92,32 +89,18 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
         }
 
         holder.mName.setText(music.getTitle());
-        if (!Tools.isStringEmptyOrNull(info)) {
+        if (Tools.isStringEmptyOrNull(info)) {
+            holder.mInfo.setVisibility(View.GONE);
+        } else {
             holder.mInfo.setVisibility(View.VISIBLE);
             holder.mInfo.setText(info);
-        } else {
-            holder.mInfo.setVisibility(View.GONE);
         }
 
-        final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
-        final int height = holder.mCover.getHeight();
-        // If the list is not displayed yet, the height is 0. This is a problem,
-        // so set a fallback one.
-        coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
-
-        loadPlaceholder(coverHelper);
+        final CoverAsyncHelper coverHelper = getCoverHelper(holder, 128);
 
         // display cover art in album listing if caching is on
         if (artist != null && album != null && mEnableCache) {
-            // listen for new artwork to be loaded
-            final CoverDownloadListener acd = new AlbumCoverDownloadListener(holder.mCover);
-            final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.mCover
-                    .getTag(R.id.AlbumCoverDownloadListener);
-            if (oldAcd != null) {
-                oldAcd.detach();
-            }
-            holder.mCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-            coverHelper.addCoverDownloadListener(acd);
+            setCoverListener(holder, coverHelper);
             loadArtwork(coverHelper, music.getAlbumInfo());
         }
     }
@@ -125,8 +108,6 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
     @Override
     public View onLayoutInflation(final Context context, final View targetView,
             final List<? extends Item> items) {
-        targetView.findViewById(R.id.playlist_cover).setVisibility(
-                mEnableCache ? View.VISIBLE : View.GONE);
-        return targetView;
+        return setViewVisible(targetView, R.id.playlist_cover, mEnableCache);
     }
 }

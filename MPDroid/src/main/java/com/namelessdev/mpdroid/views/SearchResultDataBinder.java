@@ -32,8 +32,6 @@ import java.util.List;
 
 public class SearchResultDataBinder implements SeparatedListDataBinder {
 
-    public static final String SEPARATOR = " - ";
-
     /**
      * Join not empty strings
      *
@@ -47,8 +45,8 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
             final String part = parts[i];
             if (part != null && !part.isEmpty()) {
                 result.append(part);
-                if (SEPARATOR != null && i < parts.length - 1) {
-                    result.append(SEPARATOR);
+                if (i < parts.length - 1) {
+                    result.append(BaseDataBinder.SEPARATOR);
                 }
             }
         }
@@ -65,7 +63,7 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
             final Object item, final int position) {
         final TextView text1 = (TextView) targetView.findViewById(R.id.line1);
         final TextView text2 = (TextView) targetView.findViewById(R.id.line2);
-        String formattedResult1 = "";
+        String formattedResult1 = null;
         String formattedResult2 = null;
 
         if (item instanceof Music) {
@@ -76,13 +74,23 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
         } else if (item instanceof Artist) {
             formattedResult1 = ((Item) item).mainText();
         } else if (item instanceof Album) {
-            final Album album;
-            album = (Album) item;
+            final Album album = (Album) item;
+            final Artist artist = album.getArtist();
+
             formattedResult1 = album.mainText();
-            formattedResult2 = album.getArtist().mainText();
+
+            if (artist != null) {
+                formattedResult2 = artist.mainText();
+            }
         }
+
+        if (formattedResult2 == null) {
+            text2.setVisibility(View.GONE);
+        } else {
+            text2.setVisibility(View.VISIBLE);
+        }
+
         text1.setText(formattedResult1);
-        text2.setVisibility(formattedResult2 != null ? View.VISIBLE : View.GONE);
         text2.setText(formattedResult2);
     }
 

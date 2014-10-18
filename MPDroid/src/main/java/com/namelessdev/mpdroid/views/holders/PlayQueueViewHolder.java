@@ -22,11 +22,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class PlayQueueViewHolder extends AbstractViewHolder {
+public class PlayQueueViewHolder extends AlbumCoverHolder {
 
     public TextView mArtist;
-
-    public ImageView mCover;
 
     public CoverAsyncHelper mCoverHelper;
 

@@ -805,9 +805,9 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 viewHolder.mArtist = (TextView) view.findViewById(android.R.id.text2);
                 viewHolder.mTitle = (TextView) view.findViewById(android.R.id.text1);
                 viewHolder.mPlay = (ImageView) view.findViewById(R.id.picture);
-                viewHolder.mCover = (ImageView) view.findViewById(R.id.cover);
+                viewHolder.mAlbumCover = (ImageView) view.findViewById(R.id.cover);
                 viewHolder.mCoverHelper = new CoverAsyncHelper();
-                int height = viewHolder.mCover.getHeight();
+                int height = viewHolder.mAlbumCover.getHeight();
                 // If the list is not displayed yet, the height is 0.
                 // This is a problem, so set a fallback one.
                 final int fallbackHeight = 128;
@@ -816,15 +816,15 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 }
                 viewHolder.mCoverHelper.setCoverMaxSize(height);
                 final CoverDownloadListener acd = new AlbumCoverDownloadListener(
-                        viewHolder.mCover);
+                        viewHolder.mAlbumCover);
                 final AlbumCoverDownloadListener oldAcd
-                        = (AlbumCoverDownloadListener) viewHolder.mCover
+                        = (AlbumCoverDownloadListener) viewHolder.mAlbumCover
                         .getTag(R.id.AlbumCoverDownloadListener);
                 if (oldAcd != null) {
                     oldAcd.detach();
                 }
-                viewHolder.mCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-                viewHolder.mCover.setTag(R.id.CoverAsyncHelper, viewHolder.mCoverHelper);
+                viewHolder.mAlbumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+                viewHolder.mAlbumCover.setTag(R.id.CoverAsyncHelper, viewHolder.mCoverHelper);
                 viewHolder.mCoverHelper.addCoverDownloadListener(acd);
                 viewHolder.mMenuButton = view.findViewById(R.id.menu);
                 viewHolder.mMenuButton.setOnClickListener(mItemMenuButtonListener);
@@ -841,11 +841,11 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             viewHolder.mMenuButton.setTag(music.getSongId());
             viewHolder.mPlay.setImageResource(music.getCurrentSongIconRefID());
 
-            if (music.isForceCoverRefresh() || viewHolder.mCover.getTag() == null
-                    || !viewHolder.mCover.getTag().equals(music.getAlbumInfo().getKey())) {
+            if (music.isForceCoverRefresh() || viewHolder.mAlbumCover.getTag() == null
+                    || !viewHolder.mAlbumCover.getTag().equals(music.getAlbumInfo().getKey())) {
                 if (!music.isForceCoverRefresh()) {
                     final int noCoverResource = AlbumCoverDownloadListener.getNoCoverResource();
-                    viewHolder.mCover.setImageResource(noCoverResource);
+                    viewHolder.mAlbumCover.setImageResource(noCoverResource);
                 }
                 music.setForceCoverRefresh(false);
                 viewHolder.mCoverHelper.downloadCover(music.getAlbumInfo(), false);

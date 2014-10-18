@@ -62,15 +62,15 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
     }
 
     private void readAttrs(final Context context, final AttributeSet attrs) {
-        final TypedArray relativeLayout = context
-                .obtainStyledAttributes(attrs, R.styleable.FixedRatioRelativeLayout);
-        final CharSequence fixed = relativeLayout
-                .getString(R.styleable.FixedRatioRelativeLayout_fixedSide);
+        final TypedArray relativeLayout =
+                context.obtainStyledAttributes(attrs, R.styleable.FixedRatioRelativeLayout);
+        final String fixed =
+                relativeLayout.getString(R.styleable.FixedRatioRelativeLayout_fixedSide);
+
         if (fixed != null) {
-            final String fixString = fixed.toString();
-            if (fixString.equals(FIXED_HEIGHT)) {
+            if (fixed.equals(FIXED_HEIGHT)) {
                 mFixedSide = FIXED_HEIGHT_INT;
-            } else if (fixString.equals(FIXED_WIDTH)) {
+            } else if (fixed.equals(FIXED_WIDTH)) {
                 mFixedSide = FIXED_WIDTH_INT;
             }
         }

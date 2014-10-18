@@ -17,9 +17,13 @@
 package com.namelessdev.mpdroid.views;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
+import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.views.holders.AlbumCoverHolder;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 
 import org.a0z.mpd.AlbumInfo;
@@ -28,6 +32,7 @@ import org.a0z.mpd.item.Item;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 
@@ -47,13 +52,75 @@ abstract class BaseDataBinder implements ArrayDataBinder {
         mEnableCache = settings.getBoolean(CoverManager.PREFERENCE_CACHE, true);
     }
 
+    protected static CoverAsyncHelper getCoverHelper(final AlbumCoverHolder holder,
+            final int defaultSize) {
+        final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
+        final int height = holder.mAlbumCover.getHeight();
+
+        // If the list is not displayed yet, the height is 0. This is a
+        // problem, so set a fallback one.
+        if (height == 0) {
+            coverHelper.setCoverMaxSize(defaultSize);
+        } else {
+            coverHelper.setCoverMaxSize(height);
+        }
+
+        loadPlaceholder(coverHelper);
+
+        return coverHelper;
+    }
+
+    protected static CoverDownloadListener setCoverListener(final AlbumCoverHolder holder,
+            final CoverAsyncHelper coverHelper) {
+        // listen for new artwork to be loaded
+        final CoverDownloadListener acd =
+                new AlbumCoverDownloadListener(holder.mAlbumCover, holder.mCoverArtProgress, false);
+        final AlbumCoverDownloadListener oldAcd
+                = (AlbumCoverDownloadListener) holder.mAlbumCover
+                .getTag(R.id.AlbumCoverDownloadListener);
+
+        if (oldAcd != null) {
+            oldAcd.detach();
+        }
+
+        holder.mAlbumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
+        holder.mAlbumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
+        coverHelper.addCoverDownloadListener(acd);
+
+        return acd;
+    }
+
     protected static void loadArtwork(final CoverAsyncHelper coverHelper,
             final AlbumInfo albumInfo) {
         coverHelper.downloadCover(albumInfo);
     }
 
-    protected static void loadPlaceholder(final CoverAsyncHelper coverHelper) {
+    private static void loadPlaceholder(final CoverAsyncHelper coverHelper) {
         coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
+    }
+
+    /**
+     * This is a helper function for onLayoutInflation.
+     *
+     * @param targetView The view given by onLayoutInflation, from which the view will be found by
+     *                   the {@code resource} given.
+     * @param resource   The resource id view to find.
+     * @param isVisible  If true, the visibility of the resource view will be set to
+     *                   {@code View.VISIBLE}, otherwise the visibility of the resource view will be
+     *                   set to {@code View.GONE}.
+     * @return The unmodified targetView.
+     */
+    static View setViewVisible(final View targetView, @IdRes final int resource,
+            final boolean isVisible) {
+        final View view = targetView.findViewById(resource);
+
+        if (isVisible) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            view.setVisibility(View.GONE);
+        }
+
+        return targetView;
     }
 
     @Override
@@ -69,8 +136,7 @@ abstract class BaseDataBinder implements ArrayDataBinder {
     @Override
     public abstract void onDataBind(Context context, View targetView,
             AbstractViewHolder viewHolder, List<? extends Item> items,
-            Object item,
-            int position);
+            Object item, int position);
 
     @Override
     public abstract View onLayoutInflation(Context context, View targetView,

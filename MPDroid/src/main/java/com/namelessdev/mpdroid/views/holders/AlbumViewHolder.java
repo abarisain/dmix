@@ -16,17 +16,12 @@
 
 package com.namelessdev.mpdroid.views.holders;
 
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class AlbumViewHolder extends AbstractViewHolder {
-
-    public ImageView mAlbumCover;
+public class AlbumViewHolder extends AlbumCoverHolder {
 
     public TextView mAlbumInfo;
 
     public TextView mAlbumName;
 
-    public ProgressBar mCoverArtProgress;
 }
