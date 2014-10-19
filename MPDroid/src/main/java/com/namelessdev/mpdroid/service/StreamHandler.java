@@ -402,7 +402,7 @@ public final class StreamHandler implements
     @Override
     public boolean onError(final MediaPlayer mp, final int what, final int extra) {
         if (DEBUG) {
-            Log.d(TAG, "StreamHandler.onError()");
+            Log.d(TAG, "onError(mp, " + what + ", " + extra + ") received.");
         }
 
         showErrorToUser(what, extra);
@@ -441,6 +441,10 @@ public final class StreamHandler implements
     @Override
     public boolean onInfo(final MediaPlayer mp, final int what, final int extra) {
         boolean result = true;
+
+        if (DEBUG) {
+            Log.d(TAG, "onInfo(" + what + ", " + extra + ") received.");
+        }
 
         switch (what) {
             case MediaPlayer.MEDIA_INFO_BUFFERING_START:
