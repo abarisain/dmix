@@ -54,7 +54,7 @@ public class Music extends Item implements FilesystemTreeEntry {
      * This is like the default {@code Comparable} for the Music class, but it compares without
      * taking disc and track numbers into account.
      */
-    public static final Comparator<Music> COMPARE_WITHOUT_TRACKNO = new Comparator<Music>() {
+    public static final Comparator<Music> COMPARE_WITHOUT_TRACK_NUMBER = new Comparator<Music>() {
         /**
          * Compares the two specified objects to determine their relative ordering. The ordering
          * implied by the return value of this method for all possible pairs of
@@ -547,10 +547,10 @@ public class Music extends Item implements FilesystemTreeEntry {
     public String getAlbumArtistOrArtist() {
         final String result;
 
-        if (mArtist != null && !mArtist.isEmpty()) {
-            result = mArtist;
-        } else if (mAlbumArtist != null && !mAlbumArtist.isEmpty()) {
+        if (mAlbumArtist != null && !mAlbumArtist.isEmpty()) {
             result = mAlbumArtist;
+        } else if (mArtist != null && !mArtist.isEmpty()) {
+            result = mArtist;
         } else {
             result = getArtistAsArtist().mainText();
         }

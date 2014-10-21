@@ -255,7 +255,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         Collections.sort(mArtistResults);
         Collections.sort(mAlbumResults);
-        Collections.sort(mSongResults, Music.COMPARE_WITHOUT_TRACKNO);
+        Collections.sort(mSongResults, Music.COMPARE_WITHOUT_TRACK_NUMBER);
 
         runOnUiThread(new Runnable() {
             @Override
