@@ -334,7 +334,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         return result;
     }
 
-    private static int compareString(final Comparable<String> lhs, final String rhs) {
+    private static int compareString(final String lhs, final String rhs) {
         final int result;
 
         if (lhs == null && rhs == null) {
@@ -342,7 +342,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         } else if (lhs == null || rhs == null) {
             result = 1;
         } else {
-            result = lhs.compareTo(rhs);
+            result = lhs.compareToIgnoreCase(rhs);
         }
 
         return result;
