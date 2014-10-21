@@ -51,11 +51,10 @@ import static org.a0z.mpd.Tools.VALUE;
 public class Music extends Item implements FilesystemTreeEntry {
 
     /**
-     * This is like the default {@code Comparable} for the Music class, without support for
-     * comparing undefined integer values. Depending on use case, using this comparator will
-     * avoid a violation of the general contract during comparison.
+     * This is like the default {@code Comparable} for the Music class, but it compares without
+     * taking disc and track numbers into account.
      */
-    public static final Comparator<Music> COMPARE_WITHOUT_EXTRAS = new Comparator<Music>() {
+    public static final Comparator<Music> COMPARE_WITHOUT_TRACKNO = new Comparator<Music>() {
         /**
          * Compares the two specified objects to determine their relative ordering. The ordering
          * implied by the return value of this method for all possible pairs of
@@ -414,14 +413,13 @@ public class Music extends Item implements FilesystemTreeEntry {
     /**
      * Defines a natural order to this object and another.
      *
-     * @param another    The other object to compare this to.
-     * @param withExtras If true, when comparing integers, allow {@code UNDEFINED_INT} to be a
-     *                   determination that the value is undefined.
+     * @param another         The other object to compare this to.
+     * @param withTrackNumber If true, compare tracks by Disc and Track number first
      * @return A negative integer if this instance is less than {@code another};
      * A positive integer if this instance is greater than {@code another};
      * 0 if this instance has the same order as {@code another}.
      */
-    private int compareTo(final Item another, final boolean withExtras) {
+    private int compareTo(final Item another, final boolean withTrackNumber) {
         int compareResult = 0;
 
         if (another instanceof Music) {
@@ -430,14 +428,16 @@ public class Music extends Item implements FilesystemTreeEntry {
             /** songId overrides every other sorting method. It's used for playlists/queue. */
             compareResult = compareIntegers(true, mSongId, om.mSongId);
 
-            if (compareResult == 0) {
-                /** Order by the disc number. */
-                compareResult = compareIntegers(withExtras, mDisc, om.mDisc);
-            }
+            if (withTrackNumber) {
+                if (compareResult == 0) {
+                    /** Order by the disc number. */
+                    compareResult = compareIntegers(true, mDisc, om.mDisc);
+                }
 
-            if (compareResult == 0) {
-                /** Order by track number. */
-                compareResult = compareIntegers(withExtras, mTrack, om.mTrack);
+                if (compareResult == 0) {
+                    /** Order by track number. */
+                    compareResult = compareIntegers(true, mTrack, om.mTrack);
+                }
             }
 
             if (compareResult == 0) {
