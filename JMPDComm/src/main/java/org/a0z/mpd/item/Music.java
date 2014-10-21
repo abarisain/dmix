@@ -338,8 +338,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 
         if (lhs == null && rhs == null) {
             result = 0;
-        } else if (lhs == null || rhs == null) {
-            result = 1;
+        } else if (lhs == null) {
+            result = -1; // lhs < rhs
+        } else if (rhs == null) {
+            result = 1;  // lhs > rhs
         } else {
             result = lhs.compareToIgnoreCase(rhs);
         }
