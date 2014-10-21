@@ -27,7 +27,6 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.Tools;
 
 import java.util.Arrays;
@@ -105,22 +104,6 @@ public class Genre extends Item {
     @Override
     public int hashCode() {
         return Arrays.hashCode(new Object[]{mName, mSort});
-    }
-
-    /*
-     * text for display
-     */
-    @Override
-    public String mainText() {
-        final String name;
-
-        if (mName.isEmpty()) {
-            name = MPD.getUnknownGenre();
-        } else {
-            name = mName;
-        }
-
-        return name;
     }
 
     public String sort() {

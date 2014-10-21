@@ -91,11 +91,7 @@ public class SongDataBinder implements ArrayDataBinder {
         holder.mTrackDuration.setText(song.getFormattedTime());
 
         if (mShowArtist) {
-            String a = song.getArtist();
-            if (a == null || a.isEmpty()) {
-                a = context.getString(R.string.unknown_metadata_artist);
-            }
-            holder.mTrackArtist.setText(a);
+            holder.mTrackArtist.setText(song.getArtist());
         }
     }
 

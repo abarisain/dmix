@@ -23,8 +23,8 @@ import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-import com.namelessdev.mpdroid.views.holders.AlbumCoverHolder;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+import com.namelessdev.mpdroid.views.holders.AlbumCoverHolder;
 
 import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.item.Item;
@@ -70,6 +70,15 @@ abstract class BaseDataBinder implements ArrayDataBinder {
         return coverHelper;
     }
 
+    protected static void loadArtwork(final CoverAsyncHelper coverHelper,
+            final AlbumInfo albumInfo) {
+        coverHelper.downloadCover(albumInfo);
+    }
+
+    private static void loadPlaceholder(final CoverAsyncHelper coverHelper) {
+        coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
+    }
+
     protected static CoverDownloadListener setCoverListener(final AlbumCoverHolder holder,
             final CoverAsyncHelper coverHelper) {
         // listen for new artwork to be loaded
@@ -90,15 +99,6 @@ abstract class BaseDataBinder implements ArrayDataBinder {
         return acd;
     }
 
-    protected static void loadArtwork(final CoverAsyncHelper coverHelper,
-            final AlbumInfo albumInfo) {
-        coverHelper.downloadCover(albumInfo);
-    }
-
-    private static void loadPlaceholder(final CoverAsyncHelper coverHelper) {
-        coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
-    }
-
     /**
      * This is a helper function for onLayoutInflation.
      *
@@ -106,8 +106,8 @@ abstract class BaseDataBinder implements ArrayDataBinder {
      *                   the {@code resource} given.
      * @param resource   The resource id view to find.
      * @param isVisible  If true, the visibility of the resource view will be set to
-     *                   {@code View.VISIBLE}, otherwise the visibility of the resource view will be
-     *                   set to {@code View.GONE}.
+     *                   {@code View.VISIBLE}, otherwise the visibility of the resource view will
+     *                   be set to {@code View.GONE}.
      * @return The unmodified targetView.
      */
     static View setViewVisible(final View targetView, @IdRes final int resource,

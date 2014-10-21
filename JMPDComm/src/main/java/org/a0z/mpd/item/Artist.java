@@ -27,7 +27,6 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.Tools;
 
 import java.util.Arrays;
@@ -114,22 +113,6 @@ public class Artist extends Item {
     @Override
     public int hashCode() {
         return Arrays.hashCode(new Object[]{mName, mSort});
-    }
-
-    /*
-     * text for display Item.toString() returns mainText()
-     */
-    @Override
-    public String mainText() {
-        final String result;
-
-        if (mName.isEmpty()) {
-            result = MPD.getUnknownArtist();
-        } else {
-            result = mName;
-        }
-
-        return result;
     }
 
     @Override

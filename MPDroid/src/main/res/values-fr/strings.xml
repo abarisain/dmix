@@ -32,7 +32,6 @@
 	<string name="stopped">Arreté</string>
 	<string name="track">Piste</string>
 	<string name="volume">Volume</string>
-    <string name="unknown_metadata_genre">(Genre inconnu)</string>
 	<string name="updateDB">Mettre à jour</string>
 	<string name="waitForWLAN">Attente du WIFI …</string>
 	<string name="whatsNew">Quoi de neuf ?</string>
@@ -252,8 +251,4 @@
     <string name="artist">Artiste</string>
     <string name="artistTagToUse">Tag à utiliser pour la liste des artistes</string>
     <string name="artistTagToUseDescription">Choisir le tag utilisé pour afficher la liste d\'artistes. Utile pour cacher les artistes qui n\'apparaissent que dans des compilations.</string>
-
-    <string name="unknown_metadata_album">(Album Inconnu)</string>
-    <string name="unknown_metadata_artist">(Artiste inconnu)</string>
-    <string name="unknown_metadata_genre">(Genre inconnu)</string>
 </resources>

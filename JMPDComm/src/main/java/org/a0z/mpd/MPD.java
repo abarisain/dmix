@@ -64,12 +64,6 @@ public class MPD {
 
     protected static boolean sortAlbumsByYear = false;
 
-    private static String sUnknownAlbum = "";
-
-    private static String sUnknownArtist = "";
-
-    private static String sUnknownGenre = "";
-
     protected final MPDPlaylist mPlaylist;
 
     private final MPDConnection mConnection;
@@ -160,18 +154,6 @@ public class MPD {
                 artistCommand, artistName);
     }
 
-    public static String getUnknownAlbum() {
-        return sUnknownAlbum;
-    }
-
-    public static String getUnknownArtist() {
-        return sUnknownArtist;
-    }
-
-    public static String getUnknownGenre() {
-        return sUnknownGenre;
-    }
-
     /*
      * get raw command String for listAlbums
      */
@@ -230,18 +212,6 @@ public class MPD {
 
     public static void setSortAlbumsByYear(final boolean v) {
         sortAlbumsByYear = v;
-    }
-
-    public static void setUnknownAlbum(final String unknownAlbum) {
-        sUnknownAlbum = unknownAlbum;
-    }
-
-    public static void setUnknownArtist(final String unknownArtist) {
-        sUnknownArtist = unknownArtist;
-    }
-
-    public static void setUnknownGenre(final String unknownGenre) {
-        sUnknownGenre = unknownGenre;
     }
 
     private static MPDCommand skipToPositionCommand(final int position) {

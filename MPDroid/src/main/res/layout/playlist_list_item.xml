@@ -33,10 +33,10 @@
         style="?android:attr/progressBarStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/playlist_cover"
         android:layout_alignLeft="@+id/playlist_cover"
         android:layout_alignRight="@+id/playlist_cover"
         android:layout_alignStart="@+id/playlist_cover"
-        android:layout_alignEnd="@+id/playlist_cover"
         android:layout_centerInParent="true"
         android:visible="false" />
 

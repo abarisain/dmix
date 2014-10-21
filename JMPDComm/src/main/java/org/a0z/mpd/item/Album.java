@@ -203,22 +203,6 @@ public class Album extends Item {
         return Arrays.hashCode(new Object[]{mName, mArtist});
     }
 
-    /*
-     * text for display
-     */
-    @Override
-    public String mainText() {
-        final String result;
-
-        if (mName.isEmpty()) {
-            result = MPD.getUnknownAlbum();
-        } else {
-            result = mName;
-        }
-
-        return result;
-    }
-
     /**
      * This sets the album artist in a new album object, due to the required immutability of name
      * and artist to satisfy the requirement that the hash code not change over time.

@@ -31,6 +31,7 @@ import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 public abstract class Item implements Comparable<Item> {
 
@@ -104,8 +105,26 @@ public abstract class Item implements Comparable<Item> {
         return name == null || name.isEmpty();
     }
 
+    /**
+     * Returns the generated name for the item, and if null or empty
+     * the output may be translated by resource, if available.
+     *
+     * @return If empty or null a translated "UnknownMetadata" string, if available, otherwise
+     * the given name of the item.
+     */
     public String mainText() {
-        return getName();
+        String mainText = getName();
+
+        if (mainText == null || mainText.isEmpty()) {
+            final ResourceBundle labels = ResourceBundle.getBundle("UnknownMetadata");
+            final String key = "UnknownMetadata" + getClass().getSimpleName();
+
+            if (labels.containsKey(key)) {
+                mainText = (String) labels.getObject(key);
+            }
+        }
+
+        return mainText;
     }
 
     public String sortText() {

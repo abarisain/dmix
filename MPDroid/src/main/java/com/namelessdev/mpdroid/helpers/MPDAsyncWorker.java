@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -108,16 +107,7 @@ public class MPDAsyncWorker implements Handler.Callback,
                     Tools.toObjectArray(e.getMessage())).sendToTarget();
         }
 
-        /** Set MPD defaults. */
-        final MPDApplication app = MPDApplication.getInstance();
-        final String unknownAlbum = app.getString(R.string.unknown_metadata_album);
-        final String unknownArtist = app.getString(R.string.unknown_metadata_artist);
-        final String unknownGenre = app.getString(R.string.unknown_metadata_genre);
-
         MPD.setSortAlbumsByYear(mSettings.getBoolean(ALBUM_YEAR_SORT_KEY, false));
-        MPD.setUnknownArtist(unknownArtist);
-        MPD.setUnknownAlbum(unknownAlbum);
-        MPD.setUnknownGenre(unknownGenre);
     }
 
     @Override
