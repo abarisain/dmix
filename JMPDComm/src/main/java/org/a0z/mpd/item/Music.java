@@ -543,7 +543,17 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     public String getAlbumArtistOrArtist() {
-        return isEmpty(mAlbumArtist) ? mArtist : mAlbumArtist;
+        final String result;
+
+        if (mArtist != null && !mArtist.isEmpty()) {
+            result = mArtist;
+        } else if (mAlbumArtist != null && !mAlbumArtist.isEmpty()) {
+            result = mAlbumArtist;
+        } else {
+            result = getArtistAsArtist().mainText();
+        }
+
+        return result;
     }
 
     public Album getAlbumAsAlbum() {
