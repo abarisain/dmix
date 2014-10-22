@@ -39,7 +39,9 @@
     </style>
 
     <style name="AppThemeBase" parent="android:Theme.Material" />
-    <style name="AppThemeBase.Light" parent="android:Theme.Material.Light" />
+    <style name="AppThemeBase.Light" parent="android:Theme.Material.Light.DarkActionBar">
+        <item name="android:statusBarColor">@color/statusbar_background_blue</item>
+    </style>
 
     <style name="AppTheme.Dialog" parent="android:Theme.Material.Dialog" />
 
