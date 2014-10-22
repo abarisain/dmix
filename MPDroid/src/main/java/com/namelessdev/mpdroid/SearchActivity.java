@@ -71,6 +71,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     public static final int ADD_REPLACE_PLAY = 3;
 
+    public static final int GOTO_ALBUM = 4;
+
     public static final int MAIN = 0;
 
     public static final int PLAYLIST = 3;
@@ -371,6 +373,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 break;
             case 2:
                 final Music music = mSongResults.get((int) info.id);
+                final MenuItem gotoAlbumItem = menu
+                        .add(Menu.NONE, GOTO_ALBUM, 0, R.string.goToAlbum);
+                gotoAlbumItem.setOnMenuItemClickListener(this);
                 menu.setHeaderTitle(music.mainText());
                 setContextForObject(music);
                 break;
@@ -433,28 +438,41 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 break;
         }
         final Object selectedItem = targetArray.get((int) info.id);
-        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-            @Override
-            public void run() {
-                boolean replace = false;
-                boolean play = false;
-                switch (item.getItemId()) {
-                    case ADD_REPLACE_PLAY:
-                        replace = true;
-                        play = true;
-                        break;
-                    case ADD_REPLACE:
-                        replace = true;
-                        break;
-                    case ADD_PLAY:
-                        play = true;
-                        break;
-                    default:
-                        break;
-                }
-                add(selectedItem, replace, play);
+        if (item.getItemId() == GOTO_ALBUM) {
+            if (selectedItem instanceof Music) {
+                Music m = (Music) selectedItem;
+                final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+                final Artist artist = new Artist(m.getAlbumArtistOrArtist());
+                final Parcelable artparcel = new ArtistParcelable(artist);
+                intent.putExtra("artist", artparcel);
+                final Parcelable albparcel = new AlbumParcelable(m.getAlbumAsAlbum());
+                intent.putExtra("album", albparcel);
+                startActivityForResult(intent, -1);
             }
-        });
+        } else {
+            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+                @Override
+                public void run() {
+                    boolean replace = false;
+                    boolean play = false;
+                    switch (item.getItemId()) {
+                        case ADD_REPLACE_PLAY:
+                            replace = true;
+                            play = true;
+                            break;
+                        case ADD_REPLACE:
+                            replace = true;
+                            break;
+                        case ADD_PLAY:
+                            play = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    add(selectedItem, replace, play);
+                }
+            });
+        }
         return false;
     }
 
