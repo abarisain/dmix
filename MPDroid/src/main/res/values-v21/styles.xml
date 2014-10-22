@@ -22,7 +22,7 @@
     <style name="ActionBar.Dark" parent="@style/ActionBar">
         <!--<item name="android:background">@color/transparent</item>-->
         <item name="android:background">@color/nowplaying_background</item>
-        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <style name="ActionBar.Blue" parent="android:Widget.Material.Light.ActionBar.Solid">
@@ -38,7 +38,10 @@
         <item name="android:background">@drawable/tab_indicator_ab_light</item>
     </style>
 
-    <style name="AppThemeBase" parent="android:Theme.Material" />
+    <style name="AppThemeBase" parent="android:Theme.Material">
+        <item name="android:colorAccent">@android:color/white</item>
+    </style>
+
     <style name="AppThemeBase.Light" parent="android:Theme.Material.Light.DarkActionBar">
         <item name="android:colorPrimary">@color/actionbar_background_blue</item>
         <item name="android:colorPrimaryDark">@color/statusbar_background_blue</item>

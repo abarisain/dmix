@@ -16,6 +16,7 @@
     <color name="actionbar_background_blue">#039be5</color>
     <color name="statusbar_background_blue">#0277bd</color>
     <color name="accent_blue">#4fc3f7</color>
+    <color name="accent_dark">#e0e0e0</color>
     <color name="nowplaying_slider_background_color">#ff1a1a1a</color>
     <color name="nowplaying_slider_background_color_light">#ffffffff</color>
 </resources>
