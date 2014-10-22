@@ -20,18 +20,23 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -70,9 +75,15 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     public static final int ADD_TO_PLAYLIST = 3;
 
+    public static final int GOTO_ARTIST = 5;
+
     public static final int MAIN = 0;
 
     public static final int PLAYLIST = 3;
+
+    public static final int POPUP_COVER_BLACKLIST = 10;
+
+    public static final int POPUP_COVER_SELECTIVE_CLEAN = 11;
 
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 50;
 
@@ -297,6 +308,10 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                     Log.e(TAG, "Failed to parse playlists.", e);
                 }
             }
+            final MenuItem gotoArtistItem = menu
+                    .add(GOTO_ARTIST, GOTO_ARTIST, 0, R.string.goToArtist);
+            gotoArtistItem.setOnMenuItemClickListener(this);
+
         }
     }
 
@@ -346,6 +361,16 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 break;
             case ADD_TO_PLAYLIST:
                 addToPlaylist(item);
+                break;
+            case GOTO_ARTIST:
+                final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+                final Object selectedItem = mItems.get((int) info.id);
+                final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+                final Music music = (Music) selectedItem;
+                final Parcelable artistParcelable = new ArtistParcelable(music.getArtistAsArtist());
+
+                intent.putExtra("artist", artistParcelable);
+                startActivityForResult(intent, -1);
                 break;
             default:
                 final String name = item.getTitle().toString();

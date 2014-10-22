@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
@@ -36,8 +37,10 @@ import org.a0z.mpd.item.GenreParcelable;
 import org.a0z.mpd.item.Item;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 import android.util.Log;
@@ -47,6 +50,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
@@ -60,10 +64,6 @@ public class AlbumsFragment extends BrowseFragment {
     private static final String EXTRA_ARTIST = "artist";
 
     private static final String EXTRA_GENRE = "genre";
-
-    private static final int POPUP_COVER_BLACKLIST = 5;
-
-    private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
     private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
 
@@ -246,6 +246,16 @@ public class AlbumsFragment extends BrowseFragment {
         boolean result = false;
 
         switch (item.getGroupId()) {
+            case GOTO_ARTIST:
+                final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+                final Object selectedItem = mItems.get((int) info.id);
+                final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+                final Album a = (Album) selectedItem;
+                final Parcelable artistParcelable = new ArtistParcelable(a.getArtist());
+
+                intent.putExtra("artist", artistParcelable);
+                startActivityForResult(intent, -1);
+                break;
             case POPUP_COVER_BLACKLIST:
                 cleanupCover(item, true);
                 break;

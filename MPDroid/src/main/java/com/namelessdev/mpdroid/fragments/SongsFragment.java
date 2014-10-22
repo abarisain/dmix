@@ -23,6 +23,7 @@ import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
@@ -30,9 +31,11 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.AlbumParcelable;
+import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.StringRes;
@@ -59,10 +62,6 @@ import android.widget.TextView;
 public class SongsFragment extends BrowseFragment {
 
     private static final String EXTRA_ALBUM = "album";
-
-    private static final int POPUP_COVER_BLACKLIST = 5;
-
-    private static final int POPUP_COVER_SELECTIVE_CLEAN = 6;
 
     private static final String TAG = "SongsFragment";
 
@@ -278,39 +277,47 @@ public class SongsFragment extends BrowseFragment {
         mPopupMenu.getMenu()
                 .add(Menu.NONE, ADD_REPLACE_PLAY, Menu.NONE, R.string.addAndReplacePlay);
         mPopupMenu.getMenu().add(Menu.NONE, ADD_PLAY, Menu.NONE, R.string.addAndPlay);
+        mPopupMenu.getMenu().add(Menu.NONE, GOTO_ARTIST, Menu.NONE, R.string.goToArtist);
 
         mPopupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
             @Override
             public boolean onMenuItemClick(final MenuItem item) {
                 final int itemId = item.getItemId();
-                mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean replace = false;
-                        boolean play = false;
-                        switch (itemId) {
-                            case ADD_REPLACE_PLAY:
-                                replace = true;
-                                play = true;
-                                break;
-                            case ADD_REPLACE:
-                                replace = true;
-                                break;
-                            case ADD_PLAY:
-                                play = true;
-                                break;
-                            default:
-                                break;
+                if (itemId == GOTO_ARTIST) {
+                    final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
+                    final Parcelable artistParcelable = new ArtistParcelable(mAlbum.getArtist());
+                    intent.putExtra("artist", artistParcelable);
+                    startActivityForResult(intent, -1);
+                } else {
+                    mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean replace = false;
+                            boolean play = false;
+                            switch (itemId) {
+                                case ADD_REPLACE_PLAY:
+                                    replace = true;
+                                    play = true;
+                                    break;
+                                case ADD_REPLACE:
+                                    replace = true;
+                                    break;
+                                case ADD_PLAY:
+                                    play = true;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            try {
+                                mApp.oMPDAsyncHelper.oMPD.add(mAlbum, replace, play);
+                                Tools.notifyUser(R.string.albumAdded, mAlbum);
+                            } catch (final MPDServerException e) {
+                                Log.e(TAG, "Failed to add, replace, play.", e);
+                            }
                         }
-                        try {
-                            mApp.oMPDAsyncHelper.oMPD.add(mAlbum, replace, play);
-                            Tools.notifyUser(R.string.albumAdded, mAlbum);
-                        } catch (final MPDServerException e) {
-                            Log.e(TAG, "Failed to add, replace, play.", e);
-                        }
-                    }
-                });
+                    });
+                }
                 return true;
             }
         });
