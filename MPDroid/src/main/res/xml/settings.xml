@@ -232,7 +232,7 @@
             android:title="@string/enableExitConfirmation" />
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="lightTheme"
             android:persistent="true"
             android:title="@string/enableLightTheme" />
