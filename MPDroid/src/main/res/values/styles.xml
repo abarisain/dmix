@@ -117,7 +117,7 @@
         <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
 
-    <style name="AppTheme.Dialog" parent="@android:style/Theme.Holo.Dialog" />
+    <style name="AppTheme.Dialog" parent="android:Theme.Holo.Light.Dialog" />
 
     <style name="SeekBar" parent="android:Widget.SeekBar">
         <item name="android:indeterminateOnly">false</item>
