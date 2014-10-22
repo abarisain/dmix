@@ -191,6 +191,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         actionBar.setHomeButtonEnabled(true);
         actionBar.setCustomView(mTextView);
         actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
 
         final ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<>(
