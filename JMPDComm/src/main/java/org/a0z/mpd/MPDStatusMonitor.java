@@ -187,6 +187,7 @@ public class MPDStatusMonitor extends Thread {
                 try {
                     boolean dbChanged = false;
                     boolean statusChanged = false;
+                    boolean stickerChanged = false;
 
                     if (connectionStateChanged) {
                         dbChanged = statusChanged = true;
@@ -204,6 +205,9 @@ public class MPDStatusMonitor extends Thread {
                                     break;
                                 case "playlist":
                                     statusChanged = true;
+                                    break;
+                                case "sticker":
+                                    stickerChanged = true;
                                     break;
                                 default:
                                     statusChanged = true;
@@ -288,6 +292,12 @@ public class MPDStatusMonitor extends Thread {
                                 listener.libraryStateChanged(status.isUpdating(), dbChanged);
                             }
                             oldUpdating = status.isUpdating();
+                        }
+                    }
+
+                    if (stickerChanged) {
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            listener.stickerChanged(status);
                         }
                     }
                 } catch (final MPDConnectionException e) {

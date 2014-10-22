@@ -331,6 +331,13 @@ public class MPDAsyncWorker implements Handler.Callback,
     }
 
     @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+        mHelperHandler
+                .obtainMessage(MPDAsyncHelper.EVENT_STICKER_CHANGED, Tools.toObjectArray(mpdStatus))
+                .sendToTarget();
+    }
+
+    @Override
     public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
         mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_VOLUME,
                 Tools.toObjectArray(mpdStatus, oldVolume)).sendToTarget();
