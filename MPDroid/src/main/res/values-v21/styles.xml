@@ -28,10 +28,10 @@
     <style name="ActionBar.Blue" parent="android:Widget.Material.Light.ActionBar.Solid">
         <item name="android:background">@color/actionbar_background_blue</item>
         <item name="android:backgroundStacked">@color/actionbar_background_blue</item>
+        <item name="android:elevation">0dp</item>
         <item name="android:titleTextStyle">
             @android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse
         </item>
-        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="ActionBarTabStyle.Light" parent="android:Widget.Material.ActionBar.TabView">
