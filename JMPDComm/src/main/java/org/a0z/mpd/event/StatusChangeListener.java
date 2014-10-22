@@ -90,6 +90,12 @@ public interface StatusChangeListener {
     void trackChanged(MPDStatus mpdStatus, int oldTrack);
 
     /**
+     * Called when any sticker of any track has been changed on server.
+     * @param mpdStatus {@code MPDStatus} after event.
+     */
+    void stickerChanged(MPDStatus mpdStatus);
+
+    /**
      * Called when volume changes on MPD server.
      *
      * @param mpdStatus {@code MPDStatus} after event

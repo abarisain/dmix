@@ -263,6 +263,10 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
         }
     }
 
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+    }
+
     protected void update() {
         // TODO: Preserve position!!!
         try {

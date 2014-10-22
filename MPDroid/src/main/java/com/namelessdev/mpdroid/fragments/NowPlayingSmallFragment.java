@@ -255,6 +255,10 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         }
     }
 
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+    }
+
     public void updateCover(final AlbumInfo albumInfo) {
         if (mCoverArt != null && null != mCoverArt.getTag()
                 && mCoverArt.getTag().equals(albumInfo.getKey())) {
