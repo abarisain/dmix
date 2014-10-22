@@ -40,7 +40,10 @@
 
     <style name="AppThemeBase" parent="android:Theme.Material" />
     <style name="AppThemeBase.Light" parent="android:Theme.Material.Light.DarkActionBar">
-        <item name="android:statusBarColor">@color/statusbar_background_blue</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:colorPrimary">@color/actionbar_background_blue</item>
+        <item name="android:colorPrimaryDark">@color/statusbar_background_blue</item>
+        <item name="android:colorAccent">@color/accent_blue</item>
     </style>
 
     <style name="AppTheme.Dialog" parent="android:Theme.Material.Dialog" />
