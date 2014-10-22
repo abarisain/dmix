@@ -193,6 +193,15 @@ public class MPDPlaylist {
     }
 
     /**
+     * Retrieves music by position in playlist. Operates on local copy of
+     * playlist, may not reflect server's current playlist.
+     *
+     * @param songId id
+     * @return music with id.
+     */
+    public Music getById(int songId) { return mList.getById(songId); }
+
+    /**
      * Retrieves all songs as an {@code List} of {@code Music}.
      *
      * @return all songs as an {@code List} of {@code Music}.

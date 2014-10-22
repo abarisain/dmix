@@ -47,8 +47,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;
@@ -841,6 +845,116 @@ public class MPD {
             Collections.sort(genres);
         }
         return genres;
+    }
+
+    /**
+     * Gets the currently playing song.
+     *
+     * @return currently playing song.
+     * @throws MPDServerException if an error occur while contacting server.
+     */
+    private Music getCurrentSong() {
+        return mPlaylist.getById(mStatus.getSongId());
+    }
+
+    /**
+     * Retrieves rating of the currently playing song.
+     *
+     * @return rating of the current song.
+     * @throws MPDServerException if an error occur while contacting server.
+     */
+    public int getRating() throws MPDServerException {
+        return getRating(null);
+    }
+
+    /**
+     * Retrieves rating of a song.
+     *
+     * @return rating of song.
+     * @throws MPDServerException if an error occur while contacting server.
+     */
+    public int getRating(Music song) throws MPDServerException {
+        String rating = getStickers(song).get("rating");
+        if (rating != null) {
+            return Integer.parseInt(rating);
+        } else {
+            return 0;
+        }
+    }
+
+    private static final Pattern STICKER_PATTERN = Pattern.compile("^sticker: (\\w+?)=(\\w+)$");
+
+    /**
+     * Get all stickers for a song.
+     *
+     * It is potentially inefficient to retrieve all possible stickers when
+     * right now we're only interested in ratings. However, trying to get
+     * a specific sticker that does not exist for a given song results in
+     * an error. In such a case, MPDConnection.sendCommand retries 3 times
+     * and that is surely not what we want here.
+     *
+     * @param song
+     * @return a map of stickers by name.
+     * @throws MPDServerException
+     */
+    public Map<String, String> getStickers(Music song) throws MPDServerException {
+        if (!isConnected()) {
+            throw new MPDServerException("MPD Connection is not established");
+        }
+
+        if (song == null) {
+            song = getCurrentSong();
+        }
+
+        final HashMap<String, String> stickers = new HashMap<String, String>();
+
+        if (song != null) {
+            List<String> result = mConnection.sendCommand(
+                    MPDCommand.MPD_CMD_LIST_STICKERS,
+                    song.getFullPath()
+            );
+            for (final String line : result) {
+                Matcher m = STICKER_PATTERN.matcher(line);
+                if (m.matches()) {
+                    stickers.put(m.group(1), m.group(2));
+                }
+            }
+        }
+        return stickers;
+    }
+
+
+
+    public void setRating(int rating) throws MPDServerException {
+        setRating(null, rating);
+    }
+
+    public void setRating(Music song, int rating) throws MPDServerException {
+        int boundedRating = Math.max(
+                MPDCommand.MIN_RATING,
+                Math.min(MPDCommand.MAX_RATING, rating)
+        );
+        setSticker(song, "rating", Integer.toString(boundedRating));
+    }
+
+    public void setSticker(Music song, String sticker, String value) throws MPDServerException {
+        if (!isConnected()) {
+            throw new MPDServerException("MPD Connection is not established");
+        }
+
+        if (song == null) {
+            song = getCurrentSong();
+        }
+
+        if (song != null) {
+            mConnection.sendCommand(
+                    MPDCommand.MPD_CMD_SET_STICKER,
+                    "song",
+                    song.getFullPath(),
+                    sticker,
+                    value
+            );
+        }
     }
 
     public InetAddress getHostAddress() {
