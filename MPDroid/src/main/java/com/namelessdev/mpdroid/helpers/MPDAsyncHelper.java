@@ -70,6 +70,8 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     static final int EVENT_VOLUME = LOCAL_UID + 14;
 
+    static final int EVENT_STICKER_CHANGED = LOCAL_UID + 15;
+
     private static final String TAG = "MPDAsyncHelper";
 
     private static int sJobID = 0;
@@ -269,6 +271,11 @@ public class MPDAsyncHelper implements Handler.Callback {
                 case EVENT_TRACK_POSITION:
                     for (final TrackPositionListener listener : mTrackPositionListeners) {
                         listener.trackPositionChanged((MPDStatus) args[0]);
+                    }
+                    break;
+                case EVENT_STICKER_CHANGED:
+                    for (final StatusChangeListener listener : mStatusChangeListeners) {
+                        listener.stickerChanged((MPDStatus) args[0]);
                     }
                     break;
                 case EVENT_CONNECT_FAILED:

@@ -626,6 +626,10 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         }
     }
 
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+    }
+
     void update() {
         update(true);
     }

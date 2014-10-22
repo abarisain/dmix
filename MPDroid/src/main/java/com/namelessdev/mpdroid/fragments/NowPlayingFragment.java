@@ -843,7 +843,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mArtistNameText.setText(artist);
         mSongNameText.setText(title);
         mYearNameText.setText(date);
-
         float rating = getSongRating(updatedSong);
         mSongRating.setRating(rating);
     }
@@ -972,6 +971,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         updateTrackInfo(mpdStatus, false);
+    }
+
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+        Log.d(TAG, "Sticker changed"); //### REMOVE
+        float rating = getSongRating(null);
+        mSongRating.setRating(rating);
     }
 
     @Override
@@ -1141,7 +1147,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         @Override
         public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
             if (fromUser) {
-                Log.d(TAG, "Rating changed to " + rating); //### REMOVE
                 setCurrentSongRating(rating);
             }
         }

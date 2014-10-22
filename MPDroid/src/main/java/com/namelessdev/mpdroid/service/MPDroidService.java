@@ -763,6 +763,10 @@ public final class MPDroidService extends Service implements
         updateTrack(mpdStatus);
     }
 
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+    }
+
     /**
      * We try to get audio focus, but don't really try too hard.
      * We just want the lock screen cover art.
