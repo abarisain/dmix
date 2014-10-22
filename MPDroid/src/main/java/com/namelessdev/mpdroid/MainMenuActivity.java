@@ -45,7 +45,6 @@ import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
@@ -54,6 +53,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.PopupMenuCompat;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -203,12 +203,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
-        if (mApp.isLightThemeSelected()) {
-            drawerImageRes = R.drawable.ic_drawer_light;
-        } else {
-            drawerImageRes = R.drawable.ic_drawer;
-        }
-
         /**
          * @param Activity activity
          * @param DrawerLayout
@@ -216,7 +210,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
          * @param openDrawerContentDescRes "open drawer" description
          * @param closeDrawerContentDescRes "close drawer" description
          */
-        return new ActionBarDrawerToggle(this, mDrawerLayout, drawerImageRes, R.string.drawer_open,
+        return new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open,
                 R.string.drawer_close) {
 
             /**
