@@ -31,6 +31,7 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Tools;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.AlbumParcelable;
 import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Music;
@@ -65,6 +66,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -154,6 +156,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private SeekBar mVolumeSeekBar = null;
 
     private TextView mYearNameText;
+
+    private RatingBar mSongRating = null;
 
     private static void applyViewVisibility(final SharedPreferences sharedPreferences,
             final View view, final String property) {
@@ -645,6 +649,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mSongNameText.setText(R.string.notConnected);
         mYearNameText = findSelected(view, R.id.yearName);
         applyViewVisibility(settings, mYearNameText, "enableAlbumYearText");
+        mSongRating = (RatingBar) view.findViewById(R.id.songRating);
+        final RatingChangedHandler ratingEventHandler = new RatingChangedHandler();
+        mSongRating.setOnRatingBarChangeListener(ratingEventHandler);
 
         /** These get the event button, then setup listeners for them. */
         mPlayPauseButton = getEventButton(view, R.id.playpause, true);
@@ -836,6 +843,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mArtistNameText.setText(artist);
         mSongNameText.setText(title);
         mYearNameText.setText(date);
+
+        float rating = getSongRating(updatedSong);
+        mSongRating.setRating(rating);
     }
 
     @Override
@@ -1123,6 +1133,35 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
 
             return isConsumed;
+        }
+    }
+
+    private class RatingChangedHandler implements RatingBar.OnRatingBarChangeListener {
+
+        @Override
+        public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+            if (fromUser) {
+                Log.d(TAG, "Rating changed to " + rating);
+                setCurrentSongRating(rating);
+            }
+        }
+    }
+
+    private float getSongRating(Music updatedSong) {
+        int rating = 0;
+        try {
+            rating = mApp.oMPDAsyncHelper.oMPD.getRating(updatedSong);
+        } catch (MPDServerException e) {
+            Log.e(TAG, "Failed to get a song rating.", e);
+        }
+        return (float)(rating / 2.0);
+    }
+
+    private void setCurrentSongRating(float rating) {
+        try {
+            mApp.oMPDAsyncHelper.oMPD.setRating((int)(rating * 2));
+        } catch (MPDServerException e) {
+            Log.e(TAG, "Failed to set a song rating.", e);
         }
     }
 
