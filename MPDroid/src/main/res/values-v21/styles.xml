@@ -39,7 +39,7 @@
     </style>
 
     <style name="AppThemeBase" parent="android:Theme.Material" />
-    <style name="AppThemeBase.Light" parent="android:Theme.Material.Light.DarkActionBar" />
+    <style name="AppThemeBase.Light" parent="android:Theme.Material.Light" />
 
     <style name="AppTheme.Dialog" parent="android:Theme.Material.Dialog" />
 

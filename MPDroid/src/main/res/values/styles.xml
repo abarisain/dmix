@@ -97,6 +97,10 @@
         <item name="overflowButton">@android:style/Widget.Holo.Light.ActionButton.Overflow</item>
     </style>
 
+    <style name="AppTheme.Settings" parent="@style/AppThemeBase.Light">
+        <item name="android:actionBarStyle">@style/ActionBar.Blue</item>
+    </style>
+
     <style name="AppTheme.MainMenu" parent="AppTheme">
         <item name="android:windowActionBarOverlay">true</item>
     </style>
