@@ -17,8 +17,7 @@
 package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.MPDApplication;
-
-import org.a0z.mpd.AlbumInfo;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import android.content.SharedPreferences;
 import android.net.Uri;

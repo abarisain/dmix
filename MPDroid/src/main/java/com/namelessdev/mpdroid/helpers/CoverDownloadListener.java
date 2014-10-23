@@ -16,8 +16,6 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import org.a0z.mpd.AlbumInfo;
-
 public interface CoverDownloadListener {
 
     void onCoverDownloadStarted(CoverInfo cover);

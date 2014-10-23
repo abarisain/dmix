@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
@@ -787,7 +788,7 @@ public final class MPDroidService extends Service implements
         mCurrentTrack = MPD_ASYNC_HELPER.oMPD.getPlaylist().getByIndex(songPos);
 
         if (mNotificationHandler != null && mCurrentTrack != null) {
-            mAlbumCoverHandler.update(mCurrentTrack.getAlbumInfo());
+            mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
             mNotificationHandler.setNewTrack(mCurrentTrack);
             mRemoteControlClientHandler.update(mCurrentTrack);
         }

@@ -30,8 +30,6 @@ import com.namelessdev.mpdroid.cover.SpotifyCover;
 import com.namelessdev.mpdroid.tools.MultiMap;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.AlbumInfo;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;

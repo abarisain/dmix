@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.views;
 
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
@@ -71,11 +72,12 @@ public class AlbumDataBinder extends BaseDataBinder {
             holder.mAlbumCover.setVisibility(View.VISIBLE);
 
             final CoverAsyncHelper coverHelper = getCoverHelper(holder, 128);
+            final AlbumInfo albumInfo = new AlbumInfo(album);
 
             // display cover art in album listing if caching is on
-            if (album.getAlbumInfo().isValid() && mEnableCache) {
+            if (albumInfo.isValid() && mEnableCache) {
                 setCoverListener(holder, coverHelper);
-                loadArtwork(coverHelper, album.getAlbumInfo());
+                loadArtwork(coverHelper, albumInfo);
             }
         }
     }

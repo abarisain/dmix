@@ -18,12 +18,11 @@ package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-
-import org.a0z.mpd.AlbumInfo;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

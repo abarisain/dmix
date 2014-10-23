@@ -19,13 +19,13 @@ package com.namelessdev.mpdroid.fragments;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
-import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Tools;
@@ -341,7 +341,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 final boolean isConsumed;
 
                 if (mCurrentSong != null) {
-                    menu.setGroupVisible(Menu.NONE, mCurrentSong.getAlbumInfo().isValid());
+                    menu.setGroupVisible(Menu.NONE, new AlbumInfo(mCurrentSong).isValid());
                     coverMenu.show();
                     isConsumed = true;
                 } else {
@@ -695,6 +695,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         final Intent intent;
+        final AlbumInfo albumInfo;
         boolean result = true;
 
         switch (item.getItemId()) {
@@ -720,15 +721,17 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_COVER_BLACKLIST:
-                CoverManager.getInstance().markWrongCover(mCurrentSong.getAlbumInfo());
-                downloadCover(mCurrentSong.getAlbumInfo());
-                updateQueueCovers(mCurrentSong.getAlbumInfo());
+                albumInfo = new AlbumInfo(mCurrentSong);
+                CoverManager.getInstance().markWrongCover(albumInfo);
+                downloadCover(albumInfo);
+                updateQueueCovers(albumInfo);
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
-                CoverManager.getInstance().clear(mCurrentSong.getAlbumInfo());
-                downloadCover(mCurrentSong.getAlbumInfo()); // Update the
+                albumInfo = new AlbumInfo(mCurrentSong);
+                CoverManager.getInstance().clear(albumInfo);
+                downloadCover(albumInfo); // Update the
                 // Queue covers
-                updateQueueCovers(mCurrentSong.getAlbumInfo());
+                updateQueueCovers(albumInfo);
                 break;
             case POPUP_CURRENT:
                 scrollToNowPlaying();

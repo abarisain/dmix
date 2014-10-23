@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid.helpers;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 
-import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.item.Music;
 
@@ -168,7 +167,7 @@ public class UpdateTrackInfo {
 
                     mTitle = mCurrentSong.getTitle();
                     setArtist();
-                    mAlbumInfo = mCurrentSong.getAlbumInfo();
+                    mAlbumInfo = new AlbumInfo(mCurrentSong);
                 }
                 mHasCoverChanged = hasCoverChanged();
 

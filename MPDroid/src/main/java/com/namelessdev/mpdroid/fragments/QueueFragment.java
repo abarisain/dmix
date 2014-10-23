@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.QueueControl;
@@ -33,7 +34,6 @@ import com.namelessdev.mpdroid.models.PlaylistStream;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
 
-import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
@@ -694,7 +694,9 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         final List<AbstractPlaylistMusic> musicsToBeUpdated = new ArrayList<>(mSongList.size());
 
         for (final AbstractPlaylistMusic playlistMusic : mSongList) {
-            if (playlistMusic.getAlbumInfo().equals(albumInfo)) {
+            final AlbumInfo abstractAlbumInfo = new AlbumInfo(playlistMusic);
+
+            if (abstractAlbumInfo.equals(albumInfo)) {
                 playlistMusic.setForceCoverRefresh(true);
                 musicsToBeUpdated.add(playlistMusic);
             }
@@ -841,14 +843,16 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             viewHolder.mMenuButton.setTag(music.getSongId());
             viewHolder.mPlay.setImageResource(music.getCurrentSongIconRefID());
 
+            final AlbumInfo albumInfo = new AlbumInfo(music);
+
             if (music.isForceCoverRefresh() || viewHolder.mAlbumCover.getTag() == null
-                    || !viewHolder.mAlbumCover.getTag().equals(music.getAlbumInfo().getKey())) {
+                    || !viewHolder.mAlbumCover.getTag().equals(albumInfo.getKey())) {
                 if (!music.isForceCoverRefresh()) {
                     final int noCoverResource = AlbumCoverDownloadListener.getNoCoverResource();
                     viewHolder.mAlbumCover.setImageResource(noCoverResource);
                 }
                 music.setForceCoverRefresh(false);
-                viewHolder.mCoverHelper.downloadCover(music.getAlbumInfo(), false);
+                viewHolder.mCoverHelper.downloadCover(albumInfo, false);
             }
             return view;
         }

@@ -27,7 +27,6 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.Tools;
 
@@ -155,10 +154,6 @@ public class Album extends Item {
         }
 
         return isEqual.booleanValue();
-    }
-
-    public AlbumInfo getAlbumInfo() {
-        return new AlbumInfo(this);
     }
 
     public Artist getArtist() {

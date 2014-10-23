@@ -18,8 +18,6 @@ package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 
-import org.a0z.mpd.AlbumInfo;
-
 import android.graphics.Bitmap;
 
 public class CoverInfo extends AlbumInfo {

@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import org.a0z.mpd.AlbumInfo;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 public interface ICoverRetriever {
 

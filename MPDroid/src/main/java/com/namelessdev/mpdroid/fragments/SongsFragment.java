@@ -19,13 +19,13 @@ package com.namelessdev.mpdroid.fragments;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
-import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Album;
@@ -158,7 +158,7 @@ public class SongsFragment extends BrowseFragment {
         for (final Item item : mItems) {
             song = (Music) item;
             if (albumInfo == null) {
-                albumInfo = song.getAlbumInfo();
+                albumInfo = new AlbumInfo(song);
                 continue;
             }
             final String a = albumInfo.getArtist();
@@ -336,13 +336,17 @@ public class SongsFragment extends BrowseFragment {
                 boolean result = true;
 
                 if (groupId == POPUP_COVER_BLACKLIST) {
-                    CoverManager.getInstance().markWrongCover(mAlbum.getAlbumInfo());
-                    updateCover(mAlbum.getAlbumInfo());
-                    updateNowPlayingSmallFragment(mAlbum.getAlbumInfo());
+                    final AlbumInfo albumInfo = new AlbumInfo(mAlbum);
+
+                    CoverManager.getInstance().markWrongCover(albumInfo);
+                    updateCover(albumInfo);
+                    updateNowPlayingSmallFragment(albumInfo);
                 } else if (groupId == POPUP_COVER_SELECTIVE_CLEAN) {
-                    CoverManager.getInstance().clear(mAlbum.getAlbumInfo());
-                    updateCover(mAlbum.getAlbumInfo());
-                    updateNowPlayingSmallFragment(mAlbum.getAlbumInfo());
+                    final AlbumInfo albumInfo = new AlbumInfo(mAlbum);
+
+                    CoverManager.getInstance().clear(albumInfo);
+                    updateCover(albumInfo);
+                    updateNowPlayingSmallFragment(albumInfo);
                 } else {
                     result = false;
                 }

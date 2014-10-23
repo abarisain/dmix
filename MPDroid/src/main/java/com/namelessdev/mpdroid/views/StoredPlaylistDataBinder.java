@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.views;
 
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
@@ -101,7 +102,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
         // display cover art in album listing if caching is on
         if (artist != null && album != null && mEnableCache) {
             setCoverListener(holder, coverHelper);
-            loadArtwork(coverHelper, music.getAlbumInfo());
+            loadArtwork(coverHelper, new AlbumInfo(music));
         }
     }
 

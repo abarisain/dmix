@@ -27,7 +27,6 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.Log;
 import org.a0z.mpd.Tools;
 
@@ -562,10 +561,6 @@ public class Music extends Item implements FilesystemTreeEntry {
         final boolean isAlbumArtist = !isEmpty(mAlbumArtist);
         final Artist artist = new Artist(isAlbumArtist ? mAlbumArtist : mArtist);
         return new Album(mAlbum, artist, isAlbumArtist);
-    }
-
-    public AlbumInfo getAlbumInfo() {
-        return new AlbumInfo(getAlbumArtistOrArtist(), mAlbum, getPath(), getFilename());
     }
 
     /**

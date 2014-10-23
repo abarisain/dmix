@@ -25,10 +25,12 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package com.namelessdev.mpdroid.helpers;
 
+import org.a0z.mpd.Tools;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.Music;
 
 import java.util.Arrays;
 
@@ -45,6 +47,10 @@ public class AlbumInfo {
     protected String mFilename;
 
     protected String mPath;
+
+    public AlbumInfo(final Music music) {
+        this(music.getArtist(), music.getAlbum(), music.getPath(), music.getFilename());
+    }
 
     public AlbumInfo(final Album album) {
         super();

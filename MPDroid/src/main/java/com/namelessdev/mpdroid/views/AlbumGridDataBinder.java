@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.views;
 
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
@@ -35,12 +36,13 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
     @Override
     protected void loadAlbumCovers(final AlbumViewHolder holder, final Album album) {
         final CoverAsyncHelper coverHelper = getCoverHelper(holder, 256);
+        final AlbumInfo albumInfo = new AlbumInfo(album);
 
         setCoverListener(holder, coverHelper);
 
         // Can't get artwork for missing album name
-        if (album.getAlbumInfo().isValid() && mEnableCache) {
-            loadArtwork(coverHelper, album.getAlbumInfo());
+        if (albumInfo.isValid() && mEnableCache) {
+            loadArtwork(coverHelper, albumInfo);
         }
     }
 }

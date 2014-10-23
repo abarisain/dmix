@@ -17,9 +17,8 @@
 package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-
-import org.a0z.mpd.AlbumInfo;
 
 import android.graphics.Bitmap;
 import android.os.Environment;

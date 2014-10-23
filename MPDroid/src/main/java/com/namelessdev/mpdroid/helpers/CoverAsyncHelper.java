@@ -19,8 +19,6 @@ package com.namelessdev.mpdroid.helpers;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.AlbumInfo;
-
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;

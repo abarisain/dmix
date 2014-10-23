@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
@@ -25,7 +26,6 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
-import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.Album;
@@ -145,7 +145,7 @@ public class AlbumsFragment extends BrowseFragment {
                 .getMenuInfo();
 
         final Album album = (Album) mItems.get((int) info.id);
-        final AlbumInfo albumInfo = album.getAlbumInfo();
+        final AlbumInfo albumInfo = new AlbumInfo(album);
 
         if (isWrongCover) {
             CoverManager.getInstance()
