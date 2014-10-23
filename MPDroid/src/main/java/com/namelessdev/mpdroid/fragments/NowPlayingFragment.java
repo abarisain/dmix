@@ -975,7 +975,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void stickerChanged(final MPDStatus mpdStatus) {
-        Log.d(TAG, "Sticker changed"); //### REMOVE
         float rating = getSongRating(null);
         mSongRating.setRating(rating);
     }
