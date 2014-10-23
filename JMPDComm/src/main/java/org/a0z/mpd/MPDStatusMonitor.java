@@ -42,6 +42,8 @@ import java.util.Queue;
  */
 public class MPDStatusMonitor extends Thread {
 
+    private static final boolean DEBUG = false;
+
     /** The song database has been modified after update. */
     public static final String IDLE_DATABASE = "database";
 
@@ -296,6 +298,9 @@ public class MPDStatusMonitor extends Thread {
                     }
 
                     if (stickerChanged) {
+                        if (DEBUG) {
+                            Log.debug(TAG, "Sticker changed");
+                        }
                         for (final StatusChangeListener listener : mStatusChangeListeners) {
                             listener.stickerChanged(status);
                         }
