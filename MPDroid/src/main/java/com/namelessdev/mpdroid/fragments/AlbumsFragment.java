@@ -36,6 +36,7 @@ import org.a0z.mpd.item.GenreParcelable;
 import org.a0z.mpd.item.Item;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
@@ -49,7 +50,12 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
+import java.util.Collections;
+import java.util.List;
+
 public class AlbumsFragment extends BrowseFragment {
+
+    private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
 
     private static final String EXTRA_ARTIST = "artist";
 
@@ -120,8 +126,16 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     protected void asyncUpdate() {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
+        final boolean sortByYear = settings.getBoolean(ALBUM_YEAR_SORT_KEY, false);
+
         try {
-            mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, mIsCountDisplayed);
+            mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, sortByYear, mIsCountDisplayed);
+
+            if (sortByYear) {
+                Collections.sort((List<? extends Album>) mItems, Album.SORT_BY_YEAR);
+            }
+
             if (mGenre != null) { // filter albums not in genre
                 for (int i = mItems.size() - 1; i >= 0; i--) {
                     if (!mApp.oMPDAsyncHelper.oMPD.isAlbumInGenre((Album) mItems.get(i), mGenre)) {

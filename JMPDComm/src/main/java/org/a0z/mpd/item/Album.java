@@ -27,12 +27,54 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.MPD;
 import org.a0z.mpd.Tools;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class Album extends Item {
+
+    /**
+     * This {@code Comparator} adds support for sorting by year to the default {@code comparator}.
+     */
+    public static final Comparator<Album> SORT_BY_YEAR = new Comparator<Album>() {
+        /**
+         * Compares the two specified objects to determine their relative ordering. The ordering
+         * implied by the return value of this method for all possible pairs of
+         * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
+         * This means that
+         * <ul>
+         * <li>{@code compare(a, a)} returns zero for all {@code a}</li>
+         * <li>the sign of {@code compare(a, b)} must be the opposite of the sign of {@code
+         * compare(b, a)} for all pairs of (a,b)</li>
+         * <li>From {@code compare(a, b) > 0} and {@code compare(b, c) > 0} it must
+         * follow {@code compare(a, c) > 0} for all possible combinations of {@code
+         * (a, b, c)}</li>
+         * </ul>
+         *
+         * @param lhs an {@code Object}.
+         * @param rhs a second {@code Object} to compare with {@code lhs}.
+         * @return an integer < 0 if {@code lhs} is less than {@code rhs}, 0 if they are
+         * equal, and > 0 if {@code lhs} is greater than {@code rhs}.
+         * @throws ClassCastException if objects are not of the correct type.
+         */
+        @Override
+        public int compare(final Album lhs, final Album rhs) {
+            int compare = 0;
+
+            if (lhs.mYear < rhs.mYear) {
+                compare = -1;
+            } else if (lhs.mYear > rhs.mYear) {
+                compare = 1;
+            }
+
+            if (compare == 0) {
+                compare = lhs.compareTo(rhs);
+            }
+
+            return compare;
+        }
+    };
 
     private final Artist mArtist;
 
@@ -77,36 +119,6 @@ public class Album extends Item {
         mArtist = artist;
         mHasAlbumArtist = hasAlbumArtist;
         mPath = path;
-    }
-
-    /**
-     * Defines a natural order to this object and another.
-     *
-     * @param another The other object to compare this to.
-     * @return A negative integer if this instance is less than {@code another};
-     * A positive integer if this instance is greater than {@code another};
-     * 0 if this instance has the same order as {@code another}.
-     */
-    @Override
-    public int compareTo(final Item another) {
-        int i = 0;
-
-        if (another instanceof Album) {
-            final Album oa = (Album) another;
-            if (MPD.sortAlbumsByYear()) {
-                if (mYear < oa.mYear) {
-                    i = -1;
-                } else if (mYear > oa.mYear) {
-                    i = 1;
-                }
-            }
-        }
-
-        if (i == 0) {
-            i = super.compareTo(another);
-        }
-
-        return i;
     }
 
     @Override

@@ -48,8 +48,6 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
-    private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
-
     private static final int LOCAL_UID = 500;
 
     static final int EVENT_CONNECT = LOCAL_UID + 1;
@@ -106,8 +104,6 @@ public class MPDAsyncWorker implements Handler.Callback,
             mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECT_FAILED,
                     Tools.toObjectArray(e.getMessage())).sendToTarget();
         }
-
-        MPD.setSortAlbumsByYear(mSettings.getBoolean(ALBUM_YEAR_SORT_KEY, false));
     }
 
     @Override
@@ -203,9 +199,6 @@ public class MPDAsyncWorker implements Handler.Callback,
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
             final String key) {
         switch (key) {
-            case ALBUM_YEAR_SORT_KEY:
-                MPD.setSortAlbumsByYear(sharedPreferences.getBoolean(key, false));
-                break;
             case USE_LOCAL_ALBUM_CACHE_KEY:
                 final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);
 
