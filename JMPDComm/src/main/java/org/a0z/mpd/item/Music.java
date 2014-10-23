@@ -390,16 +390,23 @@ public class Music extends Item implements FilesystemTreeEntry {
      * @return Returns time formatted from the {@code totalSeconds} in format HH:MM:SS.
      */
     public static String timeToString(final long totalSeconds) {
-        long seconds = totalSeconds < 0L ? 0L : totalSeconds;
         final String result;
-
         final long secondsInHour = 3600L;
         final long secondsInMinute = 60L;
+        final long hours;
+        final long minutes;
+        long seconds;
 
-        final long hours = seconds / secondsInHour;
+        if (totalSeconds < 0L) {
+            seconds = 0L;
+        } else {
+            seconds = totalSeconds;
+        }
+
+        hours = seconds / secondsInHour;
         seconds -= secondsInHour * hours;
 
-        final long minutes = seconds / secondsInMinute;
+        minutes = seconds / secondsInMinute;
         seconds -= minutes * secondsInMinute;
 
         if (hours == 0) {
@@ -559,7 +566,14 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     public Album getAlbumAsAlbum() {
         final boolean isAlbumArtist = !isEmpty(mAlbumArtist);
-        final Artist artist = new Artist(isAlbumArtist ? mAlbumArtist : mArtist);
+        final Artist artist;
+
+        if (isAlbumArtist) {
+            artist = new Artist(mAlbumArtist);
+        } else {
+            artist = new Artist(mArtist);
+        }
+
         return new Album(mAlbum, artist, isAlbumArtist);
     }
 
@@ -628,7 +642,15 @@ public class Music extends Item implements FilesystemTreeEntry {
      */
     @Override
     public String getName() {
-        return isEmpty(mName) ? getFilename() : mName;
+        final String name;
+
+        if (isEmpty(mName)) {
+            name = getFilename();
+        } else {
+            name = mName;
+        }
+
+        return name;
     }
 
     /**

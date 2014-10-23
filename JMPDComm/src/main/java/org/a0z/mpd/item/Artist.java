@@ -112,6 +112,16 @@ public class Artist extends Item {
 
     @Override
     public String sortText() {
-        return null == mSort ? mName == null ? "" : super.sortText() : mSort;
+        final String result;
+
+        if (mSort == null && mName == null) {
+            result = "";
+        } else if (mSort == null) {
+            result = super.sortText();
+        } else {
+            result = mSort;
+        }
+
+        return result;
     }
 }

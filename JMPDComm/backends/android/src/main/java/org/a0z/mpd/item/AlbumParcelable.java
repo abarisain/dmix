@@ -68,6 +68,7 @@ public class AlbumParcelable extends Album implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         final String artistName;
         final Artist artist = getArtist();
+        final int hasAlbumArtist;
 
         if (artist == null) {
             artistName = "";
@@ -75,9 +76,15 @@ public class AlbumParcelable extends Album implements Parcelable {
             artistName = artist.getName();
         }
 
+        if (hasAlbumArtist()) {
+            hasAlbumArtist = 1;
+        } else {
+            hasAlbumArtist = 0;
+        }
+
         dest.writeString(getName());
         dest.writeString(artistName);
-        dest.writeInt(hasAlbumArtist() ? 1 : 0);
+        dest.writeInt(hasAlbumArtist);
         dest.writeLong(getSongCount());
         dest.writeLong(getDuration());
         dest.writeLong(getYear());
