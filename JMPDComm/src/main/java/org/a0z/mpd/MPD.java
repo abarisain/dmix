@@ -51,8 +51,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;
@@ -882,8 +880,6 @@ public class MPD {
         }
     }
 
-    private static final Pattern STICKER_PATTERN = Pattern.compile("^sticker: (\\w+?)=(\\w+)$");
-
     /**
      * Get all stickers for a song.
      *
@@ -905,14 +901,16 @@ public class MPD {
         final HashMap<String, String> stickers = new HashMap<String, String>();
 
         if (song != null) {
-            List<String> result = mConnection.sendCommand(
+            List<String> response = mConnection.sendCommand(
                     MPDCommand.MPD_CMD_LIST_STICKERS,
                     song.getFullPath()
             );
-            for (final String line : result) {
-                Matcher m = STICKER_PATTERN.matcher(line);
-                if (m.matches()) {
-                    stickers.put(m.group(1), m.group(2));
+            String[][] results = Tools.splitResponse(response);
+            for (final String[] sticker : results) {
+                if (sticker[0].equals("sticker")) {
+                    String key = sticker[1].substring(0, sticker[1].indexOf('='));
+                    String value = sticker[1].substring(sticker[1].indexOf('=') + 1);
+                    stickers.put(key, value);
                 }
             }
         }
