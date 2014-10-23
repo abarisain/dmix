@@ -34,6 +34,20 @@ import java.util.Comparator;
 
 public class Album extends Item {
 
+    private final Artist mArtist;
+
+    private final String mName;
+
+    private long mDuration;
+
+    private boolean mHasAlbumArtist;
+
+    private String mPath;
+
+    private long mSongCount;
+
+    private long mYear;
+
     /**
      * This {@code Comparator} adds support for sorting by year to the default {@code comparator}.
      */
@@ -61,10 +75,12 @@ public class Album extends Item {
         @Override
         public int compare(final Album lhs, final Album rhs) {
             int compare = 0;
+            final int leftYear = formattedYear(lhs.mYear);
+            final int rightYear = formattedYear(rhs.mYear);
 
-            if (lhs.mYear < rhs.mYear) {
+            if (leftYear < rightYear) {
                 compare = -1;
-            } else if (lhs.mYear > rhs.mYear) {
+            } else if (leftYear > rightYear) {
                 compare = 1;
             }
 
@@ -74,21 +90,38 @@ public class Album extends Item {
 
             return compare;
         }
+
+        /**
+         * This formats the input date to have a minimum of 8 digits to improve comparison.
+         *
+         * @param date The input date.
+         * @return The input date formatted to exactly 8 digits,
+         * unless date is less than or equal to 0L.
+         */
+        private int formattedYear(final long date) {
+            final int result;
+
+            if (date > 0L) {
+                final StringBuilder stringBuilder = new StringBuilder(8);
+                stringBuilder.append(date);
+
+                final int yearLength = stringBuilder.length();
+
+                if (yearLength > 8) {
+                    stringBuilder.setLength(8);
+                } else if (yearLength < 8) {
+                    while (stringBuilder.length() < 8) {
+                        stringBuilder.append('0');
+                    }
+                }
+                result = Integer.parseInt(stringBuilder.toString());
+            } else {
+                result = 0;
+            }
+
+            return result;
+        }
     };
-
-    private final Artist mArtist;
-
-    private final String mName;
-
-    private long mDuration;
-
-    private boolean mHasAlbumArtist;
-
-    private String mPath;
-
-    private long mSongCount;
-
-    private long mYear;
 
     public Album(final Album otherAlbum) {
         this(otherAlbum.mName,
