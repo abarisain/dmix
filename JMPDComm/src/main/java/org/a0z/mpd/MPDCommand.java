@@ -42,6 +42,10 @@ public class MPDCommand {
 
     public static final int MIN_VOLUME = 0;
 
+    public static final int MIN_RATING = 0;
+
+    public static final int MAX_RATING = 100;
+
     public static final String MPD_CMD_CLEARERROR = "clearerror";
 
     public static final String MPD_CMD_CLOSE = "close";
@@ -101,6 +105,10 @@ public class MPDCommand {
     public static final String MPD_CMD_PLAY_ID = "playid";
 
     public static final String MPD_CMD_PREV = "previous";
+
+    public static final String MPD_CMD_LIST_STICKERS = "sticker list song";
+
+    public static final String MPD_CMD_SET_STICKER = "sticker set";
 
     private static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,
             MPD_CMD_PREV, MPD_CMD_PLAYLIST_ADD, MPD_CMD_PLAYLIST_MOVE, MPD_CMD_PLAYLIST_DEL);

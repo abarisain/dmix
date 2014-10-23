@@ -76,6 +76,8 @@ public final class MPDControl {
 
     public static final String ACTION_VOLUME_STEP_UP = FULLY_QUALIFIED_NAME + "VOLUME_STEP_UP";
 
+    public static final String ACTION_RATING_SET = FULLY_QUALIFIED_NAME + "SET_RATING";
+
     private static final int VOLUME_STEP = 5;
 
     private MPDControl() {
@@ -266,6 +268,11 @@ public final class MPDControl {
                             break;
                         case ACTION_VOLUME_STEP_UP:
                             mpd.adjustVolume(VOLUME_STEP);
+                            break;
+                        case ACTION_RATING_SET:
+                            if (l != INVALID_LONG) {
+                                mpd.setRating((int) l);
+                            }
                             break;
                         default:
                             break;

@@ -90,6 +90,11 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
     }
 
     @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+
+    }
+
+    @Override
     public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
 
     }

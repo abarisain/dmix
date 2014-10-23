@@ -42,6 +42,8 @@ import java.util.Queue;
  */
 public class MPDStatusMonitor extends Thread {
 
+    private static final boolean DEBUG = false;
+
     /** The song database has been modified after update. */
     public static final String IDLE_DATABASE = "database";
 
@@ -187,6 +189,7 @@ public class MPDStatusMonitor extends Thread {
                 try {
                     boolean dbChanged = false;
                     boolean statusChanged = false;
+                    boolean stickerChanged = false;
 
                     if (connectionStateChanged) {
                         dbChanged = statusChanged = true;
@@ -204,6 +207,9 @@ public class MPDStatusMonitor extends Thread {
                                     break;
                                 case "playlist":
                                     statusChanged = true;
+                                    break;
+                                case "sticker":
+                                    stickerChanged = true;
                                     break;
                                 default:
                                     statusChanged = true;
@@ -288,6 +294,15 @@ public class MPDStatusMonitor extends Thread {
                                 listener.libraryStateChanged(status.isUpdating(), dbChanged);
                             }
                             oldUpdating = status.isUpdating();
+                        }
+                    }
+
+                    if (stickerChanged) {
+                        if (DEBUG) {
+                            Log.debug(TAG, "Sticker changed");
+                        }
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            listener.stickerChanged(status);
                         }
                     }
                 } catch (final MPDConnectionException e) {
