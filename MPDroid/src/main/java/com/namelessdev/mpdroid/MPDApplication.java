@@ -171,8 +171,8 @@ public class MPDApplication extends Application implements
                         MPDStatusMonitor.IDLE_OUTPUT,
                         MPDStatusMonitor.IDLE_PLAYER,
                         MPDStatusMonitor.IDLE_PLAYLIST,
-                        MPDStatusMonitor.IDLE_UPDATE,
-                        MPDStatusMonitor.IDLE_STICKER
+                        MPDStatusMonitor.IDLE_STICKER,
+                        MPDStatusMonitor.IDLE_UPDATE
                 });
             }
             if (!oMPDAsyncHelper.oMPD.isConnected() && (mCurrentActivity == null

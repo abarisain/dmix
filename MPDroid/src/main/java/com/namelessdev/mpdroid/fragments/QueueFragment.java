@@ -604,6 +604,10 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+    }
+
+    @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         if (mSongList != null) {
             // Mark running track...
@@ -624,10 +628,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 }
             }
         }
-    }
-
-    @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
     }
 
     void update() {

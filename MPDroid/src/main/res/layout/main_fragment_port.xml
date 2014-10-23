@@ -105,13 +105,13 @@
             android:gravity="center_horizontal" />
 
         <RatingBar
+            android:id="@+id/songRating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/songRating"
-            android:numStars="5"
-            android:stepSize="0.5"
+            android:layout_below="@+id/audioName"
             android:layout_marginTop="1dip"
-            android:layout_below="@+id/audioName" />
+            android:numStars="5"
+            android:stepSize="0.5" />
     </RelativeLayout>
 
     <RelativeLayout

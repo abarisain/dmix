@@ -141,6 +141,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private TextView mSongNameText;
 
+    private RatingBar mSongRating = null;
+
     private ImageButton mStopButton = null;
 
     private SeekBar mTrackSeekBar = null;
@@ -156,8 +158,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private SeekBar mVolumeSeekBar = null;
 
     private TextView mYearNameText;
-
-    private RatingBar mSongRating = null;
 
     private static void applyViewVisibility(final SharedPreferences sharedPreferences,
             final View view, final String property) {
@@ -527,6 +527,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return songInfo;
     }
 
+    private float getTrackRating() {
+        final int rating = mApp.oMPDAsyncHelper.oMPD.getStickerManager().getRating(mCurrentSong);
+
+        return (float) rating / 2.0f;
+    }
+
     /**
      * Generates the volume {@link android.widget.SeekBar}.
      *
@@ -650,8 +656,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mYearNameText = findSelected(view, R.id.yearName);
         applyViewVisibility(settings, mYearNameText, "enableAlbumYearText");
         mSongRating = (RatingBar) view.findViewById(R.id.songRating);
-        final RatingChangedHandler ratingEventHandler = new RatingChangedHandler();
-        mSongRating.setOnRatingBarChangeListener(ratingEventHandler);
+        mSongRating.setOnRatingBarChangeListener(new RatingChangedHandler());
 
         /** These get the event button, then setup listeners for them. */
         mPlayPauseButton = getEventButton(view, R.id.playpause, true);
@@ -836,15 +841,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * @param title       The title change.
      */
     @Override
-    public final void onTrackInfoUpdate(final Music updatedSong, final CharSequence album,
-            final CharSequence artist, final CharSequence date, final CharSequence title) {
+    public final void onTrackInfoUpdate(final Music updatedSong, final float trackRating,
+            final CharSequence album, final CharSequence artist, final CharSequence date,
+            final CharSequence title) {
         mCurrentSong = updatedSong;
         mAlbumNameText.setText(album);
         mArtistNameText.setText(artist);
         mSongNameText.setText(title);
+        mSongRating.setRating(trackRating);
         mYearNameText.setText(date);
-        float rating = getSongRating(updatedSong);
-        mSongRating.setRating(rating);
     }
 
     @Override
@@ -910,6 +915,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+        if (mSongRating.getVisibility() == View.VISIBLE) {
+            final float rating = getTrackRating();
+            mSongRating.setRating(rating);
+        }
+    }
+
     private void stopPosTimer() {
         if (null != mPosTimer) {
             mPosTimer.cancel();
@@ -918,9 +931,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     /**
-     * Toggle the track progress bar. Sets it up for when it's necessary, hides it otherwise. This
-     * should be called only when the track changes, for position changes, startPosTimer() is
-     * sufficient.
+     * Toggle the track progress bar. This should be called only when the track changes, for
+     * position changes, startPosTimer() is sufficient.
      *
      * @param status A current {@code MPDStatus} object.
      */
@@ -928,6 +940,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final long totalTime = status.getTotalTime();
 
         if (totalTime == 0) {
+            mSongRating.setVisibility(View.GONE);
             mTrackTime.setVisibility(View.INVISIBLE);
             mTrackTotalTime.setVisibility(View.INVISIBLE);
             stopPosTimer();
@@ -941,6 +954,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             } else {
                 stopPosTimer();
                 updateTrackProgress(elapsedTime, totalTime);
+            }
+
+            if (mApp.oMPDAsyncHelper.oMPD.getStickerManager().isAvailable()) {
+                mSongRating.setVisibility(View.VISIBLE);
             }
 
             mTrackSeekBar.setMax((int) totalTime);
@@ -971,12 +988,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         updateTrackInfo(mpdStatus, false);
-    }
-
-    @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
-        float rating = getSongRating(null);
-        mSongRating.setRating(rating);
     }
 
     @Override
@@ -1141,35 +1152,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
-    private class RatingChangedHandler implements RatingBar.OnRatingBarChangeListener {
-
-        @Override
-        public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-            if (fromUser) {
-                Log.d(TAG, "Rating changed to " + rating);
-                setCurrentSongRating(rating);
-            }
-        }
-    }
-
-    private float getSongRating(Music updatedSong) {
-        int rating = 0;
-        try {
-            rating = mApp.oMPDAsyncHelper.oMPD.getRating(updatedSong);
-        } catch (MPDServerException e) {
-            Log.e(TAG, "Failed to get a song rating.", e);
-        }
-        return (float)(rating / 2.0);
-    }
-
-    private void setCurrentSongRating(float rating) {
-        try {
-            mApp.oMPDAsyncHelper.oMPD.setRating((int)(rating * 2));
-        } catch (MPDServerException e) {
-            Log.e(TAG, "Failed to set a song rating.", e);
-        }
-    }
-
     /**
      * This class runs a timer to keep the time elapsed since last track elapsed time updated for
      * the purpose of keeping the track progress up to date without continual server polling.
@@ -1198,6 +1180,24 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             mElapsedTime = mStartTrackTime + elapsedSinceTimerStart / DateUtils.SECOND_IN_MILLIS;
 
             updateTrackProgress(mElapsedTime, mTotalTrackTime);
+        }
+    }
+
+    private class RatingChangedHandler implements RatingBar.OnRatingBarChangeListener {
+
+        @Override
+        public void onRatingChanged(final RatingBar ratingBar, final float rating,
+                final boolean fromUser) {
+            final int trackRating = (int) rating * 2;
+            if (fromUser) {
+                try {
+                    mApp.oMPDAsyncHelper.oMPD.getStickerManager().setRating(mCurrentSong,
+                            trackRating);
+                } catch (final MPDServerException e) {
+                    Log.e(TAG, "Failed to set the rating.", e);
+                }
+                Log.d(TAG, "Rating changed to " + rating);
+            }
         }
     }
 }

@@ -736,6 +736,10 @@ public final class MPDroidService extends Service implements
         tryToGetAudioFocus();
     }
 
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+    }
+
     /**
      * This is called to stop the stream. The null checks here are required as these handlers
      * can be called if the service crashes and the main process status gets out of sync.
@@ -761,10 +765,6 @@ public final class MPDroidService extends Service implements
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         updateTrack(mpdStatus);
-    }
-
-    @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
     }
 
     /**

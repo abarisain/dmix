@@ -210,7 +210,7 @@ final class CommandQueue {
      * @throws MPDServerException Thrown when there is an error sending the command to the media
      *                            server.
      */
-    List<String[]> sendSeparated(final MPDConnection mpdConnection)
+    public List<String[]> sendSeparated(final MPDConnection mpdConnection)
             throws MPDServerException {
         return separatedQueueResults(send(mpdConnection, true));
     }

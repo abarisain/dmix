@@ -246,6 +246,10 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
     }
 
     @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+    }
+
+    @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         if (mIsPlayQueue) {
             // Mark running track...
@@ -261,10 +265,6 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 adapter.notifyDataSetChanged();
             }
         }
-    }
-
-    @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
     }
 
     protected void update() {

@@ -42,8 +42,6 @@ import java.util.Queue;
  */
 public class MPDStatusMonitor extends Thread {
 
-    private static final boolean DEBUG = false;
-
     /** The song database has been modified after update. */
     public static final String IDLE_DATABASE = "database";
 
@@ -76,6 +74,8 @@ public class MPDStatusMonitor extends Thread {
 
     /** Emitted after a database update has started or finished. See IDLE_DATABASE */
     public static final String IDLE_UPDATE = "update";
+
+    private static final boolean DEBUG = false;
 
     private static final String TAG = "MPDStatusMonitor";
 

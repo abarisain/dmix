@@ -249,14 +249,14 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     }
 
     @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+    }
+
+    @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
         if (mForceStatusUpdate) {
             mApp.updateTrackInfo.refresh(mpdStatus);
         }
-    }
-
-    @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
     }
 
     public void updateCover(final AlbumInfo albumInfo) {

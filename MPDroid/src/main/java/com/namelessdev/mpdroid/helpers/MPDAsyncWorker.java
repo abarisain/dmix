@@ -309,6 +309,13 @@ public class MPDAsyncWorker implements Handler.Callback,
                 .sendToTarget();
     }
 
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+        mHelperHandler
+                .obtainMessage(MPDAsyncHelper.EVENT_STICKER_CHANGED, Tools.toObjectArray(mpdStatus))
+                .sendToTarget();
+    }
+
     /** Stops the JMPDComm MPD Status Monitor */
     private void stopStatusMonitor() {
         if (mStatusMonitor != null) {
@@ -327,13 +334,6 @@ public class MPDAsyncWorker implements Handler.Callback,
     public void trackPositionChanged(final MPDStatus status) {
         mHelperHandler
                 .obtainMessage(MPDAsyncHelper.EVENT_TRACK_POSITION, Tools.toObjectArray(status))
-                .sendToTarget();
-    }
-
-    @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
-        mHelperHandler
-                .obtainMessage(MPDAsyncHelper.EVENT_STICKER_CHANGED, Tools.toObjectArray(mpdStatus))
                 .sendToTarget();
     }
 

@@ -85,12 +85,12 @@ public class SettingsActivity extends Activity implements StatusChangeListener {
     }
 
     @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
+    public void stickerChanged(final MPDStatus mpdStatus) {
 
     }
 
     @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
 
     }
 

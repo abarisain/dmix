@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.R;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Music;
 
 import android.support.annotation.IdRes;
 import android.util.Log;
@@ -239,6 +240,13 @@ public final class MPDControl {
                         case ACTION_PREVIOUS:
                             mpd.previous();
                             break;
+                        case ACTION_RATING_SET:
+                            if (l != INVALID_LONG) {
+                                final int songPos = mpd.getStatus().getSongPos();
+                                final Music music = mpd.getPlaylist().getByIndex(songPos);
+                                mpd.getStickerManager().setRating(music, (int) l);
+                            }
+                            break;
                         case ACTION_SEEK:
                             long li = l;
                             if (li == INVALID_LONG) {
@@ -268,11 +276,6 @@ public final class MPDControl {
                             break;
                         case ACTION_VOLUME_STEP_UP:
                             mpd.adjustVolume(VOLUME_STEP);
-                            break;
-                        case ACTION_RATING_SET:
-                            if (l != INVALID_LONG) {
-                                mpd.setRating((int) l);
-                            }
                             break;
                         default:
                             break;
