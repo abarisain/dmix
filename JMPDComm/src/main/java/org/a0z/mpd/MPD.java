@@ -898,10 +898,6 @@ public class MPD {
      * @throws MPDServerException
      */
     public Map<String, String> getStickers(Music song) throws MPDServerException {
-        if (!isConnected()) {
-            throw new MPDServerException("MPD Connection is not established");
-        }
-
         if (song == null) {
             song = getCurrentSong();
         }
@@ -938,10 +934,6 @@ public class MPD {
     }
 
     public void setSticker(Music song, String sticker, String value) throws MPDServerException {
-        if (!isConnected()) {
-            throw new MPDServerException("MPD Connection is not established");
-        }
-
         if (song == null) {
             song = getCurrentSong();
         }
