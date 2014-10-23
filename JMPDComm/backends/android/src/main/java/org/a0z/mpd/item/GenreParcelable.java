@@ -61,6 +61,5 @@ public class GenreParcelable extends Genre implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(getName());
-        dest.writeString(sort());
     }
 }

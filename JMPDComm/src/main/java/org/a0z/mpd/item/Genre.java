@@ -29,24 +29,18 @@ package org.a0z.mpd.item;
 
 import org.a0z.mpd.Tools;
 
-import java.util.Arrays;
-
 public class Genre extends Item {
 
     private final String mName;
 
-    private final String mSort;
-
     public Genre(final Genre genre) {
         super();
         mName = genre.mName;
-        mSort = genre.mSort;
     }
 
     public Genre(final String name) {
         super();
         mName = name;
-        mSort = null;
     }
 
     /**
@@ -75,10 +69,6 @@ public class Genre extends Item {
             if (Tools.isNotEqual(mName, genre.mName)) {
                 isEqual = Boolean.FALSE;
             }
-
-            if (Tools.isNotEqual(mSort, genre.mSort)) {
-                isEqual = Boolean.FALSE;
-            }
         }
 
         if (isEqual == null) {
@@ -94,7 +84,7 @@ public class Genre extends Item {
     }
 
     /**
-     * Returns an integer hash code for this Artist. By contract, any two objects for which
+     * Returns an integer hash code for this Genre. By contract, any two objects for which
      * {@link #equals} returns {@code true} must return the same hash code value. This means that
      * subclasses of {@code Object} usually override both methods or neither method.
      *
@@ -103,10 +93,6 @@ public class Genre extends Item {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{mName, mSort});
-    }
-
-    public String sort() {
-        return null == mSort ? mName : mSort;
+        return mName.hashCode();
     }
 }
