@@ -49,7 +49,15 @@ public class AlbumInfo {
     protected String mPath;
 
     public AlbumInfo(final Music music) {
-        this(music.getArtist(), music.getAlbum(), music.getPath(), music.getFilename());
+        super();
+        String artist = music.getAlbumArtist();
+        if (artist == null) {
+            artist = music.getArtist();
+        }
+        mArtist = artist;
+        mAlbum = music.getAlbum();
+        mPath = music.getPath();
+        mFilename = music.getFilename();
     }
 
     public AlbumInfo(final Album album) {
