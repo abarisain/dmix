@@ -23,6 +23,7 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDServerException;
 import org.a0z.mpd.item.ArtistParcelable;
@@ -287,7 +288,10 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 addAndPlayItem.setOnMenuItemClickListener(this);
             }
 
-            if (R.string.addPlaylist != mIrAdd && R.string.addStream != mIrAdd) {
+            if (R.string.addPlaylist != mIrAdd && R.string.addStream != mIrAdd &&
+                    mApp.oMPDAsyncHelper.oMPD
+                            .isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
+
                 int id = 0;
                 final SubMenu playlistMenu = menu.addSubMenu(R.string.addToPlaylist);
                 MenuItem item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
