@@ -23,6 +23,7 @@ import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -60,10 +61,12 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         freeCoverDrawable();
     }
 
+    @DrawableRes
     public static int getLargeNoCoverResource() {
         return getNoCoverResource(true);
     }
 
+    @DrawableRes
     public static int getNoCoverResource() {
         return getNoCoverResource(false);
     }
@@ -74,6 +77,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
      * @param isLarge If true a large resolution resource will be returned, false small.
      * @return A resource to use when no cover art exists.
      */
+    @DrawableRes
     private static int getNoCoverResource(final boolean isLarge) {
         final int newResource;
 

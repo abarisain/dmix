@@ -159,8 +159,12 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
      */
     private static void setAlbumCover(final RemoteViews resultView, final Bitmap albumCover) {
         if (albumCover == null) {
-            resultView.setImageViewResource(R.id.notificationIcon,
-                    AlbumCoverDownloadListener.getNoCoverResource());
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH) {
+                resultView.setImageViewResource(R.id.notificationIcon, R.drawable.no_cover_art);
+            } else {
+                resultView.setImageViewResource(R.id.notificationIcon,
+                        R.drawable.no_cover_art_light);
+            }
         } else {
             resultView.setImageViewBitmap(R.id.notificationIcon, albumCover);
         }
