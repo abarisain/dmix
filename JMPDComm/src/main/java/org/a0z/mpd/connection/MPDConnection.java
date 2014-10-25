@@ -30,6 +30,7 @@ package org.a0z.mpd.connection;
 import org.a0z.mpd.Log;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatusMonitor;
+import org.a0z.mpd.Tools;
 import org.a0z.mpd.exception.MPDConnectionException;
 import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
@@ -42,14 +43,19 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static org.a0z.mpd.Tools.VALUE;
 
 /**
  * Class representing a connection to MPD Server.
@@ -71,6 +77,9 @@ public abstract class MPDConnection {
     private static final String POOL_THREAD_NAME_PREFIX = "pool";
 
     private static final String TAG = "MPDConnection";
+
+    /** A set containing all available commands, populated on connection. */
+    private final Collection<String> mAvailableCommands = new HashSet<>();
 
     /** The {@code ExecutorService} used to process commands. */
     private final ThreadPoolExecutor mExecutor;
@@ -115,6 +124,16 @@ public abstract class MPDConnection {
         }
     }
 
+    private static Set<String> getCommands(final Collection<String> response) {
+        final Set<String> commands = new HashSet<>(response.size());
+
+        for (final String[] pair : Tools.splitResponse(response)) {
+            commands.add(pair[VALUE]);
+        }
+
+        return commands;
+    }
+
     /**
      * Sets up connection to host/port pair with MPD password.
      *
@@ -132,15 +151,21 @@ public abstract class MPDConnection {
         mPassword = password;
         mSocketAddress = new InetSocketAddress(host, port);
 
-        final MPDCommand mpdCommand = new MPDCommand(MPDCommand.MPD_CMD_PING);
-        final String result = processCommand(mpdCommand).getConnectionResult();
+        final MPDCommand mpdCommand = new MPDCommand(MPDCommand.MPD_CMD_COMMANDS);
+        final CommandResult commandResult = processCommand(mpdCommand);
+        final String connectionResult = commandResult.getConnectionResult();
 
-        if (result == null) {
+        synchronized (mAvailableCommands) {
+            mAvailableCommands.clear();
+            mAvailableCommands.addAll(getCommands(commandResult.getResult()));
+        }
+
+        if (connectionResult == null) {
             throw new MPDServerException("Failed initial connection.");
         }
 
         mIsConnected = true;
-        setMPDVersion(result);
+        setMPDVersion(connectionResult);
     }
 
     /**
@@ -207,6 +232,16 @@ public abstract class MPDConnection {
                 }
             }
         }
+    }
+
+    /**
+     * Checks a list of available commands generated on connection.
+     *
+     * @param command A MPD protocol command.
+     * @return True if the {@code command} is available for use, false otherwise.
+     */
+    public boolean isCommandAvailable(final String command) {
+        return mAvailableCommands.contains(command);
     }
 
     /**

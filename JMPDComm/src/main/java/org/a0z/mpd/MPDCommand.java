@@ -50,6 +50,8 @@ public class MPDCommand {
 
     public static final String MPD_CMD_CLOSE = "close";
 
+    public static final String MPD_CMD_COMMANDS = "commands";
+
     public static final String MPD_CMD_CONSUME = "consume";
 
     public static final String MPD_CMD_COUNT = "count";

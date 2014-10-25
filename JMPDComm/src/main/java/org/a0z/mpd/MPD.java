@@ -1149,6 +1149,16 @@ public class MPD {
     }
 
     /**
+     * Checks for command validity against a list of available commands generated on connection.
+     *
+     * @param command A MPD protocol command.
+     * @return True if the {@code command} is available for use, false otherwise.
+     */
+    public boolean isCommandAvailable(final String command) {
+        return mConnection.isCommandAvailable(command);
+    }
+
+    /**
      * Returns true when connected and false when not connected.
      *
      * @return true when connected and false when not connected
