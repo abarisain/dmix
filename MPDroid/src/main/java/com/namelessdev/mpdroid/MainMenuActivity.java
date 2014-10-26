@@ -16,8 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import com.anpmech.mpd.MPD;
-import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
@@ -28,7 +26,6 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -47,10 +44,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.PopupMenuCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.KeyEvent;
@@ -58,10 +52,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -74,21 +66,9 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         ILibraryFragmentActivity, ILibraryTabActivity, OnBackStackChangedListener,
         PopupMenu.OnMenuItemClickListener {
 
-    public static final int ARTISTS = 2;
-
-    public static final int LIBRARY = 7;
-
-    public static final int PLAYLIST = 1;
-
-    public static final int STREAM = 6;
-
-    private static final int CONNECT = 8;
-
     private static final boolean DEBUG = false;
 
     private static final String EXTRA_DISPLAY_MODE = "displaymode";
-
-    private static final String EXTRA_SLIDING_PANEL_EXPANDED = "slidingpanelexpanded";
 
     private static final String FRAGMENT_TAG_LIBRARY = "library";
 
@@ -114,21 +94,9 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
     private FragmentManager mFragmentManager;
 
-    private View mHeaderDragView;
-
-    private PopupMenu mHeaderOverflowPopupMenu;
-
-    private ImageButton mHeaderPlayQueue;
-
-    private TextView mHeaderTitle;
-
-    private boolean mIsDualPaneMode;
-
     private LibraryFragment mLibraryFragment;
 
     private View mLibraryRootFrame;
-
-    private ViewPager mNowPlayingPager;
 
     private int mOldDrawerPosition = 0;
 
@@ -137,8 +105,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     private View mOutputsRootFrame;
 
     private QueueFragment mQueueFragment;
-
-    private SlidingUpPanelLayout mSlidingLayout;
 
     private TextView mTextView;
 
@@ -149,10 +115,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         final StrictMode.ThreadPolicy policy =
                 new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-    }
-
-    private static void setMenuChecked(final MenuItem item, final boolean checked) {
-        item.setChecked(checked);
     }
 
     @Override
@@ -236,60 +198,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         };
     }
 
-    private PopupMenu initializeHeaderOverflowPopup(final View headerOverflowMenu) {
-        final PopupMenu resultPopupMenu;
-
-        if (headerOverflowMenu == null) {
-            resultPopupMenu = null;
-        } else {
-            final PopupMenu popupMenu = new PopupMenu(this, headerOverflowMenu);
-            popupMenu.getMenuInflater().inflate(R.menu.mpd_mainmenu, popupMenu.getMenu());
-            popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistmenu, popupMenu.getMenu());
-            popupMenu.getMenu().removeItem(R.id.PLM_EditPL);
-            popupMenu.setOnMenuItemClickListener(this);
-
-            headerOverflowMenu.setOnTouchListener(
-                    PopupMenuCompat.getDragToOpenListener(popupMenu));
-
-            headerOverflowMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    if (mSlidingLayout != null && mSlidingLayout.isPanelExpanded()) {
-                        prepareNowPlayingMenu(popupMenu.getMenu());
-                        popupMenu.show();
-                    }
-                }
-            });
-
-            resultPopupMenu = popupMenu;
-        }
-
-        return resultPopupMenu;
-    }
-
-    private ImageButton initializeHeaderPlayQueue() {
-        final ImageButton headerPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
-
-        if (headerPlayQueue != null) {
-            headerPlayQueue.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    if (mNowPlayingPager != null && mSlidingLayout != null
-                            && mSlidingLayout.isPanelExpanded()) {
-                        if (mNowPlayingPager.getCurrentItem() == 0) {
-                            showQueue();
-                        } else {
-                            mNowPlayingPager.setCurrentItem(0, true);
-                            refreshQueueIndicator(false);
-                        }
-                    }
-                }
-            });
-        }
-
-        return headerPlayQueue;
-    }
-
     private LibraryFragment initializeLibraryFragment() {
         LibraryFragment fragment =
                 (LibraryFragment) mFragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
@@ -303,22 +211,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         }
 
         return fragment;
-    }
-
-    private ViewPager initializeNowPlayingPager() {
-        final ViewPager nowPlayingPager = (ViewPager) findViewById(R.id.pager);
-        if (nowPlayingPager != null) {
-            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
-            nowPlayingPager.setOnPageChangeListener(
-                    new ViewPager.SimpleOnPageChangeListener() {
-                        @Override
-                        public void onPageSelected(final int position) {
-                            refreshQueueIndicator(position != 0);
-                        }
-                    });
-        }
-
-        return nowPlayingPager;
     }
 
     private OutputsFragment initializeOutputsFragment() {
@@ -336,88 +228,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         return fragment;
     }
 
-    private SlidingUpPanelLayout initializeSlidingLayout(final Bundle savedInstanceState) {
-        final SlidingUpPanelLayout slidingLayout =
-                (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        final SlidingUpPanelLayout.PanelSlideListener panelSlideListener
-                = initializeSlidingPanelLayout();
-
-        slidingLayout.setSlidingEnabled(false);
-        slidingLayout.setEnableDragViewTouchEvents(false);
-        slidingLayout.setPanelHeight(
-                (int) getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
-        slidingLayout.setPanelSlideListener(panelSlideListener);
-
-        // Ensure that the view state is consistent (otherwise we end up with a view mess)
-        // The sliding layout should take care of it itself but does not
-        if (savedInstanceState != null) {
-            if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
-                slidingLayout.expandPanel();
-                panelSlideListener.onPanelSlide(slidingLayout, 1.0f);
-                panelSlideListener.onPanelExpanded(slidingLayout);
-            } else {
-                slidingLayout.collapsePanel();
-                panelSlideListener.onPanelSlide(slidingLayout, 0.0f);
-                panelSlideListener.onPanelCollapsed(slidingLayout);
-            }
-        }
-
-        return slidingLayout;
-    }
-
-    private SlidingUpPanelLayout.PanelSlideListener initializeSlidingPanelLayout() {
-
-        return new SlidingUpPanelLayout.PanelSlideListener() {
-            final View nowPlayingSmallFragment =
-                    findViewById(R.id.now_playing_small_fragment);
-
-            @Override
-            public void onPanelAnchored(final View panel) {
-            }
-
-            @Override
-            public void onPanelCollapsed(final View panel) {
-                nowPlayingSmallFragment.setVisibility(View.VISIBLE);
-                nowPlayingSmallFragment.setAlpha(1.0f);
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            }
-
-            @Override
-            public void onPanelExpanded(final View panel) {
-                nowPlayingSmallFragment.setVisibility(View.GONE);
-                nowPlayingSmallFragment.setAlpha(1.0f);
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            }
-
-            @Override
-            public void onPanelHidden(final View view) {
-            }
-
-            @Override
-            public void onPanelSlide(final View panel, final float slideOffset) {
-                final ActionBar actionBar = getSupportActionBar();
-
-                if (slideOffset > 0.3f) {
-                    if (actionBar.isShowing()) {
-                        actionBar.hide();
-                    }
-                } else {
-                    if (!actionBar.isShowing()) {
-                        actionBar.show();
-                    }
-                }
-
-                if (slideOffset < 1.0f) {
-                    nowPlayingSmallFragment.setVisibility(View.VISIBLE);
-                } else {
-                    nowPlayingSmallFragment.setVisibility(View.GONE);
-                }
-
-                nowPlayingSmallFragment.setAlpha(1.0f - slideOffset);
-            }
-        };
-    }
-
     private TextView initializeTextView() {
         final LayoutInflater inflater = (LayoutInflater) getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
@@ -433,9 +243,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
     @Override
     public void onBackPressed() {
-        if (mSlidingLayout.isPanelExpanded()) {
-            mSlidingLayout.collapsePanel();
-        } else if (mCurrentDisplayMode != DisplayMode.MODE_LIBRARY) {
+        if (mCurrentDisplayMode != DisplayMode.MODE_LIBRARY) {
             switchMode(DisplayMode.MODE_LIBRARY);
         } else if (mFragmentManager.getBackStackEntryCount() > 0) {
             super.onBackPressed();
@@ -502,8 +310,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         mLibraryRootFrame = findViewById(R.id.library_root_frame);
         mOutputsRootFrame = findViewById(R.id.outputs_root_frame);
 
-        mIsDualPaneMode = findViewById(R.id.nowplaying_dual_pane) != null;
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         mDrawerToggle = initializeDrawerToggle();
@@ -519,28 +325,11 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         mOutputsFragment = initializeOutputsFragment();
         mQueueFragment = (QueueFragment) mFragmentManager.findFragmentById(R.id.queue_fragment);
 
-        // Setup the pager
-        mNowPlayingPager = initializeNowPlayingPager();
-
         if (savedInstanceState == null) {
             switchMode(DisplayMode.MODE_LIBRARY);
         } else {
             switchMode((DisplayMode) savedInstanceState.getSerializable(EXTRA_DISPLAY_MODE));
         }
-
-        mHeaderTitle = (TextView) findViewById(R.id.header_title);
-        mHeaderDragView = findViewById(R.id.header_dragview);
-        mHeaderPlayQueue = initializeHeaderPlayQueue();
-
-        final ImageButton headerOverflowMenu = (ImageButton) findViewById(
-                R.id.header_overflow_menu);
-        if (headerOverflowMenu != null) {
-            mHeaderOverflowPopupMenu = initializeHeaderOverflowPopup(headerOverflowMenu);
-        }
-
-        // Sliding panel
-        mSlidingLayout = initializeSlidingLayout(savedInstanceState);
-        refreshQueueIndicator(false);
 
         /** Reset the persistent override when the application is reset. */
         mApp.setPersistentOverride(false);
@@ -625,43 +414,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         boolean result = true;
         final boolean itemHandled = mDrawerToggle.onOptionsItemSelected(item) ||
                 mQueueFragment != null && mQueueFragment.onOptionsItemSelected(item);
-
-        // Handle item selection
-        if (!itemHandled) {
-            switch (item.getItemId()) {
-                case R.id.menu_search:
-                    onSearchRequested();
-                    break;
-                case CONNECT:
-                    mApp.connect();
-                    break;
-                case R.id.GMM_Stream:
-                    if (mApp.isStreamActive()) {
-                        mApp.stopStreaming();
-                    } else if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
-                        mApp.startStreaming();
-                    }
-                    break;
-                case R.id.GMM_Consume:
-                    MPDControl.run(MPDControl.ACTION_CONSUME);
-                    break;
-                case R.id.GMM_Single:
-                    MPDControl.run(MPDControl.ACTION_SINGLE);
-                    break;
-                case R.id.GMM_ShowNotification:
-                    if (mApp.isNotificationActive()) {
-                        mApp.stopNotification();
-                    } else {
-                        mApp.startNotification();
-                        mApp.setPersistentOverride(false);
-                    }
-                    break;
-                default:
-                    result = super.onOptionsItemSelected(item);
-                    break;
-            }
-        }
-        return result;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -699,7 +452,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         outState.putSerializable(EXTRA_DISPLAY_MODE, mCurrentDisplayMode);
-        outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isPanelExpanded());
         super.onSaveInstanceState(outState);
     }
 
@@ -727,50 +479,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
                 && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
             actionBar.setSelectedNavigationItem(position);
         }
-    }
-
-    void prepareNowPlayingMenu(final Menu menu) {
-        final boolean isStreaming = mApp.isStreamActive();
-        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
-        final MPDStatus mpdStatus = mpd.getStatus();
-
-        // Reminder : never disable buttons that are shown as actionbar actions here
-        if (mpd.isConnected()) {
-            if (menu.findItem(CONNECT) != null) {
-                menu.removeItem(CONNECT);
-            }
-        } else {
-            if (menu.findItem(CONNECT) == null) {
-                menu.add(0, CONNECT, 0, R.string.connect);
-            }
-        }
-
-        final MenuItem saveItem = menu.findItem(R.id.PLM_Save);
-        final MenuItem clearItem = menu.findItem(R.id.PLM_Clear);
-        if (!mIsDualPaneMode && mNowPlayingPager != null
-                && mNowPlayingPager.getCurrentItem() == 0) {
-            saveItem.setVisible(false);
-            clearItem.setVisible(false);
-        } else {
-            saveItem.setVisible(true);
-            clearItem.setVisible(true);
-        }
-
-        /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
-        final MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
-        if (notificationItem != null) {
-            if (isStreaming || mApp.isNotificationPersistent()) {
-                notificationItem.setVisible(false);
-            } else {
-                notificationItem.setVisible(true);
-            }
-
-            setMenuChecked(notificationItem, mApp.isNotificationActive());
-        }
-
-        setMenuChecked(menu.findItem(R.id.GMM_Stream), isStreaming);
-        setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
-        setMenuChecked(menu.findItem(R.id.GMM_Consume), mpdStatus.isConsume());
     }
 
     @Override
@@ -818,44 +526,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
                 actionBar.setDisplayShowCustomEnabled(false);
             }
         }
-    }
-
-    void refreshQueueIndicator(final boolean queueShown) {
-        if (mHeaderPlayQueue != null) {
-            if (queueShown) {
-                mHeaderPlayQueue.setAlpha(1.0f);
-            } else {
-                mHeaderPlayQueue.setAlpha(0.5f);
-            }
-        }
-        if (mHeaderTitle != null) {
-            if (queueShown && !mIsDualPaneMode) {
-                mHeaderTitle.setText(R.string.playQueue);
-            } else {
-                mHeaderTitle.setText(R.string.nowPlaying);
-            }
-        }
-
-        // Restrain the sliding panel sliding zone
-        if (mSlidingLayout != null) {
-            if (queueShown) {
-                mSlidingLayout.setDragView(mHeaderDragView);
-            } else {
-                mSlidingLayout.setDragView(null);
-                // Sliding layout made mHeaderDragView clickable, revert it
-                mHeaderDragView.setClickable(false);
-            }
-        }
-    }
-
-    public void showQueue() {
-        if (mSlidingLayout != null) {
-            mSlidingLayout.expandPanel();
-        }
-        if (mNowPlayingPager != null) {
-            mNowPlayingPager.setCurrentItem(1, true);
-        }
-        refreshQueueIndicator(true);
     }
 
     /** Swaps fragments in the main content view */
@@ -937,39 +607,4 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         }
     }
 
-    private class MainMenuPagerAdapter extends PagerAdapter {
-
-        @Override
-        public void destroyItem(final ViewGroup container, final int position,
-                final Object object) {
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-        @Override
-        public Object instantiateItem(final ViewGroup container, final int position) {
-            int resId = 0;
-
-            switch (position) {
-                case 0:
-                    resId = R.id.nowplaying_fragment;
-                    break;
-                case 1:
-                    resId = R.id.queue_fragment;
-                    break;
-                default:
-                    break;
-            }
-
-            return findViewById(resId);
-        }
-
-        @Override
-        public boolean isViewFromObject(final View arg0, final Object arg1) {
-            return arg0.equals(arg1);
-        }
-    }
 }
