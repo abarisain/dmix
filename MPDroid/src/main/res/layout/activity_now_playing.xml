@@ -14,7 +14,26 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/container"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    tools:context="com.namelessdev.mpdroid.NowPlayingActivity" tools:ignore="MergeRootFrame" />
+<android.support.v4.view.ViewPager
+    android:id="@+id/pager"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="com.namelessdev.mpdroid.NowPlayingActivity">
+
+    <fragment
+        android:id="@+id/nowplaying_fragment"
+        android:name="com.namelessdev.mpdroid.fragments.NowPlayingFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout="@layout/main_fragment_port" />
+
+    <fragment
+        android:id="@+id/queue_fragment"
+        android:name="com.namelessdev.mpdroid.fragments.QueueFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:layout="@layout/playlist_activity" />
+</android.support.v4.view.ViewPager>
