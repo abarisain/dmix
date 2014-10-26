@@ -145,7 +145,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     }
 
     private ActionBarDrawerToggle initializeDrawerToggle() {
-        final int drawerImageRes;
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -299,11 +298,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
         mApp.setupServiceBinder();
 
-        if (mApp.isTabletUiEnabled()) {
-            setContentView(R.layout.main_activity_nagvigation_tablet);
-        } else {
-            setContentView(R.layout.main_activity_nagvigation);
-        }
+        setContentView(R.layout.main_activity_nagvigation);
 
         mTextView = initializeTextView();
 
