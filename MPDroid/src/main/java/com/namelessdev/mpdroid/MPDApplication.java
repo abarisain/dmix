@@ -191,10 +191,6 @@ public class MPDApplication extends Application implements
             }
         }
 
-        /** If the warning has never been shown before, show it. */
-        if (mCurrentActivity != null && !mSettings.getBoolean("newWarningShown", false)) {
-            mCurrentActivity.startActivity(new Intent(mCurrentActivity, WarningActivity.class));
-        }
         connectMPD();
     }
 

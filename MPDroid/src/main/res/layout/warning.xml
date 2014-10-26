@@ -22,10 +22,19 @@
             android:textSize="14sp" />
     </ScrollView>
 
-    <Button
-        android:id="@+id/buttonOK"
-        android:layout_width="150dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/ok" />
+        android:gravity="right"
+        style="?android:attr/buttonBarStyle" >
+
+        <Button
+            android:id="@+id/buttonOK"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ok"
+            style="?android:attr/buttonBarButtonStyle" />
+
+    </LinearLayout>
 
 </LinearLayout>

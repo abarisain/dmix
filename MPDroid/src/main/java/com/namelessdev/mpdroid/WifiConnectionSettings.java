@@ -18,12 +18,14 @@ package com.namelessdev.mpdroid;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,6 +50,13 @@ public class WifiConnectionSettings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.wificonnectionsettings);
+
+        final SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        /** If the warning has never been shown before, show it. */
+        if (!settings.getBoolean("newWarningShown", false)) {
+            startActivity(new Intent(this, WarningActivity.class));
+        }
     }
 
     @Override
