@@ -7,7 +7,7 @@ android:
     # - tools
 
     # The BuildTools version used by your project.
-    - build-tools-21.0.1
+    - build-tools-21.0.2
 
     # The SDK version used to compile your project.
     - android-21
@@ -15,7 +15,7 @@ android:
     # Additional components
     # - extra-google-google_play_services
     # - extra-google-m2repository
-    # - extra-android-m2repository
+    - extra-android-m2repository
     # - addon-google_apis-google-21
 
 # This project doesn't support checkConnected, which is
