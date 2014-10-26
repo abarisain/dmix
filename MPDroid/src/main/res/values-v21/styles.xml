@@ -29,12 +29,18 @@
     <style name="AppThemeBase" parent="Theme.AppCompat">
         <item name="android:colorPrimary">@color/nowplaying_background</item>
         <item name="android:colorAccent">@android:color/white</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
     </style>
 
     <style name="AppThemeBase.Light" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:colorPrimary">@color/actionbar_background_blue</item>
         <item name="android:colorPrimaryDark">@color/statusbar_background_blue</item>
         <item name="android:colorAccent">@color/accent_blue</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
     </style>
 
 </resources>

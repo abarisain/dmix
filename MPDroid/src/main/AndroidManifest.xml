@@ -38,7 +38,7 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".SearchActivity" />
@@ -48,7 +48,7 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustNothing">
+            android:windowSoftInputMode="adjustNothing" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -66,7 +66,7 @@
         </activity>
         <activity
             android:name="com.namelessdev.mpdroid.SearchActivity"
-            android:label="@string/search">
+            android:label="@string/search" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
                 <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
@@ -110,13 +110,13 @@
             android:theme="@style/AppTheme.Dialog" />
 
         <service
-            android:name=".service.MPDroidService"
+            android:name="com.namelessdev.mpdroid.service.MPDroidService"
             android:exported="false"
             android:icon="@drawable/icon"
             android:process=":MPDroidService" />
 
-        <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver">
-            <intent-filter android:priority="500">
+        <receiver android:name="com.namelessdev.mpdroid.RemoteControlReceiver" >
+            <intent-filter android:priority="500" >
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
             <intent-filter>
@@ -124,12 +124,12 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver">
+        <receiver android:name="com.namelessdev.mpdroid.PhoneStateReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProvider">
+        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -138,7 +138,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_provider_simple" />
         </receiver>
-        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProviderWithStop">
+        <receiver android:name="com.namelessdev.mpdroid.widgets.SimpleWidgetProviderWithStop" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -158,17 +158,17 @@
             android:exported="false" />
 
         <activity
-            android:name=".locale.EditActivity"
+            android:name="com.namelessdev.mpdroid.locale.EditActivity"
             android:icon="@drawable/icon"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
             </intent-filter>
         </activity>
 
         <receiver
-            android:name=".locale.ActionFireReceiver"
-            android:process="com.namelessdev.mpdroid.LocaleProcess">
+            android:name="com.namelessdev.mpdroid.locale.ActionFireReceiver"
+            android:process="com.namelessdev.mpdroid.LocaleProcess" >
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
             </intent-filter>
@@ -177,7 +177,7 @@
         <activity
             android:name="com.namelessdev.mpdroid.URIHandlerActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.Hidden">
+            android:theme="@style/AppTheme.Hidden" >
 
             <!--
              The following intent filters only common streaming file extensions,
@@ -262,5 +262,14 @@
                 <data android:pathPattern=".*\\.xspf" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.namelessdev.mpdroid.NowPlayingActivity"
+            android:label="@string/title_activity_now_playing"
+            android:parentActivityName="com.namelessdev.mpdroid.MainMenuActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.namelessdev.mpdroid.MainMenuActivity" />
+        </activity>
     </application>
+
 </manifest>

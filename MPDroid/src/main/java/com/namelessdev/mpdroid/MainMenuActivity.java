@@ -342,7 +342,8 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         final SlidingUpPanelLayout.PanelSlideListener panelSlideListener
                 = initializeSlidingPanelLayout();
 
-        slidingLayout.setEnableDragViewTouchEvents(true);
+        slidingLayout.setSlidingEnabled(false);
+        slidingLayout.setEnableDragViewTouchEvents(false);
         slidingLayout.setPanelHeight(
                 (int) getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
         slidingLayout.setPanelSlideListener(panelSlideListener);
