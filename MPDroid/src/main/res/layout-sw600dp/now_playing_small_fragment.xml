@@ -31,6 +31,7 @@
             android:id="@+id/albumCover"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:transitionName="cover"
             android:contentDescription="@string/albumCover"
             android:scaleType="fitCenter"
             android:src="?attr/noCoverArtIcon" />

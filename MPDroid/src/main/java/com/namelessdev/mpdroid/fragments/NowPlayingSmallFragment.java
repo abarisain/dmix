@@ -22,6 +22,7 @@ import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
+import com.namelessdev.mpdroid.NowPlayingActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -32,6 +33,8 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -147,6 +150,19 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         });
         mCoverHelper.addCoverDownloadListener(coverArtListener);
 
+
+        mCoverArt.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
+                // create the transition animation - the images in the layouts
+                // of both activities are defined with android:transitionName="cover"
+                ActivityOptions options = ActivityOptions
+                        .makeSceneTransitionAnimation(getActivity(), mCoverArt, "cover");
+                // start the new activity
+                getActivity().startActivity(intent, options.toBundle());
+            }
+        });
         return view;
     }
 
