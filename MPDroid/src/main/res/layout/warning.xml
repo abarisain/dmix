@@ -23,17 +23,17 @@
     </ScrollView>
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
-        style="?android:attr/buttonBarStyle" >
+        android:gravity="right">
 
         <Button
             android:id="@+id/buttonOK"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:text="@string/ok"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:text="@string/ok" />
 
     </LinearLayout>
 
