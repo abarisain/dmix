@@ -23,116 +23,41 @@
 
     <!-- The main content view -->
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <com.sothree.slidinguppanel.SlidingUpPanelLayout
-            android:id="@+id/sliding_layout"
+
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="bottom">
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:paddingTop="?android:attr/actionBarSize">
 
             <FrameLayout
+                android:id="@+id/library_root_frame"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingTop="?attr/actionBarSize">
-
-                <FrameLayout
-                    android:id="@+id/library_root_frame"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="visible" />
-
-                <FrameLayout
-                    android:id="@+id/outputs_root_frame"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone" />
-            </FrameLayout>
+                android:visibility="visible" />
 
             <FrameLayout
+                android:id="@+id/outputs_root_frame"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+        </FrameLayout>
 
-                <LinearLayout
-                    android:id="@+id/now_playing_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/nowplaying_small_fragment_height"
-                    android:orientation="horizontal">
-
-                    <FrameLayout
-                        android:id="@+id/header_dragview"
-                        android:layout_width="0dip"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-
-                        <TextView
-                            android:id="@+id/header_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:ellipsize="marquee"
-                            android:gravity="center_vertical"
-                            android:maxLines="1"
-                            android:paddingLeft="10dip"
-                            android:singleLine="true"
-                            android:text=""
-                            android:textColor="?android:textColorPrimary"
-                            android:textSize="18sp" />
-                    </FrameLayout>
-
-                    <ImageButton
-                        android:id="@+id/header_show_queue"
-                        style="@android:style/Widget.Holo.ActionButton"
-                        android:layout_width="56dip"
-                        android:layout_height="match_parent"
-                        android:alpha="0.8"
-                        android:contentDescription="@string/playQueue"
-                        android:src="?attr/playQueueIcon" />
-
-                    <ImageButton
-                        android:id="@+id/header_overflow_menu"
-                        style="?attr/overflowButton"
-                        android:layout_width="56dip"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/menuButton" />
-                </LinearLayout>
-
-                <android.support.v4.view.ViewPager
-                    android:id="@+id/pager"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_marginTop="@dimen/nowplaying_small_fragment_height">
-
-                    <fragment
-                        android:id="@+id/nowplaying_fragment"
-                        android:name="com.namelessdev.mpdroid.fragments.NowPlayingFragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        tools:layout="@layout/main_fragment_port" />
-
-                    <fragment
-                        android:id="@+id/queue_fragment"
-                        android:name="com.namelessdev.mpdroid.fragments.QueueFragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:visibility="gone"
-                        tools:layout="@layout/playlist_activity" />
-                </android.support.v4.view.ViewPager>
-
-                <fragment
-                    android:id="@+id/now_playing_small_fragment"
-                    android:name="com.namelessdev.mpdroid.fragments.NowPlayingSmallFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/nowplaying_small_fragment_height"
-                    tools:layout="@layout/now_playing_small_fragment" />
-            </FrameLayout>
+        <fragment
+            android:id="@+id/now_playing_small_fragment"
+            android:name="com.namelessdev.mpdroid.fragments.NowPlayingSmallFragment"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/nowplaying_small_fragment_height"
+            tools:layout="@layout/now_playing_small_fragment" />
 
 
-        </com.sothree.slidinguppanel.SlidingUpPanelLayout>
-
-    </FrameLayout>
+    </LinearLayout>
     <!-- The navigation drawer -->
 
     <ListView
