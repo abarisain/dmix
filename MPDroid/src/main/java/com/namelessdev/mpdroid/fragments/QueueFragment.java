@@ -30,6 +30,7 @@ import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
+import com.namelessdev.mpdroid.NowPlayingActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
@@ -602,7 +603,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         } else {
 
             if (mActivity instanceof MainMenuActivity) {
-                ((MainMenuActivity) mActivity).showQueue();
+                ((NowPlayingActivity) mActivity).showQueue();
             }
 
             final ListView listView = getListView();
