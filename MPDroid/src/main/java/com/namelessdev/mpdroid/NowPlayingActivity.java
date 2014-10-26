@@ -22,6 +22,8 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.transition.Explode;
+import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,12 +37,26 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidFragmentActivit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().requestFeature(android.view.Window.FEATURE_CONTENT_TRANSITIONS);
+        Transition ts = new Explode();  //Slide(); //Explode();
+
+
+    /*
+    If you have set an enter transition for the second activity,
+    the transition is also activated when the activity starts.
+     */
+
+        getWindow().setEnterTransition(ts);
+        getWindow().setExitTransition(ts);
+
         setContentView(R.layout.activity_now_playing);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new NowPlayingFragment())
                     .commit();
         }
+
     }
 
 
