@@ -292,7 +292,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             @Override
             public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
                 final MenuInflater inflater = mode.getMenuInflater();
-                inflater.inflate(R.menu.mpd_queuemenu, menu);
+                inflater.inflate(R.menu.mpd_queue_action_menu, menu);
                 return true;
             }
 
