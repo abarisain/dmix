@@ -236,7 +236,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         };
     }
 
-    private PopupMenu initializeHeaderOverflowPopup(final ImageButton headerOverflowMenu) {
+    private PopupMenu initializeHeaderOverflowPopup(final View headerOverflowMenu) {
         final PopupMenu resultPopupMenu;
 
         if (headerOverflowMenu == null) {
