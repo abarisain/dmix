@@ -70,15 +70,13 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     private CoverAsyncHelper mCoverHelper;
 
-    private boolean mForceStatusUpdate = false;
-
     private TextView mSongArtist;
 
     private TextView mSongTitle;
 
     @Override
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-        if (connected && isAdded() && mForceStatusUpdate) {
+        if (connected && isAdded()) {
             mApp.updateTrackInfo.refresh(mApp.oMPDAsyncHelper.oMPD.getStatus(), true);
         }
 
@@ -95,10 +93,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onAttach(final Activity activity) {
         super.onAttach(activity);
-
-        if (!MainMenuActivity.class.equals(activity.getClass())) {
-            mForceStatusUpdate = true;
-        }
     }
 
     /**
@@ -197,7 +191,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         }
         mApp.updateTrackInfo.addCallback(this);
 
-        if (mForceStatusUpdate && mApp.oMPDAsyncHelper.oMPD.isConnected()) {
+        if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
             mApp.updateTrackInfo.refresh(mpdStatus, true);
         }
 
@@ -235,7 +229,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
          * If the current song is a stream, the metadata can change in place, and that will only
          * change the playlist, not the track, so, update if we detect a stream.
          */
-        if (isAdded() && mForceStatusUpdate) {
+        if (isAdded()) {
             final int songPos = mpdStatus.getSongPos();
             final Music currentSong =
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
@@ -257,9 +251,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
-        if (mForceStatusUpdate) {
-            mApp.updateTrackInfo.refresh(mpdStatus);
-        }
+        mApp.updateTrackInfo.refresh(mpdStatus);
         updatePlayPauseButton(mpdStatus);
 
     }
@@ -270,9 +262,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-        if (mForceStatusUpdate) {
-            mApp.updateTrackInfo.refresh(mpdStatus);
-        }
+        mApp.updateTrackInfo.refresh(mpdStatus);
     }
 
     public void updateCover(final AlbumInfo albumInfo) {
