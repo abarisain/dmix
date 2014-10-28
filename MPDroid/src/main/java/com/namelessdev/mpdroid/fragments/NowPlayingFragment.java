@@ -958,6 +958,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
             if (mApp.oMPDAsyncHelper.oMPD.getStickerManager().isAvailable()) {
                 mSongRating.setVisibility(View.VISIBLE);
+            } else {
+                mSongRating.setVisibility(View.GONE);
             }
 
             mTrackSeekBar.setMax((int) totalTime);
