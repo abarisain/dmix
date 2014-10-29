@@ -663,6 +663,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         applyViewVisibility(settings, mYearNameText, "enableAlbumYearText");
         mSongRating = (RatingBar) view.findViewById(R.id.songRating);
         mSongRating.setOnRatingBarChangeListener(new RatingChangedHandler());
+        mSongRating.setVisibility(View.GONE);
 
         /** These get the event button, then setup listeners for them. */
         mPlayPauseButton = getEventButton(view, R.id.playpause, true);
@@ -1198,7 +1199,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         public void onRatingChanged(final RatingBar ratingBar, final float rating,
                 final boolean fromUser) {
             final int trackRating = (int) rating * 2;
-            if (fromUser) {
+            if (fromUser && mCurrentSong != null) {
                 try {
                     mApp.oMPDAsyncHelper.oMPD.getStickerManager().setRating(mCurrentSong,
                             trackRating);
