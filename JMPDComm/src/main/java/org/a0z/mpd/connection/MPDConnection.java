@@ -32,10 +32,10 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.Tools;
 import org.a0z.mpd.exception.MPDConnectionException;
-import org.a0z.mpd.exception.MPDNoResponseException;
 import org.a0z.mpd.exception.MPDServerException;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -416,10 +416,10 @@ public abstract class MPDConnection {
                     }
 
                     result.setResult(communicate());
-                } catch (final MPDNoResponseException ex0) {
+                } catch (final EOFException ex0) {
                     mIsConnected = false;
                     mIsCommandSent = false;
-                    handleConnectionFailure(result, ex0);
+                    handleConnectionFailure(result, new MPDConnectionException(ex0));
                     // Do not fail when the IDLE response has not been read (to improve connection
                     // failure robustness). Just send the "changed playlist" result to force the MPD
                     // status to be refreshed.
@@ -467,7 +467,7 @@ public abstract class MPDConnection {
          * @throws MPDServerException Thrown if there is an error communicating with the media
          *                            server.
          */
-        private List<String> communicate() throws MPDServerException {
+        private List<String> communicate() throws EOFException, MPDServerException {
             List<String> result = new ArrayList<>();
             if (mCancelled) {
                 throw new MPDConnectionException("No connection to server");
@@ -476,6 +476,8 @@ public abstract class MPDConnection {
             try {
                 write();
                 result = read();
+            } catch (final EOFException e) {
+                throw e;
             } catch (final MPDConnectionException e) {
                 if (!mCommand.getCommand().equals(MPDCommand.MPD_CMD_CLOSE)) {
                     throw e;
@@ -596,9 +598,11 @@ public abstract class MPDConnection {
             boolean serverDataRead = false;
             for (String line = in.readLine(); line != null; line = in.readLine()) {
                 serverDataRead = true;
+
                 if (line.startsWith(MPD_RESPONSE_OK)) {
                     break;
                 }
+
                 if (line.startsWith(MPD_RESPONSE_ERR)) {
                     if (isNonfatalACK(line)) {
                         break;
@@ -608,10 +612,11 @@ public abstract class MPDConnection {
                 }
                 result.add(line);
             }
+
             if (!serverDataRead) {
                 // Close socket if there is no response...
                 // Something is wrong (e.g. MPD shutdown..)
-                throw new MPDNoResponseException("Connection lost");
+                throw new EOFException("Connection lost");
             }
             return result;
         }
