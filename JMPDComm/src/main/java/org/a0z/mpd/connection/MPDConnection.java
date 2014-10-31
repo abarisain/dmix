@@ -47,7 +47,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -127,8 +126,14 @@ public abstract class MPDConnection {
         }
     }
 
-    private static Set<String> getCommands(final Collection<String> response) {
-        final Set<String> commands = new HashSet<>(response.size());
+    /**
+     * Puts all available commands into a set backed collection.
+     *
+     * @param response The media server response to the {@link MPDCommand#MPD_CMD_COMMANDS} command.
+     * @return A collection of available commands from the response.
+     */
+    private static Collection<String> getCommands(final Collection<String> response) {
+        final Collection<String> commands = new HashSet<>(response.size());
 
         for (final String[] pair : Tools.splitResponse(response)) {
             commands.add(pair[VALUE]);
