@@ -549,12 +549,9 @@ public abstract class MPDConnection {
                 throw new MPDServerException("No response from server.");
             }
 
-            if (line.startsWith(MPD_RESPONSE_ERR)) {
-                throw new MPDServerException(line);
-            }
-
+            /** Protocol says OK will begin the session, otherwise assume IO error. */
             if (!line.startsWith(MPD_RESPONSE_OK)) {
-                throw new MPDServerException("Bogus response from server.");
+                throw new MPDConnectionException("Bogus response from server.");
             }
 
             if (mPassword != null) {
