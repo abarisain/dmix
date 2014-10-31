@@ -62,16 +62,28 @@ class CommandResult {
         return mResult;
     }
 
+    final boolean isMPDException() {
+        final boolean isMPDException;
+
+        if (mLastException == null) {
+            isMPDException = false;
+        } else {
+            isMPDException = true;
+        }
+
+        return isMPDException;
+    }
+
     final void setConnectionResult(final String result) {
         mConnectionResult = result;
     }
 
-    final void setIOException(final IOException ioException) {
+    final void setException(final IOException ioException) {
         mLastException = null;
         mIOException = ioException;
     }
 
-    final void setLastException(final MPDException lastException) {
+    final void setException(final MPDException lastException) {
         mIOException = null;
         mLastException = lastException;
     }
