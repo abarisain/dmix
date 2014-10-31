@@ -32,6 +32,7 @@
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/foss/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/foss/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/foss/debug" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/generated/foss/debug" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/assets" type="java-resource" />
@@ -44,6 +45,7 @@
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/test/foss/debug" isTestSource="true" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/test/foss/debug" isTestSource="true" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/test/foss/debug" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/generated/test/foss/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/foss/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/foss/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/foss/assets" type="java-resource" />
