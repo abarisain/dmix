@@ -25,7 +25,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
@@ -56,6 +56,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.List;
 
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -308,7 +309,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                             item.setOnMenuItemClickListener(this);
                         }
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to parse playlists.", e);
                 }
             }

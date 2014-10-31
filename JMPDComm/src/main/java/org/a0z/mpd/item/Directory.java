@@ -30,8 +30,9 @@ package org.a0z.mpd.item;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.Tools;
 import org.a0z.mpd.connection.MPDConnection;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -340,10 +341,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * Retrieves a database directory listing of {@code path} directory.
      *
      * @param connection A connection to the server.
-     * @throws org.a0z.mpd.exception.MPDServerException Upon connection or server error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void refresh(final MPDConnection connection)
-            throws MPDServerException {
+    public void refresh(final MPDConnection connection) throws IOException, MPDException {
         final int cacheSize = 40; /** Approximate max number of lines per file entry. */
         final List<String> response =
                 connection.sendCommand(MPDCommand.MPD_CMD_LSDIR, getFullPath());

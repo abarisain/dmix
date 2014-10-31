@@ -21,7 +21,7 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.PlaylistFile;
 
@@ -38,6 +38,8 @@ import android.view.View;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+
+import java.io.IOException;
 
 public class PlaylistsFragment extends BrowseFragment {
 
@@ -59,7 +61,7 @@ public class PlaylistsFragment extends BrowseFragment {
                 Tools.notifyUser(mIrAdded, item);
             }
 
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
@@ -72,7 +74,7 @@ public class PlaylistsFragment extends BrowseFragment {
     protected void asyncUpdate() {
         try {
             mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylists(true);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
     }
@@ -158,7 +160,7 @@ public class PlaylistsFragment extends BrowseFragment {
                         Tools.notifyUser(R.string.playlistDeleted, playlist);
                     }
                     mItems.remove(mItemIndex);
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(R.string.deletePlaylist);
                     builder.setMessage(

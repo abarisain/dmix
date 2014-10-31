@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.helpers.CoverManager;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatistics;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -36,6 +36,8 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.text.format.Formatter;
 import android.util.Log;
+
+import java.io.IOException;
 
 public class SettingsFragment extends PreferenceFragment {
 
@@ -89,23 +91,19 @@ public class SettingsFragment extends PreferenceFragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    final String versionText = mpd.getMpdVersion();
-                    final MPDStatistics mpdStatistics = mpd.getStatistics();
+                final String versionText = mpd.getMpdVersion();
+                final MPDStatistics mpdStatistics = mpd.getStatistics();
 
-                    mHandler.post(new Runnable() {
+                mHandler.post(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            mVersion.setSummary(versionText);
-                            mArtists.setSummary(String.valueOf(mpdStatistics.getArtists()));
-                            mAlbums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
-                            mSongs.setSummary(String.valueOf(mpdStatistics.getSongs()));
-                        }
-                    });
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to get MPD statistics.", e);
-                }
+                    @Override
+                    public void run() {
+                        mVersion.setSummary(versionText);
+                        mArtists.setSummary(String.valueOf(mpdStatistics.getArtists()));
+                        mAlbums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
+                        mSongs.setSummary(String.valueOf(mpdStatistics.getSongs()));
+                    }
+                });
             }
         }).start();
     }
@@ -173,7 +171,7 @@ public class SettingsFragment extends PreferenceFragment {
         if ("refreshMPDDatabase".equals(preference.getKey())) {
             try {
                 mApp.oMPDAsyncHelper.oMPD.refreshDatabase();
-            } catch (final MPDServerException e) {
+            } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to refresh the database.", e);
             }
             return true;

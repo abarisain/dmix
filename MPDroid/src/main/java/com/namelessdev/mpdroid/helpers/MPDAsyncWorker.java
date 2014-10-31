@@ -26,7 +26,7 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -36,7 +36,7 @@ import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import java.net.UnknownHostException;
+import java.io.IOException;
 
 /**
  * Asynchronous worker thread-class for long during operations on JMPDComm.
@@ -99,7 +99,7 @@ public class MPDAsyncWorker implements Handler.Callback,
         try {
             mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
             mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
-        } catch (final MPDServerException | UnknownHostException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Error while connecting to the server.", e);
             mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECT_FAILED,
                     Tools.toObjectArray(e.getMessage())).sendToTarget();
@@ -117,7 +117,7 @@ public class MPDAsyncWorker implements Handler.Callback,
         try {
             mMPD.disconnect();
             Log.d(TAG, "Disconnected.");
-        } catch (final MPDServerException e) {
+        } catch (final IOException e) {
             Log.e(TAG, "Error on disconnect.", e);
         }
     }

@@ -31,7 +31,7 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Tools;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.AlbumParcelable;
 import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Music;
@@ -70,6 +70,7 @@ import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -532,7 +533,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         try {
             rating = (float) mApp.oMPDAsyncHelper.oMPD.getStickerManager().getRating(mCurrentSong);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to get the current track rating.", e);
         }
 
@@ -1203,7 +1204,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 try {
                     mApp.oMPDAsyncHelper.oMPD.getStickerManager().setRating(mCurrentSong,
                             trackRating);
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to set the rating.", e);
                 }
                 Log.d(TAG, "Rating changed to " + rating);

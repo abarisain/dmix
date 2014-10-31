@@ -17,12 +17,13 @@
 package com.namelessdev.mpdroid.helpers;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -112,11 +113,12 @@ public class CachedMPD extends MPD {
      *
      * @param albums   The albums to add detail information to.
      * @param findYear Not applicable to this class extension.
-     * @throws MPDServerException Thrown on server error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
     protected void getAlbumDetails(final List<Album> albums, final boolean findYear/* ignored */)
-            throws MPDServerException {
+            throws IOException, MPDException {
         if (isCached()) {
             for (final Album album : albums) {
                 final Artist artist = album.getArtist();
@@ -144,11 +146,12 @@ public class CachedMPD extends MPD {
      *
      * @param trackCountNeeded Do we need the track count ?
      * @return A list of Album objects.
-     * @throws MPDServerException If there was a problem connecting.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
     public List<Album> getAllAlbums(final boolean trackCountNeeded)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<Album> allAlbums;
 
         if (isCached()) {
@@ -191,10 +194,12 @@ public class CachedMPD extends MPD {
      *
      * @param albums List of Album objects to get Album Artists from.
      * @return A list of album artists.
-     * @throws MPDServerException If there was an error retrieving the album artists.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    public List<String[]> listAlbumArtists(final List<Album> albums) throws MPDServerException {
+    public List<String[]> listAlbumArtists(final List<Album> albums)
+            throws IOException, MPDException {
         final List<String[]> albumArtists;
 
         if (isCached()) {
@@ -221,10 +226,12 @@ public class CachedMPD extends MPD {
      * @param useAlbumArtist      use AlbumArtist instead of Artist
      * @param includeUnknownAlbum include an entry for songs with no album tag
      * @return List of albums.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
     public List<String> listAlbums(final String artist, final boolean useAlbumArtist,
-            final boolean includeUnknownAlbum) throws MPDServerException {
+            final boolean includeUnknownAlbum) throws IOException, MPDException {
         final List<String> albums;
 
         if (isCached()) {
@@ -242,10 +249,12 @@ public class CachedMPD extends MPD {
      * @param albums         List of Album objects to get Artists or Album Artists from.
      * @param useAlbumArtist If true use album artist, false otherwise.
      * @return list of arrays of artist names for each album.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
     public List<String[]> listArtists(final List<Album> albums, final boolean useAlbumArtist)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<String[]> artists;
 
         if (isCached()) {

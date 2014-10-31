@@ -21,7 +21,7 @@ import com.namelessdev.mpdroid.MainMenuActivity;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDOutput;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -35,6 +35,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                     } else {
                         mpd.disableOutput(output.getId());
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to modify output.", e);
                 }
                 final Activity activity = getActivity();
@@ -107,7 +108,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                     final List<MPDOutput> mpdOutputs = mApp.oMPDAsyncHelper.oMPD.getOutputs();
                     mOutputs.clear();
                     mOutputs.addAll(mpdOutputs);
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to list outputs.", e);
                 }
                 final Activity activity = getActivity();

@@ -28,7 +28,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.AlbumParcelable;
 import org.a0z.mpd.item.ArtistParcelable;
@@ -58,6 +58,8 @@ import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import java.io.IOException;
 
 public class SongsFragment extends BrowseFragment {
 
@@ -95,7 +97,7 @@ public class SongsFragment extends BrowseFragment {
         try {
             mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
             Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add, remove, play.", e);
         }
     }
@@ -105,7 +107,7 @@ public class SongsFragment extends BrowseFragment {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(mIrAdded, item);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add to playlist.", e);
         }
     }
@@ -117,7 +119,7 @@ public class SongsFragment extends BrowseFragment {
                 return;
             }
             mItems = mApp.oMPDAsyncHelper.oMPD.getSongs(mAlbum);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to async update.", e);
         }
     }
@@ -312,7 +314,7 @@ public class SongsFragment extends BrowseFragment {
                             try {
                                 mApp.oMPDAsyncHelper.oMPD.add(mAlbum, replace, play);
                                 Tools.notifyUser(R.string.albumAdded, mAlbum);
-                            } catch (final MPDServerException e) {
+                            } catch (final IOException | MPDException e) {
                                 Log.e(TAG, "Failed to add, replace, play.", e);
                             }
                         }
@@ -405,7 +407,7 @@ public class SongsFragment extends BrowseFragment {
                             positionCorrection = ((ListView) mList).getHeaderViewsCount();
                         }
                         mApp.oMPDAsyncHelper.oMPD.seekByIndex(position - positionCorrection, 0l);
-                    } catch (final MPDServerException e) {
+                    } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to seek by index.", e);
                     }
                 }

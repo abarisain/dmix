@@ -28,8 +28,9 @@
 package org.a0z.mpd;
 
 import org.a0z.mpd.connection.MPDConnection;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -164,10 +165,10 @@ final class CommandQueue {
      *
      * @param mpdConnection The connection to send the queued commands to.
      * @return The results of from the media server.
-     * @throws MPDServerException Thrown when there is an error sending the command to the media
-     *                            server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    List<String> send(final MPDConnection mpdConnection) throws MPDServerException {
+    List<String> send(final MPDConnection mpdConnection) throws IOException, MPDException {
         return send(mpdConnection, false);
     }
 
@@ -176,12 +177,11 @@ final class CommandQueue {
      *
      * @param mpdConnection The connection to send the queued commands to.
      * @return The results of from the media server.
-     * @throws MPDServerException    Thrown when there is an error sending the command to
-     *                               the media server.
-     * @throws IllegalStateException Thrown on empty command queue.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     private List<String> send(final MPDConnection mpdConnection, final boolean separated)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final MPDCommand mpdCommand;
 
         if (mCommandQueue.isEmpty()) {
@@ -207,11 +207,11 @@ final class CommandQueue {
      *
      * @param mpdConnection The connection to send the queued commands to.
      * @return The results of from the media server.
-     * @throws MPDServerException Thrown when there is an error sending the command to the media
-     *                            server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String[]> sendSeparated(final MPDConnection mpdConnection)
-            throws MPDServerException {
+            throws IOException, MPDException {
         return separatedQueueResults(send(mpdConnection, true));
     }
 

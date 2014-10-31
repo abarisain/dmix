@@ -30,7 +30,7 @@ package org.a0z.mpd;
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.connection.MPDConnectionMonoSocket;
 import org.a0z.mpd.connection.MPDConnectionMultiSocket;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Directory;
@@ -41,8 +41,8 @@ import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
 import org.a0z.mpd.item.Stream;
 
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -90,10 +90,11 @@ public class MPD {
      *
      * @param server server address or host name
      * @param port   server port
-     * @throws MPDServerException if an error occur while contacting server
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public MPD(final InetAddress server, final int port, final String password)
-            throws MPDServerException {
+            throws MPDException, IOException {
         this();
         connect(server, port, password);
     }
@@ -103,11 +104,11 @@ public class MPD {
      *
      * @param server server address or host name
      * @param port   server port
-     * @throws MPDServerException if an error occur while contacting server
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public MPD(final String server, final int port, final String password)
-            throws MPDServerException,
-            UnknownHostException {
+            throws IOException, MPDException {
         this();
         connect(server, port, password);
     }
@@ -216,9 +217,10 @@ public class MPD {
      * Adds a {@code Album} item object to the playlist queue.
      *
      * @param album {@code Album} item object to be added to the media server playlist queue.
-     * @throws MPDServerException On media server command parsing or connection error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void add(final Album album) throws MPDServerException {
+    public void add(final Album album) throws IOException, MPDException {
         add(album, false, false);
     }
 
@@ -228,10 +230,11 @@ public class MPD {
      * @param album   {@code Album} item object to be added to the media server playlist queue.
      * @param replace Whether to clear the playlist queue prior to adding the item(s).
      * @param play    Whether to play the playlist queue after adding the item(s).
-     * @throws MPDServerException On media server command parsing or connection error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void add(final Album album, final boolean replace, final boolean play)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<Music> songs = getSongs(album);
         final CommandQueue commandQueue = MPDPlaylist.addAllCommand(songs);
 
@@ -242,9 +245,10 @@ public class MPD {
      * Adds a {@code Artist} item object to the playlist queue.
      *
      * @param artist {@code Artist} item object to be added to the media server playlist queue.
-     * @throws MPDServerException On media server command parsing or connection error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void add(final Artist artist) throws MPDServerException {
+    public void add(final Artist artist) throws IOException, MPDException {
         add(artist, false, false);
     }
 
@@ -254,10 +258,11 @@ public class MPD {
      * @param artist  {@code Artist} item object to be added to the media server playlist queue.
      * @param replace Whether to clear the playlist queue prior to adding the item(s).
      * @param play    Whether to play the playlist queue after adding the item(s).
-     * @throws MPDServerException On media server command parsing or connection error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void add(final Artist artist, final boolean replace, final boolean play)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<Music> songs = getSongs(artist);
         final CommandQueue commandQueue = MPDPlaylist.addAllCommand(songs);
 
@@ -271,10 +276,11 @@ public class MPD {
      * @param music   {@code Music} item object to be added to the media server playlist queue.
      * @param replace Whether to clear the playlist queue prior to adding the item(s).
      * @param play    Whether to play the playlist queue after adding the item(s).
-     * @throws MPDServerException On media server command parsing or connection error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void add(final FilesystemTreeEntry music, final boolean replace, final boolean play)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
 
         commandQueue.add(MPDPlaylist.addCommand(music.getFullPath()));
@@ -286,9 +292,10 @@ public class MPD {
      * Add a {@code Music} item object to the playlist queue.
      *
      * @param music {@code Music} item object to be added to the playlist queue.
-     * @throws MPDServerException On media server command parsing or connection error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void add(final FilesystemTreeEntry music) throws MPDServerException {
+    public void add(final FilesystemTreeEntry music) throws IOException, MPDException {
         add(music, false, false);
     }
 
@@ -300,9 +307,11 @@ public class MPD {
      *                     songs into the queue.
      * @param replace      If true, replaces the entire playlist queue with the added files.
      * @param playAfterAdd If true, starts playing once added.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void add(final CommandQueue commandQueue, final boolean replace,
-            final boolean playAfterAdd) throws MPDServerException {
+            final boolean playAfterAdd) throws IOException, MPDException {
         int playPos = 0;
         final boolean isPlaying = mStatus.isState(MPDStatus.STATE_PLAYING);
         final boolean isConsume = mStatus.isConsume();
@@ -351,9 +360,10 @@ public class MPD {
      *
      * @param databasePlaylist A playlist item stored on the media server to add to the
      *                         playlist queue.
-     * @throws MPDServerException On media server command parsing or connection error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void add(final PlaylistFile databasePlaylist) throws MPDServerException {
+    public void add(final PlaylistFile databasePlaylist) throws IOException, MPDException {
         add(databasePlaylist, false, false);
     }
 
@@ -366,10 +376,11 @@ public class MPD {
      *                         databasePlaylist string.
      * @param play             Whether to play the playlist queue prior after adding the
      *                         databasePlaylist string.
-     * @throws MPDServerException On media server command parsing or connection error.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void add(final PlaylistFile databasePlaylist, final boolean replace, final boolean play)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
 
         commandQueue.add(MPDPlaylist.loadCommand(databasePlaylist.getName()));
@@ -385,7 +396,7 @@ public class MPD {
                     if (!songs.isEmpty()) {
                         album.setPath(songs.get(0).getPath());
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.error(TAG, "Failed to add an album path.", e);
                 }
             }
@@ -394,7 +405,7 @@ public class MPD {
 
     /** TODO: This needs to be an add(Stream, ...) method. */
     public void addStream(final String stream, final boolean replace, final boolean play)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
         commandQueue.add(MPDPlaylist.addCommand(stream));
 
@@ -402,17 +413,17 @@ public class MPD {
     }
 
     public void addToPlaylist(final String playlistName, final Album album)
-            throws MPDServerException {
+            throws IOException, MPDException {
         addToPlaylist(playlistName, new ArrayList<>(getSongs(album)));
     }
 
     public void addToPlaylist(final String playlistName, final Artist artist)
-            throws MPDServerException {
+            throws IOException, MPDException {
         addToPlaylist(playlistName, new ArrayList<>(getSongs(artist)));
     }
 
     public void addToPlaylist(final String playlistName, final Collection<Music> musicCollection)
-            throws MPDServerException {
+            throws IOException, MPDException {
         if (null != musicCollection && !musicCollection.isEmpty()) {
             final CommandQueue commandQueue = new CommandQueue();
 
@@ -425,13 +436,13 @@ public class MPD {
     }
 
     public void addToPlaylist(final String playlistName, final FilesystemTreeEntry entry)
-            throws MPDServerException {
+            throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName,
                 entry.getFullPath());
     }
 
     public void addToPlaylist(final String playlistName, final Music music)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final Collection<Music> songs = new ArrayList<>(1);
         songs.add(music);
         addToPlaylist(playlistName, songs);
@@ -441,9 +452,10 @@ public class MPD {
      * Increases or decreases volume by {@code modifier} amount.
      *
      * @param modifier volume adjustment
-     * @throws MPDServerException if an error occur while contacting server
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void adjustVolume(final int modifier) throws MPDServerException {
+    public void adjustVolume(final int modifier) throws IOException, MPDException {
         // calculate final volume (clip value with [0, 100])
         int vol = mStatus.getVolume() + modifier;
         vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, vol));
@@ -454,9 +466,10 @@ public class MPD {
     /**
      * Clears error message.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void clearError() throws MPDServerException {
+    public void clearError() throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_CLEARERROR);
     }
 
@@ -465,10 +478,11 @@ public class MPD {
      *
      * @param server server address or host name
      * @param port   server port
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public final synchronized void connect(final InetAddress server, final int port,
-            final String password)
-            throws MPDServerException {
+            final String password) throws IOException, MPDException {
         if (!isConnected()) {
             mConnection.connect(server, port, password);
             mIdleConnection.connect(server, port, password);
@@ -480,11 +494,11 @@ public class MPD {
      *
      * @param server server address or host name
      * @param port   server port
-     * @throws MPDServerException if an error occur while contacting server
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public final void connect(final String server, final int port, final String password)
-            throws MPDServerException,
-            UnknownHostException {
+            throws IOException, MPDException {
         final InetAddress address = InetAddress.getByName(server);
         connect(address, port, password);
     }
@@ -493,10 +507,11 @@ public class MPD {
      * Connects to a MPD server.
      *
      * @param server server address or host name and port (server:port)
-     * @throws MPDServerException if an error occur while contacting server
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public final void connect(final String server, final String password) throws MPDServerException,
-            UnknownHostException {
+    public final void connect(final String server, final String password) throws IOException,
+            MPDException {
         int port = MPDCommand.DEFAULT_MPD_PORT;
         final String host;
         if (server.indexOf(':') == -1) {
@@ -508,21 +523,21 @@ public class MPD {
         connect(host, port, password);
     }
 
-    public void disableOutput(final int id) throws MPDServerException {
+    public void disableOutput(final int id) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
     }
 
     /**
      * Disconnects from server.
      *
-     * @throws MPDServerException if an error occur while closing connection
+     * @throws IOException if an error occur while closing connection
      */
-    public synchronized void disconnect() throws MPDServerException {
-        MPDServerException ex = null;
+    public synchronized void disconnect() throws IOException {
+        IOException ex = null;
         if (mConnection != null && mConnection.isConnected()) {
             try {
                 mConnection.disconnect();
-            } catch (final MPDServerException e) {
+            } catch (final IOException e) {
                 ex = (ex != null) ? ex : e;// Always keep first non null
                 // exception
             }
@@ -530,7 +545,7 @@ public class MPD {
         if (mIdleConnection != null && mIdleConnection.isConnected()) {
             try {
                 mIdleConnection.disconnect();
-            } catch (final MPDServerException e) {
+            } catch (final IOException e) {
                 ex = (ex != null) ? ex : e;// Always keep non null first
                 // exception
             }
@@ -538,12 +553,12 @@ public class MPD {
     }
 
     public void editSavedStream(final String url, final String name, final Integer pos)
-            throws MPDServerException {
+            throws IOException, MPDException {
         removeSavedStream(pos);
         saveStream(url, name);
     }
 
-    public void enableOutput(final int id) throws MPDServerException {
+    public void enableOutput(final int id) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
     }
 
@@ -556,15 +571,16 @@ public class MPD {
      * @param locatorString case-insensitive locator locatorString. Anything that exactly
      *                      matches {@code locatorString} will be returned in the results.
      * @return a Collection of {@code Music}
-     * @throws MPDServerException if an error occur while contacting server
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see org.a0z.mpd.item.Music
      */
     public Collection<Music> find(final String type, final String locatorString)
-            throws MPDServerException {
+            throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, type, locatorString);
     }
 
-    public List<Music> find(final String[] args) throws MPDServerException {
+    public List<Music> find(final String[] args) throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, args, true);
     }
 
@@ -578,7 +594,7 @@ public class MPD {
             List<String[]> albumArtists = null;
             try {
                 albumArtists = listAlbumArtists(albums);
-            } catch (final MPDServerException e) {
+            } catch (final IOException | MPDException e) {
                 Log.error(TAG, "Failed to fix album artists.", e);
             }
 
@@ -613,29 +629,28 @@ public class MPD {
     }
 
     protected List<Music> genericSearch(final String searchCommand, final String[] args,
-            final boolean sort) throws MPDServerException {
+            final boolean sort) throws IOException, MPDException {
         return Music.getMusicFromList(mConnection.sendCommand(searchCommand, args), sort);
     }
 
     protected List<Music> genericSearch(final String searchCommand, final String type,
-            final String strToFind)
-            throws MPDServerException {
+            final String strToFind) throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(searchCommand, type, strToFind);
         return Music.getMusicFromList(response, true);
     }
 
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
-            throws MPDServerException {
+            throws IOException, MPDException {
         return listAlbums(artist.getName(), useAlbumArtistTag).size();
     }
 
     public int getAlbumCount(final String artist, final boolean useAlbumArtistTag)
-            throws MPDServerException {
+            throws IOException, MPDException {
         return listAlbums(artist, useAlbumArtistTag).size();
     }
 
     protected void getAlbumDetails(final List<Album> albums, final boolean findYear)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue(albums.size());
         for (final Album album : albums) {
             commandQueue.add(getAlbumDetailsCommand(album));
@@ -666,7 +681,7 @@ public class MPD {
     }
 
     public List<Album> getAlbums(final Artist artist, final boolean sortByYear,
-            final boolean trackCountNeeded) throws MPDServerException {
+            final boolean trackCountNeeded) throws IOException, MPDException {
         List<Album> albums = getAlbums(artist, sortByYear, trackCountNeeded, false);
 
         // 1. the null artist list already contains all albums
@@ -680,7 +695,7 @@ public class MPD {
 
     public List<Album> getAlbums(final Artist artist, final boolean sortByYear,
             final boolean trackCountNeeded, final boolean useAlbumArtist)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<Album> albums;
 
         if (artist == null) {
@@ -719,8 +734,11 @@ public class MPD {
      *
      * @param trackCountNeeded Do we need the track count ?
      * @return all Albums
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<Album> getAllAlbums(final boolean trackCountNeeded) throws MPDServerException {
+    public List<Album> getAllAlbums(final boolean trackCountNeeded)
+            throws IOException, MPDException {
         final List<Album> albums;
         // Use MPD 0.19's album grouping feature if available.
         if (mConnection.isProtocolVersionSupported(0, 19)) {
@@ -741,11 +759,11 @@ public class MPD {
         return albums;
     }
 
-    public List<Artist> getArtists() throws MPDServerException {
+    public List<Artist> getArtists() throws IOException, MPDException {
         return Item.merged(getArtists(true), getArtists(false));
     }
 
-    public List<Artist> getArtists(final boolean useAlbumArtist) throws MPDServerException {
+    public List<Artist> getArtists(final boolean useAlbumArtist) throws IOException, MPDException {
         final List<String> artistNames;
         final List<Artist> artists;
 
@@ -765,12 +783,12 @@ public class MPD {
         return artists;
     }
 
-    public List<Artist> getArtists(final Genre genre) throws MPDServerException {
+    public List<Artist> getArtists(final Genre genre) throws IOException, MPDException {
         return Item.merged(getArtists(genre, false), getArtists(genre, true));
     }
 
     public List<Artist> getArtists(final Genre genre, final boolean useAlbumArtist)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<String> artistNames;
         final List<Artist> artists;
 
@@ -790,7 +808,7 @@ public class MPD {
         return artists;
     }
 
-    protected List<Music> getFirstTrack(final Album album) throws MPDServerException {
+    protected List<Music> getFirstTrack(final Album album) throws IOException, MPDException {
         final Artist artist = album.getArtist();
         final String[] args = new String[6];
 
@@ -827,7 +845,7 @@ public class MPD {
         return songs;
     }
 
-    public List<Genre> getGenres() throws MPDServerException {
+    public List<Genre> getGenres() throws IOException, MPDException {
         final List<String> genreNames = listGenres();
         List<Genre> genres = null;
 
@@ -860,7 +878,7 @@ public class MPD {
      *
      * @return MPD Server version.
      */
-    public String getMpdVersion() throws MPDServerException {
+    public String getMpdVersion() {
         final int[] version = mIdleConnection.getMPDVersion();
 
         final StringBuilder sb = new StringBuilder(version.length);
@@ -877,8 +895,10 @@ public class MPD {
      * Returns the available outputs
      *
      * @return List of available outputs
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<MPDOutput> getOutputs() throws MPDServerException {
+    public List<MPDOutput> getOutputs() throws IOException, MPDException {
         final List<MPDOutput> result = new LinkedList<>();
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTS);
 
@@ -909,7 +929,8 @@ public class MPD {
         return mPlaylist;
     }
 
-    public List<Music> getPlaylistSongs(final String playlistName) throws MPDServerException {
+    public List<Music> getPlaylistSongs(final String playlistName)
+            throws IOException, MPDException {
         final String[] args = new String[1];
         args[0] = playlistName;
 
@@ -918,8 +939,11 @@ public class MPD {
 
     /**
      * Returns a list of all available playlists
+     *
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<Item> getPlaylists() throws MPDServerException {
+    public List<Item> getPlaylists() throws IOException, MPDException {
         return getPlaylists(false);
     }
 
@@ -927,8 +951,10 @@ public class MPD {
      * Returns a list of all available playlists
      *
      * @param sort whether the return list should be sorted
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<Item> getPlaylists(final boolean sort) throws MPDServerException {
+    public List<Item> getPlaylists(final boolean sort) throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         final List<Item> result = new ArrayList<>(response.size());
         for (final String[] pair : Tools.splitResponse(response)) {
@@ -945,7 +971,7 @@ public class MPD {
         return result;
     }
 
-    public List<Music> getSavedStreams() throws MPDServerException {
+    public List<Music> getSavedStreams() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         List<Music> savedStreams = null;
 
@@ -963,7 +989,7 @@ public class MPD {
         return savedStreams;
     }
 
-    public List<Music> getSongs(final Album album) throws MPDServerException {
+    public List<Music> getSongs(final Album album) throws IOException, MPDException {
         final List<Music> songs = Music.getMusicFromList
                 (mConnection.sendCommand(getSongsCommand(album)), true);
         if (album.hasAlbumArtist()) {
@@ -989,7 +1015,7 @@ public class MPD {
         return songs;
     }
 
-    public List<Music> getSongs(final Artist artist) throws MPDServerException {
+    public List<Music> getSongs(final Artist artist) throws IOException, MPDException {
         final List<Album> albums = getAlbums(artist, false, false);
         final List<Music> songs = new ArrayList<>(albums.size());
         for (final Album album : albums) {
@@ -1023,7 +1049,8 @@ public class MPD {
     /*
      * test whether given album is in given genre
      */
-    public boolean isAlbumInGenre(final Album album, final Genre genre) throws MPDServerException {
+    public boolean isAlbumInGenre(final Album album, final Genre genre)
+            throws IOException, MPDException {
         final List<String> response;
         final Artist artist = album.getArtist();
         String artistName = null;
@@ -1067,7 +1094,7 @@ public class MPD {
         return mIdleConnection.isConnected();
     }
 
-    public List<String> listAlbumArtists() throws MPDServerException {
+    public List<String> listAlbumArtists() throws IOException, MPDException {
         return listAlbumArtists(true);
     }
 
@@ -1075,16 +1102,18 @@ public class MPD {
      * List all album artist names from database.
      *
      * @return album artist names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listAlbumArtists(final boolean sortInsensitive) throws MPDServerException {
+    public List<String> listAlbumArtists(final boolean sortInsensitive)
+            throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ALBUM_ARTIST);
 
         return parseResponse(response, "albumartist", sortInsensitive);
     }
 
-    public List<String> listAlbumArtists(final Genre genre) throws MPDServerException {
+    public List<String> listAlbumArtists(final Genre genre) throws IOException, MPDException {
         return listAlbumArtists(genre, true);
     }
 
@@ -1092,10 +1121,11 @@ public class MPD {
      * List all album artist names from database.
      *
      * @return album artist names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listAlbumArtists(final Genre genre, final boolean sortInsensitive)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(
                 MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM_ARTIST,
                 MPDCommand.MPD_TAG_GENRE, genre.getName());
@@ -1103,7 +1133,8 @@ public class MPD {
         return parseResponse(response, MPDCommand.MPD_TAG_ALBUM_ARTIST, sortInsensitive);
     }
 
-    public List<String[]> listAlbumArtists(final List<Album> albums) throws MPDServerException {
+    public List<String[]> listAlbumArtists(final List<Album> albums)
+            throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue(albums.size());
         final List<String[]> response;
         List<String[]> albumArtists = null;
@@ -1142,9 +1173,10 @@ public class MPD {
      * List all albums from database.
      *
      * @return {@code Collection} with all album names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listAlbums() throws MPDServerException {
+    public List<String> listAlbums() throws IOException, MPDException {
         return listAlbums(null, false, true);
     }
 
@@ -1153,9 +1185,10 @@ public class MPD {
      *
      * @param useAlbumArtist use AlbumArtist instead of Artist
      * @return {@code Collection} with all album names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listAlbums(final boolean useAlbumArtist) throws MPDServerException {
+    public List<String> listAlbums(final boolean useAlbumArtist) throws IOException, MPDException {
         return listAlbums(null, useAlbumArtist, true);
     }
 
@@ -1166,10 +1199,11 @@ public class MPD {
      * @param artist         artist to list albums
      * @param useAlbumArtist use AlbumArtist instead of Artist
      * @return {@code Collection} with all album names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listAlbums(final String artist, final boolean useAlbumArtist)
-            throws MPDServerException {
+            throws IOException, MPDException {
         return listAlbums(artist, useAlbumArtist, true);
     }
 
@@ -1181,10 +1215,11 @@ public class MPD {
      * @param includeUnknownAlbum include an entry for songs with no album tag
      * @return {@code Collection} with all album names from the given
      * artist present in database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listAlbums(final String artist, final boolean useAlbumArtist,
-            final boolean includeUnknownAlbum) throws MPDServerException {
+            final boolean includeUnknownAlbum) throws IOException, MPDException {
         boolean foundSongWithoutAlbum = false;
 
         final List<String> response =
@@ -1218,10 +1253,11 @@ public class MPD {
      *
      * @param includeUnknownAlbum include an entry for albums with no artists
      * @return {@code Collection} with all albums present in database, with their artist.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<Album> listAllAlbumsGrouped(final boolean includeUnknownAlbum)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<Album> artistAlbums = listAllAlbumsGrouped(false, includeUnknownAlbum);
         final List<Album> albumArtistAlbums = listAllAlbumsGrouped(true, includeUnknownAlbum);
 
@@ -1244,10 +1280,11 @@ public class MPD {
      * @param useAlbumArtist      use AlbumArtist instead of Artist
      * @param includeUnknownAlbum include an entry for albums with no artists
      * @return {@code Collection} with all albums present in database, with their artist.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<Album> listAllAlbumsGrouped(final boolean useAlbumArtist,
-            final boolean includeUnknownAlbum) throws MPDServerException {
+            final boolean includeUnknownAlbum) throws IOException, MPDException {
         final String albumResponse = "Album";
         final String artistResponse;
         final List<String> response =
@@ -1290,9 +1327,10 @@ public class MPD {
      * be exceeded, which will, in turn, truncate the output to this method.
      *
      * @return List of all available music information.
-     * @throws MPDServerException on no connection or failure to send command.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<Music> listAllInfo() throws MPDServerException {
+    public List<Music> listAllInfo() throws IOException, MPDException {
         final List<String> allInfo = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO);
         return Music.getMusicFromList(allInfo, false);
     }
@@ -1301,9 +1339,10 @@ public class MPD {
      * List all artist names from database.
      *
      * @return artist names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listArtists() throws MPDServerException {
+    public List<String> listArtists() throws IOException, MPDException {
         return listArtists(true);
     }
 
@@ -1312,22 +1351,26 @@ public class MPD {
      *
      * @param sortInsensitive boolean for insensitive sort when true
      * @return artist names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listArtists(final boolean sortInsensitive) throws MPDServerException {
+    public List<String> listArtists(final boolean sortInsensitive)
+            throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST);
 
         return parseResponse(response, "Artist", sortInsensitive);
     }
 
-    /*
+    /**
      * List all album artist or artist names of all given albums from database.
+     *
      * @return list of array of artist names for each album.
-     * @throws MPDServerException if an error occurs while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String[]> listArtists(final List<Album> albums, final boolean useAlbumArtist)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<String[]> result;
 
         if (albums == null) {
@@ -1372,9 +1415,10 @@ public class MPD {
      * List all artist names from database.
      *
      * @return artist names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listArtists(final String genre) throws MPDServerException {
+    public List<String> listArtists(final String genre) throws IOException, MPDException {
         return listArtists(genre, true);
     }
 
@@ -1383,10 +1427,11 @@ public class MPD {
      *
      * @param sortInsensitive boolean for insensitive sort when true
      * @return artist names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listArtists(final String genre, final boolean sortInsensitive)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST, MPDCommand.MPD_TAG_GENRE, genre);
 
@@ -1394,7 +1439,7 @@ public class MPD {
     }
 
     private List<String[]> listArtistsCommand(final Iterable<Album> albums,
-            final boolean useAlbumArtist) throws MPDServerException {
+            final boolean useAlbumArtist) throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
 
         for (final Album album : albums) {
@@ -1425,9 +1470,10 @@ public class MPD {
      * List all genre names from database.
      *
      * @return artist names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listGenres() throws MPDServerException {
+    public List<String> listGenres() throws IOException, MPDException {
         return listGenres(true);
     }
 
@@ -1436,9 +1482,10 @@ public class MPD {
      *
      * @param sortInsensitive boolean for insensitive sort when true
      * @return artist names from database.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listGenres(final boolean sortInsensitive) throws MPDServerException {
+    public List<String> listGenres(final boolean sortInsensitive) throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_GENRE);
 
@@ -1446,7 +1493,7 @@ public class MPD {
     }
 
     public void movePlaylistSong(final String playlistName, final int from, final int to)
-            throws MPDServerException {
+            throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_MOVE, playlistName,
                 Integer.toString(from), Integer.toString(to));
     }
@@ -1454,73 +1501,79 @@ public class MPD {
     /**
      * Jumps to next playlist track.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void next() throws MPDServerException {
+    public void next() throws IOException, MPDException {
         mConnection.sendCommand(nextCommand());
     }
 
     /**
      * Pauses/Resumes music playing.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void pause() throws MPDServerException {
+    public void pause() throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PAUSE);
     }
 
     /**
      * Starts playing music.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void play() throws MPDServerException {
+    public void play() throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAY);
     }
 
     /**
      * Plays previous playlist music.
      *
-     * @throws MPDServerException if an error occur while contacting server..
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void previous() throws MPDServerException {
+    public void previous() throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PREV);
     }
 
     /**
      * Tells server to refresh database.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void refreshDatabase() throws MPDServerException {
+    public void refreshDatabase() throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH);
     }
 
     /**
      * Tells server to refresh database.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void refreshDatabase(final String folder) throws MPDServerException {
+    public void refreshDatabase(final String folder) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH, folder);
     }
 
-    public void refreshDirectory(final Directory directory) throws MPDServerException {
+    public void refreshDirectory(final Directory directory) throws IOException, MPDException {
         directory.refresh(mConnection);
     }
 
     public void removeFromPlaylist(final String playlistName, final Integer pos)
-            throws MPDServerException {
+            throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName,
                 Integer.toString(pos));
     }
 
-    public void removeSavedStream(final Integer pos) throws MPDServerException {
+    public void removeSavedStream(final Integer pos) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, STREAMS_PLAYLIST,
                 Integer.toString(pos));
     }
 
-    public void saveStream(final String url, final String name) throws MPDServerException {
+    public void saveStream(final String url, final String name) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
                 Stream.addStreamName(url, name));
     }
@@ -1535,15 +1588,16 @@ public class MPD {
      * @param locatorString case-insensitive locator locatorString. Anything that contains
      *                      {@code locatorString} will be returned in the results.
      * @return a Collection of {@code Music}.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see org.a0z.mpd.item.Music
      */
     public List<Music> search(final String type, final String locatorString)
-            throws MPDServerException {
+            throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, locatorString);
     }
 
-    public List<Music> search(final String[] args) throws MPDServerException {
+    public List<Music> search(final String[] args) throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_SEARCH, args, true);
     }
 
@@ -1551,9 +1605,10 @@ public class MPD {
      * Seeks current music to the position.
      *
      * @param position song position in seconds
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void seek(final long position) throws MPDServerException {
+    public void seek(final long position) throws IOException, MPDException {
         seekById(mStatus.getSongId(), position);
     }
 
@@ -1562,9 +1617,10 @@ public class MPD {
      *
      * @param songId   music id in playlist.
      * @param position song position in seconds.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void seekById(final int songId, final long position) throws MPDServerException {
+    public void seekById(final int songId, final long position) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_SEEK_ID, Integer.toString(songId),
                 Long.toString(position));
     }
@@ -1574,9 +1630,10 @@ public class MPD {
      *
      * @param index    music position in playlist.
      * @param position song position in seconds.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void seekByIndex(final int index, final long position) throws MPDServerException {
+    public void seekByIndex(final int index, final long position) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_SEEK, Integer.toString(index),
                 Long.toString(position));
     }
@@ -1586,9 +1643,10 @@ public class MPD {
      *
      * @param consume if true song consuming will be enabled, if false song
      *                consuming will be disabled.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void setConsume(final boolean consume) throws MPDServerException {
+    public void setConsume(final boolean consume) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_CONSUME, MPDCommand.booleanValue(consume));
     }
 
@@ -1596,9 +1654,10 @@ public class MPD {
      * Sets cross-fade.
      *
      * @param time cross-fade time in seconds. 0 to disable cross-fade.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void setCrossFade(final int time) throws MPDServerException {
+    public void setCrossFade(final int time) throws IOException, MPDException {
         mConnection
                 .sendCommand(MPDCommand.MPD_CMD_CROSSFADE, Integer.toString(Math.max(0, time)));
     }
@@ -1608,9 +1667,10 @@ public class MPD {
      *
      * @param random if true random will be enabled, if false random will be
      *               disabled.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void setRandom(final boolean random) throws MPDServerException {
+    public void setRandom(final boolean random) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_RANDOM, MPDCommand.booleanValue(random));
     }
 
@@ -1619,9 +1679,10 @@ public class MPD {
      *
      * @param repeat if true repeating will be enabled, if false repeating will
      *               be disabled.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void setRepeat(final boolean repeat) throws MPDServerException {
+    public void setRepeat(final boolean repeat) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_REPEAT, MPDCommand.booleanValue(repeat));
     }
 
@@ -1630,9 +1691,10 @@ public class MPD {
      *
      * @param single if true single mode will be enabled, if false single mode
      *               will be disabled.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void setSingle(final boolean single) throws MPDServerException {
+    public void setSingle(final boolean single) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_SINGLE, MPDCommand.booleanValue(single));
     }
 
@@ -1640,9 +1702,10 @@ public class MPD {
      * Sets volume to {@code volume}.
      *
      * @param volume new volume value, must be in 0-100 range.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void setVolume(final int volume) throws MPDServerException {
+    public void setVolume(final int volume) throws IOException, MPDException {
         final int vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, volume));
         mConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
     }
@@ -1650,9 +1713,10 @@ public class MPD {
     /**
      * Kills server.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void shutdown() throws MPDServerException {
+    public void shutdown() throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_KILL);
     }
 
@@ -1660,9 +1724,10 @@ public class MPD {
      * Skip to song with specified {@code id}.
      *
      * @param id song id.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void skipToId(final int id) throws MPDServerException {
+    public void skipToId(final int id) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAY_ID, Integer.toString(id));
     }
 
@@ -1670,19 +1735,21 @@ public class MPD {
      * Jumps to track {@code position} from playlist.
      *
      * @param position track number.
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see #skipToId(int)
      */
-    public void skipToPosition(final int position) throws MPDServerException {
+    public void skipToPosition(final int position) throws IOException, MPDException {
         mConnection.sendCommand(skipToPositionCommand(position));
     }
 
     /**
      * Stops music playing.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void stop() throws MPDServerException {
+    public void stop() throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_STOP);
     }
 
@@ -1691,10 +1758,11 @@ public class MPD {
      * method directly unless you absolutely know what you are doing. If a long running application
      * needs a status update, use the {@code MPDStatusMonitor} instead.
      *
-     * @throws MPDServerException if an error occurred while contacting the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see MPDStatusMonitor
      */
-    public void updateStatistics() throws MPDServerException {
+    public void updateStatistics() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
 
         mStatistics.update(response);
@@ -1705,10 +1773,11 @@ public class MPD {
      * absolutely know what you are doing. If a long running application needs a status update, use
      * the {@code MPDStatusMonitor} instead.
      *
-     * @throws MPDServerException if an error occur while contacting server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see MPDStatusMonitor
      */
-    void updateStatus() throws MPDServerException {
+    void updateStatus() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
 
         if (response == null) {

@@ -1,10 +1,11 @@
 package org.a0z.mpd;
 
 import org.a0z.mpd.connection.MPDConnection;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -151,10 +152,11 @@ public class Sticker {
      * @param entry   The entry to delete.
      * @param sticker The sticker key to delete. If null, all stickers associated with this entry
      *                will be removed.
-     * @throws MPDServerException if an error occurs while contacting the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void delete(final FilesystemTreeEntry entry, final String sticker)
-            throws MPDServerException {
+            throws IOException, MPDException {
         if (!(entry instanceof Music)) {
             throw new IllegalArgumentException(NOT_SUPPORTED);
         }
@@ -174,10 +176,11 @@ public class Sticker {
      * @param entry The entry to search below in the entry's hierarchy.
      * @param name  The name to search the stickers for.
      * @return A map of entries from the media server.
-     * @throws MPDServerException if an error occurs while contacting the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public Map<Music, Map<String, String>> find(final FilesystemTreeEntry entry,
-            final String name) throws MPDServerException {
+            final String name) throws IOException, MPDException {
         if (!(entry instanceof Music)) {
             throw new IllegalArgumentException(NOT_SUPPORTED);
         }
@@ -227,10 +230,11 @@ public class Sticker {
      * @param name  The optional name to sticker key to receive. If null all names will be
      *              retrieved.
      * @return A map of entries from the media server.
-     * @throws MPDServerException if an error occurs while contacting the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public String get(final FilesystemTreeEntry entry, final String name)
-            throws MPDServerException {
+            throws IOException, MPDException {
         if (!(entry instanceof Music)) {
             throw new IllegalArgumentException(NOT_SUPPORTED);
         }
@@ -239,7 +243,7 @@ public class Sticker {
 
         if (isAvailable()) {
             /** Do not throw exception when attempting to retrieve a non-existant sticker. */
-            final int[] nonfatalErrors = {MPDServerException.ACK_ERROR_NO_EXIST};
+            final int[] nonfatalErrors = {MPDException.ACK_ERROR_NO_EXIST};
             final List<String> response = mConnection.sendCommand(CMD_ACTION_GET, nonfatalErrors,
                     CMD_STICKER_TYPE_SONG, entry.getFullPath(), name);
 
@@ -267,10 +271,11 @@ public class Sticker {
      *
      * @param response The media server response from which to retrieve the music map.
      * @return A {@code Map\<FullPath, Music\>} map.
-     * @throws MPDServerException if an error occurs while contacting the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     private Map<String, Music> getMusicPair(final Collection<String> response)
-            throws MPDServerException {
+            throws IOException, MPDException {
         final List<String> musicResponse = getMusicCommand(response).send(mConnection);
         final List<Music> musicList = Music.getMusicFromList(musicResponse, false);
         final Map<String, Music> musicPair = new HashMap<>(musicList.size());
@@ -286,8 +291,10 @@ public class Sticker {
      * Retrieves rating of a entry.
      *
      * @return rating of entry.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public int getRating(final FilesystemTreeEntry entry) throws MPDServerException {
+    public int getRating(final FilesystemTreeEntry entry) throws IOException, MPDException {
         if (!(entry instanceof Music)) {
             throw new IllegalArgumentException(NOT_SUPPORTED);
         }
@@ -327,9 +334,11 @@ public class Sticker {
      *
      * @param entry The entry to list stickers from.
      * @return A map of entries from the media server.
-     * @throws MPDServerException if an error occurs while contacting the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public Map<String, String> list(final FilesystemTreeEntry entry) throws MPDServerException {
+    public Map<String, String> list(final FilesystemTreeEntry entry)
+            throws IOException, MPDException {
         if (!(entry instanceof Music)) {
             throw new IllegalArgumentException(NOT_SUPPORTED);
         }
@@ -374,10 +383,11 @@ public class Sticker {
      * @param entry   The entry with which to associate the sticker key-value pair.
      * @param sticker The sticker key.
      * @param value   The sticker value.
-     * @throws MPDServerException If an error occurs while contacting the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void set(final FilesystemTreeEntry entry, final String sticker,
-            final String value) throws MPDServerException {
+    public void set(final FilesystemTreeEntry entry, final String sticker, final String value)
+            throws IOException, MPDException {
         if (!(entry instanceof Music)) {
             throw new IllegalArgumentException(NOT_SUPPORTED);
         }
@@ -396,10 +406,11 @@ public class Sticker {
      * @param entry  The entry to rate.
      * @param rating The rating to set the entry to, from {@code MIN_RATING} to
      *               {@code MAX_RATING}.
-     * @throws MPDServerException if an error occurs while contacting the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void setRating(final FilesystemTreeEntry entry, final int rating)
-            throws MPDServerException {
+            throws IOException, MPDException {
         if (!(entry instanceof Music)) {
             throw new IllegalArgumentException(NOT_SUPPORTED);
         }

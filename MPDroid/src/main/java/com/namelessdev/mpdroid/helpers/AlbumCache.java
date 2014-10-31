@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Music;
 
 import android.util.Log;
@@ -282,7 +282,7 @@ public class AlbumCache {
         try {
             allmusic = mMPD.listAllInfo();
             Log.d(TAG, "allmusic " + allmusic.size());
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             mEnabled = false;
             mLastUpdate = null;
             updateConnection();

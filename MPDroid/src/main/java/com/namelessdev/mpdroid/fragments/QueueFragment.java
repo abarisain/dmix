@@ -38,7 +38,7 @@ import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.AlbumParcelable;
 import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Item;
@@ -78,6 +78,7 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -433,7 +434,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             List<Item> playLists;
             try {
                 playLists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
-            } catch (final MPDServerException e) {
+            } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to receive list of playlists.", e);
                 playLists = new ArrayList<>(0);
             }

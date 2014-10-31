@@ -31,8 +31,7 @@ import org.a0z.mpd.Log;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.Tools;
-import org.a0z.mpd.exception.MPDConnectionException;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -148,11 +147,12 @@ public abstract class MPDConnection {
      * @param host     The media server host to connect to.
      * @param port     The media server port to connect to.
      * @param password The MPD protocol password to pass upon connection.
-     * @throws MPDServerException Thrown upon an error sending a simple command to the {@code
-     *                            host}/{@code port} pair with the {@code password}.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown upon an error sending a simple command to the {@code
+     *                      host}/{@code port} pair with the {@code password}.
      */
     public final void connect(final InetAddress host, final int port, final String password)
-            throws MPDServerException {
+            throws IOException, MPDException {
         innerDisconnect();
 
         mCancelled = false;
@@ -169,7 +169,7 @@ public abstract class MPDConnection {
         }
 
         if (connectionResult == null) {
-            throw new MPDServerException("Failed initial connection.");
+            throw new IOException("Failed initial connection.");
         }
 
         mIsConnected = true;
@@ -179,9 +179,9 @@ public abstract class MPDConnection {
     /**
      * The method to disconnect from the current connected server.
      *
-     * @throws MPDConnectionException Thrown upon disconnection error.
+     * @throws IOException Thrown upon disconnection error.
      */
-    public void disconnect() throws MPDConnectionException {
+    public void disconnect() throws IOException {
         mCancelled = true;
         innerDisconnect();
     }
@@ -226,18 +226,14 @@ public abstract class MPDConnection {
     /**
      * A low level disconnect method for the socket(s).
      *
-     * @throws MPDConnectionException Thrown if there is a problem closing the socket.
+     * @throws IOException Thrown if there is a problem closing the socket.
      */
-    private void innerDisconnect() throws MPDConnectionException {
+    private void innerDisconnect() throws IOException {
         mIsConnected = false;
         synchronized (mLock) {
             if (getSocket() != null) {
-                try {
-                    getSocket().close();
-                    setSocket(null);
-                } catch (final IOException e) {
-                    throw new MPDConnectionException(e.getMessage(), e);
-                }
+                getSocket().close();
+                setSocket(null);
             }
         }
     }
@@ -287,11 +283,11 @@ public abstract class MPDConnection {
      *
      * @param command The command to be processed.
      * @return The response to the processed command.
-     * @throws MPDServerException Thrown if there were communication problems, execution problems,
-     *                            server side problems with the command or if the executor was
-     *                            interrupted.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    private CommandResult processCommand(final MPDCommand command) throws MPDServerException {
+    private CommandResult processCommand(final MPDCommand command)
+            throws IOException, MPDException {
         final CommandResult result;
         final List<String> commandResult;
 
@@ -304,7 +300,7 @@ public abstract class MPDConnection {
                 // Spam the log with the largest pool size
                 //Log.debug(TAG, "Largest pool size: " + mExecutor.getLargestPoolSize());
             } catch (final ExecutionException | InterruptedException e) {
-                throw new MPDServerException(e);
+                throw new IOException(e);
             }
         }
 
@@ -312,10 +308,14 @@ public abstract class MPDConnection {
 
         if (commandResult == null) {
             if (mCancelled) {
-                throw new MPDConnectionException("The MPD request has been cancelled");
+                throw new IOException("The MPD request has been cancelled.");
             }
 
-            throw result.getLastException();
+            if (result.getLastException() != null) {
+                throw result.getLastException();
+            } else if (result.getIOException() != null) {
+                throw result.getIOException();
+            }
         }
 
         return result;
@@ -326,9 +326,10 @@ public abstract class MPDConnection {
      *
      * @param command The command to be sent to the server.
      * @return The result from the command sent to the server.
-     * @throws MPDServerException Thrown if there are errors sending the command to the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> sendCommand(final MPDCommand command) throws MPDServerException {
+    public List<String> sendCommand(final MPDCommand command) throws IOException, MPDException {
         return processCommand(command).getResult();
     }
 
@@ -338,10 +339,11 @@ public abstract class MPDConnection {
      * @param command The command to be sent to the server.
      * @param args    Arguments to the command to be sent to the server.
      * @return The result from the command sent to the server.
-     * @throws MPDServerException Thrown if there are errors sending the command to the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> sendCommand(final String command, final String... args)
-            throws MPDServerException {
+            throws IOException, MPDException {
         return sendCommand(new MPDCommand(command, args));
     }
 
@@ -354,10 +356,11 @@ public abstract class MPDConnection {
      *                       codes with this command will not return any exception.
      * @param args           Arguments to the command to be sent to the server.
      * @return The result from the command sent to the server.
-     * @throws MPDServerException Thrown if there are errors sending the command to the server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> sendCommand(final String command, final int[] nonfatalErrors,
-            final String... args) throws MPDServerException {
+            final String... args) throws IOException, MPDException {
         return sendCommand(new MPDCommand(command, nonfatalErrors, args));
     }
 
@@ -424,7 +427,8 @@ public abstract class MPDConnection {
                 } catch (final EOFException ex0) {
                     mIsConnected = false;
                     mIsCommandSent = false;
-                    handleConnectionFailure(result, new MPDConnectionException(ex0));
+                    handleFailure(result, ex0);
+
                     // Do not fail when the IDLE response has not been read (to improve connection
                     // failure robustness). Just send the "changed playlist" result to force the MPD
                     // status to be refreshed.
@@ -432,14 +436,19 @@ public abstract class MPDConnection {
                         result.setResult(Collections.singletonList(
                                 "changed: " + MPDStatusMonitor.IDLE_PLAYLIST));
                     }
-                } catch (final MPDServerException ex1) {
+                } catch (final IOException e) {
+                    mIsConnected = false;
+                    mIsCommandSent = false;
+
+                    handleFailure(result, e);
+                } catch (final MPDException ex1) {
                     mIsConnected = false;
                     // Avoid getting in an infinite loop if an error occurred in the password cmd
-                    if (ex1.mErrorCode == MPDServerException.ACK_ERROR_PASSWORD ||
-                            ex1.mErrorCode == MPDServerException.ACK_ERROR_PERMISSION) {
-                        result.setLastException(new MPDServerException(ex1.mErrorMessage));
+                    if (ex1.mErrorCode == MPDException.ACK_ERROR_PASSWORD ||
+                            ex1.mErrorCode == MPDException.ACK_ERROR_PERMISSION) {
+                        result.setLastException(ex1);
                     } else {
-                        handleConnectionFailure(result, ex1);
+                        handleFailure(result, ex1);
                     }
                 }
 
@@ -454,11 +463,17 @@ public abstract class MPDConnection {
             if (result.getResult() == null) {
                 if (mCancelled) {
                     mIsConnected = false;
-                    result.setLastException(new MPDConnectionException(
+                    result.setIOException(new IOException(
                             "MPD request has been cancelled for disconnection."));
                 }
-                Log.error(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
-                        retryCount + " attempts.", result.getLastException());
+
+                if (result.getLastException() != null) {
+                    Log.error(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
+                            retryCount + " attempts.", result.getLastException());
+                } else if (result.getIOException() != null) {
+                    Log.error(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
+                            retryCount + " attempts.", result.getIOException());
+                }
             } else {
                 mIsConnected = true;
             }
@@ -469,26 +484,24 @@ public abstract class MPDConnection {
          * This method processes the command and response from the command.
          *
          * @return A String list of responses to the sent command.
-         * @throws MPDServerException Thrown if there is an error communicating with the media
-         *                            server.
+         * @throws IOException  Thrown upon a communication error with the server.
+         * @throws MPDException Thrown if an error occurs as a result of command execution.
          */
-        private List<String> communicate() throws EOFException, MPDServerException {
+        private List<String> communicate() throws IOException, MPDException {
             List<String> result = new ArrayList<>();
             if (mCancelled) {
-                throw new MPDConnectionException("No connection to server");
+                throw new IOException("No connection to server");
             }
 
             try {
                 write();
                 result = read();
             } catch (final EOFException e) {
-                throw e;
-            } catch (final MPDConnectionException e) {
                 if (!mCommand.getCommand().equals(MPDCommand.MPD_CMD_CLOSE)) {
                     throw e;
                 }
             } catch (final IOException e) {
-                throw new MPDConnectionException(e);
+                throw new IOException(e);
             }
 
             return result;
@@ -500,8 +513,7 @@ public abstract class MPDConnection {
          * @param result The {@code CommandResult} which stores the connection failure.
          * @param ex     The exception thrown to get to this method.
          */
-        private void handleConnectionFailure(final CommandResult result,
-                final MPDServerException ex) {
+        private void handleFailure(final CommandResult result, final Exception ex) {
 
             try {
                 Thread.sleep(500L);
@@ -510,9 +522,15 @@ public abstract class MPDConnection {
 
             try {
                 innerConnect();
-                result.setLastException(ex);
-            } catch (final MPDServerException e) {
-                result.setLastException(e);
+                if (ex instanceof IOException) {
+                    result.setIOException((IOException) ex);
+                } else {
+                    result.setLastException((MPDException) ex);
+                }
+            } catch (final MPDException me) {
+                result.setLastException(me);
+            } catch (final IOException ie) {
+                result.setIOException(ie);
             }
         }
 
@@ -520,38 +538,35 @@ public abstract class MPDConnection {
          * This is the low level media server connection method.
          *
          * @return The initial response from the connection.
-         * @throws MPDServerException Thrown if there was an error connecting to the media server.
+         * @throws IOException  Thrown upon a communication error with the server.
+         * @throws MPDException Thrown if an error occurs as a result of command execution.
          */
-        private String innerConnect() throws MPDServerException {
+        private String innerConnect() throws IOException, MPDException {
             final String line;
 
             // Always release existing socket if any before creating a new one
             if (getSocket() != null) {
                 try {
                     innerDisconnect();
-                } catch (final MPDServerException ignored) {
+                } catch (final IOException ignored) {
                 }
             }
 
-            try {
-                setSocket(new Socket());
-                getSocket().setSoTimeout(mReadWriteTimeout);
-                getSocket().connect(mSocketAddress, CONNECTION_TIMEOUT);
-                setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
-                final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
-                setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
-                line = in.readLine();
-            } catch (final IOException e) {
-                throw new MPDConnectionException(e);
-            }
+            setSocket(new Socket());
+            getSocket().setSoTimeout(mReadWriteTimeout);
+            getSocket().connect(mSocketAddress, CONNECTION_TIMEOUT);
+            setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
+            final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
+            setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
+            line = in.readLine();
 
             if (line == null) {
-                throw new MPDServerException("No response from server.");
+                throw new IOException("No response from server.");
             }
 
             /** Protocol says OK will begin the session, otherwise assume IO error. */
             if (!line.startsWith(MPD_RESPONSE_OK)) {
-                throw new MPDConnectionException("Bogus response from server.");
+                throw new IOException("Bogus response from server.");
             }
 
             if (mPassword != null) {
@@ -570,7 +585,7 @@ public abstract class MPDConnection {
          */
         private boolean isNonfatalACK(final String message) {
             final boolean isNonfatalACK;
-            final int errorCode = MPDServerException.getAckErrorCode(message);
+            final int errorCode = MPDException.getAckErrorCode(message);
 
             if (mCommand.isErrorNonfatal(errorCode)) {
                 isNonfatalACK = true;
@@ -588,12 +603,12 @@ public abstract class MPDConnection {
          * Read the server response after a {@code write()} to the server.
          *
          * @return A String list of responses.
-         * @throws MPDServerException Thrown if there was a server side error with the command that
-         *                            was sent.
-         * @throws IOException        Thrown if there was a problem reading from from the media
-         *                            server.
+         * @throws IOException  Thrown if there was a problem reading from from the media
+         *                      server.
+         * @throws MPDException Thrown if there was a server side error with the command that
+         *                      was sent.
          */
-        private List<String> read() throws MPDServerException, IOException {
+        private List<String> read() throws MPDException, IOException {
             final List<String> result = new ArrayList<>();
             final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
 
@@ -610,7 +625,7 @@ public abstract class MPDConnection {
                         break;
                     }
 
-                    throw new MPDServerException(line);
+                    throw new MPDException(line);
                 }
                 result.add(line);
             }

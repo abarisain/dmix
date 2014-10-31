@@ -20,9 +20,11 @@ import com.namelessdev.mpdroid.MPDApplication;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
 import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * Playlist control implements simple playlist controls which require no result processing.
@@ -74,7 +76,7 @@ public final class QueueControl {
                     if (command == REMOVE_BY_ID) {
                         PLAYLIST.removeById(intArray);
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to remove by playlist id. intArray: " + intArray, e);
                 }
             }
@@ -96,7 +98,7 @@ public final class QueueControl {
                     if (command == SAVE_PLAYLIST) {
                         PLAYLIST.savePlaylist(s);
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to save the playlist. String: " + s, e);
                 }
             }
@@ -175,7 +177,7 @@ public final class QueueControl {
                         default:
                             break;
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to run simple playlist command. Argument 1: " + arg1 +
                             " Argument 2: " + arg2, e);
                 }
@@ -206,7 +208,7 @@ public final class QueueControl {
                         default:
                             break;
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to run simple playlist command. Argument 1: " + arg1
                             + " Argument 2: " + arg2 + " Argument 3: " + arg3, e);
                 }

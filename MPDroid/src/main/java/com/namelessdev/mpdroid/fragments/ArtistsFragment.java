@@ -22,7 +22,7 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
@@ -33,6 +33,8 @@ import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+
+import java.io.IOException;
 
 public class ArtistsFragment extends BrowseFragment {
 
@@ -51,7 +53,7 @@ public class ArtistsFragment extends BrowseFragment {
             if (isAdded()) {
                 Tools.notifyUser(mIrAdded, item);
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add to queue.", e);
         }
     }
@@ -63,7 +65,7 @@ public class ArtistsFragment extends BrowseFragment {
             if (isAdded()) {
                 Tools.notifyUser(mIrAdded, item);
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add to playlist.", e);
         }
     }
@@ -98,7 +100,7 @@ public class ArtistsFragment extends BrowseFragment {
                     }
                     break;
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
     }

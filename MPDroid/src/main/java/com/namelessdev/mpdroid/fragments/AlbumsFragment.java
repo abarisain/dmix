@@ -28,7 +28,7 @@ import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.ArtistParcelable;
@@ -54,6 +54,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -109,7 +110,7 @@ public class AlbumsFragment extends BrowseFragment {
         try {
             mApp.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
             Tools.notifyUser(mIrAdded, item);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
@@ -119,7 +120,7 @@ public class AlbumsFragment extends BrowseFragment {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Album) item);
             Tools.notifyUser(mIrAdded, item);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
@@ -143,7 +144,7 @@ public class AlbumsFragment extends BrowseFragment {
                     }
                 }
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
     }

@@ -27,8 +27,9 @@
 
 package org.a0z.mpd.connection;
 
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,15 +38,21 @@ class CommandResult {
 
     private String mConnectionResult;
 
-    private MPDServerException mLastException = null;
+    private IOException mIOException;
 
-    private List<String> mResult = null;
+    private MPDException mLastException;
+
+    private List<String> mResult;
 
     final String getConnectionResult() {
         return mConnectionResult;
     }
 
-    final MPDServerException getLastException() {
+    final IOException getIOException() {
+        return mIOException;
+    }
+
+    final MPDException getLastException() {
         return mLastException;
     }
 
@@ -59,7 +66,13 @@ class CommandResult {
         mConnectionResult = result;
     }
 
-    final void setLastException(final MPDServerException lastException) {
+    final void setIOException(final IOException ioException) {
+        mLastException = null;
+        mIOException = ioException;
+    }
+
+    final void setLastException(final MPDException lastException) {
+        mIOException = null;
         mLastException = lastException;
     }
 

@@ -21,7 +21,7 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Item;
@@ -41,6 +41,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -74,7 +75,7 @@ public class FSFragment extends BrowseFragment {
                 mApp.oMPDAsyncHelper.oMPD.add(toAdd, replace, play);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
@@ -98,7 +99,7 @@ public class FSFragment extends BrowseFragment {
                 mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, toAdd);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
@@ -219,7 +220,7 @@ public class FSFragment extends BrowseFragment {
                         } else if (item instanceof PlaylistFile) {
                             mApp.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullPath());
                         }
-                    } catch (final MPDServerException e) {
+                    } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to add.", e);
                     }
                 }
@@ -243,7 +244,7 @@ public class FSFragment extends BrowseFragment {
                 public void run() {
                     try {
                         mApp.oMPDAsyncHelper.oMPD.refreshDatabase(mDirectory);
-                    } catch (final MPDServerException e) {
+                    } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to refresh database.", e);
                     }
                 }
@@ -271,7 +272,7 @@ public class FSFragment extends BrowseFragment {
 
         try {
             mApp.oMPDAsyncHelper.oMPD.refreshDirectory(mCurrentDirectory);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to refresh current directory", e);
         }
 

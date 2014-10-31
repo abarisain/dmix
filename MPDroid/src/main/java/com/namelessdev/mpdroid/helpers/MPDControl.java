@@ -21,11 +21,13 @@ import com.namelessdev.mpdroid.R;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Music;
 
 import android.support.annotation.IdRes;
 import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * This class contains simple server control methods.
@@ -280,7 +282,7 @@ public final class MPDControl {
                         default:
                             break;
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.w(TAG, "Failed to send a simple MPD command.", e);
                 } finally {
                     if (internalMPD) {

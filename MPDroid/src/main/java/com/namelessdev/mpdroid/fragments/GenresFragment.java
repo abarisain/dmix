@@ -21,7 +21,7 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
 
@@ -29,6 +29,8 @@ import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+
+import java.io.IOException;
 
 public class GenresFragment extends BrowseFragment {
 
@@ -44,7 +46,7 @@ public class GenresFragment extends BrowseFragment {
             mApp.oMPDAsyncHelper.oMPD.getPlaylist().addAll(
                     mApp.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
             Tools.notifyUser(mIrAdded, item);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all from playlist.", e);
         }
     }
@@ -55,7 +57,7 @@ public class GenresFragment extends BrowseFragment {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist,
                     mApp.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
             Tools.notifyUser(mIrAdded, item);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all genre to playlist.", e);
         }
     }
@@ -64,7 +66,7 @@ public class GenresFragment extends BrowseFragment {
     protected void asyncUpdate() {
         try {
             mItems = mApp.oMPDAsyncHelper.oMPD.getGenres();
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update list of genres.", e);
         }
     }

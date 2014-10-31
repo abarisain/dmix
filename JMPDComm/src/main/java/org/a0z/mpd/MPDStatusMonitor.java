@@ -30,9 +30,9 @@ package org.a0z.mpd;
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDConnectionException;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -174,7 +174,7 @@ public class MPDStatusMonitor extends Thread {
                         mMPD.updateStatistics();
                         mMPD.updateStatus();
                         playlist.refresh(status);
-                    } catch (final MPDServerException e) {
+                    } catch (final IOException | MPDException e) {
                         Log.error(TAG, "Failed to force a status update.", e);
                     }
                 }
@@ -305,11 +305,11 @@ public class MPDStatusMonitor extends Thread {
                             listener.stickerChanged(status);
                         }
                     }
-                } catch (final MPDConnectionException e) {
+                } catch (final IOException e) {
                     // connection lost
                     connectionState = Boolean.FALSE;
                     connectionLost = true;
-                } catch (final MPDServerException e) {
+                } catch (final MPDException e) {
                     e.printStackTrace();
                 }
             }
@@ -329,20 +329,21 @@ public class MPDStatusMonitor extends Thread {
      * Wait for server changes using "idle" command on the dedicated connection.
      *
      * @return Data read from the server.
-     * @throws MPDServerException if an error occur while contacting server
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    private List<String> waitForChanges() throws MPDServerException {
+    private List<String> waitForChanges() throws IOException, MPDException {
         final MPDConnection mpdIdleConnection = mMPD.getIdleConnection();
 
         while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
             final List<String> data = mpdIdleConnection.sendCommand(mIdleCommand);
 
-            if (data.isEmpty()) {
+            if (data == null || data.isEmpty()) {
                 continue;
             }
 
             return data;
         }
-        throw new MPDConnectionException("IDLE connection lost");
+        throw new IOException("IDLE connection lost");
     }
 }

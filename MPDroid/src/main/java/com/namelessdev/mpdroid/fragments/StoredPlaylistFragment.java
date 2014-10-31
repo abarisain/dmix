@@ -23,7 +23,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.StoredPlaylistDataBinder;
 
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
@@ -37,6 +37,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
+
+import java.io.IOException;
 
 public class StoredPlaylistFragment extends BrowseFragment {
 
@@ -59,7 +61,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
             if (!play) {
                 Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
@@ -69,7 +71,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(mIrAdded, item);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
@@ -81,7 +83,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
                 return;
             }
             mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylistName);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
     }
@@ -89,8 +91,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     @Override
     protected ListAdapter getCustomListAdapter() {
         if (mItems != null) {
-            return new ArrayAdapter(getActivity(),
-                    new StoredPlaylistDataBinder(), mItems);
+            return new ArrayAdapter(getActivity(), new StoredPlaylistDataBinder(), mItems);
         }
         return super.getCustomListAdapter();
     }

@@ -23,7 +23,7 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.AlbumParcelable;
 import org.a0z.mpd.item.Artist;
@@ -56,6 +56,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -148,7 +149,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 mApp.oMPDAsyncHelper.oMPD.add(artist, replace, play);
                 note = artist.getName();
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
 
@@ -161,7 +162,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         try {
             mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
             Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
@@ -191,7 +192,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         try {
             arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "MPD search failure.", e);
 
         }

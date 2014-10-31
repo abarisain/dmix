@@ -25,7 +25,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Music;
 
 import android.os.Bundle;
@@ -39,6 +39,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,13 +78,13 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             if (mIsPlayQueue) {
                 try {
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to move a track on the queue.", e);
                 }
             } else {
                 try {
                     mApp.oMPDAsyncHelper.oMPD.movePlaylistSong(mPlaylistName, from, to);
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to rename a playlist.", e);
                 }
                 update();
@@ -317,7 +318,7 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 }
             }
 
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.d(TAG, "Playlist update failure.", e);
 
         }

@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.Stream;
@@ -48,8 +48,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +81,7 @@ public class StreamsFragment extends BrowseFragment {
                     StreamFetcher.instance().get(stream.getUrl(), stream.getName()),
                     replace, play);
             Tools.notifyUser(mIrAdded, item);
-        } catch (final MPDServerException | MalformedURLException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add stream.", e);
         }
     }
@@ -131,7 +131,7 @@ public class StreamsFragment extends BrowseFragment {
                                 try {
                                     mApp.oMPDAsyncHelper.oMPD
                                             .editSavedStream(url, name, removedPos);
-                                } catch (final MPDServerException e) {
+                                } catch (final IOException | MPDException e) {
                                     Log.e(TAG, "Failed to edit a saved stream.", e);
                                 }
                                 mStreams.remove(idx);
@@ -144,7 +144,7 @@ public class StreamsFragment extends BrowseFragment {
                             } else {
                                 try {
                                     mApp.oMPDAsyncHelper.oMPD.saveStream(url, name);
-                                } catch (final MPDServerException e) {
+                                } catch (final IOException | MPDException e) {
                                     Log.e(TAG, "Failed to save stream.", e);
                                 }
                                 mStreams.add(new Stream(url, name, mStreams.size()));
@@ -231,7 +231,7 @@ public class StreamsFragment extends BrowseFragment {
 
         try {
             mpdStreams = mApp.oMPDAsyncHelper.oMPD.getSavedStreams();
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to retrieve saved streams.", e);
         }
 
@@ -249,7 +249,7 @@ public class StreamsFragment extends BrowseFragment {
                 if (!mStreams.contains(stream)) {
                     try {
                         mApp.oMPDAsyncHelper.oMPD.saveStream(stream.getUrl(), stream.getName());
-                    } catch (final MPDServerException e) {
+                    } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to save a stream.", e);
                     }
 
@@ -365,7 +365,7 @@ public class StreamsFragment extends BrowseFragment {
             if (which == DialogInterface.BUTTON_POSITIVE) {
                 try {
                     mApp.oMPDAsyncHelper.oMPD.removeSavedStream(mStreams.get(mItemIndex).getPos());
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to removed a saved stream.", e);
                 }
 

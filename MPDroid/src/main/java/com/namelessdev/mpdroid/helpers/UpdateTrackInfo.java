@@ -21,13 +21,15 @@ import com.namelessdev.mpdroid.R;
 
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Sticker;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Music;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * This sets up an AsyncTask to gather and parse all the information to update the
@@ -213,7 +215,7 @@ public class UpdateTrackInfo {
             if (mCurrentTrack != null && mSticker.isAvailable()) {
                 try {
                     rating = (float) mSticker.getRating(mCurrentTrack) / 2.0f;
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to get the current track rating.", e);
                 }
             }
