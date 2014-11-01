@@ -82,7 +82,7 @@
                 android:id="@+id/albumLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="false"
+                android:layout_alignParentRight="false"
                 android:layout_below="@+id/artistName"
                 android:layout_centerHorizontal="true"
                 android:gravity="center_horizontal"
@@ -120,12 +120,16 @@
 
             <RatingBar
                 android:id="@+id/songRating"
+                style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/audioName"
-                android:layout_marginTop="1dip"
+                android:layout_centerHorizontal="true"
+                android:isIndicator="false"
                 android:numStars="5"
-                android:stepSize="0.5" />
+                android:paddingBottom="10dip"
+                android:paddingTop="10dip"
+                android:stepSize="1" />
         </RelativeLayout>
 
         <RelativeLayout
