@@ -927,7 +927,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public void stickerChanged(final MPDStatus mpdStatus) {
-        if (mSongRating.getVisibility() == View.VISIBLE) {
+        if (mSongRating.getVisibility() == View.VISIBLE && mCurrentSong != null) {
             /** This track is not necessarily the track that was changed. */
             final float rating = getTrackRating();
             mSongRating.setRating(rating);
