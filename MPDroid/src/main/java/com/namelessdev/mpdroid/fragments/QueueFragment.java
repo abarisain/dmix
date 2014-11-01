@@ -427,9 +427,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 Tools.notifyUser(R.string.playlistCleared);
             }
             ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-        } else if (item.getItemId() == R.id.PLM_EditPL) {
-            intent = new Intent(mActivity, PlaylistEditActivity.class);
-            startActivity(intent);
         } else if (item.getItemId() == R.id.PLM_Save) {
             List<Item> playLists;
             try {
