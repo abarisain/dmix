@@ -160,14 +160,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private TextView mYearNameText;
 
-    private static void applyViewVisibility(final SharedPreferences sharedPreferences,
-            final View view, final String property) {
-        if (sharedPreferences.getBoolean(property, false)) {
-            view.setVisibility(View.VISIBLE);
-        } else {
-            view.setVisibility(View.GONE);
-        }
-    }
+    private SharedPreferences mSharedPreferences;
 
     /**
      * A convenience method to find a resource and set it as selected.
@@ -291,6 +284,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         seekBarTrack.setOnSeekBarChangeListener(seekBarTrackListener);
 
         return seekBarTrack;
+    }
+
+    private void applyViewVisibility(final View view, final String property) {
+        if (mSharedPreferences.getBoolean(property, false)) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            view.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -636,11 +637,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         final Animation fadeIn = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in);
         final Animation fadeOut = AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out);
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         final int viewLayout;
         final View view;
 
-        settings.registerOnSharedPreferenceChangeListener(this);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
+
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         if (mApp.isTabletUiEnabled()) {
             viewLayout = R.layout.main_fragment_tablet;
@@ -661,7 +663,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mSongNameText = findSelected(view, R.id.songName);
         mSongNameText.setText(R.string.notConnected);
         mYearNameText = findSelected(view, R.id.yearName);
-        applyViewVisibility(settings, mYearNameText, "enableAlbumYearText");
+        applyViewVisibility(mYearNameText, "enableAlbumYearText");
         mSongRating = (RatingBar) view.findViewById(R.id.songRating);
         mSongRating.setOnRatingBarChangeListener(new RatingChangedHandler());
         mSongRating.setVisibility(View.GONE);
@@ -671,7 +673,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mRepeatButton = getEventButton(view, R.id.repeat, false);
         mShuffleButton = getEventButton(view, R.id.shuffle, false);
         mStopButton = getEventButton(view, R.id.stop, true);
-        applyViewVisibility(settings, mStopButton, "enableStopButton");
+        applyViewVisibility(mStopButton, "enableStopButton");
 
         /** Same as above, but these don't require a stored field. */
         getEventButton(view, R.id.next, false);
@@ -802,10 +804,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 CoverAsyncHelper.setCoverRetrieversFromPreferences();
                 break;
             case "enableStopButton":
-                applyViewVisibility(sharedPreferences, mStopButton, key);
+                applyViewVisibility(mStopButton, key);
                 break;
             case "enableAlbumYearText":
-                applyViewVisibility(sharedPreferences, mYearNameText, key);
+                applyViewVisibility(mYearNameText, key);
                 break;
             case "enableAudioText":
                 mIsAudioNameTextEnabled = sharedPreferences.getBoolean(key, false);
@@ -966,7 +968,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             }
 
             if (mApp.oMPDAsyncHelper.oMPD.getStickerManager().isAvailable()) {
-                mSongRating.setVisibility(View.VISIBLE);
+                applyViewVisibility(mSongRating, "enableRating");
             } else {
                 mSongRating.setVisibility(View.GONE);
             }
