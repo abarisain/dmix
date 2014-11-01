@@ -102,9 +102,6 @@ public class Sticker {
     /** The minimum rating used for the home grown rating system. */
     private static final int MIN_RATING = 0;
 
-    /** The runtime error string thrown if an entry other than Music is given. */
-    private static final String NOT_SUPPORTED = "Stickers are only supported with Music objects.";
-
     /** This is a sticker {@code NAME} argument for the home grown ratings. */
     private static final String RATING_STICKER = "rating";
 
@@ -157,9 +154,7 @@ public class Sticker {
      */
     public void delete(final FilesystemTreeEntry entry, final String sticker)
             throws IOException, MPDException {
-        if (!(entry instanceof Music)) {
-            throw new IllegalArgumentException(NOT_SUPPORTED);
-        }
+        onlyMusicSupported(entry);
 
         if (isAvailable()) {
             mConnection.sendCommand(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
@@ -181,9 +176,7 @@ public class Sticker {
      */
     public Map<Music, Map<String, String>> find(final FilesystemTreeEntry entry,
             final String name) throws IOException, MPDException {
-        if (!(entry instanceof Music)) {
-            throw new IllegalArgumentException(NOT_SUPPORTED);
-        }
+        onlyMusicSupported(entry);
 
         final Map<Music, Map<String, String>> foundStickers;
         if (isAvailable()) {
@@ -235,9 +228,7 @@ public class Sticker {
      */
     public String get(final FilesystemTreeEntry entry, final String name)
             throws IOException, MPDException {
-        if (!(entry instanceof Music)) {
-            throw new IllegalArgumentException(NOT_SUPPORTED);
-        }
+        onlyMusicSupported(entry);
 
         String foundSticker = null;
 
@@ -288,6 +279,22 @@ public class Sticker {
     }
 
     /**
+     * Sanity check for the sticker manager methods.
+     *
+     * @param entry The entry to process.
+     */
+    private static void onlyMusicSupported(final FilesystemTreeEntry entry) {
+        if (entry == null) {
+            throw new IllegalArgumentException("Failed on a null argument.");
+        }
+
+        if (!(entry instanceof Music)) {
+            throw new IllegalArgumentException("Stickers are only supported with Music objects: " +
+                    "Class: " + entry.getClass() + " Entry: " + entry.getFullPath());
+        }
+    }
+
+    /**
      * Retrieves rating of a entry.
      *
      * @return rating of entry.
@@ -295,10 +302,6 @@ public class Sticker {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public int getRating(final FilesystemTreeEntry entry) throws IOException, MPDException {
-        if (!(entry instanceof Music)) {
-            throw new IllegalArgumentException(NOT_SUPPORTED);
-        }
-
         final String rating = get(entry, RATING_STICKER);
         int resultRating;
 
@@ -339,9 +342,7 @@ public class Sticker {
      */
     public Map<String, String> list(final FilesystemTreeEntry entry)
             throws IOException, MPDException {
-        if (!(entry instanceof Music)) {
-            throw new IllegalArgumentException(NOT_SUPPORTED);
-        }
+        onlyMusicSupported(entry);
 
         final Map<String, String> stickers;
         final boolean isAvailable = isAvailable();
@@ -388,9 +389,7 @@ public class Sticker {
      */
     public void set(final FilesystemTreeEntry entry, final String sticker, final String value)
             throws IOException, MPDException {
-        if (!(entry instanceof Music)) {
-            throw new IllegalArgumentException(NOT_SUPPORTED);
-        }
+        onlyMusicSupported(entry);
 
         if (isAvailable()) {
             mConnection.sendCommand(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
@@ -411,10 +410,6 @@ public class Sticker {
      */
     public void setRating(final FilesystemTreeEntry entry, final int rating)
             throws IOException, MPDException {
-        if (!(entry instanceof Music)) {
-            throw new IllegalArgumentException(NOT_SUPPORTED);
-        }
-
         final int maximumRating = Math.min(MAX_RATING, rating);
         final int boundedRating = Math.max(MIN_RATING, maximumRating);
 
