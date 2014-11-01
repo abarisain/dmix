@@ -308,7 +308,14 @@ public abstract class MPDConnection {
             if (result.isMPDException()) {
                 throw result.getLastException();
             } else {
-                throw result.getIOException();
+                final IOException e = result.getIOException();
+
+                if (e == null) {
+                    Log.warning(TAG, "There was no result, and no exception generated. This is " +
+                            "probably a problem.");
+                } else {
+                    throw e;
+                }
             }
         }
 
@@ -407,6 +414,7 @@ public abstract class MPDConnection {
             int retryCount = 0;
             final CommandResult result = new CommandResult();
             boolean isCommandSent = false;
+            final String baseCommand = mCommand.getCommand();
 
             while (result.getResult() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
                 try {
@@ -424,7 +432,7 @@ public abstract class MPDConnection {
                     // Do not fail when the IDLE response has not been read (to improve connection
                     // failure robustness). Just send the "changed playlist" result to force the MPD
                     // status to be refreshed.
-                    if (MPDCommand.MPD_CMD_IDLE.equals(mCommand.getCommand())) {
+                    if (MPDCommand.MPD_CMD_IDLE.equals(baseCommand)) {
                         result.setResult(Collections.singletonList(
                                 "changed: " + MPDStatusMonitor.IDLE_PLAYLIST));
                     }
@@ -441,7 +449,7 @@ public abstract class MPDConnection {
                 }
 
                 /** On successful send of non-retryable command, break out. */
-                if (!MPDCommand.isRetryable(mCommand.getCommand()) && isCommandSent) {
+                if (!MPDCommand.isRetryable(baseCommand) && isCommandSent) {
                     break;
                 }
 
@@ -450,10 +458,10 @@ public abstract class MPDConnection {
 
             if (result.getResult() == null) {
                 if (result.isMPDException()) {
-                    Log.error(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
+                    Log.error(TAG, "MPD command " + baseCommand + " failed after " +
                             retryCount + " attempts.", result.getLastException());
-                } else if (!MPDCommand.MPD_CMD_IDLE.equals(mCommand.getCommand())) {
-                    Log.error(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
+                } else if (!MPDCommand.MPD_CMD_IDLE.equals(baseCommand)) {
+                    Log.error(TAG, "MPD command " + baseCommand + " failed after " +
                             retryCount + " attempts.", result.getIOException());
                 }
             } else {
