@@ -42,6 +42,15 @@ public abstract class Item implements Comparable<Item> {
     public static <T extends Item> List<T> merged(final List<T> albumArtists,
             final List<T> artists) {
         int jStart = albumArtists.size() - 1;
+        // remove "" from albumArtists, because the Unknown
+        // AlbumArtist would fall back to an Artist, the "Unknown"
+        // Entry must come from the Artists.
+        for (int j = jStart; j >= 0; j--) { // album artists
+            if (albumArtists.get(j).getName().equals("")) {
+                albumArtists.remove(j);
+                jStart --;
+            }
+        }
         for (int i = artists.size() - 1; i >= 0; i--) { // artists
             for (int j = jStart; j >= 0; j--) { // album artists
                 if (albumArtists.get(j).doesNameExist(artists.get(i))) {

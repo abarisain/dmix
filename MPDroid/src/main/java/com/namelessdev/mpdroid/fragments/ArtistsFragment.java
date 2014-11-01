@@ -114,7 +114,7 @@ public class ArtistsFragment extends BrowseFragment {
     @Override
     public String getTitle() {
         if (mGenre != null) {
-            return mGenre.getName();
+            return mGenre.mainText();
         } else {
             return getString(R.string.genres);
         }
