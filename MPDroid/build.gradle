@@ -28,7 +28,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 21
         versionCode 48
-        versionName "1.07 Beta 8 " + gitShortHash()
+        versionName "1.07 " + gitShortHash()
     }
 
     lintOptions {
