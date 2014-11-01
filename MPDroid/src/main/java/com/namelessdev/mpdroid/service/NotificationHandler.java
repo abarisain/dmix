@@ -111,7 +111,7 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setSmallIcon(R.drawable.icon_bw);
+        builder.setSmallIcon(R.drawable.icon_notification);
         builder.setContentIntent(notificationClick);
         builder.setStyle(new NotificationCompat.BigTextStyle());
 
