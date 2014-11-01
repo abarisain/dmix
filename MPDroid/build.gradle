@@ -59,6 +59,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+        }
+    }
+
     productFlavors {
         closedbits {
             versionName defaultConfig.versionName + "-c"
