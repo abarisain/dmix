@@ -27,7 +27,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 48
+        versionCode 49
         versionName "1.07 " + gitShortHash()
     }
 
