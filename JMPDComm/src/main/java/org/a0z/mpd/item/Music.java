@@ -104,6 +104,8 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private final String mArtist;
 
+    private final String mComposer;
+
     private final long mDate;
 
     private final int mDisc;
@@ -130,6 +132,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         this(null, /** Album */
                 null, /** Artist */
                 null, /** AlbumArtist */
+                null, /** Composer */
                 null, /** FullPath */
                 UNDEFINED_INT, /** Disc */
                 -1L, /** Date */
@@ -145,20 +148,21 @@ public class Music extends Item implements FilesystemTreeEntry {
     }
 
     protected Music(final Music music) {
-        this(music.mAlbum, music.mArtist, music.mAlbumArtist, music.mFullPath, music.mDisc,
-                music.mDate, music.mGenre, music.mTime, music.mTitle,
+        this(music.mAlbum, music.mArtist, music.mAlbumArtist, music.mComposer, music.mFullPath,
+                music.mDisc, music.mDate, music.mGenre, music.mTime, music.mTitle,
                 music.mTotalTracks, music.mTrack, music.mSongId, music.mSongPos, music.mName);
     }
 
     protected Music(final String album, final String artist, final String albumArtist,
-            final String fullPath, final int disc, final long date, final String genre,
-            final long time, final String title, final int totalTracks,
+            final String composer, final String fullPath, final int disc, final long date,
+            final String genre, final long time, final String title, final int totalTracks,
             final int track, final int songId, final int songPos, final String name) {
         super();
 
         mAlbum = album;
         mArtist = artist;
         mAlbumArtist = albumArtist;
+        mComposer = composer;
         mFullPath = fullPath;
         mDisc = disc;
         mDate = date;
@@ -176,6 +180,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         String album = null;
         String artist = null;
         String albumArtist = null;
+        String composer = null;
         String fullPath = null;
         int disc = UNDEFINED_INT;
         long date = -1L;
@@ -209,6 +214,9 @@ public class Music extends Item implements FilesystemTreeEntry {
                     break;
                 case "Artist":
                     artist = pair[VALUE];
+                    break;
+                case "Composer":
+                    composer = pair[VALUE];
                     break;
                 case "Date":
                     try {
@@ -289,8 +297,8 @@ public class Music extends Item implements FilesystemTreeEntry {
             }
         }
 
-        return new Music(album, artist, albumArtist, fullPath, disc, date, genre, time, title,
-                totalTracks, track, songId, songPos, name);
+        return new Music(album, artist, albumArtist, composer, fullPath, disc, date, genre, time,
+                title, totalTracks, track, songId, songPos, name);
     }
 
     /**
@@ -494,6 +502,7 @@ public class Music extends Item implements FilesystemTreeEntry {
                     {mAlbum, music.mAlbum},
                     {mAlbumArtist, music.mAlbumArtist},
                     {mArtist, music.mArtist},
+                    {mComposer, music.mComposer},
                     {mGenre, music.mGenre},
                     {mName, music.mName},
                     {mTitle, music.mTitle}
@@ -583,6 +592,10 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     public Artist getArtistAsArtist() {
         return new Artist(mArtist);
+    }
+
+    public String getComposer() {
+        return mComposer;
     }
 
     public long getDate() {

@@ -62,9 +62,9 @@ public class MusicParcelable extends Music implements Parcelable {
      * @param in The {@link android.os.Parcel} that contains our object
      */
     protected MusicParcelable(final Parcel in) {
-        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readInt(),
-                in.readLong(), in.readString(), in.readLong(), in.readString(), in.readInt(),
-                in.readInt(), in.readInt(), in.readInt(), in.readString());
+        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readString(),
+                in.readInt(), in.readLong(), in.readString(), in.readLong(), in.readString(),
+                in.readInt(), in.readInt(), in.readInt(), in.readInt(), in.readString());
     }
 
     @Override
@@ -77,6 +77,7 @@ public class MusicParcelable extends Music implements Parcelable {
         dest.writeString(getAlbum());
         dest.writeString(getArtist());
         dest.writeString(getAlbumArtist());
+        dest.writeString(getComposer());
         dest.writeString(getFullPath());
         dest.writeInt(getDisc());
         dest.writeLong(getDate());
