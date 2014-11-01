@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <FrameLayout
             android:id="@+id/list_artists_frame"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
+            android:layout_height="fill_parent">
 
             <ListView
                 android:id="@android:id/list"
@@ -32,7 +32,7 @@
         <FrameLayout
             android:id="@+id/list_albums_frame"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
+            android:layout_height="fill_parent">
 
             <ListView
                 android:id="@android:id/list"
@@ -52,7 +52,7 @@
         <FrameLayout
             android:id="@+id/list_songs_frame"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
+            android:layout_height="fill_parent">
 
             <ListView
                 android:id="@android:id/list"
@@ -74,7 +74,7 @@
         android:id="@+id/loadingLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/progressBar"

@@ -27,8 +27,11 @@
 
 package org.a0z.mpd;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
+
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
 
 /**
  * Class representing MPD Server statistics.
@@ -39,61 +42,33 @@ public class MPDStatistics {
 
     private static final long MILLI_TO_SEC = 1000L;
 
-    private long artists = -1L;
+    private static final String TAG = "MPDStatistics";
 
-    private long albums = -1L;
+    private long mAlbums = -1L;
 
-    private long songs = -1L;
+    private long mArtists = -1L;
 
-    private long uptime = -1L;
+    private long mDBPlaytime = -1L;
 
-    private Date dbUpdate = null;
+    private Date mDbUpdate = null;
 
-    private long playtime = -1L;
+    private long mPlayTime = -1L;
 
-    private long dbPlaytime = -1L;
+    private long mSongs = -1L;
 
-    MPDStatistics(final List<String> response) {
+    private long mUpTime = -1L;
+
+    MPDStatistics() {
         super();
-
-        for (final String line : response) {
-            final String[] lines = StringsUtils.MPD_DELIMITER.split(line, 2);
-
-            switch (lines[0]) {
-                case "albums":
-                    albums = Long.parseLong(lines[1]);
-                    break;
-                case "artists":
-                    artists = Long.parseLong(lines[1]);
-                    break;
-                case "db_playtime":
-                    dbPlaytime = Long.parseLong(lines[1]);
-                    break;
-                case "db_update":
-                    dbUpdate = new Date(Long.parseLong(lines[1]) * MILLI_TO_SEC);
-                    break;
-                case "playtime:":
-                    playtime = Long.parseLong(lines[1]);
-                    break;
-                case "songs":
-                    songs = Long.parseLong(lines[1]);
-                    break;
-                case "uptime":
-                    uptime = Long.parseLong(lines[1]);
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     /**
-     * Retrieves total number of albums.
+     * Retrieves total number of albums in the connected media server's database.
      *
-     * @return total number of albums.
+     * @return total number of albums in the connected media server's database.
      */
     public long getAlbums() {
-        return albums;
+        return mAlbums;
     }
 
     /**
@@ -102,18 +77,18 @@ public class MPDStatistics {
      * @return total number of artists.
      */
     public long getArtists() {
-        return artists;
+        return mArtists;
     }
 
     /**
-     * Retrieves the amount of time mpd would take to play every song in the db
+     * Retrieves the amount of time the media server would take to play every song in the db
      * once.
      *
      * @return Retrieves the amount of time (in seconds) mpd would take to play
      * every song in the db once.
      */
-    public long getDbPlaytime() {
-        return dbPlaytime;
+    public long getDBPlaytime() {
+        return mDBPlaytime;
     }
 
     /**
@@ -122,16 +97,22 @@ public class MPDStatistics {
      * @return last database update time.
      */
     public Date getDbUpdate() {
-        return (Date) dbUpdate.clone();
+        Date dbUpdate = null;
+
+        if (mDbUpdate != null) {
+            dbUpdate = (Date) mDbUpdate.clone();
+        }
+
+        return dbUpdate;
     }
 
     /**
-     * Retrieves time mpd has been playing music.
+     * Retrieves time the media server has been playing audio.
      *
-     * @return how long mpd has been actually playing music in seconds.
+     * @return how long the media server has been actually playing audio in seconds.
      */
-    public long getPlaytime() {
-        return playtime;
+    public long getPlayTime() {
+        return mPlayTime;
     }
 
     /**
@@ -140,16 +121,16 @@ public class MPDStatistics {
      * @return total number of songs.
      */
     public long getSongs() {
-        return songs;
+        return mSongs;
     }
 
     /**
-     * Retrieves server uptime.
+     * Retrieves server up time.
      *
-     * @return server uptime.
+     * @return server up time.
      */
-    public long getUptime() {
-        return uptime;
+    public long getUpTime() {
+        return mUpTime;
     }
 
     /**
@@ -158,10 +139,50 @@ public class MPDStatistics {
      * @return a string representation of the object.
      */
     public String toString() {
-        return "artists: " + artists +
-                ", albums: " + albums +
-                ", last db update: " + dbUpdate +
-                ", songs: " + songs +
-                ", uptime: " + uptime;
+        return "artists: " + mArtists +
+                ", albums: " + mAlbums +
+                ", last db update: " + mDbUpdate +
+                ", database playtime: " + mDBPlaytime +
+                ", playtime: " + mPlayTime +
+                ", songs: " + mSongs +
+                ", up time: " + mUpTime;
+    }
+
+    /**
+     * Updates the state of the MPD Server...
+     *
+     * @param response The response from the server.
+     */
+    public final void update(final Collection<String> response) {
+        for (final String[] pair : Tools.splitResponse(response)) {
+
+            switch (pair[KEY]) {
+                case "albums":
+                    mAlbums = Long.parseLong(pair[VALUE]);
+                    break;
+                case "artists":
+                    mArtists = Long.parseLong(pair[VALUE]);
+                    break;
+                case "db_playtime":
+                    mDBPlaytime = Long.parseLong(pair[VALUE]);
+                    break;
+                case "db_update":
+                    mDbUpdate = new Date(Long.parseLong(pair[VALUE]) * MILLI_TO_SEC);
+                    break;
+                case "playtime":
+                    mPlayTime = Long.parseLong(pair[VALUE]);
+                    break;
+                case "songs":
+                    mSongs = Long.parseLong(pair[VALUE]);
+                    break;
+                case "uptime":
+                    mUpTime = Long.parseLong(pair[VALUE]);
+                    break;
+                default:
+                    Log.warning(TAG,
+                            "Undocumented statistic: Key: " + pair[KEY] + " Value: " + pair[VALUE]);
+                    break;
+            }
+        }
     }
 }

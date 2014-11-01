@@ -23,12 +23,13 @@ import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -63,9 +64,9 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
 
     private final Notification mNotification;
 
-    private final MPDroidService mServiceContext;
-
     private final NotificationManager mNotificationManager;
+
+    private final MPDroidService mServiceContext;
 
     private Music mCurrentTrack = null;
 
@@ -81,7 +82,7 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
         mServiceContext = serviceContext;
 
         mNotificationManager = (NotificationManager) mServiceContext
-                .getSystemService(serviceContext.NOTIFICATION_SERVICE);
+                .getSystemService(Context.NOTIFICATION_SERVICE);
 
         final RemoteViews resultView = new RemoteViews(mServiceContext.getPackageName(),
                 R.layout.notification);
@@ -110,7 +111,7 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setSmallIcon(R.drawable.icon_bw);
+        builder.setSmallIcon(R.drawable.icon_notification);
         builder.setContentIntent(notificationClick);
         builder.setStyle(new NotificationCompat.BigTextStyle());
 
@@ -158,8 +159,12 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
      */
     private static void setAlbumCover(final RemoteViews resultView, final Bitmap albumCover) {
         if (albumCover == null) {
-            resultView.setImageViewResource(R.id.notificationIcon,
-                    AlbumCoverDownloadListener.getNoCoverResource());
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH) {
+                resultView.setImageViewResource(R.id.notificationIcon, R.drawable.no_cover_art);
+            } else {
+                resultView.setImageViewResource(R.id.notificationIcon,
+                        R.drawable.no_cover_art_light);
+            }
         } else {
             resultView.setImageViewBitmap(R.id.notificationIcon, albumCover);
         }
@@ -174,18 +179,6 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
     private static void updateNotBufferingContent(final RemoteViews resultView, final Music music) {
         resultView.setTextViewText(R.id.notificationTitle, music.getTitle());
         resultView.setTextViewText(R.id.notificationArtist, music.getArtist());
-    }
-
-    /**
-     * Build a pending intent for use with the notification button controls.
-     *
-     * @param action The ACTION intent string.
-     * @return The pending intent.
-     */
-    private PendingIntent buildPendingIntent(final String action) {
-        final Intent intent = new Intent(mServiceContext, RemoteControlReceiver.class);
-        intent.setAction(action);
-        return PendingIntent.getBroadcast(mServiceContext, 0, intent, 0);
     }
 
     /**
@@ -226,6 +219,18 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
         mNotification.bigContentView = resultView;
     }
 
+    /**
+     * Build a pending intent for use with the notification button controls.
+     *
+     * @param action The ACTION intent string.
+     * @return The pending intent.
+     */
+    private PendingIntent buildPendingIntent(final String action) {
+        final Intent intent = new Intent(mServiceContext, RemoteControlReceiver.class);
+        intent.setAction(action);
+        return PendingIntent.getBroadcast(mServiceContext, 0, intent, 0);
+    }
+
     final boolean isActive() {
         return mIsActive;
     }
@@ -262,6 +267,10 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
      */
     final void setMediaPlayerWoundDown() {
         if (mIsActive) {
+            if (mIsMediaPlayerBuffering) {
+                setMediaPlayerBuffering(false);
+            }
+
             mNotification.contentView.setViewVisibility(R.id.notificationClose, View.VISIBLE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 mNotification.bigContentView
@@ -282,9 +291,11 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
             mCurrentTrack = currentTrack;
 
             if (mIsMediaPlayerBuffering) {
-                updateBufferingContent(mNotification.contentView, currentTrack.getTitle());
+                final String title = currentTrack.getTitle();
+
+                updateBufferingContent(mNotification.contentView, title);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    updateBufferingContent(mNotification.bigContentView, currentTrack.getTitle());
+                    updateBufferingContent(mNotification.bigContentView, title);
                     mNotification.bigContentView.setTextViewText(R.id.notificationAlbum,
                             currentTrack.getArtist());
                 }
@@ -331,14 +342,13 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
 
     final void stateChanged(final MPDStatus mpdStatus) {
         switch (mpdStatus.getState()) {
-            case MPDStatus.MPD_STATE_PLAYING:
+            case MPDStatus.STATE_PLAYING:
                 setPlayState(true);
                 break;
-            case MPDStatus.MPD_STATE_PAUSED:
+            case MPDStatus.STATE_PAUSED:
                 setPlayState(false);
                 break;
-            case MPDStatus.MPD_STATE_STOPPED:
-                break;
+            case MPDStatus.STATE_STOPPED:
             default:
                 break;
         }

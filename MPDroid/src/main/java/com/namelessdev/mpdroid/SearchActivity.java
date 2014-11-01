@@ -23,10 +23,13 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.AlbumParcelable;
+import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.ArtistParcelable;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -35,7 +38,9 @@ import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.SearchRecentSuggestions;
+import android.support.annotation.StringRes;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -48,148 +53,146 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener,
         AsyncExecListener, OnItemClickListener, TabListener {
-    class SearchResultsPagerAdapter extends PagerAdapter {
 
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
-        }
+    public static final int ADD = 0;
 
-        @Override
-        public int getCount() {
-            return 3;
-        }
+    public static final int ADD_PLAY = 2;
 
-        public Object instantiateItem(View collection, int position) {
+    public static final int ADD_REPLACE = 1;
 
-            View v;
-            switch (position) {
-                default:
-                case 0:
-                    v = listArtistsFrame;
-                    break;
-                case 1:
-                    v = listAlbumsFrame;
-                    break;
-                case 2:
-                    v = listSongsFrame;
-                    break;
-            }
-            if (v.getParent() == null)
-                pager.addView(v);
-            return v;
-        }
+    public static final int ADD_REPLACE_PLAY = 3;
 
-        @Override
-        public boolean isViewFromObject(View arg0, Object arg1) {
-            return arg0 == arg1;
-        }
-    }
+    public static final int GOTO_ALBUM = 4;
 
     public static final int MAIN = 0;
 
     public static final int PLAYLIST = 3;
-    public static final int ADD = 0;
-    public static final int ADDNREPLACE = 1;
-    public static final int ADDNREPLACEPLAY = 3;
-
-    public static final int ADDNPLAY = 2;
-    private ArrayList<Artist> arrayArtistsResults;
-    private ArrayList<Album> arrayAlbumsResults;
-
-    private ArrayList<Music> arraySongsResults;
-    protected int iJobID = -1;
-    private View listArtistsFrame = null;
-    private View listAlbumsFrame = null;
-    private View listSongsFrame = null;
-    private ListView listArtists = null;
-    private ListView listAlbums = null;
-    private ListView listSongs = null;
-    protected View loadingView;
-    protected View noResultArtistsView;
-    protected View noResultAlbumsView;
-    protected View noResultSongsView;
-
-    protected ViewPager pager;
-    private Tab tabArtists;
-    private Tab tabAlbums;
-
-    private Tab tabSongs;
 
     private static final String TAG = "SearchActivity";
 
-    private int addString, addedString;
+    private final ArrayList<Album> mAlbumResults;
 
-    private String searchKeywords = "";
+    private final ArrayList<Artist> mArtistResults;
+
+    private final ArrayList<Music> mSongResults;
+
+    protected int mJobID = -1;
+
+    protected View mLoadingView;
+
+    protected View mNoResultAlbumsView;
+
+    protected View mNoResultArtistsView;
+
+    protected View mNoResultSongsView;
+
+    protected ViewPager mPager;
+
+    @StringRes
+    private int mAddString;
+
+    @StringRes
+    private int mAddedString;
+
+    private ListView mListAlbums = null;
+
+    private View mListAlbumsFrame = null;
+
+    private ListView mListArtists = null;
+
+    private View mListArtistsFrame = null;
+
+    private ListView mListSongs = null;
+
+    private View mListSongsFrame = null;
+
+    private String mSearchKeywords = null;
+
+    private Tab mTabAlbums;
+
+    private Tab mTabArtists;
+
+    private Tab mTabSongs;
 
     public SearchActivity() {
-        addString = R.string.addSong;
-        addedString = R.string.songAdded;
-        arrayArtistsResults = new ArrayList<Artist>();
-        arrayAlbumsResults = new ArrayList<Album>();
-        arraySongsResults = new ArrayList<Music>();
+        super();
+        mAddString = R.string.addSong;
+        mAddedString = R.string.songAdded;
+        mArtistResults = new ArrayList<>();
+        mAlbumResults = new ArrayList<>();
+        mSongResults = new ArrayList<>();
     }
 
-    protected void add(Artist artist, Album album, boolean replace, boolean play) {
+    protected void add(final Artist artist, final Album album, final boolean replace,
+            final boolean play) {
+        String note = null;
+
         try {
-            String note;
             if (artist == null) {
-                app.oMPDAsyncHelper.oMPD.add(album, replace, play);
-                note = album.getArtist().getName() + " - " + album.getName();
+                final Artist albumArtist = album.getArtist();
+
+                mApp.oMPDAsyncHelper.oMPD.add(album, replace, play);
+                if (albumArtist != null) {
+                    note = albumArtist.getName() + " - " + album.getName();
+                }
             } else if (album == null) {
-                app.oMPDAsyncHelper.oMPD.add(artist, replace, play);
+                mApp.oMPDAsyncHelper.oMPD.add(artist, replace, play);
                 note = artist.getName();
-            } else {
-                return;
             }
-            Tools.notifyUser(addedString, note);
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
+        }
+
+        if (note != null) {
+            Tools.notifyUser(mAddedString, note);
         }
     }
 
-    protected void add(Music music, boolean replace, boolean play) {
+    protected void add(final Music music, final boolean replace, final boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add(music, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
             Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
 
-    protected void add(Object object, boolean replace, boolean play) {
+    protected void add(final Object object, final boolean replace, final boolean play) {
         setContextForObject(object);
         if (object instanceof Music) {
             add((Music) object, replace, play);
         } else if (object instanceof Artist) {
-            add(((Artist) object), null, replace, play);
+            add((Artist) object, null, replace, play);
         } else if (object instanceof Album) {
             add(null, (Album) object, replace, play);
         }
     }
 
     @Override
-    public void asyncExecSucceeded(int jobID) {
-        if (iJobID == jobID) {
+    public void asyncExecSucceeded(final int jobID) {
+        if (mJobID == jobID) {
             updateFromItems();
         }
     }
 
     protected void asyncUpdate() {
-        final String finalsearch = this.searchKeywords.toLowerCase();
+        final String finalSearch = mSearchKeywords.toLowerCase();
 
-        ArrayList<Music> arrayMusic = null;
+        List<Music> arrayMusic = null;
 
         try {
-            arrayMusic = (ArrayList<Music>) app.oMPDAsyncHelper.oMPD.search("any", finalsearch);
-        } catch (final MPDServerException e) {
+            arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "MPD search failure.", e);
 
         }
@@ -198,15 +201,15 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             return;
         }
 
-        arrayArtistsResults.clear();
-        arrayAlbumsResults.clear();
-        arraySongsResults.clear();
+        mArtistResults.clear();
+        mAlbumResults.clear();
+        mSongResults.clear();
 
         String tmpValue;
         boolean valueFound;
-        for (Music music : arrayMusic) {
-            if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalsearch)) {
-                arraySongsResults.add(music);
+        for (final Music music : arrayMusic) {
+            if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalSearch)) {
+                mSongResults.add(music);
             }
             valueFound = false;
             Artist artist = music.getAlbumArtistAsArtist();
@@ -214,290 +217,347 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 artist = music.getArtistAsArtist();
             }
             if (artist != null) {
-                tmpValue = artist.getName().toLowerCase();
-                if (tmpValue.contains(finalsearch)) {
-                    for (Artist artistItem : arrayArtistsResults) {
-                        if (artistItem.getName().equalsIgnoreCase(tmpValue))
-                            valueFound = true;
+                final String name = artist.getName();
+                if (name != null) {
+                    tmpValue = name.toLowerCase();
+                    if (tmpValue.contains(finalSearch)) {
+                        for (final Artist artistItem : mArtistResults) {
+                            final String artistItemName = artistItem.getName();
+                            if (artistItemName != null &&
+                                    artistItemName.equalsIgnoreCase(tmpValue)) {
+                                valueFound = true;
+                            }
+                        }
+                        if (!valueFound) {
+                            mArtistResults.add(artist);
+                        }
                     }
-                    if (!valueFound)
-                        arrayArtistsResults.add(artist);
                 }
             }
+
             valueFound = false;
-            Album album = music.getAlbumAsAlbum();
-            if (album != null && album.getName() != null) {
-                tmpValue = album.getName().toLowerCase();
-                if (tmpValue.contains(finalsearch)) {
-                    for (Album albumItem : arrayAlbumsResults) {
-                        if (albumItem.getName().equalsIgnoreCase(tmpValue))
-                            valueFound = true;
+            final Album album = music.getAlbumAsAlbum();
+            if (album != null) {
+                final String albumName = album.getName();
+                if (albumName != null) {
+                    tmpValue = albumName.toLowerCase();
+                    if (tmpValue.contains(finalSearch)) {
+                        for (final Album albumItem : mAlbumResults) {
+                            final String albumItemName = albumItem.getName();
+                            if (albumItemName.equalsIgnoreCase(tmpValue)) {
+                                valueFound = true;
+                            }
+                        }
+                        if (!valueFound) {
+                            mAlbumResults.add(album);
+                        }
                     }
-                    if (!valueFound)
-                        arrayAlbumsResults.add(album);
                 }
             }
         }
 
-        Collections.sort(arrayArtistsResults);
-        Collections.sort(arrayAlbumsResults);
-        Collections.sort(arraySongsResults);
+        Collections.sort(mArtistResults);
+        Collections.sort(mAlbumResults);
+        Collections.sort(mSongResults, Music.COMPARE_WITHOUT_TRACK_NUMBER);
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tabArtists.setText(getString(R.string.artists) + " (" + arrayArtistsResults.size()
-                        + ")");
-                tabAlbums.setText(getString(R.string.albums) + " (" + arrayAlbumsResults.size()
-                        + ")");
-                tabSongs.setText(getString(R.string.songs) + " (" + arraySongsResults.size() + ")");
+                mTabArtists.setText(
+                        getString(R.string.artists) + " (" + mArtistResults.size() + ')');
+                mTabAlbums.setText(getString(R.string.albums) + " (" + mAlbumResults.size() + ')');
+                mTabSongs.setText(getString(R.string.songs) + " (" + mSongResults.size() + ')');
             }
         });
     }
 
-    private String getItemName(Object o) {
-        if (o instanceof Music) {
-            return ((Music) o).getTitle();
-        } else if (o instanceof Artist) {
-            return ((Artist) o).mainText();
-        } else if (o instanceof Album) {
-            return ((Album) o).mainText();
-        }
-        return "";
-    }
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.search_results);
 
-        SearchResultsPagerAdapter adapter = new SearchResultsPagerAdapter();
-        pager = (ViewPager) findViewById(R.id.pager);
-        pager.setAdapter(adapter);
-        pager.setOnPageChangeListener(
+        final SearchResultsPagerAdapter adapter = new SearchResultsPagerAdapter();
+        final ActionBar actionBar = getActionBar();
+
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setAdapter(adapter);
+        mPager.setOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
-                    public void onPageSelected(int position) {
-                        // When swiping between pages, select the
-                        // corresponding tab.
-                        getActionBar().setSelectedNavigationItem(position);
+                    public void onPageSelected(final int position) {
+                        // When swiping between pages, select the corresponding tab.
+                        actionBar.setSelectedNavigationItem(position);
                     }
                 });
 
-        final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        tabArtists = actionBar.newTab()
+        mTabArtists = actionBar.newTab()
                 .setText(R.string.artists)
                 .setTabListener(this);
-        actionBar.addTab(tabArtists);
+        actionBar.addTab(mTabArtists);
 
-        tabAlbums = actionBar.newTab()
+        mTabAlbums = actionBar.newTab()
                 .setText(R.string.albums)
                 .setTabListener(this);
-        actionBar.addTab(tabAlbums);
+        actionBar.addTab(mTabAlbums);
 
-        tabSongs = actionBar.newTab()
+        mTabSongs = actionBar.newTab()
                 .setText(R.string.songs)
                 .setTabListener(this);
-        actionBar.addTab(tabSongs);
+        actionBar.addTab(mTabSongs);
 
-        listArtistsFrame = findViewById(R.id.list_artists_frame);
-        noResultArtistsView = listArtistsFrame.findViewById(R.id.no_artist_result);
-        listArtists = (ListView) listArtistsFrame.findViewById(android.R.id.list);
-        listArtists.setOnItemClickListener(this);
+        mListArtistsFrame = findViewById(R.id.list_artists_frame);
+        mNoResultArtistsView = mListArtistsFrame.findViewById(R.id.no_artist_result);
+        mListArtists = (ListView) mListArtistsFrame.findViewById(android.R.id.list);
+        mListArtists.setOnItemClickListener(this);
 
-        listAlbumsFrame = findViewById(R.id.list_albums_frame);
-        noResultAlbumsView = listAlbumsFrame.findViewById(R.id.no_album_result);
-        listAlbums = (ListView) listAlbumsFrame.findViewById(android.R.id.list);
-        listAlbums.setOnItemClickListener(this);
+        mListAlbumsFrame = findViewById(R.id.list_albums_frame);
+        mNoResultAlbumsView = mListAlbumsFrame.findViewById(R.id.no_album_result);
+        mListAlbums = (ListView) mListAlbumsFrame.findViewById(android.R.id.list);
+        mListAlbums.setOnItemClickListener(this);
 
-        listSongsFrame = findViewById(R.id.list_songs_frame);
-        noResultSongsView = listSongsFrame.findViewById(R.id.no_song_result);
-        listSongs = (ListView) listSongsFrame.findViewById(android.R.id.list);
-        listSongs.setOnItemClickListener(this);
+        mListSongsFrame = findViewById(R.id.list_songs_frame);
+        mNoResultSongsView = mListSongsFrame.findViewById(R.id.no_song_result);
+        mListSongs = (ListView) mListSongsFrame.findViewById(android.R.id.list);
+        mListSongs.setOnItemClickListener(this);
 
-        loadingView = findViewById(R.id.loadingLayout);
-        loadingView.setVisibility(View.VISIBLE);
+        mLoadingView = findViewById(R.id.loadingLayout);
+        mLoadingView.setVisibility(View.VISIBLE);
 
         final Intent queryIntent = getIntent();
         final String queryAction = queryIntent.getAction();
 
         if (Intent.ACTION_SEARCH.equals(queryAction)) {
-            searchKeywords = queryIntent.getStringExtra(SearchManager.QUERY).trim();
+            mSearchKeywords = queryIntent.getStringExtra(SearchManager.QUERY).trim();
             final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
-            suggestions.saveRecentQuery(searchKeywords, null);
+            suggestions.saveRecentQuery(mSearchKeywords, null);
         } else {
             return; // Bye !
         }
 
-        setTitle(getTitle() + " : " + searchKeywords);
+        setTitle(getTitle() + " : " + mSearchKeywords);
 
-        registerForContextMenu(listArtists);
-        registerForContextMenu(listAlbums);
-        registerForContextMenu(listSongs);
+        registerForContextMenu(mListArtists);
+        registerForContextMenu(mListAlbums);
+        registerForContextMenu(mListSongs);
 
         updateList();
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
-    public void onDestroy() {
-        app.oMPDAsyncHelper.removeAsyncExecListener(this);
-        super.onDestroy();
-    }
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+            final ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        ArrayList<?> targetArray;
-        switch (pager.getCurrentItem()) {
-            default:
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+
+        switch (mPager.getCurrentItem()) {
             case 0:
-                targetArray = arrayArtistsResults;
+                final Artist artist = mArtistResults.get((int) info.id);
+                menu.setHeaderTitle(artist.mainText());
+                setContextForObject(artist);
                 break;
             case 1:
-                targetArray = arrayAlbumsResults;
+                final Album album = mAlbumResults.get((int) info.id);
+                menu.setHeaderTitle(album.mainText());
+                setContextForObject(album);
                 break;
             case 2:
-                targetArray = arraySongsResults;
+                final Music music = mSongResults.get((int) info.id);
+                final MenuItem gotoAlbumItem = menu
+                        .add(Menu.NONE, GOTO_ALBUM, 0, R.string.goToAlbum);
+                gotoAlbumItem.setOnMenuItemClickListener(this);
+                menu.setHeaderTitle(music.mainText());
+                setContextForObject(music);
+                break;
+            default:
                 break;
         }
-        final Object item = targetArray.get((int) info.id);
-        menu.setHeaderTitle(getItemName(item));
-        setContextForObject(item);
-        android.view.MenuItem addItem = menu.add(ContextMenu.NONE, ADD, 0, getResources()
-                .getString(addString));
-        addItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, ADDNREPLACE, 0,
+
+        final MenuItem addItem = menu.add(Menu.NONE, ADD, 0, getString(mAddString));
+        final MenuItem addAndReplaceItem = menu.add(Menu.NONE, ADD_REPLACE, 0,
                 R.string.addAndReplace);
-        addAndReplaceItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem addAndReplacePlayItem = menu.add(ContextMenu.NONE, ADDNREPLACEPLAY,
+        final MenuItem addReplacePlayItem = menu.add(Menu.NONE, ADD_REPLACE_PLAY,
                 0, R.string.addAndReplacePlay);
-        addAndReplacePlayItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem addAndPlayItem = menu.add(ContextMenu.NONE, ADDNPLAY, 0,
-                R.string.addAndPlay);
+        final MenuItem addAndPlayItem = menu.add(Menu.NONE, ADD_PLAY, 0, R.string.addAndPlay);
+
+        addItem.setOnMenuItemClickListener(this);
+        addAndReplaceItem.setOnMenuItemClickListener(this);
+        addReplacePlayItem.setOnMenuItemClickListener(this);
         addAndPlayItem.setOnMenuItemClickListener(this);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
         return true;
     }
 
-    public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
-        Object selectedItem = adapterView.getAdapter().getItem(position);
+    @Override
+    public void onDestroy() {
+        mApp.oMPDAsyncHelper.removeAsyncExecListener(this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
+            final long id) {
+        final Object selectedItem = parent.getAdapter().getItem(position);
         if (selectedItem instanceof Music) {
             add((Music) selectedItem, false, false);
         } else if (selectedItem instanceof Artist) {
-            Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("artist", ((Artist) selectedItem));
+            final Parcelable parcel = new ArtistParcelable((Artist) selectedItem);
+            final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+            intent.putExtra("artist", parcel);
             startActivityForResult(intent, -1);
         } else if (selectedItem instanceof Album) {
-            Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("album", ((Album) selectedItem));
+            final Parcelable parcel = new AlbumParcelable((Album) selectedItem);
+            final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+            intent.putExtra("album", parcel);
             startActivityForResult(intent, -1);
         }
     }
 
     @Override
-    public boolean onMenuItemClick(final android.view.MenuItem item) {
+    public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        ArrayList<?> targetArray;
-        switch (pager.getCurrentItem()) {
-            default:
-            case 0:
-                targetArray = arrayArtistsResults;
-                break;
+        final List<? extends Item> targetArray;
+        switch (mPager.getCurrentItem()) {
             case 1:
-                targetArray = arrayAlbumsResults;
+                targetArray = mAlbumResults;
                 break;
             case 2:
-                targetArray = arraySongsResults;
+                targetArray = mSongResults;
+                break;
+            case 0:
+            default:
+                targetArray = mArtistResults;
                 break;
         }
         final Object selectedItem = targetArray.get((int) info.id);
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
-            @Override
-            public void run() {
-                boolean replace = false;
-                boolean play = false;
-                switch (item.getItemId()) {
-                    case ADDNREPLACEPLAY:
-                        replace = true;
-                        play = true;
-                        break;
-                    case ADDNREPLACE:
-                        replace = true;
-                        break;
-                    case ADDNPLAY:
-                        play = true;
-                        break;
-                }
-                add(selectedItem, replace, play);
+        if (item.getItemId() == GOTO_ALBUM) {
+            if (selectedItem instanceof Music) {
+                Music m = (Music) selectedItem;
+                final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+                final Artist artist = new Artist(m.getAlbumArtistOrArtist());
+                final Parcelable artparcel = new ArtistParcelable(artist);
+                intent.putExtra("artist", artparcel);
+                final Parcelable albparcel = new AlbumParcelable(m.getAlbumAsAlbum());
+                intent.putExtra("album", albparcel);
+                startActivityForResult(intent, -1);
             }
-        });
+        } else {
+            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+                @Override
+                public void run() {
+                    boolean replace = false;
+                    boolean play = false;
+                    switch (item.getItemId()) {
+                        case ADD_REPLACE_PLAY:
+                            replace = true;
+                            play = true;
+                            break;
+                        case ADD_REPLACE:
+                            replace = true;
+                            break;
+                        case ADD_PLAY:
+                            play = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    add(selectedItem, replace, play);
+                }
+            });
+        }
         return false;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        boolean handled = true;
+
         switch (item.getItemId()) {
             case R.id.menu_search:
-                this.onSearchRequested();
-                return true;
+                onSearchRequested();
+                break;
             case android.R.id.home:
-                final Intent i = new Intent(this, MainMenuActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
-                return true;
+                final Intent intent = new Intent(this, MainMenuActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                break;
+            default:
+                handled = false;
+                break;
         }
-        return false;
+
+        return handled;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        app.setActivity(this);
+        mApp.setActivity(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        app.unsetActivity(this);
+        mApp.unsetActivity(this);
+    }
+
+    @Override
+    public void onTabReselected(final Tab tab, final FragmentTransaction ft) {
+    }
+
+    @Override
+    public void onTabSelected(final Tab tab, final FragmentTransaction ft) {
+        mPager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabUnselected(final Tab tab, final FragmentTransaction ft) {
+    }
+
+    private void setContextForObject(final Object object) {
+        if (object instanceof Music) {
+            mAddString = R.string.addSong;
+            mAddedString = R.string.songAdded;
+        } else if (object instanceof Artist) {
+            mAddString = R.string.addArtist;
+            mAddedString = R.string.artistAdded;
+        } else if (object instanceof Album) {
+            mAddString = R.string.addAlbum;
+            mAddedString = R.string.albumAdded;
+        }
     }
 
     /**
-     * *** ActionBar TabListener methods ****
+     * This updates a specific ListView for search results.
+     *
+     * @param listView      The ListView to update with search results.
+     * @param resultList    The List of results to enter into the ListView.
+     * @param noResultsView The View to hide if there are no results.
      */
+    private void update(final ListView listView, final List<? extends Item> resultList,
+            final View noResultsView) {
+        final ListAdapter separatedListAdapter = new SeparatedListAdapter(this,
+                R.layout.search_list_item,
+                new SearchResultDataBinder(),
+                resultList);
 
-    @Override
-    public void onTabReselected(Tab tab, FragmentTransaction ft) {
-    }
+        listView.setAdapter(separatedListAdapter);
 
-    @Override
-    public void onTabSelected(Tab tab, FragmentTransaction ft) {
-        pager.setCurrentItem(tab.getPosition());
-    }
-
-    @Override
-    public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-    }
-
-    private void setContextForObject(Object object) {
-        if (object instanceof Music) {
-            addString = R.string.addSong;
-            addedString = R.string.songAdded;
-        } else if (object instanceof Artist) {
-            addString = R.string.addArtist;
-            addedString = R.string.artistAdded;
-        } else if (object instanceof Album) {
-            addString = R.string.addAlbum;
-            addedString = R.string.albumAdded;
+        try {
+            listView.setEmptyView(noResultsView);
+            mLoadingView.setVisibility(View.GONE);
+        } catch (final RuntimeException e) {
+            Log.e(TAG, "Failed to update items.", e);
         }
     }
 
@@ -505,52 +565,60 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
      * Update the view from the items list if items is set.
      */
     public void updateFromItems() {
-        if (arrayArtistsResults != null) {
-            listArtists.setAdapter(new SeparatedListAdapter(this,
-                    R.layout.search_list_item,
-                    new SearchResultDataBinder(),
-                    arrayArtistsResults));
-            try {
-                listArtists.setEmptyView(noResultArtistsView);
-                loadingView.setVisibility(View.GONE);
-            } catch (final Exception e) {
-                Log.e(TAG, "Failed to update artists from items.", e);
-            }
-        }
-        if (arrayAlbumsResults != null) {
-            listAlbums.setAdapter(new SeparatedListAdapter(this,
-                    R.layout.search_list_item,
-                    new SearchResultDataBinder(),
-                    arrayAlbumsResults));
-            try {
-                listAlbums.setEmptyView(noResultAlbumsView);
-                loadingView.setVisibility(View.GONE);
-            } catch (final Exception e) {
-                Log.e(TAG, "Failed to update albums from items.", e);
-            }
-        }
-        if (arraySongsResults != null) {
-            listSongs.setAdapter(new SeparatedListAdapter(this,
-                    R.layout.search_list_item,
-                    new SearchResultDataBinder(),
-                    arraySongsResults));
-            try {
-                listSongs.setEmptyView(noResultSongsView);
-                loadingView.setVisibility(View.GONE);
-            } catch (final Exception e) {
-                Log.e(TAG, "Failed to update songs from items.", e);
-            }
-        }
+        update(mListArtists, mArtistResults, mNoResultArtistsView);
+        update(mListAlbums, mAlbumResults, mNoResultAlbumsView);
+        update(mListSongs, mSongResults, mNoResultSongsView);
     }
 
     public void updateList() {
-        app.oMPDAsyncHelper.addAsyncExecListener(this);
-        iJobID = app.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.oMPDAsyncHelper.addAsyncExecListener(this);
+        mJobID = mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
                 asyncUpdate();
             }
         });
+    }
+
+    class SearchResultsPagerAdapter extends PagerAdapter {
+
+        @Override
+        public void destroyItem(final ViewGroup container, final int position,
+                final Object object) {
+            container.removeView((View) object);
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public Object instantiateItem(final ViewGroup container, final int position) {
+
+            final View v;
+            switch (position) {
+                case 1:
+                    v = mListAlbumsFrame;
+                    break;
+                case 2:
+                    v = mListSongsFrame;
+                    break;
+                case 0:
+                default:
+                    v = mListArtistsFrame;
+                    break;
+            }
+            if (v.getParent() == null) {
+                mPager.addView(v);
+            }
+            return v;
+        }
+
+        @Override
+        public boolean isViewFromObject(final View arg0, final Object arg1) {
+            return arg0.equals(arg1);
+        }
     }
 
 }

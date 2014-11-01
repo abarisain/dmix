@@ -18,20 +18,26 @@ package com.namelessdev.mpdroid.tools;
 
 import com.namelessdev.mpdroid.MPDApplication;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.StringRes;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.widget.Toast;
 
 import java.security.MessageDigest;
-import java.util.List;
+import java.util.Collection;
 
 public final class Tools {
-    private static final MPDApplication app = MPDApplication.getInstance();
 
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth,
-            int reqHeight) {
+    private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private Tools() {
+    }
+
+    public static int calculateInSampleSize(final BitmapFactory.Options options, final int reqWidth,
+            final int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -54,41 +60,49 @@ public final class Tools {
         return inSampleSize;
     }
 
-    public static float convertDpToPixel(float dp) {
-        Resources resources = app.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        return dp * (metrics.densityDpi / 160f);
+    /**
+     * Converts density independent pixels to pixels for the current device.
+     *
+     * @param context The context to get the resources from.
+     * @param dip     The density independent pixel count to convert to pixel count for the device.
+     * @return The device pixel equivalent of the incoming dip count.
+     */
+    public static float convertDpToPixel(final Context context, final float dip) {
+        final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, metrics);
     }
 
     /**
      * Convert byte array to hex string.
-     * 
+     *
      * @param data Target data array.
      * @return Hex string.
      */
-    private static String convertToHex(byte[] data) {
+    private static String convertToHex(final byte[] data) {
         if (data == null || data.length == 0) {
             return null;
         }
 
-        final StringBuffer buffer = new StringBuffer();
+        final StringBuilder buffer = new StringBuilder();
         for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
-            int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
-            int two_halfs = 0;
+            int halfByte = (data[byteIndex] >>> 4) & 0x0F;
+            int twoHalves = 0;
             do {
-                if ((0 <= halfbyte) && (halfbyte <= 9))
-                    buffer.append((char) ('0' + halfbyte));
-                else
-                    buffer.append((char) ('a' + (halfbyte - 10)));
-                halfbyte = data[byteIndex] & 0x0F;
-            } while (two_halfs++ < 1);
+                if ((0 <= halfByte) && (halfByte <= 9)) {
+                    buffer.append((char) ('0' + halfByte));
+                } else {
+                    buffer.append((char) ('a' + (halfByte - 10)));
+                }
+                halfByte = data[byteIndex] & 0x0F;
+            } while (twoHalves++ < 1);
         }
 
         return buffer.toString();
     }
 
-    public static Bitmap decodeSampledBitmapFromBytes(byte[] bytes, int reqWidth, int reqHeight,
-            boolean resizePerfectly) {
+    public static Bitmap decodeSampledBitmapFromBytes(
+            final byte[] bytes, final int reqWidth, final int reqHeight,
+            final boolean resizePerfectly) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -111,8 +125,9 @@ public final class Tools {
         }
     }
 
-    public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth, int reqHeight,
-            boolean resizePerfectlty) {
+    public static Bitmap decodeSampledBitmapFromPath(
+            final String path, final int reqWidth, final int reqHeight,
+            final boolean resizePerfectlty) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -137,17 +152,17 @@ public final class Tools {
 
     /**
      * Gets the hash value from the specified string.
-     * 
+     *
      * @param value Target string value to get hash from.
      * @return the hash from string.
      */
-    public static final String getHashFromString(String value) {
-        if (value == null || value.length() == 0) {
+    public static String getHashFromString(final String value) {
+        if (value == null || value.isEmpty()) {
             return null;
         }
 
         try {
-            MessageDigest hashEngine = MessageDigest.getInstance("MD5");
+            final MessageDigest hashEngine = MessageDigest.getInstance("MD5");
             hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
             return convertToHex(hashEngine.digest());
         } catch (final Exception ignored) {
@@ -156,36 +171,37 @@ public final class Tools {
     }
 
     public static boolean isServerLocalhost() {
-        return "127.0.0.1".equals(app.oMPDAsyncHelper.getConnectionSettings().server);
+        return "127.0.0.1".equals(APP.oMPDAsyncHelper.getConnectionSettings().server);
     }
 
-    public static boolean isStringEmptyOrNull(String str) {
-        return (str == null || "".equals(str));
+    public static boolean isStringEmptyOrNull(final String str) {
+        return str == null || str.isEmpty();
     }
 
-    public static void notifyUser(final int resId, final Object... format) {
+    public static void notifyUser(@StringRes final int resId, final Object... format) {
         final String formattedString =
                 MPDApplication.getInstance().getResources().getString(resId, format);
-        Toast.makeText(app, formattedString, Toast.LENGTH_SHORT).show();
+        Toast.makeText(APP, formattedString, Toast.LENGTH_SHORT).show();
     }
 
-    public static void notifyUser(final int resId) {
-        Toast.makeText(app, resId, Toast.LENGTH_SHORT).show();
+    public static void notifyUser(@StringRes final int resId) {
+        Toast.makeText(APP, resId, Toast.LENGTH_SHORT).show();
     }
 
     public static void notifyUser(final CharSequence message) {
-        Toast.makeText(app, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(APP, message, Toast.LENGTH_SHORT).show();
     }
 
-    public static int[] toIntArray(List<Integer> list) {
-        int[] ret = new int[list.size()];
+    public static int[] toIntArray(final Collection<Integer> list) {
+        final int[] ret = new int[list.size()];
         int i = 0;
-        for (Integer e : list)
+        for (final Integer e : list) {
             ret[i++] = e.intValue();
+        }
         return ret;
     }
 
-    public static Object[] toObjectArray(Object... args) {
+    public static Object[] toObjectArray(final Object... args) {
         return args;
     }
 

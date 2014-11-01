@@ -27,21 +27,28 @@
 
 package org.a0z.mpd;
 
-import android.util.Log;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class MPDCommand {
 
-    public static final int MIN_VOLUME = 0;
+    /**
+     * MPD default TCP port.
+     */
+    public static final int DEFAULT_MPD_PORT = 6600;
 
     public static final int MAX_VOLUME = 100;
+
+    public static final int MIN_VOLUME = 0;
 
     public static final String MPD_CMD_CLEARERROR = "clearerror";
 
     public static final String MPD_CMD_CLOSE = "close";
+
+    public static final String MPD_CMD_COMMANDS = "commands";
+
+    public static final String MPD_CMD_CONSUME = "consume";
 
     public static final String MPD_CMD_COUNT = "count";
 
@@ -49,9 +56,11 @@ public class MPDCommand {
 
     public static final String MPD_CMD_FIND = "find";
 
-    public static final String MPD_CMD_KILL = "kill";
+    public static final String MPD_CMD_GROUP = "group";
 
-    public static final String MPD_CMD_LIST_TAG = "list";
+    public static final String MPD_CMD_IDLE = "idle";
+
+    public static final String MPD_CMD_KILL = "kill";
 
     public static final String MPD_CMD_LISTALL = "listall";
 
@@ -59,31 +68,50 @@ public class MPDCommand {
 
     public static final String MPD_CMD_LISTPLAYLISTS = "listplaylists";
 
+    public static final String MPD_CMD_LIST_TAG = "list";
+
     public static final String MPD_CMD_LSDIR = "lsinfo";
 
-    public static final String MPD_CMD_GROUP = "group";
+    public static final char MPD_CMD_NEWLINE = '\n';
 
     public static final String MPD_CMD_NEXT = "next";
 
-    public static final String MPD_CMD_PAUSE = "pause";
+    public static final String MPD_CMD_OUTPUTDISABLE = "disableoutput";
+
+    public static final String MPD_CMD_OUTPUTENABLE = "enableoutput";
+
+    public static final String MPD_CMD_OUTPUTS = "outputs";
 
     public static final String MPD_CMD_PASSWORD = "password";
 
+    public static final String MPD_CMD_PAUSE = "pause";
+
+    public static final String MPD_CMD_PERMISSION = "permission";
+
+    public static final String MPD_CMD_PING = "ping";
+
     public static final String MPD_CMD_PLAY = "play";
+
+    public static final String MPD_CMD_PLAYLIST_ADD = "playlistadd";
+
+    public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
+
+    public static final String MPD_CMD_PLAYLIST_INFO = "listplaylistinfo";
+
+    public static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
 
     public static final String MPD_CMD_PLAY_ID = "playid";
 
     public static final String MPD_CMD_PREV = "previous";
 
+    private static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,
+            MPD_CMD_PREV, MPD_CMD_PLAYLIST_ADD, MPD_CMD_PLAYLIST_MOVE, MPD_CMD_PLAYLIST_DEL);
+
+    public static final String MPD_CMD_RANDOM = "random";
+
     public static final String MPD_CMD_REFRESH = "update";
 
     public static final String MPD_CMD_REPEAT = "repeat";
-
-    public static final String MPD_CMD_CONSUME = "consume";
-
-    public static final String MPD_CMD_SINGLE = "single";
-
-    public static final String MPD_CMD_RANDOM = "random";
 
     public static final String MPD_CMD_SEARCH = "search";
 
@@ -91,46 +119,24 @@ public class MPDCommand {
 
     public static final String MPD_CMD_SEEK_ID = "seekid";
 
+    public static final String MPD_CMD_SET_VOLUME = "setvol";
+
+    public static final String MPD_CMD_SINGLE = "single";
+
     public static final String MPD_CMD_STATISTICS = "stats";
 
     public static final String MPD_CMD_STATUS = "status";
 
     public static final String MPD_CMD_STOP = "stop";
 
-    public static final String MPD_CMD_SET_VOLUME = "setvol";
-
-    public static final String MPD_CMD_OUTPUTS = "outputs";
-
-    public static final String MPD_CMD_OUTPUTENABLE = "enableoutput";
-
-    public static final String MPD_CMD_OUTPUTDISABLE = "disableoutput";
-
-    public static final String MPD_CMD_PLAYLIST_INFO = "listplaylistinfo";
-
-    public static final String MPD_CMD_PLAYLIST_ADD = "playlistadd";
-
-    public static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
-
-    public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
-
-    private static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,
-            MPD_CMD_PREV, MPD_CMD_PLAYLIST_ADD, MPD_CMD_PLAYLIST_MOVE, MPD_CMD_PLAYLIST_DEL);
-
-    public static final String MPD_CMD_IDLE = "idle";
-
-    public static final String MPD_CMD_PING = "ping";
-
     // deprecated commands
     public static final String MPD_CMD_VOLUME = "volume";
-
-    /**
-     * MPD default TCP port.
-     */
-    public static final int DEFAULT_MPD_PORT = 6600;
 
     public static final String MPD_FIND_ALBUM = "album";
 
     public static final String MPD_FIND_ARTIST = "artist";
+
+    public static final String MPD_LIST_RESPONSE_ARTIST = "Artist";
 
     public static final String MPD_SEARCH_ALBUM = "album";
 
@@ -138,90 +144,142 @@ public class MPDCommand {
 
     public static final String MPD_SEARCH_FILENAME = "filename";
 
-    public static final String MPD_SEARCH_TITLE = "title";
-
     public static final String MPD_SEARCH_GENRE = "genre";
+
+    public static final String MPD_SEARCH_TITLE = "title";
 
     public static final String MPD_TAG_ALBUM = "album";
 
-    public static final String MPD_TAG_ARTIST = "artist";
-
     public static final String MPD_TAG_ALBUM_ARTIST = "albumartist";
+
+    public static final String MPD_TAG_ARTIST = "artist";
 
     public static final String MPD_TAG_GENRE = "genre";
 
-    private static final String TAG = "MPDCommand";
-
     private static final boolean DEBUG = false;
+
+    private static final int[] EMPTY_INT_ARRAY = new int[0];
 
     private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
 
-    String mCommand = null;
+    private static final String TAG = "MPDCommand";
 
-    String[] mArgs = null;
+    private final String[] mArgs;
 
-    private boolean mSentToServer = false;
+    private final String mCommand;
 
-    private boolean mSynchronous = true;
+    /** This field stores any {@code ACK} errors to be considered as non-fatal. */
+    private final int[] mNonfatalErrors;
 
+    /**
+     * The constructor for a command to be sent to the MPD protocol compatible media server.
+     *
+     * @param command The MPD protocol command to be sent.
+     * @param args    Arguments for the {@code command}.
+     */
     public MPDCommand(final String command, final String... args) {
         super();
         mCommand = command;
         mArgs = args.clone();
+        mNonfatalErrors = EMPTY_INT_ARRAY;
     }
 
-    public MPDCommand(final String command, final String[] args, final boolean synchronous) {
+    /**
+     * The constructor for a command to be sent to the MPD protocol compatible media server when
+     * defining non-fatal ACK codes.
+     *
+     * @param command            The MPD protocol command to be sent.
+     * @param nonfatalErrorCodes Errors to consider as non-fatal for this command. These MPD error
+     *                           codes with this command will not return any exception.
+     * @param args               Arguments for the {@code command}.
+     */
+    public MPDCommand(final String command, final int[] nonfatalErrorCodes, final String... args) {
         super();
+
         mCommand = command;
         mArgs = args.clone();
-        mSynchronous = synchronous;
+        mNonfatalErrors = nonfatalErrorCodes.clone();
+    }
+
+    /**
+     * Translates a boolean value to the MPD protocol.
+     *
+     * @param valueToTranslate The boolean to translate.
+     * @return The MPD protocol boolean value.
+     */
+    public static String booleanValue(final boolean valueToTranslate) {
+        final String result;
+
+        if (valueToTranslate) {
+            result = "1";
+        } else {
+            result = "0";
+        }
+
+        return result;
     }
 
     public static boolean isRetryable(final String command) {
         return !NON_RETRYABLE_COMMANDS.contains(command);
     }
 
-    public boolean isSentToServer() {
-        return mSentToServer;
+    public String getCommand() {
+        return mCommand;
     }
 
-    public void setSentToServer(final boolean sentToServer) {
-        mSentToServer = sentToServer;
-    }
+    /**
+     * This method is used to check if this command was loaded with a command code, specified by
+     * the parameter, which is to be considered as non-fatal.
+     *
+     * @param errorCodeToCheck The {@code ACK} error code to check.
+     * @return True if the {@code ACK} error code was loaded as non-fatal, false otherwise.
+     */
+    public boolean isErrorNonfatal(final int errorCodeToCheck) {
+        boolean result = false;
 
-    public boolean isSynchronous() {
-        return mSynchronous;
-    }
-
-    public void setSynchronous(final boolean synchronous) {
-        mSynchronous = synchronous;
-    }
-
-    public String toString() {
-        final int argsLength = Arrays.toString(mArgs).length();
-        final int approximateLength = argsLength + argsLength * (mCommand.length() + 10);
-        final StringBuilder outBuf = new StringBuilder(approximateLength);
-        outBuf.append(mCommand);
-        for (String arg : mArgs) {
-            if (arg == null) {
-                continue;
+        for (final int errorCode : mNonfatalErrors) {
+            if (errorCode == errorCodeToCheck) {
+                result = true;
+                break;
             }
-            arg = QUOTATION_DELIMITER.matcher(arg).replaceAll("\\\\\"");
-            outBuf.append(" \"");
-            outBuf.append(arg);
-            outBuf.append('"');
         }
-        outBuf.append('\n');
-        final String outString = outBuf.toString();
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        final String outString;
+
+        if (mArgs.length == 0) {
+            outString = mCommand + MPD_CMD_NEWLINE;
+        } else {
+            final int argsLength = Arrays.toString(mArgs).length();
+            final int approximateLength = argsLength + mCommand.length() + 10;
+            final StringBuilder outBuf = new StringBuilder(approximateLength);
+
+            outBuf.append(mCommand);
+            for (final String arg : mArgs) {
+                if (arg != null) {
+                    outBuf.append(" \"");
+                    outBuf.append(QUOTATION_DELIMITER.matcher(arg).replaceAll("\\\\\""));
+                    outBuf.append('"');
+                }
+            }
+            outBuf.append(MPD_CMD_NEWLINE);
+            outString = outBuf.toString();
+        }
+
         if (DEBUG) {
             final String safeCommand;
-            if (outString.startsWith(MPD_CMD_PASSWORD)) {
+            if (mCommand.equals(MPD_CMD_PASSWORD)) {
                 safeCommand = "password **censored**";
             } else {
                 safeCommand = outString;
             }
-            Log.d("JMPDComm", "MPD command : " + safeCommand);
+            Log.debug(TAG, "MPD command: " + safeCommand);
         }
+
         return outString;
     }
 }

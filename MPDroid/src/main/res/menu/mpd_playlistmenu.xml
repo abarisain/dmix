@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/PLM_EditPL"
         android:icon="@drawable/ic_action_edit"
+        android:orderInCategory="1"
         android:showAsAction="always"
-        android:title="@string/editPlaylist" android:orderInCategory="1">
-    </item>
+        android:title="@string/editPlaylist" />
     <item
         android:id="@+id/PLM_Save"
         android:icon="@android:drawable/ic_menu_save"
-        android:title="@string/save">
-    </item>
+        android:title="@string/save" />
     <item
         android:id="@+id/PLM_Clear"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        android:title="@string/clear">
-    </item>
+        android:title="@string/clear" />
 
 </menu>

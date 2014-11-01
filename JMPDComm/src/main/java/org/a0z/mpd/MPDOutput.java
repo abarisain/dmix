@@ -27,45 +27,85 @@
 
 package org.a0z.mpd;
 
-import java.util.List;
+import org.a0z.mpd.exception.InvalidResponseException;
+
+import java.util.Collection;
+
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
 
 /*
  * Class representing one configured output
  */
 public class MPDOutput {
 
-    private String name;
+    static final String CMD_ID = "outputid";
 
-    private int id;
+    private static final String CMD_ENABLED = "outputenabled";
 
-    private boolean enabled;
+    private static final String CMD_NAME = "outputname";
 
-    MPDOutput(List<String> response) {
-        for (String line : response) {
-            if (line.startsWith("outputid:")) {
-                this.id = Integer.parseInt(line.substring("outputid: ".length()));
-            } else if (line.startsWith("outputname:")) {
-                this.name = line.substring("outputname: ".length());
-            } else if (line.startsWith("outputenabled:")) {
-                this.enabled = line.substring("outputenabled: ".length()).equals("1");
+    private static final String TAG = "MPDOutput";
+
+    private final boolean mEnabled;
+
+    private final int mId;
+
+    private final String mName;
+
+    MPDOutput(final String name, final int id, final boolean enabled) {
+        super();
+
+        mName = name;
+        mId = id;
+        mEnabled = enabled;
+    }
+
+    public static MPDOutput build(final Collection<String> response) {
+        String name = null;
+        int id = -1;
+        Boolean enabled = null;
+
+        for (final String[] pair : Tools.splitResponse(response)) {
+            switch (pair[KEY]) {
+                case CMD_ENABLED:
+                    enabled = Boolean.valueOf("1".equals(pair[VALUE]));
+                    break;
+                case CMD_ID:
+                    id = Integer.parseInt(pair[VALUE]);
+                    break;
+                case CMD_NAME:
+                    name = pair[VALUE];
+                    break;
+                default:
+                    Log.warning(TAG,
+                            "Non-standard line appeared in output response. Key: " + pair[KEY]
+                                    + " value: " + pair[VALUE]);
+                    break;
             }
         }
+
+        if (name == null || id == -1 || enabled == null) {
+            throw new InvalidResponseException("Failed to parse output information.");
+        }
+
+        return new MPDOutput(name, id, enabled.booleanValue());
     }
 
     public int getId() {
-        return id;
+        return mId;
     }
 
     public String getName() {
-        return name;
+        return mName;
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return mEnabled;
     }
 
     public String toString() {
-        return getName();
+        return mName;
     }
 
 }

@@ -3,8 +3,11 @@
   <component name="ProjectCodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
+        <option name="LINE_SEPARATOR" value="&#10;" />
         <option name="FIELD_NAME_PREFIX" value="m" />
-        <option name="STATIC_FIELD_NAME_PREFIX" value="m" />
+        <option name="STATIC_FIELD_NAME_PREFIX" value="s" />
+        <option name="GENERATE_FINAL_LOCALS" value="true" />
+        <option name="GENERATE_FINAL_PARAMETERS" value="true" />
         <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="9999" />
         <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="9999" />
         <option name="IMPORT_LAYOUT_TABLE">
@@ -65,6 +68,11 @@
         <option name="FOR_BRACE_FORCE" value="3" />
         <AndroidXmlCodeStyleSettings>
           <option name="USE_CUSTOM_SETTINGS" value="true" />
+          <option name="VALUE_RESOURCE_FILE_SETTINGS">
+            <value>
+              <option name="WRAP_ATTRIBUTES" value="4" />
+            </value>
+          </option>
         </AndroidXmlCodeStyleSettings>
         <XML>
           <option name="XML_KEEP_LINE_BREAKS" value="false" />
@@ -105,8 +113,10 @@
           <option name="PARENT_SETTINGS_INSTALLED" value="true" />
         </codeStyleSettings>
         <codeStyleSettings language="JAVA">
+          <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
           <option name="KEEP_CONTROL_STATEMENT_IN_ONE_LINE" value="false" />
           <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
+          <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="1" />
           <option name="BLANK_LINES_AROUND_FIELD" value="1" />
           <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
           <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
@@ -135,6 +145,225 @@
           <indentOptions>
             <option name="TAB_SIZE" value="8" />
           </indentOptions>
+          <arrangement>
+            <groups />
+            <rules>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PUBLIC />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PROTECTED />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PACKAGE_PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PUBLIC />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PROTECTED />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PACKAGE_PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PUBLIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PROTECTED />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PACKAGE_PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PUBLIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PROTECTED />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PACKAGE_PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <FIELD />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <CONSTRUCTOR />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <METHOD />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <ENUM />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <INTERFACE />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <CLASS />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <CLASS />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+            </rules>
+          </arrangement>
         </codeStyleSettings>
         <codeStyleSettings language="XML">
           <option name="FORCE_REARRANGE_MODE" value="1" />

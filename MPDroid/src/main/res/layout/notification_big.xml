@@ -42,25 +42,25 @@
             android:id="@+id/notificationArtist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:ellipsize="marquee"
             android:gravity="bottom"
             android:maxLines="1"
             android:singleLine="true"
-            android:textAppearance="?android:textAppearanceSmall"
-            android:layout_gravity="bottom" />
+            android:textAppearance="?android:textAppearanceSmall" />
 
         <TextView
             android:id="@+id/notificationAlbum"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="top"
             android:layout_weight="1"
             android:ellipsize="marquee"
             android:gravity="top"
             android:maxLines="1"
             android:singleLine="true"
-            android:textAppearance="?android:textAppearanceSmall"
-            android:layout_gravity="top" />
+            android:textAppearance="?android:textAppearanceSmall" />
     </LinearLayout>
 
     <ImageView

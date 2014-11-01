@@ -16,18 +16,22 @@
 
 package com.namelessdev.mpdroid.views.holders;
 
+import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+public class PlayQueueViewHolder extends AlbumCoverHolder {
 
-public class PlayQueueViewHolder extends AbstractViewHolder {
-    public ImageView play;
-    public TextView title;
-    public TextView artist;
-    public ImageView cover;
-    public View menuButton;
-    public CoverAsyncHelper coverHelper;
+    public TextView mArtist;
+
+    public CoverAsyncHelper mCoverHelper;
+
+    public View mMenuButton;
+
+    public ImageView mPlay;
+
+    public TextView mTitle;
 
 }

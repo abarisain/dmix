@@ -16,193 +16,140 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import android.graphics.Bitmap;
-
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 
-import org.a0z.mpd.AlbumInfo;
+import android.graphics.Bitmap;
 
 public class CoverInfo extends AlbumInfo {
-    public enum STATE {
-        NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
-    }
 
-    private STATE state = STATE.NEW;
-    private Bitmap[] bitmap = new Bitmap[0];
-    private byte[] coverBytes = new byte[0];
-    private boolean priority;
     public static final int MAX_SIZE = 0;
-    private int coverMaxSize = MAX_SIZE;
-    private int cachedCoverMaxSize = MAX_SIZE;
-    private ICoverRetriever coverRetriever;
-    private CoverDownloadListener listener;
-    private boolean requestGivenUp = false;
 
-    public CoverInfo() {
-        super();
+    private int mCoverMaxSize = MAX_SIZE;
+
+    private int mCachedCoverMaxSize = MAX_SIZE;
+
+    private Bitmap[] mBitmap = new Bitmap[0];
+
+    private byte[] mCoverBytes = new byte[0];
+
+    private ICoverRetriever mCoverRetriever;
+
+    private CoverDownloadListener mListener;
+
+    private boolean mPriority;
+
+    private boolean mRequestGivenUp = false;
+
+    private STATE mState = STATE.NEW;
+
+    public CoverInfo(final AlbumInfo albumInfo) {
+        super(albumInfo.getArtist(), albumInfo.getAlbum(),
+                albumInfo.getPath(), albumInfo.getFilename());
     }
 
-    public CoverInfo(AlbumInfo albumInfo) {
-        super();
-        this.artist = albumInfo.getArtist();
-        this.album = albumInfo.getAlbum();
-        this.path = albumInfo.getPath();
-        this.filename = albumInfo.getFilename();
-    }
-
-    public CoverInfo(CoverInfo coverInfo) {
-        super();
-        this.state = coverInfo.state;
-        this.artist = coverInfo.artist;
-        this.album = coverInfo.album;
-        this.path = coverInfo.path;
-        this.filename = coverInfo.filename;
-        this.bitmap = coverInfo.bitmap;
-        this.coverBytes = coverInfo.coverBytes;
-        this.priority = coverInfo.priority;
-        this.coverMaxSize = coverInfo.coverMaxSize;
-        this.cachedCoverMaxSize = coverInfo.cachedCoverMaxSize;
-        this.coverRetriever = coverInfo.coverRetriever;
-        this.listener = coverInfo.getListener();
-        this.requestGivenUp = coverInfo.requestGivenUp;
-    }
-
-    public CoverInfo(String artist, String album) {
-        this.artist = artist;
-        this.album = album;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        CoverInfo coverInfo = (CoverInfo) o;
-
-        if (album != null ? !album.equals(coverInfo.album) : coverInfo.album != null)
-            return false;
-        if (artist != null ? !artist.equals(coverInfo.artist) : coverInfo.artist != null)
-            return false;
-
-        return true;
-    }
-
-    public String getAlbum() {
-        return album;
-    }
-
-    public String getArtist() {
-        return artist;
+    public CoverInfo(final CoverInfo coverInfo) {
+        super(coverInfo.mArtist, coverInfo.mAlbum, coverInfo.mPath, coverInfo.mFilename);
+        mState = coverInfo.mState;
+        mBitmap = coverInfo.mBitmap;
+        mCoverBytes = coverInfo.mCoverBytes;
+        mPriority = coverInfo.mPriority;
+        mCoverMaxSize = coverInfo.mCoverMaxSize;
+        mCachedCoverMaxSize = coverInfo.mCachedCoverMaxSize;
+        mCoverRetriever = coverInfo.mCoverRetriever;
+        mListener = coverInfo.mListener;
+        mRequestGivenUp = coverInfo.mRequestGivenUp;
     }
 
     public Bitmap[] getBitmap() {
-        return bitmap;
+        return mBitmap;
     }
 
     public int getCachedCoverMaxSize() {
-        return cachedCoverMaxSize;
+        return mCachedCoverMaxSize;
     }
 
     public byte[] getCoverBytes() {
-        return coverBytes;
+        return mCoverBytes;
     }
 
     public int getCoverMaxSize() {
-        return coverMaxSize;
+        return mCoverMaxSize;
     }
 
     public ICoverRetriever getCoverRetriever() {
-        return coverRetriever;
-    }
-
-    public String getFilename() {
-        return filename;
+        return mCoverRetriever;
     }
 
     public CoverDownloadListener getListener() {
-        return listener;
-    }
-
-    public String getPath() {
-        return path;
+        return mListener;
     }
 
     public STATE getState() {
-        return state;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = artist != null ? artist.hashCode() : 0;
-        result = 31 * result + (album != null ? album.hashCode() : 0);
-        return result;
+        return mState;
     }
 
     public boolean isPriority() {
-        return priority;
+        return mPriority;
     }
 
     public boolean isRequestGivenUp() {
-        return requestGivenUp;
+        return mRequestGivenUp;
     }
 
-    public void setAlbum(String album) {
-        this.album = album;
+    public void setBitmap(final Bitmap[] bitmap) {
+        mBitmap = bitmap;
     }
 
-    public void setArtist(String artist) {
-        this.artist = artist;
+    public void setCachedCoverMaxSize(final int cachedCoverMaxSize) {
+        mCachedCoverMaxSize = cachedCoverMaxSize;
     }
 
-    public void setBitmap(Bitmap[] bitmap) {
-        this.bitmap = bitmap;
+    public void setCoverBytes(final byte[] coverBytes) {
+        mCoverBytes = coverBytes;
     }
 
-    public void setCachedCoverMaxSize(int cachedCoverMaxSize) {
-        this.cachedCoverMaxSize = cachedCoverMaxSize;
+    public void setCoverMaxSize(final int coverMaxSize) {
+        mCoverMaxSize = coverMaxSize;
     }
 
-    public void setCoverBytes(byte[] coverBytes) {
-        this.coverBytes = coverBytes;
+    public void setCoverRetriever(final ICoverRetriever coverRetriever) {
+        mCoverRetriever = coverRetriever;
     }
 
-    public void setCoverMaxSize(int coverMaxSize) {
-        this.coverMaxSize = coverMaxSize;
+    @Override
+    public void setFilename(final String filename) {
+        mFilename = filename;
     }
 
-    public void setCoverRetriever(ICoverRetriever coverRetriever) {
-        this.coverRetriever = coverRetriever;
+    public void setListener(final CoverDownloadListener listener) {
+        mListener = listener;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    @Override
+    public void setPath(final String path) {
+        mPath = path;
     }
 
-    public void setListener(CoverDownloadListener listener) {
-        this.listener = listener;
+    public void setPriority(final boolean priority) {
+        mPriority = priority;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setRequestGivenUp(final boolean requestGivenUp) {
+        mRequestGivenUp = requestGivenUp;
     }
 
-    public void setPriority(boolean priority) {
-        this.priority = priority;
-    }
-
-    public void setRequestGivenUp(boolean requestGivenUp) {
-        this.requestGivenUp = requestGivenUp;
-    }
-
-    public void setState(STATE state) {
-        this.state = state;
+    public void setState(final STATE state) {
+        mState = state;
     }
 
     @Override
     public String toString() {
-        return "CoverInfo{state=" + state + ", artist=" + artist == null ? "" : artist + ", album="
-                + album == null ? "" : album + " priority=" + priority + "}";
+        return "CoverInfo{state=" + mState + ", artist=" + mArtist == null ? ""
+                : mArtist + ", album="
+                        + mAlbum == null ? "" : mAlbum + " priority=" + mPriority + '}';
+    }
+
+    public enum STATE {
+        NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
     }
 }

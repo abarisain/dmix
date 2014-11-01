@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,13 +42,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     // Used to trace when the app pauses / resumes playback
     private static final String PAUSED_MARKER = "wasPausedInCall";
 
-    private static final String TAG = "com.namelessdev.mpdroid.PhoneStateReceiver";
-
-    private static void setPausedMarker(final boolean value) {
-        SETTINGS.edit()
-                .putBoolean(PAUSED_MARKER, value)
-                .commit();
-    }
+    private static final String TAG = "PhoneStateReceiver";
 
     private static boolean isLocalNetworkConnected() {
         final ConnectivityManager cm =
@@ -72,17 +65,18 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         return isLocalNetwork;
     }
 
+    private static void setPausedMarker(final boolean value) {
+        SETTINGS.edit()
+                .putBoolean(PAUSED_MARKER, value)
+                .commit();
+    }
+
     private static boolean shouldPauseForCall() {
         boolean result = false;
-        String mpdState = null;
+        final boolean isPlaying =
+                APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatus.STATE_PLAYING);
 
-        try {
-            mpdState = APP.oMPDAsyncHelper.oMPD.getStatus().getState();
-        } catch (final MPDServerException e) {
-            Log.e(TAG, "Failed to get a server state.", e);
-        }
-
-        if (MPDStatus.MPD_STATE_PLAYING.equals(mpdState)) {
+        if (isPlaying) {
             if (APP.isLocalAudible()) {
                 if (DEBUG) {
                     Log.d(TAG, "App is local audible.");

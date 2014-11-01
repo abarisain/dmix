@@ -16,15 +16,16 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 
-import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,12 +35,12 @@ public class DiscogsCover extends AbstractWebCover {
 
     private static final String TAG = "DiscogsCover";
 
-    private List<String> extractImageUrls(String releaseJson) {
-        JSONObject jsonRootObject;
-        JSONArray jsonArray;
+    private static Collection<String> extractImageUrls(final String releaseJson) {
+        final JSONObject jsonRootObject;
+        final JSONArray jsonArray;
         String imageUrl;
         JSONObject jsonObject;
-        List<String> imageUrls = new ArrayList<String>();
+        final Collection<String> imageUrls = new ArrayList<>();
 
         try {
             jsonRootObject = new JSONObject(releaseJson);
@@ -62,12 +63,12 @@ public class DiscogsCover extends AbstractWebCover {
         return imageUrls;
     }
 
-    private List<String> extractReleaseIds(String releaseIdJson) {
-        JSONObject jsonRootObject;
-        JSONArray jsonArray;
+    private static List<String> extractReleaseIds(final String releaseIdJson) {
+        final JSONObject jsonRootObject;
+        final JSONArray jsonArray;
         String releaseId;
         JSONObject jsonObject;
-        List<String> releaseIds = new ArrayList<String>();
+        final List<String> releaseIds = new ArrayList<>();
 
         try {
             jsonRootObject = new JSONObject(releaseIdJson);
@@ -91,17 +92,18 @@ public class DiscogsCover extends AbstractWebCover {
     }
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
-        String releaseIdResponse;
-        List<String> releaseIds;
-        List<String> imageUrls = new ArrayList<String>();
+        final String releaseIdResponse;
+        final List<String> releaseIds;
+        final List<String> imageUrls = new ArrayList<>();
         String releaseResponse;
 
-        releaseIdResponse = executeGetRequest("http://api.discogs.com/database/search?type=release&q="
-                + albumInfo.getArtist() + " " + albumInfo.getAlbum() + "& per_page = 10");
+        releaseIdResponse = executeGetRequest(
+                "http://api.discogs.com/database/search?type=release&q="
+                        + albumInfo.getArtist() + ' ' + albumInfo.getAlbum() + "& per_page = 10");
         releaseIds = extractReleaseIds(releaseIdResponse);
-        for (String releaseId : releaseIds) {
+        for (final String releaseId : releaseIds) {
             releaseResponse = executeGetRequest("http://api.discogs.com/releases/" + releaseId);
             imageUrls.addAll(extractImageUrls(releaseResponse));
 

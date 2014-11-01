@@ -16,34 +16,37 @@
 
 package com.namelessdev.mpdroid.models;
 
+import org.a0z.mpd.item.Music;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
 import static android.text.TextUtils.isEmpty;
 import static android.text.TextUtils.join;
 
-import org.a0z.mpd.Music;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class PlaylistSong extends AbstractPlaylistMusic {
 
-    public PlaylistSong(Music m) {
-        super(m.getAlbum(), m.getArtist(), m.getAlbumArtist(), m.getFullpath(), m.getDisc(), m
-                .getDate(), m.getTime(), m.getParentDirectory(), m.getTitle(), m.getTotalTracks(),
-                m.getTrack(), m.getSongId(), m.getPos(), m.getName());
+    public PlaylistSong(final Music music) {
+        super(music.getAlbum(), music.getArtist(), music.getAlbumArtist(), music.getFullPath(),
+                music.getDisc(), music.getDate(), music.getGenre(), music.getTime(),
+                music.getTitle(), music.getTotalTracks(), music.getTrack(), music.getSongId(),
+                music.getPos(), music.getName());
     }
 
+    @Override
     public String getPlayListMainLine() {
         return getTitle();
     }
 
+    @Override
     public String getPlaylistSubLine() {
-        List<String> sublineTexts = new ArrayList<String>();
+        final Collection<String> subLineTexts = new ArrayList<>();
         if (!isEmpty(getArtist())) {
-            sublineTexts.add(getArtist());
+            subLineTexts.add(getArtist());
         }
         if (!isEmpty(getAlbum())) {
-            sublineTexts.add(getAlbum());
+            subLineTexts.add(getAlbum());
         }
-        return join(" - ", sublineTexts);
+        return join(" - ", subLineTexts);
     }
 }

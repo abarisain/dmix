@@ -21,40 +21,39 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 public class WidgetHelperService extends IntentService {
-    static final String TAG = "MPDroidWidgetHelperService";
 
     public static final String CMD_UPDATE_WIDGET = "UPDATE_WIDGET";
 
-    private boolean playing = false;
+    static final String TAG = "MPDroidWidgetHelperService";
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private boolean mPlaying = false;
 
     public WidgetHelperService() {
         super(TAG);
     }
 
     public boolean isPlaying() {
-        return playing;
+        return mPlaying;
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void onHandleIntent(final Intent intent) {
         // get MPD connection
-        app.setActivity(this);
+        mApp.setActivity(this);
 
         // prepare values for runnable
-        final MPD mpd = app.oMPDAsyncHelper.oMPD;
+        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
         final String action = intent.getAction();
 
         // schedule real work
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
                 processIntent(action, mpd);
@@ -62,17 +61,13 @@ public class WidgetHelperService extends IntentService {
         });
 
         // clean up
-        app.unsetActivity(this);
+        mApp.unsetActivity(this);
     }
 
-    void processIntent(String action, MPD mpd) {
+    void processIntent(final String action, final MPD mpd) {
         switch (action) {
             case CMD_UPDATE_WIDGET:
-                try {
-                    playing = mpd.getStatus().getState().equals(MPDStatus.MPD_STATE_PLAYING);
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to get current status", e);
-                }
+                mPlaying = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);
                 SimpleWidgetProvider.getInstance().notifyChange(this);
                 break;
             default:

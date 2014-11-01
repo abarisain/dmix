@@ -16,9 +16,9 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 
-import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,27 +32,29 @@ public class DeezerCover extends AbstractWebCover {
     private static final String TAG = "DeezerCover";
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
-        String deezerResponse;
-        JSONObject jsonRootObject;
-        JSONArray jsonArray;
-        String coverUrl;
+        final String deezerResponse;
+        final JSONObject jsonRootObject;
+        final JSONArray jsonArray;
+        StringBuilder coverUrl = new StringBuilder();
         JSONObject jsonObject;
 
         try {
+
             deezerResponse = executeGetRequest("http://api.deezer.com/search/album?q="
-                    + albumInfo.getAlbum() + " " + albumInfo.getArtist()
+                    + albumInfo.getAlbum() + ' ' + albumInfo.getArtist()
                     + "&nb_items=1&output=json");
             jsonRootObject = new JSONObject(deezerResponse);
             jsonArray = jsonRootObject.getJSONArray("data");
             for (int i = 0; i < jsonArray.length(); i++) {
                 jsonObject = jsonArray.getJSONObject(i);
-                coverUrl = jsonObject.getString("cover");
-                if (coverUrl != null) {
-                    coverUrl += "&size=big";
-                    return new String[] {
-                            coverUrl
+                coverUrl.setLength(0);
+                coverUrl.append(jsonObject.getString("cover"));
+                if (coverUrl.length() != 0) {
+                    coverUrl.append("&size=big");
+                    return new String[]{
+                            coverUrl.toString()
                     };
                 }
             }

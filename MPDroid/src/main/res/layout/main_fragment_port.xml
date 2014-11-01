@@ -4,14 +4,15 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    tools:ignore="ContentDescription" >
+    tools:ignore="ContentDescription">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_marginLeft="10dip"
         android:layout_marginRight="10dip"
         android:layout_marginTop="4dip"
-        android:layout_weight="1" >
+        android:layout_weight="1">
 
         <ImageView
             android:id="@+id/albumCover"
@@ -39,7 +40,7 @@
         android:clickable="true"
         android:paddingBottom="2dip"
         android:paddingLeft="10dip"
-        android:paddingRight="10dip" >
+        android:paddingRight="10dip">
 
         <TextView
             android:id="@+id/songName"
@@ -71,7 +72,7 @@
             android:layout_below="@+id/artistName"
             android:layout_centerHorizontal="true"
             android:gravity="center_horizontal"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/albumName"
@@ -102,13 +103,28 @@
             android:layout_marginTop="1dip"
             android:fontFamily="sans-serif-light"
             android:gravity="center_horizontal" />
+
+        <RatingBar
+            android:id="@+id/songRating"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/audioName"
+            android:layout_centerHorizontal="true"
+            android:isIndicator="false"
+            android:numStars="5"
+            android:paddingBottom="10dip"
+            android:paddingTop="10dip"
+            android:stepSize="1" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/progress_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dip" >
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
+        android:layout_marginTop="5dip">
 
         <TextView
             android:id="@+id/trackTime"
@@ -147,7 +163,7 @@
     <LinearLayout
         android:id="@+id/buttons_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
 
         <ImageButton
             android:id="@+id/shuffle"
@@ -203,7 +219,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dip"
-        android:layout_marginTop="2dip" >
+        android:layout_marginTop="2dip">
 
         <SeekBar
             android:id="@+id/progress_volume"

@@ -21,137 +21,110 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.Item;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
+import java.io.IOException;
+
 public class PlaylistsFragment extends BrowseFragment {
-    class DialogClickListener implements OnClickListener {
-        private final int itemIndex;
 
-        DialogClickListener(int itemIndex) {
-            this.itemIndex = itemIndex;
-        }
-
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case AlertDialog.BUTTON_NEGATIVE:
-                    break;
-                case AlertDialog.BUTTON_POSITIVE:
-                    String playlist = items.get(itemIndex).getName();
-                    try {
-                        app.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
-                        if (isAdded()) {
-                            Tools.notifyUser(R.string.playlistDeleted, playlist);
-                        }
-                        items.remove(itemIndex);
-                    } catch (final MPDServerException e) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(R.string.deletePlaylist);
-                        builder.setMessage(
-                                getResources().getString(R.string.failedToDelete, playlist));
-                        builder.setPositiveButton(android.R.string.cancel, null);
-
-                        try {
-                            builder.show();
-                        } catch (final BadTokenException ignored) {
-                            // Can't display it. Don't care.
-                        }
-                    }
-                    updateFromItems();
-                    break;
-
-            }
-        }
-    }
+    public static final int DELETE = 102;
 
     public static final int EDIT = 101;
 
-    public static final int DELETE = 102;
+    private static final String TAG = "PlaylistsFragment";
 
     public PlaylistsFragment() {
         super(R.string.addPlaylist, R.string.playlistAdded, null);
     }
 
-    private static final String TAG = "PlaylistsFragment";
-
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add(item.getName(), replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add((PlaylistFile) item, replace, play);
             if (isAdded()) {
-                Tools.notifyUser(irAdded, item);
+                Tools.notifyUser(mIrAdded, item);
             }
 
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
     }
 
     @Override
     protected void asyncUpdate() {
         try {
-            items = app.oMPDAsyncHelper.oMPD.getPlaylists(true);
-        } catch (final MPDServerException e) {
+            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylists(true);
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
     }
 
     @Override
+    @StringRes
     public int getLoadingText() {
         return R.string.loadingPlaylists;
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+            final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        android.view.MenuItem editItem = menu.add(ContextMenu.NONE, EDIT, 0, R.string.editPlaylist);
+        final MenuItem editItem = menu
+                .add(Menu.NONE, EDIT, 0, R.string.editPlaylist);
         editItem.setOnMenuItemClickListener(this);
-        android.view.MenuItem addAndReplaceItem = menu.add(ContextMenu.NONE, DELETE, 0,
+        final MenuItem addAndReplaceItem = menu.add(Menu.NONE, DELETE, 0,
                 R.string.deletePlaylist);
         addAndReplaceItem.setOnMenuItemClickListener(this);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
+            final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new StoredPlaylistFragment().init(items.get(position).getName()),
+                new StoredPlaylistFragment().init(mItems.get(position).getName()),
                 "stored_playlist");
     }
 
     @Override
-    public boolean onMenuItemClick(android.view.MenuItem item) {
+    public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case EDIT:
-                Intent intent = new Intent(getActivity(), PlaylistEditActivity.class);
-                intent.putExtra("playlist", items.get((int) info.id).getName());
+                final Intent intent = new Intent(getActivity(), PlaylistEditActivity.class);
+                intent.putExtra("playlist", mItems.get((int) info.id).getName());
                 startActivity(intent);
                 return true;
 
             case DELETE:
-                String playlist = items.get((int) info.id).getName();
+                final String playlist = mItems.get((int) info.id).getName();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.deletePlaylist);
                 builder.setMessage(
                         getResources().getString(R.string.deletePlaylistPrompt, playlist));
 
-                DialogClickListener oDialogClickListener = new DialogClickListener((int) info.id);
+                final OnClickListener oDialogClickListener = new DialogClickListener(
+                        (int) info.id);
                 builder.setNegativeButton(android.R.string.no, oDialogClickListener);
                 builder.setPositiveButton(R.string.deletePlaylist, oDialogClickListener);
 
@@ -166,5 +139,42 @@ public class PlaylistsFragment extends BrowseFragment {
                 break;
         }
         return false;
+    }
+
+    class DialogClickListener implements OnClickListener {
+
+        private final int mItemIndex;
+
+        DialogClickListener(final int itemIndex) {
+            super();
+            mItemIndex = itemIndex;
+        }
+
+        @Override
+        public void onClick(final DialogInterface dialog, final int which) {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                final String playlist = mItems.get(mItemIndex).getName();
+                try {
+                    mApp.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
+                    if (isAdded()) {
+                        Tools.notifyUser(R.string.playlistDeleted, playlist);
+                    }
+                    mItems.remove(mItemIndex);
+                } catch (final IOException | MPDException e) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.deletePlaylist);
+                    builder.setMessage(
+                            getResources().getString(R.string.failedToDelete, playlist));
+                    builder.setPositiveButton(android.R.string.cancel, null);
+
+                    try {
+                        builder.show();
+                    } catch (final BadTokenException ignored) {
+                        // Can't display it. Don't care.
+                    }
+                }
+                updateFromItems();
+            }
+        }
     }
 }

@@ -17,6 +17,8 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
@@ -24,22 +26,27 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import java.net.UnknownHostException;
+import java.io.IOException;
 
 /**
  * Asynchronous worker thread-class for long during operations on JMPDComm.
  */
 public class MPDAsyncWorker implements Handler.Callback,
+        SharedPreferences.OnSharedPreferenceChangeListener,
         StatusChangeListener,
         TrackPositionListener {
+
+    static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
     private static final int LOCAL_UID = 500;
 
@@ -66,8 +73,12 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     private final MPD mMPD;
 
+    private final SharedPreferences mSettings;
+
     /** A store for the current connection information. */
     private ConnectionInfo mConInfo = new ConnectionInfo();
+
+    private String[] mIdleSubsystems;
 
     private MPDStatusMonitor mStatusMonitor;
 
@@ -76,6 +87,9 @@ public class MPDAsyncWorker implements Handler.Callback,
     MPDAsyncWorker(final Handler helperHandler, final MPD mpd) {
         super();
 
+        mSettings = PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance());
+        mSettings.registerOnSharedPreferenceChangeListener(this);
+
         mHelperHandler = helperHandler;
         mMPD = mpd;
     }
@@ -83,11 +97,9 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** Connects the {@code MPD} object to the media server. */
     private void connect() {
         try {
-            if (mMPD != null) {
-                mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
-                mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
-            }
-        } catch (final MPDServerException | UnknownHostException e) {
+            mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
+            mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Error while connecting to the server.", e);
             mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECT_FAILED,
                     Tools.toObjectArray(e.getMessage())).sendToTarget();
@@ -103,11 +115,9 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** Disconnects the {@code MPD} object from the media server. */
     private void disconnect() {
         try {
-            if (mMPD != null) {
-                mMPD.disconnect();
-            }
+            mMPD.disconnect();
             Log.d(TAG, "Disconnected.");
-        } catch (final MPDServerException e) {
+        } catch (final IOException e) {
             Log.e(TAG, "Error on disconnect.", e);
         }
     }
@@ -130,6 +140,7 @@ public class MPDAsyncWorker implements Handler.Callback,
                 //reconnect();
                 break;
             case EVENT_START_STATUS_MONITOR:
+                mIdleSubsystems = (String[]) msg.obj;
                 startStatusMonitor();
                 break;
             case EVENT_STOP_STATUS_MONITOR:
@@ -171,7 +182,36 @@ public class MPDAsyncWorker implements Handler.Callback,
     @Override
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
         mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_UPDATE_STATE,
-                Tools.toObjectArray(updating,dbChanged)).sendToTarget();
+                Tools.toObjectArray(updating, dbChanged)).sendToTarget();
+    }
+
+    /**
+     * Called when a shared preference is changed, added, or removed. This
+     * may be called even if a preference is set to its existing value.
+     *
+     * <p>This callback will be run on your main thread.
+     *
+     * @param sharedPreferences The {@link android.content.SharedPreferences} that received
+     *                          the change.
+     * @param key               The key of the preference that was changed, added, or
+     */
+    @Override
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
+            final String key) {
+        switch (key) {
+            case USE_LOCAL_ALBUM_CACHE_KEY:
+                final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);
+
+                mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_SET_USE_CACHE, useAlbumCache);
+                break;
+            case GracenoteCover.CUSTOM_CLIENT_ID_KEY:
+                final SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove(GracenoteCover.USER_ID);
+                editor.commit();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -201,9 +241,7 @@ public class MPDAsyncWorker implements Handler.Callback,
             }
         }
 
-        if (mMPD != null && mMPD.isConnected()) {
-            connect();
-        }
+        connect();
 
         if (isMonitorAlive) {
             startStatusMonitor();
@@ -243,7 +281,8 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     /** Starts the JMPDComm MPD Status Monitor. */
     private void startStatusMonitor() {
-        mStatusMonitor = new MPDStatusMonitor(mMPD, DateUtils.SECOND_IN_MILLIS / 2L);
+        mStatusMonitor =
+                new MPDStatusMonitor(mMPD, DateUtils.SECOND_IN_MILLIS / 2L, mIdleSubsystems);
         mStatusMonitor.addStatusChangeListener(this);
         mStatusMonitor.addTrackPositionListener(this);
         mStatusMonitor.start();
@@ -264,9 +303,16 @@ public class MPDAsyncWorker implements Handler.Callback,
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final String oldState) {
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
         mHelperHandler
                 .obtainMessage(MPDAsyncHelper.EVENT_STATE, Tools.toObjectArray(mpdStatus, oldState))
+                .sendToTarget();
+    }
+
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+        mHelperHandler
+                .obtainMessage(MPDAsyncHelper.EVENT_STICKER_CHANGED, Tools.toObjectArray(mpdStatus))
                 .sendToTarget();
     }
 

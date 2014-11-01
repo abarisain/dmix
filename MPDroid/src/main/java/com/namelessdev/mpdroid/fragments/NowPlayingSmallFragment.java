@@ -21,24 +21,22 @@ import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
+import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
-import org.a0z.mpd.AlbumInfo;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.Music;
 import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.item.Music;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,72 +48,53 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener,
-    UpdateTrackInfo.TrackInfoUpdate {
+        UpdateTrackInfo.TrackInfoUpdate {
 
-    private boolean forceStatusUpdate = false;
+    private static final String TAG = "NowPlayingSmallFragment";
 
-    private static final String TAG = "com.namelessdev.mpdroid.NowPlayingSmallFragment";
-
-    private final MPDApplication app = MPDApplication.getInstance();
-    private CoverAsyncHelper coverHelper;
-    private TextView songTitle;
-
-    private TextView songArtist;
-    private AlbumCoverDownloadListener coverArtListener;
-    private ImageView coverArt;
-
-    private ProgressBar coverArtProgress;
-    private ImageButton buttonPrev;
-    private ImageButton buttonPlayPause;
-    private ImageButton buttonNext;
-
-    final OnClickListener buttonClickListener = new OnClickListener() {
+    final OnClickListener mButtonClickListener = new OnClickListener() {
         @Override
         public void onClick(final View v) {
             MPDControl.run(v.getId());
         }
     };
 
+    private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private ImageButton mButtonPlayPause;
+
+    private ImageView mCoverArt;
+
+    private CoverAsyncHelper mCoverHelper;
+
+    private boolean mForceStatusUpdate = false;
+
+    private TextView mSongArtist;
+
+    private TextView mSongTitle;
+
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        if (connected && isAdded() && forceStatusUpdate) {
-            MPDStatus mpdStatus = null;
-
-            try {
-                /** Need to force an updated status here. */
-                mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus(true);
-            } catch (final MPDServerException e) {
-                Log.e(TAG, "Failed to get an updated status object.", e);
-            }
-
-            forceStatusUpdate(mpdStatus);
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
+        if (connected && isAdded() && mForceStatusUpdate) {
+            mApp.updateTrackInfo.refresh(mApp.oMPDAsyncHelper.oMPD.getStatus(), true);
         }
 
         if (!connected && isAdded()) {
-            songTitle.setText(R.string.notConnected);
-            songArtist.setText("");
-        }
-    }
-
-    /**
-     * This is called in the case that nothing else is keeping the track information up to date.
-     */
-    private void forceStatusUpdate(final MPDStatus mpdStatus) {
-        if (forceStatusUpdate && mpdStatus != null) {
-            app.updateTrackInfo.refresh(mpdStatus, true);
+            mSongTitle.setText(R.string.notConnected);
+            mSongArtist.setText("");
         }
     }
 
     @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(final Activity activity) {
         super.onAttach(activity);
 
         if (!MainMenuActivity.class.equals(activity.getClass())) {
-            forceStatusUpdate = true;
+            mForceStatusUpdate = true;
         }
     }
 
@@ -127,57 +106,60 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public final void onCoverUpdate(final AlbumInfo albumInfo) {
         final int noCoverResource = AlbumCoverDownloadListener.getNoCoverResource();
-        coverArt.setImageResource(noCoverResource);
+        mCoverArt.setImageResource(noCoverResource);
 
-        if(albumInfo != null) {
-            coverHelper.downloadCover(albumInfo, true);
+        if (albumInfo != null) {
+            mCoverHelper.downloadCover(albumInfo, true);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.now_playing_small_fragment, container, false);
-        songTitle = (TextView) view.findViewById(R.id.song_title);
-        songTitle.setSelected(true);
-        songArtist = (TextView) view.findViewById(R.id.song_artist);
-        songArtist.setSelected(true);
-        buttonPrev = (ImageButton) view.findViewById(R.id.prev);
-        buttonPlayPause = (ImageButton) view.findViewById(R.id.playpause);
-        buttonNext = (ImageButton) view.findViewById(R.id.next);
-        buttonPrev.setOnClickListener(buttonClickListener);
-        buttonPlayPause.setOnClickListener(buttonClickListener);
-        buttonNext.setOnClickListener(buttonClickListener);
+        mSongTitle = (TextView) view.findViewById(R.id.song_title);
+        mSongTitle.setSelected(true);
+        mSongArtist = (TextView) view.findViewById(R.id.song_artist);
+        mSongArtist.setSelected(true);
+        final ImageButton buttonPrev = (ImageButton) view.findViewById(R.id.prev);
+        mButtonPlayPause = (ImageButton) view.findViewById(R.id.playpause);
+        final ImageButton buttonNext = (ImageButton) view.findViewById(R.id.next);
+        buttonPrev.setOnClickListener(mButtonClickListener);
+        mButtonPlayPause.setOnClickListener(mButtonClickListener);
+        buttonNext.setOnClickListener(mButtonClickListener);
 
-        coverArt = (ImageView) view.findViewById(R.id.albumCover);
-        coverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-        coverArtListener = new AlbumCoverDownloadListener(coverArt, coverArtProgress, false);
-
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-
-        coverHelper = new CoverAsyncHelper();
-        coverHelper.setCoverMaxSizeFromScreen(getActivity());
-        final ViewTreeObserver vto = coverArt.getViewTreeObserver();
+        mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
+        final ProgressBar coverArtProgress = (ProgressBar) view
+                .findViewById(R.id.albumCoverProgress);
+        final CoverDownloadListener coverArtListener = new AlbumCoverDownloadListener(
+                mCoverArt, coverArtProgress, false);
+        mCoverHelper = new CoverAsyncHelper();
+        mCoverHelper.setCoverMaxSizeFromScreen(getActivity());
+        final ViewTreeObserver vto = mCoverArt.getViewTreeObserver();
         vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
             public boolean onPreDraw() {
-                if (coverHelper != null)
-                    coverHelper.setCachedCoverMaxSize(coverArt.getMeasuredHeight());
+                if (mCoverHelper != null) {
+                    mCoverHelper.setCachedCoverMaxSize(mCoverArt.getMeasuredHeight());
+                }
                 return true;
             }
         });
-        coverHelper.addCoverDownloadListener(coverArtListener);
+        mCoverHelper.addCoverDownloadListener(coverArtListener);
 
         return view;
     }
 
     @Override
     public void onDestroyView() {
-        if (coverArt != null) {
-            final Drawable oldDrawable = coverArt.getDrawable();
-            coverArt.setImageResource(AlbumCoverDownloadListener.getNoCoverResource());
+        if (mCoverArt != null) {
+            final Drawable oldDrawable = mCoverArt.getDrawable();
+            mCoverArt.setImageResource(AlbumCoverDownloadListener.getNoCoverResource());
             if (oldDrawable != null && oldDrawable instanceof CoverBitmapDrawable) {
-                final Bitmap oldBitmap = ((CoverBitmapDrawable) oldDrawable).getBitmap();
-                if (oldBitmap != null)
+                final Bitmap oldBitmap = ((BitmapDrawable) oldDrawable).getBitmap();
+                if (oldBitmap != null) {
                     oldBitmap.recycle();
+                }
             }
         }
         super.onDestroyView();
@@ -185,24 +167,22 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void onPause() {
-        app.updateTrackInfo.removeCallback(this);
+        mApp.updateTrackInfo.removeCallback(this);
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        app.updateTrackInfo.addCallback(this);
+        final MPDStatus mpdStatus = mApp.oMPDAsyncHelper.oMPD.getStatus();
 
-        MPDStatus mpdStatus = null;
-        if(forceStatusUpdate && app.oMPDAsyncHelper.oMPD.isConnected()) {
-            try {
-                /** Need to force an updated status here. */
-                mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus(true);
-                forceStatusUpdate(mpdStatus);
-            } catch (final MPDServerException e) {
-                Log.e(TAG, "Failed to get an updated MPDStatus object.", e);
-            }
+        if (mApp.updateTrackInfo == null) {
+            mApp.updateTrackInfo = new UpdateTrackInfo();
+        }
+        mApp.updateTrackInfo.addCallback(this);
+
+        if (mForceStatusUpdate && mApp.oMPDAsyncHelper.oMPD.isConnected()) {
+            mApp.updateTrackInfo.refresh(mpdStatus, true);
         }
 
         /** mpdStatus might be null here, no problem it'll be generated in the method. */
@@ -212,12 +192,12 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onStart() {
         super.onStart();
-        app.oMPDAsyncHelper.addStatusChangeListener(this);
+        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
     }
 
     @Override
     public void onStop() {
-        app.oMPDAsyncHelper.removeStatusChangeListener(this);
+        mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
         super.onStop();
     }
 
@@ -225,12 +205,12 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
      * Called when a track information change has been detected.
      *
      * @param artist The artist change.
-     * @param title The title change.
+     * @param title  The title change.
      */
     @Override
     public final void onTrackInfoUpdate(final CharSequence artist, final CharSequence title) {
-        songArtist.setText(artist);
-        songTitle.setText(title);
+        mSongArtist.setText(artist);
+        mSongTitle.setText(title);
     }
 
     @Override
@@ -239,64 +219,63 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
          * If the current song is a stream, the metadata can change in place, and that will only
          * change the playlist, not the track, so, update if we detect a stream.
          */
-        if (isAdded() && mpdStatus != null && forceStatusUpdate) {
+        if (isAdded() && mForceStatusUpdate) {
             final int songPos = mpdStatus.getSongPos();
             final Music currentSong =
-                    app.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+                    mApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             if (currentSong != null && currentSong.isStream() ||
-                    MPDStatus.MPD_STATE_STOPPED.equals(mpdStatus.getState())) {
-                forceStatusUpdate(mpdStatus);
+                    mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
+                mApp.updateTrackInfo.refresh(mpdStatus, true);
             }
         }
     }
 
     @Override
-    public void randomChanged(boolean random) {
+    public void randomChanged(final boolean random) {
 
     }
 
     @Override
-    public void repeatChanged(boolean repeating) {
+    public void repeatChanged(final boolean repeating) {
     }
 
     @Override
-    public void stateChanged(MPDStatus status, String oldState) {
-        forceStatusUpdate(status);
-        updatePlayPauseButton(status);
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
+        if (mForceStatusUpdate) {
+            mApp.updateTrackInfo.refresh(mpdStatus);
+        }
+        updatePlayPauseButton(mpdStatus);
 
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
-        forceStatusUpdate(mpdStatus);
+    public void stickerChanged(final MPDStatus mpdStatus) {
     }
 
-    public void updateCover(AlbumInfo albumInfo) {
-        if (coverArt != null && null != coverArt.getTag()
-                && coverArt.getTag().equals(albumInfo.getKey())) {
-            coverHelper.downloadCover(albumInfo);
+    @Override
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
+        if (mForceStatusUpdate) {
+            mApp.updateTrackInfo.refresh(mpdStatus);
+        }
+    }
+
+    public void updateCover(final AlbumInfo albumInfo) {
+        if (mCoverArt != null && null != mCoverArt.getTag()
+                && mCoverArt.getTag().equals(albumInfo.getKey())) {
+            mCoverHelper.downloadCover(albumInfo);
         }
     }
 
     private void updatePlayPauseButton(final MPDStatus status) {
         if (isAdded()) {
-            String state = null;
+            final int playPauseResource =
+                    NowPlayingFragment.getPlayPauseResource(status.getState());
 
-            if (status == null) {
-                try {
-                    state = app.oMPDAsyncHelper.oMPD.getStatus().getState();
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to retrieve server status.", e);
-                }
-            } else {
-                state = status.getState();
-            }
-
-            buttonPlayPause.setImageResource(NowPlayingFragment.getPlayPauseResource(state));
+            mButtonPlayPause.setImageResource(playPauseResource);
         }
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
     }
 }

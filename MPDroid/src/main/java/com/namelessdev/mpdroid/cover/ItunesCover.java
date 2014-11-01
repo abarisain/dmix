@@ -16,28 +16,29 @@
 
 package com.namelessdev.mpdroid.cover;
 
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 
-import org.a0z.mpd.AlbumInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
 
 public class ItunesCover extends AbstractWebCover {
+
     private static final String TAG = "ItunesCover";
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
-        String response;
-        JSONObject jsonRootObject;
-        JSONArray jsonArray;
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
+        final String response;
+        final JSONObject jsonRootObject;
+        final JSONArray jsonArray;
         String coverUrl;
         JSONObject jsonObject;
 
         try {
             response = executeGetRequest("https://itunes.apple.com/search?term="
-                    + albumInfo.getAlbum() + " " + albumInfo.getArtist()
+                    + albumInfo.getAlbum() + ' ' + albumInfo.getArtist()
                     + "&limit=5&media=music&entity=album");
             jsonRootObject = new JSONObject(response);
             jsonArray = jsonRootObject.getJSONArray("results");
@@ -48,7 +49,7 @@ public class ItunesCover extends AbstractWebCover {
                     // Based on some tests even if the cover art size returned
                     // is 100x100
                     // Bigger versions also exists.
-                    return new String[] {
+                    return new String[]{
                             coverUrl.replace("100x100", "600x600")
                     };
                 }

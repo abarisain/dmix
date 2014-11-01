@@ -42,9 +42,9 @@ import java.net.URL;
 @SuppressWarnings("resource")
 public abstract class AbstractWebCover implements ICoverRetriever {
 
-    private static final String TAG = "com.namelessdev.mpdroid.AbstractWebCover";
-
     private static final boolean DEBUG = CoverManager.DEBUG;
+
+    private static final String TAG = "AbstractWebCover";
 
     private static String readInputStream(final InputStream content) {
         final InputStreamReader inputStreamReader = new InputStreamReader(content);
@@ -109,7 +109,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         String result = null;
         InputStream inputStream = null;
 
-        if (CoverManager.urlExists(connection)) {
+        if (CoverManager.doesUrlExist(connection)) {
             /** TODO: After minSdkVersion="19" use try-with-resources here. */
             try {
                 inputStream = connection.getInputStream();
@@ -169,7 +169,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
             statusLine = response.getStatusLine();
             statusCode = statusLine.getStatusCode();
 
-            if (CoverManager.urlExists(statusCode)) {
+            if (CoverManager.doesUrlExist(statusCode)) {
                 entity = response.getEntity();
                 content = entity.getContent();
                 result = readInputStream(content);
@@ -208,8 +208,8 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
     AndroidHttpClient prepareRequest() {
         final int fiveSeconds = 5000;
-        final String USER_AGENT = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
-        final AndroidHttpClient client = AndroidHttpClient.newInstance(USER_AGENT);
+        final String userAgent = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
+        final AndroidHttpClient client = AndroidHttpClient.newInstance(userAgent);
         final HttpParams params = client.getParams();
         HttpConnectionParams.setConnectionTimeout(params, fiveSeconds);
         HttpConnectionParams.setSoTimeout(params, fiveSeconds);

@@ -5,15 +5,14 @@
     android:layout_height="fill_parent"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <SearchView
         android:id="@+id/search"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:iconifiedByDefault="false"
-        android:queryHint="@string/searchQueue" >
-    </SearchView>
+        android:queryHint="@string/searchQueue" />
 
     <com.mobeta.android.dslv.DragSortListView
         android:id="@android:id/list"

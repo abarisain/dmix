@@ -21,43 +21,41 @@ import com.namelessdev.mpdroid.MainMenuActivity;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDOutput;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OutputsFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
-    private final MPDApplication app = MPDApplication.getInstance();
-
-    private ArrayList<MPDOutput> outputs;
-
     private static final String TAG = "OutputsFragment";
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        outputs = new ArrayList<>();
-    }
+    private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private ArrayList<MPDOutput> mOutputs;
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final ArrayAdapter<MPDOutput> arrayAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_multiple_choice, outputs);
+        final ListAdapter arrayAdapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_list_item_multiple_choice, mOutputs);
         setListAdapter(arrayAdapter);
 
-        getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        getListView().setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
         getListView().setOnItemClickListener(this);
 
         // Not needed since MainMenuActivity will take care of telling us to refresh
@@ -67,19 +65,26 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mOutputs = new ArrayList<>();
+    }
+
+    @Override
+    public void onItemClick(
+            final AdapterView<?> parent, final View view, final int position, final long id) {
+        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
-                final MPD mpd = app.oMPDAsyncHelper.oMPD;
-                final MPDOutput output = outputs.get(position);
+                final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
+                final MPDOutput output = mOutputs.get(position);
                 try {
                     if (getListView().isItemChecked(position)) {
                         mpd.enableOutput(output.getId());
                     } else {
                         mpd.disableOutput(output.getId());
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to modify output.", e);
                 }
                 final Activity activity = getActivity();
@@ -96,14 +101,14 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     }
 
     public void refreshOutputs() {
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
                 try {
-                    final List<MPDOutput> mpdOutputs = app.oMPDAsyncHelper.oMPD.getOutputs();
-                    outputs.clear();
-                    outputs.addAll(mpdOutputs);
-                } catch (MPDServerException e) {
+                    final List<MPDOutput> mpdOutputs = mApp.oMPDAsyncHelper.oMPD.getOutputs();
+                    mOutputs.clear();
+                    mOutputs.addAll(mpdOutputs);
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to list outputs.", e);
                 }
                 final Activity activity = getActivity();
@@ -112,10 +117,14 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                         @Override
                         @SuppressWarnings("unchecked")
                         public void run() {
-                            ((ArrayAdapter<MPDOutput>) getListAdapter()).notifyDataSetChanged();
-                            final ListView list = getListView();
-                            for (int i = 0; i < outputs.size(); i++) {
-                                list.setItemChecked(i, outputs.get(i).isEnabled());
+                            try {
+                                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+                                final ListView list = getListView();
+                                for (int i = 0; i < mOutputs.size(); i++) {
+                                    list.setItemChecked(i, mOutputs.get(i).isEnabled());
+                                }
+                            } catch (IllegalStateException e) {
+                                Log.e(TAG, "Illegal Activity state while trying to refresh output list");
                             }
                         }
                     });

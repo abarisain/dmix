@@ -19,8 +19,12 @@ package com.namelessdev.mpdroid.views.holders;
 import android.widget.TextView;
 
 public class SongViewHolder extends AbstractViewHolder {
-    public TextView trackTitle;
-    public TextView trackNumber;
-    public TextView trackDuration;
-    public TextView trackArtist;
+
+    public TextView mTrackArtist;
+
+    public TextView mTrackDuration;
+
+    public TextView mTrackNumber;
+
+    public TextView mTrackTitle;
 }

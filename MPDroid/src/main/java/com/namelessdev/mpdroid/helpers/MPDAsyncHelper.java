@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
@@ -28,6 +29,7 @@ import org.a0z.mpd.event.TrackPositionListener;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 
 import java.util.Collection;
 
@@ -39,8 +41,6 @@ import java.util.Collection;
  * @author sag
  */
 public class MPDAsyncHelper implements Handler.Callback {
-
-    private static final String TAG = "MPDAsyncHelper";
 
     private static final int LOCAL_UID = 600;
 
@@ -58,15 +58,21 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     static final int EVENT_REPEAT = LOCAL_UID + 8;
 
-    static final int EVENT_STATE = LOCAL_UID + 9;
+    static final int EVENT_SET_USE_CACHE = LOCAL_UID + 9;
 
-    static final int EVENT_TRACK = LOCAL_UID + 10;
+    static final int EVENT_STATE = LOCAL_UID + 10;
 
-    static final int EVENT_TRACK_POSITION = LOCAL_UID + 11;
+    static final int EVENT_TRACK = LOCAL_UID + 11;
 
-    static final int EVENT_UPDATE_STATE = LOCAL_UID + 12;
+    static final int EVENT_TRACK_POSITION = LOCAL_UID + 12;
 
-    static final int EVENT_VOLUME = LOCAL_UID + 13;
+    static final int EVENT_UPDATE_STATE = LOCAL_UID + 13;
+
+    static final int EVENT_VOLUME = LOCAL_UID + 14;
+
+    static final int EVENT_STICKER_CHANGED = LOCAL_UID + 15;
+
+    private static final String TAG = "MPDAsyncHelper";
 
     private static int sJobID = 0;
 
@@ -74,9 +80,9 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private final Collection<AsyncExecListener> mAsyncExecListeners;
 
-    private final Collection<ConnectionListener> mConnectionListeners;
-
     private final Collection<ConnectionInfoListener> mConnectionInfoListeners;
+
+    private final Collection<ConnectionListener> mConnectionListeners;
 
     private final Collection<NetworkMonitorListener> mNetworkMonitorListeners;
 
@@ -92,10 +98,9 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private NetworkActivityHandler mNetworkActivityHandler;
 
-    private boolean mIsNetworkMonitorActive = false;
-
     public MPDAsyncHelper() {
-        this(true);
+        this(PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance())
+                .getBoolean(MPDAsyncWorker.USE_LOCAL_ALBUM_CACHE_KEY, false));
     }
 
     /**
@@ -123,15 +128,15 @@ public class MPDAsyncHelper implements Handler.Callback {
         }
     }
 
-    public void addConnectionListener(final ConnectionListener listener) {
-        if (!mConnectionListeners.contains(listener)) {
-            mConnectionListeners.add(listener);
-        }
-    }
-
     public void addConnectionInfoListener(final ConnectionInfoListener listener) {
         if (!mConnectionInfoListeners.contains(listener)) {
             mConnectionInfoListeners.add(listener);
+        }
+    }
+
+    public void addConnectionListener(final ConnectionListener listener) {
+        if (!mConnectionListeners.contains(listener)) {
+            mConnectionListeners.add(listener);
         }
     }
 
@@ -184,16 +189,6 @@ public class MPDAsyncHelper implements Handler.Callback {
      */
     public ConnectionInfo getConnectionSettings() {
         return mConnectionInfo;
-    }
-
-    /**
-     * Stores the {@code ConnectionInfo} object and sends it to the worker.
-     *
-     * @param connectionInfo A current {@code ConnectionInfo} object.
-     */
-    public void setConnectionSettings(final ConnectionInfo connectionInfo) {
-        mConnectionInfo = connectionInfo;
-        oMPDAsyncWorker.setConnectionSettings(connectionInfo);
     }
 
     /**
@@ -250,9 +245,12 @@ public class MPDAsyncHelper implements Handler.Callback {
                         listener.repeatChanged((Boolean) args[0]);
                     }
                     break;
+                case EVENT_SET_USE_CACHE:
+                    ((CachedMPD) oMPD).setUseCache((Boolean) args[0]);
+                    break;
                 case EVENT_STATE:
                     for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.stateChanged((MPDStatus) args[0], (String) args[1]);
+                        listener.stateChanged((MPDStatus) args[0], (int) args[1]);
                     }
                     break;
                 case EVENT_TRACK:
@@ -273,6 +271,11 @@ public class MPDAsyncHelper implements Handler.Callback {
                 case EVENT_TRACK_POSITION:
                     for (final TrackPositionListener listener : mTrackPositionListeners) {
                         listener.trackPositionChanged((MPDStatus) args[0]);
+                    }
+                    break;
+                case EVENT_STICKER_CHANGED:
+                    for (final StatusChangeListener listener : mStatusChangeListeners) {
+                        listener.stickerChanged((MPDStatus) args[0]);
                     }
                     break;
                 case EVENT_CONNECT_FAILED:
@@ -304,12 +307,13 @@ public class MPDAsyncHelper implements Handler.Callback {
         return result;
     }
 
-    public boolean isStatusMonitorAlive() {
-        return oMPDAsyncWorker.isStatusMonitorAlive();
+    public boolean isNetworkMonitorAlive() {
+        final boolean isNetworkMonitorActive = false;
+        return isNetworkMonitorActive;
     }
 
-    public boolean isNetworkMonitorAlive() {
-        return mIsNetworkMonitorActive;
+    public boolean isStatusMonitorAlive() {
+        return oMPDAsyncWorker.isStatusMonitorAlive();
     }
 
     /** Don't use this unless you know what you're doing. */
@@ -321,12 +325,12 @@ public class MPDAsyncHelper implements Handler.Callback {
         mAsyncExecListeners.remove(listener);
     }
 
-    public void removeConnectionListener(final ConnectionListener listener) {
-        mConnectionListeners.remove(listener);
-    }
-
     public void removeConnectionInfoListener(final ConnectionInfoListener listener) {
         mConnectionInfoListeners.remove(listener);
+    }
+
+    public void removeConnectionListener(final ConnectionListener listener) {
+        mConnectionListeners.remove(listener);
     }
 
     public void removeNetworkMonitorListener(final NetworkMonitorListener listener) {
@@ -341,29 +345,40 @@ public class MPDAsyncHelper implements Handler.Callback {
         mTrackPositionListeners.remove(listener);
     }
 
+    /**
+     * Stores the {@code ConnectionInfo} object and sends it to the worker.
+     *
+     * @param connectionInfo A current {@code ConnectionInfo} object.
+     */
+    public void setConnectionSettings(final ConnectionInfo connectionInfo) {
+        mConnectionInfo = connectionInfo;
+        oMPDAsyncWorker.setConnectionSettings(connectionInfo);
+    }
+
     public void setUseCache(final boolean useCache) {
         ((CachedMPD) oMPD).setUseCache(useCache);
     }
 
-    public void startStatusMonitor() {
-        mWorkerHandler.sendEmptyMessage(MPDAsyncWorker.EVENT_START_STATUS_MONITOR);
-    }
-
     public final void startNetworkMonitor(final Context context) {
         /** if (!mIsNetworkMonitorActive) {
-            mNetworkActivityHandler = new NetworkActivityHandler(this);
-            final IntentFilter intentFilter =
-                    new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
-            context.registerReceiver(mNetworkActivityHandler, intentFilter);
-            mIsNetworkMonitorActive = true;
-        } */
+         mNetworkActivityHandler = new NetworkActivityHandler(this);
+         final IntentFilter intentFilter =
+         new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+         context.registerReceiver(mNetworkActivityHandler, intentFilter);
+         mIsNetworkMonitorActive = true;
+         } */
+    }
+
+    public void startStatusMonitor(final String[] idleSubsystems) {
+        Message.obtain(mWorkerHandler, MPDAsyncWorker.EVENT_START_STATUS_MONITOR, idleSubsystems)
+                .sendToTarget();
     }
 
     public final void stopNetworkMonitor(final Context context) {
         /** if (mIsNetworkMonitorActive) {
-            context.unregisterReceiver(mNetworkActivityHandler);
-            mIsNetworkMonitorActive = false;
-        } */
+         context.unregisterReceiver(mNetworkActivityHandler);
+         mIsNetworkMonitorActive = false;
+         } */
     }
 
     public void stopStatusMonitor() {
@@ -376,17 +391,17 @@ public class MPDAsyncHelper implements Handler.Callback {
         void asyncExecSucceeded(int jobID);
     }
 
+    public interface ConnectionInfoListener {
+
+        void onConnectionConfigChange(ConnectionInfo connectionInfo);
+    }
+
     // PMix internal ConnectionListener interface
     public interface ConnectionListener {
 
         void connectionFailed(String message);
 
         void connectionSucceeded(String message);
-    }
-
-    public interface ConnectionInfoListener {
-
-        void onConnectionConfigChange(ConnectionInfo connectionInfo);
     }
 
     public interface NetworkMonitorListener {

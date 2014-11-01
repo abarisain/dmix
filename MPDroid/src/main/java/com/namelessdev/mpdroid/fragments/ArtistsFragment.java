@@ -21,47 +21,51 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Genre;
-import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.Genre;
+import org.a0z.mpd.item.Item;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
+import java.io.IOException;
+
 public class ArtistsFragment extends BrowseFragment {
-    private Genre genre = null;
 
     private static final String TAG = "ArtistsFragment";
+
+    private Genre mGenre = null;
 
     public ArtistsFragment() {
         super(R.string.addArtist, R.string.artistAdded, MPDCommand.MPD_SEARCH_ARTIST);
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
-            app.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
             if (isAdded()) {
-                Tools.notifyUser(irAdded, item);
+                Tools.notifyUser(mIrAdded, item);
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add to queue.", e);
         }
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
         try {
-            app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
             if (isAdded()) {
-                Tools.notifyUser(irAdded, item);
+                Tools.notifyUser(mIrAdded, item);
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add to playlist.", e);
         }
     }
@@ -73,62 +77,64 @@ public class ArtistsFragment extends BrowseFragment {
                     .getDefaultSharedPreferences(MPDApplication.getInstance());
             switch (settings.getString(LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE,
                     LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
-                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
-                default:
-                    if (genre != null) {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre);
-                    } else {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists();
-                    }
-                    break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
-                    if (genre != null) {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre, true);
+                    if (mGenre != null) {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, true);
                     } else {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(true);
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(true);
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
-                    if (genre != null) {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(genre, false);
+                    if (mGenre != null) {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, false);
                     } else {
-                        items = app.oMPDAsyncHelper.oMPD.getArtists(false);
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(false);
+                    }
+                    break;
+                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
+                default:
+                    if (mGenre != null) {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre);
+                    } else {
+                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists();
                     }
                     break;
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
     }
 
     @Override
+    @StringRes
     public int getLoadingText() {
         return R.string.loadingArtists;
     }
 
     @Override
     public String getTitle() {
-        if (genre != null) {
-            return genre.getName();
+        if (mGenre != null) {
+            return mGenre.mainText();
         } else {
             return getString(R.string.genres);
         }
     }
 
-    public ArtistsFragment init(Genre g) {
-        genre = g;
+    public ArtistsFragment init(final Genre g) {
+        mGenre = g;
         return this;
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
-        AlbumsFragment af;
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
+            final long id) {
+        final AlbumsFragment af;
         final SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(app);
+                .getDefaultSharedPreferences(mApp);
         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-            af = new AlbumsGridFragment((Artist) items.get(position), genre);
+            af = new AlbumsGridFragment((Artist) mItems.get(position), mGenre);
         } else {
-            af = new AlbumsFragment((Artist) items.get(position), genre);
+            af = new AlbumsFragment((Artist) mItems.get(position), mGenre);
         }
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, "album");
     }

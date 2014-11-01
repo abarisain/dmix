@@ -20,24 +20,16 @@ import com.namelessdev.mpdroid.MPDApplication;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
 import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * Playlist control implements simple playlist controls which require no result processing.
  */
 public final class QueueControl {
-
-    private static final String TAG = "QueueControl";
-
-    private static final MPDApplication app = MPDApplication.getInstance();
-
-    private static final MPD mpd = app.oMPDAsyncHelper.oMPD;
-
-    private static final MPDPlaylist playlist = mpd.getPlaylist();
-
-    private static final int INVALID_INT = -1;
 
     public static final int CLEAR = 0;
 
@@ -55,6 +47,16 @@ public final class QueueControl {
 
     public static final int SKIP_TO_ID = 7;
 
+    private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private static final int INVALID_INT = -1;
+
+    private static final MPD MPD = APP.oMPDAsyncHelper.oMPD;
+
+    private static final MPDPlaylist PLAYLIST = MPD.getPlaylist();
+
+    private static final String TAG = "QueueControl";
+
     private QueueControl() {
         super();
     }
@@ -67,14 +69,14 @@ public final class QueueControl {
      * @param intArray The int array argument for the command.
      */
     public static void run(final int command, final int[] intArray) {
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
+        APP.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
                 try {
                     if (command == REMOVE_BY_ID) {
-                        playlist.removeById(intArray);
+                        PLAYLIST.removeById(intArray);
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to remove by playlist id. intArray: " + intArray, e);
                 }
             }
@@ -89,14 +91,14 @@ public final class QueueControl {
      * @param s       The string argument for the command.
      */
     public static void run(final int command, final String s) {
-        app.oMPDAsyncHelper.execAsync(new Runnable() {
+        APP.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
                 try {
                     if (command == SAVE_PLAYLIST) {
-                        playlist.savePlaylist(s);
+                        PLAYLIST.savePlaylist(s);
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to save the playlist. String: " + s, e);
                 }
             }
@@ -134,17 +136,17 @@ public final class QueueControl {
             @Override
             public void run() {
                 int workingCommand = command;
-                int i = arg1;
+                final int i = arg1;
                 int j = arg2;
 
                 try {
                     switch (command) {
                         case MOVE_TO_LAST:
-                            j = app.oMPDAsyncHelper.oMPD.getStatus().getPlaylistLength() - 1;
+                            j = APP.oMPDAsyncHelper.oMPD.getStatus().getPlaylistLength() - 1;
                             workingCommand = MOVE;
                             break;
                         case MOVE_TO_NEXT:
-                            j = app.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
+                            j = APP.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
 
                             if (i >= j) {
                                 j += 1;
@@ -158,24 +160,24 @@ public final class QueueControl {
 
                     switch (workingCommand) {
                         case CLEAR:
-                            playlist.clear();
+                            PLAYLIST.clear();
                             break;
                         case MOVE:
-                            playlist.move(i, j);
+                            PLAYLIST.move(i, j);
                             break;
                         case REMOVE_ALBUM_BY_ID:
-                            playlist.removeAlbumById(i);
+                            PLAYLIST.removeAlbumById(i);
                             break;
                         case REMOVE_BY_ID:
-                            playlist.removeById(i);
+                            PLAYLIST.removeById(i);
                             break;
                         case SKIP_TO_ID:
-                            mpd.skipToId(i);
+                            MPD.skipToId(i);
                             break;
                         default:
                             break;
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to run simple playlist command. Argument 1: " + arg1 +
                             " Argument 2: " + arg2, e);
                 }
@@ -195,19 +197,20 @@ public final class QueueControl {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int i = arg1;
-                int j = arg2;
-                int k = arg3;
+                final int i = arg1;
+                final int j = arg2;
+                final int k = arg3;
                 try {
                     switch (command) {
                         case MOVE:
-                            playlist.moveByPosition(i, j, k);
+                            PLAYLIST.moveByPosition(i, j, k);
                             break;
                         default:
                             break;
                     }
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to run simple playlist command. Argument 1: " + arg1 + " Argument 2: " + arg2 + " Argument 3: " + arg3, e);
+                } catch (final IOException | MPDException e) {
+                    Log.e(TAG, "Failed to run simple playlist command. Argument 1: " + arg1
+                            + " Argument 2: " + arg2 + " Argument 3: " + arg3, e);
                 }
             }
         }).start();

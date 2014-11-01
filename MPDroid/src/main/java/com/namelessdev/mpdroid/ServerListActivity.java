@@ -18,14 +18,14 @@ package com.namelessdev.mpdroid;
 
 import android.app.ListActivity;
 import android.os.Bundle;
-import android.widget.ListView;
+import android.widget.AbsListView;
 
 public class ServerListActivity extends ListActivity {
 
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.server_list);
-        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        getListView().setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
     }
 }

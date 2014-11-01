@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="?attr/nowPlayingSliderBackgroundColor"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nowplaying_small_fragment_height"
-    android:orientation="horizontal" >
+    android:background="?attr/nowPlayingSliderBackgroundColor"
+    android:orientation="horizontal">
 
     <RelativeLayout
         android:layout_width="0dip"
         android:layout_height="48dip"
-        android:layout_weight="1" >
+        android:layout_weight="1">
 
         <RelativeLayout
             android:id="@+id/albumCoverFrame"
@@ -16,13 +16,13 @@
             android:layout_height="fill_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="8dip" >
+            android:layout_marginRight="8dip">
 
             <ImageView
                 android:id="@+id/albumCover"
-                android:contentDescription="@string/albumCover"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
+                android:contentDescription="@string/albumCover"
                 android:scaleType="fitCenter"
                 android:src="?attr/noCoverArtIcon" />
 
@@ -42,13 +42,13 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/albumCoverFrame"
             android:ellipsize="marquee"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
             android:gravity="bottom"
             android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
             android:textIsSelectable="false"
-            android:textStyle="bold"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/song_artist"
@@ -57,10 +57,10 @@
             android:layout_alignParentBottom="true"
             android:layout_toRightOf="@+id/albumCoverFrame"
             android:ellipsize="marquee"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
             android:gravity="top"
             android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
             android:textIsSelectable="false"
             android:textSize="12sp" />
 
@@ -68,20 +68,20 @@
 
     <ImageButton
         android:id="@+id/prev"
-        android:contentDescription="@string/previous"
         style="@style/PlayerSmallButton"
+        android:contentDescription="@string/previous"
         android:src="?attr/prevIcon" />
 
     <ImageButton
         android:id="@+id/playpause"
-        android:contentDescription="@string/play"
         style="@style/PlayerSmallButton"
+        android:contentDescription="@string/play"
         android:src="?attr/playIcon" />
 
     <ImageButton
         android:id="@+id/next"
-        android:contentDescription="@string/next"
         style="@style/PlayerSmallButton"
+        android:contentDescription="@string/next"
         android:src="?attr/nextIcon" />
 
 </LinearLayout>

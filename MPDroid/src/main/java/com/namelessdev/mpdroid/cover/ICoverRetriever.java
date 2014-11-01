@@ -16,13 +16,13 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import org.a0z.mpd.AlbumInfo;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 public interface ICoverRetriever {
 
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception;
+    String[] getCoverUrl(AlbumInfo albumInfo) throws Exception;
 
-    public String getName();
+    String getName();
 
-    public boolean isCoverLocal();
+    boolean isCoverLocal();
 }

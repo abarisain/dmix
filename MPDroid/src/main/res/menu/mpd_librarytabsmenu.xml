@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2010-2014 The MPDroid Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +14,9 @@
   ~ limitations under the License.
   -->
 
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:id="@+id/reset" android:title="@string/reset" android:showAsAction="always"></item>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/reset"
+        android:showAsAction="always"
+        android:title="@string/reset" />
 </menu>

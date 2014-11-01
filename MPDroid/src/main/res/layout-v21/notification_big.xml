@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2010-2014 The MPDroid Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="128dp"
+    android:background="#424242">
+
+    <ImageView
+        android:id="@+id/notificationIcon"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:contentDescription="@string/notificationIconDescription"
+        android:scaleType="fitCenter"
+        android:src="@drawable/no_cover_art" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/notificationSeparator"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="6dip"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="6dip"
+        android:layout_toLeftOf="@+id/notificationClose"
+        android:layout_toRightOf="@+id/notificationIcon"
+        android:orientation="vertical">
+
+        <!-- Override the text size with something a little nicer/larger. -->
+        <TextView
+            android:id="@+id/notificationTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="marquee"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@android:color/white"/>
+        <!-- Move the Artist & Title close to each other -->
+        <TextView
+            android:id="@+id/notificationArtist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:ellipsize="marquee"
+            android:gravity="bottom"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textAppearance="?android:textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/notificationAlbum"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_weight="1"
+            android:ellipsize="marquee"
+            android:gravity="top"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textAppearance="?android:textAppearanceSmall" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/notificationSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:layout_above="@+id/notificationButtons"
+        android:layout_toRightOf="@+id/notificationIcon"
+        android:background="@color/notification_separator"
+        android:contentDescription="@string/separatorDescription" />
+
+    <LinearLayout
+        android:id="@+id/notificationButtons"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/notificationIcon"
+        android:divider="?android:listDivider"
+        android:dividerPadding="10dip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:showDividers="middle">
+
+        <ImageView
+            android:id="@+id/notificationPrev"
+            style="@style/PlayerSmallButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/previous"
+            android:src="@drawable/ic_media_previous" />
+
+        <ImageView
+            android:id="@+id/notificationPlayPause"
+            style="@style/PlayerSmallButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/nowPlaying"
+            android:src="@drawable/ic_media_pause" />
+
+        <ImageView
+            android:id="@+id/notificationNext"
+            style="@style/PlayerSmallButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/playNext"
+            android:src="@drawable/ic_media_next" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/notificationClose"
+        style="@style/PlayerSmallButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:contentDescription="@string/stop"
+        android:src="@drawable/ic_close_notification" />
+</RelativeLayout>

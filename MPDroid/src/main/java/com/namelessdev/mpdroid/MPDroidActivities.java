@@ -25,43 +25,12 @@ import android.support.v4.app.FragmentActivity;
 
 public class MPDroidActivities {
 
-    @SuppressLint("Registered")
-    public static class MPDroidActivity extends Activity {
-
-        protected final MPDApplication app = MPDApplication.getInstance();
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            applyTheme(this);
-        }
+    // Forbid this activity from being instanciated
+    private MPDroidActivities() {
+        super();
     }
 
-    @SuppressLint("Registered")
-    public static class MPDroidFragmentActivity extends FragmentActivity {
-
-        protected final MPDApplication app = MPDApplication.getInstance();
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            applyTheme(this);
-        }
-    }
-
-    @SuppressLint("Registered")
-    public static class MPDroidListActivity extends ListActivity {
-
-        protected final MPDApplication app = MPDApplication.getInstance();
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            applyTheme(this);
-        }
-    }
-
-    private static void applyTheme(Activity activity) {
+    private static void applyTheme(final Activity activity) {
         final boolean lightTheme = MPDApplication.getInstance().isLightThemeSelected();
         int themeID = R.style.AppTheme;
         if (activity instanceof MainMenuActivity) {
@@ -85,8 +54,40 @@ public class MPDroidActivities {
         activity.setTheme(themeID);
     }
 
-    // Forbid this activity from being instanciated
-    private MPDroidActivities() {
+    @SuppressLint("Registered")
+    public static class MPDroidActivity extends Activity {
+
+        protected final MPDApplication mApp = MPDApplication.getInstance();
+
+        @Override
+        protected void onCreate(final Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            applyTheme(this);
+        }
+    }
+
+    @SuppressLint("Registered")
+    public static class MPDroidFragmentActivity extends FragmentActivity {
+
+        protected final MPDApplication mApp = MPDApplication.getInstance();
+
+        @Override
+        protected void onCreate(final Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            applyTheme(this);
+        }
+    }
+
+    @SuppressLint("Registered")
+    public static class MPDroidListActivity extends ListActivity {
+
+        protected final MPDApplication mApp = MPDApplication.getInstance();
+
+        @Override
+        protected void onCreate(final Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            applyTheme(this);
+        }
     }
 
 }

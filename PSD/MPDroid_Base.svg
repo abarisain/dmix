@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="MPDroid_Base.svg"
+   inkscape:export-filename="/Users/arnaud/Desktop/dessin3.png"
+   inkscape:export-xdpi="1823.368"
+   inkscape:export-ydpi="1823.368">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8"
+     inkscape:cx="414.72398"
+     inkscape:cy="897.7466"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1610"
+     inkscape:window-height="1031"
+     inkscape:window-x="203"
+     inkscape:window-y="112"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path3902"
+       d="M 268.01692,108.21933 C 255.7853,108.21933 246,118.00463 246,130.23625 l 0,17.12427 c 0,4.0489 3.28394,7.33897 7.33897,7.33897 l 7.33897,0 0,-19.57059 -9.7853,0 0,-4.89265 c 0,-9.46222 7.66532,-17.12428 17.12428,-17.12428 9.45602,0 17.12427,7.66206 17.12427,17.12428 l 0,4.89265 -9.7853,0 0,19.57059 7.33897,0 c 4.05209,0 7.33897,-3.29007 7.33897,-7.33897 l 0,-17.12427 c 0,-12.23162 -9.8577,-22.01692 -22.01691,-22.01692 z"
+       inkscape:connector-curvature="0"
+       style="fill:#000000;fill-opacity:1" />
+    <rect
+       style="fill:#0277bd;fill-opacity:1;stroke:none"
+       id="rect3959"
+       width="101.07143"
+       height="101.07143"
+       x="300.35715"
+       y="87.005043"
+       ry="4.4485345" />
+    <rect
+       ry="0"
+       y="90.406876"
+       x="304.03317"
+       height="80.233948"
+       width="93.74102"
+       id="rect3983"
+       style="fill:#039be5;fill-opacity:1;stroke:none" />
+  </g>
+</svg>

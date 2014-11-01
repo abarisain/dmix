@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:clickable="false"
     android:focusable="false"
-    tools:ignore="InconsistentLayout" >
+    tools:ignore="InconsistentLayout">
 
     <RelativeLayout
         android:id="@+id/albumCoverFrame"
@@ -13,13 +13,13 @@
         android:layout_height="80dip"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="5dip" >
+        android:layout_marginBottom="5dip">
 
         <ImageView
             android:id="@+id/albumCover"
-            android:contentDescription="@string/albumCover"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:contentDescription="@string/albumCover"
             android:scaleType="fitCenter"
             android:src="?attr/noCoverArtIcon" />
 
@@ -60,22 +60,22 @@
 
     <include
         android:id="@+id/list_separator_layout"
+        layout="@layout/list_separator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/albumCoverFrame"
-        layout="@layout/list_separator" />
+        android:layout_below="@+id/albumCoverFrame" />
 
     <ImageButton
         android:id="@+id/album_menu"
-        android:contentDescription="@string/menuButton"
         android:layout_width="40dip"
         android:layout_height="wrap_content"
         android:layout_above="@+id/list_separator_layout"
         android:layout_alignParentRight="true"
         android:background="?android:attr/actionBarItemBackground"
+        android:contentDescription="@string/menuButton"
         android:paddingLeft="20dip"
-        android:paddingTop="20dip"
         android:paddingRight="20dip"
+        android:paddingTop="20dip"
         android:src="?attr/menuButton" />
 
 </RelativeLayout>

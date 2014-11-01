@@ -16,24 +16,28 @@
 
 package com.namelessdev.mpdroid.models;
 
-import static com.namelessdev.mpdroid.tools.StringUtils.getExtension;
-
-import org.a0z.mpd.Music;
+import org.a0z.mpd.Tools;
+import org.a0z.mpd.item.Music;
 
 public class PlaylistStream extends AbstractPlaylistMusic {
 
-    public PlaylistStream(Music m) {
-        super(m.getAlbum(), m.getArtist(), m.getAlbumArtist(), m.getFullpath(), m.getDisc(), m
-                .getDate(), m.getTime(), m.getParentDirectory(), m.getTitle(), m.getTotalTracks(),
-                m.getTrack(), m.getSongId(), m.getPos(), m.getName());
+    public PlaylistStream(final Music music) {
+        super(music.getAlbum(), music.getArtist(), music.getAlbumArtist(), music.getFullPath(),
+                music.getDisc(), music.getDate(), music.getGenre(), music.getTime(),
+                music.getTitle(), music.getTotalTracks(), music.getTrack(), music.getSongId(),
+                music.getPos(), music.getName());
     }
 
+    @Override
     public String getPlayListMainLine() {
-        return getName().replace("." + getExtension(getName()), "");
+        final String name = getName();
+
+        return name.replace('.' + Tools.getExtension(name), "");
     }
 
+    @Override
     public String getPlaylistSubLine() {
-        return getFullpath();
+        return getFullPath();
     }
 
 }

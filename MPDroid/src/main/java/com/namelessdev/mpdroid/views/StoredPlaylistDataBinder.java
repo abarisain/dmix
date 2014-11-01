@@ -16,113 +16,99 @@
 
 package com.namelessdev.mpdroid.views;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.PlaylistViewHolder;
 
-import org.a0z.mpd.Item;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
 
 public class StoredPlaylistDataBinder extends BaseDataBinder {
 
-    private final MPDApplication app = MPDApplication.getInstance();
-
-    public StoredPlaylistDataBinder(boolean isLightTheme) {
-        super(isLightTheme);
-    }
-
     @Override
-    public AbstractViewHolder findInnerViews(View targetView) {
-        PlaylistViewHolder viewHolder = new PlaylistViewHolder();
-        viewHolder.name = (TextView) targetView.findViewById(R.id.playlist_name);
-        viewHolder.info = (TextView) targetView.findViewById(R.id.playlist_info);
-        viewHolder.cover = (ImageView) targetView.findViewById(R.id.playlist_cover);
+    public AbstractViewHolder findInnerViews(final View targetView) {
+        final PlaylistViewHolder viewHolder = new PlaylistViewHolder();
+
+        viewHolder.mName = (TextView) targetView.findViewById(R.id.playlist_name);
+        viewHolder.mInfo = (TextView) targetView.findViewById(R.id.playlist_info);
+        viewHolder.mAlbumCover = (ImageView) targetView.findViewById(R.id.playlist_cover);
+        viewHolder.mCoverArtProgress =
+                (ProgressBar) targetView.findViewById(R.id.playlist_cover_progress);
+
         return viewHolder;
     }
 
     @Override
+    @LayoutRes
     public int getLayoutId() {
         return R.layout.playlist_list_item;
     }
 
-    public boolean isEnabled(int position, List<? extends Item> items, Object item) {
+    @Override
+    public boolean isEnabled(final int position, final List<? extends Item> items,
+            final Object item) {
         return true;
     }
 
+    @Override
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, List<? extends Item> items, Object item,
-            int position) {
-        PlaylistViewHolder holder = (PlaylistViewHolder) viewHolder;
-
+            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final Object item, final int position) {
+        final PlaylistViewHolder holder = (PlaylistViewHolder) viewHolder;
         final Music music = (Music) item;
         String artist = music.getArtist();
         String album = music.getAlbum();
 
-        if (Tools.isStringEmptyOrNull(artist))
+        if (Tools.isStringEmptyOrNull(artist)) {
             artist = null;
-        if (Tools.isStringEmptyOrNull(album))
+        }
+        if (Tools.isStringEmptyOrNull(album)) {
             album = null;
+        }
 
-        String info = "";
+        String info = null;
         if (artist != null || album != null) {
             if (artist == null) {
                 info = album;
             } else if (album == null) {
                 info = artist;
             } else {
-                info = artist + " - " + album;
+                info = artist + SEPARATOR + album;
             }
         }
 
-        holder.name.setText(music.getTitle());
-        if (!Tools.isStringEmptyOrNull(info)) {
-            holder.info.setVisibility(View.VISIBLE);
-            holder.info.setText(info);
+        holder.mName.setText(music.getTitle());
+        if (Tools.isStringEmptyOrNull(info)) {
+            holder.mInfo.setVisibility(View.GONE);
         } else {
-            holder.info.setVisibility(View.GONE);
+            holder.mInfo.setVisibility(View.VISIBLE);
+            holder.mInfo.setText(info);
         }
 
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-
-        final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
-        final int height = holder.cover.getHeight();
-        // If the list is not displayed yet, the height is 0. This is a problem,
-        // so set a fallback one.
-        coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
-
-        loadPlaceholder(coverHelper);
+        final CoverAsyncHelper coverHelper = getCoverHelper(holder, 128);
 
         // display cover art in album listing if caching is on
-        if (artist != null && album != null && enableCache) {
-            // listen for new artwork to be loaded
-            final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(holder.cover);
-            final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.cover
-                    .getTag(R.id.AlbumCoverDownloadListener);
-            if (oldAcd != null)
-                oldAcd.detach();
-            holder.cover.setTag(R.id.AlbumCoverDownloadListener, acd);
-            coverHelper.addCoverDownloadListener(acd);
-            loadArtwork(coverHelper, music.getAlbumInfo());
+        if (artist != null && album != null && mEnableCache) {
+            setCoverListener(holder, coverHelper);
+            loadArtwork(coverHelper, new AlbumInfo(music));
         }
     }
 
     @Override
-    public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
-        targetView.findViewById(R.id.playlist_cover).setVisibility(
-                enableCache ? View.VISIBLE : View.GONE);
-        return targetView;
+    public View onLayoutInflation(final Context context, final View targetView,
+            final List<? extends Item> items) {
+        return setViewVisible(targetView, R.id.playlist_cover, mEnableCache);
     }
 }

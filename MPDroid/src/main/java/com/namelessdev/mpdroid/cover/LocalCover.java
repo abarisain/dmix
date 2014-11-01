@@ -17,8 +17,7 @@
 package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.MPDApplication;
-
-import org.a0z.mpd.AlbumInfo;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -31,33 +30,42 @@ import static android.text.TextUtils.isEmpty;
 
 public class LocalCover implements ICoverRetriever {
 
-    // private final static String URL = "%s/%s/%s";
-    private final static String URL_PREFIX = "http://";
-    private final static String PLACEHOLDER_FILENAME = "%placeholder_filename";
+    public static final String RETRIEVER_NAME = "User's HTTP Server";
+
+    private static final String[] EXT = {
+            "jpg", "png", "jpeg",
+    };
+
+    private static final String PLACEHOLDER_FILENAME = "%placeholder_filename";
+
     // Note that having two PLACEHOLDER_FILENAME is on purpose
-    private final static String[] FILENAMES = new String[] {
+    private static final String[] FILENAMES = {
             "%placeholder_custom", PLACEHOLDER_FILENAME,
             "cover", "folder", "front"
     };
-    private final static String[] EXT = new String[] {
-            "jpg", "png", "jpeg",
-    };
-    private final static String[] SUB_FOLDERS = new String[] {
+
+    private static final String[] SUB_FOLDERS = {
             "", "artwork", "Covers"
     };
-    public static final String RETRIEVER_NAME = "User's HTTP Server";
 
-    static public void appendPathString(Uri.Builder builder, String string) {
-        if (string != null && string.length() > 0) {
-            final String[] components = string.split("/");
-            for (String component : components) {
+    // private final static String URL = "%s/%s/%s";
+    private static final String URL_PREFIX = "http://";
+
+    private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
+
+    public static void appendPathString(final Uri.Builder builder, final String baseString) {
+        if (baseString != null && !baseString.isEmpty()) {
+            final String[] components = baseString.split("/");
+            for (final String component : components) {
                 builder.appendPath(component);
             }
         }
     }
 
-    static public String buildCoverUrl(String serverName, String musicPath, String path,
-            String fileName) {
+    public static String buildCoverUrl(String serverName, String musicPath, final String path,
+            final String fileName) {
 
         if (musicPath.startsWith(URL_PREFIX)) {
             int hostPortEnd = musicPath.indexOf(URL_PREFIX.length(), '/');
@@ -67,25 +75,17 @@ public class LocalCover implements ICoverRetriever {
             serverName = musicPath.substring(URL_PREFIX.length(), hostPortEnd);
             musicPath = musicPath.substring(hostPortEnd);
         }
-        Uri.Builder b = Uri.parse(URL_PREFIX + serverName).buildUpon();
-        appendPathString(b, musicPath);
-        appendPathString(b, path);
-        appendPathString(b, fileName);
+        final Uri.Builder uriBuilder = Uri.parse(URL_PREFIX + serverName).buildUpon();
+        appendPathString(uriBuilder, musicPath);
+        appendPathString(uriBuilder, path);
+        appendPathString(uriBuilder, fileName);
 
-        Uri uri = b.build();
+        final Uri uri = uriBuilder.build();
         return uri.toString();
     }
 
-    private final MPDApplication app = MPDApplication.getInstance();
-
-    private final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-
-    public LocalCover() {
-        super();
-    }
-
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
         if (isEmpty(albumInfo.getPath())) {
             return new String[0];
@@ -93,43 +93,46 @@ public class LocalCover implements ICoverRetriever {
 
         String lfilename;
         // load URL parts from settings
-        String musicPath = settings.getString("musicPath", "music/");
-        FILENAMES[0] = settings.getString("coverFileName", null);
+        final String musicPath = mSettings.getString("musicPath", "music/");
+        FILENAMES[0] = mSettings.getString("coverFileName", null);
 
         if (musicPath != null) {
             // load server name/ip
-            final String serverName = app.oMPDAsyncHelper.getConnectionSettings().server;
+            final String serverName = mApp.oMPDAsyncHelper.getConnectionSettings().server;
 
             String url;
-            final List<String> urls = new ArrayList<String>();
-            for (String subfolder : SUB_FOLDERS) {
+            final List<String> urls = new ArrayList<>();
+            for (final String subfolder : SUB_FOLDERS) {
                 for (String baseFilename : FILENAMES) {
-                    for (String ext : EXT) {
+                    for (final String ext : EXT) {
 
                         if (baseFilename == null
                                 || (baseFilename.startsWith("%") && !baseFilename
-                                        .equals(PLACEHOLDER_FILENAME)))
+                                .equals(PLACEHOLDER_FILENAME))) {
                             continue;
+                        }
                         if (baseFilename.equals(PLACEHOLDER_FILENAME)
                                 && albumInfo.getFilename() != null) {
                             final int dotIndex = albumInfo.getFilename().lastIndexOf('.');
-                            if (dotIndex == -1)
+                            if (dotIndex == -1) {
                                 continue;
+                            }
                             baseFilename = albumInfo.getFilename().substring(0, dotIndex);
                         }
 
                         // Add file extension except for the filename coming
                         // from settings
                         if (!baseFilename.equals(FILENAMES[0])) {
-                            lfilename = subfolder + "/" + baseFilename + "." + ext;
+                            lfilename = subfolder + '/' + baseFilename + '.' + ext;
                         } else {
                             lfilename = baseFilename;
                         }
 
                         url = buildCoverUrl(serverName, musicPath, albumInfo.getPath(), lfilename);
 
-                        if (!urls.contains(url))
+                        if (!urls.contains(url)) {
                             urls.add(url);
+                        }
                     }
                 }
             }

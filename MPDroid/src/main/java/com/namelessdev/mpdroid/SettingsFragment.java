@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.helpers.CoverManager;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatistics;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -33,59 +33,89 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
+import android.support.annotation.NonNull;
 import android.text.format.Formatter;
 import android.util.Log;
 
+import java.io.IOException;
+
 public class SettingsFragment extends PreferenceFragment {
 
-    private PreferenceScreen informationScreen;
+    private static final String TAG = "SettingsFragment";
 
-    private EditTextPreference cacheUsage1;
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private EditTextPreference cacheUsage2;
+    private CheckBoxPreference mAlbumArtLibrary;
 
-    private Handler handler;
+    private EditTextPreference mAlbums;
 
-    private EditTextPreference version;
+    private EditTextPreference mArtists;
 
-    private EditTextPreference artists;
+    private EditTextPreference mCacheUsage1;
 
-    private EditTextPreference albums;
+    private EditTextPreference mCacheUsage2;
 
-    private EditTextPreference songs;
+    private CheckBoxPreference mCheckBoxPreference;
 
-    private CheckBoxPreference localCoverCheckbox;
+    private Preference mCoverFilename;
 
-    private Preference coverFilename;
+    private Handler mHandler;
 
-    private Preference musicPath;
+    private PreferenceScreen mInformationScreen;
 
-    private CheckBoxPreference localCoverCache;
+    private CheckBoxPreference mLocalCoverCheckbox;
 
-    private CheckBoxPreference albumArtLibrary;
+    private Preference mMusicPath;
 
-    private CheckBoxPreference phonePause;
+    private boolean mPreferencesBound;
 
-    private CheckBoxPreference phoneStateChange;
+    private EditTextPreference mSongs;
 
-    private boolean preferencesBinded;
-
-    private final MPDApplication app = MPDApplication.getInstance();
-
-    private static final String TAG = "com.namelessdev.mpdroid.SettingsFragment";
+    private EditTextPreference mVersion;
 
     public SettingsFragment() {
-        preferencesBinded = false;
+        super();
+        mPreferencesBound = false;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onAttach(final Activity activity) {
+        super.onAttach(activity);
+        refreshDynamicFields();
+    }
+
+    public void onConnectionStateChanged() {
+        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
+        mInformationScreen.setEnabled(mpd.isConnected());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final String versionText = mpd.getMpdVersion();
+                final MPDStatistics mpdStatistics = mpd.getStatistics();
+
+                mHandler.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        mVersion.setSummary(versionText);
+                        mArtists.setSummary(String.valueOf(mpdStatistics.getArtists()));
+                        mAlbums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
+                        mSongs.setSummary(String.valueOf(mpdStatistics.getSongs()));
+                    }
+                });
+            }
+        }).start();
+    }
+
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
 
-        handler = new Handler();
+        mHandler = new Handler();
 
-        informationScreen = (PreferenceScreen) findPreference("informationScreen");
+        mInformationScreen = (PreferenceScreen) findPreference("informationScreen");
 
         if (!getResources().getBoolean(R.bool.isTablet)) {
             final PreferenceScreen interfaceCategory = (PreferenceScreen) findPreference(
@@ -93,150 +123,110 @@ public class SettingsFragment extends PreferenceFragment {
             interfaceCategory.removePreference(findPreference("tabletUI"));
         }
 
-        version = (EditTextPreference) findPreference("version");
-        artists = (EditTextPreference) findPreference("artists");
-        albums = (EditTextPreference) findPreference("albums");
-        songs = (EditTextPreference) findPreference("songs");
+        mVersion = (EditTextPreference) findPreference("version");
+        mArtists = (EditTextPreference) findPreference("artists");
+        mAlbums = (EditTextPreference) findPreference("albums");
+        mSongs = (EditTextPreference) findPreference("songs");
 
-        localCoverCheckbox = (CheckBoxPreference) findPreference(
+        mLocalCoverCheckbox = (CheckBoxPreference) findPreference(
                 "enableLocalCover");
-        musicPath = findPreference("musicPath");
-        coverFilename = findPreference("coverFileName");
-        if (localCoverCheckbox.isChecked()) {
-            musicPath.setEnabled(true);
-            coverFilename.setEnabled(true);
+        mMusicPath = findPreference("musicPath");
+        mCoverFilename = findPreference("coverFileName");
+        if (mLocalCoverCheckbox.isChecked()) {
+            mMusicPath.setEnabled(true);
+            mCoverFilename.setEnabled(true);
         } else {
-            musicPath.setEnabled(false);
-            coverFilename.setEnabled(false);
+            mMusicPath.setEnabled(false);
+            mCoverFilename.setEnabled(false);
         }
 
-        cacheUsage1 = (EditTextPreference) findPreference("cacheUsage1");
-        cacheUsage2 = (EditTextPreference) findPreference("cacheUsage2");
+        mCacheUsage1 = (EditTextPreference) findPreference("cacheUsage1");
+        mCacheUsage2 = (EditTextPreference) findPreference("cacheUsage2");
 
         // Album art library listing requires cover art cache
-        localCoverCache = (CheckBoxPreference) findPreference(
+        mCheckBoxPreference = (CheckBoxPreference) findPreference(
                 "enableLocalCoverCache");
-        albumArtLibrary = (CheckBoxPreference) findPreference(
+        mAlbumArtLibrary = (CheckBoxPreference) findPreference(
                 "enableAlbumArtLibrary");
-        albumArtLibrary.setEnabled(localCoverCache.isChecked());
+        mAlbumArtLibrary.setEnabled(mCheckBoxPreference.isChecked());
 
         /** Allow these to be changed individually, pauseOnPhoneStateChange might be overridden. */
-        phonePause = (CheckBoxPreference) findPreference("pauseOnPhoneStateChange");
-        phoneStateChange = (CheckBoxPreference) findPreference("playOnPhoneStateChange");
+        final CheckBoxPreference phonePause = (CheckBoxPreference) findPreference(
+                "pauseOnPhoneStateChange");
+        final CheckBoxPreference phoneStateChange = (CheckBoxPreference) findPreference(
+                "playOnPhoneStateChange");
 
-        preferencesBinded = true;
+        mPreferencesBound = true;
         refreshDynamicFields();
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        refreshDynamicFields();
-    }
-
-    public void refreshDynamicFields() {
-        if (getActivity() == null || !preferencesBinded) {
-            return;
-        }
-        long size = new CachedCover().getCacheUsage();
-        final String usage = Formatter.formatFileSize(app, size);
-        cacheUsage1.setSummary(usage);
-        cacheUsage2.setSummary(usage);
-        onConnectionStateChanged();
-    }
-
-    public void onConnectionStateChanged() {
-        final MPD mpd = app.oMPDAsyncHelper.oMPD;
-        informationScreen.setEnabled(mpd.isConnected());
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final String versionText = mpd.getMpdVersion();
-                    final MPDStatistics mpdStatistics = mpd.getStatistics();
-
-                    handler.post(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            version.setSummary(versionText);
-                            artists.setSummary(String.valueOf(mpdStatistics.getArtists()));
-                            albums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
-                            songs.setSummary(String.valueOf(mpdStatistics.getSongs()));
-                        }
-                    });
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to get MPD statistics.", e);
-                }
-            }
-        }).start();
-    }
-
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
-            Preference preference) {
+    public boolean onPreferenceTreeClick(final PreferenceScreen preferenceScreen,
+            @NonNull final Preference preference) {
         // Is it the connectionscreen which is called?
         if (preference.getKey() == null) {
             return false;
         }
 
-        if (preference.getKey().equals("refreshMPDDatabase")) {
+        if ("refreshMPDDatabase".equals(preference.getKey())) {
             try {
-                app.oMPDAsyncHelper.oMPD.refreshDatabase();
-            } catch (final MPDServerException e) {
+                mApp.oMPDAsyncHelper.oMPD.refreshDatabase();
+            } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to refresh the database.", e);
             }
             return true;
-        } else if (preference.getKey().equals("clearLocalCoverCache")) {
+        } else if ("clearLocalCoverCache".equals(preference.getKey())) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.clearLocalCoverCache)
                     .setMessage(R.string.clearLocalCoverCachePrompt)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
+                        @Override
+                        public void onClick(final DialogInterface dialog, final int which) {
                             // Todo : The covermanager must already have been
                             // initialized, get rid of the getInstance arguments
                             CoverManager.getInstance().clear();
-                            cacheUsage1.setSummary("0.00B");
-                            cacheUsage2.setSummary("0.00B");
+                            mCacheUsage1.setSummary("0.00B");
+                            mCacheUsage2.setSummary("0.00B");
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
+                        @Override
+                        public void onClick(final DialogInterface dialog, final int which) {
                             // do nothing
                         }
                     })
                     .show();
             return true;
 
-        } else if (preference.getKey().equals("enableLocalCover")) {
-            if (localCoverCheckbox.isChecked()) {
-                musicPath.setEnabled(true);
-                coverFilename.setEnabled(true);
+        } else if ("enableLocalCover".equals(preference.getKey())) {
+            if (mLocalCoverCheckbox.isChecked()) {
+                mMusicPath.setEnabled(true);
+                mCoverFilename.setEnabled(true);
             } else {
-                musicPath.setEnabled(false);
-                coverFilename.setEnabled(false);
+                mMusicPath.setEnabled(false);
+                mCoverFilename.setEnabled(false);
             }
             return true;
-        } else if (preference.getKey().equals("enableLocalCoverCache")) {
+        } else if ("enableLocalCoverCache".equals(preference.getKey())) {
             // album art library listing requires cover art cache
-            if (localCoverCache.isChecked()) {
-                albumArtLibrary.setEnabled(true);
+            if (mCheckBoxPreference.isChecked()) {
+                mAlbumArtLibrary.setEnabled(true);
             } else {
-                albumArtLibrary.setEnabled(false);
-                albumArtLibrary.setChecked(false);
+                mAlbumArtLibrary.setEnabled(false);
+                mAlbumArtLibrary.setChecked(false);
             }
             return true;
 
-        } else if (preference.getKey().equals("pauseOnPhoneStateChange")) {
+        } else if ("pauseOnPhoneStateChange".equals(preference.getKey())) {
             /**
              * Allow these to be changed individually,
              * pauseOnPhoneStateChange might be overridden.
              */
-            CheckBoxPreference phonePause = (CheckBoxPreference) findPreference(
+            final CheckBoxPreference phonePause = (CheckBoxPreference) findPreference(
                     "pauseOnPhoneStateChange");
-            CheckBoxPreference phoneStateChange = (CheckBoxPreference) findPreference(
+            final CheckBoxPreference phoneStateChange = (CheckBoxPreference) findPreference(
                     "playOnPhoneStateChange");
-        } else if (preference.getKey().equals("clearSearchHistory")) {
+        } else if ("clearSearchHistory".equals(preference.getKey())) {
             final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(getActivity(),
                     SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
             suggestions.clearHistory();
@@ -245,6 +235,17 @@ public class SettingsFragment extends PreferenceFragment {
 
         return false;
 
+    }
+
+    public void refreshDynamicFields() {
+        if (getActivity() == null || !mPreferencesBound) {
+            return;
+        }
+        final long size = new CachedCover().getCacheUsage();
+        final String usage = Formatter.formatFileSize(mApp, size);
+        mCacheUsage1.setSummary(usage);
+        mCacheUsage2.setSummary(usage);
+        onConnectionStateChanged();
     }
 
 }

@@ -16,23 +16,30 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.fragments.StreamsFragment;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-
-import com.namelessdev.mpdroid.fragments.StreamsFragment;
+import android.support.v4.app.FragmentManager;
 
 public class URIHandlerActivity extends FragmentActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_urihandler);
-        if (!getIntent().getAction().equals("android.intent.action.VIEW")) {
+
+        final Intent intent = getIntent();
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        final StreamsFragment streamsFragment =
+                (StreamsFragment) fragmentManager.findFragmentById(R.id.streamsFragment);
+
+        if (!Intent.ACTION_VIEW.equals(intent.getAction())) {
             finish();
         }
-        final StreamsFragment sf = (StreamsFragment) getSupportFragmentManager().findFragmentById(
-                R.id.streamsFragment);
-        sf.addEdit(-1, getIntent().getDataString());
+
+        streamsFragment.addEdit(-1, intent.getDataString());
     }
 
 }

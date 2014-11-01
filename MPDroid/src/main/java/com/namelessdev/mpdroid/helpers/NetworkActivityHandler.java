@@ -18,8 +18,6 @@ package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
-import org.a0z.mpd.exception.MPDConnectionException;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -40,9 +38,9 @@ import java.net.Socket;
  */
 public class NetworkActivityHandler extends BroadcastReceiver implements Runnable {
 
-    private static final String TAG = "NetworkActivityHandler";
-
     private static final boolean DEBUG = false;
+
+    private static final String TAG = "NetworkActivityHandler";
 
     /** The handler for the MPDAsyncHelper. */
     private final Handler mHelperHandler;
@@ -57,7 +55,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
     private Intent mIntent;
 
     /** The SharedPreferences from the current context. */
-    private SharedPreferences mPreferences;
+    private SharedPreferences mSettings;
 
     NetworkActivityHandler(final MPDAsyncHelper mpdAsyncHelper) {
         super();
@@ -107,7 +105,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
      */
     private boolean canConnectToLocalhost() {
         final int timeout = 1000; // Should easily take less than a second.
-        final int port = Integer.parseInt(mPreferences.getString("port", "6600"));
+        final int port = Integer.parseInt(mSettings.getString("port", "6600"));
         final InetSocketAddress endPoint = new InetSocketAddress("127.0.0.1", port);
 
         boolean isLocalHostAvailable = false;
@@ -141,6 +139,48 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
     }
 
     /**
+     * Checks if the MPD object connection configuration is current
+     * to the current WIFI/SSID network configuration.
+     *
+     * @param bundle The incoming ConnectivityManager intent bundle.
+     * @return True if the MPD object connection configuration is current to the current
+     * WIFI/SSID network configuration, false otherwise.
+     */
+    private boolean isConnectedToWIFI(final Bundle bundle) {
+        final String potentialSSID = bundle.getString(ConnectivityManager.EXTRA_EXTRA_INFO);
+        /** Remove quotes */
+        final String hostPreferenceName =
+                potentialSSID.substring(1, potentialSSID.length() - 1) + "hostname";
+
+        final String hostname = mSettings.getString(hostPreferenceName, null);
+
+        return isLinkedToHostname(hostname);
+    }
+
+    /**
+     * Checks if the MPD object connection configuration is current
+     * to the network type shared preference configuration.
+     *
+     * @param bundle The incoming ConnectivityManager intent bundle.
+     * @return True if the shared preference configuration is the same as the configured MPD
+     * object
+     * configuration, false otherwise.
+     */
+    private boolean isHostnameLinked(final Bundle bundle) {
+        final boolean result;
+
+        if (bundle.getInt(ConnectivityManager.EXTRA_NETWORK_TYPE) ==
+                ConnectivityManager.TYPE_WIFI) {
+            result = isConnectedToWIFI(bundle);
+        } else {
+            /** "Default" connection */
+            result = isLinkedToHostname(mSettings.getString("hostname", null));
+        }
+
+        return result;
+    }
+
+    /**
      * Checks that the MPD object connection configuration is current
      * to the network type shared preference configuration hostname.
      *
@@ -156,11 +196,7 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
         } else {
             InetAddress hostAddress = null;
 
-            try {
-                hostAddress = mMPDAsyncHelper.oMPD.getHostAddress();
-            } catch (final MPDConnectionException e) {
-                Log.d(TAG, "Failed to get host address.", e);
-            }
+            hostAddress = mMPDAsyncHelper.oMPD.getHostAddress();
 
             if (hostAddress == null) {
                 Log.e(TAG, "This should not happen.");
@@ -193,55 +229,13 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
     }
 
     /**
-     * Checks if the MPD object connection configuration is current
-     * to the current WIFI/SSID network configuration.
-     *
-     * @param bundle The incoming ConnectivityManager intent bundle.
-     * @return True if the MPD object connection configuration is current to the current
-     * WIFI/SSID network configuration, false otherwise.
-     */
-    private boolean isConnectedToWIFI(final Bundle bundle) {
-        final String potentialSSID = bundle.getString(ConnectivityManager.EXTRA_EXTRA_INFO);
-        /** Remove quotes */
-        final String hostPreferenceName =
-                potentialSSID.substring(1, potentialSSID.length() - 1) + "hostname";
-
-        final String hostname = mPreferences.getString(hostPreferenceName, null);
-
-        return isLinkedToHostname(hostname);
-    }
-
-    /**
-     * Checks if the MPD object connection configuration is current
-     * to the network type shared preference configuration.
-     *
-     * @param bundle The incoming ConnectivityManager intent bundle.
-     * @return True if the shared preference configuration is the same as the configured MPD
-     * object
-     * configuration, false otherwise.
-     */
-    private boolean isHostnameLinked(final Bundle bundle) {
-        final boolean result;
-
-        if (bundle.getInt(ConnectivityManager.EXTRA_NETWORK_TYPE) ==
-                ConnectivityManager.TYPE_WIFI) {
-            result = isConnectedToWIFI(bundle);
-        } else {
-            /** "Default" connection */
-            result = isLinkedToHostname(mPreferences.getString("hostname", null));
-        }
-
-        return result;
-    }
-
-    /**
      * This is the BroadcastReceiver receiver; this method sets
      * up this object for runnable processing off the UI thread.
      */
     @Override
     public final void onReceive(final Context context, final Intent intent) {
         if (intent != null && ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-            mPreferences = getPreferences(context);
+            mSettings = getPreferences(context);
             mIntent = intent;
             mMPDAsyncHelper.execAsync(this);
         }
@@ -258,62 +252,56 @@ public class NetworkActivityHandler extends BroadcastReceiver implements Runnabl
             visualizeIntent(mIntent);
         }
 
-        if (mMPDAsyncHelper.oMPD.isMpdConnectionNull()) {
+        /**
+         * !mIntent.getBooleanExtra("noConnectivity") == is connected
+         * !mIntent.getBooleanExtra("noConnectivity", false) if doesn't exist is connected
+         */
+        final boolean isNetworkConnected = !mIntent.getBooleanExtra("noConnectivity", false);
+        boolean resolved = false;
+
+        if (isNetworkConnected) {
             if (DEBUG) {
-                Log.d(TAG, "Connection is null, cannot do anything");
+                Log.d(TAG, "Connected.");
             }
-        } else {
-            /**
-             * !mIntent.getBooleanExtra("noConnectivity") == is connected
-             * !mIntent.getBooleanExtra("noConnectivity", false) if doesn't exist is connected
-             */
-            final boolean isNetworkConnected = !mIntent.getBooleanExtra("noConnectivity", false);
-            boolean resolved = false;
 
-            if (isNetworkConnected) {
-                if (DEBUG) {
-                    Log.d(TAG, "Connected.");
-                }
+            if (!isHostnameLinked(extras)) {
+                mSettingsHelper.updateConnectionSettings();
+                mMPDAsyncHelper.reconnect();
+            }
 
-                if (!isHostnameLinked(extras)) {
-                    mSettingsHelper.updateSettings();
-                    mMPDAsyncHelper.reconnect();
-                }
-
-                if (isHostnameLinked(extras)) {
-                    resolved = true;
-                    if (mMPDAsyncHelper.oMPD.isConnected()) {
-                        if (DEBUG) {
-                            Log.d(TAG, "Media player is already linked and connected.");
-                        }
-                    } else {
-                        if (DEBUG) {
-                            Log.d(TAG, "Linked, but not connected, sending callback.");
-                        }
-                        mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_NETWORK_CONNECTED);
+            if (isHostnameLinked(extras)) {
+                resolved = true;
+                if (mMPDAsyncHelper.oMPD.isConnected()) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Media player is already linked and connected.");
                     }
-                } else if (DEBUG) {
-                    Log.w(TAG, "Host not linked to the current MPD object.");
-                }
-            } else if (DEBUG) {
-                Log.d(TAG, "Not connected to network.");
-            }
-
-            /** Specific to a localhost MPD server. */
-            if (!resolved) {
-                /**
-                 * If network is connected, SettingsHelper has already
-                 * updated ConnectionInfo has already been updated.
-                 */
-                if (!isNetworkConnected) {
-                    mSettingsHelper.updateSettings();
-                    mMPDAsyncHelper.reconnect();
-                }
-
-                if ("127.0.0.1".equals(mMPDAsyncHelper.getConnectionSettings().server) &&
-                        canConnectToLocalhost()) {
+                } else {
+                    if (DEBUG) {
+                        Log.d(TAG, "Linked, but not connected, sending callback.");
+                    }
                     mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_NETWORK_CONNECTED);
                 }
+            } else if (DEBUG) {
+                Log.w(TAG, "Host not linked to the current MPD object.");
+            }
+        } else if (DEBUG) {
+            Log.d(TAG, "Not connected to network.");
+        }
+
+        /** Specific to a localhost MPD server. */
+        if (!resolved) {
+            /**
+             * If network is connected, SettingsHelper has already
+             * updated ConnectionInfo has already been updated.
+             */
+            if (!isNetworkConnected) {
+                mSettingsHelper.updateConnectionSettings();
+                mMPDAsyncHelper.reconnect();
+            }
+
+            if ("127.0.0.1".equals(mMPDAsyncHelper.getConnectionSettings().server) &&
+                    canConnectToLocalhost()) {
+                mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_NETWORK_CONNECTED);
             }
         }
     }

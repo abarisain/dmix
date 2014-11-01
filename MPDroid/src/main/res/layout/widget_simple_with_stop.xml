@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
      Copyright (C) 2009 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,80 +20,80 @@
     android:layout_marginLeft="5dip"
     android:layout_marginRight="5dip"
     android:background="@drawable/appwidget_dark_bg_clickable"
-    android:orientation="horizontal" >
+    android:orientation="horizontal">
 
     <ImageButton
         android:id="@+id/control_app"
-        android:contentDescription="@string/startApp"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@drawable/appwidget_button_left"
+        android:contentDescription="@string/startApp"
         android:scaleType="center"
         android:src="@drawable/icon" />
 
     <ImageView
-        android:contentDescription="@string/divider"
         android:layout_width="1dip"
         android:layout_height="match_parent"
-        android:background="@drawable/appwidget_divider" />
+        android:background="@drawable/appwidget_divider"
+        android:contentDescription="@string/divider" />
 
     <ImageButton
         android:id="@+id/control_prev"
-        android:contentDescription="@string/previous"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@drawable/appwidget_button_center"
+        android:contentDescription="@string/previous"
         android:scaleType="center"
         android:src="@drawable/ic_appwidget_music_prev" />
 
     <ImageView
-        android:contentDescription="@string/divider"
         android:layout_width="1dip"
         android:layout_height="match_parent"
-        android:background="@drawable/appwidget_divider" />
+        android:background="@drawable/appwidget_divider"
+        android:contentDescription="@string/divider" />
 
     <ImageButton
         android:id="@+id/control_play"
-        android:contentDescription="@string/play"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@drawable/appwidget_button_center"
+        android:contentDescription="@string/play"
         android:scaleType="center"
         android:src="@drawable/ic_appwidget_music_pause" />
 
     <ImageView
-        android:contentDescription="@string/divider"
         android:layout_width="1dip"
         android:layout_height="match_parent"
-        android:background="@drawable/appwidget_divider" />
+        android:background="@drawable/appwidget_divider"
+        android:contentDescription="@string/divider" />
 
     <ImageButton
         android:id="@+id/control_stop"
-        android:contentDescription="@string/stop"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@drawable/appwidget_button_center"
+        android:contentDescription="@string/stop"
         android:scaleType="center"
         android:src="@drawable/ic_appwidget_music_stop" />
 
     <ImageView
         android:id="@+id/imageView"
-        android:contentDescription="@string/divider"
         android:layout_width="1dip"
         android:layout_height="match_parent"
-        android:background="@drawable/appwidget_divider" />
+        android:background="@drawable/appwidget_divider"
+        android:contentDescription="@string/divider" />
 
     <ImageButton
         android:id="@+id/control_next"
-        android:contentDescription="@string/next"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@drawable/appwidget_button_right"
+        android:contentDescription="@string/next"
         android:scaleType="center"
         android:src="@drawable/ic_appwidget_music_next" />
 

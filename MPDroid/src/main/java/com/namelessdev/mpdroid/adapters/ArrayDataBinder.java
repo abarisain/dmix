@@ -16,24 +16,25 @@
 
 package com.namelessdev.mpdroid.adapters;
 
-import android.content.Context;
-import android.view.View;
-
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 
-import org.a0z.mpd.Item;
+import org.a0z.mpd.item.Item;
+
+import android.content.Context;
+import android.view.View;
 
 import java.util.List;
 
 public interface ArrayDataBinder {
-    public AbstractViewHolder findInnerViews(View targetView);
 
-    public int getLayoutId();
+    AbstractViewHolder findInnerViews(View targetView);
 
-    public boolean isEnabled(int position, List<? extends Item> items, Object item);
+    int getLayoutId();
 
-    public void onDataBind(Context context, View targetView, AbstractViewHolder viewHolder,
+    boolean isEnabled(int position, List<? extends Item> items, Object item);
+
+    void onDataBind(Context context, View targetView, AbstractViewHolder viewHolder,
             List<? extends Item> items, Object item, int position);
 
-    public View onLayoutInflation(Context context, View targetView, List<? extends Item> items);
+    View onLayoutInflation(Context context, View targetView, List<? extends Item> items);
 }

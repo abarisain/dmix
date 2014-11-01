@@ -27,7 +27,7 @@ import com.namelessdev.mpdroid.service.StreamHandler;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDStatusMonitor;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -80,21 +80,19 @@ public class MPDApplication extends Application implements
 
     private Timer mDisconnectScheduler = null;
 
+    private boolean mIsNotificationActive = false;
+
+    private boolean mIsNotificationOverridden = false;
+
     private boolean mIsStreamActive = false;
 
-    private boolean mIsNotificationActive = false;
+    private ServiceBinder mServiceBinder;
+
+    private SharedPreferences mSettings = null;
 
     private SettingsHelper mSettingsHelper = null;
 
     private boolean mSettingsShown = false;
-
-    private ServiceBinder mServiceBinder;
-
-    private SharedPreferences mSharedPreferences = null;
-
-    private boolean mWarningShown = false;
-
-    private boolean mIsNotificationOverridden = false;
 
     public static MPDApplication getInstance() {
         return sInstance;
@@ -111,43 +109,6 @@ public class MPDApplication extends Application implements
             checkConnectionNeeded();
             cancelDisconnectScheduler();
         }
-    }
-
-    private void cancelDisconnectScheduler() {
-        mDisconnectScheduler.cancel();
-        mDisconnectScheduler.purge();
-        mDisconnectScheduler = new Timer();
-    }
-
-    private void checkConnectionNeeded() {
-        if (mConnectionLocks.isEmpty()) {
-            disconnect();
-        } else {
-            if (!oMPDAsyncHelper.isStatusMonitorAlive()) {
-                oMPDAsyncHelper.startStatusMonitor();
-            }
-            if (!oMPDAsyncHelper.oMPD.isConnected() && (mCurrentActivity == null
-                    || !mCurrentActivity.getClass().equals(WifiConnectionSettings.class))) {
-                connect();
-            }
-        }
-    }
-
-    public final void connect() {
-        if (!mSettingsHelper.updateSettings()) {
-            // Absolutely no settings defined! Open Settings!
-            if (mCurrentActivity != null && !mSettingsShown) {
-                mCurrentActivity.startActivityForResult(new Intent(mCurrentActivity,
-                        WifiConnectionSettings.class), SETTINGS);
-                mSettingsShown = true;
-            }
-        }
-
-        if (mCurrentActivity != null && !mSettingsHelper.warningShown() && !mWarningShown) {
-            mCurrentActivity.startActivity(new Intent(mCurrentActivity, WarningActivity.class));
-            mWarningShown = true;
-        }
-        connectMPD();
     }
 
     /**
@@ -192,6 +153,84 @@ public class MPDApplication extends Application implements
         return builder;
     }
 
+    private void cancelDisconnectScheduler() {
+        mDisconnectScheduler.cancel();
+        mDisconnectScheduler.purge();
+        mDisconnectScheduler = new Timer();
+    }
+
+    private void checkConnectionNeeded() {
+        if (mConnectionLocks.isEmpty()) {
+            disconnect();
+        } else {
+            if (!oMPDAsyncHelper.isStatusMonitorAlive()) {
+                oMPDAsyncHelper.startStatusMonitor(new String[]{
+                        MPDStatusMonitor.IDLE_DATABASE,
+                        MPDStatusMonitor.IDLE_MIXER,
+                        MPDStatusMonitor.IDLE_OPTIONS,
+                        MPDStatusMonitor.IDLE_OUTPUT,
+                        MPDStatusMonitor.IDLE_PLAYER,
+                        MPDStatusMonitor.IDLE_PLAYLIST,
+                        MPDStatusMonitor.IDLE_STICKER,
+                        MPDStatusMonitor.IDLE_UPDATE
+                });
+            }
+            if (!oMPDAsyncHelper.oMPD.isConnected() && (mCurrentActivity == null
+                    || !mCurrentActivity.getClass().equals(WifiConnectionSettings.class))) {
+                connect();
+            }
+        }
+    }
+
+    public final void connect() {
+        if (!mSettingsHelper.updateConnectionSettings()) {
+            // Absolutely no settings defined! Open Settings!
+            if (mCurrentActivity != null && !mSettingsShown) {
+                mCurrentActivity.startActivityForResult(new Intent(mCurrentActivity,
+                        WifiConnectionSettings.class), SETTINGS);
+                mSettingsShown = true;
+            }
+        }
+
+        connectMPD();
+    }
+
+    private void connectMPD() {
+        // dismiss possible dialog
+        dismissAlertDialog();
+
+        /** Returns null if the calling thread is not associated with a Looper.*/
+        final Looper localLooper = Looper.myLooper();
+        final boolean isUIThread =
+                localLooper != null && localLooper.equals(Looper.getMainLooper());
+
+        // show connecting to server dialog, only on the main thread.
+        if (mCurrentActivity != null && isUIThread) {
+            mAlertDialog = new ProgressDialog(mCurrentActivity);
+            mAlertDialog.setTitle(R.string.connecting);
+            mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
+            mAlertDialog.setCancelable(false);
+            mAlertDialog.setOnKeyListener(new OnKeyListener() {
+                @Override
+                public boolean onKey(final DialogInterface dialog, final int keyCode,
+                        final KeyEvent event) {
+                    // Handle all keys!
+                    return true;
+                }
+            });
+            try {
+                mAlertDialog.show();
+            } catch (final BadTokenException ignored) {
+                // Can't display it. Don't care.
+            }
+        }
+
+        cancelDisconnectScheduler();
+
+        // really connect
+        oMPDAsyncHelper.connect();
+    }
+
     /**
      * Handles the connection failure with a {@code AlertDialog} user facing message box.
      *
@@ -225,37 +264,6 @@ public class MPDApplication extends Application implements
     @Override
     public final synchronized void connectionSucceeded(final String message) {
         dismissAlertDialog();
-    }
-
-    private void connectMPD() {
-        // dismiss possible dialog
-        dismissAlertDialog();
-
-        // show connecting to server dialog, only on the main thread.
-        if (mCurrentActivity != null && Looper.myLooper().equals(Looper.getMainLooper())) {
-            mAlertDialog = new ProgressDialog(mCurrentActivity);
-            mAlertDialog.setTitle(R.string.connecting);
-            mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
-            mAlertDialog.setCancelable(false);
-            mAlertDialog.setOnKeyListener(new OnKeyListener() {
-                @Override
-                public boolean onKey(final DialogInterface dialog, final int keyCode,
-                        final KeyEvent event) {
-                    // Handle all keys!
-                    return true;
-                }
-            });
-            try {
-                mAlertDialog.show();
-            } catch (final BadTokenException ignored) {
-                // Can't display it. Don't care.
-            }
-        }
-
-        cancelDisconnectScheduler();
-
-        // really connect
-        oMPDAsyncHelper.connect();
     }
 
     final void disconnect() {
@@ -326,11 +334,11 @@ public class MPDApplication extends Application implements
     }
 
     public final boolean isInSimpleMode() {
-        return mSharedPreferences.getBoolean("simpleMode", false);
+        return mSettings.getBoolean("simpleMode", false);
     }
 
     public final boolean isLightThemeSelected() {
-        return mSharedPreferences.getBoolean("lightTheme", false);
+        return mSettings.getBoolean("lightTheme", false);
     }
 
     /**
@@ -386,40 +394,7 @@ public class MPDApplication extends Application implements
 
     public final boolean isTabletUiEnabled() {
         return getResources().getBoolean(R.bool.isTablet)
-                && mSharedPreferences.getBoolean("tabletUI", true);
-    }
-
-    @Override
-    public final void onCreate() {
-        super.onCreate();
-        sInstance = this;
-        Log.d(TAG, "onCreate Application");
-
-        // Don't worry FOSS guys, crashlytics is not included in the "foss" flavour
-        CrashlyticsWrapper.start(this);
-
-        MPD.setApplicationContext(this);
-
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        final StrictMode.VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
-        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
-                .build();
-        StrictMode.setThreadPolicy(policy);
-        StrictMode.setVmPolicy(vmPolicy);
-
-        // Init the default preferences (meaning we won't have different defaults between code/xml)
-        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
-
-        oMPDAsyncHelper = new MPDAsyncHelper();
-        mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
-        oMPDAsyncHelper.addConnectionListener(this);
-
-        mDisconnectScheduler = new Timer();
-
-        if (!mSharedPreferences.contains("albumTrackSort")) {
-            mSharedPreferences.edit().putBoolean("albumTrackSort", true).commit();
-        }
+                && mSettings.getBoolean("tabletUI", true);
     }
 
     /**
@@ -435,6 +410,33 @@ public class MPDApplication extends Application implements
             bundle.putParcelable(ConnectionInfo.BUNDLE_KEY, connectionInfo);
             mServiceBinder.sendMessageToService(MPDroidService.CONNECTION_INFO_CHANGED, bundle);
         }
+    }
+
+    @Override
+    public final void onCreate() {
+        super.onCreate();
+        sInstance = this;
+        Log.d(TAG, "onCreate Application");
+
+        // Don't worry FOSS guys, crashlytics is not included in the "foss" flavour
+        CrashlyticsWrapper.start(this);
+
+        mSettings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        final StrictMode.VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
+        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
+                .build();
+        StrictMode.setThreadPolicy(policy);
+        StrictMode.setVmPolicy(vmPolicy);
+
+        // Init the default preferences (meaning we won't have different defaults between code/xml)
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+
+        oMPDAsyncHelper = new MPDAsyncHelper();
+        mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
+        oMPDAsyncHelper.addConnectionListener(this);
+
+        mDisconnectScheduler = new Timer();
     }
 
     /**
@@ -504,14 +506,6 @@ public class MPDApplication extends Application implements
         }
     }
 
-    public final void stopNotification() {
-        if (DEBUG) {
-            Log.d(TAG, "Stop notification.");
-        }
-        setupServiceBinder();
-        mServiceBinder.sendMessageToService(NotificationHandler.STOP);
-    }
-
     public final void startStreaming() {
         if (!mIsStreamActive) {
             if (DEBUG) {
@@ -520,6 +514,14 @@ public class MPDApplication extends Application implements
             setupServiceBinder();
             mServiceBinder.sendMessageToService(StreamHandler.START);
         }
+    }
+
+    public final void stopNotification() {
+        if (DEBUG) {
+            Log.d(TAG, "Stop notification.");
+        }
+        setupServiceBinder();
+        mServiceBinder.sendMessageToService(NotificationHandler.STOP);
     }
 
     public final void stopStreaming() {

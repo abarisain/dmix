@@ -16,21 +16,19 @@
 
 package com.namelessdev.mpdroid.views;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Item;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -40,105 +38,104 @@ import java.util.List;
 
 public class AlbumDataBinder extends BaseDataBinder {
 
-    private final MPDApplication app = MPDApplication.getInstance();
-
-    public AlbumDataBinder(boolean isLightTheme) {
-        super(isLightTheme);
-    }
-
     @Override
-    public AbstractViewHolder findInnerViews(View targetView) {
+    public AbstractViewHolder findInnerViews(final View targetView) {
         // look up all references to inner views
-        AlbumViewHolder viewHolder = new AlbumViewHolder();
-        viewHolder.albumName = (TextView) targetView.findViewById(R.id.album_name);
-        viewHolder.albumInfo = (TextView) targetView.findViewById(R.id.album_info);
-        viewHolder.albumCover = (ImageView) targetView.findViewById(R.id.albumCover);
-        viewHolder.coverArtProgress = (ProgressBar) targetView
+        final AlbumViewHolder viewHolder = new AlbumViewHolder();
+        viewHolder.mAlbumName = (TextView) targetView.findViewById(R.id.album_name);
+        viewHolder.mAlbumInfo = (TextView) targetView.findViewById(R.id.album_info);
+        viewHolder.mAlbumCover = (ImageView) targetView.findViewById(R.id.albumCover);
+        viewHolder.mCoverArtProgress = (ProgressBar) targetView
                 .findViewById(R.id.albumCoverProgress);
         return viewHolder;
     }
 
     @Override
+    @LayoutRes
     public int getLayoutId() {
         return R.layout.album_list_item;
     }
 
-    public boolean isEnabled(int position, List<? extends Item> items, Object item) {
+    @Override
+    public boolean isEnabled(final int position, final List<? extends Item> items,
+            final Object item) {
         return true;
     }
 
-    public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, List<? extends Item> items,
-            Object item, int position) {
-        AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+    protected void loadAlbumCovers(final AlbumViewHolder holder, final Album album) {
+        final Artist artist = album.getArtist();
 
-        final Album album = (Album) item;
-        Artist artist = album.getArtist();
-        String info = "";
-        final long songCount = album.getSongCount();
-        if (artist != null) {
-            info += artist.mainText();
-        }
-        if (album.getYear() > 0) {
-            if (!info.isEmpty()) {
-                info += " - ";
-            }
-            info += Long.toString(album.getYear());
-        }
-        if (songCount > 0) {
-            if (!info.isEmpty()) {
-                info += " - ";
-            }
-            info += String.format(context.getString(songCount > 1 ? R.string.tracksInfoHeaderPlural
-                    : R.string.tracksInfoHeader),
-                    songCount, Music.timeToString(album.getDuration()));
-        }
-        holder.albumName.setText(album.mainText());
-        if (info != null && info.length() > 0) {
-            holder.albumInfo.setVisibility(View.VISIBLE);
-            holder.albumInfo.setText(info);
+        if (artist == null || album.isUnknown()) {
+            // full albums list or unknown album
+            holder.mAlbumCover.setVisibility(View.GONE);
         } else {
-            holder.albumInfo.setVisibility(View.GONE);
-        }
+            holder.mAlbumCover.setVisibility(View.VISIBLE);
 
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-
-        if (artist == null || album.isUnknown()) { // full albums list or
-                                                   // unknown album
-            holder.albumCover.setVisibility(View.GONE);
-        } else {
-            holder.albumCover.setVisibility(View.VISIBLE);
-            final CoverAsyncHelper coverHelper = new CoverAsyncHelper();
-            final int height = holder.albumCover.getHeight();
-            // If the list is not displayed yet, the height is 0. This is a
-            // problem, so set a fallback one.
-            coverHelper.setCoverMaxSize(height == 0 ? 128 : height);
-
-            loadPlaceholder(coverHelper);
+            final CoverAsyncHelper coverHelper = getCoverHelper(holder, 128);
+            final AlbumInfo albumInfo = new AlbumInfo(album);
 
             // display cover art in album listing if caching is on
-            if (album.getAlbumInfo().isValid() && enableCache) {
-                // listen for new artwork to be loaded
-                final AlbumCoverDownloadListener acd = new AlbumCoverDownloadListener(
-                        holder.albumCover, holder.coverArtProgress, false);
-                final AlbumCoverDownloadListener oldAcd = (AlbumCoverDownloadListener) holder.albumCover
-                        .getTag(R.id.AlbumCoverDownloadListener);
-                if (oldAcd != null) {
-                    oldAcd.detach();
-                }
-
-                holder.albumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
-                holder.albumCover.setTag(R.id.CoverAsyncHelper, coverHelper);
-                coverHelper.addCoverDownloadListener(acd);
-                loadArtwork(coverHelper, album.getAlbumInfo());
+            if (albumInfo.isValid() && mEnableCache) {
+                setCoverListener(holder, coverHelper);
+                loadArtwork(coverHelper, albumInfo);
             }
         }
     }
 
     @Override
-    public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
-        targetView.findViewById(R.id.albumCover).setVisibility(
-                enableCache ? View.VISIBLE : View.GONE);
-        return targetView;
+    public void onDataBind(final Context context, final View targetView,
+            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final Object item, final int position) {
+        final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+        final Album album = (Album) item;
+        final Artist artist = album.getArtist();
+        final StringBuilder info = new StringBuilder();
+        final long songCount = album.getSongCount();
+
+        if (artist != null) {
+            info.append(artist.mainText());
+        }
+
+        if (album.getYear() > 0L) {
+            if (info.length() != 0) {
+                info.append(SEPARATOR);
+            }
+            info.append(Long.toString(album.getYear()));
+        }
+
+        if (songCount > 0L) {
+            final String trackHeader;
+            final String duration = Music.timeToString(album.getDuration());
+
+            if (info.length() != 0) {
+                info.append(SEPARATOR);
+            }
+
+            if (songCount > 1L) {
+                trackHeader =
+                        context.getString(R.string.tracksInfoHeaderPlural, songCount, duration);
+            } else {
+                trackHeader = context.getString(R.string.tracksInfoHeader, songCount, duration);
+            }
+
+            info.append(trackHeader);
+        }
+
+        // display "artist - album title"
+        holder.mAlbumName.setText(album.mainText());
+        if (info.length() == 0) {
+            holder.mAlbumInfo.setVisibility(View.GONE);
+        } else {
+            holder.mAlbumInfo.setVisibility(View.VISIBLE);
+            holder.mAlbumInfo.setText(info);
+        }
+
+        loadAlbumCovers(holder, album);
+    }
+
+    @Override
+    public View onLayoutInflation(final Context context, final View targetView,
+            final List<? extends Item> items) {
+        return setViewVisible(targetView, R.id.albumCover, mEnableCache);
     }
 }

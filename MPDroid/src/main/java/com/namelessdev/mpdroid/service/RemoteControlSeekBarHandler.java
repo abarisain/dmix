@@ -64,18 +64,6 @@ public class RemoteControlSeekBarHandler implements
                 RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE);
     }
 
-    final void start() {
-        mRemoteControlClient.setOnGetPlaybackPositionListener(this);
-        mRemoteControlClient.setPlaybackPositionUpdateListener(this);
-        MPDroidService.MPD_ASYNC_HELPER.addTrackPositionListener(this);
-    }
-
-    final void stop() {
-        MPDroidService.MPD_ASYNC_HELPER.removeTrackPositionListener(this);
-        mRemoteControlClient.setOnGetPlaybackPositionListener(null);
-        mRemoteControlClient.setPlaybackPositionUpdateListener(null);
-    }
-
     /**
      * Android's callback that queries us for the elapsed time. Here, we are guessing the
      * elapsed time using the last time we updated the elapsed time and its value at the time.
@@ -108,6 +96,18 @@ public class RemoteControlSeekBarHandler implements
         mRemoteControlClient.setPlaybackState(mPlaybackState, mLastKnownElapsed, 1.0f);
     }
 
+    final void start() {
+        mRemoteControlClient.setOnGetPlaybackPositionListener(this);
+        mRemoteControlClient.setPlaybackPositionUpdateListener(this);
+        MPDroidService.MPD_ASYNC_HELPER.addTrackPositionListener(this);
+    }
+
+    final void stop() {
+        MPDroidService.MPD_ASYNC_HELPER.removeTrackPositionListener(this);
+        mRemoteControlClient.setOnGetPlaybackPositionListener(null);
+        mRemoteControlClient.setPlaybackPositionUpdateListener(null);
+    }
+
     /**
      * Used to keep the remote control client track bar updated.
      *
@@ -115,9 +115,7 @@ public class RemoteControlSeekBarHandler implements
      */
     @Override
     public final void trackPositionChanged(final MPDStatus status) {
-        if (status != null) {
-            updateSeekTime(status.getElapsedTime());
-        }
+        updateSeekTime(status.getElapsedTime());
     }
 
     /**

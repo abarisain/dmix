@@ -42,30 +42,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 
     private static final String TAG = "RemoteControlReceiver";
 
-    private static MPDApplication sApp = MPDApplication.getInstance();
-
-    /**
-     * This method redirects the incoming broadcast intent to the service, if it's alive. The
-     * service cannot be communicated through messages in this class because this BroadcastReceiver
-     * is registered through the AndroidManifest {@code <receiver>} tag which results in this
-     * BroadcastReceiver will no longer exist after return from {@code onReceive()}.
-     *
-     * @param forceService Force the action, even if the service isn't active.
-     * @param intent       The incoming intent through {@code onReceive()}.
-     * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
-     * android.content.Intent)
-     */
-    private void redirectIntentToService(final boolean forceService, final Intent intent) {
-        intent.setClass(sApp, MPDroidService.class);
-        final IBinder iBinder = peekService(sApp, intent);
-        if (forceService || iBinder != null && iBinder.isBinderAlive()) {
-            if (DEBUG) {
-                Log.d(TAG, "Redirecting action " + intent.getAction() + " to the service.");
-            }
-
-            sApp.startService(intent);
-        }
-    }
+    private static final MPDApplication sApp = MPDApplication.getInstance();
 
     @Override
     public final void onReceive(final Context context, final Intent intent) {
@@ -121,6 +98,29 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     MPDControl.run(action);
                     break;
             }
+        }
+    }
+
+    /**
+     * This method redirects the incoming broadcast intent to the service, if it's alive. The
+     * service cannot be communicated through messages in this class because this BroadcastReceiver
+     * is registered through the AndroidManifest {@code <receiver>} tag which results in this
+     * BroadcastReceiver will no longer exist after return from {@code onReceive()}.
+     *
+     * @param forceService Force the action, even if the service isn't active.
+     * @param intent       The incoming intent through {@code onReceive()}.
+     * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
+     * android.content.Intent)
+     */
+    private void redirectIntentToService(final boolean forceService, final Intent intent) {
+        intent.setClass(sApp, MPDroidService.class);
+        final IBinder iBinder = peekService(sApp, intent);
+        if (forceService || iBinder != null && iBinder.isBinderAlive()) {
+            if (DEBUG) {
+                Log.d(TAG, "Redirecting action " + intent.getAction() + " to the service.");
+            }
+
+            sApp.startService(intent);
         }
     }
 }

@@ -48,7 +48,7 @@ public class InvalidResponseException extends RuntimeException {
      *
      * @param message exception message.
      */
-    public InvalidResponseException(String message) {
+    public InvalidResponseException(final String message) {
         super(message);
     }
 
@@ -58,7 +58,7 @@ public class InvalidResponseException extends RuntimeException {
      * @param message exception message.
      * @param cause   cause of this exception.
      */
-    public InvalidResponseException(String message, Throwable cause) {
+    public InvalidResponseException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -67,7 +67,7 @@ public class InvalidResponseException extends RuntimeException {
      *
      * @param cause cause of this exception.
      */
-    public InvalidResponseException(Throwable cause) {
+    public InvalidResponseException(final Throwable cause) {
         super(cause);
     }
 

@@ -16,73 +16,100 @@
 
 package com.namelessdev.mpdroid.adapters;
 
+import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
+
+import org.a0z.mpd.item.Item;
+
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
-
-import org.a0z.mpd.Item;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
 //Thanks qlimax !
 
 public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
+
     private static final int TYPE_DEFAULT = 0;
 
-    ArrayDataBinder dataBinder = null;
-    LayoutInflater inflater;
-    List<Item> items;
-    Context context;
+    private final Context mContext;
 
-    @SuppressWarnings("unchecked")
-    public ArrayAdapter(Context context, ArrayDataBinder dataBinder, List<? extends Item> items) {
+    private final ArrayDataBinder mDataBinder;
+
+    private final LayoutInflater mInflater;
+
+    private final List<Item> mItems;
+
+    public ArrayAdapter(final Context context, final ArrayDataBinder dataBinder,
+            final List<? extends Item> items) {
         super(context, 0, (List<Item>) items);
-        this.dataBinder = dataBinder;
-        init(context, items);
+        mDataBinder = dataBinder;
+
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContext = context;
+        mItems = Collections.unmodifiableList(items);
+
+        if (!(items instanceof ArrayList<?>)) {
+            throw new UnsupportedOperationException(
+                    "Items must be contained in an ArrayList<Item>");
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    public ArrayAdapter(Context context, int textViewResourceId, List<? extends Item> items) {
+    public ArrayAdapter(final Context context, @LayoutRes final int textViewResourceId,
+            final List<? extends Item> items) {
         super(context, textViewResourceId, (List<Item>) items);
-        dataBinder = null;
-        init(context, items);
+        mDataBinder = null;
+
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContext = context;
+        mItems = Collections.unmodifiableList(items);
+
+        if (!(items instanceof ArrayList<?>)) {
+            throw new UnsupportedOperationException(
+                    "Items must be contained in an ArrayList<Item>");
+        }
     }
 
     public ArrayDataBinder getDataBinder() {
-        return dataBinder;
+        return mDataBinder;
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public int getItemViewType(final int position) {
         return TYPE_DEFAULT;
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (dataBinder == null) {
-            return super.getView(position, convertView, parent);
-        }
+    @Override
+    public View getView(final int position, final View convertView, final ViewGroup parent) {
+        View resultView;
 
-        // cache all inner view references with ViewHolder pattern
-        AbstractViewHolder holder;
-
-        if (convertView == null) {
-            convertView = inflater.inflate(dataBinder.getLayoutId(), parent, false);
-            convertView = dataBinder.onLayoutInflation(context, convertView, items);
-
-            // use the databinder to look up all references to inner views
-            holder = dataBinder.findInnerViews(convertView);
-            convertView.setTag(holder);
+        if (mDataBinder == null) {
+            resultView = super.getView(position, convertView, parent);
         } else {
-            holder = (AbstractViewHolder) convertView.getTag();
-        }
+            // cache all inner view references with ViewHolder pattern
+            final AbstractViewHolder holder;
 
-        dataBinder.onDataBind(context, convertView, holder, items, items.get(position), position);
-        return convertView;
+            if (convertView == null) {
+                resultView = mInflater.inflate(mDataBinder.getLayoutId(), parent, false);
+                resultView = mDataBinder.onLayoutInflation(mContext, resultView, mItems);
+
+                // use the data binder to look up all references to inner views
+                holder = mDataBinder.findInnerViews(resultView);
+                resultView.setTag(holder);
+            } else {
+                resultView = convertView;
+                holder = (AbstractViewHolder) resultView.getTag();
+            }
+
+            mDataBinder.onDataBind(mContext, resultView, holder, mItems, mItems.get(position),
+                    position);
+        }
+        return resultView;
     }
 
     @Override
@@ -90,26 +117,16 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         return 1;
     }
 
-    @SuppressWarnings("unchecked")
-    protected void init(Context context, List<? extends Item> items) {
-        if (!(items instanceof ArrayList<?>))
-            throw new RuntimeException("Items must be contained in an ArrayList<Item>");
-
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.context = context;
-        this.items = (List<Item>) items;
-    }
-
     @Override
-    public boolean isEnabled(int position) {
-        if (dataBinder == null) {
-            return super.isEnabled(position);
+    public boolean isEnabled(final int position) {
+        final boolean isEnabled;
+
+        if (mDataBinder == null) {
+            isEnabled = super.isEnabled(position);
+        } else {
+            isEnabled = mDataBinder.isEnabled(position, mItems, getItem(position));
         }
-        return dataBinder.isEnabled(position, items, getItem(position));
-    }
 
-    public void setDataBinder(ArrayDataBinder dataBinder) {
-        this.dataBinder = dataBinder;
+        return isEnabled;
     }
-
 }

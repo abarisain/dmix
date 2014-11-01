@@ -31,7 +31,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
 
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
@@ -45,7 +44,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
@@ -54,7 +53,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.PopupMenuCompat;
-import android.util.Log;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -68,144 +67,42 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener,
-        ILibraryFragmentActivity,
-        ILibraryTabActivity, OnBackStackChangedListener, PopupMenu.OnMenuItemClickListener {
-
-    public static enum DisplayMode {
-        MODE_LIBRARY,
-        MODE_OUTPUTS
-    }
-
-    public static class DrawerItem {
-
-        public static enum Action {
-            ACTION_LIBRARY,
-            ACTION_OUTPUTS,
-            ACTION_SETTINGS
-        }
-
-        public Action action;
-
-        public String label;
-
-        public DrawerItem(String label, Action action) {
-            this.label = label;
-            this.action = action;
-        }
-
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
-
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            mDrawerLayout.closeDrawer(mDrawerList);
-
-            switch (((DrawerItem) parent.getItemAtPosition(position)).action) {
-                default:
-                case ACTION_LIBRARY:
-                    // If we are already on the library, pop the whole stack.
-                    // Acts like an "up" button
-                    if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
-                        final int fmStackCount = fragmentManager.getBackStackEntryCount();
-                        if (fmStackCount > 0) {
-                            fragmentManager.popBackStack(null,
-                                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                        }
-                    }
-                    switchMode(DisplayMode.MODE_LIBRARY);
-                    break;
-                case ACTION_OUTPUTS:
-                    switchMode(DisplayMode.MODE_OUTPUTS);
-                    break;
-                case ACTION_SETTINGS:
-                    mDrawerList.setItemChecked(oldDrawerPosition, true);
-                    final Intent i = new Intent(MainMenuActivity.this, SettingsActivity.class);
-                    startActivityForResult(i, SETTINGS);
-                    break;
-            }
-            oldDrawerPosition = position;
-        }
-    }
-
-    class MainMenuPagerAdapter extends PagerAdapter {
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-        public Object instantiateItem(View collection, int position) {
-
-            int resId = 0;
-            switch (position) {
-                case 0:
-                    resId = R.id.nowplaying_fragment;
-                    break;
-                case 1:
-                    resId = R.id.playlist_fragment;
-                    break;
-            }
-            return findViewById(resId);
-        }
-
-        @Override
-        public boolean isViewFromObject(View arg0, Object arg1) {
-            return arg0 == arg1;
-        }
-    }
-
-    public static final int PLAYLIST = 1;
+        ILibraryFragmentActivity, ILibraryTabActivity, OnBackStackChangedListener,
+        PopupMenu.OnMenuItemClickListener {
 
     public static final int ARTISTS = 2;
 
-    public static final int SETTINGS = 5;
+    public static final int LIBRARY = 7;
+
+    public static final int PLAYLIST = 1;
 
     public static final int STREAM = 6;
 
-    public static final int LIBRARY = 7;
+    private static final int CONNECT = 8;
 
-    public static final int CONNECT = 8;
-
-    private static final String FRAGMENT_TAG_LIBRARY = "library";
-
-    private static final String FRAGMENT_TAG_OUTPUTS = "outputs";
+    private static final boolean DEBUG = false;
 
     private static final String EXTRA_DISPLAY_MODE = "displaymode";
 
     private static final String EXTRA_SLIDING_PANEL_EXPANDED = "slidingpanelexpanded";
 
-    private int backPressExitCount;
+    private static final String FRAGMENT_TAG_LIBRARY = "library";
 
-    private Handler exitCounterReset;
+    private static final String FRAGMENT_TAG_OUTPUTS = "outputs";
 
-    private boolean isDualPaneMode;
+    private static final int SETTINGS = 5;
 
-    private View nowPlayingDualPane;
+    private static final List<String> TAB_LIST;
 
-    private ViewPager nowPlayingPager;
+    private static final String TAG = "MainMenuActivity";
 
-    private View libraryRootFrame;
+    private int mBackPressExitCount;
 
-    private View outputsRootFrame;
-
-    private OutputsFragment outputsFragment;
-
-    private TextView titleView;
-
-    private List<DrawerItem> mDrawerItems;
+    private DisplayMode mCurrentDisplayMode;
 
     private DrawerLayout mDrawerLayout;
 
@@ -213,159 +110,116 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private SlidingUpPanelLayout mSlidingLayout;
+    private Handler mExitCounterReset = new Handler();
 
-    private ImageButton mHeaderPlayQueue;
-
-    private ImageButton mHeaderOverflowMenu;
+    private FragmentManager mFragmentManager;
 
     private View mHeaderDragView;
 
     private PopupMenu mHeaderOverflowPopupMenu;
 
+    private ImageButton mHeaderPlayQueue;
+
     private TextView mHeaderTitle;
 
-    private int oldDrawerPosition;
+    private boolean mIsDualPaneMode;
 
-    private LibraryFragment libraryFragment;
+    private LibraryFragment mLibraryFragment;
+
+    private View mLibraryRootFrame;
+
+    private ViewPager mNowPlayingPager;
+
+    private int mOldDrawerPosition = 0;
+
+    private OutputsFragment mOutputsFragment;
+
+    private View mOutputsRootFrame;
 
     private QueueFragment mQueueFragment;
 
-    private static final String TAG = "com.namelessdev.mpdroid.MainMenuActivity";
+    private SlidingUpPanelLayout mSlidingLayout;
 
-    private FragmentManager fragmentManager;
+    private TextView mTextView;
 
-    private ArrayList<String> mTabList;
+    static {
+        // Get the list of the currently visible tabs
+        TAB_LIST = LibraryTabsUtil.getCurrentLibraryTabs();
 
-    private DisplayMode currentDisplayMode;
-
-    private static final boolean DEBUG = false;
-
-    @Override
-    public ArrayList<String> getTabList() {
-        return mTabList;
-    }
-
-    /**
-     * Called when Back button is pressed, displays message to user indicating
-     * the if back button is pressed again the application will exit. We keep a
-     * count of how many time back button is pressed within 5 seconds. If the
-     * count is greater than 1 then call system.exit(0) Starts a post delay
-     * handler to reset the back press count to zero after 5 seconds
-     */
-    @Override
-    public void onBackPressed() {
-        if (mSlidingLayout.isPanelExpanded()) {
-            mSlidingLayout.collapsePanel();
-            return;
-        }
-
-        if (currentDisplayMode == DisplayMode.MODE_LIBRARY) {
-            final int fmStackCount = fragmentManager.getBackStackEntryCount();
-            if (fmStackCount > 0) {
-                super.onBackPressed();
-                return;
-            }
-        } else {
-            switchMode(DisplayMode.MODE_LIBRARY);
-            return;
-        }
-
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean exitConfirmationRequired = settings.getBoolean("enableExitConfirmation",
-                false);
-        if (exitConfirmationRequired && backPressExitCount < 1) {
-            Tools.notifyUser(R.string.backpressToQuit);
-            backPressExitCount += 1;
-            exitCounterReset.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    backPressExitCount = 0;
-                }
-            }, 5000);
-        } else {
-            finish();
-        }
-    }
-
-    /**
-     * Library methods
-     */
-
-    @Override
-    public void onBackStackChanged() {
-        refreshActionBarTitle();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        app.setupServiceBinder();
-        setContentView(app.isTabletUiEnabled() ? R.layout.main_activity_nagvigation_tablet
-                : R.layout.main_activity_nagvigation);
-
-        LayoutInflater inflater = (LayoutInflater) this
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        titleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
-        titleView.setFocusable(true);
-        titleView.setFocusableInTouchMode(true);
-        titleView.setSelected(true);
-        titleView.requestFocus();
-
-        nowPlayingDualPane = findViewById(R.id.nowplaying_dual_pane);
-        nowPlayingPager = (ViewPager) findViewById(R.id.pager);
-        libraryRootFrame = findViewById(R.id.library_root_frame);
-        outputsRootFrame = findViewById(R.id.outputs_root_frame);
-
-        isDualPaneMode = (nowPlayingDualPane != null);
-        switchMode(DisplayMode.MODE_LIBRARY);
-
-        exitCounterReset = new Handler();
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        final StrictMode.ThreadPolicy policy =
+                new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+    }
+
+    private static void setMenuChecked(final MenuItem item, final boolean checked) {
+        item.setChecked(checked);
+    }
+
+    @Override
+    public List<String> getTabList() {
+        return Collections.unmodifiableList(TAB_LIST);
+    }
+
+    private ListView initializeDrawerList() {
+        final ListView drawerList = (ListView) findViewById(R.id.left_drawer);
+        final DrawerItem[] drawerItems = {
+                new DrawerItem(getString(R.string.libraryTabActivity),
+                        DrawerItem.Action.ACTION_LIBRARY),
+
+                new DrawerItem(getString(R.string.outputs), DrawerItem.Action.ACTION_OUTPUTS),
+
+                new DrawerItem(getString(R.string.settings), DrawerItem.Action.ACTION_SETTINGS)
+        };
+
+        // Set the adapter for the list view
+        drawerList.setAdapter(new ArrayAdapter<>(this,
+                R.layout.drawer_list_item, drawerItems));
+        drawerList.setItemChecked(mOldDrawerPosition, true);
+
+        // Set the list's click listener
+        drawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        return drawerList;
+    }
+
+    private ActionBarDrawerToggle initializeDrawerToggle() {
+        final int drawerImageRes;
 
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-        actionBar.setCustomView(titleView);
+        actionBar.setCustomView(mTextView);
         actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        mDrawerItems = new ArrayList<DrawerItem>();
-        mDrawerItems.add(new DrawerItem(getString(R.string.libraryTabActivity),
-                DrawerItem.Action.ACTION_LIBRARY));
+        final ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<>(
+                actionBar.getThemedContext(),
+                android.R.layout.simple_spinner_item);
+        for (final String tab : TAB_LIST) {
+            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(tab)));
+        }
 
-        mDrawerItems.add(new DrawerItem(getString(R.string.outputs),
-                DrawerItem.Action.ACTION_OUTPUTS));
+        actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        actionBar.setListNavigationCallbacks(actionBarAdapter, this);
 
-        mDrawerItems.add(new DrawerItem(getString(R.string.settings),
-                DrawerItem.Action.ACTION_SETTINGS));
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this, /* host Activity */
-                mDrawerLayout, /* DrawerLayout object */
-                app.isLightThemeSelected() ? R.drawable.ic_drawer_light : R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
-                R.string.drawer_open, /* "open drawer" description */
-                R.string.drawer_close /* "close drawer" description */
-        ) {
+        /**
+         * @param Activity activity
+         * @param DrawerLayout
+         * @param drawerImageRes nav drawer icon to replace 'Up' caret
+         * @param openDrawerContentDescRes "open drawer" description
+         * @param closeDrawerContentDescRes "close drawer" description
+         */
+        return new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open,
+                R.string.drawer_close) {
 
             /**
              * Called when a drawer has settled in a completely closed
              * state.
              */
-            public void onDrawerClosed(View view) {
+            @Override
+            public void onDrawerClosed(final View drawerView) {
                 refreshActionBarTitle();
             }
 
@@ -373,185 +227,309 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
              * Called when a drawer has settled in a completely open
              * state.
              */
-            public void onDrawerOpened(View drawerView) {
+            @Override
+            public void onDrawerOpened(final View drawerView) {
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
                 actionBar.setDisplayShowCustomEnabled(true);
-                titleView.setText(R.string.app_name);
+                mTextView.setText(R.string.app_name);
             }
         };
+    }
 
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+    private PopupMenu initializeHeaderOverflowPopup(final View headerOverflowMenu) {
+        final PopupMenu resultPopupMenu;
 
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<DrawerItem>(this,
-                R.layout.drawer_list_item, mDrawerItems));
-        oldDrawerPosition = 0;
-        mDrawerList.setItemChecked(oldDrawerPosition, true);
-        // Set the list's click listener
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        if (headerOverflowMenu == null) {
+            resultPopupMenu = null;
+        } else {
+            final PopupMenu popupMenu = new PopupMenu(this, headerOverflowMenu);
+            popupMenu.getMenuInflater().inflate(R.menu.mpd_mainmenu, popupMenu.getMenu());
+            popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistmenu, popupMenu.getMenu());
+            popupMenu.getMenu().removeItem(R.id.PLM_EditPL);
+            popupMenu.setOnMenuItemClickListener(this);
 
-        /*
-         * Setup the library tab
-         */
-        fragmentManager = getSupportFragmentManager();
-        fragmentManager.addOnBackStackChangedListener(this);
+            headerOverflowMenu.setOnTouchListener(
+                    PopupMenuCompat.getDragToOpenListener(popupMenu));
 
-        // Get the list of the currently visible tabs
-        mTabList = LibraryTabsUtil.getCurrentLibraryTabs();
-
-        ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<CharSequence>(
-                actionBar.getThemedContext(),
-                android.R.layout.simple_spinner_item);
-        for (int i = 0; i < mTabList.size(); i++) {
-            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(mTabList.get(i))));
-        }
-
-        actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        actionBar.setListNavigationCallbacks(actionBarAdapter, this);
-
-        libraryFragment = (LibraryFragment) fragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
-        if (libraryFragment == null) {
-            libraryFragment = new LibraryFragment();
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.replace(R.id.library_root_frame, libraryFragment, FRAGMENT_TAG_LIBRARY);
-            ft.commit();
-        }
-
-        outputsFragment = (OutputsFragment) fragmentManager.findFragmentByTag(FRAGMENT_TAG_OUTPUTS);
-        if (outputsFragment == null) {
-            outputsFragment = new OutputsFragment();
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.replace(R.id.outputs_root_frame, outputsFragment, FRAGMENT_TAG_OUTPUTS);
-            ft.commit();
-        }
-
-        // Setup the pager
-        if (nowPlayingPager != null) {
-            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
-            nowPlayingPager.setOnPageChangeListener(
-                    new ViewPager.SimpleOnPageChangeListener() {
-                        @Override
-                        public void onPageSelected(int position) {
-                            refreshQueueIndicator(position != 0);
-                        }
-                    });
-        }
-
-        if (savedInstanceState != null) {
-            switchMode((DisplayMode) savedInstanceState.getSerializable(EXTRA_DISPLAY_MODE));
-        }
-
-        final View nowPlayingSmallFragment = findViewById(R.id.now_playing_small_fragment);
-        mQueueFragment = (QueueFragment) fragmentManager.findFragmentById(R.id.playlist_fragment);
-
-        mHeaderPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
-        mHeaderOverflowMenu = (ImageButton) findViewById(R.id.header_overflow_menu);
-        mHeaderTitle = (TextView) findViewById(R.id.header_title);
-        mHeaderDragView = findViewById(R.id.header_dragview);
-        if (mHeaderPlayQueue != null) {
-            mHeaderPlayQueue.setOnClickListener(new View.OnClickListener() {
+            headerOverflowMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    if (nowPlayingPager != null && mSlidingLayout != null
+                public void onClick(final View v) {
+                    if (mSlidingLayout != null && mSlidingLayout.isPanelExpanded()) {
+                        prepareNowPlayingMenu(popupMenu.getMenu());
+                        popupMenu.show();
+                    }
+                }
+            });
+
+            resultPopupMenu = popupMenu;
+        }
+
+        return resultPopupMenu;
+    }
+
+    private ImageButton initializeHeaderPlayQueue() {
+        final ImageButton headerPlayQueue = (ImageButton) findViewById(R.id.header_show_queue);
+
+        if (headerPlayQueue != null) {
+            headerPlayQueue.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    if (mNowPlayingPager != null && mSlidingLayout != null
                             && mSlidingLayout.isPanelExpanded()) {
-                        if (nowPlayingPager.getCurrentItem() == 0) {
+                        if (mNowPlayingPager.getCurrentItem() == 0) {
                             showQueue();
                         } else {
-                            nowPlayingPager.setCurrentItem(0, true);
+                            mNowPlayingPager.setCurrentItem(0, true);
                             refreshQueueIndicator(false);
                         }
                     }
                 }
             });
         }
-        if (mHeaderOverflowMenu != null) {
-            mHeaderOverflowPopupMenu = new PopupMenu(this, mHeaderOverflowMenu);
-            mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_mainmenu,
-                    mHeaderOverflowPopupMenu.getMenu());
-            mHeaderOverflowPopupMenu.getMenuInflater().inflate(R.menu.mpd_playlistmenu,
-                    mHeaderOverflowPopupMenu.getMenu());
-            mHeaderOverflowPopupMenu.getMenu().removeItem(R.id.PLM_EditPL);
-            mHeaderOverflowPopupMenu.setOnMenuItemClickListener(this);
 
-            mHeaderOverflowMenu.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(mHeaderOverflowPopupMenu));
+        return headerPlayQueue;
+    }
 
-            mHeaderOverflowMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mSlidingLayout != null && mSlidingLayout.isPanelExpanded()) {
-                        prepareNowPlayingMenu(mHeaderOverflowPopupMenu.getMenu());
-                        mHeaderOverflowPopupMenu.show();
-                    }
-                }
-            });
+    private LibraryFragment initializeLibraryFragment() {
+        LibraryFragment fragment =
+                (LibraryFragment) mFragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
+
+        if (fragment == null) {
+            fragment = new LibraryFragment();
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.replace(R.id.library_root_frame, fragment, FRAGMENT_TAG_LIBRARY);
+            ft.commit();
         }
-        // Sliding panel
-        mSlidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        mSlidingLayout.setEnableDragViewTouchEvents(true);
-        mSlidingLayout.setPanelHeight((int)getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
-        final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
-                new SlidingUpPanelLayout.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset > 0.3) {
-                    if (getActionBar().isShowing()) {
-                        getActionBar().hide();
-                    }
-                } else {
-                    if (!getActionBar().isShowing()) {
-                        getActionBar().show();
-                    }
-                }
-                nowPlayingSmallFragment.setVisibility(slideOffset < 1 ? View.VISIBLE : View.GONE);
-                nowPlayingSmallFragment.setAlpha(1-slideOffset);
-            }
 
-            @Override
-            public void onPanelExpanded(View panel) {
-                nowPlayingSmallFragment.setVisibility(View.GONE);
-                nowPlayingSmallFragment.setAlpha(1);
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            }
+        return fragment;
+    }
 
-            @Override
-            public void onPanelCollapsed(View panel) {
-                nowPlayingSmallFragment.setVisibility(View.VISIBLE);
-                nowPlayingSmallFragment.setAlpha(1);
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            }
+    private ViewPager initializeNowPlayingPager() {
+        final ViewPager nowPlayingPager = (ViewPager) findViewById(R.id.pager);
+        if (nowPlayingPager != null) {
+            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
+            nowPlayingPager.setOnPageChangeListener(
+                    new ViewPager.SimpleOnPageChangeListener() {
+                        @Override
+                        public void onPageSelected(final int position) {
+                            refreshQueueIndicator(position != 0);
+                        }
+                    });
+        }
 
-            @Override
-            public void onPanelAnchored(View panel) {
-            }
+        return nowPlayingPager;
+    }
 
-            @Override
-            public void onPanelHidden(View view) {}
-         };
-        mSlidingLayout.setPanelSlideListener(panelSlideListener);
+    private OutputsFragment initializeOutputsFragment() {
+        OutputsFragment fragment =
+                (OutputsFragment) mFragmentManager.findFragmentByTag(FRAGMENT_TAG_OUTPUTS);
+
+        if (fragment == null) {
+            fragment = new OutputsFragment();
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.replace(R.id.outputs_root_frame, fragment, FRAGMENT_TAG_OUTPUTS);
+            ft.commit();
+        }
+
+        return fragment;
+    }
+
+    private SlidingUpPanelLayout initializeSlidingLayout(final Bundle savedInstanceState) {
+        final SlidingUpPanelLayout slidingLayout =
+                (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        final SlidingUpPanelLayout.PanelSlideListener panelSlideListener
+                = initializeSlidingPanelLayout();
+
+        slidingLayout.setEnableDragViewTouchEvents(true);
+        slidingLayout.setPanelHeight(
+                (int) getResources().getDimension(R.dimen.nowplaying_small_fragment_height));
+        slidingLayout.setPanelSlideListener(panelSlideListener);
+
         // Ensure that the view state is consistent (otherwise we end up with a view mess)
         // The sliding layout should take care of it itself but does not
         if (savedInstanceState != null) {
             if ((Boolean) savedInstanceState.getSerializable(EXTRA_SLIDING_PANEL_EXPANDED)) {
-                mSlidingLayout.expandPanel();
-                panelSlideListener.onPanelSlide(mSlidingLayout, 1);
-                panelSlideListener.onPanelExpanded(mSlidingLayout);
+                slidingLayout.expandPanel();
+                panelSlideListener.onPanelSlide(slidingLayout, 1.0f);
+                panelSlideListener.onPanelExpanded(slidingLayout);
             } else {
-                mSlidingLayout.collapsePanel();
-                panelSlideListener.onPanelSlide(mSlidingLayout, 0);
-                panelSlideListener.onPanelCollapsed(mSlidingLayout);
+                slidingLayout.collapsePanel();
+                panelSlideListener.onPanelSlide(slidingLayout, 0.0f);
+                panelSlideListener.onPanelCollapsed(slidingLayout);
             }
         }
-        refreshQueueIndicator(false);
 
-        /** Reset the persistent override when the application is reset. */
-        app.setPersistentOverride(false);
+        return slidingLayout;
+    }
+
+    private SlidingUpPanelLayout.PanelSlideListener initializeSlidingPanelLayout() {
+
+        return new SlidingUpPanelLayout.PanelSlideListener() {
+            final View nowPlayingSmallFragment =
+                    findViewById(R.id.now_playing_small_fragment);
+
+            @Override
+            public void onPanelAnchored(final View panel) {
+            }
+
+            @Override
+            public void onPanelCollapsed(final View panel) {
+                nowPlayingSmallFragment.setVisibility(View.VISIBLE);
+                nowPlayingSmallFragment.setAlpha(1.0f);
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            }
+
+            @Override
+            public void onPanelExpanded(final View panel) {
+                nowPlayingSmallFragment.setVisibility(View.GONE);
+                nowPlayingSmallFragment.setAlpha(1.0f);
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            }
+
+            @Override
+            public void onPanelHidden(final View view) {
+            }
+
+            @Override
+            public void onPanelSlide(final View panel, final float slideOffset) {
+                final ActionBar actionBar = getActionBar();
+
+                if (slideOffset > 0.3f) {
+                    if (actionBar.isShowing()) {
+                        actionBar.hide();
+                    }
+                } else {
+                    if (!actionBar.isShowing()) {
+                        actionBar.show();
+                    }
+                }
+
+                if (slideOffset < 1.0f) {
+                    nowPlayingSmallFragment.setVisibility(View.VISIBLE);
+                } else {
+                    nowPlayingSmallFragment.setVisibility(View.GONE);
+                }
+
+                nowPlayingSmallFragment.setAlpha(1.0f - slideOffset);
+            }
+        };
+    }
+
+    private TextView initializeTextView() {
+        final LayoutInflater inflater = (LayoutInflater) getSystemService(
+                Context.LAYOUT_INFLATER_SERVICE);
+        final TextView textView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
+
+        textView.setFocusable(true);
+        textView.setFocusableInTouchMode(true);
+        textView.setSelected(true);
+        textView.requestFocus();
+
+        return textView;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public void onBackPressed() {
+        if (mSlidingLayout.isPanelExpanded()) {
+            mSlidingLayout.collapsePanel();
+        } else if (mCurrentDisplayMode != DisplayMode.MODE_LIBRARY) {
+            switchMode(DisplayMode.MODE_LIBRARY);
+        } else if (mFragmentManager.getBackStackEntryCount() > 0) {
+            super.onBackPressed();
+        } else {
+            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+            if (settings.getBoolean("enableExitConfirmation", false) && mBackPressExitCount < 1) {
+                Tools.notifyUser(R.string.backpressToQuit);
+                mBackPressExitCount += 1;
+                mExitCounterReset.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mBackPressExitCount = 0;
+                    }
+                }, 5000L);
+            } else {
+                finish();
+            }
+        }
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        refreshActionBarTitle();
+    }
+
+    @Override
+    public void onConfigurationChanged(final Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mApp.setupServiceBinder();
+
+        if (mApp.isTabletUiEnabled()) {
+            setContentView(R.layout.main_activity_nagvigation_tablet);
+        } else {
+            setContentView(R.layout.main_activity_nagvigation);
+        }
+
+        mTextView = initializeTextView();
+
+        mLibraryRootFrame = findViewById(R.id.library_root_frame);
+        mOutputsRootFrame = findViewById(R.id.outputs_root_frame);
+
+        mIsDualPaneMode = findViewById(R.id.nowplaying_dual_pane) != null;
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        mDrawerToggle = initializeDrawerToggle();
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerList = initializeDrawerList();
+
+        mFragmentManager = getSupportFragmentManager();
+        mFragmentManager.addOnBackStackChangedListener(this);
+
+        mLibraryFragment = initializeLibraryFragment();
+        mOutputsFragment = initializeOutputsFragment();
+        mQueueFragment = (QueueFragment) mFragmentManager.findFragmentById(R.id.queue_fragment);
+
+        // Setup the pager
+        mNowPlayingPager = initializeNowPlayingPager();
+
+        if (savedInstanceState == null) {
+            switchMode(DisplayMode.MODE_LIBRARY);
+        } else {
+            switchMode((DisplayMode) savedInstanceState.getSerializable(EXTRA_DISPLAY_MODE));
+        }
+
+        mHeaderTitle = (TextView) findViewById(R.id.header_title);
+        mHeaderDragView = findViewById(R.id.header_dragview);
+        mHeaderPlayQueue = initializeHeaderPlayQueue();
+
+        final ImageButton headerOverflowMenu = (ImageButton) findViewById(
+                R.id.header_overflow_menu);
+        if (headerOverflowMenu != null) {
+            mHeaderOverflowPopupMenu = initializeHeaderOverflowPopup(headerOverflowMenu);
+        }
+
+        // Sliding panel
+        mSlidingLayout = initializeSlidingLayout(savedInstanceState);
+        refreshQueueIndicator(false);
+
+        /** Reset the persistent override when the application is reset. */
+        mApp.setPersistentOverride(false);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
         return true;
@@ -564,7 +542,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             // For onKeyLongPress to work
             event.startTracking();
-            result = !app.isLocalAudible();
+            result = !mApp.isLocalAudible();
         } else {
             result = super.onKeyDown(keyCode, event);
         }
@@ -591,16 +569,16 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    public final boolean onKeyUp(final int keyCode, final KeyEvent event) {
+    public final boolean onKeyUp(final int keyCode, @NonNull final KeyEvent event) {
         boolean result = true;
 
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (event.isTracking() && !event.isCanceled() && !app.isLocalAudible()) {
+                if (event.isTracking() && !event.isCanceled() && !mApp.isLocalAudible()) {
                     if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                         MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
-                    } else  {
+                    } else {
                         MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
                     }
                 }
@@ -614,36 +592,36 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-        libraryFragment.setCurrentItem(itemPosition, true);
-        return true;
+    public boolean onMenuItemClick(final MenuItem item) {
+        return onOptionsItemSelected(item);
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return onOptionsItemSelected(item);
+    public boolean onNavigationItemSelected(final int itemPosition, final long itemId) {
+        mLibraryFragment.setCurrentItem(itemPosition, true);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         boolean result = true;
         final boolean itemHandled = mDrawerToggle.onOptionsItemSelected(item) ||
-                (mQueueFragment != null && mQueueFragment.onOptionsItemSelected(item));
+                mQueueFragment != null && mQueueFragment.onOptionsItemSelected(item);
 
         // Handle item selection
         if (!itemHandled) {
             switch (item.getItemId()) {
                 case R.id.menu_search:
-                    this.onSearchRequested();
+                    onSearchRequested();
                     break;
                 case CONNECT:
-                    app.connect();
+                    mApp.connect();
                     break;
                 case R.id.GMM_Stream:
-                    if (app.isStreamActive()) {
-                        app.stopStreaming();
-                    } else if (app.oMPDAsyncHelper.oMPD.isConnected()) {
-                        app.startStreaming();
+                    if (mApp.isStreamActive()) {
+                        mApp.stopStreaming();
+                    } else if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
+                        mApp.startStreaming();
                     }
                     break;
                 case R.id.GMM_bonjour:
@@ -656,11 +634,11 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                     MPDControl.run(MPDControl.ACTION_SINGLE);
                     break;
                 case R.id.GMM_ShowNotification:
-                    if (app.isNotificationActive()) {
-                        app.stopNotification();
+                    if (mApp.isNotificationActive()) {
+                        mApp.stopNotification();
                     } else {
-                        app.startNotification();
-                        app.setPersistentOverride(false);
+                        mApp.startNotification();
+                        mApp.setPersistentOverride(false);
                     }
                     break;
                 default:
@@ -672,39 +650,90 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPause() {
+        if (DEBUG) {
+            unregisterReceiver(MPDConnectionHandler.getInstance());
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onPostCreate(final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         mDrawerToggle.syncState();
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // Reminder : never disable buttons that are shown as actionbar actions
-        // here
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+        // Reminder: Never disable buttons that are shown as actionbar actions here.
         super.onPrepareOptionsMenu(menu);
         return true;
     }
 
-    public void prepareNowPlayingMenu(Menu menu) {
-        final boolean isStreaming = app.isStreamActive();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBackPressExitCount = 0;
+        if (DEBUG) {
+            registerReceiver(MPDConnectionHandler.getInstance(),
+                    new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+        }
+    }
 
-        // Reminder : never disable buttons that are shown as actionbar actions
-        // here
-        final MPD mpd = app.oMPDAsyncHelper.oMPD;
-        if (!mpd.isConnected()) {
-            if (menu.findItem(CONNECT) == null) {
-                menu.add(0, CONNECT, 0, R.string.connect);
-            }
-        } else {
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        outState.putSerializable(EXTRA_DISPLAY_MODE, mCurrentDisplayMode);
+        outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isPanelExpanded());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mApp.setActivity(this);
+
+        if (mApp.isNotificationPersistent()) {
+            mApp.startNotification();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        mApp.unsetActivity(this);
+    }
+
+    @Override
+    public void pageChanged(final int position) {
+        final ActionBar actionBar = getActionBar();
+        if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY
+                && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
+            actionBar.setSelectedNavigationItem(position);
+        }
+    }
+
+    void prepareNowPlayingMenu(final Menu menu) {
+        final boolean isStreaming = mApp.isStreamActive();
+        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
+        final MPDStatus mpdStatus = mpd.getStatus();
+
+        // Reminder : never disable buttons that are shown as actionbar actions here
+        if (mpd.isConnected()) {
             if (menu.findItem(CONNECT) != null) {
                 menu.removeItem(CONNECT);
+            }
+        } else {
+            if (menu.findItem(CONNECT) == null) {
+                menu.add(0, CONNECT, 0, R.string.connect);
             }
         }
 
         final MenuItem saveItem = menu.findItem(R.id.PLM_Save);
         final MenuItem clearItem = menu.findItem(R.id.PLM_Clear);
-        if (!isDualPaneMode && nowPlayingPager != null && nowPlayingPager.getCurrentItem() == 0) {
+        if (!mIsDualPaneMode && mNowPlayingPager != null
+                && mNowPlayingPager.getCurrentItem() == 0) {
             saveItem.setVisible(false);
             clearItem.setVisible(false);
         } else {
@@ -714,85 +743,24 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
         /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
         final MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
-        if(notificationItem != null) {
-            if (isStreaming || app.isNotificationPersistent()) {
+        if (notificationItem != null) {
+            if (isStreaming || mApp.isNotificationPersistent()) {
                 notificationItem.setVisible(false);
             } else {
                 notificationItem.setVisible(true);
             }
-            
-            setMenuChecked(notificationItem, app.isNotificationActive());
+
+            setMenuChecked(notificationItem, mApp.isNotificationActive());
         }
 
         setMenuChecked(menu.findItem(R.id.GMM_Stream), isStreaming);
-
-        MPDStatus mpdStatus = null;
-        try {
-            mpdStatus = mpd.getStatus();
-        } catch (final MPDServerException e) {
-            Log.e(TAG, "Failed to retrieve a status object", e);
-        }
-
-        if (mpdStatus != null) {
-            setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
-            setMenuChecked(menu.findItem(R.id.GMM_Consume), mpdStatus.isConsume());
-        }
+        setMenuChecked(menu.findItem(R.id.GMM_Single), mpdStatus.isSingle());
+        setMenuChecked(menu.findItem(R.id.GMM_Consume), mpdStatus.isConsume());
     }
 
     @Override
-    protected void onPause() {
-        if (DEBUG) {
-            unregisterReceiver(MPDConnectionHandler.getInstance());
-        }
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        backPressExitCount = 0;
-        if (DEBUG) {
-            registerReceiver(MPDConnectionHandler.getInstance(),
-                    new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(EXTRA_DISPLAY_MODE, currentDisplayMode);
-        outState.putSerializable(EXTRA_SLIDING_PANEL_EXPANDED, mSlidingLayout.isPanelExpanded());
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        app.setActivity(this);
-
-        if (app.isNotificationPersistent()) {
-            app.startNotification();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        app.unsetActivity(this);
-    }
-
-    @Override
-    public void pageChanged(int position) {
-        final ActionBar actionBar = getActionBar();
-        if (currentDisplayMode == DisplayMode.MODE_LIBRARY
-                && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
-            actionBar.setSelectedNavigationItem(position);
-        }
-    }
-
-    @Override
-    public void pushLibraryFragment(Fragment fragment, String label) {
-        String title;
+    public void pushLibraryFragment(final Fragment fragment, final String label) {
+        final String title;
         if (fragment instanceof BrowseFragment) {
             title = ((BrowseFragment) fragment).getTitle();
         } else {
@@ -813,57 +781,44 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     private void refreshActionBarTitle() {
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
-        switch (currentDisplayMode) {
-            case MODE_OUTPUTS:
+
+        if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {
+                mTextView.setText(R.string.outputs);
+            }
+        } else if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY) {
+            int fmStackCount = 0;
+
+            if (mFragmentManager != null) {
+                fmStackCount = mFragmentManager.getBackStackEntryCount();
+            }
+
+            if (fmStackCount > 0) {
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                if (currentDisplayMode == DisplayMode.MODE_OUTPUTS) {
-                    titleView.setText(R.string.outputs);
-                }
-                break;
-            case MODE_LIBRARY:
-                int fmStackCount = 0;
-                if (fragmentManager != null) {
-                    fmStackCount = fragmentManager.getBackStackEntryCount();
-                }
-                if (fmStackCount > 0) {
-                    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                    titleView.setText(fragmentManager.getBackStackEntryAt(fmStackCount - 1)
-                            .getBreadCrumbTitle());
-                } else {
-                    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-                    actionBar.setDisplayShowCustomEnabled(false);
-                }
-                break;
+                mTextView.setText(mFragmentManager.getBackStackEntryAt(fmStackCount - 1)
+                        .getBreadCrumbTitle());
+            } else {
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+                actionBar.setDisplayShowCustomEnabled(false);
+            }
         }
     }
 
-    private void setMenuChecked(MenuItem item, boolean checked) {
-        item.setChecked(checked);
-    }
-
-    /** Swaps fragments in the main content view */
-    public void switchMode(DisplayMode newMode) {
-        currentDisplayMode = newMode;
-        switch (currentDisplayMode) {
-            case MODE_LIBRARY:
-                libraryRootFrame.setVisibility(View.VISIBLE);
-                outputsRootFrame.setVisibility(View.GONE);
-                break;
-            case MODE_OUTPUTS:
-                libraryRootFrame.setVisibility(View.GONE);
-                outputsRootFrame.setVisibility(View.VISIBLE);
-                outputsFragment.refreshOutputs();
-                break;
-        }
-        refreshActionBarTitle();
-    }
-
-    public void refreshQueueIndicator(boolean queueShown) {
+    void refreshQueueIndicator(final boolean queueShown) {
         if (mHeaderPlayQueue != null) {
-            mHeaderPlayQueue.setAlpha((float)(queueShown ? 1 : 0.5));
+            if (queueShown) {
+                mHeaderPlayQueue.setAlpha(1.0f);
+            } else {
+                mHeaderPlayQueue.setAlpha(0.5f);
+            }
         }
         if (mHeaderTitle != null) {
-            mHeaderTitle.setText(queueShown && !isDualPaneMode ? R.string.playQueue : R.string.nowPlaying);
+            if (queueShown && !mIsDualPaneMode) {
+                mHeaderTitle.setText(R.string.playQueue);
+            } else {
+                mHeaderTitle.setText(R.string.nowPlaying);
+            }
         }
 
         // Restrain the sliding panel sliding zone
@@ -882,9 +837,124 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         if (mSlidingLayout != null) {
             mSlidingLayout.expandPanel();
         }
-        if (nowPlayingPager != null) {
-            nowPlayingPager.setCurrentItem(1, true);
+        if (mNowPlayingPager != null) {
+            mNowPlayingPager.setCurrentItem(1, true);
         }
         refreshQueueIndicator(true);
+    }
+
+    /** Swaps fragments in the main content view */
+    void switchMode(final DisplayMode newMode) {
+        mCurrentDisplayMode = newMode;
+        switch (mCurrentDisplayMode) {
+            case MODE_LIBRARY:
+                mLibraryRootFrame.setVisibility(View.VISIBLE);
+                mOutputsRootFrame.setVisibility(View.GONE);
+                break;
+            case MODE_OUTPUTS:
+                mLibraryRootFrame.setVisibility(View.GONE);
+                mOutputsRootFrame.setVisibility(View.VISIBLE);
+                mOutputsFragment.refreshOutputs();
+                break;
+        }
+        refreshActionBarTitle();
+    }
+
+    public enum DisplayMode {
+        MODE_LIBRARY,
+        MODE_OUTPUTS
+    }
+
+    private static class DrawerItem {
+
+        private final Action mAction;
+
+        private final String mLabel;
+
+        DrawerItem(final String label, final Action action) {
+            super();
+            mLabel = label;
+            mAction = action;
+        }
+
+        @Override
+        public String toString() {
+            return mLabel;
+        }
+
+        private enum Action {
+            ACTION_LIBRARY,
+            ACTION_OUTPUTS,
+            ACTION_SETTINGS
+        }
+    }
+
+    private class DrawerItemClickListener implements AdapterView.OnItemClickListener {
+
+        @Override
+        public void onItemClick(final AdapterView<?> parent, final View view, final int position,
+                final long id) {
+            mDrawerLayout.closeDrawer(mDrawerList);
+
+            switch (((DrawerItem) parent.getItemAtPosition(position)).mAction) {
+                case ACTION_LIBRARY:
+                    // If we are already on the library, pop the whole stack.
+                    // Acts like an "up" button
+                    if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY) {
+                        final int fmStackCount = mFragmentManager.getBackStackEntryCount();
+                        if (fmStackCount > 0) {
+                            mFragmentManager.popBackStack(null,
+                                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        }
+                    }
+                    switchMode(DisplayMode.MODE_LIBRARY);
+                    break;
+                case ACTION_OUTPUTS:
+                    switchMode(DisplayMode.MODE_OUTPUTS);
+                    break;
+                case ACTION_SETTINGS:
+                    mDrawerList.setItemChecked(mOldDrawerPosition, true);
+                    final Intent intent = new Intent(MainMenuActivity.this, SettingsActivity.class);
+                    startActivityForResult(intent, SETTINGS);
+                    break;
+            }
+            mOldDrawerPosition = position;
+        }
+    }
+
+    private class MainMenuPagerAdapter extends PagerAdapter {
+
+        @Override
+        public void destroyItem(final ViewGroup container, final int position,
+                final Object object) {
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public Object instantiateItem(final ViewGroup container, final int position) {
+            int resId = 0;
+
+            switch (position) {
+                case 0:
+                    resId = R.id.nowplaying_fragment;
+                    break;
+                case 1:
+                    resId = R.id.queue_fragment;
+                    break;
+                default:
+                    break;
+            }
+
+            return findViewById(resId);
+        }
+
+        @Override
+        public boolean isViewFromObject(final View arg0, final Object arg1) {
+            return arg0.equals(arg1);
+        }
     }
 }

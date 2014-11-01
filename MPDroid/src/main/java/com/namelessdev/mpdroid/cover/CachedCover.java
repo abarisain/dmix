@@ -17,9 +17,8 @@
 package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
-
-import org.a0z.mpd.AlbumInfo;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -33,13 +32,11 @@ import static com.namelessdev.mpdroid.helpers.CoverManager.getCoverFileName;
 
 public class CachedCover implements ICoverRetriever {
 
-    private final MPDApplication app = MPDApplication.getInstance();
     private static final String FOLDER_SUFFIX = "/covers/";
 
     private static final String TAG = "CachedCover";
 
-    public CachedCover() {
-    }
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
     public void clear() {
         delete(null);
@@ -63,16 +60,18 @@ public class CachedCover implements ICoverRetriever {
     }
 
     public String getAbsoluteCoverFolderPath() {
-        final File cacheDir = app.getExternalCacheDir();
-        if (cacheDir == null)
+        final File cacheDir = mApp.getExternalCacheDir();
+        if (cacheDir == null) {
             return null;
+        }
         return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
     }
 
-    public String getAbsolutePathForSong(AlbumInfo albumInfo) {
-        final File cacheDir = app.getExternalCacheDir();
-        if (cacheDir == null)
+    public String getAbsolutePathForSong(final AlbumInfo albumInfo) {
+        final File cacheDir = mApp.getExternalCacheDir();
+        if (cacheDir == null) {
             return null;
+        }
         return getAbsoluteCoverFolderPath() + getCoverFileName(albumInfo);
     }
 
@@ -109,16 +108,17 @@ public class CachedCover implements ICoverRetriever {
     }
 
     @Override
-    public String[] getCoverUrl(AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
         final String storageState = Environment.getExternalStorageState();
         // If there is no external storage available, don't bother
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState)
                 || Environment.MEDIA_MOUNTED.equals(storageState)) {
             final String url = getAbsolutePathForSong(albumInfo);
-            if (new File(url).exists())
-                return new String[] {
+            if (new File(url).exists()) {
+                return new String[]{
                         url
                 };
+            }
         }
         return null;
     }
@@ -133,7 +133,7 @@ public class CachedCover implements ICoverRetriever {
         return true;
     }
 
-    public void save(AlbumInfo albumInfo, Bitmap cover) {
+    public void save(final AlbumInfo albumInfo, final Bitmap cover) {
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             // External storage is not there or read only, don't do anything
             Log.e(TAG, "No writable external storage, not saving cover to cache");

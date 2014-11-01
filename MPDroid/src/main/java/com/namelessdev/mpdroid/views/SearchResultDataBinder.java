@@ -16,70 +16,81 @@
 
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.view.View;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 
-import org.a0z.mpd.Album;
-import org.a0z.mpd.Artist;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
+
+import android.content.Context;
+import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
 public class SearchResultDataBinder implements SeparatedListDataBinder {
 
-    public static final String SEPARATOR = " - ";
-
     /**
      * Join not empty strings
-     * 
+     *
      * @param parts : parts to join
      * @return the formatted result
      */
-    public static String join(String... parts) {
-        StringBuilder result = new StringBuilder();
+    public static String join(final String... parts) {
+        final StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < parts.length; i++) {
-            String part = parts[i];
-            if (part != null && part.length() > 0) {
+            final String part = parts[i];
+            if (part != null && !part.isEmpty()) {
                 result.append(part);
-                if (SEPARATOR != null && i < parts.length - 1) {
-                    result.append(SEPARATOR);
+                if (i < parts.length - 1) {
+                    result.append(BaseDataBinder.SEPARATOR);
                 }
             }
         }
         return result.toString();
     }
 
-    public boolean isEnabled(int position, List<?> items, Object item) {
+    @Override
+    public boolean isEnabled(final int position, final List<?> items, final Object item) {
         return true;
     }
 
-    public void onDataBind(Context context, View targetView, List<?> items,
-            Object item, int position) {
+    @Override
+    public void onDataBind(final Context context, final View targetView, final List<?> items,
+            final Object item, final int position) {
         final TextView text1 = (TextView) targetView.findViewById(R.id.line1);
         final TextView text2 = (TextView) targetView.findViewById(R.id.line2);
-        String formattedResult1 = "";
+        String formattedResult1 = null;
         String formattedResult2 = null;
 
         if (item instanceof Music) {
-            Music music;
+            final Music music;
             music = (Music) item;
             formattedResult1 = music.getTitle();
             formattedResult2 = join(music.getAlbum(), music.getArtist());
         } else if (item instanceof Artist) {
-            formattedResult1 = (((Artist) item).mainText());
+            formattedResult1 = ((Item) item).mainText();
         } else if (item instanceof Album) {
-            Album album;
-            album = (Album) item;
+            final Album album = (Album) item;
+            final Artist artist = album.getArtist();
+
             formattedResult1 = album.mainText();
-            formattedResult2 = album.getArtist().mainText();
+
+            if (artist != null) {
+                formattedResult2 = artist.mainText();
+            }
         }
+
+        if (formattedResult2 == null) {
+            text2.setVisibility(View.GONE);
+        } else {
+            text2.setVisibility(View.VISIBLE);
+        }
+
         text1.setText(formattedResult1);
-        text2.setVisibility(formattedResult2 != null ? View.VISIBLE : View.GONE);
         text2.setText(formattedResult2);
     }
 

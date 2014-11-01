@@ -79,7 +79,7 @@
         <PreferenceScreen
             android:key="clearLocalCoverCache"
             android:summary="@string/clearLocalCoverCacheDescription"
-            android:title="@string/clearLocalCoverCache"></PreferenceScreen>
+            android:title="@string/clearLocalCoverCache" />
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -154,13 +154,6 @@
             android:title="@string/artistTagToUse" />
 
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="albumTrackSort"
-            android:persistent="true"
-            android:summary="@string/albumTrackSortDescription"
-            android:title="@string/albumTrackSort" />
-
-        <CheckBoxPreference
             android:key="sortAlbumsByYear"
             android:persistent="true"
             android:summary="@string/sortAlbumsByYearDescription"
@@ -229,6 +222,12 @@
                 android:key="enableAudioText"
                 android:persistent="true"
                 android:title="@string/enableAudioText" />
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="enableRating"
+                android:persistent="true"
+                android:title="@string/enableRating" />
         </PreferenceScreen>
 
         <CheckBoxPreference
@@ -239,7 +238,7 @@
             android:title="@string/enableExitConfirmation" />
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="lightTheme"
             android:persistent="true"
             android:title="@string/enableLightTheme" />

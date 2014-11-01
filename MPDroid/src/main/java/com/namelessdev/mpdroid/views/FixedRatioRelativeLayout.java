@@ -16,56 +16,65 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.namelessdev.mpdroid.R;
+
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.AttrRes;
+import android.support.annotation.StyleRes;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
-import com.namelessdev.mpdroid.R;
-
 public class FixedRatioRelativeLayout extends RelativeLayout {
+
     private static final String FIXED_HEIGHT = "height";
-    private static final String FIXED_WIDTH = "width";
+
     private static final int FIXED_HEIGHT_INT = 1;
+
+    private int mFixedSide = FIXED_HEIGHT_INT;
+
+    private static final String FIXED_WIDTH = "width";
+
     private static final int FIXED_WIDTH_INT = 2;
 
-    private int fixedSide = FIXED_HEIGHT_INT;
-
-    public FixedRatioRelativeLayout(Context context) {
+    public FixedRatioRelativeLayout(final Context context) {
         super(context);
     }
 
-    public FixedRatioRelativeLayout(Context context, AttributeSet attrs) {
+    public FixedRatioRelativeLayout(final Context context, @AttrRes final AttributeSet attrs) {
         super(context, attrs);
         readAttrs(context, attrs);
     }
 
-    public FixedRatioRelativeLayout(Context context, AttributeSet attrs, int defStyle) {
+    public FixedRatioRelativeLayout(final Context context, @AttrRes final AttributeSet attrs,
+            @StyleRes final int defStyle) {
         super(context, attrs, defStyle);
         readAttrs(context, attrs);
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (fixedSide == FIXED_HEIGHT_INT) {
+    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+        if (mFixedSide == FIXED_HEIGHT_INT) {
             super.onMeasure(heightMeasureSpec, heightMeasureSpec);
         } else {
             super.onMeasure(widthMeasureSpec, widthMeasureSpec);
         }
     }
 
-    private void readAttrs(Context context, AttributeSet attrs) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FixedRatioRelativeLayout);
-        CharSequence s = a.getString(R.styleable.FixedRatioRelativeLayout_fixedSide);
-        if (s != null) {
-            final String fixString = s.toString();
-            if (fixString.equals(FIXED_HEIGHT)) {
-                fixedSide = FIXED_HEIGHT_INT;
-            } else if (fixString.equals(FIXED_WIDTH)) {
-                fixedSide = FIXED_WIDTH_INT;
+    private void readAttrs(final Context context, final AttributeSet attrs) {
+        final TypedArray relativeLayout =
+                context.obtainStyledAttributes(attrs, R.styleable.FixedRatioRelativeLayout);
+        final String fixed =
+                relativeLayout.getString(R.styleable.FixedRatioRelativeLayout_fixedSide);
+
+        if (fixed != null) {
+            if (fixed.equals(FIXED_HEIGHT)) {
+                mFixedSide = FIXED_HEIGHT_INT;
+            } else if (fixed.equals(FIXED_WIDTH)) {
+                mFixedSide = FIXED_WIDTH_INT;
             }
         }
-        a.recycle();
+        relativeLayout.recycle();
     }
 
 }

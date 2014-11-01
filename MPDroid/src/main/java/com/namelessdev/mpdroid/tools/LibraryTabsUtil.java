@@ -26,18 +26,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class LibraryTabsUtil {
+public final class LibraryTabsUtil {
+
+    public static final String TAB_ALBUMS = "albums";
 
     public static final String TAB_ARTISTS = "artists";
-    public static final String TAB_ALBUMS = "albums";
-    public static final String TAB_PLAYLISTS = "playlists";
-    public static final String TAB_STREAMS = "streams";
+
     public static final String TAB_FILES = "files";
+
     public static final String TAB_GENRES = "genres";
 
-    private static final MPDApplication app = MPDApplication.getInstance();
+    public static final String TAB_PLAYLISTS = "playlists";
 
-    public static final HashMap<String, Integer> TABS = new HashMap<String, Integer>();
+    public static final String TAB_STREAMS = "streams";
+
+    private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private static final String LIBRARY_TABS_DELIMITER = "|";
+
+    private static final String DEFAULT_LIBRARY_TABS = TAB_ARTISTS
+            + LIBRARY_TABS_DELIMITER + TAB_ALBUMS
+            + LIBRARY_TABS_DELIMITER + TAB_PLAYLISTS
+            + LIBRARY_TABS_DELIMITER + TAB_STREAMS
+            + LIBRARY_TABS_DELIMITER + TAB_FILES
+            + LIBRARY_TABS_DELIMITER + TAB_GENRES;
+
+    private static final String LIBRARY_TABS_SETTINGS_KEY = "currentLibraryTabs";
+
+    private static final HashMap<String, Integer> TABS = new HashMap<>();
+
     static {
         TABS.put(TAB_ARTISTS, R.string.artists);
         TABS.put(TAB_ALBUMS, R.string.albums);
@@ -47,63 +64,59 @@ public class LibraryTabsUtil {
         TABS.put(TAB_GENRES, R.string.genres);
     }
 
-    private static final String LIBRARY_TABS_SETTINGS_KEY = "currentLibraryTabs";
+    private LibraryTabsUtil() {
+    }
 
-    private static final String LIBRARY_TABS_DELIMITER = "|";
-
-    private static String DEFAULT_LIBRARY_TABS = TAB_ARTISTS
-            + LIBRARY_TABS_DELIMITER + TAB_ALBUMS
-            + LIBRARY_TABS_DELIMITER + TAB_PLAYLISTS
-            + LIBRARY_TABS_DELIMITER + TAB_STREAMS
-            + LIBRARY_TABS_DELIMITER + TAB_FILES
-            + LIBRARY_TABS_DELIMITER + TAB_GENRES;
-
-    public static ArrayList<String> getAllLibraryTabs() {
-        String CurrentSettings = DEFAULT_LIBRARY_TABS;
-        return new ArrayList<String>(Arrays.asList(CurrentSettings.split("\\"
+    public static Iterable<String> getAllLibraryTabs() {
+        return new ArrayList<>(Arrays.asList(DEFAULT_LIBRARY_TABS.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }
 
     public static ArrayList<String> getCurrentLibraryTabs() {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
         String currentSettings = settings.getString(LIBRARY_TABS_SETTINGS_KEY, "");
-        if (currentSettings.equals("")) {
+        if (currentSettings != null && currentSettings.isEmpty()) {
             currentSettings = DEFAULT_LIBRARY_TABS;
             resetLibraryTabs();
         }
-        return new ArrayList<String>(Arrays.asList(currentSettings.split("\\"
+        return new ArrayList<>(Arrays.asList(currentSettings.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }
 
-    public static ArrayList<String> getTabsListFromString(String tabs) {
-        return new ArrayList<String>(Arrays.asList(tabs.split("\\"
-                + LIBRARY_TABS_DELIMITER)));
-    }
-
-    public static String getTabsStringFromList(ArrayList<String> tabs) {
-        if (tabs == null || tabs.size() <= 0) {
-            return "";
-        } else {
-            String s = tabs.get(0);
-            for (int i = 1; i < tabs.size(); i++) {
-                s += LIBRARY_TABS_DELIMITER + tabs.get(i);
-            }
-            return s;
-        }
-    }
-
-    public static int getTabTitleResId(String tab) {
+    public static int getTabTitleResId(final String tab) {
         return TABS.get(tab);
     }
 
-    public static void saveCurrentLibraryTabs(ArrayList<String> tabs) {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
-        final String currentSettings = getTabsStringFromList(tabs);
-        settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, currentSettings).commit();
+    public static ArrayList<String> getTabsListFromString(final String tabs) {
+        return new ArrayList<>(Arrays.asList(tabs.split('\\'
+                + LIBRARY_TABS_DELIMITER)));
+    }
+
+    public static String getTabsStringFromList(final ArrayList<String> tabs) {
+        final StringBuilder resultTabs;
+
+        if (tabs == null || tabs.isEmpty()) {
+            resultTabs = new StringBuilder("");
+        } else {
+            resultTabs = new StringBuilder(tabs.size() * 10);
+            resultTabs.append(tabs.get(0));
+            for (int i = 1; i < tabs.size(); i++) {
+                resultTabs.append(LIBRARY_TABS_DELIMITER);
+                resultTabs.append(tabs.get(i));
+            }
+        }
+
+        return resultTabs.toString();
     }
 
     public static void resetLibraryTabs() {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
         settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, DEFAULT_LIBRARY_TABS).commit();
+    }
+
+    public static void saveCurrentLibraryTabs(final ArrayList<String> tabs) {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
+        final String currentSettings = getTabsStringFromList(tabs);
+        settings.edit().putString(LIBRARY_TABS_SETTINGS_KEY, currentSettings).commit();
     }
 }

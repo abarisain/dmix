@@ -27,9 +27,11 @@
 
 package org.a0z.mpd;
 
-import android.util.Log;
+import java.util.Collection;
+import java.util.Date;
 
-import java.util.regex.Pattern;
+import static org.a0z.mpd.Tools.KEY;
+import static org.a0z.mpd.Tools.VALUE;
 
 /**
  * Class representing MPD Server status.
@@ -39,91 +41,101 @@ import java.util.regex.Pattern;
 public class MPDStatus {
 
     /**
+     * MPD State: paused.
+     */
+    public static final int STATE_PAUSED = 2;
+
+    /**
      * MPD State: playing.
      */
-    public static final String MPD_STATE_PLAYING = "play";
+    public static final int STATE_PLAYING = 0;
 
     /**
      * MPD State: stopped.
      */
-    public static final String MPD_STATE_STOPPED = "stop";
-
-    /**
-     * MPD State: paused.
-     */
-    public static final String MPD_STATE_PAUSED = "pause";
+    public static final int STATE_STOPPED = 1;
 
     /**
      * MPD State: unknown.
      */
-    public static final String MPD_STATE_UNKNOWN = "unknown";
+    public static final int STATE_UNKNOWN = 3;
 
-    private static final String TAG = "org.a0z.mpd.MPDStatus";
+    private static final String MPD_STATE_PAUSED = "pause";
 
-    private int bitsPerSample;
+    private static final String MPD_STATE_PLAYING = "play";
 
-    private long bitrate;
+    private static final String MPD_STATE_STOPPED = "stop";
 
-    private int channels;
+    private static final String MPD_STATE_UNKNOWN = "unknown";
 
-    private boolean consume;
+    private static final String TAG = "MPDStatus";
 
-    private int crossfade;
+    private long mBitRate;
 
-    private long elapsedTime;
+    private int mBitsPerSample;
 
-    private float elapsedTimeHighResolution;
+    private int mChannels;
 
-    private String error = null;
+    private boolean mConsume;
 
-    private float mixRampDB;
+    private int mCrossFade;
 
-    private float mixRampDelay;
+    private long mElapsedTime;
 
-    private boolean mixRampDisabled;
+    private float mElapsedTimeHighResolution;
 
-    private int nextSong;
+    private String mError = null;
 
-    private int nextSongId;
+    private float mMixRampDB;
 
-    private int playlistVersion;
+    private float mMixRampDelay;
 
-    private int playlistLength;
+    private boolean mMixRampDisabled;
 
-    private boolean random;
+    private int mNextSong;
 
-    private boolean repeat;
+    private int mNextSongId;
 
-    private int sampleRate;
+    private int mPlaylistLength;
 
-    private boolean single;
+    private int mPlaylistVersion;
 
-    private int song;
+    private boolean mRandom;
 
-    private int songId;
+    private boolean mRepeat;
 
-    private String state;
+    private int mSampleRate;
 
-    private long totalTime;
+    private boolean mSingle;
 
-    private boolean updating;
+    private int mSong;
 
-    private int volume;
+    private int mSongId;
+
+    private int mState;
+
+    private long mTotalTime;
+
+    private long mUpdateTime;
+
+    private boolean mUpdating;
+
+    private int mVolume;
 
     MPDStatus() {
         super();
         resetValues();
 
         /** These are in every status update. */
-        consume = false;
-        mixRampDB = 0.0f;
-        playlistLength = 0;
-        playlistVersion = 0;
-        random = false;
-        repeat = false;
-        single = false;
-        state = MPD_STATE_UNKNOWN;
-        volume = 0;
+        mConsume = false;
+        mMixRampDB = 0.0f;
+        mPlaylistLength = 0;
+        mPlaylistVersion = 0;
+        mRandom = false;
+        mRepeat = false;
+        mSingle = false;
+        mState = STATE_UNKNOWN;
+        mVolume = 0;
     }
 
     /**
@@ -132,7 +144,7 @@ public class MPDStatus {
      * @return current track bitrate.
      */
     public final long getBitrate() {
-        return bitrate;
+        return mBitRate;
     }
 
     /**
@@ -141,7 +153,7 @@ public class MPDStatus {
      * @return bits resolution from playing song.
      */
     public final int getBitsPerSample() {
-        return bitsPerSample;
+        return mBitsPerSample;
     }
 
     /**
@@ -150,7 +162,7 @@ public class MPDStatus {
      * @return number of channels from playing song.
      */
     public final int getChannels() {
-        return channels;
+        return mChannels;
     }
 
     /**
@@ -159,16 +171,28 @@ public class MPDStatus {
      * @return current cross-fade time in seconds.
      */
     public final int getCrossfade() {
-        return crossfade;
+        return mCrossFade;
     }
 
     /**
-     * Retrieves current track elapsed time.
+     * Retrieves current track elapsed time. If the server
+     * status is playing, this time is calculated.
      *
-     * @return current track elapsed time.
+     * @return Elapsed time for the current track.
      */
     public final long getElapsedTime() {
-        return elapsedTime;
+        final long result;
+
+        if (isState(STATE_PLAYING)) {
+            /** We can't expect to always update right before this is called. */
+            final long sinceUpdated = (new Date().getTime() - mUpdateTime) / 1000;
+
+            result = sinceUpdated + mElapsedTime;
+        } else {
+            result = mElapsedTime;
+        }
+
+        return result;
     }
 
     /**
@@ -177,7 +201,7 @@ public class MPDStatus {
      * @return Current track time (high resolution).
      */
     public final float getElapsedTimeHighResolution() {
-        return elapsedTimeHighResolution;
+        return mElapsedTimeHighResolution;
     }
 
     /**
@@ -186,23 +210,23 @@ public class MPDStatus {
      * @return error message.
      */
     public final String getError() {
-        return error;
+        return mError;
     }
 
     public final float getMixRampDelay() {
-        return mixRampDelay;
+        return mMixRampDelay;
     }
 
     public final float getMixRampValue() {
-        return mixRampDB;
+        return mMixRampDB;
     }
 
     public final int getNextSongId() {
-        return nextSongId;
+        return mNextSongId;
     }
 
     public final int getNextSongPos() {
-        return nextSong;
+        return mNextSong;
     }
 
     /**
@@ -211,7 +235,7 @@ public class MPDStatus {
      * @return the length of the playlist.
      */
     public final int getPlaylistLength() {
-        return playlistLength;
+        return mPlaylistLength;
     }
 
     /**
@@ -220,7 +244,7 @@ public class MPDStatus {
      * @return playlist version.
      */
     public final int getPlaylistVersion() {
-        return playlistVersion;
+        return mPlaylistVersion;
     }
 
     /**
@@ -229,7 +253,7 @@ public class MPDStatus {
      * @return sample rate from playing song.
      */
     public final int getSampleRate() {
-        return sampleRate;
+        return mSampleRate;
     }
 
     /**
@@ -238,7 +262,7 @@ public class MPDStatus {
      * @return current song playlist id.
      */
     public final int getSongId() {
-        return songId;
+        return mSongId;
     }
 
     /**
@@ -247,7 +271,7 @@ public class MPDStatus {
      * @return current song playlist number.
      */
     public final int getSongPos() {
-        return song;
+        return mSong;
     }
 
     /**
@@ -256,8 +280,8 @@ public class MPDStatus {
      *
      * @return player state.
      */
-    public final String getState() {
-        return state;
+    public final int getState() {
+        return mState;
     }
 
     /**
@@ -266,7 +290,7 @@ public class MPDStatus {
      * @return current track total time.
      */
     public final long getTotalTime() {
-        return totalTime;
+        return mTotalTime;
     }
 
     /**
@@ -275,11 +299,11 @@ public class MPDStatus {
      * @return volume.
      */
     public final int getVolume() {
-        return volume;
+        return mVolume;
     }
 
     public final boolean isConsume() {
-        return consume;
+        return mConsume;
     }
 
     /**
@@ -288,7 +312,7 @@ public class MPDStatus {
      * @return True if mixRampDB is enabled, false otherwise.
      */
     public final boolean isMixRampEnabled() {
-        return !mixRampDisabled;
+        return !mMixRampDisabled;
     }
 
     /**
@@ -297,7 +321,7 @@ public class MPDStatus {
      * @return true if random is enabled, false if random is disabled
      */
     public final boolean isRandom() {
-        return random;
+        return mRandom;
     }
 
     /**
@@ -306,11 +330,21 @@ public class MPDStatus {
      * @return true if repeat is enabled, false if repeat is disabled.
      */
     public final boolean isRepeat() {
-        return repeat;
+        return mRepeat;
     }
 
     public final boolean isSingle() {
-        return single;
+        return mSingle;
+    }
+
+    /**
+     * A convenience method to query the current state.
+     *
+     * @param queryState The state to query against.
+     * @return True if the same as the current state.
+     */
+    public final boolean isState(final int queryState) {
+        return mState == queryState;
     }
 
     /**
@@ -319,37 +353,41 @@ public class MPDStatus {
      * @return the process id of any database update task.
      */
     public final boolean isUpdating() {
-        return updating;
+        return mUpdating;
     }
 
     /**
-     * The time response has it's own delimiter.
+     * Lets callers know if the current status object is valid.
+     *
+     * @return True if valid, false otherwise.
      */
-    private static final Pattern COMMA_DELIMITER = Pattern.compile(":");
+    public final boolean isValid() {
+        return mState != STATE_UNKNOWN;
+    }
 
     /**
      * These values are not necessarily reset by a response
      * and must be reset prior to response parsing.
      */
     private void resetValues() {
-        bitrate = 0L;
-        bitsPerSample = 0;
-        channels = 0;
-        crossfade = 0;
-        elapsedTime = 0L;
-        elapsedTimeHighResolution = 0.0f;
+        mBitRate = 0L;
+        mBitsPerSample = 0;
+        mChannels = 0;
+        mCrossFade = 0;
+        mElapsedTime = 0L;
+        mElapsedTimeHighResolution = 0.0f;
         //noinspection AssignmentToNull
-        error = null;
-        mixRampDelay = 0.0f;
-        mixRampDisabled = false;
-        nextSong = -1;
-        nextSongId = 0;
-        sampleRate = 0;
-        song = 0;
-        songId = 0;
-        totalTime = 0L;
-        updating = false;
-        volume = 0;
+        mError = null;
+        mMixRampDelay = 0.0f;
+        mMixRampDisabled = false;
+        mNextSong = -1;
+        mNextSongId = 0;
+        mSampleRate = 0;
+        mSong = 0;
+        mSongId = 0;
+        mTotalTime = 0L;
+        mUpdating = false;
+        mVolume = 0;
     }
 
     /**
@@ -358,31 +396,31 @@ public class MPDStatus {
      * @return a string representation of the object.
      */
     public final String toString() {
-        return "bitsPerSample: " + bitsPerSample +
-                ", bitrate: " + bitrate +
-                ", channels: " + channels +
-                ", consume: " + consume +
-                ", crossfade: " + crossfade +
-                ", elapsedTime: " + elapsedTime +
-                ", elapsedTimeHighResolution: " + elapsedTimeHighResolution +
-                ", error: " + error +
-                ", nextSong: " + nextSong +
-                ", nextSongId: " + nextSongId +
-                ", mixRampDB: " + mixRampDB +
-                ", mixRampDelay: " + mixRampDelay +
-                ", mixRampDisabled: " + mixRampDisabled +
-                ", playlist: " + playlistVersion +
-                ", playlistLength: " + playlistLength +
-                ", random: " + random +
-                ", repeat: " + repeat +
-                ", sampleRate: " + sampleRate +
-                ", single: " + single +
-                ", song: " + song +
-                ", songid: " + songId +
-                ", state: " + state +
-                ", totalTime: " + totalTime +
-                ", updating: " + updating +
-                ", volume: " + volume;
+        return "bitsPerSample: " + mBitsPerSample +
+                ", bitrate: " + mBitRate +
+                ", channels: " + mChannels +
+                ", consume: " + mConsume +
+                ", crossfade: " + mCrossFade +
+                ", elapsedTime: " + mElapsedTime +
+                ", elapsedTimeHighResolution: " + mElapsedTimeHighResolution +
+                ", error: " + mError +
+                ", nextSong: " + mNextSong +
+                ", nextSongId: " + mNextSongId +
+                ", mixRampDB: " + mMixRampDB +
+                ", mixRampDelay: " + mMixRampDelay +
+                ", mixRampDisabled: " + mMixRampDisabled +
+                ", playlist: " + mPlaylistVersion +
+                ", playlistLength: " + mPlaylistLength +
+                ", random: " + mRandom +
+                ", repeat: " + mRepeat +
+                ", sampleRate: " + mSampleRate +
+                ", single: " + mSingle +
+                ", song: " + mSong +
+                ", songid: " + mSongId +
+                ", state: " + mState +
+                ", totalTime: " + mTotalTime +
+                ", updating: " + mUpdating +
+                ", volume: " + mVolume;
     }
 
     /**
@@ -390,120 +428,124 @@ public class MPDStatus {
      *
      * @param response The response from the server.
      */
-    public final void updateStatus(final Iterable<String> response) {
+    public final void updateStatus(final Collection<String> response) {
         resetValues();
 
-        for (final String line : response) {
-            final String[] lines = StringsUtils.MPD_DELIMITER.split(line, 2);
+        for (final String[] pair : Tools.splitResponse(response)) {
 
-            switch (lines[0]) {
+            switch (pair[KEY]) {
                 case "audio":
-                    final String[] audio = COMMA_DELIMITER.split(lines[1]);
+                    final int delimiterIndex = pair[VALUE].indexOf(':');
+                    final String tmp = pair[VALUE].substring(delimiterIndex + 1);
+                    final int secondIndex = tmp.indexOf(':');
 
                     try {
-                        sampleRate = Integer.parseInt(audio[0]);
-                        bitsPerSample = Integer.parseInt(audio[1]);
-                        channels = Integer.parseInt(audio[2]);
+                        mSampleRate = Integer.parseInt(pair[VALUE].substring(0, delimiterIndex));
+                        mBitsPerSample = Integer.parseInt(tmp.substring(0, secondIndex));
+                        mChannels = Integer.parseInt(tmp.substring(secondIndex + 1));
                     } catch (final NumberFormatException ignored) {
                         // Sometimes mpd sends "?" as a sampleRate or
                         // bitsPerSample, etc ... hotfix for a bugreport I had.
                     }
                     break;
                 case "bitrate":
-                    bitrate = Long.parseLong(lines[1]);
+                    mBitRate = Long.parseLong(pair[VALUE]);
                     break;
                 case "consume":
-                    consume = "1".equals(lines[1]);
+                    mConsume = "1".equals(pair[VALUE]);
                     break;
                 case "elapsed":
-                    elapsedTimeHighResolution = Float.parseFloat(lines[1]);
+                    mElapsedTimeHighResolution = Float.parseFloat(pair[VALUE]);
                     break;
                 case "error":
-                    error = lines[1];
+                    mError = pair[VALUE];
                     break;
                 case "mixrampdb":
                     try {
-                        mixRampDB = Float.parseFloat(lines[1]);
+                        mMixRampDB = Float.parseFloat(pair[VALUE]);
                     } catch (final NumberFormatException e) {
-                        if ("nan".equals(lines[1])) {
-                            mixRampDisabled = true;
+                        if ("nan".equals(pair[VALUE])) {
+                            mMixRampDisabled = true;
                         } else {
-                            Log.e(TAG, "Unexpected value from mixrampdb.", e);
+                            Log.error(TAG, "Unexpected value from mixrampdb.", e);
                         }
                     }
                     break;
                 case "mixrampdelay":
                     try {
-                        mixRampDelay = Float.parseFloat(lines[1]);
+                        mMixRampDelay = Float.parseFloat(pair[VALUE]);
                     } catch (final NumberFormatException e) {
-                        if ("nan".equals(lines[1])) {
-                            mixRampDisabled = true;
+                        if ("nan".equals(pair[VALUE])) {
+                            mMixRampDisabled = true;
                         } else {
-                            Log.e(TAG, "Unexpected value from mixrampdelay", e);
+                            Log.error(TAG, "Unexpected value from mixrampdelay", e);
                         }
                     }
                     break;
                 case "nextsong":
-                    nextSong = Integer.parseInt(lines[1]);
+                    mNextSong = Integer.parseInt(pair[VALUE]);
                     break;
                 case "nextsongid":
-                    nextSongId = Integer.parseInt(lines[1]);
+                    mNextSongId = Integer.parseInt(pair[VALUE]);
                     break;
                 case "playlist":
-                    playlistVersion = Integer.parseInt(lines[1]);
+                    mPlaylistVersion = Integer.parseInt(pair[VALUE]);
                     break;
                 case "playlistlength":
-                    playlistLength = Integer.parseInt(lines[1]);
+                    mPlaylistLength = Integer.parseInt(pair[VALUE]);
                     break;
                 case "random":
-                    random = "1".equals(lines[1]);
+                    mRandom = "1".equals(pair[VALUE]);
                     break;
                 case "repeat":
-                    repeat = "1".equals(lines[1]);
+                    mRepeat = "1".equals(pair[VALUE]);
                     break;
                 case "single":
-                    single = "1".equals(lines[1]);
+                    mSingle = "1".equals(pair[VALUE]);
                     break;
                 case "song":
-                    song = Integer.parseInt(lines[1]);
+                    mSong = Integer.parseInt(pair[VALUE]);
                     break;
                 case "songid":
-                    songId = Integer.parseInt(lines[1]);
+                    mSongId = Integer.parseInt(pair[VALUE]);
                     break;
                 case "state":
-                    switch (lines[1]) {
-                        case MPD_STATE_PAUSED:
-                            state = MPD_STATE_PAUSED;
-                            break;
+                    switch (pair[VALUE]) {
                         case MPD_STATE_PLAYING:
-                            state = MPD_STATE_PLAYING;
+                            mState = STATE_PLAYING;
+                            break;
+                        case MPD_STATE_PAUSED:
+                            mState = STATE_PAUSED;
                             break;
                         case MPD_STATE_STOPPED:
-                            state = MPD_STATE_STOPPED;
+                            mState = STATE_STOPPED;
                             break;
+                        case MPD_STATE_UNKNOWN:
                         default:
-                            state = MPD_STATE_UNKNOWN;
+                            mState = STATE_UNKNOWN;
                             break;
                     }
                     break;
                 case "time":
-                    final String[] time = COMMA_DELIMITER.split(lines[1]);
+                    final int timeIndex = pair[VALUE].indexOf(':');
 
-                    elapsedTime = Long.parseLong(time[0]);
-                    totalTime = Long.parseLong(time[1]);
+                    mElapsedTime = Long.parseLong(pair[VALUE].substring(0, timeIndex));
+                    mTotalTime = Long.parseLong(pair[VALUE].substring(timeIndex + 1));
+                    mUpdateTime = new Date().getTime();
                     break;
                 case "volume":
-                    volume = Integer.parseInt(lines[1]);
+                    mVolume = Integer.parseInt(pair[VALUE]);
                     break;
                 case "xfade":
-                    crossfade = Integer.parseInt(lines[1]);
+                    mCrossFade = Integer.parseInt(pair[VALUE]);
                     break;
                 case "updating_db":
-                    updating = true;
+                    mUpdating = true;
                     break;
                 default:
-                    Log.d(TAG, "Status was sent an unknown response line:" + lines[1] +
-                            " from: " + lines[0]);
+                    Log.debug(TAG,
+                            "Status was sent an unknown response: key: " + pair[KEY] + " value: "
+                                    + pair[VALUE]);
             }
         }
     }

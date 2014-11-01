@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
 
@@ -39,76 +40,72 @@ import java.util.List;
 
 public class EditActivity extends Activity implements AdapterView.OnItemClickListener {
 
-    public static final String BUNDLE_ACTION_STRING = "ACTION_STRING";
-
     public static final String BUNDLE_ACTION_EXTRA = "ACTION_EXTRA";
 
     @SuppressWarnings("unused")
     public static final String BUNDLE_ACTION_LABEL = "ACTION_LABEL";
 
-    private List<ActionItem> items;
+    public static final String BUNDLE_ACTION_STRING = "ACTION_STRING";
 
-    /**
-     * Class for listview population
-     */
-    private class ActionItem {
+    private List<ActionItem> mItems;
 
-        public String actionString;
-
-        public String label;
-
-        public ActionItem(String _actionString, String _label) {
-            actionString = _actionString;
-            label = _label;
+    private void finishWithAction(final ActionItem action, final String extra,
+            final String overrideLabel) {
+        final Intent intent = new Intent();
+        final Bundle bundle = new Bundle();
+        bundle.putString(BUNDLE_ACTION_STRING, action.mActionString);
+        if (extra != null) {
+            bundle.putString(BUNDLE_ACTION_EXTRA, extra);
         }
-
-        @Override
-        public String toString() {
-            return label;
-        }
+        intent.putExtra(LocaleConstants.EXTRA_BUNDLE, bundle);
+        intent.putExtra(LocaleConstants.EXTRA_STRING_BLURB,
+                overrideLabel == null ? action.mLabel : overrideLabel);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locale_edit);
         setResult(RESULT_CANCELED);
 
         final ListView list = (ListView) findViewById(R.id.listView);
-        items = new ArrayList<>();
-        items.add(new ActionItem(MPDControl.ACTION_TOGGLE_PLAYBACK,
+        mItems = new ArrayList<>();
+        mItems.add(new ActionItem(MPDControl.ACTION_TOGGLE_PLAYBACK,
                 getString(R.string.togglePlayback)));
-        items.add(new ActionItem(MPDControl.ACTION_PLAY, getString(R.string.play)));
-        items.add(new ActionItem(MPDControl.ACTION_PAUSE, getString(R.string.pause)));
-        items.add(new ActionItem(MPDControl.ACTION_STOP, getString(R.string.stop)));
-        items.add(new ActionItem(MPDControl.ACTION_SEEK, getString(R.string.rewind)));
-        items.add(
+        mItems.add(new ActionItem(MPDControl.ACTION_PLAY, getString(R.string.play)));
+        mItems.add(new ActionItem(MPDControl.ACTION_PAUSE, getString(R.string.pause)));
+        mItems.add(new ActionItem(MPDControl.ACTION_STOP, getString(R.string.stop)));
+        mItems.add(new ActionItem(MPDControl.ACTION_SEEK, getString(R.string.rewind)));
+        mItems.add(
                 new ActionItem(MPDControl.ACTION_PREVIOUS, getString(R.string.previous)));
-        items.add(new ActionItem(MPDControl.ACTION_NEXT, getString(R.string.next)));
-        items.add(new ActionItem(MPDControl.ACTION_MUTE,
+        mItems.add(new ActionItem(MPDControl.ACTION_NEXT, getString(R.string.next)));
+        mItems.add(new ActionItem(MPDControl.ACTION_MUTE,
                 getString(R.string.mute)));
-        items.add(new ActionItem(MPDControl.ACTION_VOLUME_SET,
+        mItems.add(new ActionItem(MPDControl.ACTION_VOLUME_SET,
                 getString(R.string.setVolume)));
-        items.add(new ActionItem(StreamHandler.ACTION_START,
+        mItems.add(new ActionItem(StreamHandler.ACTION_START,
                 getString(R.string.startStreaming)));
-        items.add(new ActionItem(StreamHandler.ACTION_STOP,
+        mItems.add(new ActionItem(StreamHandler.ACTION_STOP,
                 getString(R.string.stopStreaming)));
-        items.add(new ActionItem(NotificationHandler.ACTION_START,
+        mItems.add(new ActionItem(NotificationHandler.ACTION_START,
                 getString(R.string.showNotification)));
-        items.add(new ActionItem(NotificationHandler.ACTION_STOP,
+        mItems.add(new ActionItem(NotificationHandler.ACTION_STOP,
                 getString(R.string.closeNotification)));
 
-        final ArrayAdapter<ActionItem> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, items);
+        final ListAdapter adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, mItems);
 
         list.setAdapter(adapter);
         list.setOnItemClickListener(this);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        final ActionItem item = items.get(position);
-        if (item.actionString.equals(MPDControl.ACTION_VOLUME_SET)) {
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
+            final long id) {
+        final ActionItem item = mItems.get(position);
+        if (item.mActionString.equals(MPDControl.ACTION_VOLUME_SET)) {
             final SeekBar seekBar = new SeekBar(this);
             final int padding = getResources()
                     .getDimensionPixelSize(R.dimen.locale_edit_seekbar_padding);
@@ -116,13 +113,13 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
             seekBar.setMax(MPDCommand.MAX_VOLUME);
             final AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setView(seekBar);
-            alert.setTitle(item.label);
+            alert.setTitle(item.mLabel);
             alert.setNegativeButton(R.string.cancel, null);
             alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+                public void onClick(final DialogInterface dialog, final int which) {
                     final String progress = Integer.toString(seekBar.getProgress());
-                    finishWithAction(item, progress, item.label + " : " + progress);
+                    finishWithAction(item, progress, item.mLabel + " : " + progress);
                 }
             });
             alert.show();
@@ -131,17 +128,24 @@ public class EditActivity extends Activity implements AdapterView.OnItemClickLis
         }
     }
 
-    private void finishWithAction(ActionItem action, String extra, String overrideLabel) {
-        final Intent i = new Intent();
-        final Bundle b = new Bundle();
-        b.putString(BUNDLE_ACTION_STRING, action.actionString);
-        if (extra != null) {
-            b.putString(BUNDLE_ACTION_EXTRA, extra);
+    /**
+     * Class for listview population
+     */
+    private static class ActionItem {
+
+        private final String mActionString;
+
+        private final String mLabel;
+
+        private ActionItem(final String actionString, final String label) {
+            super();
+            mActionString = actionString;
+            mLabel = label;
         }
-        i.putExtra(LocaleConstants.EXTRA_BUNDLE, b);
-        i.putExtra(LocaleConstants.EXTRA_STRING_BLURB,
-                overrideLabel == null ? action.label : overrideLabel);
-        setResult(RESULT_OK, i);
-        finish();
+
+        @Override
+        public String toString() {
+            return mLabel;
+        }
     }
 }

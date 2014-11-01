@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
@@ -35,43 +36,35 @@ import java.util.List;
 
 public class AboutActivity extends Activity {
 
-    private static final MPDApplication app = MPDApplication.getInstance();
+    private static final MPDApplication APP = MPDApplication.getInstance();
 
-    public static String getVersionName(Class<Activity> cls) {
+    private static final String TAG = "AboutActivity";
+
+    public static String getVersionName(final Class<Activity> cls) {
+        String versionName = null;
+
         try {
-            ComponentName comp = new ComponentName(app, cls);
-            PackageInfo pinfo = app.getPackageManager()
+            final ComponentName comp = new ComponentName(APP, cls);
+            final PackageInfo packageInfo = APP.getPackageManager()
                     .getPackageInfo(comp.getPackageName(), 0);
-            return pinfo.versionName + " (" + pinfo.versionCode + ")";
-        } catch (final PackageManager.NameNotFoundException ignored) {
-            return null;
-        }
-    }
-
-    private class AboutListItem {
-
-        private String text;
-
-        public AboutListItem(String _text) {
-            text = _text;
+            versionName = packageInfo.versionName + " (" + packageInfo.versionCode + ')';
+        } catch (final PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Failed to get the version name.", e);
         }
 
-        @Override
-        public String toString() {
-            return text;
-        }
+        return versionName;
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
 
         final ListView listView = (ListView) findViewById(android.R.id.list);
 
         final LayoutInflater inflater = LayoutInflater.from(this);
         final View headerView = inflater.inflate(R.layout.about_header, null, false);
-        TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
+        final TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
         versionInfo.setText(R.string.version);
         versionInfo.append(": " + getVersionName(Activity.class));
 
@@ -82,28 +75,44 @@ public class AboutActivity extends Activity {
         final List<Object> listItems = new ArrayList<>();
         listItems.add(getString(R.string.about_libraries));
         tmpStringArray = getResources().getStringArray(R.array.libraries_array);
-        for (String tmpString : tmpStringArray) {
+        for (final String tmpString : tmpStringArray) {
             listItems.add(new AboutListItem(tmpString));
         }
         listItems.add(getString(R.string.about_authors));
         tmpStringArray = getResources().getStringArray(R.array.authors_array);
-        for (String tmpString : tmpStringArray) {
+        for (final String tmpString : tmpStringArray) {
             listItems.add(new AboutListItem(tmpString));
         }
 
         listView.setAdapter(new SeparatedListAdapter(this, android.R.layout.simple_list_item_1,
                 R.layout.list_separator, new SeparatedListDataBinder() {
             @Override
-            public boolean isEnabled(int position, List<?> items, Object item) {
+            public boolean isEnabled(final int position, final List<?> items, final Object item) {
                 return false;
             }
 
             @Override
-            public void onDataBind(Context context, View targetView, List<?> items,
-                    Object item, int position) {
+            public void onDataBind(final Context context, final View targetView,
+                    final List<?> items,
+                    final Object item, final int position) {
                 ((TextView) targetView.findViewById(android.R.id.text1)).setText(item.toString());
             }
         }, listItems));
+    }
+
+    private static class AboutListItem {
+
+        private final String mText;
+
+        public AboutListItem(final String text) {
+            super();
+            mText = text;
+        }
+
+        @Override
+        public String toString() {
+            return mText;
+        }
     }
 
 }

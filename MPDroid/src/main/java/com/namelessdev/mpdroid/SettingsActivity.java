@@ -23,74 +23,79 @@ import android.os.Bundle;
 
 public class SettingsActivity extends Activity implements StatusChangeListener {
 
-    private final MPDApplication app = MPDApplication.getInstance();
+    private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private SettingsFragment settingsFragment;
+    private SettingsFragment mSettingsFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
+        mSettingsFragment.onConnectionStateChanged();
+    }
+
+    @Override
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
+
+    }
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsFragment = new SettingsFragment();
-        app.oMPDAsyncHelper.addStatusChangeListener(this);
+        mSettingsFragment = new SettingsFragment();
+        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
         getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, settingsFragment).commit();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        app.setActivity(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        app.setActivity(this);
+                .replace(android.R.id.content, mSettingsFragment).commit();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        app.oMPDAsyncHelper.removeStatusChangeListener(this);
+        mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
     }
 
     @Override
-    public void connectionStateChanged(boolean connected, boolean connectionLost) {
-        settingsFragment.onConnectionStateChanged();
+    protected void onStart() {
+        super.onStart();
+        mApp.setActivity(this);
     }
 
     @Override
-    public void libraryStateChanged(boolean updating, boolean dbChanged) {
-
+    protected void onStop() {
+        super.onStop();
+        mApp.setActivity(this);
     }
 
     @Override
-    public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
-
-    }
-
-    @Override
-    public void randomChanged(boolean random) {
-
-    }
-
-    @Override
-    public void repeatChanged(boolean repeating) {
+    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
 
     }
 
     @Override
-    public void stateChanged(MPDStatus mpdStatus, String oldState) {
+    public void randomChanged(final boolean random) {
 
     }
 
     @Override
-    public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+    public void repeatChanged(final boolean repeating) {
 
     }
 
     @Override
-    public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
+
+    }
+
+    @Override
+    public void stickerChanged(final MPDStatus mpdStatus) {
+
+    }
+
+    @Override
+    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
+
+    }
+
+    @Override
+    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
 
     }
 }

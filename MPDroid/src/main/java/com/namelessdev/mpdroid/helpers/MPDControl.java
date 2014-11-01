@@ -21,9 +21,13 @@ import com.namelessdev.mpdroid.R;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Music;
 
+import android.support.annotation.IdRes;
 import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * This class contains simple server control methods.
@@ -34,6 +38,8 @@ public final class MPDControl {
     public static final int INVALID_INT = -5;
 
     public static final long INVALID_LONG = -5L;
+
+    private static final MPDApplication APP = MPDApplication.getInstance();
 
     private static final String TAG = "MPDControl";
 
@@ -73,9 +79,9 @@ public final class MPDControl {
 
     public static final String ACTION_VOLUME_STEP_UP = FULLY_QUALIFIED_NAME + "VOLUME_STEP_UP";
 
-    private static final int VOLUME_STEP = 5;
+    public static final String ACTION_RATING_SET = FULLY_QUALIFIED_NAME + "SET_RATING";
 
-    private static final MPDApplication app = MPDApplication.getInstance();
+    private static final int VOLUME_STEP = 5;
 
     private MPDControl() {
         super();
@@ -88,7 +94,7 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      */
     public static void run(final String userCommand) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG, true);
+        run(APP.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG, true);
     }
 
     /**
@@ -99,11 +105,11 @@ public final class MPDControl {
      * @param i           An integer which will be cast to long for run for userCommand argument.
      */
     public static void run(final String userCommand, final int i) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, (long) i, true);
+        run(APP.oMPDAsyncHelper.oMPD, userCommand, (long) i, true);
     }
 
     public static void run(final String userCommand, final long l) {
-        run(app.oMPDAsyncHelper.oMPD, userCommand, l, true);
+        run(APP.oMPDAsyncHelper.oMPD, userCommand, l, true);
     }
 
     /**
@@ -112,7 +118,7 @@ public final class MPDControl {
      *
      * @param resId A resource id.
      */
-    public static void run(final int resId) {
+    public static void run(@IdRes final int resId) {
         switch (resId) {
             case R.id.next:
                 run(ACTION_NEXT);
@@ -173,35 +179,11 @@ public final class MPDControl {
             final boolean internalMPD) {
         new Thread(new Runnable() {
 
-            /**
-             * A simple status retrieval method.
-             *
-             * @return An {@code MPDStatus} state string.
-             */
-            private String getState(final boolean forceUpdate) {
-                String state = null;
-                try {
-                    state = mpd.getStatus(forceUpdate).getState();
-                } catch (final MPDServerException e) {
-                    Log.e(TAG, "Failed to receive a current status", e);
-                }
-
-                return state;
-            }
-
-            private boolean isPaused() {
-                return MPDStatus.MPD_STATE_PAUSED.equals(getState(false));
-            }
-
-            private boolean isPlaying() {
-                return MPDStatus.MPD_STATE_PLAYING.equals(getState(false));
-            }
-
             private void blockForConnection() {
                 int loopIterator = 50; /** Give the connection 5 seconds, tops. */
                 final long blockTimeout = 100L;
 
-                while (!mpd.isConnected() || MPDStatus.MPD_STATE_UNKNOWN.equals(getState(true))) {
+                while (!mpd.isConnected() || !mpd.getStatus().isValid()) {
                     synchronized (this) {
                         /** Send a notice once a second or so. */
                         if (loopIterator % 10 == 0) {
@@ -221,30 +203,10 @@ public final class MPDControl {
                 }
             }
 
-            private String translateCommand() {
-                final String command;
-
-                /** This switch translates for the next switch. */
-                switch (userCommand) {
-                    case ACTION_TOGGLE_PLAYBACK:
-                        if (isPlaying()) {
-                            command = ACTION_PAUSE;
-                        } else {
-                            command = ACTION_PLAY;
-                        }
-                        break;
-                    default:
-                        command = userCommand;
-                        break;
-                }
-
-                return command;
-            }
-
             @Override
-            public final void run() {
+            public void run() {
                 if (internalMPD) {
-                    app.addConnectionLock(this);
+                    APP.addConnectionLock(this);
                 }
                 blockForConnection();
 
@@ -252,7 +214,7 @@ public final class MPDControl {
                  * The main switch for running the command.
                  */
                 try {
-                    switch (translateCommand()) {
+                    switch (userCommand) {
                         case ACTION_CONSUME:
                             mpd.setConsume(!mpd.getStatus().isConsume());
                             break;
@@ -263,8 +225,15 @@ public final class MPDControl {
                             mpd.next();
                             break;
                         case ACTION_PAUSE:
-                            if (!isPaused()) {
+                            if (!mpd.getStatus().isState(MPDStatus.STATE_PAUSED)) {
                                 mpd.pause();
+                            }
+                            break;
+                        case ACTION_TOGGLE_PLAYBACK:
+                            if (mpd.getStatus().isState(MPDStatus.STATE_PLAYING)) {
+                                mpd.pause();
+                            } else {
+                                mpd.play();
                             }
                             break;
                         case ACTION_PLAY:
@@ -272,6 +241,13 @@ public final class MPDControl {
                             break;
                         case ACTION_PREVIOUS:
                             mpd.previous();
+                            break;
+                        case ACTION_RATING_SET:
+                            if (l != INVALID_LONG) {
+                                final int songPos = mpd.getStatus().getSongPos();
+                                final Music music = mpd.getPlaylist().getByIndex(songPos);
+                                mpd.getStickerManager().setRating(music, (int) l);
+                            }
                             break;
                         case ACTION_SEEK:
                             long li = l;
@@ -306,11 +282,11 @@ public final class MPDControl {
                         default:
                             break;
                     }
-                } catch (final MPDServerException e) {
+                } catch (final IOException | MPDException e) {
                     Log.w(TAG, "Failed to send a simple MPD command.", e);
                 } finally {
                     if (internalMPD) {
-                        app.removeConnectionLock(this);
+                        APP.removeConnectionLock(this);
                     }
                 }
             }

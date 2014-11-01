@@ -21,18 +21,19 @@ def gitShortHash() {
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.0.2"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 19
+        targetSdkVersion 21
         versionCode 48
-        versionName "1.07 Beta 8 " + gitShortHash()
+        versionName "1.07 " + gitShortHash()
     }
 
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
     }
 
     compileOptions {
@@ -50,15 +51,39 @@ android {
             ext.enableCrashlytics = false
         }
     }
+
+    applicationVariants.all { variant ->
+
+        task("${variant.name}Javadoc", type: Javadoc) {
+            title = "$name $version API"
+            description "Generates Javadoc for $variant.name."
+            source = variant.javaCompile.source
+            ext.androidJar =
+                    "${android.plugin.sdkHandler.sdkFolder}" +
+                            "/platforms/${android.compileSdkVersion}/android.jar"
+            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+
+            options {
+                links("http://docs.oracle.com/javase/7/docs/api/");
+                linksOffline("http://developer.android.com/reference",
+                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+            }
+
+            exclude {
+                ['**/BuildConfig.java', '**/R.java']
+            }
+        }
+    }
 }
 
 dependencies {
 
     // Support Libraries
-    compile 'com.android.support:support-v4:20.+'
+    compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.android.support:appcompat-v7:21.0.0'
 
     // Projects
-    compile project(':JMPDComm')
+    compile project(':JMPDCommAndroid')
 
     // Libraries from maven
     compile 'com.sothree.slidinguppanel:library:2.0.1'

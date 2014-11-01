@@ -20,13 +20,13 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.Directory;
-import org.a0z.mpd.FilesystemTreeEntry;
-import org.a0z.mpd.Item;
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.Music;
-import org.a0z.mpd.PlaylistFile;
-import org.a0z.mpd.exception.MPDServerException;
+import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Directory;
+import org.a0z.mpd.item.FilesystemTreeEntry;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -41,17 +41,22 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class FSFragment extends BrowseFragment {
+
     private static final String EXTRA_DIRECTORY = "directory";
 
-    private Directory currentDirectory = null;
-    private String directory = null;
-    private int numSubdirs = 0; // number of subdirectories including ".."
-
     private static final String TAG = "FSFragment";
+
+    private Directory mCurrentDirectory = null;
+
+    private String mDirectory = null;
+
+    private int mNumSubDirs = 0; // number of subdirectories including ".."
 
     public FSFragment() {
         super(R.string.addDirectory, R.string.addedDirectoryToPlaylist,
@@ -59,98 +64,91 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(Item item, boolean replace, boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
-            final Directory ToAdd = currentDirectory.getDirectory(item.getName());
-            if (ToAdd != null) {
-                // Valid directory
-                app.oMPDAsyncHelper.oMPD.add(ToAdd, replace, play);
-                Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
-            } else {
-                app.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
+            final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
+            if (toAdd == null) {
+                mApp.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
                 Tools.notifyUser(R.string.songAdded, item);
+            } else {
+                // Valid directory
+                mApp.oMPDAsyncHelper.oMPD.add(toAdd, replace, play);
+                Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
 
     @Override
-    protected void add(Item item, String playlist) {
+    protected void add(final Item item, final String playlist) {
         try {
-            Directory ToAdd = currentDirectory.getDirectory(item.getName());
-            if (ToAdd != null) {
-                // Valid directory
-                app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, ToAdd);
-                Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
-            } else {
+            final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
+            if (toAdd == null) {
                 if (item instanceof Music) {
-                    ArrayList<Music> songs = new ArrayList<Music>();
+                    final Collection<Music> songs = new ArrayList<>(1);
                     songs.add((Music) item);
-                    app.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
+                    mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
                     Tools.notifyUser(R.string.songAdded, item);
+                } else if (item instanceof PlaylistFile) {
+                    mApp.oMPDAsyncHelper.oMPD.getPlaylist()
+                            .load(((FilesystemTreeEntry) item).getFullPath());
                 }
-                if (item instanceof PlaylistFile) {
-                    app.oMPDAsyncHelper.oMPD.getPlaylist()
-                            .load(((PlaylistFile) item).getFullpath());
-                }
+            } else {
+                // Valid directory
+                mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, toAdd);
+                Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             }
-        } catch (final MPDServerException e) {
+        } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
         }
     }
 
     @Override
     protected void asyncUpdate() {
-        if (!TextUtils.isEmpty(directory)) {
-            currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory().makeDirectory(directory);
-        } else {
-            currentDirectory = app.oMPDAsyncHelper.oMPD.getRootDirectory();
-        }
+        refreshDirectory();
+        final Collection<Directory> directories = mCurrentDirectory.getDirectories();
+        final Collection<Music> files = mCurrentDirectory.getFiles();
+        final Collection<PlaylistFile> playlistFiles = mCurrentDirectory.getPlaylistFiles();
+        final int size = directories.size() + files.size() + playlistFiles.size() + 10;
+        final ArrayList<Item> newItems = new ArrayList<>(size);
+        final String fullPath = mCurrentDirectory.getFullPath();
 
-        try {
-            currentDirectory.refreshData();
-        } catch (final MPDServerException e) {
-            Log.e(TAG, "Failed to refresh current directory", e);
-        }
-
-        ArrayList<Item> newItems = new ArrayList<Item>();
         // add parent directory:
-        if (!"".equals(currentDirectory.getFullpath())) {
-            Directory parent = new Directory(currentDirectory.getParent());
-            if (parent != null) {
-                parent.setName("..");
-                newItems.add(parent);
-            }
+        if (fullPath != null && !fullPath.isEmpty()) {
+            final Directory parent = mCurrentDirectory.makeParentDirectory("‥");
+            newItems.add(parent);
         }
-        newItems.addAll(currentDirectory.getDirectories());
-        numSubdirs = newItems.size(); // store number if subdirs
-        newItems.addAll(currentDirectory.getFiles());
-        // Do not show playlists for root directory
-        if (!TextUtils.isEmpty(directory)) {
-            newItems.addAll(currentDirectory.getPlaylistFiles());
+        newItems.addAll(directories);
+        mNumSubDirs = newItems.size(); // store number if subdirectory
+        newItems.addAll(files);
+        // Do not show play lists for root directory
+        if (!TextUtils.isEmpty(mDirectory)) {
+            newItems.addAll(playlistFiles);
         }
-        items = newItems;
+        mItems = newItems;
     }
 
     // Disable the indexer for FSFragment
+    @Override
     @SuppressWarnings("unchecked")
     protected ListAdapter getCustomListAdapter() {
         return new ArrayAdapter<Item>(getActivity(), R.layout.fs_list_item,
-                R.id.text1, (List<Item>) items) {
+                R.id.text1, (List<Item>) mItems) {
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
+            public View getView(final int position, final View convertView,
+                    final ViewGroup parent) {
                 final View v = super.getView(position, convertView, parent);
                 final TextView subtext = (TextView) v.findViewById(R.id.text2);
-                final Item item = items.get(position);
-                String filename;
+                final Item item = mItems.get(position);
+                final String filename;
                 if (item instanceof Music) {
                     filename = ((Music) item).getFilename();
-                    if (!TextUtils.isEmpty(filename) && !item.toString().equals(filename)) {
+                    if (TextUtils.isEmpty(filename) || item.toString().equals(filename)) {
+                        subtext.setVisibility(View.GONE);
+                    } else {
                         subtext.setVisibility(View.VISIBLE);
                         subtext.setText(filename);
-                    } else {
-                        subtext.setVisibility(View.GONE);
                     }
                 } else {
                     subtext.setVisibility(View.GONE);
@@ -163,61 +161,72 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        if (TextUtils.isEmpty(directory)) {
+        String title;
+
+        if (TextUtils.isEmpty(mDirectory)) {
             try {
-                return getString(R.string.files);
+                title = getString(R.string.files);
             } catch (final IllegalStateException ignored) {
                 // Can't get the translated string if we are not attached ...
                 // Stupid workaround
-                return "/";
+                title = "/";
             }
         } else {
-            return directory;
+            title = mDirectory;
         }
+
+        return title;
     }
 
-    public FSFragment init(String path) {
-        directory = path;
+    public FSFragment init(final String path) {
+        mDirectory = path;
         return this;
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
-        if (icicle != null)
-            init(icicle.getString(EXTRA_DIRECTORY));
+        if (savedInstanceState != null) {
+            init(savedInstanceState.getString(EXTRA_DIRECTORY));
+        }
     }
 
     @Override
-    public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        // click on a file, not dir
-        if (position > numSubdirs - 1 || numSubdirs == 0) {
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
 
-            final FilesystemTreeEntry item = (FilesystemTreeEntry) items.get(position);
-            app.oMPDAsyncHelper.execAsync(new Runnable() {
+        inflater.inflate(R.menu.mpd_fsmenu, menu);
+    }
+
+    @Override
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
+            final long id) {
+        // click on a file, not dir
+        if (position > mNumSubDirs - 1 || mNumSubDirs == 0) {
+
+            final FilesystemTreeEntry item = (FilesystemTreeEntry) mItems.get(position);
+            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        int songId = -1;
                         if (item instanceof Music) {
-                            app.oMPDAsyncHelper.oMPD.add(item, app.isInSimpleMode(), app.isInSimpleMode());
-                            if (!app.isInSimpleMode()) {
+                            mApp.oMPDAsyncHelper.oMPD
+                                    .add(item, mApp.isInSimpleMode(), mApp.isInSimpleMode());
+                            if (!mApp.isInSimpleMode()) {
                                 Tools.notifyUser(R.string.songAdded, item);
                             }
                         } else if (item instanceof PlaylistFile) {
-                            app.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullpath());
+                            mApp.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullPath());
                         }
-                        if (songId > -1) {
-                            app.oMPDAsyncHelper.oMPD.skipToId(songId);
-                        }
-                    } catch (final MPDServerException e) {
+                    } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to add.", e);
                     }
                 }
             });
         } else {
-            final String dir = ((Directory) items.toArray()[position]).getFullpath();
+            final String dir = ((FilesystemTreeEntry) mItems.toArray()[position]).getFullPath();
             ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
                     new FSFragment().init(dir), "filesystem");
         }
@@ -225,39 +234,48 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putString(EXTRA_DIRECTORY, directory);
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final boolean result;
+
+        // Menu actions...
+        if (item.getItemId() == R.id.menu_update) {
+            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mApp.oMPDAsyncHelper.oMPD.refreshDatabase(mDirectory);
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, "Failed to refresh database.", e);
+                    }
+                }
+            });
+            result = true;
+        } else {
+            result = super.onOptionsItemSelected(item);
+        }
+
+        return result;
+    }
+
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        outState.putString(EXTRA_DIRECTORY, mDirectory);
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.mpd_fsmenu, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Menu actions...
-        switch (item.getItemId()) {
-            case R.id.menu_update:
-                app.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (TextUtils.isEmpty(directory)) {
-                                app.oMPDAsyncHelper.oMPD.refreshDatabase();
-                            } else {
-                                app.oMPDAsyncHelper.oMPD.refreshDatabase(directory);
-                            }
-                        } catch (final MPDServerException e) {
-                            Log.e(TAG, "Failed to refresh database.", e);
-                        }
-                    }
-                });
-                break;
+    private void refreshDirectory() {
+        if (TextUtils.isEmpty(mDirectory)) {
+            mCurrentDirectory = Directory.getRoot();
+        } else {
+            mCurrentDirectory = Directory.getRoot().makeChildDirectory(mDirectory);
         }
-        return false;
+
+        try {
+            mApp.oMPDAsyncHelper.oMPD.refreshDirectory(mCurrentDirectory);
+        } catch (final IOException | MPDException e) {
+            Log.e(TAG, "Failed to refresh current directory", e);
+        }
+
     }
 
 }

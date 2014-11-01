@@ -16,81 +16,89 @@
 
 package com.namelessdev.mpdroid.views;
 
-import android.content.Context;
-import android.view.View;
-import android.widget.TextView;
-
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.SongViewHolder;
 
-import org.a0z.mpd.Item;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
+
+import android.content.Context;
+import android.support.annotation.LayoutRes;
+import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
 public class SongDataBinder implements ArrayDataBinder {
 
-    boolean showArtist;
+    private final boolean mShowArtist;
 
     public SongDataBinder() {
-        showArtist = false;
+        this(true);
     }
 
-    public SongDataBinder(boolean showArtist) {
-        this.showArtist = showArtist;
+    public SongDataBinder(final boolean showArtist) {
+        super();
+        mShowArtist = showArtist;
     }
 
     @Override
-    public AbstractViewHolder findInnerViews(View targetView) {
+    public AbstractViewHolder findInnerViews(final View targetView) {
         // look up all references to inner views
-        SongViewHolder viewHolder = new SongViewHolder();
-        viewHolder.trackTitle = (TextView) targetView.findViewById(R.id.track_title);
-        viewHolder.trackNumber = (TextView) targetView.findViewById(R.id.track_number);
-        viewHolder.trackDuration = (TextView) targetView.findViewById(R.id.track_duration);
-        viewHolder.trackArtist = (TextView) targetView.findViewById(R.id.track_artist);
+        final SongViewHolder viewHolder = new SongViewHolder();
+        viewHolder.mTrackTitle = (TextView) targetView.findViewById(R.id.track_title);
+        viewHolder.mTrackNumber = (TextView) targetView.findViewById(R.id.track_number);
+        viewHolder.mTrackDuration = (TextView) targetView.findViewById(R.id.track_duration);
+        viewHolder.mTrackArtist = (TextView) targetView.findViewById(R.id.track_artist);
         return viewHolder;
     }
 
     @Override
+    @LayoutRes
     public int getLayoutId() {
         return R.layout.song_list_item;
     }
 
-    public boolean isEnabled(int position, List<? extends Item> items, Object item) {
+    @Override
+    public boolean isEnabled(final int position, final List<? extends Item> items,
+            final Object item) {
         return true;
     }
 
+    @Override
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, List<? extends Item> items, Object item,
-            int position) {
-        SongViewHolder holder = (SongViewHolder) viewHolder;
-
+            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final Object item,
+            final int position) {
+        final SongViewHolder holder = (SongViewHolder) viewHolder;
         final Music song = (Music) item;
+        final StringBuilder track = new StringBuilder(3);
         int trackNumber = song.getTrack();
-        if (trackNumber < 0)
+
+        if (trackNumber < 0) {
             trackNumber = 0;
+        }
 
-        holder.trackTitle.setText(song.getTitle());
-        holder.trackNumber.setText(trackNumber < 10 ? "0" + Integer.toString(trackNumber) : Integer
-                .toString(trackNumber));
-        holder.trackDuration.setText(song.getFormattedTime());
+        if (trackNumber < 10) {
+            track.append(0);
+        }
+        track.append(trackNumber);
 
-        if (showArtist) {
-            String a = song.getArtist();
-            if (a == null || a.equals("")) {
-                a = context.getString(R.string.jmpdcomm_unknown_artist);
-            }
-            holder.trackArtist.setText(a);
+        holder.mTrackTitle.setText(song.getTitle());
+        holder.mTrackNumber.setText(track);
+        holder.mTrackDuration.setText(song.getFormattedTime());
+
+        if (mShowArtist) {
+            holder.mTrackArtist.setText(song.getArtist());
         }
     }
 
     @Override
-    public View onLayoutInflation(Context context, View targetView, List<? extends Item> items) {
-        targetView.findViewById(R.id.track_artist).setVisibility(
-                showArtist ? View.VISIBLE : View.GONE);
-        return targetView;
+    public View onLayoutInflation(final Context context, final View targetView,
+            final List<? extends Item> items) {
+        return BaseDataBinder.setViewVisible(targetView, R.id.track_artist, mShowArtist);
     }
 
 }

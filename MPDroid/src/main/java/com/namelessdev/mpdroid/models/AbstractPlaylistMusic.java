@@ -16,22 +16,26 @@
 
 package com.namelessdev.mpdroid.models;
 
-import org.a0z.mpd.Directory;
-import org.a0z.mpd.Music;
+import org.a0z.mpd.item.Music;
 
 public abstract class AbstractPlaylistMusic extends Music {
-    private int currentSongIconRefID;
-    private boolean forceCoverRefresh = false;
 
-    protected AbstractPlaylistMusic(String album, String artist, String albumartist,
-            String fullpath, int disc, long date, long time, Directory parent, String title,
-            int totalTracks, int track, int songId, int pos, String name) {
-        super(album, artist, albumartist, fullpath, disc, date, time, parent, title, totalTracks,
-                track, songId, pos, name);
+    private int mCurrentSongIconRefID;
+
+    private boolean mForceCoverRefresh = false;
+
+    protected AbstractPlaylistMusic(final String album, final String artist,
+            final String albumartist,
+            final String fullpath, final int disc, final long date, final String genre,
+            final long time, final String title,
+            final int totalTracks, final int track, final int songId, final int pos,
+            final String name) {
+        super(album, artist, albumartist, fullpath, disc, date, genre, time, title,
+                totalTracks, track, songId, pos, name);
     }
 
     public int getCurrentSongIconRefID() {
-        return currentSongIconRefID;
+        return mCurrentSongIconRefID;
     }
 
     public abstract String getPlayListMainLine();
@@ -39,14 +43,14 @@ public abstract class AbstractPlaylistMusic extends Music {
     public abstract String getPlaylistSubLine();
 
     public boolean isForceCoverRefresh() {
-        return forceCoverRefresh;
+        return mForceCoverRefresh;
     }
 
-    public void setCurrentSongIconRefID(int currentSongIconRefID) {
-        this.currentSongIconRefID = currentSongIconRefID;
+    public void setCurrentSongIconRefID(final int currentSongIconRefID) {
+        mCurrentSongIconRefID = currentSongIconRefID;
     }
 
-    public void setForceCoverRefresh(boolean forceCoverRefresh) {
-        this.forceCoverRefresh = forceCoverRefresh;
+    public void setForceCoverRefresh(final boolean forceCoverRefresh) {
+        mForceCoverRefresh = forceCoverRefresh;
     }
 }

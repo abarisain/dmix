@@ -27,7 +27,11 @@
 
 package org.a0z.mpd;
 
+import org.a0z.mpd.item.Music;
+
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -35,18 +39,21 @@ import java.util.List;
 /**
  * @author Felipe Gustavo de Almeida, Stefan Agner
  */
-public class MusicList {
 
-    private final HashMap<Integer, Music> map;
+/** The skeleton of the playlist. */
+final class MusicList {
 
-    private final List<Music> list;
+    private static final String TAG = "MusicList";
 
-    /**
-     * Constructor.
-     */
-    public MusicList() {
-        map = new HashMap<>();
-        list = Collections.synchronizedList(new ArrayList<Music>());
+    private final List<Music> mList;
+
+    private final AbstractMap<Integer, Music> mSongIDMap;
+
+    MusicList() {
+        super();
+
+        mSongIDMap = new HashMap<>();
+        mList = Collections.synchronizedList(new ArrayList<Music>());
     }
 
     /**
@@ -55,9 +62,10 @@ public class MusicList {
      *
      * @param list a {@code MusicList}
      */
-    public MusicList(MusicList list) {
+    MusicList(final MusicList list) {
         this();
-        this.addAll(list.getMusic());
+
+        addAll(list.getMusic());
     }
 
     /**
@@ -65,17 +73,17 @@ public class MusicList {
      *
      * @param music music to be added.
      */
-    public void add(Music music) {
+    void add(final Music music) {
         if (getById(music.getSongId()) != null) {
             throw new IllegalArgumentException("Music is already on list");
         }
 
         // add it to the map and at the right position to the list
-        map.put(Integer.valueOf(music.getSongId()), music);
-        while (list.size() < (music.getPos() + 1)) {
-            list.add(null);
+        mSongIDMap.put(Integer.valueOf(music.getSongId()), music);
+        while (mList.size() < music.getPos() + 1) {
+            mList.add(null);
         }
-        list.set(music.getPos(), music);
+        mList.set(music.getPos(), music);
     }
 
     /**
@@ -87,52 +95,81 @@ public class MusicList {
      * @throws ClassCastException when {@code playlist} contains elements
      *                            not assignable to {@code Music}.
      */
-    public void addAll(List<Music> playlist) throws ClassCastException {
-        list.addAll(playlist);
+    void addAll(final Collection<Music> playlist) {
+        mList.addAll(playlist);
+    }
+
+    /** Removes all {@code Music} objects from this {@code MusicList}. */
+    void clear() {
+        synchronized (mList) {
+            mList.clear();
+            mSongIDMap.clear();
+        }
     }
 
     /**
-     * Removes all musics from this {@code MusicList}.
-     */
-    public void clear() {
-        list.clear();
-        map.clear();
-    }
-
-    /**
-     * Retrieves a music by its songId.
+     * Retrieves a {@code Music} object by its songId.
      *
      * @param songId songId from the music to be retrieved.
      * @return a Music with given songId or {@code null} if it is not
      * present on this {@code MusicList}.
      */
-    public Music getById(int songId) {
-        return map.get(Integer.valueOf(songId));
+    Music getById(final int songId) {
+        return mSongIDMap.get(Integer.valueOf(songId));
     }
 
     /**
-     * Retrieves a music by its position on playlist.
+     * Retrieves a {@code Music} object by its position on playlist.
      *
      * @param index position of the music to be retrieved.
      * @return a Music with given position or {@code null} if it is not
      * present on this {@code MusicList}.
      */
-    public Music getByIndex(int index) {
-        if (index < 0 || list.size() <= index) {
-            return null;
+    Music getByIndex(final int index) {
+        Music result = null;
+
+        if (index >= 0 && mList.size() > index) {
+            result = mList.get(index);
         }
 
-        return list.get(index);
+        return result;
     }
 
     /**
-     * Retrieves a List containing all musics from this {@code MusicList}.
+     * Retrieves a List containing all {@code Music} objects from this {@code MusicList}.
      *
-     * @return Retrieves a List containing all musics from this
-     * {@code MusicList}.
+     * @return Retrieves a List containing all {@code Music} objects from this {@code MusicList}.
      */
-    public List<Music> getMusic() {
-        return list;
+    List<Music> getMusic() {
+        return Collections.unmodifiableList(mList);
+    }
+
+    /**
+     * Remove a {@code Music} object with given {@code songId}
+     * from this {@code MusicList}, if it is present.
+     * Adds or moves a Music item on the {@code MusicList}.
+     *
+     * @param music {@code Music} to be added or moved.
+     */
+    void manipulate(final Music music) {
+        final int songId = music.getSongId();
+        final Integer songIdInteger = Integer.valueOf(songId);
+        final int songPos = music.getPos();
+
+        /** SongIDs can't exist in two places at the same time, remove it prior to adding it. */
+        if (getById(songId) != null) {
+            mSongIDMap.remove(songIdInteger);
+            mList.remove(music);
+        }
+
+        synchronized (mList) {
+            // add it to the map and at the right position to the list
+            mSongIDMap.put(songIdInteger, music);
+            while (mList.size() < songPos + 1) {
+                mList.add(null);
+            }
+            mList.set(songPos, music);
+        }
     }
 
     /**
@@ -142,28 +179,74 @@ public class MusicList {
      * @param songId songId of the {@code Music} to be removed from this
      *               {@code MusicList}.
      */
-    public void removeById(int songId) {
-        Music music = getById(songId);
+    void removeById(final int songId) {
+        final Music music = getById(songId);
 
-        if (music != null) {
-            map.remove(Integer.valueOf(songId));
-            list.remove(music);
+        synchronized (mList) {
+            if (music != null) {
+                mSongIDMap.remove(Integer.valueOf(songId));
+                mList.remove(music);
+            }
         }
     }
 
     /**
-     * Removes music at {@code position} from this {@code MusicList},
+     * Removes a {@code Music} object at {@code position} from this {@code MusicList},
      * if it is present.
      *
      * @param index position of the {@code Music} to be removed from this
      *              {@code MusicList}.
      */
-    public void removeByIndex(int index) {
-        Music music = getByIndex(index);
+    void removeByIndex(final int index) {
+        synchronized (mList) {
+            final Music music = getByIndex(index);
 
-        if (music != null) {
-            list.remove(index);
-            map.remove(Integer.valueOf(music.getSongId()));
+            if (music != null) {
+                mList.remove(index);
+                mSongIDMap.remove(Integer.valueOf(music.getSongId()));
+            }
+        }
+    }
+
+    /**
+     * Removes all items sequentially within a specified range from the {@code MusicList}.
+     *
+     * @param start The position with which to start removing.
+     * @param end   The final position to remove from the list.
+     */
+    void removeByRange(final int start, final int end) {
+        if (start < -1 || start > mList.size()) {
+            throw new IndexOutOfBoundsException("Attempted invalid start range value: " + start +
+                    ", list size: " + mList.size() + '.');
+        }
+
+        if (end < -1 || end > mList.size()) {
+            throw new IndexOutOfBoundsException("Attempted invalid end range value: " + end +
+                    ", list size: " + mList.size() + '.');
+        }
+
+        int iterator = start;
+        synchronized (mList) {
+            while (iterator < end) {
+                removeByIndex(start);
+                iterator++;
+            }
+        }
+    }
+
+    /**
+     * Replace the current {@code MusicList} object.
+     *
+     * @param collection The {@code Music} collection to replace the {@code MusicList} with.
+     */
+    void replace(final Collection<Music> collection) {
+        synchronized (mList) {
+            clear();
+            mList.addAll(collection);
+
+            for (final Music track : collection) {
+                mSongIDMap.put(track.getSongId(), track);
+            }
         }
     }
 
@@ -172,21 +255,7 @@ public class MusicList {
      *
      * @return {@code MusicList} size.
      */
-    public int size() {
-        return list.size();
-    }
-
-    /**
-     * Retrieves a {@code List} with selected slice from this
-     * {@code MusicList}.
-     *
-     * @param fromIndex first index (included).
-     * @param toIndex   last index (not included).
-     * @return a {@code List} with selected slice from this
-     * {@code MusicList}.
-     * @see List#subList(int, int)
-     */
-    public List<Music> subList(int fromIndex, int toIndex) {
-        return this.list.subList(fromIndex, toIndex);
+    int size() {
+        return mList.size();
     }
 }

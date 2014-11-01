@@ -74,6 +74,7 @@ public class ServiceBinder implements
     /** The handler which processes messages on behalf of the client of this class. */
     private final Handler mClientHandler;
 
+    /** The messenger for the ServiceBinder client. */
     private final Messenger mClientMessenger;
 
     /** Local initiating bind and service persistence. */
@@ -82,17 +83,14 @@ public class ServiceBinder implements
     /** Local handler used only for local (usually delayed) messaging. */
     private final Handler mLocalHandler;
 
-    /** Whether the service is bound to this instance. */
-    private boolean mIsBound = false;
-
     /** If service and bind are persistent. */
     private boolean mIsPersistent = false;
 
-    /** The messenger from the service used for two way service communication. */
-    private Messenger mServiceMessenger = null;
-
     /** The message to send on successful connection. */
     private Message mMessageOnConnection = null;
+
+    /** The messenger from the service used for two way service communication. */
+    private Messenger mServiceMessenger = null;
 
     /**
      * Constructs the service binder helper with a message receiving client.
@@ -182,9 +180,7 @@ public class ServiceBinder implements
         return result;
     }
 
-    /**
-     * Initiates our service binding, after complete, onBindService() should be called.
-     */
+    /** Initiates our service binding, after complete, onBindService() should be called. */
     private void doBindService() {
         mClientContext.bindService(mIntent, this, Context.BIND_AUTO_CREATE);
 
@@ -202,12 +198,11 @@ public class ServiceBinder implements
             Log.d(TAG, "doUnbindService()");
         }
 
-        if (mIsBound && mServiceMessenger != null) {
+        if (mServiceMessenger != null) {
             sendMessageToService(UNREGISTER_CLIENT);
 
             // Detach our existing connection.
             mClientContext.unbindService(this);
-            mIsBound = false;
             mServiceMessenger = null;
         }
     }
@@ -230,6 +225,11 @@ public class ServiceBinder implements
         return result;
     }
 
+    /**
+     * Method to get server binding status.
+     *
+     * @return True if service is bound to this object client, false otherwise.
+     */
     public final boolean isServiceBound() {
         return mServiceMessenger != null;
     }
@@ -261,7 +261,6 @@ public class ServiceBinder implements
         if (DEBUG) {
             Log.d(TAG, "Attached.");
         }
-        mIsBound = true;
     }
 
     /**
@@ -278,8 +277,6 @@ public class ServiceBinder implements
         if (DEBUG) {
             Log.d(TAG, "Disconnected from service.");
         }
-
-        mIsBound = false;
     }
 
     /**
@@ -340,6 +337,12 @@ public class ServiceBinder implements
         }
     }
 
+    /**
+     * Sends a what/bundle message to the service.
+     *
+     * @param what   The what message to send out.
+     * @param bundle The bundle to pair with the what to send to the service.
+     */
     public final void sendMessageToService(final int what, final Bundle bundle) {
         if (mServiceMessenger == null) {
             mMessageOnConnection = mClientHandler.obtainMessage(what);
@@ -352,7 +355,11 @@ public class ServiceBinder implements
         }
     }
 
-    /** This sets the service as persistent until service is restarted. */
+    /**
+     * This method sets the service as persistent until the service has stopped.
+     *
+     * @param isPersistent If true, set service as persistent, false otherwise.
+     */
     public final void setServicePersistent(final boolean isPersistent) {
         if (mIsPersistent != isPersistent) {
             mIsPersistent = isPersistent;
@@ -361,7 +368,6 @@ public class ServiceBinder implements
                 mIntent.setAction(MPDroidService.ACTION_START);
                 mClientContext.startService(mIntent);
             } else {
-                sendMessageToService(SET_PERSISTENT, false);
                 setupDisconnectionDelay();
             }
         }
