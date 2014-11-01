@@ -153,7 +153,6 @@
     <string name="variousArtists">Artistes variés</string>
     <string name="tracksInfoHeader">%1$s Chanson, %2$s</string>
     <string name="tracksInfoHeaderPlural">%1$s Chansons, %2$s</string>
-    <string name="audioFocusFailed">Impossible de démarrer le streaming : Une autre application diffuse déjà de la musique.</string>
     <string name="addToPlaylist">Ajouter à la playlist</string>
     <string name="newPlaylist">(Nouvelle playlist)</string>
     <string name="playlistName">Nom de la playlist</string>
@@ -252,4 +251,24 @@
     <string name="artist">Artiste</string>
     <string name="artistTagToUse">Tag à utiliser pour la liste des artistes</string>
     <string name="artistTagToUseDescription">Choisir le tag utilisé pour afficher la liste d\'artistes. Utile pour cacher les artistes qui n\'apparaissent que dans des compilations.</string>
+    <string name="persistentNotification">Notification persistante</string>
+    <string name="persistentNotificationDescription">Faire que la notification reste activée pour ce réseau</string>
+    <string name="notPlayingInRandomMode">Les éléments ajoutée en mode "hasard" sont ajoutés mais non joués.</string>
+
+    <!-- Begin StreamHandler Specific Strings -->
+    <string name="audioFocusFailed">Impossible de démarrer le streaming : Une autre application diffuse déjà de la musique.</string>
+    <string name="streamError">%1$s erreur du flux: %2$s.</string>
+    <string name="streamPreparationError">Cette erreur est causée par un changement du status serveur lors de la préparation du flux.</string>
+    <string name="streamSourceError">Echec lors de la définition de la source du flux: %1$s.</string>
+    <!-- End StreamHandler Specific Strings -->
+
+    <!-- Begin MediaPlayer Error Strings -->
+    <string name="mediaPlayerErrorUnknown">Erreur du serveur audio inconnue.</string>
+    <string name="mediaPlayerErrorServerDied">Le serveur audio est mort. RIP :(</string>
+
+    <string name="mediaPlayerErrorIO">Erreur lors d\'une opération réseau.</string>
+    <string name="mediaPlayerErrorMalformed">Le flux n\'est pas conforme à l\'encodage indiqué..</string>
+    <string name="mediaPlayerErrorTimedOut">L\'opération n\'a pas réussi à temps.</string>
+    <string name="mediaPlayerErrorUnsupported">Le serveur audio ne gère pas le flux codec.</string>
+    <!-- End MediaPlayer Error Strings -->
 </resources>
