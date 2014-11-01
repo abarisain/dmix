@@ -354,12 +354,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         super.onCreateContextMenu(menu, v, menuInfo);
 
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        final MenuItem addItem = menu.add(Menu.NONE, ADD, 0, getString(mAddString));
-        final MenuItem addAndReplaceItem = menu.add(Menu.NONE, ADD_REPLACE, 0,
-                R.string.addAndReplace);
-        final MenuItem addReplacePlayItem = menu.add(Menu.NONE, ADD_REPLACE_PLAY,
-                0, R.string.addAndReplacePlay);
-        final MenuItem addAndPlayItem = menu.add(Menu.NONE, ADD_PLAY, 0, R.string.addAndPlay);
 
         switch (mPager.getCurrentItem()) {
             case 0:
@@ -383,6 +377,13 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             default:
                 break;
         }
+
+        final MenuItem addItem = menu.add(Menu.NONE, ADD, 0, getString(mAddString));
+        final MenuItem addAndReplaceItem = menu.add(Menu.NONE, ADD_REPLACE, 0,
+                R.string.addAndReplace);
+        final MenuItem addReplacePlayItem = menu.add(Menu.NONE, ADD_REPLACE_PLAY,
+                0, R.string.addAndReplacePlay);
+        final MenuItem addAndPlayItem = menu.add(Menu.NONE, ADD_PLAY, 0, R.string.addAndPlay);
 
         addItem.setOnMenuItemClickListener(this);
         addAndReplaceItem.setOnMenuItemClickListener(this);
