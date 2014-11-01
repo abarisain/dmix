@@ -30,27 +30,42 @@ package org.a0z.mpd.item;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/** A class to put org.a0z.mpd.item.Genre in a Parcelable wrapper. */
-public class GenreParcelable extends Genre implements Parcelable {
+/**
+ * This is the Android backend {@code Artist} item.
+ *
+ * @see org.a0z.mpd.item.AbstractArtist For generic {@code Artist} code.
+ */
+public class Artist extends AbstractArtist implements Parcelable {
 
-    public static final Creator<Genre> CREATOR = new Creator<Genre>() {
-        @Override
-        public Genre createFromParcel(final Parcel source) {
-            return new GenreParcelable(source);
-        }
+    public static final Creator<Artist> CREATOR =
+            new Creator<Artist>() {
 
-        @Override
-        public Genre[] newArray(final int size) {
-            return new Genre[size];
-        }
-    };
+                @Override
+                public Artist createFromParcel(final Parcel source) {
+                    return new Artist(source);
+                }
 
-    public GenreParcelable(final Genre genre) {
-        super(genre);
+                @Override
+                public Artist[] newArray(final int size) {
+                    return new Artist[size];
+                }
+            };
+
+    public Artist(final Artist artist) {
+        super(artist);
     }
 
-    protected GenreParcelable(final Parcel in) {
-        super(in.readString()); /** name */
+    public Artist(final String name) {
+        super(name);
+    }
+
+    protected Artist(final String name, final String sort) {
+        super(name, sort);
+    }
+
+    protected Artist(final Parcel in) {
+        super(in.readString(), /** name */
+                in.readString()); /** sort */
     }
 
     @Override
@@ -61,5 +76,6 @@ public class GenreParcelable extends Genre implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(getName());
+        dest.writeString(sortText());
     }
 }

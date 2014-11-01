@@ -29,16 +29,17 @@ package org.a0z.mpd.item;
 
 import org.a0z.mpd.Tools;
 
-public class Genre extends Item {
+/** This class is the generic base for the Genre items, abstracted for backend. */
+abstract class AbstractGenre extends Item {
 
     private final String mName;
 
-    public Genre(final Genre genre) {
+    AbstractGenre(final AbstractGenre genre) {
         super();
         mName = genre.mName;
     }
 
-    public Genre(final String name) {
+    AbstractGenre(final String name) {
         super();
         mName = name;
     }
@@ -64,7 +65,7 @@ public class Genre extends Item {
         }
 
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            final Genre genre = (Genre) o;
+            final AbstractGenre genre = (AbstractGenre) o;
 
             if (Tools.isNotEqual(mName, genre.mName)) {
                 isEqual = Boolean.FALSE;

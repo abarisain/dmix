@@ -31,16 +31,13 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Genre;
-import org.a0z.mpd.item.GenreParcelable;
 import org.a0z.mpd.item.Item;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 import android.util.Log;
@@ -252,9 +249,8 @@ public class AlbumsFragment extends BrowseFragment {
                 final Object selectedItem = mItems.get((int) info.id);
                 final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
                 final Album a = (Album) selectedItem;
-                final Parcelable artistParcelable = new ArtistParcelable(a.getArtist());
 
-                intent.putExtra("artist", artistParcelable);
+                intent.putExtra("artist", a.getArtist());
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_COVER_BLACKLIST:
@@ -281,11 +277,11 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         if (mArtist != null) {
-            outState.putParcelable(EXTRA_ARTIST, new ArtistParcelable(mArtist));
+            outState.putParcelable(EXTRA_ARTIST, mArtist);
         }
 
         if (mGenre != null) {
-            outState.putParcelable(EXTRA_GENRE, new GenreParcelable(mGenre));
+            outState.putParcelable(EXTRA_GENRE, mGenre);
         }
         super.onSaveInstanceState(outState);
     }

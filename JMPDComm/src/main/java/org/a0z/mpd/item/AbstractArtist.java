@@ -32,17 +32,18 @@ import org.a0z.mpd.Tools;
 import java.util.Arrays;
 import java.util.Locale;
 
-public class Artist extends Item {
+/** This class is the generic base for the Artist items, abstracted for backend. */
+abstract class AbstractArtist extends Item {
 
     private final String mName;
 
     private final String mSort;
 
-    public Artist(final Artist artist) {
+    AbstractArtist(final AbstractArtist artist) {
         this(artist.mName, artist.mSort);
     }
 
-    public Artist(final String name) {
+    AbstractArtist(final String name) {
         super();
         mName = name;
         if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
@@ -52,7 +53,7 @@ public class Artist extends Item {
         }
     }
 
-    protected Artist(final String name, final String sort) {
+    AbstractArtist(final String name, final String sort) {
         super();
 
         mName = name;
@@ -78,7 +79,7 @@ public class Artist extends Item {
         }
 
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            final Artist artist = (Artist) o;
+            final AbstractArtist artist = (AbstractArtist) o;
 
             if (Tools.isNotEqual(mName, artist.mName) || Tools.isNotEqual(mSort, artist.mSort)) {
                 isEqual = Boolean.FALSE;

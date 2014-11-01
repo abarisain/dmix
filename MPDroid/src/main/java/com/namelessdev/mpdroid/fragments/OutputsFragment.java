@@ -124,7 +124,8 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                                     list.setItemChecked(i, mOutputs.get(i).isEnabled());
                                 }
                             } catch (IllegalStateException e) {
-                                Log.e(TAG, "Illegal Activity state while trying to refresh output list");
+                                Log.e(TAG,
+                                        "Illegal Activity state while trying to refresh output list");
                             }
                         }
                     });

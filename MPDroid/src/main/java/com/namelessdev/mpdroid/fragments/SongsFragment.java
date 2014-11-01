@@ -30,14 +30,11 @@ import com.namelessdev.mpdroid.views.SongDataBinder;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.AlbumParcelable;
-import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.StringRes;
 import android.support.v4.widget.PopupMenuCompat;
 import android.util.Log;
@@ -288,8 +285,7 @@ public class SongsFragment extends BrowseFragment {
                 final int itemId = item.getItemId();
                 if (itemId == GOTO_ARTIST) {
                     final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-                    final Parcelable artistParcelable = new ArtistParcelable(mAlbum.getArtist());
-                    intent.putExtra("artist", artistParcelable);
+                    intent.putExtra("artist", mAlbum.getArtist());
                     startActivityForResult(intent, -1);
                 } else {
                     mApp.oMPDAsyncHelper.execAsync(new Runnable() {
@@ -425,8 +421,7 @@ public class SongsFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(final Bundle outState) {
-        final Parcelable parcel = new AlbumParcelable(mAlbum);
-        outState.putParcelable(EXTRA_ALBUM, parcel);
+        outState.putParcelable(EXTRA_ALBUM, mAlbum);
         super.onSaveInstanceState(outState);
     }
 

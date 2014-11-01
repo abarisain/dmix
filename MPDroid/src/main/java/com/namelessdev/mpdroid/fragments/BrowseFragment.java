@@ -26,7 +26,6 @@ import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
@@ -37,7 +36,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -372,9 +370,8 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 final Object selectedItem = mItems.get((int) info.id);
                 final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
                 final Music music = (Music) selectedItem;
-                final Parcelable artistParcelable = new ArtistParcelable(music.getArtistAsArtist());
 
-                intent.putExtra("artist", artistParcelable);
+                intent.putExtra("artist", music.getArtistAsArtist());
                 startActivityForResult(intent, -1);
                 break;
             default:

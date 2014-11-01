@@ -43,48 +43,50 @@ import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;
 
 /**
- * Class representing a file/music entry in playlist.
+ * Class representing a generic file/music entry in playlist, base for the Genre items, abstracted
+ * for backend.
  *
  * @author Felipe Gustavo de Almeida
  */
-public class Music extends Item implements FilesystemTreeEntry {
+abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
 
     /**
      * This is like the default {@code Comparable} for the Music class, but it compares without
      * taking disc and track numbers into account.
      */
-    public static final Comparator<Music> COMPARE_WITHOUT_TRACK_NUMBER = new Comparator<Music>() {
-        /**
-         * Compares the two specified objects to determine their relative ordering. The ordering
-         * implied by the return value of this method for all possible pairs of
-         * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
-         * This means that
-         * <ul>
-         * <li>{@code compare(a, a)} returns zero for all {@code a}</li>
-         * <li>the sign of {@code compare(a, b)} must be the opposite of the sign of {@code
-         * compare(b, a)} for all pairs of (a,b)</li>
-         * <li>From {@code compare(a, b) > 0} and {@code compare(b, c) > 0} it must
-         * follow {@code compare(a, c) > 0} for all possible combinations of {@code
-         * (a, b, c)}</li>
-         * </ul>
-         *
-         * @param lhs an {@code Object}.
-         * @param rhs a second {@code Object} to compare with {@code lhs}.
-         * @return an integer < 0 if {@code lhs} is less than {@code rhs}, 0 if they are
-         * equal, and > 0 if {@code lhs} is greater than {@code rhs}.
-         * @throws ClassCastException if objects are not of the correct type.
-         */
-        @Override
-        public int compare(final Music lhs, final Music rhs) {
-            int compare = 0;
+    public static final Comparator<AbstractMusic> COMPARE_WITHOUT_TRACK_NUMBER =
+            new Comparator<AbstractMusic>() {
+                /**
+                 * Compares the two specified objects to determine their relative ordering. The ordering
+                 * implied by the return value of this method for all possible pairs of
+                 * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
+                 * This means that
+                 * <ul>
+                 * <li>{@code compare(a, a)} returns zero for all {@code a}</li>
+                 * <li>the sign of {@code compare(a, b)} must be the opposite of the sign of {@code
+                 * compare(b, a)} for all pairs of (a,b)</li>
+                 * <li>From {@code compare(a, b) > 0} and {@code compare(b, c) > 0} it must
+                 * follow {@code compare(a, c) > 0} for all possible combinations of {@code
+                 * (a, b, c)}</li>
+                 * </ul>
+                 *
+                 * @param lhs an {@code Object}.
+                 * @param rhs a second {@code Object} to compare with {@code lhs}.
+                 * @return an integer < 0 if {@code lhs} is less than {@code rhs}, 0 if they are
+                 * equal, and > 0 if {@code lhs} is greater than {@code rhs}.
+                 * @throws ClassCastException if objects are not of the correct type.
+                 */
+                @Override
+                public int compare(final AbstractMusic lhs, final AbstractMusic rhs) {
+                    int compare = 0;
 
-            if (lhs != null) {
-                compare = lhs.compareTo(rhs, false);
-            }
+                    if (lhs != null) {
+                        compare = lhs.compareTo(rhs, false);
+                    }
 
-            return compare;
-        }
-    };
+                    return compare;
+                }
+            };
 
     /**
      * The date response has it's own delimiter.
@@ -128,7 +130,7 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     private final int mTrack;
 
-    public Music() {
+    AbstractMusic() {
         this(null, /** Album */
                 null, /** Artist */
                 null, /** AlbumArtist */
@@ -147,13 +149,13 @@ public class Music extends Item implements FilesystemTreeEntry {
 
     }
 
-    protected Music(final Music music) {
+    AbstractMusic(final AbstractMusic music) {
         this(music.mAlbum, music.mArtist, music.mAlbumArtist, music.mComposer, music.mFullPath,
                 music.mDisc, music.mDate, music.mGenre, music.mTime, music.mTitle,
                 music.mTotalTracks, music.mTrack, music.mSongId, music.mSongPos, music.mName);
     }
 
-    protected Music(final String album, final String artist, final String albumArtist,
+    AbstractMusic(final String album, final String artist, final String albumArtist,
             final String composer, final String fullPath, final int disc, final long date,
             final String genre, final long time, final String title, final int totalTracks,
             final int track, final int songId, final int songPos, final String name) {
@@ -297,8 +299,8 @@ public class Music extends Item implements FilesystemTreeEntry {
             }
         }
 
-        return new Music(album, artist, albumArtist, composer, fullPath, disc, date, genre, time,
-                title, totalTracks, track, songId, songPos, name);
+        return new Music(album, artist, albumArtist, composer, fullPath, disc, date, genre,
+                time, title, totalTracks, track, songId, songPos, name);
     }
 
     /**
@@ -433,8 +435,8 @@ public class Music extends Item implements FilesystemTreeEntry {
     private int compareTo(final Item another, final boolean withTrackNumber) {
         int compareResult = 0;
 
-        if (another instanceof Music) {
-            final Music om = (Music) another;
+        if (another instanceof AbstractMusic) {
+            final AbstractMusic om = (AbstractMusic) another;
 
             /** songId overrides every other sorting method. It's used for playlists/queue. */
             compareResult = compareIntegers(true, mSongId, om.mSongId);
@@ -496,7 +498,7 @@ public class Music extends Item implements FilesystemTreeEntry {
         }
 
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            final Music music = (Music) o;
+            final AbstractMusic music = (AbstractMusic) o;
 
             final Object[][] equalsObjects = {
                     {mAlbum, music.mAlbum},
