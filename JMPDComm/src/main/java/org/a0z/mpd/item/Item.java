@@ -31,6 +31,7 @@ import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public abstract class Item implements Comparable<Item> {
@@ -125,8 +126,15 @@ public abstract class Item implements Comparable<Item> {
         String mainText = getName();
 
         if (mainText == null || mainText.isEmpty()) {
-            final ResourceBundle labels = ResourceBundle.getBundle("UnknownMetadata");
-            final String key = "UnknownMetadata" + getClass().getSimpleName();
+            final String unknownKey = "UnknownMetadata";
+            final String key = unknownKey + getClass().getSimpleName();
+            ResourceBundle labels;
+
+            try {
+                labels = ResourceBundle.getBundle(unknownKey);
+            } catch (final MissingResourceException ignored) {
+                labels = ResourceBundle.getBundle(unknownKey, Locale.ENGLISH);
+            }
 
             if (labels.containsKey(key)) {
                 mainText = (String) labels.getObject(key);
