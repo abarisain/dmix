@@ -165,6 +165,7 @@
     <string name="enableAlbumYearText">Afficher l\'année de l\'album</string>
     <string name="showAlbumArtist">Afficher l\'artiste de l\'album</string>
     <string name="enableAudioText">Afficher les informations d\'encodage</string>
+    <string name="enableRating">Afficher la barre de notation</string>
     <string name="play">Jouer</string>
 
     <string name="behavior">Comportement du téléphone</string>

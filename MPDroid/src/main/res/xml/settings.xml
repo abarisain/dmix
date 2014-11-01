@@ -222,6 +222,12 @@
                 android:key="enableAudioText"
                 android:persistent="true"
                 android:title="@string/enableAudioText" />
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="enableRating"
+                android:persistent="true"
+                android:title="@string/enableRating" />
         </PreferenceScreen>
 
         <CheckBoxPreference
