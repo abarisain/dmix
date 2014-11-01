@@ -45,6 +45,7 @@
             android:ellipsize="marquee"
             android:maxLines="1"
             android:singleLine="true"
+            android:textColor="@android:color/white"
             android:textAppearance="?android:textAppearanceMedium" />
 
         <TextView
