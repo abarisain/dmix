@@ -45,8 +45,8 @@
             android:ellipsize="marquee"
             android:maxLines="1"
             android:singleLine="true"
-            android:textColor="@android:color/white"
-            android:textAppearance="?android:textAppearanceMedium" />
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@android:color/white" />
 
         <TextView
             android:id="@+id/notificationArtist"

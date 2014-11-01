@@ -466,7 +466,7 @@ public abstract class MPDConnection {
          * Used after a server error, sleeps for a small time then tries to reconnect.
          *
          * @param result The {@code CommandResult} which stores the connection failure.
-         * @param e The exception to set.
+         * @param e      The exception to set.
          */
         private void handleFailure(final CommandResult result, final IOException e) {
             if (isFailureHandled(result)) {
@@ -478,7 +478,7 @@ public abstract class MPDConnection {
          * Used after a server error, sleeps for a small time then tries to reconnect.
          *
          * @param result The {@code CommandResult} which stores the connection failure.
-         * @param e The exception to set.
+         * @param e      The exception to set.
          */
         private void handleFailure(final CommandResult result, final MPDException e) {
             if (isFailureHandled(result)) {

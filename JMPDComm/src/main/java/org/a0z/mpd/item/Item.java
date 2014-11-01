@@ -48,7 +48,7 @@ public abstract class Item implements Comparable<Item> {
         for (int j = jStart; j >= 0; j--) { // album artists
             if (albumArtists.get(j).getName().equals("")) {
                 albumArtists.remove(j);
-                jStart --;
+                jStart--;
             }
         }
         for (int i = artists.size() - 1; i >= 0; i--) { // artists
