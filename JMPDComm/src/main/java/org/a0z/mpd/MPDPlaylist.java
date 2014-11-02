@@ -188,6 +188,20 @@ public class MPDPlaylist {
     }
 
     /**
+     * This replaces the entire {@code MusicList} with a full playlist response from the media
+     * server.
+     *
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    private void fullPlaylistRefresh() throws IOException, MPDException {
+        final List<String> response = mConnection.sendCommand(MPD_CMD_PLAYLIST_LIST);
+        final List<Music> playlist = Music.getMusicFromList(response, false);
+
+        mList.replace(playlist);
+    }
+
+    /**
      * Retrieves music at position index in playlist. Operates on local copy of
      * playlist, may not reflect server's current playlist.
      *
@@ -281,21 +295,27 @@ public class MPDPlaylist {
             final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
 
             if (mLastPlaylistVersion == -1 || mList.size() == 0) {
-                final List<String> response = mConnection.sendCommand(MPD_CMD_PLAYLIST_LIST);
-                final List<Music> playlist = Music.getMusicFromList(response, false);
-
-                mList.replace(playlist);
+                fullPlaylistRefresh();
             } else if (mLastPlaylistVersion != newPlaylistVersion) {
                 final List<String> response =
                         mConnection.sendCommand(MPD_CMD_PLAYLIST_CHANGES,
                                 Integer.toString(mLastPlaylistVersion));
                 final List<Music> changes = Music.getMusicFromList(response, false);
+                final int playlistLength = mpdStatus.getPlaylistLength();
+                final int listSize;
 
                 for (final Music song : changes) {
                     mList.manipulate(song);
                 }
 
-                mList.removeByRange(mpdStatus.getPlaylistLength(), mList.size());
+                listSize = mList.size();
+                if (playlistLength > listSize) {
+                    Log.warning(TAG, "Race detected, status playlist length > playlist length " +
+                                    "after changes have been applied. Reverting to full update.");
+                    fullPlaylistRefresh();
+                } else {
+                    mList.removeByRange(mpdStatus.getPlaylistLength(), listSize);
+                }
             }
 
             mLastPlaylistVersion = newPlaylistVersion;
