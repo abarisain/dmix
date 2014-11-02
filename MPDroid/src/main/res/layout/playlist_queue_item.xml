@@ -17,7 +17,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="55dip"
+    android:layout_height="72dip"
     android:layout_gravity="left"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:baselineAligned="true"
@@ -27,38 +27,40 @@
 
     <ImageView
         android:id="@+id/cover"
-        android:layout_width="55dip"
-        android:layout_height="55dip"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
         android:layout_gravity="center"
-        android:layout_marginRight="8dip"
+        android:layout_marginLeft="16dip"
         android:contentDescription="@string/albumCover"
         android:src="?attr/noCoverArtIcon" />
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="72dip"
         android:layout_toLeftOf="@+id/menu"
-        android:layout_toRightOf="@+id/cover"
         android:orientation="vertical">
 
         <TextView
             android:id="@android:id/text1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="2dip"
+            android:layout_marginBottom="5dip"
             android:ellipsize="end"
-            android:fontFamily="sans-serif-light"
             android:maxLines="1"
-            android:textSize="20sp" />
+            android:text="Fooooooo"
+            android:textAppearance="?android:attr/textAppearanceListItem" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="left"
             android:orientation="horizontal"
+
             tools:ignore="UseCompoundDrawables">
 
             <TextView
@@ -67,8 +69,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:fontFamily="sans-serif-light"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:text="Fooooooo"
+                android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+                android:textColor="#8a000000" />
 
             <ImageView
                 android:id="@+id/picture"
@@ -96,7 +100,7 @@
         android:background="@null"
         android:contentDescription="@string/menuButton"
         android:paddingLeft="2dip"
-        android:paddingRight="4dip"
+        android:paddingRight="16dip"
         android:src="@drawable/ic_menu_moreoverflow_card" />
 
 </RelativeLayout>
