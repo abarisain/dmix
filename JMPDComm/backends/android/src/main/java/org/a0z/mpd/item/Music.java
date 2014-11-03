@@ -27,6 +27,9 @@
 
 package org.a0z.mpd.item;
 
+import android.annotation.TargetApi;
+import android.media.MediaMetadata;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -80,6 +83,30 @@ public class Music extends AbstractMusic implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    /**
+     * Adds metadata from the current track to a {@code MediaMetadata.Builder} object.
+     *
+     * @param metadata The constructed {@code MediaMetadata.Builder} object to add the
+     *                 current track metadata to.
+     */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void getMediaMetadata(final MediaMetadata.Builder metadata) {
+        final Album album = getAlbum();
+
+        metadata.putLong(MediaMetadata.METADATA_KEY_DISC_NUMBER, (long) mDisc)
+                .putLong(MediaMetadata.METADATA_KEY_DURATION, mTime)
+                .putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, (long) mTotalTracks)
+                .putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, (long) mTrack)
+                .putLong(MediaMetadata.METADATA_KEY_YEAR, album.getYear())
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, album.getName())
+                .putString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST, mAlbumArtistName)
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, mArtistName)
+                .putString(MediaMetadata.METADATA_KEY_COMPOSER, mComposerName)
+                .putString(MediaMetadata.METADATA_KEY_DATE, Long.toString(mDate))
+                .putString(MediaMetadata.METADATA_KEY_GENRE, mGenreName)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, mTitle);
     }
 
     @Override
