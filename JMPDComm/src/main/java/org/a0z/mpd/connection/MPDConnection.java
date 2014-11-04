@@ -41,6 +41,7 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -312,9 +313,13 @@ public abstract class MPDConnection {
                 final IOException e = result.getIOException();
 
                 if (e == null) {
-                    Log.warning(mTag, "There was no result, and no exception generated. This is " +
-                            "probably a problem.");
-                } else {
+                    if (!mCancelled) {
+                        Log.error(mTag, "There was no result, command was not cancelled, and no " +
+                                "exception generated. This is probably a problem.");
+                    }
+                } else if (!(mCancelled && e instanceof SocketException &&
+                        command.toString().contains(MPDCommand.MPD_CMD_IDLE))) {
+                    /** Don't throw if it's just about a cancelled command. That's expected. */
                     throw e;
                 }
             }
@@ -436,18 +441,42 @@ public abstract class MPDConnection {
                 retryCount++;
             }
 
-            if (result.getResult() == null) {
-                if (result.isMPDException()) {
-                    Log.error(mTag, "MPD command " + baseCommand + " failed after " +
-                            retryCount + " attempts.", result.getLastException());
-                } else if (!MPDCommand.MPD_CMD_IDLE.equals(baseCommand)) {
-                    Log.error(mTag, "MPD command " + baseCommand + " failed after " +
-                            retryCount + " attempts.", result.getIOException());
+            if (!mCancelled) {
+                if (result.getResult() == null) {
+                    logError(result, baseCommand, retryCount);
+                } else {
+                    mIsConnected = true;
                 }
-            } else {
-                mIsConnected = true;
             }
             return result;
+        }
+
+        private void logError(final CommandResult result, final String baseCommand,
+                final int retryCount) {
+            final StringBuilder stringBuilder = new StringBuilder(50);
+
+            stringBuilder.append("Command ");
+            stringBuilder.append(baseCommand);
+            stringBuilder.append(" failed after ");
+            stringBuilder.append(retryCount + 1);
+
+            if (retryCount == 0) {
+                stringBuilder.append(" attempt.");
+            } else {
+                stringBuilder.append(" attempts.");
+            }
+
+            if (result.isMPDException()) {
+                Log.error(mTag, stringBuilder.toString(), result.getLastException());
+            } else {
+                final IOException e = result.getIOException();
+
+                /** Don't log if it's just about a cancelled command. That's expected. */
+                if (!(mCancelled && e instanceof SocketException &&
+                        baseCommand.contains(MPDCommand.MPD_CMD_IDLE))) {
+                    Log.error(mTag, stringBuilder.toString(), e);
+                }
+            }
         }
 
         /**
