@@ -76,7 +76,7 @@ public abstract class MPDConnection {
 
     private static final String POOL_THREAD_NAME_PREFIX = "pool";
 
-    private static final String TAG = "MPDConnection";
+    private final String mTag;
 
     /** A set containing all available commands, populated on connection. */
     private final Collection<String> mAvailableCommands = new HashSet<>();
@@ -120,7 +120,10 @@ public abstract class MPDConnection {
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mExecutor.prestartCoreThread();
         if (maxConnections > 1) {
+            mTag = "MPDConnectionMultiSocket";
             mExecutor.allowCoreThreadTimeOut(true);
+        } else {
+            mTag = "MPDConnectionMonoSocket";
         }
     }
 
@@ -296,7 +299,7 @@ public abstract class MPDConnection {
             try {
                 result = mExecutor.submit(new CommandProcessor(command)).get();
                 // Spam the log with the largest pool size
-                //Log.debug(TAG, "Largest pool size: " + mExecutor.getLargestPoolSize());
+                //Log.debug(mTag, "Largest pool size: " + mExecutor.getLargestPoolSize());
             } catch (final ExecutionException | InterruptedException e) {
                 throw new IOException(e);
             }
@@ -309,7 +312,7 @@ public abstract class MPDConnection {
                 final IOException e = result.getIOException();
 
                 if (e == null) {
-                    Log.warning(TAG, "There was no result, and no exception generated. This is " +
+                    Log.warning(mTag, "There was no result, and no exception generated. This is " +
                             "probably a problem.");
                 } else {
                     throw e;
@@ -435,10 +438,10 @@ public abstract class MPDConnection {
 
             if (result.getResult() == null) {
                 if (result.isMPDException()) {
-                    Log.error(TAG, "MPD command " + baseCommand + " failed after " +
+                    Log.error(mTag, "MPD command " + baseCommand + " failed after " +
                             retryCount + " attempts.", result.getLastException());
                 } else if (!MPDCommand.MPD_CMD_IDLE.equals(baseCommand)) {
-                    Log.error(TAG, "MPD command " + baseCommand + " failed after " +
+                    Log.error(mTag, "MPD command " + baseCommand + " failed after " +
                             retryCount + " attempts.", result.getIOException());
                 }
             } else {
@@ -553,7 +556,7 @@ public abstract class MPDConnection {
             if (mCommand.isErrorNonfatal(errorCode)) {
                 isNonfatalACK = true;
                 if (DEBUG) {
-                    Log.debug(TAG, "Non-fatal ACK emitted, exception suppressed: " + message);
+                    Log.debug(mTag, "Non-fatal ACK emitted, exception suppressed: " + message);
                 }
             } else {
                 isNonfatalACK = false;
@@ -610,7 +613,7 @@ public abstract class MPDConnection {
             final String cmdString = mCommand.toString();
 
             // Uncomment for extreme command debugging
-            //Log.debug(TAG, "Sending MPDCommand : " + cmdString);
+            //Log.debug(mTag, "Sending MPDCommand : " + cmdString);
             getOutputStream().write(cmdString);
             getOutputStream().flush();
         }
