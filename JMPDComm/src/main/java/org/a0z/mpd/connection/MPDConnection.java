@@ -46,7 +46,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -73,7 +72,7 @@ public abstract class MPDConnection {
 
     private static final String MPD_RESPONSE_ERR = "ACK";
 
-    private static final String MPD_RESPONSE_OK = "OK";
+    static final String MPD_RESPONSE_OK = "OK";
 
     private static final String POOL_THREAD_NAME_PREFIX = "pool";
 
@@ -162,19 +161,18 @@ public abstract class MPDConnection {
 
         final MPDCommand mpdCommand = new MPDCommand(MPDCommand.MPD_CMD_COMMANDS);
         final CommandResult commandResult = processCommand(mpdCommand);
-        final String connectionResult = commandResult.getConnectionResult();
 
         synchronized (mAvailableCommands) {
             mAvailableCommands.clear();
             mAvailableCommands.addAll(getCommands(commandResult.getResult()));
         }
 
-        if (connectionResult == null) {
+        if (!commandResult.isHeaderValid()) {
             throw new IOException("Failed initial connection.");
         }
 
         mIsConnected = true;
-        setMPDVersion(connectionResult);
+        mMPDVersion = commandResult.getMPDVersion();
     }
 
     /**
@@ -366,27 +364,6 @@ public abstract class MPDConnection {
     }
 
     protected abstract void setInputStream(InputStreamReader inputStream);
-
-    /**
-     * Processes the {@code CommandResult} connection response to store the current media server
-     * MPD protocol version.
-     *
-     * @param response The {@code CommandResult().getConnectionResponse()}.
-     */
-    private void setMPDVersion(final String response) {
-        final String formatResponse = response.substring((MPD_RESPONSE_OK + " MPD ").length());
-
-        final StringTokenizer stringTokenizer = new StringTokenizer(formatResponse, ".");
-        final int[] version = new int[stringTokenizer.countTokens()];
-        int i = 0;
-
-        while (stringTokenizer.hasMoreElements()) {
-            version[i] = Integer.parseInt(stringTokenizer.nextToken());
-            i++;
-        }
-
-        mMPDVersion = version;
-    }
 
     protected abstract void setOutputStream(OutputStreamWriter outputStream);
 
