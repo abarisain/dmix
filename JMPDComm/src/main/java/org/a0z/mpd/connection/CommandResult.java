@@ -32,6 +32,7 @@ import org.a0z.mpd.exception.MPDException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /** This class stores the result for MPDCallable. */
 class CommandResult {
@@ -44,16 +45,46 @@ class CommandResult {
 
     private List<String> mResult;
 
-    final String getConnectionResult() {
-        return mConnectionResult;
-    }
-
     final IOException getIOException() {
         return mIOException;
     }
 
     final MPDException getLastException() {
         return mLastException;
+    }
+
+    public boolean isHeaderValid() {
+        final boolean isHeaderValid;
+
+        if (mConnectionResult == null) {
+            isHeaderValid = false;
+        } else {
+            isHeaderValid = true;
+        }
+
+        return isHeaderValid;
+    }
+
+    /**
+     * Processes the {@code CommandResult} connection response to store the current media server
+     * MPD protocol version.
+     *
+     * @return Returns the MPD version retained from the connection result.
+     */
+    public int[] getMPDVersion() {
+        final int subHeaderLength = (MPDConnection.MPD_RESPONSE_OK + " MPD ").length();
+        final String formatResponse = mConnectionResult.substring(subHeaderLength);
+
+        final StringTokenizer stringTokenizer = new StringTokenizer(formatResponse, ".");
+        final int[] version = new int[stringTokenizer.countTokens()];
+        int i = 0;
+
+        while (stringTokenizer.hasMoreElements()) {
+            version[i] = Integer.parseInt(stringTokenizer.nextToken());
+            i++;
+        }
+
+        return version;
     }
 
     final List<String> getResult() {

@@ -30,33 +30,35 @@ package org.a0z.mpd.item;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/** A class to put org.a0z.mpd.item.Album in a Parcelable wrapper. */
-public class AlbumParcelable extends Album implements Parcelable {
+/**
+ * This is the Android backend {@code Genre} item.
+ *
+ * @see org.a0z.mpd.item.AbstractGenre For generic {@code Genre} code.
+ */
+public class Genre extends AbstractGenre implements Parcelable {
 
-    public static final Creator<Album> CREATOR = new Creator<Album>() {
+    public static final Creator<Genre> CREATOR = new Creator<Genre>() {
         @Override
-        public Album createFromParcel(final Parcel source) {
-            return new AlbumParcelable(source);
+        public Genre createFromParcel(final Parcel source) {
+            return new Genre(source);
         }
 
         @Override
-        public Album[] newArray(final int size) {
-            return new Album[size];
+        public Genre[] newArray(final int size) {
+            return new Genre[size];
         }
     };
 
-    public AlbumParcelable(final Album album) {
-        super(album);
+    public Genre(final Genre genre) {
+        super(genre);
     }
 
-    protected AlbumParcelable(final Parcel in) {
-        super(in.readString(), /** name */
-                new Artist(in.readString()), /** artist */
-                in.readInt() > 0, /** hasAlbumArtist */
-                in.readLong(), /** songCount */
-                in.readLong(), /** duration */
-                in.readLong(), /** year */
-                in.readString()); /** path */
+    public Genre(final String name) {
+        super(name);
+    }
+
+    protected Genre(final Parcel in) {
+        super(in.readString()); /** name */
     }
 
     @Override
@@ -66,28 +68,6 @@ public class AlbumParcelable extends Album implements Parcelable {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        final String artistName;
-        final Artist artist = getArtist();
-        final int hasAlbumArtist;
-
-        if (artist == null) {
-            artistName = "";
-        } else {
-            artistName = artist.getName();
-        }
-
-        if (hasAlbumArtist()) {
-            hasAlbumArtist = 1;
-        } else {
-            hasAlbumArtist = 0;
-        }
-
         dest.writeString(getName());
-        dest.writeString(artistName);
-        dest.writeInt(hasAlbumArtist);
-        dest.writeLong(getSongCount());
-        dest.writeLong(getDuration());
-        dest.writeLong(getYear());
-        dest.writeString(getPath());
     }
 }

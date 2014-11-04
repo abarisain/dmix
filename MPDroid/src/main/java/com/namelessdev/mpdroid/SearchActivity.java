@@ -25,9 +25,7 @@ import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.AlbumParcelable;
 import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
@@ -411,14 +409,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         if (selectedItem instanceof Music) {
             add((Music) selectedItem, false, false);
         } else if (selectedItem instanceof Artist) {
-            final Parcelable parcel = new ArtistParcelable((Artist) selectedItem);
             final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("artist", parcel);
+            intent.putExtra("artist", (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         } else if (selectedItem instanceof Album) {
-            final Parcelable parcel = new AlbumParcelable((Album) selectedItem);
             final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("album", parcel);
+            intent.putExtra("album", (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         }
     }
@@ -442,13 +438,11 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final Object selectedItem = targetArray.get((int) info.id);
         if (item.getItemId() == GOTO_ALBUM) {
             if (selectedItem instanceof Music) {
-                Music m = (Music) selectedItem;
+                final Music music = (Music) selectedItem;
                 final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-                final Artist artist = new Artist(m.getAlbumArtistOrArtist());
-                final Parcelable artparcel = new ArtistParcelable(artist);
-                intent.putExtra("artist", artparcel);
-                final Parcelable albparcel = new AlbumParcelable(m.getAlbumAsAlbum());
-                intent.putExtra("album", albparcel);
+                final Parcelable artist = new Artist(music.getAlbumArtistOrArtist());
+                intent.putExtra("artist", artist);
+                intent.putExtra("album", music.getAlbumAsAlbum());
                 startActivityForResult(intent, -1);
             }
         } else {

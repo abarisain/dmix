@@ -26,7 +26,6 @@ import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.QueueControl;
-import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.models.AbstractPlaylistMusic;
 import com.namelessdev.mpdroid.models.PlaylistSong;
@@ -39,8 +38,6 @@ import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.AlbumParcelable;
-import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
@@ -50,7 +47,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.LayoutRes;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
@@ -380,9 +376,8 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                     break;
                 }
 
-                final Parcelable artistParcel = new ArtistParcelable(music.getArtistAsArtist());
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", artistParcel);
+                intent.putExtra("artist", music.getArtistAsArtist());
                 startActivityForResult(intent, -1);
                 break;
             case R.id.PLCX_goToAlbum:
@@ -392,9 +387,8 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                     break;
                 }
 
-                final Parcelable albumParcel = new AlbumParcelable(music.getAlbumAsAlbum());
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("album", albumParcel);
+                intent.putExtra("album", music.getAlbumAsAlbum());
                 startActivityForResult(intent, -1);
                 break;
             case R.id.PLCX_goToFolder:
@@ -418,7 +412,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
         // Menu actions...
         boolean result = true;
-        final Intent intent;
 
         if (item.getItemId() == R.id.PLM_Clear) {
             QueueControl.run(QueueControl.CLEAR);

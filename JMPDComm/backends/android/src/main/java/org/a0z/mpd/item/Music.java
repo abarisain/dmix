@@ -30,29 +30,39 @@ package org.a0z.mpd.item;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/** A class to put org.a0z.mpd.item.Music in a Parcelable wrapper. */
-public class MusicParcelable extends Music implements Parcelable {
+/**
+ * This is the Android backend {@code Music} item.
+ *
+ * @see org.a0z.mpd.item.AbstractMusic For generic {@code Music} code.
+ */
+public class Music extends AbstractMusic implements Parcelable {
 
     public static final Creator<Music> CREATOR = new Creator<Music>() {
         @Override
         public Music createFromParcel(final Parcel source) {
-            return new MusicParcelable(source);
+            return new Music(source);
         }
 
         @Override
         public Music[] newArray(final int size) {
-            return new MusicParcelable[size];
+            return new Music[size];
         }
     };
 
-    /**
-     * Public constructor, used to encapsulate a {@link org.a0z.mpd.item.Music} into this {@link
-     * android.os.Parcelable}
-     *
-     * @param music The target {@link org.a0z.mpd.item.Music} object
-     */
-    public MusicParcelable(final Music music) {
+    public Music() {
+        super();
+    }
+
+    protected Music(final Music music) {
         super(music);
+    }
+
+    protected Music(final String album, final String artist, final String albumArtist,
+            final String composer, final String fullPath, final int disc, final long date,
+            final String genre, final long time, final String title, final int totalTracks,
+            final int track, final int songId, final int songPos, final String name) {
+        super(album, artist, albumArtist, composer, fullPath, disc, date, genre, time, title,
+                totalTracks, track, songId, songPos, name);
     }
 
     /**
@@ -61,10 +71,10 @@ public class MusicParcelable extends Music implements Parcelable {
      *
      * @param in The {@link android.os.Parcel} that contains our object
      */
-    protected MusicParcelable(final Parcel in) {
-        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readInt(),
-                in.readLong(), in.readString(), in.readLong(), in.readString(), in.readInt(),
-                in.readInt(), in.readInt(), in.readInt(), in.readString());
+    protected Music(final Parcel in) {
+        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readString(),
+                in.readInt(), in.readLong(), in.readString(), in.readLong(), in.readString(),
+                in.readInt(), in.readInt(), in.readInt(), in.readInt(), in.readString());
     }
 
     @Override
@@ -77,6 +87,7 @@ public class MusicParcelable extends Music implements Parcelable {
         dest.writeString(getAlbum());
         dest.writeString(getArtist());
         dest.writeString(getAlbumArtist());
+        dest.writeString(getComposer());
         dest.writeString(getFullPath());
         dest.writeInt(getDisc());
         dest.writeLong(getDate());

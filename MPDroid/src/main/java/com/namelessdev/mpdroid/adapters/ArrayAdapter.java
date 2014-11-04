@@ -54,7 +54,8 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         mContext = context;
         mItems = Collections.unmodifiableList(items);
 
-        if (!(items instanceof ArrayList<?>)) {
+        /** Empty lists need not be of type ArrayList<?> */
+        if (!items.isEmpty() && !(items instanceof ArrayList<?>)) {
             throw new UnsupportedOperationException(
                     "Items must be contained in an ArrayList<Item>");
         }
@@ -69,7 +70,8 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
         mContext = context;
         mItems = Collections.unmodifiableList(items);
 
-        if (!(items instanceof ArrayList<?>)) {
+        /** Empty lists need not be of type ArrayList<?> */
+        if (!items.isEmpty() && !(items instanceof ArrayList<?>)) {
             throw new UnsupportedOperationException(
                     "Items must be contained in an ArrayList<Item>");
         }

@@ -41,12 +41,12 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -73,11 +73,11 @@ public abstract class MPDConnection {
 
     private static final String MPD_RESPONSE_ERR = "ACK";
 
-    private static final String MPD_RESPONSE_OK = "OK";
+    static final String MPD_RESPONSE_OK = "OK";
 
     private static final String POOL_THREAD_NAME_PREFIX = "pool";
 
-    private static final String TAG = "MPDConnection";
+    private final String mTag;
 
     /** A set containing all available commands, populated on connection. */
     private final Collection<String> mAvailableCommands = new HashSet<>();
@@ -121,7 +121,10 @@ public abstract class MPDConnection {
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mExecutor.prestartCoreThread();
         if (maxConnections > 1) {
+            mTag = "MPDConnectionMultiSocket";
             mExecutor.allowCoreThreadTimeOut(true);
+        } else {
+            mTag = "MPDConnectionMonoSocket";
         }
     }
 
@@ -162,19 +165,18 @@ public abstract class MPDConnection {
 
         final MPDCommand mpdCommand = new MPDCommand(MPDCommand.MPD_CMD_COMMANDS);
         final CommandResult commandResult = processCommand(mpdCommand);
-        final String connectionResult = commandResult.getConnectionResult();
 
         synchronized (mAvailableCommands) {
             mAvailableCommands.clear();
             mAvailableCommands.addAll(getCommands(commandResult.getResult()));
         }
 
-        if (connectionResult == null) {
+        if (!commandResult.isHeaderValid()) {
             throw new IOException("Failed initial connection.");
         }
 
         mIsConnected = true;
-        setMPDVersion(connectionResult);
+        mMPDVersion = commandResult.getMPDVersion();
     }
 
     /**
@@ -298,7 +300,7 @@ public abstract class MPDConnection {
             try {
                 result = mExecutor.submit(new CommandProcessor(command)).get();
                 // Spam the log with the largest pool size
-                //Log.debug(TAG, "Largest pool size: " + mExecutor.getLargestPoolSize());
+                //Log.debug(mTag, "Largest pool size: " + mExecutor.getLargestPoolSize());
             } catch (final ExecutionException | InterruptedException e) {
                 throw new IOException(e);
             }
@@ -308,7 +310,18 @@ public abstract class MPDConnection {
             if (result.isMPDException()) {
                 throw result.getLastException();
             } else {
-                throw result.getIOException();
+                final IOException e = result.getIOException();
+
+                if (e == null) {
+                    if (!mCancelled) {
+                        Log.error(mTag, "There was no result, command was not cancelled, and no " +
+                                "exception generated. This is probably a problem.");
+                    }
+                } else if (!(mCancelled && e instanceof SocketException &&
+                        command.toString().contains(MPDCommand.MPD_CMD_IDLE))) {
+                    /** Don't throw if it's just about a cancelled command. That's expected. */
+                    throw e;
+                }
             }
         }
 
@@ -360,27 +373,6 @@ public abstract class MPDConnection {
 
     protected abstract void setInputStream(InputStreamReader inputStream);
 
-    /**
-     * Processes the {@code CommandResult} connection response to store the current media server
-     * MPD protocol version.
-     *
-     * @param response The {@code CommandResult().getConnectionResponse()}.
-     */
-    private void setMPDVersion(final String response) {
-        final String formatResponse = response.substring((MPD_RESPONSE_OK + " MPD ").length());
-
-        final StringTokenizer stringTokenizer = new StringTokenizer(formatResponse, ".");
-        final int[] version = new int[stringTokenizer.countTokens()];
-        int i = 0;
-
-        while (stringTokenizer.hasMoreElements()) {
-            version[i] = Integer.parseInt(stringTokenizer.nextToken());
-            i++;
-        }
-
-        mMPDVersion = version;
-    }
-
     protected abstract void setOutputStream(OutputStreamWriter outputStream);
 
     protected abstract void setSocket(Socket socket);
@@ -407,6 +399,7 @@ public abstract class MPDConnection {
             int retryCount = 0;
             final CommandResult result = new CommandResult();
             boolean isCommandSent = false;
+            final String baseCommand = mCommand.getCommand();
 
             while (result.getResult() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
                 try {
@@ -424,7 +417,7 @@ public abstract class MPDConnection {
                     // Do not fail when the IDLE response has not been read (to improve connection
                     // failure robustness). Just send the "changed playlist" result to force the MPD
                     // status to be refreshed.
-                    if (MPDCommand.MPD_CMD_IDLE.equals(mCommand.getCommand())) {
+                    if (MPDCommand.MPD_CMD_IDLE.equals(baseCommand)) {
                         result.setResult(Collections.singletonList(
                                 "changed: " + MPDStatusMonitor.IDLE_PLAYLIST));
                     }
@@ -441,32 +434,56 @@ public abstract class MPDConnection {
                 }
 
                 /** On successful send of non-retryable command, break out. */
-                if (!MPDCommand.isRetryable(mCommand.getCommand()) && isCommandSent) {
+                if (!MPDCommand.isRetryable(baseCommand) && isCommandSent) {
                     break;
                 }
 
                 retryCount++;
             }
 
-            if (result.getResult() == null) {
-                if (result.isMPDException()) {
-                    Log.error(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
-                            retryCount + " attempts.", result.getLastException());
-                } else if (!MPDCommand.MPD_CMD_IDLE.equals(mCommand.getCommand())) {
-                    Log.error(TAG, "MPD command " + mCommand.getCommand() + " failed after " +
-                            retryCount + " attempts.", result.getIOException());
+            if (!mCancelled) {
+                if (result.getResult() == null) {
+                    logError(result, baseCommand, retryCount);
+                } else {
+                    mIsConnected = true;
                 }
-            } else {
-                mIsConnected = true;
             }
             return result;
+        }
+
+        private void logError(final CommandResult result, final String baseCommand,
+                final int retryCount) {
+            final StringBuilder stringBuilder = new StringBuilder(50);
+
+            stringBuilder.append("Command ");
+            stringBuilder.append(baseCommand);
+            stringBuilder.append(" failed after ");
+            stringBuilder.append(retryCount + 1);
+
+            if (retryCount == 0) {
+                stringBuilder.append(" attempt.");
+            } else {
+                stringBuilder.append(" attempts.");
+            }
+
+            if (result.isMPDException()) {
+                Log.error(mTag, stringBuilder.toString(), result.getLastException());
+            } else {
+                final IOException e = result.getIOException();
+
+                /** Don't log if it's just about a cancelled command. That's expected. */
+                if (!(mCancelled && e instanceof SocketException &&
+                        baseCommand.contains(MPDCommand.MPD_CMD_IDLE))) {
+                    Log.error(mTag, stringBuilder.toString(), e);
+                }
+            }
         }
 
         /**
          * Used after a server error, sleeps for a small time then tries to reconnect.
          *
          * @param result The {@code CommandResult} which stores the connection failure.
-         * @param e The exception to set.
+         * @param e      The exception to set.
          */
         private void handleFailure(final CommandResult result, final IOException e) {
             if (isFailureHandled(result)) {
@@ -478,7 +495,7 @@ public abstract class MPDConnection {
          * Used after a server error, sleeps for a small time then tries to reconnect.
          *
          * @param result The {@code CommandResult} which stores the connection failure.
-         * @param e The exception to set.
+         * @param e      The exception to set.
          */
         private void handleFailure(final CommandResult result, final MPDException e) {
             if (isFailureHandled(result)) {
@@ -568,7 +585,7 @@ public abstract class MPDConnection {
             if (mCommand.isErrorNonfatal(errorCode)) {
                 isNonfatalACK = true;
                 if (DEBUG) {
-                    Log.debug(TAG, "Non-fatal ACK emitted, exception suppressed: " + message);
+                    Log.debug(mTag, "Non-fatal ACK emitted, exception suppressed: " + message);
                 }
             } else {
                 isNonfatalACK = false;
@@ -625,7 +642,7 @@ public abstract class MPDConnection {
             final String cmdString = mCommand.toString();
 
             // Uncomment for extreme command debugging
-            //Log.debug(TAG, "Sending MPDCommand : " + cmdString);
+            //Log.debug(mTag, "Sending MPDCommand : " + cmdString);
             getOutputStream().write(cmdString);
             getOutputStream().flush();
         }

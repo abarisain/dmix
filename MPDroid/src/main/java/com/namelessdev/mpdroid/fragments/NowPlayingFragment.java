@@ -32,8 +32,6 @@ import org.a0z.mpd.Tools;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.AlbumParcelable;
-import org.a0z.mpd.item.ArtistParcelable;
 import org.a0z.mpd.item.Music;
 
 import android.app.Activity;
@@ -44,7 +42,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.AttrRes;
 import android.support.annotation.IdRes;
@@ -136,6 +133,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private ImageButton mRepeatButton = null;
 
+    private SharedPreferences mSharedPreferences;
+
     private ImageButton mShuffleButton = null;
 
     private View mSongInfo = null;
@@ -159,8 +158,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private SeekBar mVolumeSeekBar = null;
 
     private TextView mYearNameText;
-
-    private SharedPreferences mSharedPreferences;
 
     /**
      * A convenience method to find a resource and set it as selected.
@@ -722,24 +719,18 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         switch (item.getItemId()) {
             case POPUP_ALBUM:
-                final Parcelable albumParcel =
-                        new AlbumParcelable(mCurrentSong.getAlbumAsAlbum());
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("album", albumParcel);
+                intent.putExtra("album", mCurrentSong.getAlbumAsAlbum());
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ALBUM_ARTIST:
-                final Parcelable albumArtistParcel =
-                        new ArtistParcelable(mCurrentSong.getAlbumArtistAsArtist());
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", albumArtistParcel);
+                intent.putExtra("artist", mCurrentSong.getAlbumArtistAsArtist());
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_ARTIST:
-                final Parcelable artistParcel =
-                        new ArtistParcelable(mCurrentSong.getArtistAsArtist());
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", artistParcel);
+                intent.putExtra("artist", mCurrentSong.getArtistAsArtist());
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_COVER_BLACKLIST:

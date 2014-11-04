@@ -32,7 +32,8 @@ import org.a0z.mpd.Tools;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class Album extends Item {
+/** This class is the generic base for the Album items, abstracted for backend. */
+abstract class AbstractAlbum extends Item {
 
     private final Artist mArtist;
 
@@ -51,7 +52,7 @@ public class Album extends Item {
     /**
      * This {@code Comparator} adds support for sorting by year to the default {@code comparator}.
      */
-    public static final Comparator<Album> SORT_BY_YEAR = new Comparator<Album>() {
+    public static final Comparator<AbstractAlbum> SORT_BY_YEAR = new Comparator<AbstractAlbum>() {
         /**
          * Compares the two specified objects to determine their relative ordering. The ordering
          * implied by the return value of this method for all possible pairs of
@@ -73,7 +74,7 @@ public class Album extends Item {
          * @throws ClassCastException if objects are not of the correct type.
          */
         @Override
-        public int compare(final Album lhs, final Album rhs) {
+        public int compare(final AbstractAlbum lhs, final AbstractAlbum rhs) {
             int compare = 0;
             final int leftYear = formattedYear(lhs.mYear);
             final int rightYear = formattedYear(rhs.mYear);
@@ -123,7 +124,7 @@ public class Album extends Item {
         }
     };
 
-    public Album(final Album otherAlbum) {
+    AbstractAlbum(final AbstractAlbum otherAlbum) {
         this(otherAlbum.mName,
                 new Artist(otherAlbum.mArtist),
                 otherAlbum.mHasAlbumArtist,
@@ -133,15 +134,15 @@ public class Album extends Item {
                 otherAlbum.mPath);
     }
 
-    public Album(final String name, final Artist artist) {
+    AbstractAlbum(final String name, final Artist artist) {
         this(name, artist, false, 0L, 0L, 0L, null);
     }
 
-    public Album(final String name, final Artist artist, final boolean hasAlbumArtist) {
+    AbstractAlbum(final String name, final Artist artist, final boolean hasAlbumArtist) {
         this(name, artist, hasAlbumArtist, 0L, 0L, 0L, null);
     }
 
-    public Album(final String name, final Artist artist, final boolean hasAlbumArtist,
+    AbstractAlbum(final String name, final Artist artist, final boolean hasAlbumArtist,
             final long songCount, final long duration,
             final long year, final String path) {
         super();
@@ -158,8 +159,8 @@ public class Album extends Item {
     public boolean doesNameExist(final Item o) {
         final boolean result;
 
-        if (o instanceof Album) {
-            final Album a = (Album) o;
+        if (o instanceof AbstractAlbum) {
+            final AbstractAlbum a = (AbstractAlbum) o;
             result = mName.equals(a.mName) && mArtist.doesNameExist(a.mArtist);
         } else {
             result = false;
@@ -187,7 +188,7 @@ public class Album extends Item {
         }
 
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            final Album album = (Album) o;
+            final AbstractAlbum album = (AbstractAlbum) o;
 
             if (Tools.isNotEqual(mName, album.mName) || Tools.isNotEqual(mArtist, album.mArtist)) {
                 isEqual = Boolean.FALSE;
