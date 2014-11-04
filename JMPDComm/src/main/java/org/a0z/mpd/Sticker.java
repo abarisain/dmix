@@ -258,9 +258,7 @@ public class Sticker {
     }
 
     /**
-     * Reads the sticker value for this entry. Use of this method is discouraged at this time.
-     * If the sticker to get does not exist, this will throw an exception which will be fixed by
-     * improved error handling.
+     * Reads the sticker value for this entry.
      *
      * @param entry The entry to retrieve.
      * @param name  The optional name to sticker key to receive. If null all names will be
