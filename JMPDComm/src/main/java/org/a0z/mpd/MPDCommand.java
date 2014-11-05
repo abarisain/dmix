@@ -46,8 +46,6 @@ public class MPDCommand {
 
     public static final String MPD_CMD_CLOSE = "close";
 
-    public static final String MPD_CMD_COMMANDS = "commands";
-
     public static final String MPD_CMD_CONSUME = "consume";
 
     public static final String MPD_CMD_COUNT = "count";
@@ -88,8 +86,6 @@ public class MPDCommand {
     public static final String MPD_CMD_PASSWORD = "password";
 
     public static final String MPD_CMD_PAUSE = "pause";
-
-    public static final String MPD_CMD_PERMISSION = "permission";
 
     public static final String MPD_CMD_PING = "ping";
 

@@ -32,6 +32,7 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.Tools;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.subsystem.Reflection;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -51,8 +52,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import static org.a0z.mpd.Tools.VALUE;
 
 /**
  * Class representing a connection to MPD Server.
@@ -128,23 +127,6 @@ public abstract class MPDConnection {
     }
 
     /**
-     * Puts all available commands into a set backed collection.
-     *
-     * @param response The media server response to the {@link MPDCommand#MPD_CMD_COMMANDS}
-     *                 command.
-     * @return A collection of available commands from the response.
-     */
-    private static Collection<String> getCommands(final Collection<String> response) {
-        final Collection<String> commands = new HashSet<>(response.size());
-
-        for (final String[] pair : Tools.splitResponse(response)) {
-            commands.add(pair[VALUE]);
-        }
-
-        return commands;
-    }
-
-    /**
      * Sets up connection to host/port pair with MPD password.
      *
      * @param host     The media server host to connect to.
@@ -162,12 +144,14 @@ public abstract class MPDConnection {
         mPassword = password;
         mSocketAddress = new InetSocketAddress(host, port);
 
-        final MPDCommand mpdCommand = new MPDCommand(MPDCommand.MPD_CMD_COMMANDS);
+        final MPDCommand mpdCommand = new MPDCommand(Reflection.CMD_ACTION_COMMANDS);
         final CommandResult commandResult = processCommand(mpdCommand);
 
         synchronized (mAvailableCommands) {
+            final Collection<String> response = Tools.
+                    parseResponse(commandResult.getResult(), Reflection.CMD_RESPONSE_COMMANDS);
             mAvailableCommands.clear();
-            mAvailableCommands.addAll(getCommands(commandResult.getResult()));
+            mAvailableCommands.addAll(response);
         }
 
         if (!commandResult.isHeaderValid()) {
