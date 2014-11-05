@@ -98,7 +98,7 @@ public abstract class MPDConnection {
     private boolean mIsConnected = false;
 
     /** Current media server's major/minor/micro version. */
-    private int[] mMPDVersion = null;
+    private int[] mMPDVersion = { 0, 0, 0 };
 
     /** Current media server password. */
     private String mPassword = null;

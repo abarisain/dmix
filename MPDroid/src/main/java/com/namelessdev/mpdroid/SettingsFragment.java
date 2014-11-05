@@ -86,26 +86,30 @@ public class SettingsFragment extends PreferenceFragment {
 
     public void onConnectionStateChanged() {
         final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
-        mInformationScreen.setEnabled(mpd.isConnected());
+        final boolean isConnected = mpd.isConnected();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final String versionText = mpd.getMpdVersion();
-                final MPDStatistics mpdStatistics = mpd.getStatistics();
+        mInformationScreen.setEnabled(isConnected);
 
-                mHandler.post(new Runnable() {
+        if (isConnected) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final String versionText = mpd.getMpdVersion();
+                    final MPDStatistics mpdStatistics = mpd.getStatistics();
 
-                    @Override
-                    public void run() {
-                        mVersion.setSummary(versionText);
-                        mArtists.setSummary(String.valueOf(mpdStatistics.getArtists()));
-                        mAlbums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
-                        mSongs.setSummary(String.valueOf(mpdStatistics.getSongs()));
-                    }
-                });
-            }
-        }).start();
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            mVersion.setSummary(versionText);
+                            mArtists.setSummary(String.valueOf(mpdStatistics.getArtists()));
+                            mAlbums.setSummary(String.valueOf(mpdStatistics.getAlbums()));
+                            mSongs.setSummary(String.valueOf(mpdStatistics.getSongs()));
+                        }
+                    });
+                }
+            }).start();
+        }
     }
 
     @Override
