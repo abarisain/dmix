@@ -33,10 +33,11 @@ import org.a0z.mpd.exception.MPDException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /** A class to generate and send a command queue. */
-public class CommandQueue {
+public class CommandQueue implements Iterable<MPDCommand> {
 
     private static final boolean DEBUG = false;
 
@@ -157,6 +158,16 @@ public class CommandQueue {
 
     public boolean isEmpty() {
         return mCommandQueue.isEmpty();
+    }
+
+    /**
+     * Returns an {@link java.util.Iterator} for the elements in this object.
+     *
+     * @return An {@code Iterator} instance.
+     */
+    @Override
+    public Iterator<MPDCommand> iterator() {
+        return mCommandQueue.iterator();
     }
 
     /** Reverse the command queue order, useful for removing playlist entries. */
