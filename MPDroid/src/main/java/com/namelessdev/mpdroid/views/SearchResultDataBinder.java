@@ -70,7 +70,7 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
             final Music music;
             music = (Music) item;
             formattedResult1 = music.getTitle();
-            formattedResult2 = join(music.getAlbum(), music.getArtist());
+            formattedResult2 = join(music.getAlbumName(), music.getArtistName());
         } else if (item instanceof Artist) {
             formattedResult1 = ((Item) item).mainText();
         } else if (item instanceof Album) {

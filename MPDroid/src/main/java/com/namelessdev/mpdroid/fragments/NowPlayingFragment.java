@@ -392,7 +392,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final char[] separator = {' ', '-', ' '};
         final String fullPath = mCurrentSong.getFullPath();
         final String sharePrefix = getString(R.string.sharePrefix);
-        final String trackArtist = mCurrentSong.getArtist();
+        final String trackArtist = mCurrentSong.getArtistName();
         final String trackTitle = mCurrentSong.getTitle();
         final int initialLength = trackTitle.length() + sharePrefix.length() + 64;
         final StringBuilder shareString = new StringBuilder(initialLength);
@@ -453,10 +453,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
              */
             private boolean isAlbumArtistVisible() {
                 boolean albumArtistEnabled = false;
-                final String albumArtist = mCurrentSong.getAlbumArtist();
+                final String albumArtist = mCurrentSong.getAlbumArtistName();
 
                 if (albumArtist != null && !albumArtist.isEmpty()) {
-                    final String artist = mCurrentSong.getArtist();
+                    final String artist = mCurrentSong.getArtistName();
 
                     if (isArtistVisible() && !albumArtist.equals(artist)) {
                         albumArtistEnabled = true;
@@ -473,7 +473,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
              */
             private boolean isAlbumVisible() {
                 final boolean isAlbumVisible;
-                final String album = mCurrentSong.getAlbum();
+                final String album = mCurrentSong.getAlbumName();
 
                 if (album != null && !album.isEmpty()) {
                     isAlbumVisible = true;
@@ -491,7 +491,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
              */
             private boolean isArtistVisible() {
                 final boolean isArtistVisible;
-                final String artist = mCurrentSong.getArtist();
+                final String artist = mCurrentSong.getArtistName();
 
                 if (artist != null && !artist.isEmpty()) {
                     isArtistVisible = true;
@@ -935,13 +935,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         switch (itemId) {
             case POPUP_ALBUM:
-                intent.putExtra("album", mCurrentSong.getAlbumAsAlbum());
+                intent.putExtra("album", mCurrentSong.getAlbum());
                 break;
             case POPUP_ALBUM_ARTIST:
-                intent.putExtra("artist", mCurrentSong.getAlbumArtistAsArtist());
+                intent.putExtra("artist", mCurrentSong.getAlbumArtist());
                 break;
             case POPUP_ARTIST:
-                intent.putExtra("artist", mCurrentSong.getArtistAsArtist());
+                intent.putExtra("artist", mCurrentSong.getArtist());
                 break;
             case POPUP_FOLDER:
                 final String path = mCurrentSong.getFullPath();

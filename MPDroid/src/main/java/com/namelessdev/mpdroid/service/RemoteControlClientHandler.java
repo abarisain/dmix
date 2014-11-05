@@ -162,11 +162,11 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                                             RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
                                             albumCover)
                                     .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                                            currentTrack.getAlbum())
+                                            currentTrack.getAlbumName())
                                     .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                                            currentTrack.getAlbumArtist())
+                                            currentTrack.getAlbumArtistName())
                                     .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                                            currentTrack.getArtist())
+                                            currentTrack.getArtistName())
                                     .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
                                             (long) currentTrack.getTrack())
                                     .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
@@ -262,11 +262,11 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                 try {
                     mRemoteControlClient.editMetadata(false)
                             .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                                    currentTrack.getAlbum())
+                                    currentTrack.getAlbumName())
                             .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                                    currentTrack.getAlbumArtist())
+                                    currentTrack.getAlbumArtistName())
                             .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                                    currentTrack.getArtist())
+                                    currentTrack.getArtistName())
                             .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
                                     (long) currentTrack.getTrack())
                             .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,

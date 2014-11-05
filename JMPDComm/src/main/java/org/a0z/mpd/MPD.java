@@ -1043,7 +1043,7 @@ public class MPD {
             }
 
             for (int i = songs.size() - 1; i >= 0; i--) {
-                final String albumArtist = songs.get(i).getAlbumArtist();
+                final String albumArtist = songs.get(i).getAlbumArtistName();
                 if (albumArtist != null && !albumArtist.isEmpty()
                         && !albumArtist.equals(artistName)) {
                     songs.remove(i);

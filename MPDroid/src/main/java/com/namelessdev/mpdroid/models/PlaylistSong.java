@@ -38,11 +38,11 @@ public class PlaylistSong extends AbstractPlaylistMusic {
     @Override
     public String getPlaylistSubLine() {
         final Collection<String> subLineTexts = new ArrayList<>();
-        if (!isEmpty(getArtist())) {
-            subLineTexts.add(getArtist());
+        if (!isEmpty(getArtistName())) {
+            subLineTexts.add(getArtistName());
         }
-        if (!isEmpty(getAlbum())) {
-            subLineTexts.add(getAlbum());
+        if (!isEmpty(getAlbumName())) {
+            subLineTexts.add(getAlbumName());
         }
         return join(" - ", subLineTexts);
     }

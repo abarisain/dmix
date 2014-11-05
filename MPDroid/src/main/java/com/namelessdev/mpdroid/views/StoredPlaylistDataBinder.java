@@ -68,8 +68,8 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
             final Object item, final int position) {
         final PlaylistViewHolder holder = (PlaylistViewHolder) viewHolder;
         final Music music = (Music) item;
-        String artist = music.getArtist();
-        String album = music.getAlbum();
+        String artist = music.getArtistName();
+        String album = music.getAlbumName();
 
         if (Tools.isStringEmptyOrNull(artist)) {
             artist = null;

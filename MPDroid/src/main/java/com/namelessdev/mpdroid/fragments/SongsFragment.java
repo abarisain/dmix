@@ -135,7 +135,7 @@ public class SongsFragment extends BrowseFragment {
             for (final Item item : mItems) {
                 song = (Music) item;
                 if (lastArtist == null) {
-                    lastArtist = song.getArtist();
+                    lastArtist = song.getArtistName();
                     continue;
                 }
                 if (!lastArtist.equalsIgnoreCase(song.getAlbumArtistOrArtist())) {

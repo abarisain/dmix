@@ -211,9 +211,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 mSongResults.add(music);
             }
             valueFound = false;
-            Artist artist = music.getAlbumArtistAsArtist();
+            Artist artist = music.getAlbumArtist();
             if (artist == null || artist.isUnknown()) {
-                artist = music.getArtistAsArtist();
+                artist = music.getArtist();
             }
             if (artist != null) {
                 final String name = artist.getName();
@@ -235,7 +235,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             }
 
             valueFound = false;
-            final Album album = music.getAlbumAsAlbum();
+            final Album album = music.getAlbum();
             if (album != null) {
                 final String albumName = album.getName();
                 if (albumName != null) {
@@ -444,7 +444,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 final Intent intent = new Intent(this, SimpleLibraryActivity.class);
                 final Parcelable artist = new Artist(music.getAlbumArtistOrArtist());
                 intent.putExtra("artist", artist);
-                intent.putExtra("album", music.getAlbumAsAlbum());
+                intent.putExtra("album", music.getAlbum());
                 startActivityForResult(intent, -1);
             }
         } else {

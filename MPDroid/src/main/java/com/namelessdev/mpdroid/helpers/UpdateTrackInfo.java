@@ -166,10 +166,10 @@ public class UpdateTrackInfo {
                         mTitle = mCurrentTrack.getName();
                     }
 
-                    mArtist = mCurrentTrack.getArtist();
+                    mArtist = mCurrentTrack.getArtistName();
                     mAlbumInfo = new AlbumInfo(mArtist, mAlbum);
                 } else {
-                    mAlbum = mCurrentTrack.getAlbum();
+                    mAlbum = mCurrentTrack.getAlbumName();
 
                     mDate = Long.toString(mCurrentTrack.getDate());
                     if (mDate.isEmpty() || mDate.charAt(0) == '-') {
@@ -273,9 +273,9 @@ public class UpdateTrackInfo {
          */
         private void setArtist() {
             final boolean showAlbumArtist = mSettings.getBoolean("showAlbumArtist", true);
-            final String albumArtist = mCurrentTrack.getAlbumArtist();
+            final String albumArtist = mCurrentTrack.getAlbumArtistName();
 
-            mArtist = mCurrentTrack.getArtist();
+            mArtist = mCurrentTrack.getArtistName();
             if (mArtist == null || mArtist.isEmpty()) {
                 mArtist = albumArtist;
             } else if (showAlbumArtist && albumArtist != null &&

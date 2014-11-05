@@ -332,12 +332,12 @@ public class MPDPlaylist {
         synchronized (mList) {
             for (final Music song : mList) {
                 if (song.getSongId() == songId) {
-                    artist = song.getAlbumArtist();
+                    artist = song.getAlbumArtistName();
                     if (artist == null || artist.isEmpty()) {
                         usingAlbumArtist = false;
-                        artist = song.getArtist();
+                        artist = song.getArtistName();
                     }
-                    album = song.getAlbum();
+                    album = song.getAlbumName();
                     break;
                 }
             }
@@ -354,11 +354,11 @@ public class MPDPlaylist {
             /** Don't allow the list to change before we've computed the CommandList. */
             synchronized (mList) {
                 for (final Music track : mList) {
-                    if (album.equals(track.getAlbum())) {
+                    if (album.equals(track.getAlbumName())) {
                         final boolean songIsAlbumArtist =
-                                usingAlbumArtist && artist.equals(track.getAlbumArtist());
+                                usingAlbumArtist && artist.equals(track.getAlbumArtistName());
                         final boolean songIsArtist =
-                                !usingAlbumArtist && artist.equals(track.getArtist());
+                                !usingAlbumArtist && artist.equals(track.getArtistName());
 
                         if (songIsArtist || songIsAlbumArtist) {
                             final String songID = Integer.toString(track.getSongId());

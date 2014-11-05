@@ -57,12 +57,12 @@ public class Music extends AbstractMusic implements Parcelable {
         super(music);
     }
 
-    Music(final String album, final String artist, final String albumArtist,
-            final String composer, final String fullPath, final int disc, final long date,
-            final String genre, final long time, final String title, final int totalTracks,
-            final int track, final int songId, final int songPos, final String name) {
-        super(album, artist, albumArtist, composer, fullPath, disc, date, genre, time, title,
-                totalTracks, track, songId, songPos, name);
+    Music(final String album, final String albumArtist, final String artist, final String composer,
+            final long date, final int disc, final String fullPath, final String genre,
+            final String name, final int songId, final int songPos, final long time,
+            final String title, final int totalTracks, final int track) {
+        super(album, albumArtist, artist, composer, date, disc, fullPath, genre, name, songId,
+                songPos, time, title, totalTracks, track);
     }
 
     /**
@@ -72,9 +72,9 @@ public class Music extends AbstractMusic implements Parcelable {
      * @param in The {@link android.os.Parcel} that contains our object
      */
     protected Music(final Parcel in) {
-        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readString(),
-                in.readInt(), in.readLong(), in.readString(), in.readLong(), in.readString(),
-                in.readInt(), in.readInt(), in.readInt(), in.readInt(), in.readString());
+        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(),
+                in.readInt(), in.readString(), in.readString(), in.readString(), in.readInt(),
+                in.readInt(), in.readLong(), in.readString(), in.readInt(), in.readInt());
     }
 
     @Override
@@ -84,20 +84,20 @@ public class Music extends AbstractMusic implements Parcelable {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(mAlbum);
-        dest.writeString(mArtist);
-        dest.writeString(mAlbumArtist);
-        dest.writeString(mComposer);
-        dest.writeString(mFullPath);
-        dest.writeInt(mDisc);
+        dest.writeString(mAlbumName);
+        dest.writeString(mAlbumArtistName);
+        dest.writeString(mArtistName);
+        dest.writeString(mComposerName);
         dest.writeLong(mDate);
-        dest.writeString(mGenre);
+        dest.writeInt(mDisc);
+        dest.writeString(mFullPath);
+        dest.writeString(mGenreName);
+        dest.writeString(mName);
+        dest.writeInt(mSongId);
+        dest.writeInt(mSongPos);
         dest.writeLong(mTime);
         dest.writeString(mTitle);
         dest.writeInt(mTotalTracks);
         dest.writeInt(mTrack);
-        dest.writeInt(mSongId);
-        dest.writeInt(mSongPos);
-        dest.writeString(mName);
     }
 }

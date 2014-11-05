@@ -50,16 +50,16 @@ import static org.a0z.mpd.Tools.VALUE;
  */
 public abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
 
-    /** The media server response key returned for a {@link #mAlbum} value. */
+    /** The media server response key returned for a {@link #mAlbumName} value. */
     public static final String CMD_KEY_ALBUM = "Album";
 
-    /** The media server response key returned for a {@link #mAlbumArtist} value. */
+    /** The media server response key returned for a {@link #mAlbumArtistName} value. */
     public static final String CMD_KEY_ALBUM_ARTIST = "AlbumArtist";
 
-    /** The media server response key returned for a {@link #mArtist} value. */
+    /** The media server response key returned for a {@link #mArtistName} value. */
     public static final String CMD_KEY_ARTIST = "Artist";
 
-    /** The media server response key returned for a {@link #mComposer} value. */
+    /** The media server response key returned for a {@link #mComposerName} value. */
     public static final String CMD_KEY_COMPOSER = "Composer";
 
     /** The media server response key returned for a {@link #mDate} value. */
@@ -71,7 +71,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     /** The media server response key returned for a {@code #mFullPath} value. */
     public static final String CMD_KEY_FILE = "file";
 
-    /** The media server response key returned for a {@link #mGenre} value. */
+    /** The media server response key returned for a {@link #mGenreName} value. */
     public static final String CMD_KEY_GENRE = "Genre";
 
     /** The media server response key returned for a {@link #mName} value. */
@@ -140,13 +140,13 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
 
     private static final int UNDEFINED_INT = -1;
 
-    final String mAlbum;
+    final String mAlbumArtistName;
 
-    final String mAlbumArtist;
+    final String mAlbumName;
 
-    final String mArtist;
+    final String mArtistName;
 
-    final String mComposer;
+    final String mComposerName;
 
     final long mDate;
 
@@ -154,7 +154,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
 
     final String mFullPath;
 
-    final String mGenre;
+    final String mGenreName;
 
     final String mName;
 
@@ -171,44 +171,46 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     final int mTrack;
 
     AbstractMusic() {
-        this(null, /** Album */
-                null, /** Artist */
-                null, /** AlbumArtist */
-                null, /** Composer */
-                null, /** FullPath */
-                UNDEFINED_INT, /** Disc */
+        this(null, /** AlbumName */
+                null, /** AlbumArtistName */
+                null, /** ArtistName */
+                null, /** ComposerName */
                 -1L, /** Date */
-                null, /** Genre */
+                UNDEFINED_INT, /** Disc */
+                null, /** FullPath */
+                null, /** GenreName */
+                null, /** Name */
+                UNDEFINED_INT, /** SongID */
+                UNDEFINED_INT, /** SongPos */
                 -1L, /** Time */
                 null, /** Title */
                 UNDEFINED_INT, /** TotalTracks*/
-                UNDEFINED_INT, /** Track */
-                UNDEFINED_INT, /** SongID */
-                UNDEFINED_INT, /** SongPos */
-                null); /** Name */
+                UNDEFINED_INT /** Track */
+        );
 
     }
 
     AbstractMusic(final AbstractMusic music) {
-        this(music.mAlbum, music.mArtist, music.mAlbumArtist, music.mComposer, music.mFullPath,
-                music.mDisc, music.mDate, music.mGenre, music.mTime, music.mTitle,
-                music.mTotalTracks, music.mTrack, music.mSongId, music.mSongPos, music.mName);
+        this(music.mAlbumName, music.mAlbumArtistName, music.mArtistName, music.mComposerName,
+                music.mDate, music.mDisc, music.mFullPath, music.mGenreName, music.mName,
+                music.mSongId, music.mSongPos, music.mTime, music.mTitle, music.mTotalTracks,
+                music.mTrack);
     }
 
-    AbstractMusic(final String album, final String artist, final String albumArtist,
-            final String composer, final String fullPath, final int disc, final long date,
-            final String genre, final long time, final String title, final int totalTracks,
-            final int track, final int songId, final int songPos, final String name) {
+    AbstractMusic(final String albumName, final String albumArtistName, final String artistName,
+            final String composerName, final long date, final int disc, final String fullPath,
+            final String genreName, final String name, final int songId, final int songPos,
+            final long time, final String title, final int totalTracks, final int track) {
         super();
 
-        mAlbum = album;
-        mArtist = artist;
-        mAlbumArtist = albumArtist;
-        mComposer = composer;
+        mAlbumName = albumName;
+        mArtistName = artistName;
+        mAlbumArtistName = albumArtistName;
+        mComposerName = composerName;
         mFullPath = fullPath;
         mDisc = disc;
         mDate = date;
-        mGenre = genre;
+        mGenreName = genreName;
         mTime = time;
         mTitle = title;
         mTotalTracks = totalTracks;
@@ -219,14 +221,14 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     }
 
     static Music build(final Collection<String> response) {
-        String album = null;
-        String artist = null;
-        String albumArtist = null;
-        String composer = null;
+        String albumName = null;
+        String artistName = null;
+        String albumArtistName = null;
+        String composerName = null;
         String fullPath = null;
         int disc = UNDEFINED_INT;
         long date = -1L;
-        String genre = null;
+        String genreName = null;
         long time = -1L;
         String title = null;
         int totalTracks = UNDEFINED_INT;
@@ -239,16 +241,16 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
 
             switch (pair[KEY]) {
                 case CMD_KEY_ALBUM:
-                    album = pair[VALUE];
+                    albumName = pair[VALUE];
                     break;
                 case CMD_KEY_ALBUM_ARTIST:
-                    albumArtist = pair[VALUE];
+                    albumArtistName = pair[VALUE];
                     break;
                 case CMD_KEY_ARTIST:
-                    artist = pair[VALUE];
+                    artistName = pair[VALUE];
                     break;
                 case CMD_KEY_COMPOSER:
-                    composer = pair[VALUE];
+                    composerName = pair[VALUE];
                     break;
                 case CMD_KEY_DATE:
                     try {
@@ -282,7 +284,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                     }
                     break;
                 case CMD_KEY_GENRE:
-                    genre = pair[VALUE];
+                    genreName = pair[VALUE];
                     break;
                 case CMD_KEY_NAME:
                     /**
@@ -339,8 +341,8 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
             }
         }
 
-        return new Music(album, artist, albumArtist, composer, fullPath, disc, date, genre,
-                time, title, totalTracks, track, songId, songPos, name);
+        return new Music(albumName, albumArtistName, artistName, composerName, date, disc, fullPath, genreName, name,
+                songId, songPos, time, title, totalTracks, track);
     }
 
     /**
@@ -541,11 +543,11 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
             final AbstractMusic music = (AbstractMusic) o;
 
             final Object[][] equalsObjects = {
-                    {mAlbum, music.mAlbum},
-                    {mAlbumArtist, music.mAlbumArtist},
-                    {mArtist, music.mArtist},
-                    {mComposer, music.mComposer},
-                    {mGenre, music.mGenre},
+                    {mAlbumName, music.mAlbumName},
+                    {mAlbumArtistName, music.mAlbumArtistName},
+                    {mArtistName, music.mArtistName},
+                    {mComposerName, music.mComposerName},
+                    {mGenreName, music.mGenreName},
                     {mName, music.mName},
                     {mTitle, music.mTitle}
             };
@@ -574,13 +576,21 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         return isEqual.booleanValue();
     }
 
-    /**
-     * Retrieves album name.
-     *
-     * @return album name.
-     */
-    public String getAlbum() {
-        return mAlbum;
+    public Album getAlbum() {
+        final boolean isAlbumArtist = !isEmpty(mAlbumArtistName);
+        final Artist artist;
+
+        if (isAlbumArtist) {
+            artist = new Artist(mAlbumArtistName);
+        } else {
+            artist = new Artist(mArtistName);
+        }
+
+        return new Album(mAlbumName, artist, isAlbumArtist);
+    }
+
+    public Artist getAlbumArtist() {
+        return new Artist(mAlbumArtistName);
     }
 
     /**
@@ -588,39 +598,35 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
      *
      * @return album artist name or null if it is not set.
      */
-    public String getAlbumArtist() {
-        return mAlbumArtist;
-    }
-
-    public Artist getAlbumArtistAsArtist() {
-        return new Artist(mAlbumArtist);
+    public String getAlbumArtistName() {
+        return mAlbumArtistName;
     }
 
     public String getAlbumArtistOrArtist() {
         final String result;
 
-        if (mAlbumArtist != null && !mAlbumArtist.isEmpty()) {
-            result = mAlbumArtist;
-        } else if (mArtist != null && !mArtist.isEmpty()) {
-            result = mArtist;
+        if (mAlbumArtistName != null && !mAlbumArtistName.isEmpty()) {
+            result = mAlbumArtistName;
+        } else if (mArtistName != null && !mArtistName.isEmpty()) {
+            result = mArtistName;
         } else {
-            result = getArtistAsArtist().mainText();
+            result = getArtist().mainText();
         }
 
         return result;
     }
 
-    public Album getAlbumAsAlbum() {
-        final boolean isAlbumArtist = !isEmpty(mAlbumArtist);
-        final Artist artist;
+    /**
+     * Retrieves album name.
+     *
+     * @return album name.
+     */
+    public String getAlbumName() {
+        return mAlbumName;
+    }
 
-        if (isAlbumArtist) {
-            artist = new Artist(mAlbumArtist);
-        } else {
-            artist = new Artist(mArtist);
-        }
-
-        return new Album(mAlbum, artist, isAlbumArtist);
+    public Artist getArtist() {
+        return new Artist(mArtistName);
     }
 
     /**
@@ -628,16 +634,12 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
      *
      * @return artist name.
      */
-    public String getArtist() {
-        return mArtist;
+    public String getArtistName() {
+        return mArtistName;
     }
 
-    public Artist getArtistAsArtist() {
-        return new Artist(mArtist);
-    }
-
-    public String getComposer() {
-        return mComposer;
+    public String getComposerName() {
+        return mComposerName;
     }
 
     public long getDate() {
@@ -687,8 +689,8 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         return mFullPath;
     }
 
-    public String getGenre() {
-        return mGenre;
+    public String getGenreName() {
+        return mGenreName;
     }
 
     /**
@@ -808,7 +810,8 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
 
     @Override
     public int hashCode() {
-        final Object[] objects = {mAlbum, mArtist, mAlbumArtist, mGenre, mName, mTitle};
+        final Object[] objects = {mAlbumName, mArtistName, mAlbumArtistName, mGenreName, mName,
+                mTitle};
 
         int result = 31 * mFullPath.hashCode();
         result = 31 * result + mDisc;

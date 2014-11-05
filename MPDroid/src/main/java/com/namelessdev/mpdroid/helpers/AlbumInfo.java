@@ -50,12 +50,12 @@ public class AlbumInfo {
 
     public AlbumInfo(final Music music) {
         super();
-        String artist = music.getAlbumArtist();
+        String artist = music.getAlbumArtistName();
         if (artist == null) {
-            artist = music.getArtist();
+            artist = music.getArtistName();
         }
         mArtist = artist;
-        mAlbum = music.getAlbum();
+        mAlbum = music.getAlbumName();
         mPath = music.getPath();
         mFilename = music.getFilename();
     }

@@ -178,7 +178,7 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
      */
     private static void updateNotBufferingContent(final RemoteViews resultView, final Music music) {
         resultView.setTextViewText(R.id.notificationTitle, music.getTitle());
-        resultView.setTextViewText(R.id.notificationArtist, music.getArtist());
+        resultView.setTextViewText(R.id.notificationArtist, music.getArtistName());
     }
 
     /**
@@ -297,14 +297,14 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     updateBufferingContent(mNotification.bigContentView, title);
                     mNotification.bigContentView.setTextViewText(R.id.notificationAlbum,
-                            currentTrack.getArtist());
+                            currentTrack.getArtistName());
                 }
             } else {
                 updateNotBufferingContent(mNotification.contentView, currentTrack);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     updateNotBufferingContent(mNotification.bigContentView, currentTrack);
                     mNotification.bigContentView.setTextViewText(R.id.notificationAlbum,
-                            currentTrack.getAlbum());
+                            currentTrack.getAlbumName());
                 }
             }
 

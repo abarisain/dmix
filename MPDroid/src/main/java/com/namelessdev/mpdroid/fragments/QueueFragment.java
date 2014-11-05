@@ -372,23 +372,24 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 break;
             case R.id.PLCX_goToArtist:
                 music = getPlaylistItemSong(mPopupSongID);
-                if (music == null || isEmpty(music.getArtist())) {
+                if (music == null || isEmpty(music.getArtistName())) {
                     break;
                 }
 
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", music.getArtistAsArtist());
+                intent.putExtra("artist", music.getArtist());
                 startActivityForResult(intent, -1);
                 break;
             case R.id.PLCX_goToAlbum:
                 music = getPlaylistItemSong(mPopupSongID);
 
-                if (music == null || isEmpty(music.getArtist()) || isEmpty(music.getAlbum())) {
+                if (music == null || isEmpty(music.getArtistName()) ||
+                        isEmpty(music.getAlbumName())) {
                     break;
                 }
 
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("album", music.getAlbumAsAlbum());
+                intent.putExtra("album", music.getAlbum());
                 startActivityForResult(intent, -1);
                 break;
             case R.id.PLCX_goToFolder:
@@ -657,7 +658,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             }
 
             if (mFilter != null) {
-                if (!(isFiltered(item.getAlbumArtist()) || isFiltered(item.getAlbum()) ||
+                if (!(isFiltered(item.getAlbumArtistName()) || isFiltered(item.getAlbumName()) ||
                         isFiltered(item.getTitle()))) {
                     continue;
                 }

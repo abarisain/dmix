@@ -42,11 +42,11 @@ public class Music extends AbstractMusic {
         super(music);
     }
 
-    protected Music(final String album, final String artist, final String albumArtist,
-            final String composer, final String fullPath, final int disc, final long date,
-            final String genre, final long time, final String title, final int totalTracks,
-            final int track, final int songId, final int songPos, final String name) {
-        super(album, artist, albumArtist, composer, fullPath, disc, date, genre, time, title,
-                totalTracks, track, songId, songPos, name);
+    protected Music(final String album, final String albumArtist, final String artist,
+            final String composer, final long date, final int disc, final String fullPath,
+            final String genre, final String name, final int songId, final int songPos,
+            final long time, final String title, final int totalTracks, final int track) {
+        super(album, albumArtist, artist, composer, date, disc, fullPath, genre, name, songId,
+                songPos, time, title, totalTracks, track);
     }
 }

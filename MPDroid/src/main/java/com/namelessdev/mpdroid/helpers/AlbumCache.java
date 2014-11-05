@@ -295,9 +295,9 @@ public class AlbumCache {
 
         try {
             for (final Music music : allmusic) {
-                final String albumArtist = music.getAlbumArtist();
-                final String artist = music.getArtist();
-                String album = music.getAlbum();
+                final String albumArtist = music.getAlbumArtistName();
+                final String artist = music.getArtistName();
+                String album = music.getAlbumName();
                 if (album == null) {
                     album = "";
                 }
