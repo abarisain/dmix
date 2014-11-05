@@ -79,9 +79,11 @@ public class CachedMPD extends MPD {
      * Adds path information to all album objects in a list.
      *
      * @param albums List of Album objects to add path information.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    protected void addAlbumPaths(final List<Album> albums) {
+    protected void addAlbumPaths(final List<Album> albums) throws IOException, MPDException {
         if (!isCached()) {
             super.addAlbumPaths(albums);
             return;

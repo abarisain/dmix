@@ -366,16 +366,12 @@ public class MPD {
         add(commandQueue, replace, play);
     }
 
-    protected void addAlbumPaths(final List<Album> albums) {
+    protected void addAlbumPaths(final List<Album> albums) throws IOException, MPDException {
         if (albums != null && !albums.isEmpty()) {
             for (final Album album : albums) {
-                try {
-                    final List<Music> songs = getFirstTrack(album);
-                    if (!songs.isEmpty()) {
-                        album.setPath(songs.get(0).getPath());
-                    }
-                } catch (final IOException | MPDException e) {
-                    Log.error(TAG, "Failed to add an album path.", e);
+                final List<Music> songs = getFirstTrack(album);
+                if (!songs.isEmpty()) {
+                    album.setPath(songs.get(0).getPath());
                 }
             }
         }
