@@ -187,28 +187,6 @@ public class MPD {
         return new MPDCommand(MPDCommand.MPD_CMD_NEXT);
     }
 
-    /**
-     * Parse the response from tag list command for album artists.
-     *
-     * @param response        The album artist list response from the MPD server database.
-     * @param substring       The substring from the response to remove.
-     * @param sortInsensitive Whether to sort insensitively.
-     * @return Returns a parsed album artist list.
-     */
-    private static List<String> parseResponse(final Collection<String> response,
-            final String substring, final boolean sortInsensitive) {
-        final List<String> result = new ArrayList<>(response.size());
-        for (final String line : response) {
-            result.add(line.substring((substring + ": ").length()));
-        }
-        if (sortInsensitive) {
-            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-        } else {
-            Collections.sort(result);
-        }
-        return result;
-    }
-
     private static MPDCommand skipToPositionCommand(final int position) {
         return new MPDCommand(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
     }
@@ -1110,7 +1088,7 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ALBUM_ARTIST);
 
-        return parseResponse(response, "albumartist", sortInsensitive);
+        return Tools.parseResponse(response, "albumartist", sortInsensitive);
     }
 
     public List<String> listAlbumArtists(final Genre genre) throws IOException, MPDException {
@@ -1130,7 +1108,7 @@ public class MPD {
                 MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM_ARTIST,
                 MPDCommand.MPD_TAG_GENRE, genre.getName());
 
-        return parseResponse(response, MPDCommand.MPD_TAG_ALBUM_ARTIST, sortInsensitive);
+        return Tools.parseResponse(response, MPDCommand.MPD_TAG_ALBUM_ARTIST, sortInsensitive);
     }
 
     public List<String[]> listAlbumArtists(final List<Album> albums)
@@ -1359,7 +1337,7 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST);
 
-        return parseResponse(response, "Artist", sortInsensitive);
+        return Tools.parseResponse(response, "Artist", sortInsensitive);
     }
 
     /**
@@ -1435,7 +1413,7 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST, MPDCommand.MPD_TAG_GENRE, genre);
 
-        return parseResponse(response, "Artist", sortInsensitive);
+        return Tools.parseResponse(response, "Artist", sortInsensitive);
     }
 
     private List<String[]> listArtistsCommand(final Iterable<Album> albums,
@@ -1489,7 +1467,7 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_GENRE);
 
-        return parseResponse(response, "Genre", sortInsensitive);
+        return Tools.parseResponse(response, "Genre", sortInsensitive);
     }
 
     public void movePlaylistSong(final String playlistName, final int from, final int to)
