@@ -1303,13 +1303,13 @@ public class MPD {
                 // Don't make the check with the other so we don't waste time doing string
                 // comparisons for nothing.
                 if (currentAlbum != null) {
-                    currentAlbum.setAlbumArtist(new Artist(pair[VALUE]));
+                    final Album newAlbum = currentAlbum.setAlbumArtist(new Artist(pair[VALUE]));
+                    result.add(newAlbum);
                 }
             } else if (albumResponse.equals(pair[KEY])) {
                 if (!pair[VALUE].isEmpty() || includeUnknownAlbum) {
                     currentAlbum = new Album(pair[VALUE], null);
                     currentAlbum.setHasAlbumArtist(useAlbumArtist);
-                    result.add(currentAlbum);
                 } else {
                     currentAlbum = null;
                 }
