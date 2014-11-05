@@ -36,25 +36,40 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-/** A class to generate and send a command queue. */
+/**
+ * A class to generate and send a <A HREF="http://www.musicpd.org/doc/protocol/command_lists.html">MPD
+ * command list</A>.
+ */
 public class CommandQueue implements Iterable<MPDCommand> {
 
     private static final boolean DEBUG = false;
 
+    /**
+     * Response for each successful command executed in a command list if used with
+     * {@link #MPD_CMD_START_BULK_OK}.
+     */
     private static final String MPD_CMD_BULK_SEP = "list_OK";
 
+    /** Command text used to end of any command list. */
     private static final String MPD_CMD_END_BULK = "command_list_end";
 
+    /** Command text used to begin of command list. */
     private static final String MPD_CMD_START_BULK = "command_list_begin";
 
+    /** Command text used to begin a separated command list. */
     private static final String MPD_CMD_START_BULK_OK = "command_list_ok_begin";
 
     private static final String TAG = "CommandQueue";
 
+    /** The internal command queue storage. */
     private final List<MPDCommand> mCommandQueue;
 
+    /** The length of the command queue. */
     private int mCommandQueueStringLength;
 
+    /**
+     * The constructor for the MPD protocol command list.
+     */
     public CommandQueue() {
         super();
 
@@ -62,10 +77,15 @@ public class CommandQueue implements Iterable<MPDCommand> {
         mCommandQueueStringLength = getStartLength();
     }
 
-    public CommandQueue(final int size) {
+    /**
+     * The constructor for the MPD protocol command list.
+     *
+     * @param capacity The initial capacity of this {@code CommandQueue}.
+     */
+    public CommandQueue(final int capacity) {
         super();
 
-        mCommandQueue = new ArrayList<>(size);
+        mCommandQueue = new ArrayList<>(capacity);
         mCommandQueueStringLength = getStartLength();
     }
 
