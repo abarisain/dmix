@@ -50,6 +50,48 @@ import static org.a0z.mpd.Tools.VALUE;
  */
 public abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
 
+    /** The media server response key returned for a {@link #mAlbum} value. */
+    public static final String CMD_KEY_ALBUM = "Album";
+
+    /** The media server response key returned for a {@link #mAlbumArtist} value. */
+    public static final String CMD_KEY_ALBUM_ARTIST = "AlbumArtist";
+
+    /** The media server response key returned for a {@link #mArtist} value. */
+    public static final String CMD_KEY_ARTIST = "Artist";
+
+    /** The media server response key returned for a {@link #mComposer} value. */
+    public static final String CMD_KEY_COMPOSER = "Composer";
+
+    /** The media server response key returned for a {@link #mDate} value. */
+    public static final String CMD_KEY_DATE = "Date";
+
+    /** The media server response key returned for a {@link #mDisc} value. */
+    public static final String CMD_KEY_DISC = "Disc";
+
+    /** The media server response key returned for a {@code #mFullPath} value. */
+    public static final String CMD_KEY_FILE = "file";
+
+    /** The media server response key returned for a {@link #mGenre} value. */
+    public static final String CMD_KEY_GENRE = "Genre";
+
+    /** The media server response key returned for a {@link #mName} value. */
+    public static final String CMD_KEY_NAME = "Name";
+
+    /** The media server response key returned for a {@link #mSongId} value. */
+    public static final String CMD_KEY_SONG_ID = "Id";
+
+    /** The media server response key returned for a {@link #mSongPos} value. */
+    public static final String CMD_KEY_SONG_POS = "Pos";
+
+    /** The media server response key returned for a {@link #mTime} value. */
+    public static final String CMD_KEY_TIME = "Time";
+
+    /** The media server response key returned for a {@link #mTitle} value. */
+    public static final String CMD_KEY_TITLE = "Title";
+
+    /** The media server response key returned for a {@link #mTrack} value. */
+    public static final String CMD_KEY_TRACK = "Track";
+
     /**
      * This is like the default {@code Comparable} for the Music class, but it compares without
      * taking disc and track numbers into account.
@@ -88,9 +130,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                 }
             };
 
-    /**
-     * The date response has it's own delimiter.
-     */
+    /** The date response has it's own delimiter. */
     private static final Pattern DATE_DELIMITER = Pattern.compile("\\D+");
 
     /** The maximum number of key/value pairs for a music item response. */
@@ -198,29 +238,19 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         for (final String[] pair : Tools.splitResponse(response)) {
 
             switch (pair[KEY]) {
-                case "file":
-                    fullPath = pair[VALUE];
-                    if (!fullPath.isEmpty() && fullPath.contains("://")) {
-                        final int pos = fullPath.indexOf('#');
-                        if (pos > 1) {
-                            name = fullPath.substring(pos + 1, fullPath.length());
-                            fullPath = fullPath.substring(0, pos);
-                        }
-                    }
-                    break;
-                case "Album":
+                case CMD_KEY_ALBUM:
                     album = pair[VALUE];
                     break;
-                case "AlbumArtist":
+                case CMD_KEY_ALBUM_ARTIST:
                     albumArtist = pair[VALUE];
                     break;
-                case "Artist":
+                case CMD_KEY_ARTIST:
                     artist = pair[VALUE];
                     break;
-                case "Composer":
+                case CMD_KEY_COMPOSER:
                     composer = pair[VALUE];
                     break;
-                case "Date":
+                case CMD_KEY_DATE:
                     try {
                         final Matcher matcher = DATE_DELIMITER.matcher(pair[VALUE]);
                         date = Long.parseLong(matcher.replaceAll(""));
@@ -228,7 +258,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                         Log.warning(TAG, "Not a valid date.", e);
                     }
                     break;
-                case "Disc":
+                case CMD_KEY_DISC:
                     final int discIndex = pair[VALUE].indexOf('/');
 
                     try {
@@ -241,17 +271,20 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                         Log.warning(TAG, "Not a valid disc number.", e);
                     }
                     break;
-                case "Genre":
-                    genre = pair[VALUE];
-                    break;
-                case "Id":
-                    try {
-                        songId = Integer.parseInt(pair[VALUE]);
-                    } catch (final NumberFormatException e) {
-                        Log.error(TAG, "Not a valid song ID.", e);
+                case CMD_KEY_FILE:
+                    fullPath = pair[VALUE];
+                    if (!fullPath.isEmpty() && fullPath.contains("://")) {
+                        final int pos = fullPath.indexOf('#');
+                        if (pos > 1) {
+                            name = fullPath.substring(pos + 1, fullPath.length());
+                            fullPath = fullPath.substring(0, pos);
+                        }
                     }
                     break;
-                case "Name":
+                case CMD_KEY_GENRE:
+                    genre = pair[VALUE];
+                    break;
+                case CMD_KEY_NAME:
                     /**
                      * name may already be assigned to the stream name in file conditional
                      */
@@ -259,24 +292,31 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                         name = pair[VALUE];
                     }
                     break;
-                case "Pos":
+                case CMD_KEY_SONG_ID:
+                    try {
+                        songId = Integer.parseInt(pair[VALUE]);
+                    } catch (final NumberFormatException e) {
+                        Log.error(TAG, "Not a valid song ID.", e);
+                    }
+                    break;
+                case CMD_KEY_SONG_POS:
                     try {
                         songPos = Integer.parseInt(pair[VALUE]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid song position.", e);
                     }
                     break;
-                case "Time":
+                case CMD_KEY_TIME:
                     try {
                         time = Long.parseLong(pair[VALUE]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid time number.", e);
                     }
                     break;
-                case "Title":
+                case CMD_KEY_TITLE:
                     title = pair[VALUE];
                     break;
-                case "Track":
+                case CMD_KEY_TRACK:
                     final int trackIndex = pair[VALUE].indexOf('/');
 
                     try {
