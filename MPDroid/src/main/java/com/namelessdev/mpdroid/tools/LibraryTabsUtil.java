@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.R;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.StringRes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,6 +84,7 @@ public final class LibraryTabsUtil {
                 + LIBRARY_TABS_DELIMITER)));
     }
 
+    @StringRes
     public static int getTabTitleResId(final String tab) {
         return TABS.get(tab);
     }
