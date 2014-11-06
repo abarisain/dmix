@@ -309,8 +309,11 @@ public class MPDStatusMonitor extends Thread {
                     // connection lost
                     connectionState = Boolean.FALSE;
                     connectionLost = true;
+                    if (mMPD.isConnected()) {
+                        Log.error(TAG, "Exception caught while looping.", e);
+                    }
                 } catch (final MPDException e) {
-                    e.printStackTrace();
+                    Log.error(TAG, "Exception caught while looping.", e);
                 }
             }
             try {

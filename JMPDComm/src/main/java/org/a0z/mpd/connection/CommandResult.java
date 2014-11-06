@@ -49,6 +49,17 @@ class CommandResult {
         return mIOException;
     }
 
+    /**
+     * Returns the first string response from the media server after connection. This method is
+     * mainly for debugging.
+     *
+     * @return A string representation of the connection result.
+     * @see #getMPDVersion() Use of this method is preferred.
+     */
+    public String getConnectionResult() {
+        return mConnectionResult;
+    }
+
     final MPDException getLastException() {
         return mLastException;
     }

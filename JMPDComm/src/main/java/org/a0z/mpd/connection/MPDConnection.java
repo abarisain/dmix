@@ -313,12 +313,16 @@ public abstract class MPDConnection {
                 final IOException e = result.getIOException();
 
                 if (e == null) {
-                    if (!mCancelled) {
-                        Log.error(mTag, "There was no result, command was not cancelled, and no " +
-                                "exception generated. This is probably a problem.");
-                    }
-                } else if (!(mCancelled && e instanceof SocketException &&
-                        command.toString().contains(MPDCommand.MPD_CMD_IDLE))) {
+                    /**
+                     * This should not occur, and this exception should extend RuntimeException,
+                     * BUT a RuntimeException would most likely not help the situation.
+                     */
+                    throw new IOException(
+                            "No result, no exception. This is a bug. Please report." + '\n' +
+                                    "Command: " + command + '\n' +
+                                    "Connected: " + mIsConnected + '\n' +
+                                    "Connection result: " + result.getConnectionResult() + '\n');
+                } else {
                     /** Don't throw if it's just about a cancelled command. That's expected. */
                     throw e;
                 }
