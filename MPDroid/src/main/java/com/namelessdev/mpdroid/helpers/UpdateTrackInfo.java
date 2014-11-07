@@ -159,7 +159,9 @@ public class UpdateTrackInfo {
 
             if (mCurrentTrack != null) {
                 if (mCurrentTrack.isStream()) {
-                    if (mCurrentTrack.hasTitle()) {
+                    final String title = mCurrentTrack.getTitle();
+
+                    if (title != null && !title.isEmpty()) {
                         mAlbum = mCurrentTrack.getName();
                         mTitle = mCurrentTrack.getTitle();
                     } else {

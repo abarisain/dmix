@@ -208,7 +208,7 @@ public class MPDPlaylist {
      */
     private Collection<Music> getFullPlaylist() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPD_CMD_PLAYLIST_LIST);
-        return Music.getMusicFromList(response, false);
+        return Music.buildMusicFromList(response, false);
     }
 
     /**
@@ -300,7 +300,7 @@ public class MPDPlaylist {
                 final List<String> response =
                         mConnection.sendCommand(MPD_CMD_PLAYLIST_CHANGES,
                                 Integer.toString(mLastPlaylistVersion));
-                final Collection<Music> changes = Music.getMusicFromList(response, false);
+                final Collection<Music> changes = Music.buildMusicFromList(response, false);
 
                 try {
                     mList.manipulate(changes, mpdStatus.getPlaylistLength());

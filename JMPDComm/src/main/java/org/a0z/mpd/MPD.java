@@ -31,6 +31,7 @@ import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.connection.MPDConnectionMonoSocket;
 import org.a0z.mpd.connection.MPDConnectionMultiSocket;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.AlbumBuilder;
 import org.a0z.mpd.item.Artist;
@@ -722,13 +723,14 @@ public class MPD {
 
     protected List<Music> genericSearch(final String searchCommand, final String[] args,
             final boolean sort) throws IOException, MPDException {
-        return Music.getMusicFromList(mConnection.sendCommand(searchCommand, args), sort);
+        return AbstractMusic.buildMusicFromList(mConnection.sendCommand(searchCommand, args), sort);
     }
 
     protected List<Music> genericSearch(final String searchCommand, final String type,
             final String strToFind) throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(searchCommand, type, strToFind);
-        return Music.getMusicFromList(response, true);
+
+        return AbstractMusic.buildMusicFromList(response, true);
     }
 
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
@@ -1041,8 +1043,9 @@ public class MPD {
     }
 
     public List<Music> getSongs(final Album album) throws IOException, MPDException {
-        final List<Music> songs = Music.getMusicFromList
-                (mConnection.sendCommand(getSongsCommand(album)), true);
+        final List<Music> songs = AbstractMusic
+                .buildMusicFromList(mConnection.sendCommand(getSongsCommand(album)), true);
+
         if (album.hasAlbumArtist()) {
             // remove songs that don't have this album artist (mpd >=0.18 puts them in)
             final Artist artist = album.getArtist();
@@ -1353,7 +1356,8 @@ public class MPD {
      */
     public List<Music> listAllInfo() throws IOException, MPDException {
         final List<String> allInfo = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO);
-        return Music.getMusicFromList(allInfo, false);
+
+        return AbstractMusic.buildMusicFromList(allInfo, false);
     }
 
     /**

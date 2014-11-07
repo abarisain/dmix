@@ -43,8 +43,10 @@ import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;
 
 /**
- * Class representing a generic file/music entry in playlist, base for the Genre items, abstracted
- * for backend.
+ * Class representing a generic track entry in playlist, abstracted for backend. This item is
+ * returned from methods of the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A> subsystem of the
+ * <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.
  *
  * @author Felipe Gustavo de Almeida
  */
@@ -53,47 +55,74 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     /** The media server response key returned for a {@link #mAlbumName} value. */
     public static final String CMD_KEY_ALBUM = "Album";
 
-    /** The media server response key returned for a {@link #mAlbumArtistName} value. */
+    /**
+     * The media server response key returned for a {@link #mAlbumArtistName} value.
+     */
     public static final String CMD_KEY_ALBUM_ARTIST = "AlbumArtist";
 
-    /** The media server response key returned for a {@link #mArtistName} value. */
+    /**
+     * The media server response key returned for a {@link #mArtistName} value.
+     */
     public static final String CMD_KEY_ARTIST = "Artist";
 
-    /** The media server response key returned for a {@link #mComposerName} value. */
+    /**
+     * The media server response key returned for a {@link #mComposerName} value.
+     */
     public static final String CMD_KEY_COMPOSER = "Composer";
 
-    /** The media server response key returned for a {@link #mDate} value. */
+    /**
+     * The media server response key returned for a {@link #mDate} value.
+     */
     public static final String CMD_KEY_DATE = "Date";
 
-    /** The media server response key returned for a {@link #mDisc} value. */
+    /**
+     * The media server response key returned for a {@link #mDisc} value.
+     */
     public static final String CMD_KEY_DISC = "Disc";
 
-    /** The media server response key returned for a {@code #mFullPath} value. */
+    /**
+     * The media server response key returned for a {@link #mFullPath} value.
+     */
     public static final String CMD_KEY_FILE = "file";
 
-    /** The media server response key returned for a {@link #mGenreName} value. */
+    /**
+     * The media server response key returned for a {@link #mGenreName} value.
+     */
     public static final String CMD_KEY_GENRE = "Genre";
 
-    /** The media server response key returned for a {@link #mName} value. */
+    /**
+     * The media server response key returned for a {@link #mName} value.
+     */
     public static final String CMD_KEY_NAME = "Name";
 
-    /** The media server response key returned for a {@link #mSongId} value. */
+    /**
+     * The media server response key returned for a {@link #mSongId} value.
+     */
     public static final String CMD_KEY_SONG_ID = "Id";
 
-    /** The media server response key returned for a {@link #mSongPos} value. */
+    /**
+     * The media server response key returned for a {@link #mSongPos} value.
+     */
     public static final String CMD_KEY_SONG_POS = "Pos";
 
-    /** The media server response key returned for a {@link #mTime} value. */
+    /**
+     * The media server response key returned for a {@link #mTime} value.
+     */
     public static final String CMD_KEY_TIME = "Time";
 
-    /** The media server response key returned for a {@link #mTitle} value. */
+    /**
+     * The media server response key returned for a {@link #mTitle} value.
+     */
     public static final String CMD_KEY_TITLE = "Title";
 
-    /** The media server response key returned for a {@link #mTrack} value. */
+    /**
+     * The media server response key returned for a
+     * {@link #mTrack} and {@link #mTotalTracks} values.
+     */
     public static final String CMD_KEY_TRACK = "Track";
 
     /**
-     * This is like the default {@code Comparable} for the Music class, but it compares without
+     * Similar to the default {@code Comparable} for the Music class, but it compares without
      * taking disc and track numbers into account.
      */
     public static final Comparator<AbstractMusic> COMPARE_WITHOUT_TRACK_NUMBER =
@@ -130,46 +159,108 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                 }
             };
 
-    /** The date response has it's own delimiter. */
+    /**
+     * The date response parser delimiter.
+     */
     private static final Pattern DATE_DELIMITER = Pattern.compile("\\D+");
 
-    /** The maximum number of key/value pairs for a music item response. */
+    /**
+     * The maximum number of key/value pairs for a music item response.
+     */
     private static final int MUSIC_ATTRIBUTES = 30;
 
+    /**
+     * The log identifier for this class.
+     */
     private static final String TAG = "Music";
 
+    /**
+     * This integer is used to detect integers that were unset during construction.
+     */
     private static final int UNDEFINED_INT = -1;
 
+    /**
+     * This field is storage for the name of the artist of the album this track was published on.
+     */
     final String mAlbumArtistName;
 
+    /**
+     * This field is storage for the name of the album this track was pushed on.
+     */
     final String mAlbumName;
 
+    /**
+     * This field is storage for the name of the artist of this track.
+     */
     final String mArtistName;
 
+    /**
+     * This field is storage for the name of the composer of this track.
+     */
     final String mComposerName;
 
+    /**
+     * This field is storage for the date the release date of this track.
+     */
     final long mDate;
 
+    /**
+     * This field is storage for the disc number of the album that this track was published on.
+     */
     final int mDisc;
 
+    /**
+     * This field is storage for the full path of the data
+     * for this track, relative to the media server.
+     */
     final String mFullPath;
 
+    /**
+     * This field is storage for the name of the genre for this track.
+     */
     final String mGenreName;
 
+    /**
+     * This field is storage for the Name tag for this track.
+     */
     final String mName;
 
+    /**
+     * This field is storage for the song ID, relative to the playlist of the currently
+     * connected media server.
+     */
     final int mSongId;
 
+    /**
+     * This field is the storage for the song position, relative to the playlist of the currently
+     * connected media server.
+     */
     final int mSongPos;
 
+    /**
+     * This field is the storage for the time the current track has been playing.
+     */
     final long mTime;
 
+    /**
+     * This field is the storage for the title of this track.
+     */
     final String mTitle;
 
+    /**
+     * This field is the storage for the total duration of this track.
+     */
     final int mTotalTracks;
 
+    /**
+     * This field is the storage for the track number of this track relative to
+     * the album it was produced for.
+     */
     final int mTrack;
 
+    /**
+     * The empty constructor for this item. Used for cases where null checks aren't possible.
+     */
     AbstractMusic() {
         this(null, /** AlbumName */
                 null, /** AlbumArtistName */
@@ -220,6 +311,14 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         mName = name;
     }
 
+    /**
+     * Builds a {@code Music} object from a subset of the
+     * media server response to a music listing command.
+     *
+     * @param response A music listing command response.
+     * @return A Music object.
+     * @see #buildMusicFromList(java.util.Collection, boolean)
+     */
     static Music build(final Collection<String> response) {
         String albumName = null;
         String artistName = null;
@@ -288,7 +387,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                     break;
                 case CMD_KEY_NAME:
                     /**
-                     * name may already be assigned to the stream name in file conditional
+                     * This name might already be assigned to the URL fragment identifier.
                      */
                     if (name == null) {
                         name = pair[VALUE];
@@ -346,6 +445,48 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     }
 
     /**
+     * Builds a {@code Music} object from a media
+     * server response to a music listing command.
+     *
+     * @param response A music listing command response.
+     * @return A Music object.
+     * @see #build(java.util.Collection)
+     */
+    public static List<Music> buildMusicFromList(final Collection<String> response,
+            final boolean sort) {
+        final Collection<String> lineCache = new ArrayList<>(MUSIC_ATTRIBUTES);
+        final int size = response.size();
+        final List<Music> result;
+
+        /** This list can be pretty sizable, it's good to give a low estimate of it's size. */
+        if (size > MUSIC_ATTRIBUTES) {
+            result = new ArrayList<>(size / MUSIC_ATTRIBUTES);
+        } else {
+            result = new ArrayList<>(0);
+        }
+
+        for (final String line : response) {
+            if (line.startsWith("file: ")) {
+                if (!lineCache.isEmpty()) {
+                    result.add(build(lineCache));
+                    lineCache.clear();
+                }
+            }
+            lineCache.add(line);
+        }
+
+        if (!lineCache.isEmpty()) {
+            result.add(build(lineCache));
+        }
+
+        if (sort) {
+            Collections.sort(result);
+        }
+
+        return result;
+    }
+
+    /**
      * This method extends Integer.compare() by adding a undefined integer comparison.
      *
      * @param compUndefined If true, will compare by {@code UNDEFINED_INT} value.
@@ -376,6 +517,13 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         return result;
     }
 
+    /**
+     * A null safe, case-insensitive comparator.
+     *
+     * @param lhs Left-hand side string to compare.
+     * @param rhs Right hand size string to compare.
+     * @return 0 if values are equal, 0 if lhs is less than rhs, 1 if lhs is greater than rhs.
+     */
     private static int compareString(final String lhs, final String rhs) {
         final int result;
 
@@ -387,40 +535,6 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
             result = 1;  // lhs > rhs
         } else {
             result = lhs.compareToIgnoreCase(rhs);
-        }
-
-        return result;
-    }
-
-    public static List<Music> getMusicFromList(final Collection<String> response,
-            final boolean sort) {
-        final Collection<String> lineCache = new ArrayList<>(MUSIC_ATTRIBUTES);
-        final int size = response.size();
-        final List<Music> result;
-
-        /** This list can be pretty sizable, it's good to give a low estimate of it's size. */
-        if (size > MUSIC_ATTRIBUTES) {
-            result = new ArrayList<>(size / MUSIC_ATTRIBUTES);
-        } else {
-            result = new ArrayList<>(0);
-        }
-
-        for (final String line : response) {
-            if (line.startsWith("file: ")) {
-                if (!lineCache.isEmpty()) {
-                    result.add(build(lineCache));
-                    lineCache.clear();
-                }
-            }
-            lineCache.add(line);
-        }
-
-        if (!lineCache.isEmpty()) {
-            result.add(build(lineCache));
-        }
-
-        if (sort) {
-            Collections.sort(result);
         }
 
         return result;
@@ -529,6 +643,13 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         return compareTo(another, true);
     }
 
+    /**
+     * Compares this Music object to another.
+     *
+     * @param o the object to compare this instance with.
+     * @return True if fields of both Objects are equal, and are of
+     * the same class.
+     */
     @Override
     public boolean equals(final Object o) {
         Boolean isEqual = null;
@@ -576,6 +697,12 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         return isEqual.booleanValue();
     }
 
+    /**
+     * Retrieves an {@link Album} from this item.
+     *
+     * @return Returns an {@link org.a0z.mpd.item.Album} object of the current
+     * track with the Album Artist (if available), otherwise of the Artist.
+     */
     public Album getAlbum() {
         final boolean isAlbumArtist = !isEmpty(mAlbumArtistName);
         final AlbumBuilder albumBuilder = new AlbumBuilder();
@@ -597,14 +724,20 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     }
 
     /**
-     * Retrieves the original album artist name.
+     * Retrieves the album artist name.
      *
-     * @return album artist name or null if it is not set.
+     * @return The name of the album artist or null if it is not set.
      */
     public String getAlbumArtistName() {
         return mAlbumArtistName;
     }
 
+    /**
+     * Retrieves the artist name.
+     *
+     * @return Returns the album artist if it exists, else it will return the album if it exists,
+     * otherwise it will return the unknown album translation.
+     */
     public String getAlbumArtistOrArtist() {
         final String result;
 
@@ -628,27 +761,47 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         return mAlbumName;
     }
 
+    /**
+     * Retrieves an {@link org.a0z.mpd.item.Artist} item for this object.
+     *
+     * @return An {@link org.a0z.mpd.item.Artist} item for this object.
+     */
     public Artist getArtist() {
         return new Artist(mArtistName);
     }
 
     /**
-     * Retrieves artist name.
+     * Retrieves artist name for this track.
      *
-     * @return artist name.
+     * @return The artist name for this track.
      */
     public String getArtistName() {
         return mArtistName;
     }
 
+    /**
+     * Retrieves the composer name for this track.
+     *
+     * @return The composer name for this track.
+     */
     public String getComposerName() {
         return mComposerName;
     }
 
+    /**
+     * Retrieves the release date for the track.
+     *
+     * @return The release date for this track.
+     */
     public long getDate() {
         return mDate;
     }
 
+    /**
+     * Retrieves the disc number for the album this track was produced for.
+     *
+     * @return The disc number for the album this track was produced for.
+     */
     public int getDisc() {
         return mDisc;
     }
@@ -674,24 +827,29 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     }
 
     /**
-     * Retrieves mDate as string (##:##).
+     * Retrieves the duration of the track formatted as HH:MM:SS.
      *
-     * @return mDate as string.
+     * @return The duration of the track formatted as HH:MM:SS.
      */
     public CharSequence getFormattedTime() {
         return timeToString(mTime);
     }
 
     /**
-     * Retrieves full path name.
+     * Retrieves the full path of the data for this track, relative to the media server.
      *
-     * @return full path name.
+     * @return The full path of the data for this track, relative to the media server.
      */
     @Override
     public String getFullPath() {
         return mFullPath;
     }
 
+    /**
+     * Retrieves the genre name for this track.
+     *
+     * @return The genre name for this track.
+     */
     public String getGenreName() {
         return mGenreName;
     }
@@ -776,16 +934,20 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     }
 
     /**
-     * Retrieves title.
+     * Retrieves the title if it exists, the full path otherwise.
      *
-     * @return title.
+     * @return The title if it exists, the full path otherwise.
      */
     public String getTitle() {
+        final String title;
+
         if (isEmpty(mTitle)) {
-            return getFilename();
+            title = getFilename();
         } else {
-            return mTitle;
+            title = mTitle;
         }
+
+        return title;
     }
 
     /**
@@ -807,10 +969,6 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         return mTrack;
     }
 
-    public boolean hasTitle() {
-        return null != mTitle && !mTitle.isEmpty();
-    }
-
     @Override
     public int hashCode() {
         final Object[] objects = {mAlbumName, mArtistName, mAlbumArtistName, mGenreName, mName,
@@ -828,10 +986,20 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         return result + Arrays.hashCode(objects);
     }
 
+    /**
+     * Returns whether the full path of this item appears to be streaming media.
+     *
+     * @return True if this item appears to be streaming media, false otherwise.
+     */
     public boolean isStream() {
         return null != mFullPath && mFullPath.contains("://");
     }
 
+    /**
+     * Retrieves the title of this item if it exists, the full path otherwise.
+     *
+     * @return The title of this item, the full path otherwise.
+     */
     @Override
     public String mainText() {
         return getTitle();
