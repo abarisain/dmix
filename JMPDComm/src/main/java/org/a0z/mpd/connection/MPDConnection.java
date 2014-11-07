@@ -319,6 +319,7 @@ public abstract class MPDConnection {
                      */
                     throw new IOException(
                             "No result, no exception. This is a bug. Please report." + '\n' +
+                                    "Cancelled: " + mCancelled + '\n' +
                                     "Command: " + command + '\n' +
                                     "Connected: " + mIsConnected + '\n' +
                                     "Connection result: " + result.getConnectionResult() + '\n');
