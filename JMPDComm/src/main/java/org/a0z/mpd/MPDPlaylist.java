@@ -34,6 +34,7 @@ import org.a0z.mpd.item.Music;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -188,20 +189,6 @@ public class MPDPlaylist {
     }
 
     /**
-     * This replaces the entire {@code MusicList} with a full playlist response from the media
-     * server.
-     *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    private void fullPlaylistRefresh() throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPD_CMD_PLAYLIST_LIST);
-        final List<Music> playlist = Music.getMusicFromList(response, false);
-
-        mList.replace(playlist);
-    }
-
-    /**
      * Retrieves music at position index in playlist. Operates on local copy of
      * playlist, may not reflect server's current playlist.
      *
@@ -210,6 +197,18 @@ public class MPDPlaylist {
      */
     public Music getByIndex(final int index) {
         return mList.getByIndex(index);
+    }
+
+    /**
+     * This replaces the entire {@code MusicList} with a full playlist response from the media
+     * server.
+     *
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    private Collection<Music> getFullPlaylist() throws IOException, MPDException {
+        final List<String> response = mConnection.sendCommand(MPD_CMD_PLAYLIST_LIST);
+        return Music.getMusicFromList(response, false);
     }
 
     /**
@@ -283,7 +282,8 @@ public class MPDPlaylist {
     }
 
     /**
-     * Reloads the playlist content.
+     * Reloads the playlist content. This is the only place the {@link org.a0z.mpd.MusicList}
+     * should be modified.
      *
      * @param mpdStatus A current {@code MPDStatus} object.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -295,26 +295,18 @@ public class MPDPlaylist {
             final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
 
             if (mLastPlaylistVersion == -1 || mList.size() == 0) {
-                fullPlaylistRefresh();
+                mList.replace(getFullPlaylist());
             } else if (mLastPlaylistVersion != newPlaylistVersion) {
                 final List<String> response =
                         mConnection.sendCommand(MPD_CMD_PLAYLIST_CHANGES,
                                 Integer.toString(mLastPlaylistVersion));
-                final List<Music> changes = Music.getMusicFromList(response, false);
-                final int playlistLength = mpdStatus.getPlaylistLength();
-                final int listSize;
+                final Collection<Music> changes = Music.getMusicFromList(response, false);
 
-                for (final Music song : changes) {
-                    mList.manipulate(song);
-                }
-
-                listSize = mList.size();
-                if (playlistLength > listSize) {
-                    Log.warning(TAG, "Race detected, status playlist length > playlist length " +
-                                    "after changes have been applied. Reverting to full update.");
-                    fullPlaylistRefresh();
-                } else {
-                    mList.removeByRange(mpdStatus.getPlaylistLength(), listSize);
+                try {
+                    mList.manipulate(changes, mpdStatus.getPlaylistLength());
+                } catch (final IllegalStateException e) {
+                    Log.error(TAG, "Partial update failed, running full update.", e);
+                    mList.replace(getFullPlaylist());
                 }
             }
 
@@ -332,21 +324,22 @@ public class MPDPlaylist {
      */
     public void removeAlbumById(final int songId) throws IOException, MPDException {
         // Better way to get artist of given songId?
-        final List<Music> songs = mList.getMusic();
         String artist = "";
         String album = "";
         int num = 0;
         boolean usingAlbumArtist = true;
 
-        for (final Music song : songs) {
-            if (song.getSongId() == songId) {
-                artist = song.getAlbumArtist();
-                if (artist == null || artist.isEmpty()) {
-                    usingAlbumArtist = false;
-                    artist = song.getArtist();
+        synchronized (mList) {
+            for (final Music song : mList) {
+                if (song.getSongId() == songId) {
+                    artist = song.getAlbumArtist();
+                    if (artist == null || artist.isEmpty()) {
+                        usingAlbumArtist = false;
+                        artist = song.getArtist();
+                    }
+                    album = song.getAlbum();
+                    break;
                 }
-                album = song.getAlbum();
-                break;
             }
         }
 
@@ -358,9 +351,7 @@ public class MPDPlaylist {
 
             /** Don't allow the list to change before we've computed the CommandList. */
             synchronized (mList) {
-                final List<Music> tracks = mList.getMusic();
-
-                for (final Music track : tracks) {
+                for (final Music track : mList) {
                     if (album.equals(track.getAlbum())) {
                         final boolean songIsAlbumArtist =
                                 usingAlbumArtist && artist.equals(track.getAlbumArtist());
@@ -492,9 +483,9 @@ public class MPDPlaylist {
      * @return a string representation of the object.
      */
     public String toString() {
-        final StringBuilder stringBuilder = new StringBuilder(mList.toString().length());
+        final StringBuilder stringBuilder = new StringBuilder();
         synchronized (mList) {
-            for (final Music music : mList.getMusic()) {
+            for (final Music music : mList) {
                 stringBuilder.append(music);
                 stringBuilder.append(MPDCommand.MPD_CMD_NEWLINE);
             }
