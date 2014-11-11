@@ -53,6 +53,10 @@ public class Album extends AbstractAlbum implements Parcelable {
         super(otherAlbum);
     }
 
+    public Album(final Album otherAlbum, final Artist artist, final boolean hasAlbumArtist) {
+        super(otherAlbum, artist, hasAlbumArtist);
+    }
+
     public Album(final String name, final Artist artist) {
         super(name, artist, false, 0L, 0L, 0L, null);
     }

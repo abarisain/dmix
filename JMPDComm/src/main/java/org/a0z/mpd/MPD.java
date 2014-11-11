@@ -585,13 +585,14 @@ public class MPD {
                                 .isEmpty()) { // one albumartist, fix this
                             // album
                             final Artist artist = new Artist(aartists[0]);
-                            albums.set(i, album.setAlbumArtist(artist));
+                            final Album newAlbum =  new Album(album, artist, true);
+                            albums.set(i, newAlbum);
                         } // do nothing if albumartist is ""
                         if (aartists.length > 1) { // it's more than one album, insert
                             for (int n = 1; n < aartists.length; n++) {
-                                final Album newalbum =
-                                        new Album(album.getName(), new Artist(aartists[n]), true);
-                                splitAlbums.add(newalbum);
+                                final Artist artist = new Artist(aartists[n]);
+                                final Album newAlbum = new Album(album, artist, true);
+                                splitAlbums.add(newAlbum);
                             }
                         }
                     }
@@ -1263,7 +1264,7 @@ public class MPD {
         final List<String> response =
                 mConnection.sendCommand(listAllAlbumsGroupedCommand(useAlbumArtist));
         final List<Album> result = new ArrayList<>(response.size() / 2);
-        Album currentAlbum = null;
+        String currentAlbum = null;
 
         if (useAlbumArtist) {
             artistResponse = "AlbumArtist";
@@ -1272,17 +1273,22 @@ public class MPD {
         }
 
         for (final String[] pair : Tools.splitResponse(response)) {
+
             if (artistResponse.equals(pair[KEY])) {
-                // Don't make the check with the other so we don't waste time doing string
-                // comparisons for nothing.
                 if (currentAlbum != null) {
-                    final Album newAlbum = currentAlbum.setAlbumArtist(new Artist(pair[VALUE]));
-                    result.add(newAlbum);
+                    final Artist artist = new Artist(pair[VALUE]);
+                    result.add(new Album(currentAlbum, artist, useAlbumArtist));
+
+                    currentAlbum = null;
                 }
             } else if (albumResponse.equals(pair[KEY])) {
+                if (currentAlbum != null) {
+                    /** There was no artist in this response, add the album alone */
+                    result.add(new Album(currentAlbum, null));
+                }
+
                 if (!pair[VALUE].isEmpty() || includeUnknownAlbum) {
-                    currentAlbum = new Album(pair[VALUE], null);
-                    currentAlbum.setHasAlbumArtist(useAlbumArtist);
+                    currentAlbum = pair[VALUE];
                 } else {
                     currentAlbum = null;
                 }
