@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.helpers;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.AlbumBuilder;
 import org.a0z.mpd.item.Artist;
 
 import android.util.Log;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 /*
@@ -76,6 +78,42 @@ public class CachedMPD extends MPD {
      */
 
     /**
+     * Add detail information to all albums.
+     *
+     * @param albums The albums to add detail information to.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    @Override
+    protected void addAlbumDetails(final List<Album> albums)
+            throws IOException, MPDException {
+        if (isCached()) {
+            final ListIterator<Album> iterator = albums.listIterator();
+            final AlbumBuilder albumBuilder = new AlbumBuilder();
+
+            while (iterator.hasNext()) {
+                final Album album = iterator.next();
+                albumBuilder.setAlbum(album);
+                final Artist artist = album.getArtist();
+                final String artistName = getArtistName(artist);
+                final AlbumCache.AlbumDetails details;
+
+                details =
+                        mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
+
+                if (details != null) {
+                    albumBuilder.setAlbumDetails(details.mNumTracks, details.mTotalTime);
+                    albumBuilder.setSongDetails(details.mDate, details.mPath);
+                    iterator.set(albumBuilder.build());
+                }
+            }
+            Log.d("MPD CACHED", "Details of " + albums.size());
+        } else {
+            super.addAlbumDetails(albums);
+        }
+    }
+
+    /**
      * Adds path information to all album objects in a list.
      *
      * @param albums List of Album objects to add path information.
@@ -83,22 +121,29 @@ public class CachedMPD extends MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    protected void addAlbumPaths(final List<Album> albums) throws IOException, MPDException {
+    protected void addAlbumSongDetails(final List<Album> albums) throws IOException, MPDException {
         if (!isCached()) {
-            super.addAlbumPaths(albums);
+            super.addAlbumSongDetails(albums);
             return;
         }
-        for (final Album album : albums) {
+
+        final ListIterator<Album> iterator = albums.listIterator();
+        final AlbumBuilder albumBuilder = new AlbumBuilder();
+
+        while (iterator.hasNext()) {
+            final Album album = iterator.next();
             final Artist artist = album.getArtist();
             final String artistName = getArtistName(artist);
 
             final AlbumCache.AlbumDetails details =
                     mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
             if (details != null) {
-                album.setPath(details.mPath);
+                albumBuilder.setAlbum(album);
+                albumBuilder.setSongDetails(details.mDate, details.mPath);
+                iterator.set(albumBuilder.build());
             }
         }
-        Log.d("MPD CACHED", "addAlbumPaths " + albums.size());
+        Log.d("MPD CACHED", "addAlbumSongDetails " + albums.size());
     }
 
     /**
@@ -107,39 +152,6 @@ public class CachedMPD extends MPD {
     public void clearCache() {
         if (mIsEnabled) {
             mCache.refresh(true);
-        }
-    }
-
-    /**
-     * Add detail information to all albums.
-     *
-     * @param albums   The albums to add detail information to.
-     * @param findYear Not applicable to this class extension.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    @Override
-    protected void getAlbumDetails(final List<Album> albums, final boolean findYear/* ignored */)
-            throws IOException, MPDException {
-        if (isCached()) {
-            for (final Album album : albums) {
-                final Artist artist = album.getArtist();
-                final String artistName = getArtistName(artist);
-                final AlbumCache.AlbumDetails details;
-
-                details =
-                        mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
-
-                if (null != details) {
-                    album.setSongCount(details.mNumTracks);
-                    album.setDuration(details.mTotalTime);
-                    album.setYear(details.mDate);
-                    album.setPath(details.mPath);
-                }
-            }
-            Log.d("MPD CACHED", "Details of " + albums.size());
-        } else {
-            super.getAlbumDetails(albums, findYear);
         }
     }
 
@@ -159,18 +171,19 @@ public class CachedMPD extends MPD {
         if (isCached()) {
             final Set<List<String>> albumListSet = mCache.getUniqueAlbumSet();
             final Set<Album> albums = new HashSet<>(albumListSet.size());
+            final AlbumBuilder albumBuilder = new AlbumBuilder();
 
             for (final List<String> ai : albumListSet) {
-                final Album album;
                 final String thirdList = ai.get(2);
+                albumBuilder.setName(ai.get(0));
 
                 if (thirdList != null && thirdList.isEmpty()) { // no album artist
-                    album = new Album(ai.get(0), new Artist(ai.get(1)), false);
+                    albumBuilder.setArtist(ai.get(1));
                 } else {
-                    album = new Album(ai.get(0), new Artist(ai.get(2)), true);
+                    albumBuilder.setAlbumArtist(ai.get(2));
                 }
 
-                albums.add(album);
+                albums.add(albumBuilder.build());
             }
 
             if (albums.isEmpty()) {
@@ -178,7 +191,7 @@ public class CachedMPD extends MPD {
             } else {
                 allAlbums = new ArrayList<>(albums);
                 Collections.sort(allAlbums);
-                getAlbumDetails(allAlbums, true);
+                addAlbumDetails(allAlbums);
             }
         } else {
             allAlbums = super.getAllAlbums(trackCountNeeded);

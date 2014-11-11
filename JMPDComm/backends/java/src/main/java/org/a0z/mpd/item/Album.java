@@ -34,25 +34,8 @@ package org.a0z.mpd.item;
  */
 public class Album extends AbstractAlbum {
 
-    public Album(final Album otherAlbum) {
-        super(otherAlbum);
-    }
-
-    public Album(final Album otherAlbum, final Artist artist, final boolean hasAlbumArtist) {
-        super(otherAlbum, artist, hasAlbumArtist);
-    }
-
-    public Album(final String name, final Artist artist) {
-        super(name, artist, false, 0L, 0L, 0L, null);
-    }
-
-    public Album(final String name, final Artist artist, final boolean hasAlbumArtist) {
-        super(name, artist, hasAlbumArtist, 0L, 0L, 0L, null);
-    }
-
-    public Album(final String name, final Artist artist, final boolean hasAlbumArtist,
-            final long songCount, final long duration,
-            final long year, final String path) {
+    protected Album(final String name, final Artist artist, final boolean hasAlbumArtist,
+            final long songCount, final long duration, final long year, final String path) {
         super(name, artist, hasAlbumArtist, songCount, duration, year, path);
     }
 }

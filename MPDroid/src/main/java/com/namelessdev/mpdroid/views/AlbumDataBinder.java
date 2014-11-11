@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -28,6 +29,8 @@ import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.ImageView;
@@ -37,6 +40,17 @@ import android.widget.TextView;
 import java.util.List;
 
 public class AlbumDataBinder extends BaseDataBinder {
+
+    private final boolean mUseYear;
+
+    public AlbumDataBinder() {
+        super();
+
+        final MPDApplication app = MPDApplication.getInstance();
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+
+        mUseYear = settings.getBoolean("enableAlbumYearText", true);
+    }
 
     @Override
     public AbstractViewHolder findInnerViews(final View targetView) {
@@ -96,7 +110,7 @@ public class AlbumDataBinder extends BaseDataBinder {
             info.append(artist.mainText());
         }
 
-        if (album.getYear() > 0L) {
+        if (mUseYear && album.getYear() > 0L) {
             if (info.length() != 0) {
                 info.append(SEPARATOR);
             }

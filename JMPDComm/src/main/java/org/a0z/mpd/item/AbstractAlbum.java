@@ -37,17 +37,17 @@ public abstract class AbstractAlbum extends Item {
 
     private final Artist mArtist;
 
+    private final long mDuration;
+
+    private final boolean mHasAlbumArtist;
+
     private final String mName;
 
-    private long mDuration;
+    private final String mPath;
 
-    private boolean mHasAlbumArtist;
+    private final long mSongCount;
 
-    private String mPath;
-
-    private long mSongCount;
-
-    private long mYear;
+    private final long mYear;
 
     /**
      * This {@code Comparator} adds support for sorting by year to the default {@code comparator}.
@@ -124,32 +124,8 @@ public abstract class AbstractAlbum extends Item {
         }
     };
 
-    AbstractAlbum(final AbstractAlbum otherAlbum) {
-        this(otherAlbum.mName,
-                new Artist(otherAlbum.mArtist),
-                otherAlbum.mHasAlbumArtist,
-                otherAlbum.mSongCount,
-                otherAlbum.mDuration,
-                otherAlbum.mYear,
-                otherAlbum.mPath);
-    }
-
-    AbstractAlbum(final AbstractAlbum album, final Artist artist, final boolean hasAlbumArtist) {
-        this(album.mName, artist, hasAlbumArtist, album.mSongCount, album.mDuration, album.mYear,
-                album.mPath);
-    }
-
-    AbstractAlbum(final String name, final Artist artist) {
-        this(name, artist, false, 0L, 0L, 0L, null);
-    }
-
-    AbstractAlbum(final String name, final Artist artist, final boolean hasAlbumArtist) {
-        this(name, artist, hasAlbumArtist, 0L, 0L, 0L, null);
-    }
-
-    AbstractAlbum(final String name, final Artist artist, final boolean hasAlbumArtist,
-            final long songCount, final long duration,
-            final long year, final String path) {
+    protected AbstractAlbum(final String name, final Artist artist, final boolean hasAlbumArtist,
+            final long songCount, final long duration, final long year, final String path) {
         super();
         mName = name;
         mSongCount = songCount;
@@ -195,7 +171,20 @@ public abstract class AbstractAlbum extends Item {
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
             final AbstractAlbum album = (AbstractAlbum) o;
 
-            if (Tools.isNotEqual(mName, album.mName) || Tools.isNotEqual(mArtist, album.mArtist)) {
+            final Object[][] equalsObjects = {
+                    {mArtist, album.mArtist},
+                    {mName, album.mName},
+                    {mPath, album.mPath}
+            };
+
+            final long[][] equalsLong = {
+                    {mDuration, album.mDuration},
+                    {mSongCount, album.mSongCount},
+                    {mYear, album.mYear}
+            };
+
+            if (Tools.isNotEqual(equalsObjects) || Tools.isNotEqual(equalsLong) ||
+                    mHasAlbumArtist != album.mHasAlbumArtist) {
                 isEqual = Boolean.FALSE;
             }
         }
@@ -246,27 +235,17 @@ public abstract class AbstractAlbum extends Item {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{mName, mArtist});
-    }
+        final Object[] objects = {mArtist, mName, mPath};
+        int result = Arrays.hashCode(objects);
 
-    public void setDuration(final long duration) {
-        mDuration = duration;
-    }
+        if (mHasAlbumArtist) {
+            result += 31;
+        }
 
-    public void setHasAlbumArtist(final boolean hasAlbumArtist) {
-        mHasAlbumArtist = hasAlbumArtist;
-    }
+        result = 31 * result + (int) (mDuration ^ (mDuration >>> 32));
+        result = 31 * result + (int) (mSongCount ^ (mSongCount >>> 32));
+        result = 31 * result + (int) (mYear ^ (mYear >>> 32));
 
-    public void setPath(final String p) {
-        mPath = p;
+        return result;
     }
-
-    public void setSongCount(final long sc) {
-        mSongCount = sc;
-    }
-
-    public void setYear(final long y) {
-        mYear = y;
-    }
-
 }

@@ -167,6 +167,19 @@ public final class Tools {
         return result;
     }
 
+    public static boolean isNotEqual(final long[][] arrays) {
+        boolean result = false;
+
+        for (final long[] array : arrays) {
+            if (array[0] != array[1]) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Parse a media server response for one entry type.
      *

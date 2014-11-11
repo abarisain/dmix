@@ -32,6 +32,7 @@ import org.a0z.mpd.connection.MPDConnectionMonoSocket;
 import org.a0z.mpd.connection.MPDConnectionMultiSocket;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.AlbumBuilder;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.FilesystemTreeEntry;
@@ -49,6 +50,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;
@@ -407,12 +409,61 @@ public class MPD {
         add(commandQueue, replace, play);
     }
 
-    protected void addAlbumPaths(final List<Album> albums) throws IOException, MPDException {
-        if (albums != null && !albums.isEmpty()) {
-            for (final Album album : albums) {
+    protected void addAlbumDetails(final List<Album> albums)
+            throws IOException, MPDException {
+        final CommandQueue commandQueue = new CommandQueue(albums.size());
+        for (final Album album : albums) {
+            commandQueue.add(getAlbumDetailsCommand(album));
+        }
+        final List<String[]> response = commandQueue.sendSeparated(mConnection);
+
+        if (response.size() == albums.size()) {
+            final AlbumBuilder albumBuilder = new AlbumBuilder();
+
+            for (int i = 0; i < response.size(); i++) {
+                final String[] list = response.get(i);
+                final Album album = albums.get(i);
+                long duration = 0L;
+                long songCount = 0L;
+
+                albumBuilder.setAlbum(albums.get(i));
+
+                /** First, extract the album specifics from the response. */
+                for (final String[] pair : Tools.splitResponse(list)) {
+                    if ("songs".equals(pair[KEY])) {
+                        songCount = Long.parseLong(pair[VALUE]);
+                    } else if ("playtime".equals(pair[KEY])) {
+                        duration = Long.parseLong(pair[VALUE]);
+                    }
+                }
+
+                albumBuilder.setAlbumDetails(songCount, duration);
+
+                /** Then extract the date and path from a song of the album. */
                 final List<Music> songs = getFirstTrack(album);
-                if (!songs.isEmpty()) {
-                    album.setPath(songs.get(0).getPath());
+                if (null != songs && !songs.isEmpty()) {
+                    albumBuilder
+                            .setSongDetails(songs.get(0).getDate(), songs.get(0).getPath());
+                }
+                albums.set(i, albumBuilder.build());
+            }
+        }
+    }
+
+    protected void addAlbumSongDetails(final List<Album> albums) throws IOException, MPDException {
+        if (albums != null && !albums.isEmpty()) {
+            final ListIterator<Album> iterator = albums.listIterator();
+            final AlbumBuilder albumBuilder = new AlbumBuilder();
+
+            while (iterator.hasNext()) {
+                final Album album = iterator.next();
+                final List<Music> songs = getFirstTrack(album);
+
+                if (songs != null && !songs.isEmpty()) {
+                    albumBuilder.setAlbum(album);
+                    albumBuilder
+                            .setSongDetails(songs.get(0).getDate(), songs.get(0).getPath());
+                    iterator.set(albumBuilder.build());
                 }
             }
         }
@@ -641,23 +692,24 @@ public class MPD {
                 /** Split albums are rare, let it allocate as needed. */
                 @SuppressWarnings("CollectionWithoutInitialCapacity")
                 final Collection<Album> splitAlbums = new ArrayList<>();
+                final AlbumBuilder albumBuilder = new AlbumBuilder();
                 int i = 0;
-                for (Album album : albums) {
+                for (final Album album : albums) {
                     final String[] aartists = albumArtists.get(i);
+
                     if (aartists.length > 0) {
+                        albumBuilder.setAlbum(album);
+
                         Arrays.sort(aartists); // make sure "" is the first one
-                        if (aartists[0] != null && !aartists[0]
-                                .isEmpty()) { // one albumartist, fix this
+                        if (aartists[0] != null && !aartists[0].isEmpty()) {
                             // album
-                            final Artist artist = new Artist(aartists[0]);
-                            final Album newAlbum = new Album(album, artist, true);
-                            albums.set(i, newAlbum);
+                            albumBuilder.setAlbumArtist(aartists[0]);
+                            albums.set(i, albumBuilder.build(false));
                         } // do nothing if albumartist is ""
                         if (aartists.length > 1) { // it's more than one album, insert
                             for (int n = 1; n < aartists.length; n++) {
-                                final Artist artist = new Artist(aartists[n]);
-                                final Album newAlbum = new Album(album, artist, true);
-                                splitAlbums.add(newAlbum);
+                                albumBuilder.setAlbumArtist(aartists[n]);
+                                splitAlbums.add(albumBuilder.build(false));
                             }
                         }
                     }
@@ -689,37 +741,6 @@ public class MPD {
         return listAlbums(artist, useAlbumArtistTag).size();
     }
 
-    protected void getAlbumDetails(final List<Album> albums, final boolean findYear)
-            throws IOException, MPDException {
-        final CommandQueue commandQueue = new CommandQueue(albums.size());
-        for (final Album album : albums) {
-            commandQueue.add(getAlbumDetailsCommand(album));
-        }
-        final List<String[]> response = commandQueue.sendSeparated(mConnection);
-
-        if (response.size() == albums.size()) {
-            for (int i = 0; i < response.size(); i++) {
-                final String[] list = response.get(i);
-                final Album a = albums.get(i);
-                for (final String[] pair : Tools.splitResponse(list)) {
-                    if ("songs".equals(pair[KEY])) {
-                        a.setSongCount(Long.parseLong(pair[VALUE]));
-                    } else if ("playtime".equals(pair[KEY])) {
-                        a.setDuration(Long.parseLong(pair[VALUE]));
-                    }
-                }
-
-                if (findYear) {
-                    final List<Music> songs = getFirstTrack(a);
-                    if (null != songs && !songs.isEmpty()) {
-                        a.setYear(songs.get(0).getDate());
-                        a.setPath(songs.get(0).getPath());
-                    }
-                }
-            }
-        }
-    }
-
     public List<Album> getAlbums(final Artist artist, final boolean sortByYear,
             final boolean trackCountNeeded) throws IOException, MPDException {
         List<Album> albums = getAlbums(artist, sortByYear, trackCountNeeded, false);
@@ -745,8 +766,11 @@ public class MPD {
             albums = new ArrayList<>(albumNames.size());
 
             if (!albumNames.isEmpty()) {
+                final AlbumBuilder albumBuilder = new AlbumBuilder();
+
                 for (final String album : albumNames) {
-                    albums.add(new Album(album, artist, useAlbumArtist));
+                    albumBuilder.setBase(album, artist, useAlbumArtist);
+                    albums.add(albumBuilder.build());
                 }
 
                 if (!useAlbumArtist) {
@@ -755,11 +779,11 @@ public class MPD {
 
                 // after fixing album artists
                 if (trackCountNeeded || sortByYear) {
-                    getAlbumDetails(albums, sortByYear);
+                    addAlbumDetails(albums);
                 }
 
                 if (!sortByYear) {
-                    addAlbumPaths(albums);
+                    addAlbumSongDetails(albums);
                 }
 
                 Collections.sort(albums);
@@ -786,9 +810,12 @@ public class MPD {
         } else {
             final List<String> albumNames = listAlbums();
             if (null != albumNames && !albumNames.isEmpty()) {
+                final AlbumBuilder albumBuilder = new AlbumBuilder();
+
                 albums = new ArrayList<>(albumNames.size());
                 for (final String album : albumNames) {
-                    albums.add(new Album(album, null));
+                    albumBuilder.setName(album);
+                    albums.add(albumBuilder.build());
                 }
             } else {
                 albums = Collections.emptyList();
@@ -1246,11 +1273,14 @@ public class MPD {
         final List<Album> albumArtistAlbums = listAllAlbumsGrouped(true, includeUnknownAlbum);
 
         for (final Album artistAlbum : artistAlbums) {
-            for (final Album albumArtistAlbum : albumArtistAlbums) {
-                if (artistAlbum.getArtist() != null && artistAlbum
-                        .doesNameExist(albumArtistAlbum)) {
-                    albumArtistAlbum.setHasAlbumArtist(false);
-                    break;
+            final ListIterator<Album> iterator = albumArtistAlbums.listIterator();
+
+            while (iterator.hasNext()) {
+                final Album albumArtistAlbum = iterator.next();
+
+                if (artistAlbum.getArtist() != null &&
+                        artistAlbum.doesNameExist(albumArtistAlbum)) {
+                    iterator.set(artistAlbum);
                 }
             }
         }
@@ -1269,6 +1299,7 @@ public class MPD {
      */
     public List<Album> listAllAlbumsGrouped(final boolean useAlbumArtist,
             final boolean includeUnknownAlbum) throws IOException, MPDException {
+        final AlbumBuilder albumBuilder = new AlbumBuilder();
         final String albumResponse = "Album";
         final String artistResponse;
         final List<String> response =
@@ -1286,15 +1317,16 @@ public class MPD {
 
             if (artistResponse.equals(pair[KEY])) {
                 if (currentAlbum != null) {
-                    final Artist artist = new Artist(pair[VALUE]);
-                    result.add(new Album(currentAlbum, artist, useAlbumArtist));
+                    albumBuilder.setBase(currentAlbum, pair[VALUE], useAlbumArtist);
+                    result.add(albumBuilder.build());
 
                     currentAlbum = null;
                 }
             } else if (albumResponse.equals(pair[KEY])) {
                 if (currentAlbum != null) {
+                    albumBuilder.setName(currentAlbum);
                     /** There was no artist in this response, add the album alone */
-                    result.add(new Album(currentAlbum, null));
+                    result.add(albumBuilder.build());
                 }
 
                 if (!pair[VALUE].isEmpty() || includeUnknownAlbum) {

@@ -578,15 +578,18 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
 
     public Album getAlbum() {
         final boolean isAlbumArtist = !isEmpty(mAlbumArtistName);
-        final Artist artist;
+        final AlbumBuilder albumBuilder = new AlbumBuilder();
 
+        albumBuilder.setName(mAlbumName);
         if (isAlbumArtist) {
-            artist = new Artist(mAlbumArtistName);
+            albumBuilder.setAlbumArtist(mAlbumArtistName);
         } else {
-            artist = new Artist(mArtistName);
+            albumBuilder.setArtist(mArtistName);
         }
 
-        return new Album(mAlbumName, artist, isAlbumArtist);
+        albumBuilder.setSongDetails(mDate, mFullPath);
+
+        return albumBuilder.build();
     }
 
     public Artist getAlbumArtist() {
