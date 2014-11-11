@@ -1083,8 +1083,7 @@ public class MPD {
             throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ALBUM_ARTIST);
-
-        return Tools.parseResponse(response, "albumartist", sortInsensitive);
+        return Tools.parseResponse(response, "AlbumArtist", sortInsensitive);
     }
 
     public List<String> listAlbumArtists(final Genre genre) throws IOException, MPDException {
@@ -1104,7 +1103,7 @@ public class MPD {
                 MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM_ARTIST,
                 MPDCommand.MPD_TAG_GENRE, genre.getName());
 
-        return Tools.parseResponse(response, MPDCommand.MPD_TAG_ALBUM_ARTIST, sortInsensitive);
+        return Tools.parseResponse(response, "AlbumArtist", sortInsensitive);
     }
 
     public List<String[]> listAlbumArtists(final List<Album> albums)
