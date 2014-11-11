@@ -28,6 +28,7 @@ import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 import android.util.Log;
@@ -39,6 +40,8 @@ import java.io.IOException;
 public class ArtistsFragment extends BrowseFragment {
 
     private static final String TAG = "ArtistsFragment";
+
+    private static final String EXTRA_GENRE = "genre";
 
     private Genre mGenre = null;
 
@@ -126,6 +129,14 @@ public class ArtistsFragment extends BrowseFragment {
     }
 
     @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            init((Genre) savedInstanceState.getParcelable(EXTRA_GENRE));
+        }
+    }
+
+    @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         final AlbumsFragment af;
@@ -138,4 +149,13 @@ public class ArtistsFragment extends BrowseFragment {
         }
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, "album");
     }
+
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        if (mGenre != null) {
+            outState.putParcelable(EXTRA_GENRE, mGenre);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
 }
