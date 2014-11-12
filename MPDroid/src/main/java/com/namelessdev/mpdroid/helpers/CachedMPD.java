@@ -158,13 +158,12 @@ public class CachedMPD extends MPD {
     /**
      * Get all albums.
      *
-     * @param trackCountNeeded Do we need the track count ?
      * @return A list of Album objects.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    public List<Album> getAllAlbums(final boolean trackCountNeeded)
+    public List<Album> getAllAlbums()
             throws IOException, MPDException {
         final List<Album> allAlbums;
 
@@ -194,7 +193,7 @@ public class CachedMPD extends MPD {
                 addAlbumDetails(allAlbums);
             }
         } else {
-            allAlbums = super.getAllAlbums(trackCountNeeded);
+            allAlbums = super.getAllAlbums();
         }
 
         return allAlbums;

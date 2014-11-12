@@ -762,7 +762,7 @@ public class MPD {
         final List<Album> albums;
 
         if (artist == null) {
-            albums = getAllAlbums(trackCountNeeded);
+            albums = getAllAlbums();
         } else {
             final List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
             albums = new ArrayList<>(albumNames.size());
@@ -798,13 +798,11 @@ public class MPD {
     /**
      * Get all albums (if there is no artist specified for filtering)
      *
-     * @param trackCountNeeded Do we need the track count ?
-     * @return all Albums
+     * @return A list of all albums on the connected media server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<Album> getAllAlbums(final boolean trackCountNeeded)
-            throws IOException, MPDException {
+    public List<Album> getAllAlbums() throws IOException, MPDException {
         final List<Album> albums;
         // Use MPD 0.19's album grouping feature if available.
         if (mConnection.isProtocolVersionSupported(0, 19)) {
