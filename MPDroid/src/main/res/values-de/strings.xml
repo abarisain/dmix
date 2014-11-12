@@ -6,8 +6,8 @@
     <string name="aboutDescription">Über MPDroid</string>
     <string name="albumGridWifiUnavailable">Wi-Fi nicht verfügbar, es werden keine neuen Bilder empfangen</string>
     <string name="configurationName">Konfigurationsname</string>
-    <string name="coverSettings">Albencover Einstellungen</string>
-    <string name="clientSettings">Client Einstellungen</string>
+    <string name="coverSettings">Albencover-Einstellungen</string>
+    <string name="clientSettings">Client-Einstellungen</string>
     <string name="edit">Ändern</string>
     <string name="enableLightNowPlayingTheme">Benutze helles Theme für "Du hörst"</string>
     <string name="enableLightNowPlayingThemeDescription">Starte die App neu, um Änderung anzuwenden</string>
@@ -22,8 +22,8 @@
     <string name="repeat">Endlosschleife</string>
     <string name="repeatDescription">Aktiviere/Deaktiviere Endlosschleife</string>
     <string name="sc_LibTab">L</string>
-    <string name="serverAddress">Server Adresse:</string>
-    <string name="serverSettings">Server Einstellungen</string>
+    <string name="serverAddress">Server-Adresse:</string>
+    <string name="serverSettings">Server-Einstellungen</string>
     <string name="skipToHere">Hierhin springen</string>
     <string name="stopped">Beendet</string>
     <string name="streamDetails">Streamdetails:</string>
