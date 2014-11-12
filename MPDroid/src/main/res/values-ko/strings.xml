@@ -224,7 +224,7 @@
 	<string name="goToAlbumArtist">음반 연주자로 가기</string>
 	<string name="goToFolder">폴더로 가기</string>
 	<string name="goToStream">스트림으로 가기</string>
-	<string name="goToCurrent">현재 곡으로 이동</string>
+	<string name="goToCurrent">지금 곡으로 이동</string>
 	<string name="otherCover">기타 사진</string>
 	<string name="resetCover">이미지 재설정</string>
 	
@@ -247,7 +247,7 @@
 	<string name="drawer_open">서랍 보기</string>
 	<string name="drawer_close">서랍 닫기</string>
 	
-	<string name="nowPlayingSettingsTitle">현재 연주 중 설정</string>
+	<string name="nowPlayingSettingsTitle">지금 연주 중 설정</string>
 	<string name="enableSmallSeekbars">작은 찾기 사용</string>
 	<string name="clearSearchHistory">찾은 이력 지우기</string>
 	<string name="streamSaved">스트림 저장됨</string>
@@ -296,6 +296,6 @@
 	<string name="mediaPlayerErrorIO">네트워크 관련 운영 실패.</string>
 	<string name="mediaPlayerErrorMalformed">스트림이 관련 코딩 규격과 맞지 않음.</string>
 	<string name="mediaPlayerErrorTimedOut">운영 시간 초과.</string>
-	<string name="mediaPlayerErrorUnsupported">미디어 프레임워크가 스트림 코넥을 지원하지 않음.</string>
+	<string name="mediaPlayerErrorUnsupported">미디어 프레임워크가 스트림 코덱을 지원하지 않음.</string>
 	<!-- End MediaPlayer Error Strings -->
 </resources>
