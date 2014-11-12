@@ -57,7 +57,7 @@ public class Music extends AbstractMusic implements Parcelable {
         super(music);
     }
 
-    protected Music(final String album, final String artist, final String albumArtist,
+    Music(final String album, final String artist, final String albumArtist,
             final String composer, final String fullPath, final int disc, final long date,
             final String genre, final long time, final String title, final int totalTracks,
             final int track, final int songId, final int songPos, final String name) {
@@ -84,20 +84,20 @@ public class Music extends AbstractMusic implements Parcelable {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(getAlbum());
-        dest.writeString(getArtist());
-        dest.writeString(getAlbumArtist());
-        dest.writeString(getComposer());
-        dest.writeString(getFullPath());
-        dest.writeInt(getDisc());
-        dest.writeLong(getDate());
-        dest.writeString(getGenre());
-        dest.writeLong(getTime());
-        dest.writeString(getTitle());
-        dest.writeInt(getTotalTracks());
-        dest.writeInt(getTrack());
-        dest.writeInt(getSongId());
-        dest.writeInt(getPos());
-        dest.writeString(getName());
+        dest.writeString(mAlbum);
+        dest.writeString(mArtist);
+        dest.writeString(mAlbumArtist);
+        dest.writeString(mComposer);
+        dest.writeString(mFullPath);
+        dest.writeInt(mDisc);
+        dest.writeLong(mDate);
+        dest.writeString(mGenre);
+        dest.writeLong(mTime);
+        dest.writeString(mTitle);
+        dest.writeInt(mTotalTracks);
+        dest.writeInt(mTrack);
+        dest.writeInt(mSongId);
+        dest.writeInt(mSongPos);
+        dest.writeString(mName);
     }
 }
