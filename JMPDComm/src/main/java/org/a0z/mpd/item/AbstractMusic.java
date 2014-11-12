@@ -48,7 +48,7 @@ import static org.a0z.mpd.Tools.VALUE;
  *
  * @author Felipe Gustavo de Almeida
  */
-abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
+public abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
 
     /**
      * This is like the default {@code Comparable} for the Music class, but it compares without

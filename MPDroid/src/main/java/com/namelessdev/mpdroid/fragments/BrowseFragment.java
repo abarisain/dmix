@@ -26,6 +26,10 @@ import com.namelessdev.mpdroid.tools.Tools;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractAlbum;
+import org.a0z.mpd.item.AbstractMusic;
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
@@ -369,10 +373,20 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
                 final Object selectedItem = mItems.get((int) info.id);
                 final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-                final Music music = (Music) selectedItem;
+                Artist artist = null;
 
-                intent.putExtra("artist", music.getArtistAsArtist());
-                startActivityForResult(intent, -1);
+                if (selectedItem instanceof Album) {
+                    artist = ((AbstractAlbum) selectedItem).getArtist();
+                } else if (selectedItem instanceof Artist) {
+                    artist = (Artist) selectedItem;
+                } else if (selectedItem instanceof Music) {
+                    artist = new Artist(((AbstractMusic) selectedItem).getAlbumArtistOrArtist());
+                }
+
+                if (artist != null) {
+                    intent.putExtra("artist", artist);
+                    startActivityForResult(intent, -1);
+                }
                 break;
             default:
                 final String name = item.getTitle().toString();

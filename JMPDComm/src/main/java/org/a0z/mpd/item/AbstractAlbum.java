@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /** This class is the generic base for the Album items, abstracted for backend. */
-abstract class AbstractAlbum extends Item {
+public abstract class AbstractAlbum extends Item {
 
     private final Artist mArtist;
 
