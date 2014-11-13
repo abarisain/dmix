@@ -330,7 +330,13 @@ public class MPD {
 
         }
 
-        commandQueue.send(mConnection);
+        /**
+         * It's rare, but possible to make it through the add()
+         * methods without adding to the command queue.
+         */
+        if (!commandQueue.isEmpty()) {
+            commandQueue.send(mConnection);
+        }
     }
 
     /**
