@@ -37,17 +37,15 @@ import java.util.StringTokenizer;
 /** This class stores the result for MPDCallable. */
 class CommandResult {
 
+    private Boolean isIOExceptionLast = null;
+
     private String mConnectionResult;
 
     private IOException mIOException;
 
-    private MPDException mLastException;
+    private MPDException mMPDException;
 
     private List<String> mResult;
-
-    final IOException getIOException() {
-        return mIOException;
-    }
 
     /**
      * Returns the first string response from the media server after connection. This method is
@@ -60,20 +58,12 @@ class CommandResult {
         return mConnectionResult;
     }
 
-    final MPDException getLastException() {
-        return mLastException;
+    final IOException getIOException() {
+        return mIOException;
     }
 
-    public boolean isHeaderValid() {
-        final boolean isHeaderValid;
-
-        if (mConnectionResult == null) {
-            isHeaderValid = false;
-        } else {
-            isHeaderValid = true;
-        }
-
-        return isHeaderValid;
+    final MPDException getMPDException() {
+        return mMPDException;
     }
 
     /**
@@ -104,30 +94,34 @@ class CommandResult {
         return mResult;
     }
 
-    final boolean isMPDException() {
-        final boolean isMPDException;
+    public boolean isHeaderValid() {
+        final boolean isHeaderValid;
 
-        if (mLastException == null) {
-            isMPDException = false;
+        if (mConnectionResult == null) {
+            isHeaderValid = false;
         } else {
-            isMPDException = true;
+            isHeaderValid = true;
         }
 
-        return isMPDException;
+        return isHeaderValid;
+    }
+
+    public Boolean isIOExceptionLast() {
+        return isIOExceptionLast;
     }
 
     final void setConnectionResult(final String result) {
         mConnectionResult = result;
     }
 
-    final void setException(final IOException ioException) {
-        mLastException = null;
-        mIOException = ioException;
+    final void setException(final IOException exception) {
+        isIOExceptionLast = Boolean.TRUE;
+        mIOException = exception;
     }
 
-    final void setException(final MPDException lastException) {
-        mIOException = null;
-        mLastException = lastException;
+    final void setException(final MPDException exception) {
+        isIOExceptionLast = Boolean.FALSE;
+        mMPDException = exception;
     }
 
     final void setResult(final List<String> result) {
