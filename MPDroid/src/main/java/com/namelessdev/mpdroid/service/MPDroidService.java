@@ -54,7 +54,6 @@ import java.util.List;
 public final class MPDroidService extends Service implements
         AudioManager.OnAudioFocusChangeListener,
         MPDAsyncHelper.ConnectionInfoListener,
-        MPDAsyncHelper.NetworkMonitorListener,
         StatusChangeListener {
 
     /** Enable this to get various DEBUG messages from this module. */
@@ -241,12 +240,7 @@ public final class MPDroidService extends Service implements
             });
         }
 
-        if (!MPD_ASYNC_HELPER.isNetworkMonitorAlive()) {
-            MPD_ASYNC_HELPER.startNetworkMonitor(this);
-        }
-
         MPD_ASYNC_HELPER.addStatusChangeListener(this);
-        MPD_ASYNC_HELPER.addNetworkMonitorListener(this);
         /**
          * From here, upon successful connection, it will go from connectionStateChanged to
          * stateChanged() where handlers will be started as required.
@@ -382,21 +376,6 @@ public final class MPDroidService extends Service implements
         windDownHandlers(false);
 
         mHandler.removeCallbacksAndMessages(null);
-    }
-
-    /**
-     * This method is called when a network has connected that matches the MPD server settings.
-     */
-    @Override
-    public void onNetworkConnect() {
-        if (DEBUG) {
-            Log.d(TAG, "onNetworkConnect");
-        }
-        if (isNotificationPersistent()) {
-            windDownHandlers(false);
-            mIsNotificationStarted = false;
-            startNotification();
-        }
     }
 
     /**
@@ -839,7 +818,6 @@ public final class MPDroidService extends Service implements
                  * causes a bug with the weak linked list, somehow.
                  */
                 MPD_ASYNC_HELPER.stopStatusMonitor();
-                MPD_ASYNC_HELPER.stopNetworkMonitor(this);
                 MPD_ASYNC_HELPER.disconnect();
             }
         }
