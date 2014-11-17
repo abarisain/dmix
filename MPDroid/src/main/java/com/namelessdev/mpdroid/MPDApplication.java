@@ -485,14 +485,18 @@ public class MPDApplication extends Application implements
     }
 
     private void startDisconnectScheduler() {
-        mDisconnectScheduler.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Log.w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
-                oMPDAsyncHelper.stopStatusMonitor();
-                oMPDAsyncHelper.disconnect();
-            }
-        }, DISCONNECT_TIMER);
+        try {
+            mDisconnectScheduler.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Log.w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
+                    oMPDAsyncHelper.stopStatusMonitor();
+                    oMPDAsyncHelper.disconnect();
+                }
+            }, DISCONNECT_TIMER);
+        } catch (final IllegalStateException e) {
+            Log.d(TAG, "Disconnection timer interrupted.", e);
+        }
     }
 
     public final void startNotification() {
