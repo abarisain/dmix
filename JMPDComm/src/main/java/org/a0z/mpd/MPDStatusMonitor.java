@@ -316,14 +316,16 @@ public class MPDStatusMonitor extends Thread {
                     Log.error(TAG, "Exception caught while looping.", e);
                 }
             }
+
             try {
                 synchronized (this) {
-                    wait(mDelay);
+                    if (!mMPD.isConnected()) {
+                        wait(mDelay);
+                    }
                 }
             } catch (final InterruptedException e) {
-                e.printStackTrace();
+                Log.error(TAG, "Interruption caught during disconnection and wait.", e);
             }
-
         }
 
     }
