@@ -81,11 +81,11 @@ public class MPDStatusMonitor extends Thread {
 
     private final long mDelay;
 
-    private final MPDCommand mIdleCommand;
-
     private final MPD mMPD;
 
     private final Queue<StatusChangeListener> mStatusChangeListeners;
+
+    private final String[] mSupportedSubsystems;
 
     private final Queue<TrackPositionListener> mTrackPositionListeners;
 
@@ -94,11 +94,11 @@ public class MPDStatusMonitor extends Thread {
     /**
      * Constructs a MPDStatusMonitor.
      *
-     * @param mpd           MPD server to monitor.
-     * @param delay         status query interval.
-     * @param supportedIdle Idle subsystems to support, see IDLE fields in this class.
+     * @param mpd                 MPD server to monitor.
+     * @param delay               status query interval.
+     * @param supportedSubsystems Idle subsystems to support, see IDLE fields in this class.
      */
-    public MPDStatusMonitor(final MPD mpd, final long delay, final String[] supportedIdle) {
+    public MPDStatusMonitor(final MPD mpd, final long delay, final String[] supportedSubsystems) {
         super("MPDStatusMonitor");
 
         mMPD = mpd;
@@ -106,7 +106,7 @@ public class MPDStatusMonitor extends Thread {
         mGiveup = false;
         mStatusChangeListeners = new LinkedList<>();
         mTrackPositionListeners = new LinkedList<>();
-        mIdleCommand = new MPDCommand(MPDCommand.MPD_CMD_IDLE, supportedIdle);
+        mSupportedSubsystems = supportedSubsystems.clone();
     }
 
     /**
@@ -339,9 +339,11 @@ public class MPDStatusMonitor extends Thread {
      */
     private List<String> waitForChanges() throws IOException, MPDException {
         final MPDConnection mpdIdleConnection = mMPD.getIdleConnection();
+        final MPDCommand idleCommand = new MPDCommand(MPDCommand.MPD_CMD_IDLE,
+                mSupportedSubsystems);
 
         while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
-            final List<String> data = mpdIdleConnection.sendCommand(mIdleCommand);
+            final List<String> data = mpdIdleConnection.sendCommand(idleCommand);
 
             if (data == null || data.isEmpty()) {
                 continue;
