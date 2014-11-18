@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2010-2014 The MPDroid Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +49,7 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:singleLine="true"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/white" />
         <!-- Move the Artist & Title close to each other -->
         <TextView
             android:id="@+id/notificationArtist"

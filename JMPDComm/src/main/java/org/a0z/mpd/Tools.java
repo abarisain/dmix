@@ -169,7 +169,7 @@ public final class Tools {
      * Parse a media server response for one entry type.
      *
      * @param response The media server response.
-     * @param type The entry type in the response to add to the collection.
+     * @param type     The entry type in the response to add to the collection.
      * @return A collection of entries of one type in a media server response.
      */
     public static List<String> parseResponse(final Collection<String> response, final String type) {

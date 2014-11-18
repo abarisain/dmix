@@ -110,7 +110,7 @@ final class MusicList implements Iterable<Music> {
      * @return a Music with given songId or {@code null} if it is not
      * present on this {@code MusicList}.
      */
-     Music getById(final int songId) {
+    Music getById(final int songId) {
         final int songPos = Integer.valueOf(mSongID.indexOf(songId));
 
         return mList.get(songPos);

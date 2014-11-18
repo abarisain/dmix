@@ -591,7 +591,7 @@ public class MPD {
                                 .isEmpty()) { // one albumartist, fix this
                             // album
                             final Artist artist = new Artist(aartists[0]);
-                            final Album newAlbum =  new Album(album, artist, true);
+                            final Album newAlbum = new Album(album, artist, true);
                             albums.set(i, newAlbum);
                         } // do nothing if albumartist is ""
                         if (aartists.length > 1) { // it's more than one album, insert
