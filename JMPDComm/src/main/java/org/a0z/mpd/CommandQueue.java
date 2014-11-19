@@ -223,12 +223,7 @@ public class CommandQueue implements Iterable<MPDCommand> {
             throw new IllegalStateException("Cannot send an empty command queue.");
         }
 
-        if (mCommandQueue.size() == 1) {
-            /** OK, it's not really a command queue. Send it anyhow. */
-            mpdCommand = mCommandQueue.get(0);
-        } else {
-            mpdCommand = new MPDCommand(toString(separated));
-        }
+        mpdCommand = new MPDCommand(toString(separated));
 
         if (DEBUG) {
             Log.debug(TAG, toString(separated));
@@ -271,20 +266,27 @@ public class CommandQueue implements Iterable<MPDCommand> {
      * @return A string to be parsed by either {@code send()} or {@code sendSeparated()}.
      */
     private String toString(final boolean separated) {
-        final StringBuilder commandString = new StringBuilder(mCommandQueueStringLength);
+        final String result;
 
-        if (separated) {
-            commandString.append(MPD_CMD_START_BULK_OK);
+        if (mCommandQueue.size() == 1) {
+            result = mCommandQueue.get(0).toString();
         } else {
-            commandString.append(MPD_CMD_START_BULK);
-        }
-        commandString.append(MPDCommand.MPD_CMD_NEWLINE);
+            final StringBuilder commandString = new StringBuilder(mCommandQueueStringLength);
+            if (separated) {
+                commandString.append(MPD_CMD_START_BULK_OK);
+            } else {
+                commandString.append(MPD_CMD_START_BULK);
+            }
+            commandString.append(MPDCommand.MPD_CMD_NEWLINE);
 
-        for (final MPDCommand command : mCommandQueue) {
-            commandString.append(command);
-        }
-        commandString.append(MPD_CMD_END_BULK);
+            for (final MPDCommand command : mCommandQueue) {
+                commandString.append(command);
+            }
+            commandString.append(MPD_CMD_END_BULK);
 
-        return commandString.toString();
+            result = commandString.toString();
+        }
+
+        return result;
     }
 }
