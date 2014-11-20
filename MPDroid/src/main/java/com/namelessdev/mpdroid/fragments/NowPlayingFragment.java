@@ -313,6 +313,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             updateTrackInfo(status, true);
             setButtonAttribute(getRepeatAttribute(status.isRepeat()), mRepeatButton);
             setButtonAttribute(getShuffleAttribute(status.isRandom()), mShuffleButton);
+            setStickerVisibility();
         }
     }
 
@@ -804,6 +805,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 mIsAudioNameTextEnabled = sharedPreferences.getBoolean(key, false);
                 updateAudioNameText(mApp.oMPDAsyncHelper.oMPD.getStatus());
                 break;
+            case "enableRating":
+                setStickerVisibility();
+                updateTrackInfo(mApp.oMPDAsyncHelper.oMPD.getStatus(), false);
+                break;
             default:
                 break;
         }
@@ -902,6 +907,14 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         ta.recycle();
     }
 
+    private void setStickerVisibility() {
+        if (mApp.oMPDAsyncHelper.oMPD.getStickerManager().isAvailable()) {
+            applyViewVisibility(mSongRating, "enableRating");
+        } else {
+            mSongRating.setVisibility(View.GONE);
+        }
+    }
+
     private void startPosTimer(final long start, final long total) {
         stopPosTimer();
         mPosTimer = new Timer();
@@ -956,12 +969,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             } else {
                 stopPosTimer();
                 updateTrackProgress(elapsedTime, totalTime);
-            }
-
-            if (mApp.oMPDAsyncHelper.oMPD.getStickerManager().isAvailable()) {
-                applyViewVisibility(mSongRating, "enableRating");
-            } else {
-                mSongRating.setVisibility(View.GONE);
             }
 
             mTrackSeekBar.setMax((int) totalTime);

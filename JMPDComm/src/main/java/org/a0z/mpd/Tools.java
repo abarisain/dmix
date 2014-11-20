@@ -28,7 +28,10 @@
 package org.a0z.mpd;
 
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public final class Tools {
 
@@ -157,6 +160,46 @@ public final class Tools {
                 result = true;
                 break;
             }
+        }
+
+        return result;
+    }
+
+    /**
+     * Parse a media server response for one entry type.
+     *
+     * @param response The media server response.
+     * @param type     The entry type in the response to add to the collection.
+     * @return A collection of entries of one type in a media server response.
+     */
+    public static List<String> parseResponse(final Collection<String> response, final String type) {
+        final List<String> result = new ArrayList<>(response.size());
+
+        for (final String[] lines : splitResponse(response)) {
+            if (lines[KEY].equals(type)) {
+                result.add(lines[VALUE]);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Parse a media server response for one entry type, then sort the resulting list.
+     *
+     * @param response        The media server response.
+     * @param substring       The entry type in the response to add to the collection.
+     * @param sortInsensitive Whether to sort insensitively.
+     * @return A sorted collection of entries of one type in a media server response.
+     */
+    public static List<String> parseResponse(final Collection<String> response,
+            final String substring, final boolean sortInsensitive) {
+        final List<String> result = parseResponse(response, substring);
+
+        if (sortInsensitive) {
+            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
+        } else {
+            Collections.sort(result);
         }
 
         return result;

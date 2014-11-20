@@ -155,6 +155,10 @@ final class CommandQueue {
         mCommandQueue.clear();
     }
 
+    public boolean isEmpty() {
+        return mCommandQueue.isEmpty();
+    }
+
     /** Reverse the command queue order, useful for removing playlist entries. */
     void reverse() {
         Collections.reverse(mCommandQueue);
@@ -213,6 +217,10 @@ final class CommandQueue {
     public List<String[]> sendSeparated(final MPDConnection mpdConnection)
             throws IOException, MPDException {
         return separatedQueueResults(send(mpdConnection, true));
+    }
+
+    public int size() {
+        return mCommandQueue.size();
     }
 
     /**

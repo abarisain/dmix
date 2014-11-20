@@ -76,6 +76,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     public static final int PLAYLIST = 3;
 
+    private static final String PLAY_SERVICES_ACTION_SEARCH
+            = "com.google.android.gms.actions.SEARCH_ACTION";
+
     private static final String TAG = "SearchActivity";
 
     private final ArrayList<Album> mAlbumResults;
@@ -327,7 +330,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final Intent queryIntent = getIntent();
         final String queryAction = queryIntent.getAction();
 
-        if (Intent.ACTION_SEARCH.equals(queryAction)) {
+        if (Intent.ACTION_SEARCH.equals(queryAction) || PLAY_SERVICES_ACTION_SEARCH
+                .equals(queryAction)) {
             mSearchKeywords = queryIntent.getStringExtra(SearchManager.QUERY).trim();
             final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);

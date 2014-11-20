@@ -24,14 +24,8 @@ public abstract class AbstractPlaylistMusic extends Music {
 
     private boolean mForceCoverRefresh = false;
 
-    protected AbstractPlaylistMusic(final String album, final String artist,
-            final String albumartist, final String composer,
-            final String fullpath, final int disc, final long date, final String genre,
-            final long time, final String title,
-            final int totalTracks, final int track, final int songId, final int pos,
-            final String name) {
-        super(album, artist, albumartist, composer, fullpath, disc, date, genre, time, title,
-                totalTracks, track, songId, pos, name);
+    protected AbstractPlaylistMusic(final Music music) {
+        super(music);
     }
 
     public int getCurrentSongIconRefID() {

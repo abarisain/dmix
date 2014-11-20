@@ -20,6 +20,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
@@ -229,10 +230,16 @@ public class StreamsFragment extends BrowseFragment {
         List<Music> mpdStreams = null;
         int iterator = 0;
 
-        try {
-            mpdStreams = mApp.oMPDAsyncHelper.oMPD.getSavedStreams();
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Failed to retrieve saved streams.", e);
+        /** Many users have playlist support disabled, no need for an exception. */
+        if (mApp.oMPDAsyncHelper.oMPD.isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
+            try {
+                mpdStreams = mApp.oMPDAsyncHelper.oMPD.getSavedStreams();
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to retrieve saved streams.", e);
+            }
+        } else {
+            Log.w(TAG, "Streams fragment can't load streams, playlist support not enabled.");
+            mpdStreams = Collections.emptyList();
         }
 
         if (null != mpdStreams) {

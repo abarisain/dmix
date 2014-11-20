@@ -212,7 +212,8 @@ public class UpdateTrackInfo {
         private float getTrackRating() {
             float rating = 0.0f;
 
-            if (mCurrentTrack != null && mSticker.isAvailable()) {
+            if (mCurrentTrack != null && mSticker.isAvailable() &&
+                    mSettings.getBoolean("enableRating", false)) {
                 try {
                     rating = (float) mSticker.getRating(mCurrentTrack) / 2.0f;
                 } catch (final IOException | MPDException e) {

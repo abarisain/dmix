@@ -187,28 +187,6 @@ public class MPD {
         return new MPDCommand(MPDCommand.MPD_CMD_NEXT);
     }
 
-    /**
-     * Parse the response from tag list command for album artists.
-     *
-     * @param response        The album artist list response from the MPD server database.
-     * @param substring       The substring from the response to remove.
-     * @param sortInsensitive Whether to sort insensitively.
-     * @return Returns a parsed album artist list.
-     */
-    private static List<String> parseResponse(final Collection<String> response,
-            final String substring, final boolean sortInsensitive) {
-        final List<String> result = new ArrayList<>(response.size());
-        for (final String line : response) {
-            result.add(line.substring((substring + ": ").length()));
-        }
-        if (sortInsensitive) {
-            Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
-        } else {
-            Collections.sort(result);
-        }
-        return result;
-    }
-
     private static MPDCommand skipToPositionCommand(final int position) {
         return new MPDCommand(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
     }
@@ -352,7 +330,13 @@ public class MPD {
 
         }
 
-        commandQueue.send(mConnection);
+        /**
+         * It's rare, but possible to make it through the add()
+         * methods without adding to the command queue.
+         */
+        if (!commandQueue.isEmpty()) {
+            commandQueue.send(mConnection);
+        }
     }
 
     /**
@@ -388,16 +372,12 @@ public class MPD {
         add(commandQueue, replace, play);
     }
 
-    protected void addAlbumPaths(final List<Album> albums) {
+    protected void addAlbumPaths(final List<Album> albums) throws IOException, MPDException {
         if (albums != null && !albums.isEmpty()) {
             for (final Album album : albums) {
-                try {
-                    final List<Music> songs = getFirstTrack(album);
-                    if (!songs.isEmpty()) {
-                        album.setPath(songs.get(0).getPath());
-                    }
-                } catch (final IOException | MPDException e) {
-                    Log.error(TAG, "Failed to add an album path.", e);
+                final List<Music> songs = getFirstTrack(album);
+                if (!songs.isEmpty()) {
+                    album.setPath(songs.get(0).getPath());
                 }
             }
         }
@@ -611,13 +591,14 @@ public class MPD {
                                 .isEmpty()) { // one albumartist, fix this
                             // album
                             final Artist artist = new Artist(aartists[0]);
-                            albums.set(i, album.setAlbumArtist(artist));
+                            final Album newAlbum = new Album(album, artist, true);
+                            albums.set(i, newAlbum);
                         } // do nothing if albumartist is ""
                         if (aartists.length > 1) { // it's more than one album, insert
                             for (int n = 1; n < aartists.length; n++) {
-                                final Album newalbum =
-                                        new Album(album.getName(), new Artist(aartists[n]), true);
-                                splitAlbums.add(newalbum);
+                                final Artist artist = new Artist(aartists[n]);
+                                final Album newAlbum = new Album(album, artist, true);
+                                splitAlbums.add(newAlbum);
                             }
                         }
                     }
@@ -1109,8 +1090,7 @@ public class MPD {
             throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ALBUM_ARTIST);
-
-        return parseResponse(response, "albumartist", sortInsensitive);
+        return Tools.parseResponse(response, "AlbumArtist", sortInsensitive);
     }
 
     public List<String> listAlbumArtists(final Genre genre) throws IOException, MPDException {
@@ -1130,7 +1110,7 @@ public class MPD {
                 MPDCommand.MPD_CMD_LIST_TAG, MPDCommand.MPD_TAG_ALBUM_ARTIST,
                 MPDCommand.MPD_TAG_GENRE, genre.getName());
 
-        return parseResponse(response, MPDCommand.MPD_TAG_ALBUM_ARTIST, sortInsensitive);
+        return Tools.parseResponse(response, "AlbumArtist", sortInsensitive);
     }
 
     public List<String[]> listAlbumArtists(final List<Album> albums)
@@ -1290,7 +1270,7 @@ public class MPD {
         final List<String> response =
                 mConnection.sendCommand(listAllAlbumsGroupedCommand(useAlbumArtist));
         final List<Album> result = new ArrayList<>(response.size() / 2);
-        Album currentAlbum = null;
+        String currentAlbum = null;
 
         if (useAlbumArtist) {
             artistResponse = "AlbumArtist";
@@ -1299,17 +1279,22 @@ public class MPD {
         }
 
         for (final String[] pair : Tools.splitResponse(response)) {
+
             if (artistResponse.equals(pair[KEY])) {
-                // Don't make the check with the other so we don't waste time doing string
-                // comparisons for nothing.
                 if (currentAlbum != null) {
-                    currentAlbum.setAlbumArtist(new Artist(pair[VALUE]));
+                    final Artist artist = new Artist(pair[VALUE]);
+                    result.add(new Album(currentAlbum, artist, useAlbumArtist));
+
+                    currentAlbum = null;
                 }
             } else if (albumResponse.equals(pair[KEY])) {
+                if (currentAlbum != null) {
+                    /** There was no artist in this response, add the album alone */
+                    result.add(new Album(currentAlbum, null));
+                }
+
                 if (!pair[VALUE].isEmpty() || includeUnknownAlbum) {
-                    currentAlbum = new Album(pair[VALUE], null);
-                    currentAlbum.setHasAlbumArtist(useAlbumArtist);
-                    result.add(currentAlbum);
+                    currentAlbum = pair[VALUE];
                 } else {
                     currentAlbum = null;
                 }
@@ -1359,7 +1344,7 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST);
 
-        return parseResponse(response, "Artist", sortInsensitive);
+        return Tools.parseResponse(response, "Artist", sortInsensitive);
     }
 
     /**
@@ -1435,7 +1420,7 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_ARTIST, MPDCommand.MPD_TAG_GENRE, genre);
 
-        return parseResponse(response, "Artist", sortInsensitive);
+        return Tools.parseResponse(response, "Artist", sortInsensitive);
     }
 
     private List<String[]> listArtistsCommand(final Iterable<Album> albums,
@@ -1489,7 +1474,7 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 MPDCommand.MPD_TAG_GENRE);
 
-        return parseResponse(response, "Genre", sortInsensitive);
+        return Tools.parseResponse(response, "Genre", sortInsensitive);
     }
 
     public void movePlaylistSong(final String playlistName, final int from, final int to)

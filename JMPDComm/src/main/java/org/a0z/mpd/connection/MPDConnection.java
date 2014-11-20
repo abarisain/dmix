@@ -41,7 +41,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,6 +59,8 @@ import static org.a0z.mpd.Tools.VALUE;
  */
 public abstract class MPDConnection {
 
+    static final String MPD_RESPONSE_OK = "OK";
+
     private static final int CONNECTION_TIMEOUT = 10000;
 
     /** The debug flag to enable or disable debug logging output. */
@@ -73,11 +74,7 @@ public abstract class MPDConnection {
 
     private static final String MPD_RESPONSE_ERR = "ACK";
 
-    static final String MPD_RESPONSE_OK = "OK";
-
     private static final String POOL_THREAD_NAME_PREFIX = "pool";
-
-    private final String mTag;
 
     /** A set containing all available commands, populated on connection. */
     private final Collection<String> mAvailableCommands = new HashSet<>();
@@ -91,6 +88,8 @@ public abstract class MPDConnection {
     /** The command communication timeout. */
     private final int mReadWriteTimeout;
 
+    private final String mTag;
+
     /** If set to true, this will cancel any processing commands at next opportunity. */
     private boolean mCancelled = false;
 
@@ -98,7 +97,7 @@ public abstract class MPDConnection {
     private boolean mIsConnected = false;
 
     /** Current media server's major/minor/micro version. */
-    private int[] mMPDVersion = null;
+    private int[] mMPDVersion = {0, 0, 0};
 
     /** Current media server password. */
     private String mPassword = null;
@@ -307,21 +306,21 @@ public abstract class MPDConnection {
         }
 
         if (result.getResult() == null) {
-            if (result.isMPDException()) {
-                throw result.getLastException();
-            } else {
-                final IOException e = result.getIOException();
-
-                if (e == null) {
-                    if (!mCancelled) {
-                        Log.error(mTag, "There was no result, command was not cancelled, and no " +
-                                "exception generated. This is probably a problem.");
-                    }
-                } else if (!(mCancelled && e instanceof SocketException &&
-                        command.toString().contains(MPDCommand.MPD_CMD_IDLE))) {
-                    /** Don't throw if it's just about a cancelled command. That's expected. */
-                    throw e;
-                }
+            if (result.isIOExceptionLast() == null) {
+                /**
+                 * This should not occur, and this exception should extend RuntimeException,
+                 * BUT a RuntimeException would most likely not help the situation.
+                 */
+                throw new IOException(
+                        "No result, no exception. This is a bug. Please report." + '\n' +
+                                "Cancelled: " + mCancelled + '\n' +
+                                "Command: " + command + '\n' +
+                                "Connected: " + mIsConnected + '\n' +
+                                "Connection result: " + result.getConnectionResult() + '\n');
+            } else if (result.isIOExceptionLast().equals(Boolean.TRUE)) {
+                throw result.getIOException();
+            } else if (result.isIOExceptionLast().equals(Boolean.FALSE)) {
+                throw result.getMPDException();
             }
         }
 
@@ -451,34 +450,6 @@ public abstract class MPDConnection {
             return result;
         }
 
-        private void logError(final CommandResult result, final String baseCommand,
-                final int retryCount) {
-            final StringBuilder stringBuilder = new StringBuilder(50);
-
-            stringBuilder.append("Command ");
-            stringBuilder.append(baseCommand);
-            stringBuilder.append(" failed after ");
-            stringBuilder.append(retryCount + 1);
-
-            if (retryCount == 0) {
-                stringBuilder.append(" attempt.");
-            } else {
-                stringBuilder.append(" attempts.");
-            }
-
-            if (result.isMPDException()) {
-                Log.error(mTag, stringBuilder.toString(), result.getLastException());
-            } else {
-                final IOException e = result.getIOException();
-
-                /** Don't log if it's just about a cancelled command. That's expected. */
-                if (!(mCancelled && e instanceof SocketException &&
-                        baseCommand.contains(MPDCommand.MPD_CMD_IDLE))) {
-                    Log.error(mTag, stringBuilder.toString(), e);
-                }
-            }
-        }
-
         /**
          * Used after a server error, sleeps for a small time then tries to reconnect.
          *
@@ -592,6 +563,30 @@ public abstract class MPDConnection {
             }
 
             return isNonfatalACK;
+        }
+
+        private void logError(final CommandResult result, final String baseCommand,
+                final int retryCount) {
+            final StringBuilder stringBuilder = new StringBuilder(50);
+
+            stringBuilder.append("Command ");
+            stringBuilder.append(baseCommand);
+            stringBuilder.append(" failed after ");
+            stringBuilder.append(retryCount + 1);
+
+            if (retryCount == 0) {
+                stringBuilder.append(" attempt.");
+            } else {
+                stringBuilder.append(" attempts.");
+            }
+
+            if (result.isIOExceptionLast() == null) {
+                Log.error(mTag, stringBuilder.toString());
+            } else if (result.isIOExceptionLast().equals(Boolean.TRUE)) {
+                Log.error(mTag, stringBuilder.toString(), result.getIOException());
+            } else if (result.isIOExceptionLast().equals(Boolean.FALSE)) {
+                Log.error(mTag, stringBuilder.toString(), result.getMPDException());
+            }
         }
 
         /**

@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /** This class is the generic base for the Album items, abstracted for backend. */
-abstract class AbstractAlbum extends Item {
+public abstract class AbstractAlbum extends Item {
 
     private final Artist mArtist;
 
@@ -132,6 +132,11 @@ abstract class AbstractAlbum extends Item {
                 otherAlbum.mDuration,
                 otherAlbum.mYear,
                 otherAlbum.mPath);
+    }
+
+    AbstractAlbum(final AbstractAlbum album, final Artist artist, final boolean hasAlbumArtist) {
+        this(album.mName, artist, hasAlbumArtist, album.mSongCount, album.mDuration, album.mYear,
+                album.mPath);
     }
 
     AbstractAlbum(final String name, final Artist artist) {
@@ -242,17 +247,6 @@ abstract class AbstractAlbum extends Item {
     @Override
     public int hashCode() {
         return Arrays.hashCode(new Object[]{mName, mArtist});
-    }
-
-    /**
-     * This sets the album artist in a new album object, due to the required immutability of name
-     * and artist to satisfy the requirement that the hash code not change over time.
-     *
-     * @param albumArtist The album artist for this album.
-     * @return A new Album object based off this Album object.
-     */
-    public Album setAlbumArtist(final Artist albumArtist) {
-        return new Album(mName, albumArtist, true, mSongCount, mDuration, mYear, mPath);
     }
 
     public void setDuration(final long duration) {

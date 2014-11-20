@@ -48,7 +48,7 @@ import static org.a0z.mpd.Tools.VALUE;
  *
  * @author Felipe Gustavo de Almeida
  */
-abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
+public abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
 
     /**
      * This is like the default {@code Comparable} for the Music class, but it compares without
@@ -100,35 +100,35 @@ abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
 
     private static final int UNDEFINED_INT = -1;
 
-    private final String mAlbum;
+    final String mAlbum;
 
-    private final String mAlbumArtist;
+    final String mAlbumArtist;
 
-    private final String mArtist;
+    final String mArtist;
 
-    private final String mComposer;
+    final String mComposer;
 
-    private final long mDate;
+    final long mDate;
 
-    private final int mDisc;
+    final int mDisc;
 
-    private final String mFullPath;
+    final String mFullPath;
 
-    private final String mGenre;
+    final String mGenre;
 
-    private final String mName;
+    final String mName;
 
-    private final int mSongId;
+    final int mSongId;
 
-    private final int mSongPos;
+    final int mSongPos;
 
-    private final long mTime;
+    final long mTime;
 
-    private final String mTitle;
+    final String mTitle;
 
-    private final int mTotalTracks;
+    final int mTotalTracks;
 
-    private final int mTrack;
+    final int mTrack;
 
     AbstractMusic() {
         this(null, /** Album */
@@ -614,12 +614,18 @@ abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
      * @return filename.
      */
     public String getFilename() {
-        final int pos = mFullPath.lastIndexOf('/');
-        if (pos == -1 || pos == mFullPath.length() - 1) {
-            return mFullPath;
-        } else {
-            return mFullPath.substring(pos + 1);
+        String result = null;
+
+        if (mFullPath != null) {
+            final int pos = mFullPath.lastIndexOf('/');
+            if (pos == -1 || pos == mFullPath.length() - 1) {
+                result = mFullPath;
+            } else {
+                result = mFullPath.substring(pos + 1);
+            }
         }
+
+        return result;
     }
 
     /**
