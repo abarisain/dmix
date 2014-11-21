@@ -36,8 +36,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;
@@ -158,11 +156,6 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                     return compare;
                 }
             };
-
-    /**
-     * The date response parser delimiter.
-     */
-    private static final Pattern DATE_DELIMITER = Pattern.compile("\\D+");
 
     /**
      * The maximum number of key/value pairs for a music item response.
@@ -352,12 +345,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                     composerName = pair[VALUE];
                     break;
                 case CMD_KEY_DATE:
-                    try {
-                        final Matcher matcher = DATE_DELIMITER.matcher(pair[VALUE]);
-                        date = Long.parseLong(matcher.replaceAll(""));
-                    } catch (final NumberFormatException e) {
-                        Log.warning(TAG, "Not a valid date.", e);
-                    }
+                    date = parseDate(pair[VALUE]);
                     break;
                 case CMD_KEY_DISC:
                     final int discIndex = pair[VALUE].indexOf('/');
@@ -542,6 +530,35 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
 
     private static boolean isEmpty(final String s) {
         return null == s || s.isEmpty();
+    }
+
+    /**
+     * This method parses the date MPD protocol response by removing all non-digit characters then
+     * parsing it as a long.
+     *
+     * @param dateResponse The date MPD protocol response.
+     * @return The parsed date.
+     */
+    public static long parseDate(final CharSequence dateResponse) {
+        final int length = dateResponse.length();
+        final StringBuilder sb = new StringBuilder(length);
+        long resultDate = -1L;
+
+        for (int i = 0; i < length; i++) {
+            final char c = dateResponse.charAt(i);
+
+            if (Character.isDigit(c)) {
+                sb.append(c);
+            }
+        }
+
+        try {
+            resultDate = Long.parseLong(sb.toString());
+        } catch (final NumberFormatException e) {
+            Log.warning(TAG, "Not a valid date.", e);
+        }
+
+        return resultDate;
     }
 
     /**
