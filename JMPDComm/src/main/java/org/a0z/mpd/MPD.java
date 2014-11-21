@@ -213,8 +213,17 @@ public class MPD {
      */
     public void add(final Album album, final boolean replace, final boolean play)
             throws IOException, MPDException {
-        final List<Music> songs = getSongs(album);
-        final CommandQueue commandQueue = MPDPlaylist.addAllCommand(songs);
+        final CommandQueue commandQueue;
+
+        if (isCommandAvailable(MPDCommand.MPD_CMD_FIND_ADD)) {
+            commandQueue = new CommandQueue();
+
+            commandQueue
+                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_FIND_ALBUM, album.getName());
+        } else {
+            final List<Music> songs = getSongs(album);
+            commandQueue = MPDPlaylist.addAllCommand(songs);
+        }
 
         add(commandQueue, replace, play);
     }
@@ -241,8 +250,17 @@ public class MPD {
      */
     public void add(final Artist artist, final boolean replace, final boolean play)
             throws IOException, MPDException {
-        final List<Music> songs = getSongs(artist);
-        final CommandQueue commandQueue = MPDPlaylist.addAllCommand(songs);
+        final CommandQueue commandQueue;
+
+        if (isCommandAvailable(MPDCommand.MPD_CMD_FIND_ADD)) {
+            commandQueue = new CommandQueue();
+
+            commandQueue
+                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_FIND_ARTIST, artist.getName());
+        } else {
+            final List<Music> songs = getSongs(artist);
+            commandQueue = MPDPlaylist.addAllCommand(songs);
+        }
 
         add(commandQueue, replace, play);
     }
@@ -394,12 +412,22 @@ public class MPD {
 
     public void addToPlaylist(final String playlistName, final Album album)
             throws IOException, MPDException {
-        addToPlaylist(playlistName, new ArrayList<>(getSongs(album)));
+        if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+                    MPDCommand.MPD_SEARCH_ALBUM, album.getName());
+        } else {
+            addToPlaylist(playlistName, new ArrayList<>(getSongs(album)));
+        }
     }
 
     public void addToPlaylist(final String playlistName, final Artist artist)
             throws IOException, MPDException {
-        addToPlaylist(playlistName, new ArrayList<>(getSongs(artist)));
+        if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+                    MPDCommand.MPD_SEARCH_ARTIST, artist.getName());
+        } else {
+            addToPlaylist(playlistName, new ArrayList<>(getSongs(artist)));
+        }
     }
 
     public void addToPlaylist(final String playlistName, final Collection<Music> musicCollection)

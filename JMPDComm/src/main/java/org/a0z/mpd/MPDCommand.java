@@ -56,6 +56,9 @@ public class MPDCommand {
 
     public static final String MPD_CMD_FIND = "find";
 
+    /** Added in MPD protocol 0.16.0 */
+    public static final String MPD_CMD_FIND_ADD = "findadd";
+
     public static final String MPD_CMD_GROUP = "group";
 
     public static final String MPD_CMD_IDLE = "idle";
@@ -114,6 +117,9 @@ public class MPDCommand {
     public static final String MPD_CMD_REPEAT = "repeat";
 
     public static final String MPD_CMD_SEARCH = "search";
+
+    /** Added in MPD protocol 0.17.0. */
+    public static final String MPD_CMD_SEARCH_ADD_PLAYLIST = "searchaddpl";
 
     public static final String MPD_CMD_SEEK = "seek";
 
