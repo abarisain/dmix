@@ -40,6 +40,7 @@ import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
 import org.a0z.mpd.item.Stream;
+import org.a0z.mpd.subsystem.Sticker;
 
 import java.io.IOException;
 import java.net.InetAddress;

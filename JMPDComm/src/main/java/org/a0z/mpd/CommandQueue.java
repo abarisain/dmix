@@ -183,7 +183,7 @@ public class CommandQueue implements Iterable<MPDCommand> {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    List<String> send(final MPDConnection mpdConnection) throws IOException, MPDException {
+    public List<String> send(final MPDConnection mpdConnection) throws IOException, MPDException {
         return send(mpdConnection, false);
     }
 
