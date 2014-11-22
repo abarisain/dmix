@@ -475,7 +475,7 @@ public final class StreamHandler implements
             Log.d(TAG, "StreamHandler.onPrepared()");
         }
 
-        if (mIsPlaying) {
+        if (mIsPlaying && mIsActive) {
             focusResult = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN);
         } else {
@@ -486,7 +486,9 @@ public final class StreamHandler implements
             mServiceHandler.sendEmptyMessage(BUFFERING_END);
             mMediaPlayer.start();
         } else {
-            showErrorToUser(R.string.audioFocusFailed);
+            if (mIsActive && mIsPlaying) {
+                showErrorToUser(R.string.audioFocusFailed);
+            }
 
             /** Because mPreparingStream is still set, this will reset the stream. */
             windDownResources(STREAMING_STOP);
