@@ -113,44 +113,36 @@ public class MPD {
         connect(server, port, password);
     }
 
-    private static MPDCommand getAlbumDetailsCommand(final Album album) {
+    private static String[] getAlbumArtistPair(final Album album) {
         final Artist artist = album.getArtist();
-        String artistCommand = null;
-        String artistName = null;
+        final String[] artistPair;
 
-        if (artist != null) {
-            artistName = artist.getName();
-
+        if (artist == null) {
+            artistPair = new String[]{null, null};
+        } else {
             if (album.hasAlbumArtist()) {
-                artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+                artistPair = new String[]{MPDCommand.MPD_TAG_ALBUM_ARTIST, artist.getName()};
             } else {
-                artistCommand = MPDCommand.MPD_FIND_ARTIST;
+                artistPair = new String[]{MPDCommand.MPD_TAG_ARTIST, artist.getName()};
             }
         }
+
+        return artistPair;
+    }
+
+    private static MPDCommand getAlbumDetailsCommand(final Album album) {
+        final String[] artistPair = getAlbumArtistPair(album);
 
         return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
                 MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                artistCommand, artistName);
+                artistPair[0], artistPair[1]);
     }
 
     private static MPDCommand getSongsCommand(final Album album) {
-        final String albumName = album.getName();
-        final Artist artist = album.getArtist();
-        String artistName = null;
-        String artistCommand = null;
+        final String[] artistPair = getAlbumArtistPair(album);
 
-        if (artist != null) {
-            artistName = artist.getName();
-
-            if (album.hasAlbumArtist()) {
-                artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
-            } else {
-                artistCommand = MPDCommand.MPD_TAG_ARTIST;
-            }
-        }
-
-        return new MPDCommand(MPDCommand.MPD_CMD_FIND, MPDCommand.MPD_TAG_ALBUM, albumName,
-                artistCommand, artistName);
+        return new MPDCommand(MPDCommand.MPD_CMD_FIND, MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                artistPair[0], artistPair[1]);
     }
 
     /*
@@ -216,10 +208,13 @@ public class MPD {
         final CommandQueue commandQueue;
 
         if (isCommandAvailable(MPDCommand.MPD_CMD_FIND_ADD)) {
+            final String[] artistPair = getAlbumArtistPair(album);
+
             commandQueue = new CommandQueue();
 
             commandQueue
-                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_FIND_ALBUM, album.getName());
+                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                            artistPair[0], artistPair[1]);
         } else {
             final List<Music> songs = getSongs(album);
             commandQueue = MPDPlaylist.addAllCommand(songs);
@@ -256,7 +251,7 @@ public class MPD {
             commandQueue = new CommandQueue();
 
             commandQueue
-                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_FIND_ARTIST, artist.getName());
+                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_TAG_ARTIST, artist.getName());
         } else {
             final List<Music> songs = getSongs(artist);
             commandQueue = MPDPlaylist.addAllCommand(songs);
@@ -413,8 +408,10 @@ public class MPD {
     public void addToPlaylist(final String playlistName, final Album album)
             throws IOException, MPDException {
         if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
+            final String[] artistPair = getAlbumArtistPair(album);
+
             mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
-                    MPDCommand.MPD_SEARCH_ALBUM, album.getName());
+                    MPDCommand.MPD_SEARCH_ALBUM, album.getName(), artistPair[0], artistPair[1]);
         } else {
             addToPlaylist(playlistName, new ArrayList<>(getSongs(album)));
         }

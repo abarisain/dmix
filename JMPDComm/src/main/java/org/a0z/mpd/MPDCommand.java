@@ -138,10 +138,6 @@ public class MPDCommand {
     // deprecated commands
     public static final String MPD_CMD_VOLUME = "volume";
 
-    public static final String MPD_FIND_ALBUM = "album";
-
-    public static final String MPD_FIND_ARTIST = "artist";
-
     public static final String MPD_LIST_RESPONSE_ARTIST = "Artist";
 
     public static final String MPD_SEARCH_ALBUM = "album";
