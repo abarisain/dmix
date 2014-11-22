@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** A class to generate and send a command queue. */
-final class CommandQueue {
+public class CommandQueue {
 
     private static final boolean DEBUG = false;
 
@@ -54,14 +54,14 @@ final class CommandQueue {
 
     private int mCommandQueueStringLength;
 
-    CommandQueue() {
+    public CommandQueue() {
         super();
 
         mCommandQueue = new ArrayList<>();
         mCommandQueueStringLength = getStartLength();
     }
 
-    CommandQueue(final int size) {
+    public CommandQueue(final int size) {
         super();
 
         mCommandQueue = new ArrayList<>(size);
@@ -103,7 +103,7 @@ final class CommandQueue {
      *
      * @param commandQueue The command queue to add to this one.
      */
-    void add(final CommandQueue commandQueue) {
+    public void add(final CommandQueue commandQueue) {
         mCommandQueue.addAll(commandQueue.mCommandQueue);
         mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
     }
@@ -114,7 +114,7 @@ final class CommandQueue {
      * @param position     The position of this command queue to add the new command queue.
      * @param commandQueue The command queue to add to this one.
      */
-    void add(final int position, final CommandQueue commandQueue) {
+    public void add(final int position, final CommandQueue commandQueue) {
         mCommandQueue.addAll(position, commandQueue.mCommandQueue);
         mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
     }
@@ -125,7 +125,7 @@ final class CommandQueue {
      * @param position The position of this command queue to add the new command.
      * @param command  The command to add to this command queue.
      */
-    void add(final int position, final MPDCommand command) {
+    public void add(final int position, final MPDCommand command) {
         mCommandQueue.add(position, command);
         mCommandQueueStringLength += command.toString().length();
     }
@@ -135,7 +135,7 @@ final class CommandQueue {
      *
      * @param command Command to add to the queue.
      */
-    void add(final MPDCommand command) {
+    public void add(final MPDCommand command) {
         mCommandQueue.add(command);
         mCommandQueueStringLength += command.toString().length();
     }
@@ -145,12 +145,12 @@ final class CommandQueue {
      *
      * @param command Command to add to the queue.
      */
-    void add(final String command, final String... args) {
+    public void add(final String command, final String... args) {
         add(new MPDCommand(command, args));
     }
 
     /** Clear the command queue. */
-    void clear() {
+    public void clear() {
         mCommandQueueStringLength = getStartLength();
         mCommandQueue.clear();
     }
@@ -160,7 +160,7 @@ final class CommandQueue {
     }
 
     /** Reverse the command queue order, useful for removing playlist entries. */
-    void reverse() {
+    public void reverse() {
         Collections.reverse(mCommandQueue);
     }
 
