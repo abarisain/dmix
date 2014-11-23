@@ -43,8 +43,7 @@ public class GenresFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.getPlaylist().addAll(
-                    mApp.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
+            mApp.oMPDAsyncHelper.oMPD.add((Genre) item, replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all from playlist.", e);
@@ -54,8 +53,7 @@ public class GenresFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final String playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist,
-                    mApp.oMPDAsyncHelper.oMPD.find("genre", item.getName()));
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Genre) item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all genre to playlist.", e);

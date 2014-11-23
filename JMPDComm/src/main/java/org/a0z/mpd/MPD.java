@@ -290,6 +290,24 @@ public class MPD {
         add(music, false, false);
     }
 
+    public void add(final Genre genre, final boolean replace, final boolean play)
+            throws IOException, MPDException {
+        final CommandQueue commandQueue;
+
+        if (isCommandAvailable(MPDCommand.MPD_CMD_FIND_ADD)) {
+            commandQueue = new CommandQueue();
+
+            commandQueue
+                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_TAG_GENRE, genre.getName());
+        } else {
+            final Collection<Music> music = find(MPDCommand.MPD_TAG_GENRE, genre.getName());
+
+            commandQueue = MPDPlaylist.addAllCommand(music);
+        }
+
+        add(commandQueue, replace, play);
+    }
+
     /**
      * Adds songs to the queue. Optionally, clears the queue prior to the addition. Optionally,
      * play the added songs afterward.
@@ -444,6 +462,18 @@ public class MPD {
             throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName,
                 entry.getFullPath());
+    }
+
+    public void addToPlaylist(final String playlistName, final Genre genre)
+            throws IOException, MPDException {
+        if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+                    MPDCommand.MPD_SEARCH_GENRE, genre.getName());
+        } else {
+            final Collection<Music> music = find(MPDCommand.MPD_TAG_GENRE, genre.getName());
+
+            addToPlaylist(playlistName, music);
+        }
     }
 
     public void addToPlaylist(final String playlistName, final Music music)
