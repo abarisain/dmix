@@ -50,75 +50,6 @@ import static org.a0z.mpd.Tools.VALUE;
  */
 public abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
 
-    /** The media server response key returned for a {@link #mAlbumName} value. */
-    public static final String CMD_KEY_ALBUM = "Album";
-
-    /**
-     * The media server response key returned for a {@link #mAlbumArtistName} value.
-     */
-    public static final String CMD_KEY_ALBUM_ARTIST = "AlbumArtist";
-
-    /**
-     * The media server response key returned for a {@link #mArtistName} value.
-     */
-    public static final String CMD_KEY_ARTIST = "Artist";
-
-    /**
-     * The media server response key returned for a {@link #mComposerName} value.
-     */
-    public static final String CMD_KEY_COMPOSER = "Composer";
-
-    /**
-     * The media server response key returned for a {@link #mDate} value.
-     */
-    public static final String CMD_KEY_DATE = "Date";
-
-    /**
-     * The media server response key returned for a {@link #mDisc} value.
-     */
-    public static final String CMD_KEY_DISC = "Disc";
-
-    /**
-     * The media server response key returned for a {@link #mFullPath} value.
-     */
-    public static final String CMD_KEY_FILE = "file";
-
-    /**
-     * The media server response key returned for a {@link #mGenreName} value.
-     */
-    public static final String CMD_KEY_GENRE = "Genre";
-
-    /**
-     * The media server response key returned for a {@link #mName} value.
-     */
-    public static final String CMD_KEY_NAME = "Name";
-
-    /**
-     * The media server response key returned for a {@link #mSongId} value.
-     */
-    public static final String CMD_KEY_SONG_ID = "Id";
-
-    /**
-     * The media server response key returned for a {@link #mSongPos} value.
-     */
-    public static final String CMD_KEY_SONG_POS = "Pos";
-
-    /**
-     * The media server response key returned for a {@link #mTime} value.
-     */
-    public static final String CMD_KEY_TIME = "Time";
-
-    /**
-     * The media server response key returned for a {@link #mTitle} value.
-     */
-    public static final String CMD_KEY_TITLE = "Title";
-
-    /**
-     * The media server response key returned for a
-     * {@link #mTrack} and {@link #mTotalTracks} values.
-     */
-    public static final String CMD_KEY_TRACK = "Track";
-
     /**
      * Similar to the default {@code Comparable} for the Music class, but it compares without
      * taking disc and track numbers into account.
@@ -126,8 +57,8 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     public static final Comparator<AbstractMusic> COMPARE_WITHOUT_TRACK_NUMBER =
             new Comparator<AbstractMusic>() {
                 /**
-                 * Compares the two specified objects to determine their relative ordering. The ordering
-                 * implied by the return value of this method for all possible pairs of
+                 * Compares the two specified objects to determine their relative ordering. The
+                 * ordering implied by the return value of this method for all possible pairs of
                  * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
                  * This means that
                  * <ul>
@@ -156,6 +87,130 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                     return compare;
                 }
             };
+
+    /** The media server response key returned for a {@link #mAlbumName} value. */
+    public static final String RESPONSE_ALBUM = "Album";
+
+    /**
+     * The media server response key returned for a {@link #mAlbumArtistName} value.
+     */
+    public static final String RESPONSE_ALBUM_ARTIST = "AlbumArtist";
+
+    /**
+     * The media server response key returned for a {@link #mArtistName} value.
+     */
+    public static final String RESPONSE_ARTIST = "Artist";
+
+    /**
+     * The media server response key returned for a {@link #mComposerName} value.
+     */
+    public static final String RESPONSE_COMPOSER = "Composer";
+
+    /**
+     * The media server response key returned for a {@link #mDate} value.
+     */
+    public static final String RESPONSE_DATE = "Date";
+
+    /**
+     * The media server response key returned for a {@link #mDisc} value.
+     */
+    public static final String RESPONSE_DISC = "Disc";
+
+    /**
+     * The media server response key returned for a {@link #mFullPath} value.
+     */
+    public static final String RESPONSE_FILE = "file";
+
+    /**
+     * The media server response key returned for a {@link #mGenreName} value.
+     */
+    public static final String RESPONSE_GENRE = "Genre";
+
+    /**
+     * The media server response key returned for a {@link #mName} value.
+     */
+    public static final String RESPONSE_NAME = "Name";
+
+    /**
+     * The media server response key returned for a {@link #mSongId} value.
+     */
+    public static final String RESPONSE_SONG_ID = "Id";
+
+    /**
+     * The media server response key returned for a {@link #mSongPos} value.
+     */
+    public static final String RESPONSE_SONG_POS = "Pos";
+
+    /**
+     * The media server response key returned for a {@link #mTime} value.
+     */
+    public static final String RESPONSE_TIME = "Time";
+
+    /**
+     * The media server response key returned for a {@link #mTitle} value.
+     */
+    public static final String RESPONSE_TITLE = "Title";
+
+    /**
+     * The media server response key returned for a
+     * {@link #mTrack} and {@link #mTotalTracks} values.
+     */
+    public static final String RESPONSE_TRACK = "Track";
+
+    /**
+     * The string used to refer to an album tag.
+     */
+    public static final String TAG_ALBUM = "album";
+
+    /**
+     * The string used to refer to an album artist tag.
+     */
+    public static final String TAG_ALBUM_ARTIST = "albumartist";
+
+    /**
+     * The string used to refer to an artist tag.
+     */
+    public static final String TAG_ARTIST = "artist";
+
+    /**
+     * The string used to refer to a composer tag.
+     */
+    public static final String TAG_COMPOSER = "composer";
+
+    /**
+     * The string used to refer to a date tag.
+     */
+    public static final String TAG_DATE = "date";
+
+    /**
+     * The string used to refer to an disc tag.
+     */
+    public static final String TAG_DISC = "disc";
+
+    /**
+     * The string used to refer to a genre tag.
+     */
+    public static final String TAG_GENRE = "genre";
+
+    /**
+     * The string used to refer to a name tag.
+     */
+    public static final String TAG_NAME = "name";
+
+    /**
+     * The string used to refer to a time tag.
+     */
+    public static final String TAG_TIME = "time";
+
+    /**
+     * The string used to refer to a title tag.
+     */
+    public static final String TAG_TITLE = "title";
+
+    /**
+     * The string used to refer to a track tag.
+     */
+    public static final String TAG_TRACK = "track";
 
     /**
      * The maximum number of key/value pairs for a music item response.
@@ -332,22 +387,22 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         for (final String[] pair : Tools.splitResponse(response)) {
 
             switch (pair[KEY]) {
-                case CMD_KEY_ALBUM:
+                case RESPONSE_ALBUM:
                     albumName = pair[VALUE];
                     break;
-                case CMD_KEY_ALBUM_ARTIST:
+                case RESPONSE_ALBUM_ARTIST:
                     albumArtistName = pair[VALUE];
                     break;
-                case CMD_KEY_ARTIST:
+                case RESPONSE_ARTIST:
                     artistName = pair[VALUE];
                     break;
-                case CMD_KEY_COMPOSER:
+                case RESPONSE_COMPOSER:
                     composerName = pair[VALUE];
                     break;
-                case CMD_KEY_DATE:
+                case RESPONSE_DATE:
                     date = parseDate(pair[VALUE]);
                     break;
-                case CMD_KEY_DISC:
+                case RESPONSE_DISC:
                     final int discIndex = pair[VALUE].indexOf('/');
 
                     try {
@@ -360,7 +415,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                         Log.warning(TAG, "Not a valid disc number.", e);
                     }
                     break;
-                case CMD_KEY_FILE:
+                case RESPONSE_FILE:
                     fullPath = pair[VALUE];
                     if (!fullPath.isEmpty() && fullPath.contains("://")) {
                         final int pos = fullPath.indexOf('#');
@@ -370,10 +425,10 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                         }
                     }
                     break;
-                case CMD_KEY_GENRE:
+                case RESPONSE_GENRE:
                     genreName = pair[VALUE];
                     break;
-                case CMD_KEY_NAME:
+                case RESPONSE_NAME:
                     /**
                      * This name might already be assigned to the URL fragment identifier.
                      */
@@ -381,31 +436,31 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                         name = pair[VALUE];
                     }
                     break;
-                case CMD_KEY_SONG_ID:
+                case RESPONSE_SONG_ID:
                     try {
                         songId = Integer.parseInt(pair[VALUE]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid song ID.", e);
                     }
                     break;
-                case CMD_KEY_SONG_POS:
+                case RESPONSE_SONG_POS:
                     try {
                         songPos = Integer.parseInt(pair[VALUE]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid song position.", e);
                     }
                     break;
-                case CMD_KEY_TIME:
+                case RESPONSE_TIME:
                     try {
                         time = Long.parseLong(pair[VALUE]);
                     } catch (final NumberFormatException e) {
                         Log.error(TAG, "Not a valid time number.", e);
                     }
                     break;
-                case CMD_KEY_TITLE:
+                case RESPONSE_TITLE:
                     title = pair[VALUE];
                     break;
-                case CMD_KEY_TRACK:
+                case RESPONSE_TRACK:
                     final int trackIndex = pair[VALUE].indexOf('/');
 
                     try {
@@ -454,7 +509,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         }
 
         for (final String line : response) {
-            if (line.startsWith("file: ")) {
+            if (line.startsWith(RESPONSE_FILE)) {
                 if (!lineCache.isEmpty()) {
                     result.add(build(lineCache));
                     lineCache.clear();

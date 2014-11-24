@@ -22,8 +22,8 @@ import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.StoredPlaylistDataBinder;
 
-import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
@@ -48,7 +48,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     private String mPlaylistName;
 
     public StoredPlaylistFragment() {
-        super(R.string.addSong, R.string.songAdded, MPDCommand.MPD_SEARCH_TITLE);
+        super(R.string.addSong, R.string.songAdded, AbstractMusic.TAG_TITLE);
         setHasOptionsMenu(true);
     }
 

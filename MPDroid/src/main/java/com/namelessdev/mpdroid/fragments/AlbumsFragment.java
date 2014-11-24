@@ -27,8 +27,8 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
-import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
@@ -81,7 +81,7 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     public AlbumsFragment(final Artist artist, final Genre genre) {
-        super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
+        super(R.string.addAlbum, R.string.albumAdded, AbstractMusic.TAG_ALBUM);
         init(artist, genre);
     }
 

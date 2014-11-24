@@ -26,6 +26,7 @@ import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
@@ -80,7 +81,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                 return;
             }
             final AbstractMap<String, Object> itemFrom = mSongList.get(from);
-            final Integer songID = (Integer) itemFrom.get("songid");
+            final Integer songID = (Integer) itemFrom.get(AbstractMusic.RESPONSE_SONG_ID);
             if (mIsPlayQueue) {
                 try {
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
@@ -120,7 +121,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                 final List<Integer> positions = new LinkedList<>();
                 for (final AbstractMap<String, Object> item : copy) {
                     if (item.get("marked").equals(Boolean.TRUE)) {
-                        positions.add((Integer) item.get("songid"));
+                        positions.add((Integer) item.get(AbstractMusic.RESPONSE_SONG_ID));
                         count++;
                     }
                 }
@@ -257,7 +258,9 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         if (mIsPlayQueue) {
             // Mark running track...
             for (final AbstractMap<String, Object> song : mSongList) {
-                if (((Integer) song.get("songid")) == mpdStatus.getSongId()) {
+                final int songId = ((Integer) song.get(AbstractMusic.RESPONSE_SONG_ID)).intValue();
+
+                if (songId == mpdStatus.getSongId()) {
                     song.put("play", android.R.drawable.ic_media_play);
                 } else {
                     song.put("play", 0);
@@ -293,14 +296,14 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                 final HashMap<String, Object> item = new HashMap<>();
 
                 if (mIsPlayQueue) {
-                    item.put("songid", music.getSongId());
+                    item.put(AbstractMusic.RESPONSE_SONG_ID, music.getSongId());
                 } else {
-                    item.put("songid", playlistPosition);
+                    item.put(AbstractMusic.RESPONSE_SONG_ID, playlistPosition);
                 }
 
                 playlistPosition++;
                 item.put(Artist.EXTRA, music.getArtist());
-                item.put("title", music.getTitle());
+                item.put(AbstractMusic.TAG_TITLE, music.getTitle());
                 item.put("marked", false);
                 if (mIsPlayQueue && music.getSongId() == playingID) {
                     item.put("play", android.R.drawable.ic_media_play);
@@ -312,7 +315,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             }
             final ListAdapter songs = new SimpleAdapter(this, mSongList,
                     R.layout.playlist_editlist_item, new String[]{
-                    "play", "title", "artist", "marked"
+                    "play", AbstractMusic.TAG_TITLE, AbstractMusic.TAG_ARTIST, "marked"
             }, new int[]{
                     R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox
             });

@@ -21,8 +21,8 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
@@ -47,7 +47,7 @@ public class ArtistsFragment extends BrowseFragment {
     private Genre mGenre = null;
 
     public ArtistsFragment() {
-        super(R.string.addArtist, R.string.artistAdded, MPDCommand.MPD_SEARCH_ARTIST);
+        super(R.string.addArtist, R.string.artistAdded, AbstractMusic.TAG_ARTIST);
     }
 
     @Override

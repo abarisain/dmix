@@ -131,28 +131,7 @@ public class MPDCommand {
 
     public static final String MPD_CMD_STOP = "stop";
 
-    // deprecated commands
-    public static final String MPD_CMD_VOLUME = "volume";
-
-    public static final String MPD_LIST_RESPONSE_ARTIST = "Artist";
-
-    public static final String MPD_SEARCH_ALBUM = "album";
-
-    public static final String MPD_SEARCH_ARTIST = "artist";
-
     public static final String MPD_SEARCH_FILENAME = "filename";
-
-    public static final String MPD_SEARCH_GENRE = "genre";
-
-    public static final String MPD_SEARCH_TITLE = "title";
-
-    public static final String MPD_TAG_ALBUM = "album";
-
-    public static final String MPD_TAG_ALBUM_ARTIST = "albumartist";
-
-    public static final String MPD_TAG_ARTIST = "artist";
-
-    public static final String MPD_TAG_GENRE = "genre";
 
     private static final boolean DEBUG = false;
 
