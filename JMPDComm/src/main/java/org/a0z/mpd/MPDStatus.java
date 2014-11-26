@@ -80,6 +80,8 @@ public class MPDStatus {
 
     private int mCrossFade;
 
+    private float mDuration;
+
     private long mElapsedTime;
 
     private float mElapsedTimeHighResolution;
@@ -172,6 +174,15 @@ public class MPDStatus {
      */
     public final int getCrossfade() {
         return mCrossFade;
+    }
+
+    /**
+     * Returns the current song duration in milliseconds.
+     *
+     * @return The current song duration in milliseconds.
+     */
+    public final float getDuration() {
+        return mDuration;
     }
 
     /**
@@ -374,6 +385,7 @@ public class MPDStatus {
         mBitsPerSample = 0;
         mChannels = 0;
         mCrossFade = 0;
+        mDuration = 0.0f;
         mElapsedTime = 0L;
         mElapsedTimeHighResolution = 0.0f;
         //noinspection AssignmentToNull
@@ -401,6 +413,7 @@ public class MPDStatus {
                 ", channels: " + mChannels +
                 ", consume: " + mConsume +
                 ", crossfade: " + mCrossFade +
+                ", duration: " + mDuration +
                 ", elapsedTime: " + mElapsedTime +
                 ", elapsedTimeHighResolution: " + mElapsedTimeHighResolution +
                 ", error: " + mError +
@@ -453,6 +466,9 @@ public class MPDStatus {
                     break;
                 case "consume":
                     mConsume = "1".equals(pair[VALUE]);
+                    break;
+                case "duration":
+                    mDuration = Float.parseFloat(pair[VALUE]);
                     break;
                 case "elapsed":
                     mElapsedTimeHighResolution = Float.parseFloat(pair[VALUE]);
