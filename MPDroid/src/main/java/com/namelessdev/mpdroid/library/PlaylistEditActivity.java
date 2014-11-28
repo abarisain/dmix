@@ -284,10 +284,16 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             final View view = null == getListView() ? null : getListView().getChildAt(0);
             final int top = null == view ? -1 : view.getTop();
             int listPlayingId = 0;
+            int playlistPosition = 0;
+
             // Copy list to avoid concurrent exception
             for (final Music music : new ArrayList<>(musics)) {
                 final HashMap<String, Object> item = new HashMap<>();
-                item.put("songid", music.getSongId());
+                if (mIsPlayQueue) {
+                    item.put("songid", music.getSongId());
+                } else {
+                    item.put("songid", playlistPosition++);
+                }
                 item.put("artist", music.getArtist());
                 item.put("title", music.getTitle());
                 item.put("marked", false);
