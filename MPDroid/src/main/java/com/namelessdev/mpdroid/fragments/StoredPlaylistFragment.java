@@ -164,6 +164,13 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        updateList();
+    }
+
+    @Override
     public void onSaveInstanceState(final Bundle outState) {
         outState.putString(EXTRA_PLAYLIST_NAME, mPlaylistName);
         super.onSaveInstanceState(outState);
