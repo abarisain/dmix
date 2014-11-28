@@ -32,7 +32,7 @@ package org.a0z.mpd.item;
  *
  * @see org.a0z.mpd.item.AbstractArtist For generic {@code Artist} code.
  */
-public class Artist extends AbstractArtist {
+public class Artist extends AbstractArtist<Artist> {
 
     public Artist(final Artist artist) {
         super(artist);

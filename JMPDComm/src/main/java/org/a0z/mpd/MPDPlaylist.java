@@ -29,6 +29,7 @@ package org.a0z.mpd;
 
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;
 
@@ -208,7 +209,7 @@ public class MPDPlaylist {
      */
     private Collection<Music> getFullPlaylist() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPD_CMD_PLAYLIST_LIST);
-        return Music.buildMusicFromList(response, false);
+        return AbstractMusic.buildMusicFromList(response, false);
     }
 
     /**

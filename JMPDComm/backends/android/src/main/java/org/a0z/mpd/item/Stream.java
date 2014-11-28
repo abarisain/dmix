@@ -27,40 +27,16 @@
 
 package org.a0z.mpd.item;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
- * Represents a playlist in the database
+ * This is the Android backend {@code Stream} item.
+ *
+ * @see org.a0z.mpd.item.AbstractStream For generic {@code Stream} code.
  */
-public class PlaylistFile extends Item implements FilesystemTreeEntry {
+public class Stream extends AbstractStream<Stream> {
 
-    private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");
+    public static final String EXTRA = AbstractStream.TAG;
 
-    private final String mFullPath;
-
-    public PlaylistFile(final String path) {
-        super();
-        mFullPath = path;
-    }
-
-    @Override
-    public String getFullPath() {
-        return mFullPath;
-    }
-
-    @Override
-    public String getName() {
-        String result = "";
-
-        if (mFullPath != null) {
-            final Matcher matcher = PLAYLIST_FILE_REGEXP.matcher(mFullPath);
-            if (matcher.matches()) {
-                result = matcher.replaceAll("[$2] $1.$2");
-            } else {
-                result = mFullPath;
-            }
-        }
-        return result;
+    public Stream(final String name, final String url, final int pos) {
+        super(name, url, pos);
     }
 }

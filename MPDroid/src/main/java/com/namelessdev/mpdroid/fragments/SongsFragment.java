@@ -30,6 +30,7 @@ import com.namelessdev.mpdroid.views.SongDataBinder;
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
@@ -59,8 +60,6 @@ import android.widget.TextView;
 import java.io.IOException;
 
 public class SongsFragment extends BrowseFragment {
-
-    private static final String EXTRA_ALBUM = "album";
 
     private static final String TAG = "SongsFragment";
 
@@ -220,7 +219,7 @@ public class SongsFragment extends BrowseFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            init((Album) savedInstanceState.getParcelable(EXTRA_ALBUM));
+            init((Album) savedInstanceState.getParcelable(Album.EXTRA));
         }
     }
 
@@ -285,7 +284,7 @@ public class SongsFragment extends BrowseFragment {
                 final int itemId = item.getItemId();
                 if (itemId == GOTO_ARTIST) {
                     final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-                    intent.putExtra("artist", mAlbum.getArtist());
+                    intent.putExtra(Artist.EXTRA, mAlbum.getArtist());
                     startActivityForResult(intent, -1);
                 } else {
                     mApp.oMPDAsyncHelper.execAsync(new Runnable() {
@@ -421,7 +420,7 @@ public class SongsFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(final Bundle outState) {
-        outState.putParcelable(EXTRA_ALBUM, mAlbum);
+        outState.putParcelable(Album.EXTRA, mAlbum);
         super.onSaveInstanceState(outState);
     }
 

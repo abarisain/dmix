@@ -49,7 +49,9 @@ import static org.a0z.mpd.Tools.VALUE;
  *
  * @author Felipe Gustavo de Almeida
  */
-public final class Directory extends Item implements FilesystemTreeEntry {
+public abstract class AbstractDirectory extends Item implements FilesystemTreeEntry {
+
+    protected static final String TAG = "Directory";
 
     /** The MPD protocol directory separator. */
     private static final char MPD_SEPARATOR = '/';
@@ -57,20 +59,20 @@ public final class Directory extends Item implements FilesystemTreeEntry {
     /** The root directory object. */
     private static final Directory ROOT;
 
+    /** The filename of this directory. */
+    protected final String mFilename;
+
+    /** The parent directory object relative to this object. */
+    protected final Directory mParent;
+
     /** A map of directory entries from the current directory on the media server. */
     private final Map<String, Directory> mDirectoryEntries;
 
     /** A map of file entries from the current directory on the media server. */
     private final Map<String, Music> mFileEntries;
 
-    /** The filename of this directory. */
-    private final String mFilename;
-
     /** The name to display for this directory, typically the filename. */
     private final String mName;
-
-    /** The parent directory object relative to this object. */
-    private final Directory mParent;
 
     /** A map of playlist file entries from the current directory on the media server. */
     private final Map<String, PlaylistFile> mPlaylistEntries;
@@ -85,7 +87,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param parent   The parent directory to this directory.
      * @param filename The filename of this directory.
      */
-    private Directory(final Directory parent, final String filename) {
+    protected AbstractDirectory(final Directory parent, final String filename) {
         this(parent, filename, filename, null, null, null);
     }
 
@@ -99,8 +101,10 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param fileEntries      Children files to this directory.
      * @param playlistEntries  Children playlists to this directory.
      */
-    private Directory(final Directory parent, final String filename, final String name,
-            final Map<String, Directory> directoryEntries, final Map<String, Music> fileEntries,
+    protected AbstractDirectory(final Directory parent, final String filename,
+            final String name,
+            final Map<String, Directory> directoryEntries,
+            final Map<String, Music> fileEntries,
             final Map<String, PlaylistFile> playlistEntries) {
         super();
 
@@ -133,7 +137,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return The root directory for this media server.
      * @see #refresh(org.a0z.mpd.connection.MPDConnection)
      */
-    public static Directory getRoot() {
+    public static AbstractDirectory getRoot() {
         return ROOT;
     }
 
@@ -152,11 +156,11 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      *
      * @return A non-recursive list of subdirectories of this directory in natural order.
      */
-    public Collection<Directory> getDirectories() {
-        final Collection<Directory> directoriesCompared = new TreeSet<>(
-                new Comparator<Directory>() {
+    public Collection<AbstractDirectory> getDirectories() {
+        final Collection<AbstractDirectory> directoriesCompared = new TreeSet<>(
+                new Comparator<AbstractDirectory>() {
                     @Override
-                    public int compare(final Directory lhs, final Directory rhs) {
+                    public int compare(final AbstractDirectory lhs, final AbstractDirectory rhs) {
                         return StringComparators.compareNatural(lhs.getName(), rhs.getName());
                     }
                 });
@@ -174,7 +178,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @param filename name of sub-directory to retrieve.
      * @return a sub-directory.
      */
-    public Directory getDirectory(final String filename) {
+    public AbstractDirectory getDirectory(final String filename) {
         return mDirectoryEntries.get(filename);
     }
 
@@ -314,7 +318,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
         if (mDirectoryEntries.containsKey(name)) {
             dir = mDirectoryEntries.get(name);
         } else {
-            dir = new Directory(this, name);
+            dir = new Directory((Directory) this, name);
             mDirectoryEntries.put(dir.mFilename, dir);
         }
 
@@ -333,8 +337,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
      * @return The parent directory object of this object.
      */
     public Directory makeParentDirectory(final String name) {
-        return new Directory(mParent.mParent, mParent.mFilename, name, mDirectoryEntries,
-                mFileEntries, mPlaylistEntries);
+        return new Directory(mParent.mParent, mParent.mFilename, name,
+                mDirectoryEntries, mFileEntries, mPlaylistEntries);
     }
 
     /**
@@ -350,7 +354,8 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                 connection.sendCommand(MPDCommand.MPD_CMD_LSDIR, getFullPath());
         final Collection<String> lineCache = new ArrayList<>(cacheSize);
 
-        final Map<String, Directory> directoryEntries = new HashMap<>(mDirectoryEntries.size());
+        final Map<String, Directory> directoryEntries = new HashMap<>(
+                mDirectoryEntries.size());
         final Map<String, Music> fileEntries = new HashMap<>(mFileEntries.size());
         final Map<String, PlaylistFile> playlistEntries = new HashMap<>(mPlaylistEntries.size());
 
@@ -374,7 +379,7 @@ public final class Directory extends Item implements FilesystemTreeEntry {
                     // clear immediately when we're parsing a playlist or a directory
                     lineCache.add(line);
 
-                    final Music music = Music.build(lineCache);
+                    final Music music = AbstractMusic.build(lineCache);
                     fileEntries.put(music.getFilename(), music);
 
                     lineCache.clear();

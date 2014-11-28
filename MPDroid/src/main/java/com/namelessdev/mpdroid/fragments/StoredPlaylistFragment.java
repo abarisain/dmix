@@ -26,6 +26,7 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -41,8 +42,6 @@ import android.widget.ListAdapter;
 import java.io.IOException;
 
 public class StoredPlaylistFragment extends BrowseFragment {
-
-    private static final String EXTRA_PLAYLIST_NAME = "playlist";
 
     private static final String TAG = "StoredPlaylistFragment";
 
@@ -121,7 +120,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            init(savedInstanceState.getString(EXTRA_PLAYLIST_NAME));
+            init(savedInstanceState.getString(PlaylistFile.EXTRA));
         }
     }
 
@@ -154,7 +153,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
         switch (item.getItemId()) {
             case R.id.PLM_EditPL:
                 intent = new Intent(getActivity(), PlaylistEditActivity.class);
-                intent.putExtra("playlist", mPlaylistName);
+                intent.putExtra(PlaylistFile.EXTRA, mPlaylistName);
                 startActivity(intent);
                 return true;
             default:
@@ -172,7 +171,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(final Bundle outState) {
-        outState.putString(EXTRA_PLAYLIST_NAME, mPlaylistName);
+        outState.putString(PlaylistFile.EXTRA, mPlaylistName);
         super.onSaveInstanceState(outState);
     }
 

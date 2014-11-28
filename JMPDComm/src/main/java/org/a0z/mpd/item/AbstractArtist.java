@@ -33,13 +33,15 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /** This class is the generic base for the Artist items, abstracted for backend. */
-abstract class AbstractArtist extends Item {
+abstract class AbstractArtist<T extends Artist> extends Item {
 
-    private final String mName;
+    protected static final String TAG = "Artist";
 
-    private final String mSort;
+    final String mName;
 
-    AbstractArtist(final AbstractArtist artist) {
+    final String mSort;
+
+    AbstractArtist(final T artist) {
         this(artist.mName, artist.mSort);
     }
 
@@ -79,7 +81,9 @@ abstract class AbstractArtist extends Item {
         }
 
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            final AbstractArtist artist = (AbstractArtist) o;
+            /** This has to be the same due to the class check above. */
+            //noinspection unchecked
+            final AbstractArtist<T> artist = (AbstractArtist<T>) o;
 
             if (Tools.isNotEqual(mName, artist.mName) || Tools.isNotEqual(mSort, artist.mSort)) {
                 isEqual = Boolean.FALSE;

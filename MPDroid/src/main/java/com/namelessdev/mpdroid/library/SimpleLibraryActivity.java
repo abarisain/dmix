@@ -29,6 +29,8 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.Directory;
+import org.a0z.mpd.item.Stream;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -49,16 +51,6 @@ import android.widget.TextView;
 
 public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity implements
         ILibraryFragmentActivity, OnBackStackChangedListener {
-
-    private static final String EXTRA_ALBUM = "album";
-
-    private static final String EXTRA_ARTIST = "artist";
-
-    private static final String EXTRA_FOLDER = "folder";
-
-    private static final String EXTRA_STREAM = "streams";
-
-    private static final String TAG = "SimpleLibraryActivity";
 
     private TextView mTitleView;
 
@@ -89,12 +81,12 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         final Intent intent = getIntent();
         final Fragment rootFragment;
 
-        if (intent.hasExtra(EXTRA_ALBUM)) {
-            final Album album = intent.getParcelableExtra(EXTRA_ALBUM);
+        if (intent.hasExtra(Album.EXTRA)) {
+            final Album album = intent.getParcelableExtra(Album.EXTRA);
 
             rootFragment = new SongsFragment().init(album);
-        } else if (intent.hasExtra(EXTRA_ARTIST)) {
-            final Artist artist = intent.getParcelableExtra(EXTRA_ARTIST);
+        } else if (intent.hasExtra(Artist.EXTRA)) {
+            final Artist artist = intent.getParcelableExtra(Artist.EXTRA);
             final SharedPreferences settings = PreferenceManager
                     .getDefaultSharedPreferences(mApp);
 
@@ -103,11 +95,11 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             } else {
                 rootFragment = new AlbumsFragment(artist);
             }
-        } else if (intent.hasExtra(EXTRA_FOLDER)) {
-            final String folder = intent.getStringExtra(EXTRA_FOLDER);
+        } else if (intent.hasExtra(Directory.EXTRA)) {
+            final String folder = intent.getStringExtra(Directory.EXTRA);
 
             rootFragment = new FSFragment().init(folder);
-        } else if (intent.hasExtra(EXTRA_STREAM)) {
+        } else if (intent.hasExtra(Stream.EXTRA)) {
             rootFragment = new StreamsFragment();
         } else {
             throw new IllegalStateException(debugIntent(intent));

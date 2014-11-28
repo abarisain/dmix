@@ -31,11 +31,11 @@ import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.connection.MPDConnectionMonoSocket;
 import org.a0z.mpd.connection.MPDConnectionMultiSocket;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractDirectory;
 import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.AlbumBuilder;
 import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
@@ -401,7 +401,8 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void add(final PlaylistFile databasePlaylist, final boolean replace, final boolean play)
+    public void add(final PlaylistFile databasePlaylist, final boolean replace,
+            final boolean play)
             throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
 
@@ -1581,7 +1582,8 @@ public class MPD {
         mConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH, folder);
     }
 
-    public void refreshDirectory(final Directory directory) throws IOException, MPDException {
+    public void refreshDirectory(final AbstractDirectory directory)
+            throws IOException, MPDException {
         directory.refresh(mConnection);
     }
 

@@ -23,6 +23,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
@@ -132,7 +133,7 @@ public class ArtistsFragment extends BrowseFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            init((Genre) savedInstanceState.getParcelable(EXTRA_GENRE));
+            init((Genre) savedInstanceState.getParcelable(Genre.EXTRA));
         }
     }
 
@@ -147,13 +148,13 @@ public class ArtistsFragment extends BrowseFragment {
         } else {
             af = new AlbumsFragment((Artist) mItems.get(position), mGenre);
         }
-        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, "album");
+        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, Album.EXTRA);
     }
 
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         if (mGenre != null) {
-            outState.putParcelable(EXTRA_GENRE, mGenre);
+            outState.putParcelable(Genre.EXTRA, mGenre);
         }
         super.onSaveInstanceState(outState);
     }

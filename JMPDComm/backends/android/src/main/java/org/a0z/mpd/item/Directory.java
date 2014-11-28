@@ -27,57 +27,42 @@
 
 package org.a0z.mpd.item;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import java.util.Map;
 
 /**
- * This is the Android backend {@code Artist} item.
+ * This is the Android backend {@code Directory} item.
  *
- * @see org.a0z.mpd.item.AbstractArtist For generic {@code Artist} code.
+ * @see org.a0z.mpd.item.AbstractDirectory For generic {@code Directory} code.
  */
-public class Artist extends AbstractArtist<Artist> implements Parcelable {
+public class Directory extends AbstractDirectory {
 
-    public static final Creator<Artist> CREATOR =
-            new Creator<Artist>() {
+    public static final String EXTRA = AbstractDirectory.TAG;
 
-                @Override
-                public Artist createFromParcel(final Parcel source) {
-                    return new Artist(source);
-                }
-
-                @Override
-                public Artist[] newArray(final int size) {
-                    return new Artist[size];
-                }
-            };
-
-    public static final String EXTRA = AbstractArtist.TAG;
-
-    public Artist(final Artist artist) {
-        super(artist);
+    /**
+     * Creates a new directory.
+     *
+     * @param parent   The parent directory to this directory.
+     * @param filename The filename of this directory.
+     */
+    protected Directory(final Directory parent, final String filename) {
+        super(parent, filename);
     }
 
-    public Artist(final String name) {
-        super(name);
-    }
-
-    protected Artist(final String name, final String sort) {
-        super(name, sort);
-    }
-
-    protected Artist(final Parcel in) {
-        super(in.readString(), /** name */
-                in.readString()); /** sort */
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(getName());
-        dest.writeString(sortText());
+    /**
+     * The base constructor.
+     *
+     * @param parent           The parent directory to this directory.
+     * @param filename         The filename of this directory.
+     * @param name             The name of this directory.
+     * @param directoryEntries Children directories to this directory.
+     * @param fileEntries      Children files to this directory.
+     * @param playlistEntries  Children playlists to this directory.
+     */
+    public Directory(final Directory parent, final String filename,
+            final String name,
+            final Map<String, Directory> directoryEntries,
+            final Map<String, Music> fileEntries,
+            final Map<String, PlaylistFile> playlistEntries) {
+        super(parent, filename, name, directoryEntries, fileEntries, playlistEntries);
     }
 }

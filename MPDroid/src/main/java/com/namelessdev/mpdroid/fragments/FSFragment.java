@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.AbstractDirectory;
 import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Item;
@@ -48,11 +49,9 @@ import java.util.List;
 
 public class FSFragment extends BrowseFragment {
 
-    private static final String EXTRA_DIRECTORY = "directory";
-
     private static final String TAG = "FSFragment";
 
-    private Directory mCurrentDirectory = null;
+    private AbstractDirectory mCurrentDirectory = null;
 
     private String mDirectory = null;
 
@@ -66,7 +65,7 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final boolean replace, final boolean play) {
         try {
-            final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
+            final AbstractDirectory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
                 mApp.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
                 if (item instanceof PlaylistFile) {
@@ -87,7 +86,7 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final String playlist) {
         try {
-            final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
+            final AbstractDirectory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
                 if (item instanceof Music) {
                     final Collection<Music> songs = new ArrayList<>(1);
@@ -111,7 +110,7 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         refreshDirectory();
-        final Collection<Directory> directories = mCurrentDirectory.getDirectories();
+        final Collection<AbstractDirectory> directories = mCurrentDirectory.getDirectories();
         final Collection<Music> files = mCurrentDirectory.getFiles();
         final Collection<PlaylistFile> playlistFiles = mCurrentDirectory.getPlaylistFiles();
         final int size = directories.size() + files.size() + playlistFiles.size() + 10;
@@ -120,7 +119,7 @@ public class FSFragment extends BrowseFragment {
 
         // add parent directory:
         if (fullPath != null && !fullPath.isEmpty()) {
-            final Directory parent = mCurrentDirectory.makeParentDirectory("‥");
+            final AbstractDirectory parent = mCurrentDirectory.makeParentDirectory("‥");
             newItems.add(parent);
         }
         newItems.addAll(directories);
@@ -193,7 +192,7 @@ public class FSFragment extends BrowseFragment {
 
         setHasOptionsMenu(true);
         if (savedInstanceState != null) {
-            init(savedInstanceState.getString(EXTRA_DIRECTORY));
+            init(savedInstanceState.getString(Directory.EXTRA));
         }
     }
 
@@ -263,15 +262,15 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(final Bundle outState) {
-        outState.putString(EXTRA_DIRECTORY, mDirectory);
+        outState.putString(Directory.EXTRA, mDirectory);
         super.onSaveInstanceState(outState);
     }
 
     private void refreshDirectory() {
         if (TextUtils.isEmpty(mDirectory)) {
-            mCurrentDirectory = Directory.getRoot();
+            mCurrentDirectory = AbstractDirectory.getRoot();
         } else {
-            mCurrentDirectory = Directory.getRoot().makeChildDirectory(mDirectory);
+            mCurrentDirectory = AbstractDirectory.getRoot().makeChildDirectory(mDirectory);
         }
 
         try {

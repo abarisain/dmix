@@ -32,7 +32,7 @@ package org.a0z.mpd.item;
  *
  * @see org.a0z.mpd.item.AbstractGenre For generic {@code Genre} code.
  */
-public class Genre extends AbstractGenre {
+public class Genre extends AbstractGenre<Genre> {
 
     public Genre(final Genre genre) {
         super(genre);

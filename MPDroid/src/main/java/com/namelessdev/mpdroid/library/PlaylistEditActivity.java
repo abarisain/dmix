@@ -26,7 +26,9 @@ import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -142,7 +144,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPlaylistName = getIntent().getStringExtra("playlist");
+        mPlaylistName = getIntent().getStringExtra(PlaylistFile.EXTRA);
         if (null != mPlaylistName && !mPlaylistName.isEmpty()) {
             mIsPlayQueue = false;
         }
@@ -289,13 +291,15 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             // Copy list to avoid concurrent exception
             for (final Music music : new ArrayList<>(musics)) {
                 final HashMap<String, Object> item = new HashMap<>();
+
                 if (mIsPlayQueue) {
                     item.put("songid", music.getSongId());
                 } else {
                     item.put("songid", playlistPosition);
                 }
+
                 playlistPosition++;
-                item.put("artist", music.getArtist());
+                item.put(Artist.EXTRA, music.getArtist());
                 item.put("title", music.getTitle());
                 item.put("marked", false);
                 if (mIsPlayQueue && music.getSongId() == playingID) {

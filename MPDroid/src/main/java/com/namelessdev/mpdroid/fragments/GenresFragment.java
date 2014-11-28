@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
 
@@ -84,6 +85,6 @@ public class GenresFragment extends BrowseFragment {
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new ArtistsFragment().init((Genre) mItems.get(position)), "artist");
+                new ArtistsFragment().init((Genre) mItems.get(position)), Artist.EXTRA);
     }
 }

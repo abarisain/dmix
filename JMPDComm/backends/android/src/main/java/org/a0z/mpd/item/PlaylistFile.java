@@ -27,57 +27,11 @@
 
 package org.a0z.mpd.item;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> {
 
-/**
- * This is the Android backend {@code Artist} item.
- *
- * @see org.a0z.mpd.item.AbstractArtist For generic {@code Artist} code.
- */
-public class Artist extends AbstractArtist<Artist> implements Parcelable {
+    public static final String EXTRA = AbstractPlaylistFile.TAG;
 
-    public static final Creator<Artist> CREATOR =
-            new Creator<Artist>() {
-
-                @Override
-                public Artist createFromParcel(final Parcel source) {
-                    return new Artist(source);
-                }
-
-                @Override
-                public Artist[] newArray(final int size) {
-                    return new Artist[size];
-                }
-            };
-
-    public static final String EXTRA = AbstractArtist.TAG;
-
-    public Artist(final Artist artist) {
-        super(artist);
-    }
-
-    public Artist(final String name) {
-        super(name);
-    }
-
-    protected Artist(final String name, final String sort) {
-        super(name, sort);
-    }
-
-    protected Artist(final Parcel in) {
-        super(in.readString(), /** name */
-                in.readString()); /** sort */
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(getName());
-        dest.writeString(sortText());
+    public PlaylistFile(final String path) {
+        super(path);
     }
 }

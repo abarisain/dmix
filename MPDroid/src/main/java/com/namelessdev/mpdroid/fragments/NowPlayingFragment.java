@@ -32,6 +32,9 @@ import org.a0z.mpd.Tools;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Album;
+import org.a0z.mpd.item.Artist;
+import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.Music;
 
 import android.app.Activity;
@@ -935,13 +938,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
         switch (itemId) {
             case POPUP_ALBUM:
-                intent.putExtra("album", mCurrentSong.getAlbum());
+                intent.putExtra(Album.EXTRA, mCurrentSong.getAlbum());
                 break;
             case POPUP_ALBUM_ARTIST:
-                intent.putExtra("artist", mCurrentSong.getAlbumArtist());
+                intent.putExtra(Artist.EXTRA, mCurrentSong.getAlbumArtist());
                 break;
             case POPUP_ARTIST:
-                intent.putExtra("artist", mCurrentSong.getArtist());
+                intent.putExtra(Artist.EXTRA, mCurrentSong.getArtist());
                 break;
             case POPUP_FOLDER:
                 final String path = mCurrentSong.getFullPath();
@@ -950,7 +953,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 if (path == null || parent == null) {
                     intent = null;
                 } else {
-                    intent.putExtra("folder", parent);
+                    intent.putExtra(Directory.EXTRA, parent);
                 }
                 break;
             default:

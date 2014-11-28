@@ -33,7 +33,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
-public class Stream extends Item {
+abstract class AbstractStream<T extends Stream> extends Item {
+
+    protected static final String TAG = "Stream";
 
     private final String mName;
 
@@ -41,7 +43,7 @@ public class Stream extends Item {
 
     private int mPos;
 
-    public Stream(final String name, final String url, final int pos) {
+    AbstractStream(final String name, final String url, final int pos) {
         super();
 
         mName = name;
@@ -96,7 +98,9 @@ public class Stream extends Item {
         }
 
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            final Stream stream = (Stream) o;
+            /** This has to be the same due to the class check above. */
+            //noinspection unchecked
+            final AbstractStream<T> stream = (AbstractStream<T>) o;
 
             if (Tools.isNotEqual(mName, stream.mName)) {
                 isEqual = Boolean.FALSE;

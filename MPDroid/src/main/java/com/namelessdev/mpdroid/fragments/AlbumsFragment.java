@@ -59,10 +59,6 @@ public class AlbumsFragment extends BrowseFragment {
 
     private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
 
-    private static final String EXTRA_ARTIST = "artist";
-
-    private static final String EXTRA_GENRE = "genre";
-
     private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
 
     private static final String TAG = "AlbumsFragment";
@@ -213,8 +209,8 @@ public class AlbumsFragment extends BrowseFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            init((Artist) savedInstanceState.getParcelable(EXTRA_ARTIST),
-                    (Genre) savedInstanceState.getParcelable(EXTRA_GENRE));
+            init((Artist) savedInstanceState.getParcelable(Artist.EXTRA),
+                    (Genre) savedInstanceState.getParcelable(Genre.EXTRA));
         }
     }
 
@@ -258,7 +254,7 @@ public class AlbumsFragment extends BrowseFragment {
                 final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
                 final Album a = (Album) selectedItem;
 
-                intent.putExtra("artist", a.getArtist());
+                intent.putExtra(Artist.EXTRA, a.getArtist());
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_COVER_BLACKLIST:
@@ -285,11 +281,11 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         if (mArtist != null) {
-            outState.putParcelable(EXTRA_ARTIST, mArtist);
+            outState.putParcelable(Artist.EXTRA, mArtist);
         }
 
         if (mGenre != null) {
-            outState.putParcelable(EXTRA_GENRE, mGenre);
+            outState.putParcelable(Genre.EXTRA, mGenre);
         }
         super.onSaveInstanceState(outState);
     }

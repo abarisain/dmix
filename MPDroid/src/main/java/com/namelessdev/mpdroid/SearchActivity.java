@@ -412,11 +412,11 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             add((Music) selectedItem, false, false);
         } else if (selectedItem instanceof Artist) {
             final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("artist", (Parcelable) selectedItem);
+            intent.putExtra(Artist.EXTRA, (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         } else if (selectedItem instanceof Album) {
             final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("album", (Parcelable) selectedItem);
+            intent.putExtra(Album.EXTRA, (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         }
     }
@@ -443,8 +443,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 final Music music = (Music) selectedItem;
                 final Intent intent = new Intent(this, SimpleLibraryActivity.class);
                 final Parcelable artist = new Artist(music.getAlbumArtistOrArtist());
-                intent.putExtra("artist", artist);
-                intent.putExtra("album", music.getAlbum());
+                intent.putExtra(Artist.EXTRA, artist);
+                intent.putExtra(Album.EXTRA, music.getAlbum());
                 startActivityForResult(intent, -1);
             }
         } else {

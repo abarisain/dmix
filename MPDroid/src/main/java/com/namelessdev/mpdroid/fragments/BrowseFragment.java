@@ -384,7 +384,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 }
 
                 if (artist != null) {
-                    intent.putExtra("artist", artist);
+                    intent.putExtra(Artist.EXTRA, artist);
                     startActivityForResult(intent, -1);
                 }
                 break;

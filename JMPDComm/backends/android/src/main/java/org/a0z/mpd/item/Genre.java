@@ -35,7 +35,7 @@ import android.os.Parcelable;
  *
  * @see org.a0z.mpd.item.AbstractGenre For generic {@code Genre} code.
  */
-public class Genre extends AbstractGenre implements Parcelable {
+public class Genre extends AbstractGenre<Genre> implements Parcelable {
 
     public static final Creator<Genre> CREATOR = new Creator<Genre>() {
         @Override
@@ -48,6 +48,8 @@ public class Genre extends AbstractGenre implements Parcelable {
             return new Genre[size];
         }
     };
+
+    public static final String EXTRA = AbstractGenre.TAG;
 
     public Genre(final Genre genre) {
         super(genre);

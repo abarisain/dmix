@@ -27,57 +27,43 @@
 
 package org.a0z.mpd.item;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * This is the Android backend {@code Artist} item.
- *
- * @see org.a0z.mpd.item.AbstractArtist For generic {@code Artist} code.
+ * Represents a playlist in the database
  */
-public class Artist extends AbstractArtist<Artist> implements Parcelable {
+abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item
+        implements FilesystemTreeEntry {
 
-    public static final Creator<Artist> CREATOR =
-            new Creator<Artist>() {
+    protected static final String TAG = "PlaylistFile";
 
-                @Override
-                public Artist createFromParcel(final Parcel source) {
-                    return new Artist(source);
-                }
+    private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");
 
-                @Override
-                public Artist[] newArray(final int size) {
-                    return new Artist[size];
-                }
-            };
+    private final String mFullPath;
 
-    public static final String EXTRA = AbstractArtist.TAG;
-
-    public Artist(final Artist artist) {
-        super(artist);
-    }
-
-    public Artist(final String name) {
-        super(name);
-    }
-
-    protected Artist(final String name, final String sort) {
-        super(name, sort);
-    }
-
-    protected Artist(final Parcel in) {
-        super(in.readString(), /** name */
-                in.readString()); /** sort */
+    AbstractPlaylistFile(final String path) {
+        super();
+        mFullPath = path;
     }
 
     @Override
-    public int describeContents() {
-        return 0;
+    public String getFullPath() {
+        return mFullPath;
     }
 
     @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(getName());
-        dest.writeString(sortText());
+    public String getName() {
+        String result = "";
+
+        if (mFullPath != null) {
+            final Matcher matcher = PLAYLIST_FILE_REGEXP.matcher(mFullPath);
+            if (matcher.matches()) {
+                result = matcher.replaceAll("[$2] $1.$2");
+            } else {
+                result = mFullPath;
+            }
+        }
+        return result;
     }
 }

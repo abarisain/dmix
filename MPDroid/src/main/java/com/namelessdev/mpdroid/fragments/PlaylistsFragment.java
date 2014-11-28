@@ -111,7 +111,7 @@ public class PlaylistsFragment extends BrowseFragment {
         switch (item.getItemId()) {
             case EDIT:
                 final Intent intent = new Intent(getActivity(), PlaylistEditActivity.class);
-                intent.putExtra("playlist", mItems.get((int) info.id).getName());
+                intent.putExtra(PlaylistFile.EXTRA, mItems.get((int) info.id).getName());
                 startActivity(intent);
                 return true;
 
