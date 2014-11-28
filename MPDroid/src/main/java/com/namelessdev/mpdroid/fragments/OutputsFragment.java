@@ -37,7 +37,7 @@ import android.widget.ListView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 public class OutputsFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
@@ -105,7 +105,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
             @Override
             public void run() {
                 try {
-                    final List<MPDOutput> mpdOutputs = mApp.oMPDAsyncHelper.oMPD.getOutputs();
+                    final Collection<MPDOutput> mpdOutputs = mApp.oMPDAsyncHelper.oMPD.getOutputs();
                     mOutputs.clear();
                     mOutputs.addAll(mpdOutputs);
                 } catch (final IOException | MPDException e) {

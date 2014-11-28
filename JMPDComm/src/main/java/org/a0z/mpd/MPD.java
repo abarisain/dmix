@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.a0z.mpd.Tools.KEY;
@@ -939,26 +938,10 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<MPDOutput> getOutputs() throws IOException, MPDException {
-        final List<MPDOutput> result = new LinkedList<>();
+    public Collection<MPDOutput> getOutputs() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTS);
 
-        final LinkedList<String> lineCache = new LinkedList<>();
-        for (final String line : response) {
-            if (line.startsWith(MPDOutput.CMD_ID)) {
-                if (!lineCache.isEmpty()) {
-                    result.add(MPDOutput.build(lineCache));
-                    lineCache.clear();
-                }
-            }
-            lineCache.add(line);
-        }
-
-        if (!lineCache.isEmpty()) {
-            result.add(MPDOutput.build(lineCache));
-        }
-
-        return result;
+        return MPDOutput.buildOutputsFromList(response);
     }
 
     /**

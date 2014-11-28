@@ -29,6 +29,7 @@ package org.a0z.mpd;
 
 import org.a0z.mpd.exception.InvalidResponseException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.a0z.mpd.Tools.KEY;
@@ -90,6 +91,27 @@ public class MPDOutput {
         }
 
         return new MPDOutput(name, id, enabled.booleanValue());
+    }
+
+    public static Collection<MPDOutput> buildOutputsFromList(final Iterable<String> response) {
+        final Collection<MPDOutput> result = new ArrayList<>();
+        final Collection<String> lineCache = new ArrayList<>(3);
+
+        for (final String line : response) {
+            if (line.startsWith(CMD_ID)) {
+                if (!lineCache.isEmpty()) {
+                    result.add(build(lineCache));
+                    lineCache.clear();
+                }
+            }
+            lineCache.add(line);
+        }
+
+        if (!lineCache.isEmpty()) {
+            result.add(build(lineCache));
+        }
+
+        return result;
     }
 
     public int getId() {
