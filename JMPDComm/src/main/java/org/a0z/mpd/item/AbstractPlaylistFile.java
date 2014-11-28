@@ -40,9 +40,9 @@ abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item
 
     private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");
 
-    private final String mFullPath;
+    protected final String mFullPath;
 
-    AbstractPlaylistFile(final String path) {
+    protected AbstractPlaylistFile(final String path) {
         super();
         mFullPath = path;
     }

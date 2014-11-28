@@ -27,11 +27,40 @@
 
 package org.a0z.mpd.item;
 
-public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> implements Parcelable {
+
+    public static final Creator<PlaylistFile> CREATOR = new Creator<PlaylistFile>() {
+        @Override
+        public PlaylistFile createFromParcel(final Parcel source) {
+            return new PlaylistFile(source);
+        }
+
+        @Override
+        public PlaylistFile[] newArray(final int size) {
+            return new PlaylistFile[size];
+        }
+    };
 
     public static final String EXTRA = AbstractPlaylistFile.TAG;
 
+    protected PlaylistFile(final Parcel in) {
+        super(in.readString());
+    }
+
     public PlaylistFile(final String path) {
         super(path);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeString(mFullPath);
     }
 }
