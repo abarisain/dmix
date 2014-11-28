@@ -1602,6 +1602,26 @@ public class MPD {
         directory.refresh(mConnection);
     }
 
+    /**
+     * Removes a list of tracks from a playlist file, by position.
+     *
+     * @param playlistName The playlist file to remove tracks from.
+     * @param positions    The positions of the tracks to remove from the playlist file.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void removeFromPlaylist(final String playlistName, final List<Integer> positions)
+            throws IOException, MPDException {
+        Collections.sort(positions, Collections.reverseOrder());
+        final CommandQueue commandQueue = new CommandQueue(positions.size());
+
+        for (final Integer position : positions) {
+            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName, position.toString());
+        }
+
+        commandQueue.send(mConnection);
+    }
+
     public void removeFromPlaylist(final String playlistName, final Integer pos)
             throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName,

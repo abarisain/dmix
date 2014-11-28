@@ -42,7 +42,7 @@ import android.widget.SimpleAdapter;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -109,27 +109,20 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
             int count = 0;
 
             try {
-                final ArrayList<HashMap<String, Object>> copy = new ArrayList<>(mSongList);
+                final Collection<HashMap<String, Object>> copy = new ArrayList<>(mSongList);
 
                 final List<Integer> positions = new LinkedList<>();
-                for (final HashMap<String, Object> item : copy) {
+                for (final AbstractMap<String, Object> item : copy) {
                     if (item.get("marked").equals(Boolean.TRUE)) {
                         positions.add((Integer) item.get("songid"));
-                        mSongList.remove(copy.indexOf(item) - count);
                         count++;
                     }
                 }
-                Collections.sort(positions);
 
                 if (mIsPlayQueue) {
-                    for (count = 0; count < positions.size(); ++count) {
-                        mApp.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions.get(count));
-                    }
+                    mApp.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
                 } else {
-                    for (count = 0; count < positions.size(); ++count) {
-                        mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylistName,
-                                positions.get(count) - count);
-                    }
+                    mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylistName, positions);
                 }
                 if (copy.size() != mSongList.size()) {
                     ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
@@ -137,8 +130,8 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 Tools.notifyUser(R.string.removeCountSongs, count);
             } catch (final Exception e) {
                 Log.e(TAG, "General Error.", e);
-                update();
             }
+            update();
         }
     }
 
@@ -292,8 +285,9 @@ public class PlaylistEditActivity extends MPDroidListActivity implements StatusC
                 if (mIsPlayQueue) {
                     item.put("songid", music.getSongId());
                 } else {
-                    item.put("songid", playlistPosition++);
+                    item.put("songid", playlistPosition);
                 }
+                playlistPosition++;
                 item.put("artist", music.getArtist());
                 item.put("title", music.getTitle());
                 item.put("marked", false);
