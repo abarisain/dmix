@@ -274,7 +274,11 @@ public class MPD {
             throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
 
-        commandQueue.add(MPDPlaylist.addCommand(music.getFullPath()));
+        if (music instanceof PlaylistFile) {
+            commandQueue.add(MPDPlaylist.loadCommand(music.getFullPath()));
+        } else {
+            commandQueue.add(MPDPlaylist.addCommand(music.getFullPath()));
+        }
 
         add(commandQueue, replace, play);
     }
