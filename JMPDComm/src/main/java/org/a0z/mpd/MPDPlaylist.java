@@ -393,6 +393,23 @@ public class MPDPlaylist {
     /**
      * Removes entries from playlist.
      *
+     * @param songIds Playlist songIDs to remove.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void removeById(final Collection<Integer> songIds) throws IOException, MPDException {
+        final CommandQueue commandQueue = new CommandQueue(songIds.size());
+
+        for (final Integer id : songIds) {
+            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, id.toString());
+        }
+
+        commandQueue.send(mConnection);
+    }
+
+    /**
+     * Removes entries from playlist.
+     *
      * @param songs entries positions.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.

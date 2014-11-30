@@ -113,44 +113,36 @@ public class MPD {
         connect(server, port, password);
     }
 
-    private static MPDCommand getAlbumDetailsCommand(final Album album) {
+    private static String[] getAlbumArtistPair(final Album album) {
         final Artist artist = album.getArtist();
-        String artistCommand = null;
-        String artistName = null;
+        final String[] artistPair;
 
-        if (artist != null) {
-            artistName = artist.getName();
-
+        if (artist == null) {
+            artistPair = new String[]{null, null};
+        } else {
             if (album.hasAlbumArtist()) {
-                artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
+                artistPair = new String[]{MPDCommand.MPD_TAG_ALBUM_ARTIST, artist.getName()};
             } else {
-                artistCommand = MPDCommand.MPD_FIND_ARTIST;
+                artistPair = new String[]{MPDCommand.MPD_TAG_ARTIST, artist.getName()};
             }
         }
+
+        return artistPair;
+    }
+
+    private static MPDCommand getAlbumDetailsCommand(final Album album) {
+        final String[] artistPair = getAlbumArtistPair(album);
 
         return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
                 MPDCommand.MPD_TAG_ALBUM, album.getName(),
-                artistCommand, artistName);
+                artistPair[0], artistPair[1]);
     }
 
     private static MPDCommand getSongsCommand(final Album album) {
-        final String albumName = album.getName();
-        final Artist artist = album.getArtist();
-        String artistName = null;
-        String artistCommand = null;
+        final String[] artistPair = getAlbumArtistPair(album);
 
-        if (artist != null) {
-            artistName = artist.getName();
-
-            if (album.hasAlbumArtist()) {
-                artistCommand = MPDCommand.MPD_TAG_ALBUM_ARTIST;
-            } else {
-                artistCommand = MPDCommand.MPD_TAG_ARTIST;
-            }
-        }
-
-        return new MPDCommand(MPDCommand.MPD_CMD_FIND, MPDCommand.MPD_TAG_ALBUM, albumName,
-                artistCommand, artistName);
+        return new MPDCommand(MPDCommand.MPD_CMD_FIND, MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                artistPair[0], artistPair[1]);
     }
 
     /*
@@ -213,8 +205,20 @@ public class MPD {
      */
     public void add(final Album album, final boolean replace, final boolean play)
             throws IOException, MPDException {
-        final List<Music> songs = getSongs(album);
-        final CommandQueue commandQueue = MPDPlaylist.addAllCommand(songs);
+        final CommandQueue commandQueue;
+
+        if (isCommandAvailable(MPDCommand.MPD_CMD_FIND_ADD)) {
+            final String[] artistPair = getAlbumArtistPair(album);
+
+            commandQueue = new CommandQueue();
+
+            commandQueue
+                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_TAG_ALBUM, album.getName(),
+                            artistPair[0], artistPair[1]);
+        } else {
+            final List<Music> songs = getSongs(album);
+            commandQueue = MPDPlaylist.addAllCommand(songs);
+        }
 
         add(commandQueue, replace, play);
     }
@@ -241,8 +245,17 @@ public class MPD {
      */
     public void add(final Artist artist, final boolean replace, final boolean play)
             throws IOException, MPDException {
-        final List<Music> songs = getSongs(artist);
-        final CommandQueue commandQueue = MPDPlaylist.addAllCommand(songs);
+        final CommandQueue commandQueue;
+
+        if (isCommandAvailable(MPDCommand.MPD_CMD_FIND_ADD)) {
+            commandQueue = new CommandQueue();
+
+            commandQueue
+                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_TAG_ARTIST, artist.getName());
+        } else {
+            final List<Music> songs = getSongs(artist);
+            commandQueue = MPDPlaylist.addAllCommand(songs);
+        }
 
         add(commandQueue, replace, play);
     }
@@ -261,7 +274,11 @@ public class MPD {
             throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
 
-        commandQueue.add(MPDPlaylist.addCommand(music.getFullPath()));
+        if (music instanceof PlaylistFile) {
+            commandQueue.add(MPDPlaylist.loadCommand(music.getFullPath()));
+        } else {
+            commandQueue.add(MPDPlaylist.addCommand(music.getFullPath()));
+        }
 
         add(commandQueue, replace, play);
     }
@@ -275,6 +292,24 @@ public class MPD {
      */
     public void add(final FilesystemTreeEntry music) throws IOException, MPDException {
         add(music, false, false);
+    }
+
+    public void add(final Genre genre, final boolean replace, final boolean play)
+            throws IOException, MPDException {
+        final CommandQueue commandQueue;
+
+        if (isCommandAvailable(MPDCommand.MPD_CMD_FIND_ADD)) {
+            commandQueue = new CommandQueue();
+
+            commandQueue
+                    .add(MPDCommand.MPD_CMD_FIND_ADD, MPDCommand.MPD_TAG_GENRE, genre.getName());
+        } else {
+            final Collection<Music> music = find(MPDCommand.MPD_TAG_GENRE, genre.getName());
+
+            commandQueue = MPDPlaylist.addAllCommand(music);
+        }
+
+        add(commandQueue, replace, play);
     }
 
     /**
@@ -394,12 +429,24 @@ public class MPD {
 
     public void addToPlaylist(final String playlistName, final Album album)
             throws IOException, MPDException {
-        addToPlaylist(playlistName, new ArrayList<>(getSongs(album)));
+        if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
+            final String[] artistPair = getAlbumArtistPair(album);
+
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+                    MPDCommand.MPD_SEARCH_ALBUM, album.getName(), artistPair[0], artistPair[1]);
+        } else {
+            addToPlaylist(playlistName, new ArrayList<>(getSongs(album)));
+        }
     }
 
     public void addToPlaylist(final String playlistName, final Artist artist)
             throws IOException, MPDException {
-        addToPlaylist(playlistName, new ArrayList<>(getSongs(artist)));
+        if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+                    MPDCommand.MPD_SEARCH_ARTIST, artist.getName());
+        } else {
+            addToPlaylist(playlistName, new ArrayList<>(getSongs(artist)));
+        }
     }
 
     public void addToPlaylist(final String playlistName, final Collection<Music> musicCollection)
@@ -419,6 +466,18 @@ public class MPD {
             throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName,
                 entry.getFullPath());
+    }
+
+    public void addToPlaylist(final String playlistName, final Genre genre)
+            throws IOException, MPDException {
+        if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+                    MPDCommand.MPD_SEARCH_GENRE, genre.getName());
+        } else {
+            final Collection<Music> music = find(MPDCommand.MPD_TAG_GENRE, genre.getName());
+
+            addToPlaylist(playlistName, music);
+        }
     }
 
     public void addToPlaylist(final String playlistName, final Music music)
@@ -1545,6 +1604,26 @@ public class MPD {
 
     public void refreshDirectory(final Directory directory) throws IOException, MPDException {
         directory.refresh(mConnection);
+    }
+
+    /**
+     * Removes a list of tracks from a playlist file, by position.
+     *
+     * @param playlistName The playlist file to remove tracks from.
+     * @param positions    The positions of the tracks to remove from the playlist file.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void removeFromPlaylist(final String playlistName, final List<Integer> positions)
+            throws IOException, MPDException {
+        Collections.sort(positions, Collections.reverseOrder());
+        final CommandQueue commandQueue = new CommandQueue(positions.size());
+
+        for (final Integer position : positions) {
+            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName, position.toString());
+        }
+
+        commandQueue.send(mConnection);
     }
 
     public void removeFromPlaylist(final String playlistName, final Integer pos)

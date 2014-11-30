@@ -56,6 +56,9 @@ public class MPDCommand {
 
     public static final String MPD_CMD_FIND = "find";
 
+    /** Added in MPD protocol 0.16.0 */
+    public static final String MPD_CMD_FIND_ADD = "findadd";
+
     public static final String MPD_CMD_GROUP = "group";
 
     public static final String MPD_CMD_IDLE = "idle";
@@ -115,6 +118,9 @@ public class MPDCommand {
 
     public static final String MPD_CMD_SEARCH = "search";
 
+    /** Added in MPD protocol 0.17.0. */
+    public static final String MPD_CMD_SEARCH_ADD_PLAYLIST = "searchaddpl";
+
     public static final String MPD_CMD_SEEK = "seek";
 
     public static final String MPD_CMD_SEEK_ID = "seekid";
@@ -131,10 +137,6 @@ public class MPDCommand {
 
     // deprecated commands
     public static final String MPD_CMD_VOLUME = "volume";
-
-    public static final String MPD_FIND_ALBUM = "album";
-
-    public static final String MPD_FIND_ARTIST = "artist";
 
     public static final String MPD_LIST_RESPONSE_ARTIST = "Artist";
 

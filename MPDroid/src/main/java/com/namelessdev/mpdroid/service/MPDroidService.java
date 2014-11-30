@@ -435,6 +435,7 @@ public final class MPDroidService extends Service implements
                                 initializeAsyncHelper();
                             }
                             MPDControl.run(MPD_ASYNC_HELPER.oMPD, MPDControl.ACTION_PAUSE);
+                            stopStream();
                         }
                         break;
                     case Intent.ACTION_BOOT_COMPLETED:

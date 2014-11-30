@@ -69,7 +69,11 @@ public class FSFragment extends BrowseFragment {
             final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
                 mApp.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
-                Tools.notifyUser(R.string.songAdded, item);
+                if (item instanceof PlaylistFile) {
+                    Tools.notifyUser(R.string.playlistAdded, item);
+                } else {
+                    Tools.notifyUser(R.string.songAdded, item);
+                }
             } else {
                 // Valid directory
                 mApp.oMPDAsyncHelper.oMPD.add(toAdd, replace, play);
