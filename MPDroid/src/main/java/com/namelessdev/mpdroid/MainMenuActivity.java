@@ -34,7 +34,10 @@ import org.a0z.mpd.MPDStatus;
 
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -470,6 +473,20 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (mApp.shouldDisplayGooglePlayDeathWarning()) {
+            new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.gpDeathTitle))
+                .setMessage(getResources().getString(R.string.gpDeathMessage))
+                .setNegativeButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialogInterface, final int i) {
+                        mApp.markGooglePlayDeathWarningAsRead();
+                    }
+                })
+                .setCancelable(false)
+                .show();
+        }
 
         mApp.setupServiceBinder();
 
