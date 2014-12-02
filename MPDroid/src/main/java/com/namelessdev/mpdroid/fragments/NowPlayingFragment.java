@@ -856,6 +856,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mSongNameText.setText(title);
         mSongRating.setRating(trackRating);
         mYearNameText.setText(date);
+        updateAudioNameText(mApp.oMPDAsyncHelper.oMPD.getStatus());
     }
 
     @Override
@@ -926,6 +927,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
         if (mActivity != null) {
             updateStatus(mpdStatus);
+            updateAudioNameText(mpdStatus);
         }
     }
 
@@ -1083,8 +1085,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         toggleTrackProgress(status);
 
         mPlayPauseButton.setImageResource(getPlayPauseResource(status.getState()));
-
-        updateAudioNameText(status);
 
         View.OnTouchListener currentListener = null;
         if (mCurrentSong != null) {
