@@ -1053,7 +1053,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 if (optionalTrackInfo.length() > 0) {
                     optionalTrackInfo.append(separator);
                 }
-                optionalTrackInfo.append(sampleRate / 1000);
+                optionalTrackInfo.append(Math.abs(sampleRate / 1000.0f));
                 optionalTrackInfo.append("kHz");
             }
 
