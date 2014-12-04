@@ -24,4 +24,8 @@ public class CrashlyticsWrapper {
     public static void start(final Context context) {
         // Stub
     }
+
+    public static void logException(final Exception exception) {
+        // Stub
+    }
 }
