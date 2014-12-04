@@ -594,6 +594,78 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return volumeSeekBar;
     }
 
+    /**
+     * This method handles any simple library activity item ids.
+     *
+     * @param itemId The itemId to attempt to handle.
+     * @return {@code true} if this is handled by a simple library activity,
+     * {@code false} otherwise.
+     */
+    private boolean isSimpleLibraryItem(final int itemId) {
+        Intent intent = null;
+
+        switch (itemId) {
+            case POPUP_ALBUM:
+            case POPUP_ALBUM_ARTIST:
+            case POPUP_ARTIST:
+            case POPUP_FOLDER:
+                if (mCurrentSong != null) {
+                    intent = simpleLibraryMusicItem(itemId);
+                }
+                break;
+            case POPUP_STREAM:
+                intent = new Intent(mActivity, SimpleLibraryActivity.class);
+                intent.putExtra("streams", true);
+                break;
+            default:
+                break;
+        }
+
+        if (intent != null) {
+            /**
+             * Set the result for SimpleLibraryActivity to
+             * return so getCallingActivity() will work.
+             */
+            startActivityForResult(intent, 1);
+        }
+
+        return intent != null;
+    }
+
+    /**
+     * This method handles any simple library activity item ids which handle music items.
+     *
+     * @param itemId The itemId to attempt to handle.
+     * @return An intent to start the {@link com.namelessdev.mpdroid.library.SimpleLibraryActivity}.
+     */
+    private Intent simpleLibraryMusicItem(final int itemId) {
+        final Intent intent = new Intent(mActivity, SimpleLibraryActivity.class);
+
+        switch (itemId) {
+            case POPUP_ALBUM:
+                intent.putExtra("album", mCurrentSong.getAlbumAsAlbum());
+                break;
+            case POPUP_ALBUM_ARTIST:
+                intent.putExtra("artist", mCurrentSong.getAlbumArtistAsArtist());
+                break;
+            case POPUP_ARTIST:
+                intent.putExtra("artist", mCurrentSong.getArtistAsArtist());
+                break;
+            case POPUP_FOLDER:
+                final String path = mCurrentSong.getFullPath();
+                final String parent = mCurrentSong.getParent();
+                if (path == null || parent == null) {
+                    break;
+                }
+                intent.putExtra("folder", parent);
+                break;
+            default:
+                break;
+        }
+
+        return intent;
+    }
+
     @Override
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
@@ -714,26 +786,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
-        final Intent intent;
         final AlbumInfo albumInfo;
         boolean result = true;
+        final int itemId = item.getItemId();
 
         switch (item.getItemId()) {
-            case POPUP_ALBUM:
-                intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("album", mCurrentSong.getAlbumAsAlbum());
-                startActivityForResult(intent, -1);
-                break;
-            case POPUP_ALBUM_ARTIST:
-                intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", mCurrentSong.getAlbumArtistAsArtist());
-                startActivityForResult(intent, -1);
-                break;
-            case POPUP_ARTIST:
-                intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("artist", mCurrentSong.getArtistAsArtist());
-                startActivityForResult(intent, -1);
-                break;
             case POPUP_COVER_BLACKLIST:
                 albumInfo = new AlbumInfo(mCurrentSong);
                 CoverManager.getInstance().markWrongCover(albumInfo);
@@ -743,36 +800,21 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             case POPUP_COVER_SELECTIVE_CLEAN:
                 albumInfo = new AlbumInfo(mCurrentSong);
                 CoverManager.getInstance().clear(albumInfo);
-                downloadCover(albumInfo); // Update the
-                // Queue covers
+                downloadCover(albumInfo);
                 updateQueueCovers(albumInfo);
                 break;
             case POPUP_CURRENT:
                 scrollToNowPlaying();
                 break;
-            case POPUP_FOLDER:
-                final String path = mCurrentSong.getFullPath();
-                final String parent = mCurrentSong.getParent();
-                if (path == null || parent == null) {
-                    break;
-                }
-                intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("folder", parent);
-                startActivityForResult(intent, -1);
-                break;
             case POPUP_SHARE:
-                intent = new Intent(Intent.ACTION_SEND, null);
+                final Intent intent = new Intent(Intent.ACTION_SEND, null);
                 intent.putExtra(Intent.EXTRA_TEXT, getShareString());
                 intent.setType("text/plain");
                 startActivity(intent);
                 break;
-            case POPUP_STREAM:
-                intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("streams", true);
-                startActivityForResult(intent, -1);
-                break;
             default:
-                result = false;
+                result = isSimpleLibraryItem(itemId);
+                break;
         }
 
         return result;
