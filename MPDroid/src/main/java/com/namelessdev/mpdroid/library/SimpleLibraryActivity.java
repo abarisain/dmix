@@ -146,18 +146,18 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         if (savedInstanceState == null) {
             final Fragment rootFragment = getRootFragment();
 
-            if (rootFragment != null) {
-                if (rootFragment instanceof BrowseFragment) {
-                    setTitle(((BrowseFragment) rootFragment).getTitle());
-                }
-                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                ft.replace(R.id.root_frame, rootFragment);
-                ft.commit();
-            } else {
+            if (rootFragment == null) {
                 throw new RuntimeException("Error : SimpleLibraryActivity root fragment is null");
             }
+
+            if (rootFragment instanceof BrowseFragment) {
+                setTitle(((BrowseFragment) rootFragment).getTitle());
+            }
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.replace(R.id.root_frame, rootFragment);
+            ft.commit();
         } else {
             refreshTitleFromCurrentFragment();
         }
