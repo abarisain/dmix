@@ -474,20 +474,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (mApp.shouldDisplayGooglePlayDeathWarning()) {
-            new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.gpDeathTitle))
-                .setMessage(getResources().getString(R.string.gpDeathMessage))
-                .setNegativeButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialogInterface, final int i) {
-                        mApp.markGooglePlayDeathWarningAsRead();
-                    }
-                })
-                .setCancelable(false)
-                .show();
-        }
-
         mApp.setupServiceBinder();
 
         if (mApp.isTabletUiEnabled()) {
