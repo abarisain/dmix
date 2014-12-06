@@ -49,6 +49,7 @@ import android.view.KeyEvent;
 import android.view.WindowManager.BadTokenException;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -68,7 +69,8 @@ public class MPDApplication extends Application implements
 
     private static MPDApplication sInstance;
 
-    private final Collection<Object> mConnectionLocks = new LinkedList<>();
+    private final Collection<Object> mConnectionLocks =
+            Collections.synchronizedCollection(new LinkedList<>());
 
     public MPDAsyncHelper oMPDAsyncHelper = null;
 
