@@ -172,9 +172,14 @@ public class CachedMPD extends MPD {
 
                 albums.add(album);
             }
-            allAlbums = new ArrayList<>(albums);
-            Collections.sort(allAlbums);
-            getAlbumDetails(allAlbums, true);
+
+            if (albums.isEmpty()) {
+                allAlbums = Collections.emptyList();
+            } else {
+                allAlbums = new ArrayList<>(albums);
+                Collections.sort(allAlbums);
+                getAlbumDetails(allAlbums, true);
+            }
         } else {
             allAlbums = super.getAllAlbums(trackCountNeeded);
         }
