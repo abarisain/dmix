@@ -231,20 +231,19 @@ public class CachedMPD extends MPD {
      *
      * @param artist              artist to list albums
      * @param useAlbumArtist      use AlbumArtist instead of Artist
-     * @param includeUnknownAlbum include an entry for songs with no album tag
      * @return List of albums.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    public List<String> listAlbums(final String artist, final boolean useAlbumArtist,
-            final boolean includeUnknownAlbum) throws IOException, MPDException {
+    public List<String> listAlbums(final String artist, final boolean useAlbumArtist)
+            throws IOException, MPDException {
         final List<String> albums;
 
         if (isCached()) {
             albums = new ArrayList(mCache.getAlbums(artist, useAlbumArtist));
         } else {
-            albums = super.listAlbums(artist, useAlbumArtist, includeUnknownAlbum);
+            albums = super.listAlbums(artist, useAlbumArtist);
         }
 
         return albums;
