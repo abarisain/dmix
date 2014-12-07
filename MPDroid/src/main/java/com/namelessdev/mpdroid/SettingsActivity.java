@@ -41,6 +41,7 @@ public class SettingsActivity extends ActionBarActivity implements StatusChangeL
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.settings);
         mSettingsFragment = new SettingsFragment();
         mApp.oMPDAsyncHelper.addStatusChangeListener(this);
         getFragmentManager().beginTransaction()

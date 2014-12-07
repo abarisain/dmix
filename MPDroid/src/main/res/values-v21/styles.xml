@@ -19,7 +19,6 @@
     <style name="ActionBar" parent="android:Widget.Material.ActionBar" />
 
     <style name="ActionBar.Dark" parent="@style/ActionBar">
-        <!--<item name="android:background">@color/transparent</item>-->
         <item name="android:background">@color/nowplaying_background</item>
         <item name="android:elevation">0dp</item>
     </style>
