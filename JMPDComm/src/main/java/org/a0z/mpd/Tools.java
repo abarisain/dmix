@@ -27,6 +27,8 @@
 
 package org.a0z.mpd;
 
+import org.a0z.mpd.exception.InvalidResponseException;
+
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -252,6 +254,11 @@ public final class Tools {
     public static String[] splitResponse(final String line) {
         final int delimiterIndex = line.indexOf(':');
         final String[] result = new String[2];
+
+        if (delimiterIndex == -1) {
+            throw new InvalidResponseException("Failed to parse server response key for line: " +
+                    line);
+        }
 
         result[0] = line.substring(0, delimiterIndex);
 
