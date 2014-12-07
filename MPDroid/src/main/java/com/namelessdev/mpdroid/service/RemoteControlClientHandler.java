@@ -18,17 +18,20 @@ package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 
+import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.item.Music;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import android.os.Build;
+import android.os.Handler;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -64,11 +67,15 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
     /** The RemoteControlClient Seekbar handled by the {@code RemoteControlClientSeekBarHandler}. */
     private RemoteControlSeekBarHandler mSeekBar = null;
 
-    RemoteControlClientHandler(final MPDroidService serviceContext) {
+    private final Handler mServiceHandler;
+
+    RemoteControlClientHandler(final MPDroidService serviceContext, final Handler serviceHandler) {
         super();
 
+        mServiceHandler = serviceHandler;
+
         mAudioManager =
-                (AudioManager) serviceContext.getSystemService(serviceContext.AUDIO_SERVICE);
+                (AudioManager) serviceContext.getSystemService(Context.AUDIO_SERVICE);
         mMediaButtonReceiverComponent =
                 new ComponentName(serviceContext, RemoteControlReceiver.class);
 
@@ -134,9 +141,46 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
      */
     @Override
     public final void onCoverUpdate(final Bitmap albumCover) {
-        mRemoteControlClient.editMetadata(false)
-                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, albumCover)
-                .apply();
+        if (albumCover != null && albumCover.isRecycled()) {
+            Log.e(TAG, "onCoverUpdate() entered with recycled bitmap.");
+            mServiceHandler.sendEmptyMessage(MPDroidService.REFRESH_COVER);
+        } else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        /**
+                         * This is an ugly fix for now. I will clean this up sooner or later.
+                         */
+                        final MPD mpd = MPDroidService.MPD_ASYNC_HELPER.oMPD;
+                        final int songPos = mpd.getStatus().getSongPos();
+                        final Music currentTrack = mpd.getPlaylist().getByIndex(songPos);
+
+                        mRemoteControlClient.editMetadata(true)
+                                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
+                                        albumCover)
+                                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                                        currentTrack.getAlbum())
+                                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                                        currentTrack.getAlbumArtist())
+                                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                                        currentTrack.getArtist())
+                                .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                                        (long) currentTrack.getTrack())
+                                .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                                        (long) currentTrack.getDisc())
+                                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                                        currentTrack.getTime() * DateUtils.SECOND_IN_MILLIS)
+                                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                                        currentTrack.getTitle())
+                                .apply();
+                    } catch (final IllegalStateException e) {
+                        Log.w(TAG, "RemoteControlClient bug workaround", e);
+                        mServiceHandler.sendEmptyMessage(MPDroidService.REFRESH_COVER);
+                    }
+                }
+            }).start();
+        }
     }
 
     /**
@@ -204,17 +248,6 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
     }
 
     /**
-     * Updates the current album art.
-     *
-     * @param albumCover The current track album art.
-     */
-    final void update(final Bitmap albumCover) {
-        mRemoteControlClient.editMetadata(false)
-                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, albumCover)
-                .apply();
-    }
-
-    /**
      * Update the current metadata information.
      *
      * @param currentTrack A current {@code Music} object.
@@ -223,22 +256,26 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mRemoteControlClient.editMetadata(false)
-                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                                currentTrack.getAlbum())
-                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                                currentTrack.getAlbumArtist())
-                        .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                                currentTrack.getArtist())
-                        .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
-                                (long) currentTrack.getTrack())
-                        .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
-                                (long) currentTrack.getDisc())
-                        .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                                currentTrack.getTime() * DateUtils.SECOND_IN_MILLIS)
-                        .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
-                                currentTrack.getTitle())
-                        .apply();
+                try {
+                    mRemoteControlClient.editMetadata(false)
+                            .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                                    currentTrack.getAlbum())
+                            .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                                    currentTrack.getAlbumArtist())
+                            .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                                    currentTrack.getArtist())
+                            .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                                    (long) currentTrack.getTrack())
+                            .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                                    (long) currentTrack.getDisc())
+                            .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                                    currentTrack.getTime() * DateUtils.SECOND_IN_MILLIS)
+                            .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                                    currentTrack.getTitle())
+                            .apply();
+                } catch (final IllegalStateException e) {
+                    Log.w(TAG, "RemoteControlClient bug workaround", e);
+                }
             }
         }).start();
     }

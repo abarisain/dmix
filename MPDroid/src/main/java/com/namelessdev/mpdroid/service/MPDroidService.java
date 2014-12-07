@@ -81,6 +81,8 @@ public final class MPDroidService extends Service implements
     /** The main process connection changed. */
     public static final int CONNECTION_INFO_CHANGED = LOCAL_UID + 6;
 
+    public static final int REFRESH_COVER = LOCAL_UID + 7;
+
     /** The {@code MPDAsyncHelper} for this service. */
     static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
 
@@ -263,7 +265,7 @@ public final class MPDroidService extends Service implements
             mNotificationHandler = new NotificationHandler(this);
             mAlbumCoverHandler = new AlbumCoverHandler(this);
             mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-            mRemoteControlClientHandler = new RemoteControlClientHandler(this);
+            mRemoteControlClientHandler = new RemoteControlClientHandler(this, mHandler);
         } else {
             mNotificationHandler.start();
             mRemoteControlClientHandler.start();
@@ -793,9 +795,9 @@ public final class MPDroidService extends Service implements
         mCurrentTrack = MPD_ASYNC_HELPER.oMPD.getPlaylist().getByIndex(songPos);
 
         if (mNotificationHandler != null && mCurrentTrack != null) {
+            mRemoteControlClientHandler.update(mCurrentTrack);
             mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
             mNotificationHandler.setNewTrack(mCurrentTrack);
-            mRemoteControlClientHandler.update(mCurrentTrack);
         }
     }
 
@@ -989,6 +991,9 @@ public final class MPDroidService extends Service implements
                     break;
                 case STOP_SELF:
                     haltService();
+                    break;
+                case REFRESH_COVER:
+                    mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
                     break;
                 case UPDATE_CLIENT_STATUS:
                     sendHandlerStatus();
