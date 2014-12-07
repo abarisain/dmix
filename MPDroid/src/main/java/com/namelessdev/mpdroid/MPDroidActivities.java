@@ -78,16 +78,4 @@ public class MPDroidActivities {
         }
     }
 
-    @SuppressLint("Registered")
-    public static class MPDroidListActivity extends ListActivity {
-
-        protected final MPDApplication mApp = MPDApplication.getInstance();
-
-        @Override
-        protected void onCreate(final Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            applyTheme(this);
-        }
-    }
-
 }

@@ -627,9 +627,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         mApp.startStreaming();
                     }
                     break;
-                case R.id.GMM_bonjour:
-                    startActivity(new Intent(this, ServerListActivity.class));
-                    break;
                 case R.id.GMM_Consume:
                     MPDControl.run(MPDControl.ACTION_CONSUME);
                     break;
