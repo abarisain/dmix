@@ -20,22 +20,11 @@
     <style name="ActionBar" parent="Widget.AppCompat.ActionBar" />
 
     <style name="ActionBar.Dark" parent="@style/ActionBar">
-        <!--<item name="android:background">@color/transparent</item>-->
-        <item name="android:background">@color/nowplaying_background</item>
-        <item name="background">@color/nowplaying_background</item>
+        <item name="elevation">0dp</item>
     </style>
 
     <style name="ActionBar.Blue" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@color/actionbar_background_blue</item>
-        <item name="android:backgroundStacked">@color/actionbar_background_blue</item>
-        <item name="android:titleTextStyle">
-            @android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse
-        </item>
-        <item name="background">@color/actionbar_background_blue</item>
-        <item name="backgroundStacked">@color/actionbar_background_blue</item>
-        <item name="titleTextStyle">
-            @android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse
-        </item>
+        <item name="elevation">0dp</item>
     </style>
 
     <style name="ActionBarTabStyle.Light" parent="Widget.AppCompat.ActionBar.TabView">
@@ -48,6 +37,9 @@
     <style name="AppThemeBase.Light" parent="Theme.AppCompat.Light.DarkActionBar" />
 
     <style name="AppTheme" parent="@style/AppThemeBase">
+        <item name="colorPrimary">@color/nowplaying_background</item>
+        <item name="colorAccent">@android:color/white</item>
+
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:actionBarStyle">@style/ActionBar.Dark</item>
         <item name="actionBarStyle">@style/ActionBar.Dark</item>
@@ -58,8 +50,7 @@
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text</item>
-        <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color
-        </item>
+        <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color</item>
         <item name="repeatDisabled">@drawable/ic_media_repeat</item>
         <item name="repeatEnabled">@drawable/ic_media_repeat_on</item>
         <item name="shuffleDisabled">@drawable/ic_media_shuffle</item>
@@ -79,6 +70,13 @@
     </style>
 
     <style name="AppTheme.Light" parent="@style/AppThemeBase.Light">
+        <item name="android:colorPrimary">@color/actionbar_background_blue</item>
+        <item name="android:colorPrimaryDark">@color/statusbar_background_blue</item>
+        <item name="android:colorAccent">@color/accent_blue</item>
+
+        <item name="colorPrimary">@color/actionbar_background_blue</item>
+        <item name="colorPrimaryDark">@color/statusbar_background_blue</item>
+        <item name="colorAccent">@color/accent_blue</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:actionBarStyle">@style/ActionBar.Blue</item>
         <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Light</item>
@@ -88,8 +86,7 @@
         <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
         <item name="menuButton">@drawable/spinner_default_holo_light</item>
         <item name="listItemHandle">@drawable/ic_mp_move</item>
-        <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light
-        </item>
+        <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text_light</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text_light</item>
         <item name="nowPlayingSliderBackgroundColor">
@@ -110,9 +107,7 @@
         <item name="overflowButton">@android:style/Widget.Holo.Light.ActionButton.Overflow</item>
     </style>
 
-    <style name="AppTheme.Settings" parent="@style/AppThemeBase.Light">
-        <item name="android:actionBarStyle">@style/ActionBar.Blue</item>
-        <item name="actionBarStyle">@style/ActionBar.Blue</item>
+    <style name="AppTheme.Settings" parent="@style/AppTheme.Light">
     </style>
 
     <style name="AppTheme.MainMenu" parent="AppTheme">
