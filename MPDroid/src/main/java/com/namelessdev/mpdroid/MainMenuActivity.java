@@ -31,8 +31,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 
-import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -52,6 +50,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.PopupMenuCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -69,7 +68,8 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
-public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implements OnNavigationListener,
+public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implements
+        ActionBar.OnNavigationListener,
         ILibraryFragmentActivity, ILibraryTabActivity, OnBackStackChangedListener,
         PopupMenu.OnMenuItemClickListener {
 
@@ -185,7 +185,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         final int drawerImageRes;
 
         // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         actionBar.setCustomView(mTextView);
@@ -393,7 +393,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
             @Override
             public void onPanelSlide(final View panel, final float slideOffset) {
-                final ActionBar actionBar = getActionBar();
+                final ActionBar actionBar = getSupportActionBar();
 
                 if (slideOffset > 0.3f) {
                     if (actionBar.isShowing()) {
@@ -703,7 +703,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
     @Override
     public void pageChanged(final int position) {
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY
                 && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
             actionBar.setSelectedNavigationItem(position);
@@ -775,7 +775,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
      */
 
     private void refreshActionBarTitle() {
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
 
         if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {

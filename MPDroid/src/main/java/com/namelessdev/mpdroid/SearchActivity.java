@@ -29,18 +29,16 @@ import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.ActionBar.TabListener;
-import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.SearchRecentSuggestions;
 import android.support.annotation.StringRes;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -60,7 +58,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener,
-        AsyncExecListener, OnItemClickListener, TabListener {
+        AsyncExecListener, OnItemClickListener, ActionBar.TabListener {
 
     public static final int ADD = 0;
 
@@ -119,11 +117,11 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     private String mSearchKeywords = null;
 
-    private Tab mTabAlbums;
+    private ActionBar.Tab mTabAlbums;
 
-    private Tab mTabArtists;
+    private ActionBar.Tab mTabArtists;
 
-    private Tab mTabSongs;
+    private ActionBar.Tab mTabSongs;
 
     public SearchActivity() {
         super();
@@ -279,7 +277,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         setContentView(R.layout.search_results);
 
         final SearchResultsPagerAdapter adapter = new SearchResultsPagerAdapter();
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
 
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(adapter);
@@ -510,16 +508,16 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     @Override
-    public void onTabReselected(final Tab tab, final FragmentTransaction ft) {
+    public void onTabReselected(final ActionBar.Tab tab, final FragmentTransaction ft) {
     }
 
     @Override
-    public void onTabSelected(final Tab tab, final FragmentTransaction ft) {
+    public void onTabSelected(final ActionBar.Tab tab, final FragmentTransaction ft) {
         mPager.setCurrentItem(tab.getPosition());
     }
 
     @Override
-    public void onTabUnselected(final Tab tab, final FragmentTransaction ft) {
+    public void onTabUnselected(final ActionBar.Tab tab, final FragmentTransaction ft) {
     }
 
     private void setContextForObject(final Object object) {

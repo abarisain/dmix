@@ -33,8 +33,6 @@ import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -42,6 +40,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -252,9 +252,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final Activity activity = getActivity();
+        final ActionBarActivity activity = (ActionBarActivity) getActivity();
         if (activity != null) {
-            final ActionBar actionBar = activity.getActionBar();
+            final ActionBar actionBar = activity.getSupportActionBar();
             if (actionBar != null) {
                 actionBar.setDisplayHomeAsUpEnabled(true);
             }

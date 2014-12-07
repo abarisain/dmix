@@ -175,7 +175,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity impl
         final Button button = (Button) findViewById(R.id.Remove);
         button.setOnClickListener(this);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

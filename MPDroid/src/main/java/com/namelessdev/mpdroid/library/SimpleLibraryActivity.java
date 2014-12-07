@@ -30,7 +30,6 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,6 +40,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -117,7 +117,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         mTitleView.setSelected(true);
         mTitleView.requestFocus();
 
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setCustomView(mTitleView);
             actionBar.setDisplayShowTitleEnabled(false);
