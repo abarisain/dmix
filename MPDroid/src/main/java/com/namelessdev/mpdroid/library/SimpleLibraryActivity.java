@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.library;
 
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
+import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.AlbumsGridFragment;
@@ -46,7 +46,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
+public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity implements
         ILibraryFragmentActivity, OnBackStackChangedListener {
 
     private static final String EXTRA_ALBUM = "album";

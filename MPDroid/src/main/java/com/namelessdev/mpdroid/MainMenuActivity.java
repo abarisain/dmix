@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
@@ -34,10 +33,7 @@ import org.a0z.mpd.MPDStatus;
 
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -73,7 +69,7 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
-public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener,
+public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implements OnNavigationListener,
         ILibraryFragmentActivity, ILibraryTabActivity, OnBackStackChangedListener,
         PopupMenu.OnMenuItemClickListener {
 
