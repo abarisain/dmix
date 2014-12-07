@@ -117,10 +117,12 @@
 
     <style name="AppTheme.MainMenu" parent="AppTheme">
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
     </style>
 
     <style name="AppTheme.MainMenu.Light" parent="AppTheme.Light">
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
     </style>
 
     <style name="AppTheme.MainMenu.SmallSeekBars" parent="AppTheme.MainMenu">
