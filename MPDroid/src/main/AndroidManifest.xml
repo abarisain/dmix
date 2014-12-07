@@ -109,6 +109,14 @@
             android:label="@string/warningTitle"
             android:theme="@style/AppTheme.Dialog" />
 
+        <activity
+            android:name="com.namelessdev.mpdroid.NowPlayingActivity"
+            android:parentActivityName="com.namelessdev.mpdroid.MainMenuActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.namelessdev.mpdroid.MainMenuActivity" />
+        </activity>
+
         <service
             android:name="com.namelessdev.mpdroid.service.MPDroidService"
             android:exported="false"
@@ -261,14 +269,6 @@
                 <data android:pathPattern=".*\\.pls" />
                 <data android:pathPattern=".*\\.xspf" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="com.namelessdev.mpdroid.NowPlayingActivity"
-            android:label="@string/title_activity_now_playing"
-            android:parentActivityName="com.namelessdev.mpdroid.MainMenuActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.namelessdev.mpdroid.MainMenuActivity" />
         </activity>
     </application>
 
