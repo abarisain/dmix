@@ -146,6 +146,10 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity impl
             mIsPlayQueue = false;
         }
         setContentView(R.layout.playlist_editlist_activity);
+
+        listView = (ListView) findViewById(android.R.id.list);
+        listView.setOnItemClickListener(this);
+
         if (mIsPlayQueue) {
             setTitle(R.string.nowPlaying);
         } else {
@@ -153,9 +157,6 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity impl
         }
         update();
         mApp.oMPDAsyncHelper.addStatusChangeListener(this);
-
-        listView = (ListView) findViewById(android.R.id.list);
-        listView.setOnItemClickListener(this);
 
         final DragSortListView trackList = (DragSortListView) listView;
         trackList.setOnCreateContextMenuListener(this);
