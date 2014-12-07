@@ -253,7 +253,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity impl
         if (mIsPlayQueue) {
             // Mark running track...
             for (final AbstractMap<String, Object> song : mSongList) {
-                if (((Integer) song.get("songid")).intValue() == mpdStatus.getSongId()) {
+                if (((Integer) song.get("songid")) == mpdStatus.getSongId()) {
                     song.put("play", android.R.drawable.ic_media_play);
                 } else {
                     song.put("play", 0);
