@@ -38,7 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-public class NowPlayingActivity extends MPDroidActivities.MPDroidFragmentActivity {
+public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
 
     private boolean mIsDualPaneMode;
 
@@ -50,9 +50,9 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidFragmentActivit
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(android.view.Window.FEATURE_CONTENT_TRANSITIONS);
         super.onCreate(savedInstanceState);
 
-        getWindow().requestFeature(android.view.Window.FEATURE_CONTENT_TRANSITIONS);
         Transition ts = new Fade();  //Slide(); //Explode();
         getWindow().setEnterTransition(ts);
         getWindow().setExitTransition(ts);
@@ -92,9 +92,6 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidFragmentActivit
                     } else if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
                         mApp.startStreaming();
                     }
-                    break;
-                case R.id.GMM_bonjour:
-                    startActivity(new Intent(this, ServerListActivity.class));
                     break;
                 case R.id.GMM_Consume:
                     MPDControl.run(MPDControl.ACTION_CONSUME);
