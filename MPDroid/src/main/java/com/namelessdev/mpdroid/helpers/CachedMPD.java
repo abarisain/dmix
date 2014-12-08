@@ -229,8 +229,8 @@ public class CachedMPD extends MPD {
     /**
      * List all albums of given artist from database.
      *
-     * @param artist              artist to list albums
-     * @param useAlbumArtist      use AlbumArtist instead of Artist
+     * @param artist         artist to list albums
+     * @param useAlbumArtist use AlbumArtist instead of Artist
      * @return List of albums.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.

@@ -50,7 +50,8 @@
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text</item>
-        <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color</item>
+        <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color
+        </item>
         <item name="repeatDisabled">@drawable/ic_media_repeat</item>
         <item name="repeatEnabled">@drawable/ic_media_repeat_on</item>
         <item name="shuffleDisabled">@drawable/ic_media_shuffle</item>
@@ -82,7 +83,8 @@
         <item name="noCoverArtIcon">@drawable/no_cover_art_light</item>
         <item name="menuButton">@drawable/spinner_default_holo_light</item>
         <item name="listItemHandle">@drawable/ic_mp_move</item>
-        <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light</item>
+        <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator_light
+        </item>
         <item name="android:textColorPrimary">@android:color/black</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text_light</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text_light</item>
@@ -104,8 +106,7 @@
         <item name="overflowButton">@android:style/Widget.Holo.Light.ActionButton.Overflow</item>
     </style>
 
-    <style name="AppTheme.Settings" parent="@style/AppTheme.Light">
-    </style>
+    <style name="AppTheme.Settings" parent="@style/AppTheme.Light"></style>
 
     <style name="AppTheme.MainMenu" parent="AppTheme">
         <item name="android:windowActionBarOverlay">true</item>

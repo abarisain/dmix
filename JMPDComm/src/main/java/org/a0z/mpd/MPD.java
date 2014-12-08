@@ -1222,8 +1222,8 @@ public class MPD {
     /**
      * List all albums from a given artist.
      *
-     * @param artist              artist to list albums
-     * @param useAlbumArtist      use AlbumArtist instead of Artist
+     * @param artist         artist to list albums
+     * @param useAlbumArtist use AlbumArtist instead of Artist
      * @return {@code Collection} with all album names from the given
      * artist present in database.
      * @throws IOException  Thrown upon a communication error with the server.

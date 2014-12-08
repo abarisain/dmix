@@ -18,10 +18,8 @@ package com.namelessdev.mpdroid;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ListActivity;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 
 public class MPDroidActivities {

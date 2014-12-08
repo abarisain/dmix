@@ -48,7 +48,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity implements StatusChangeListener,
+public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
+        implements StatusChangeListener,
         OnClickListener, AdapterView.OnItemClickListener {
 
     private static final String TAG = "PlaylistEditActivity";
