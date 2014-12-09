@@ -299,4 +299,7 @@
     <string name="mediaPlayerErrorUnsupported">Media framework does not support stream codec.</string>
     <!-- End MediaPlayer Error Strings -->
 
+    <string name="gpThanksTitle">Thank you :)</string>
+    <string name="gpThanksMessage">Remember when I said that MPDroid was going to be pulled from the store ?\n\nWell, thanks to your support, we\'re staying !\n\nI\'ve got countless emails the past week, and as much as I would like to thank you individually, it\'s a huge task ;)\n\nWe\'ve got plenty of good stuff cooking up, so see you for the next update !</string>
+    <string name="gpThanksOkButton">Awesome !</string>
 </resources>

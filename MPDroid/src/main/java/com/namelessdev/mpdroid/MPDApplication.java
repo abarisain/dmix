@@ -29,6 +29,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDStatusMonitor;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -399,9 +400,17 @@ public class MPDApplication extends Application implements
                 && mSettings.getBoolean("tabletUI", true);
     }
 
-    @SuppressWarnings("unused")
     public final boolean hasGooglePlayDeathWarningBeenDisplayed() {
         return mSettings.getBoolean("googlePlayDeathWarningShown", false);
+    }
+
+    public final boolean hasGooglePlayThankYouBeenDisplayed() {
+        return mSettings.getBoolean("googlePlayThankYouShown", false);
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    public final void markGooglePlayThankYouAsRead() {
+        mSettings.edit().putBoolean("googlePlayThankYouShown", true).commit();
     }
 
     /**

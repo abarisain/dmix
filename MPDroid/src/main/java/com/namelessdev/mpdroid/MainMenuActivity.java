@@ -31,7 +31,9 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -469,6 +471,21 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (mApp.hasGooglePlayDeathWarningBeenDisplayed()
+                && !mApp.hasGooglePlayThankYouBeenDisplayed()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.gpThanksTitle))
+                    .setMessage(getString(R.string.gpThanksMessage))
+                    .setNegativeButton(getString(R.string.gpThanksOkButton), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialogInterface, final int i) {
+                            mApp.markGooglePlayThankYouAsRead();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
 
         mApp.setupServiceBinder();
 
