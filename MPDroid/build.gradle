@@ -27,8 +27,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 53
-        versionName "1.07 Final " + gitShortHash()
+        versionCode 54
+        versionName "1.07.2 Final " + gitShortHash()
     }
 
     lintOptions {
