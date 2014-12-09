@@ -44,7 +44,6 @@ android {
     productFlavors {
         closedbits {
             versionName defaultConfig.versionName + "-c"
-            throw new GradleException('ClosedBits releases are made for official PlayStore release. Please build the "foss" flavor.')
         }
 
         foss {
