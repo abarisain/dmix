@@ -60,11 +60,9 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final int EVENT_EXEC_ASYNC_FINISHED = LOCAL_UID + 5;
 
-    static final int EVENT_RECONNECT = LOCAL_UID + 6;
+    static final int EVENT_START_STATUS_MONITOR = LOCAL_UID + 6;
 
-    static final int EVENT_START_STATUS_MONITOR = LOCAL_UID + 7;
-
-    static final int EVENT_STOP_STATUS_MONITOR = LOCAL_UID + 8;
+    static final int EVENT_STOP_STATUS_MONITOR = LOCAL_UID + 7;
 
     private static final String TAG = "MPDAsyncWorker";
 
@@ -135,9 +133,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         switch (msg.what) {
             case EVENT_CONNECT:
                 connect();
-                break;
-            case EVENT_RECONNECT:
-                //reconnect();
                 break;
             case EVENT_START_STATUS_MONITOR:
                 mIdleSubsystems = (String[]) msg.obj;
@@ -226,28 +221,6 @@ public class MPDAsyncWorker implements Handler.Callback,
                 .sendToTarget();
     }
 
-    /** Reconnects the MPD object after the settings have changed. */
-    private void reconnect() {
-        final boolean isMonitorAlive = isStatusMonitorAlive();
-
-        /** Don't continue before the monitor is stopped. */
-        if (isMonitorAlive) {
-            stopStatusMonitor();
-
-            try {
-                /** Give up waiting after a couple of seconds. */
-                mStatusMonitor.join(2L * DateUtils.SECOND_IN_MILLIS);
-            } catch (final InterruptedException ignored) {
-            }
-        }
-
-        connect();
-
-        if (isMonitorAlive) {
-            startStatusMonitor();
-        }
-    }
-
     @Override
     public void repeatChanged(final boolean repeating) {
         mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_REPEAT, Tools.toObjectArray(repeating))
@@ -269,13 +242,6 @@ public class MPDAsyncWorker implements Handler.Callback,
                 connectionInfo.isNotificationPersistent) {
             mHelperHandler.obtainMessage(EVENT_CONNECTION_CONFIG, mConInfo).sendToTarget();
             mConInfo = connectionInfo;
-
-            if (mConInfo.serverInfoChanged) {
-                Log.d(TAG, "Connection changed, connecting to " + mConInfo.server);
-                mWorkerHandler.sendEmptyMessage(EVENT_RECONNECT);
-            } else {
-                Log.d(TAG, "Server info had not changed!");
-            }
         }
     }
 

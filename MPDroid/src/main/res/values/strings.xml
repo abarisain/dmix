@@ -299,7 +299,7 @@
     <string name="mediaPlayerErrorUnsupported">Media framework does not support stream codec.</string>
     <!-- End MediaPlayer Error Strings -->
 
-    <string name="gpDeathTitle">Please read</string>
-    <string name="gpDeathMessage">It is with great disappointment that I\'m using this space to announce that Google made the harsh decision to remove MPDroid from the Play Store.\n\nIf they remove it, as they told me they will, 1.07 will be the last update you will get automatically from the Play Store.\n\nFor information, Google removed MPDroid for \'Copyright infringement\' without telling us what we did wrong, and we lost the appeal without being able to speak to a human.\n\nI have not decided yet if I will continue maintaining MPDroid or not, but it will still be available for download in F-Droid and at http://github.com/abarisain/dmix . More info, please go to http://nlss.fr/mpdroid . I will put an explanation page and a form so that I can update you about MPDroid\'s future via email, if you want.\n\nThanks for your time, and please enjoy this release we\'ve worked really hard on !</string>
-
+    <string name="gpThanksTitle">Thank you :)</string>
+    <string name="gpThanksMessage">Remember when I said that MPDroid was going to be pulled from the store ?\n\nWell, thanks to your support, we\'re staying !\n\nI\'ve got countless emails the past week, and as much as I would like to thank you individually, it\'s a huge task ;)\n\nWe\'ve got plenty of good stuff cooking up, so see you for the next update !</string>
+    <string name="gpThanksOkButton">Awesome !</string>
 </resources>

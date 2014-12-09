@@ -21,7 +21,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingTop="?android:attr/actionBarSize">
+                android:paddingTop="?attr/actionBarSize">
 
                 <FrameLayout
                     android:id="@+id/library_root_frame"
@@ -79,7 +79,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
-                    android:paddingTop="?android:attr/actionBarSize"
+                    android:paddingTop="?attr/actionBarSize"
                     tools:context=".MainMenuActivity">
 
                     <fragment

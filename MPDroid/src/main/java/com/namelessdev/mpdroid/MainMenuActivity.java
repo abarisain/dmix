@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
@@ -32,10 +31,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDStatus;
 
-import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -56,6 +52,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.PopupMenuCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -73,7 +70,8 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
-public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavigationListener,
+public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implements
+        ActionBar.OnNavigationListener,
         ILibraryFragmentActivity, ILibraryTabActivity, OnBackStackChangedListener,
         PopupMenu.OnMenuItemClickListener {
 
@@ -189,7 +187,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
         final int drawerImageRes;
 
         // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         actionBar.setCustomView(mTextView);
@@ -397,7 +395,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
             @Override
             public void onPanelSlide(final View panel, final float slideOffset) {
-                final ActionBar actionBar = getActionBar();
+                final ActionBar actionBar = getSupportActionBar();
 
                 if (slideOffset > 0.3f) {
                     if (actionBar.isShowing()) {
@@ -474,18 +472,19 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (mApp.shouldDisplayGooglePlayDeathWarning()) {
+        if (mApp.hasGooglePlayDeathWarningBeenDisplayed()
+                && !mApp.hasGooglePlayThankYouBeenDisplayed()) {
             new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.gpDeathTitle))
-                .setMessage(getResources().getString(R.string.gpDeathMessage))
-                .setNegativeButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialogInterface, final int i) {
-                        mApp.markGooglePlayDeathWarningAsRead();
-                    }
-                })
-                .setCancelable(false)
-                .show();
+                    .setTitle(getString(R.string.gpThanksTitle))
+                    .setMessage(getString(R.string.gpThanksMessage))
+                    .setNegativeButton(getString(R.string.gpThanksOkButton), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialogInterface, final int i) {
+                            mApp.markGooglePlayThankYouAsRead();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
         }
 
         mApp.setupServiceBinder();
@@ -641,9 +640,6 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
                         mApp.startStreaming();
                     }
                     break;
-                case R.id.GMM_bonjour:
-                    startActivity(new Intent(this, ServerListActivity.class));
-                    break;
                 case R.id.GMM_Consume:
                     MPDControl.run(MPDControl.ACTION_CONSUME);
                     break;
@@ -724,7 +720,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
 
     @Override
     public void pageChanged(final int position) {
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY
                 && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
             actionBar.setSelectedNavigationItem(position);
@@ -796,7 +792,7 @@ public class MainMenuActivity extends MPDroidFragmentActivity implements OnNavig
      */
 
     private void refreshActionBarTitle() {
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
 
         if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {

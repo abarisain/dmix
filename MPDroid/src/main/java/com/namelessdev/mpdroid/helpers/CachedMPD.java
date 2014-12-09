@@ -172,9 +172,14 @@ public class CachedMPD extends MPD {
 
                 albums.add(album);
             }
-            allAlbums = new ArrayList<>(albums);
-            Collections.sort(allAlbums);
-            getAlbumDetails(allAlbums, true);
+
+            if (albums.isEmpty()) {
+                allAlbums = Collections.emptyList();
+            } else {
+                allAlbums = new ArrayList<>(albums);
+                Collections.sort(allAlbums);
+                getAlbumDetails(allAlbums, true);
+            }
         } else {
             allAlbums = super.getAllAlbums(trackCountNeeded);
         }
@@ -224,22 +229,21 @@ public class CachedMPD extends MPD {
     /**
      * List all albums of given artist from database.
      *
-     * @param artist              artist to list albums
-     * @param useAlbumArtist      use AlbumArtist instead of Artist
-     * @param includeUnknownAlbum include an entry for songs with no album tag
+     * @param artist         artist to list albums
+     * @param useAlbumArtist use AlbumArtist instead of Artist
      * @return List of albums.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    public List<String> listAlbums(final String artist, final boolean useAlbumArtist,
-            final boolean includeUnknownAlbum) throws IOException, MPDException {
+    public List<String> listAlbums(final String artist, final boolean useAlbumArtist)
+            throws IOException, MPDException {
         final List<String> albums;
 
         if (isCached()) {
             albums = new ArrayList(mCache.getAlbums(artist, useAlbumArtist));
         } else {
-            albums = super.listAlbums(artist, useAlbumArtist, includeUnknownAlbum);
+            albums = super.listAlbums(artist, useAlbumArtist);
         }
 
         return albums;

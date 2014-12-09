@@ -25,8 +25,12 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.subsystem;
 
+import org.a0z.mpd.CommandQueue;
+import org.a0z.mpd.Log;
+import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.Tools;
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.FilesystemTreeEntry;

@@ -97,6 +97,12 @@ final class MusicList implements Iterable<Music> {
                     mSongID.add(null);
                 }
 
+                if (songPos == -1) {
+                    throw new IllegalStateException("Media server protocol error: songPos not " +
+                            "included with the playlist changes included with the following " +
+                            "music. Path:" + music.getFullPath() + " Name: " + music.getName());
+                }
+
                 mList.set(songPos, music);
                 mSongID.set(songPos, music.getSongId());
             }

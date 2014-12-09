@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.library;
 
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidFragmentActivity;
+import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.AlbumsGridFragment;
@@ -30,7 +30,7 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 
-import android.app.ActionBar;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,12 +41,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
+public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity implements
         ILibraryFragmentActivity, OnBackStackChangedListener {
 
     private static final String EXTRA_ALBUM = "album";
@@ -57,41 +58,59 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
 
     private static final String EXTRA_STREAM = "streams";
 
+    private static final String TAG = "SimpleLibraryActivity";
+
     private TextView mTitleView;
+
+    private String debugIntent(final Intent intent) {
+        final ComponentName callingActivity = getCallingActivity();
+        final StringBuilder stringBuilder = new StringBuilder();
+        final Bundle extras = intent.getExtras();
+
+        stringBuilder.append("SimpleLibraryActivity started with invalid extra");
+
+        if (callingActivity != null) {
+            stringBuilder.append(", calling activity: ");
+            stringBuilder.append(callingActivity.getClassName());
+        }
+
+        if (extras != null) {
+            for (final String what : extras.keySet()) {
+                stringBuilder.append(", intent extra: ");
+                stringBuilder.append(what);
+            }
+        }
+
+        stringBuilder.append('.');
+        return stringBuilder.toString();
+    }
 
     private Fragment getRootFragment() {
         final Intent intent = getIntent();
-        Fragment rootFragment = null;
+        final Fragment rootFragment;
 
-        if (intent.getBooleanExtra(EXTRA_STREAM, false)) {
+        if (intent.hasExtra(EXTRA_ALBUM)) {
+            final Album album = intent.getParcelableExtra(EXTRA_ALBUM);
+
+            rootFragment = new SongsFragment().init(album);
+        } else if (intent.hasExtra(EXTRA_ARTIST)) {
+            final Artist artist = intent.getParcelableExtra(EXTRA_ARTIST);
+            final SharedPreferences settings = PreferenceManager
+                    .getDefaultSharedPreferences(mApp);
+
+            if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
+                rootFragment = new AlbumsGridFragment(artist);
+            } else {
+                rootFragment = new AlbumsFragment(artist);
+            }
+        } else if (intent.hasExtra(EXTRA_FOLDER)) {
+            final String folder = intent.getStringExtra(EXTRA_FOLDER);
+
+            rootFragment = new FSFragment().init(folder);
+        } else if (intent.hasExtra(EXTRA_STREAM)) {
             rootFragment = new StreamsFragment();
         } else {
-            Object targetElement = intent.getParcelableExtra(EXTRA_ALBUM);
-            if (targetElement == null) {
-                targetElement = intent.getParcelableExtra(EXTRA_ARTIST);
-            }
-            if (targetElement == null) {
-                targetElement = intent.getStringExtra(EXTRA_FOLDER);
-            }
-            if (targetElement == null) {
-                throw new RuntimeException(
-                        "Error : cannot start SimpleLibraryActivity without an extra");
-            } else {
-                if (targetElement instanceof Artist) {
-                    final SharedPreferences settings = PreferenceManager
-                            .getDefaultSharedPreferences(mApp);
-
-                    if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-                        rootFragment = new AlbumsGridFragment((Artist) targetElement);
-                    } else {
-                        rootFragment = new AlbumsFragment((Artist) targetElement);
-                    }
-                } else if (targetElement instanceof Album) {
-                    rootFragment = new SongsFragment().init((Album) targetElement);
-                } else if (targetElement instanceof String) {
-                    rootFragment = new FSFragment().init((String) targetElement);
-                }
-            }
+            throw new IllegalStateException(debugIntent(intent));
         }
 
         return rootFragment;
@@ -117,7 +136,7 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         mTitleView.setSelected(true);
         mTitleView.requestFocus();
 
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setCustomView(mTitleView);
             actionBar.setDisplayShowTitleEnabled(false);
@@ -127,18 +146,18 @@ public class SimpleLibraryActivity extends MPDroidFragmentActivity implements
         if (savedInstanceState == null) {
             final Fragment rootFragment = getRootFragment();
 
-            if (rootFragment != null) {
-                if (rootFragment instanceof BrowseFragment) {
-                    setTitle(((BrowseFragment) rootFragment).getTitle());
-                }
-                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                ft.replace(R.id.root_frame, rootFragment);
-                ft.commit();
-            } else {
+            if (rootFragment == null) {
                 throw new RuntimeException("Error : SimpleLibraryActivity root fragment is null");
             }
+
+            if (rootFragment instanceof BrowseFragment) {
+                setTitle(((BrowseFragment) rootFragment).getTitle());
+            }
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.replace(R.id.root_frame, rootFragment);
+            ft.commit();
         } else {
             refreshTitleFromCurrentFragment();
         }

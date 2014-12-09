@@ -18,10 +18,9 @@ package com.namelessdev.mpdroid;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ListActivity;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 public class MPDroidActivities {
 
@@ -55,38 +54,14 @@ public class MPDroidActivities {
     }
 
     @SuppressLint("Registered")
-    public static class MPDroidActivity extends Activity {
+    public static class MPDroidActivity extends ActionBarActivity {
 
         protected final MPDApplication mApp = MPDApplication.getInstance();
 
         @Override
         protected void onCreate(final Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
             applyTheme(this);
-        }
-    }
-
-    @SuppressLint("Registered")
-    public static class MPDroidFragmentActivity extends FragmentActivity {
-
-        protected final MPDApplication mApp = MPDApplication.getInstance();
-
-        @Override
-        protected void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            applyTheme(this);
-        }
-    }
-
-    @SuppressLint("Registered")
-    public static class MPDroidListActivity extends ListActivity {
-
-        protected final MPDApplication mApp = MPDApplication.getInstance();
-
-        @Override
-        protected void onCreate(final Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            applyTheme(this);
         }
     }
 

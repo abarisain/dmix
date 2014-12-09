@@ -6,6 +6,6 @@
     <application>
         <meta-data
             android:name="com.crashlytics.ApiKey"
-            android:value="32e48acd098f6bf0ace79c3132dd5f1fe0deec87" />
+            android:value="Get_your_own_key_ugh" />
     </application>
 </manifest>
