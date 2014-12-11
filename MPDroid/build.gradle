@@ -79,15 +79,15 @@ android {
 dependencies {
 
     // Support Libraries
-    compile 'com.android.support:support-v4:21.0.2'
-    compile 'com.android.support:appcompat-v7:21.0.2'
+    compile 'com.android.support:support-v4:21.0.3'
+    compile 'com.android.support:appcompat-v7:21.0.3'
 
     // Projects
     compile project(':JMPDCommAndroid')
 
     // Libraries from maven
-    compile 'com.sothree.slidinguppanel:library:2.0.1'
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.3'
+    compile 'com.sothree.slidinguppanel:library:2.0.4'
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9'
     compile 'asia.ivity.android:drag-sort-listview:1.0'
     closedbitsCompile 'com.crashlytics.android:crashlytics:1.+'
 }
