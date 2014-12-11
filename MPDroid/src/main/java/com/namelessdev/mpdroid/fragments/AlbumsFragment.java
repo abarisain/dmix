@@ -188,11 +188,19 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        if (mArtist != null) {
-            return mArtist.mainText();
+        final String title;
+
+        if (mArtist == null) {
+            if (isAdded()) {
+                title = getString(R.string.albums);
+            } else {
+                title = null;
+            }
         } else {
-            return getString(R.string.albums);
+            title = mArtist.mainText();
         }
+
+        return title;
     }
 
     public AlbumsFragment init(final Artist artist, final Genre genre) {
