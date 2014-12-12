@@ -33,7 +33,6 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -190,6 +189,7 @@ public final class Tools {
      */
     public static void parseResponse(final List<String> response, final String... keys) {
         String[] lines;
+
         if (keys.length > 1) {
             Arrays.sort(keys);
         }
@@ -207,24 +207,6 @@ public final class Tools {
 
         if (response instanceof ArrayList) {
             ((ArrayList<String>) response).trimToSize();
-        }
-    }
-
-    /**
-     * Parse a media server response for one entry type, then sort the resulting list.
-     *
-     * @param response        The media server response.
-     * @param sortInsensitive Whether to sort insensitively.
-     * @param substring       The entry type in the response to add to the collection.
-     */
-    public static void parseResponse(final List<String> response,
-            final boolean sortInsensitive, final String substring) {
-        parseResponse(response, substring);
-
-        if (sortInsensitive) {
-            Collections.sort(response, String.CASE_INSENSITIVE_ORDER);
-        } else {
-            Collections.sort(response);
         }
     }
 

@@ -190,6 +190,14 @@ public class MPD {
         return new MPDCommand(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
     }
 
+    private static void sort(final List<String> list, final boolean sensitive) {
+        if (sensitive) {
+            Collections.sort(list);
+        } else {
+            Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
+        }
+    }
+
     /**
      * Adds a {@code Album} item object to the playlist queue.
      *
@@ -1167,7 +1175,8 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 AbstractMusic.TAG_ALBUM_ARTIST);
 
-        Tools.parseResponse(response, sortInsensitive, "AlbumArtist");
+        Tools.parseResponse(response, "AlbumArtist");
+        sort(response, sortInsensitive);
 
         return response;
     }
@@ -1189,7 +1198,8 @@ public class MPD {
                 MPDCommand.MPD_CMD_LIST_TAG, AbstractMusic.TAG_ALBUM_ARTIST,
                 AbstractMusic.TAG_GENRE, genre.getName());
 
-        Tools.parseResponse(response, sortInsensitive, "AlbumArtist");
+        Tools.parseResponse(response, "AlbumArtist");
+        sort(response, sortInsensitive);
 
         return response;
     }
@@ -1256,7 +1266,8 @@ public class MPD {
         final List<String> response =
                 mConnection.sendCommand(listAlbumsCommand(artist, useAlbumArtist));
 
-        Tools.parseResponse(response, false, "Album");
+        Tools.parseResponse(response, "Album");
+        sort(response, false);
 
         return response;
     }
@@ -1386,7 +1397,8 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 AbstractMusic.TAG_ARTIST);
 
-        Tools.parseResponse(response, sortInsensitive, "Artist");
+        Tools.parseResponse(response, "Artist");
+        sort(response, sortInsensitive);
 
         return response;
     }
@@ -1464,7 +1476,8 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 AbstractMusic.TAG_ARTIST, AbstractMusic.TAG_GENRE, genre);
 
-        Tools.parseResponse(response, sortInsensitive, "Artist");
+        Tools.parseResponse(response, "Artist");
+        sort(response, sortInsensitive);
 
         return response;
     }
@@ -1520,7 +1533,8 @@ public class MPD {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
                 AbstractMusic.TAG_GENRE);
 
-        Tools.parseResponse(response, sortInsensitive, AbstractMusic.RESPONSE_GENRE);
+        Tools.parseResponse(response, AbstractMusic.RESPONSE_GENRE);
+        sort(response, sortInsensitive);
 
         return response;
     }
