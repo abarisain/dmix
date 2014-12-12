@@ -30,7 +30,6 @@ package org.a0z.mpd.connection;
 import org.a0z.mpd.exception.MPDException;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -128,7 +127,8 @@ class CommandResult {
         if (result == null) {
             mResult = null;
         } else {
-            mResult = Collections.unmodifiableList(result);
+            //noinspection AssignmentToCollectionOrArrayFieldFromParameter
+            mResult = result;
         }
     }
 }

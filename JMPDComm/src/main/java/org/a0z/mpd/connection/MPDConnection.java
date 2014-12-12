@@ -148,8 +148,8 @@ public abstract class MPDConnection {
         final CommandResult commandResult = processCommand(mpdCommand);
 
         synchronized (mAvailableCommands) {
-            final Collection<String> response = Tools.
-                    parseResponse(commandResult.getResult(), Reflection.CMD_RESPONSE_COMMANDS);
+            final List<String> response = commandResult.getResult();
+            Tools.parseResponse(response, Reflection.CMD_RESPONSE_COMMANDS);
             mAvailableCommands.clear();
             mAvailableCommands.addAll(response);
         }

@@ -27,14 +27,13 @@
 
 package org.a0z.mpd.subsystem;
 
+import org.a0z.mpd.Tools;
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDException;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-
-import static org.a0z.mpd.Tools.parseResponse;
 
 /**
  * A class to manage the
@@ -207,7 +206,9 @@ public class Reflection {
             throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(command);
 
-        return parseResponse(response, element);
+        Tools.parseResponse(response, element);
+
+        return response;
     }
 
     /**
