@@ -45,6 +45,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class FSFragment extends BrowseFragment {
@@ -89,8 +90,7 @@ public class FSFragment extends BrowseFragment {
             final AbstractDirectory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
                 if (item instanceof Music) {
-                    final Collection<Music> songs = new ArrayList<>(1);
-                    songs.add((Music) item);
+                    final Collection<Music> songs = Collections.singletonList((Music) item);
                     mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
                     Tools.notifyUser(R.string.songAdded, item);
                 } else if (item instanceof PlaylistFile) {

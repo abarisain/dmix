@@ -547,9 +547,7 @@ public class MPD {
 
     public void addToPlaylist(final String playlistName, final Music music)
             throws IOException, MPDException {
-        final Collection<Music> songs = new ArrayList<>(1);
-        songs.add(music);
-        addToPlaylist(playlistName, songs);
+        addToPlaylist(playlistName, Collections.singletonList(music));
     }
 
     /**
