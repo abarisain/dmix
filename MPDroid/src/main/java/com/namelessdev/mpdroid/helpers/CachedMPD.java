@@ -217,9 +217,9 @@ public class CachedMPD extends MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    public List<String[]> listAlbumArtists(final List<Album> albums)
+    public List<List<String>> listAlbumArtists(final List<Album> albums)
             throws IOException, MPDException {
-        final List<String[]> albumArtists;
+        final List<List<String>> albumArtists;
 
         if (isCached()) {
             albumArtists = new ArrayList<>(albums.size());
@@ -229,7 +229,7 @@ public class CachedMPD extends MPD {
                 final String artistName = getArtistName(artist);
 
                 albumArtist = mCache.getAlbumArtists(album.getName(), artistName);
-                albumArtists.add(albumArtist.toArray(new String[albumArtist.size()]));
+                albumArtists.add(new ArrayList<>(albumArtist));
             }
         } else {
             albumArtists = super.listAlbumArtists(albums);
@@ -271,15 +271,15 @@ public class CachedMPD extends MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    public List<String[]> listArtists(final List<Album> albums, final boolean useAlbumArtist)
+    public List<List<String>> listArtists(final List<Album> albums, final boolean useAlbumArtist)
             throws IOException, MPDException {
-        final List<String[]> artists;
+        final List<List<String>> artists;
 
         if (isCached()) {
             artists = new ArrayList<>(albums.size());
             for (final Album album : albums) {
                 final List<String> aba = mCache.getArtistsByAlbum(album.getName(), useAlbumArtist);
-                artists.add(aba.toArray(new String[aba.size()]));
+                artists.add(aba);
             }
         } else {
             artists = super.listArtists(albums, useAlbumArtist);

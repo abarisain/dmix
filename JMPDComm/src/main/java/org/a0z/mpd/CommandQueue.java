@@ -99,14 +99,14 @@ public class CommandQueue implements Iterable<MPDCommand> {
      * @param lines The raw results of a command queue from the media server.
      * @return A list of results from the command queue.
      */
-    private static List<String[]> separatedQueueResults(final Iterable<String> lines) {
-        final List<String[]> result = new ArrayList<>();
+    private static List<List<String>> separatedQueueResults(final Iterable<String> lines) {
+        final List<List<String>> result = new ArrayList<>();
         final ArrayList<String> lineCache = new ArrayList<>();
 
         for (final String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
                 if (!lineCache.isEmpty()) {
-                    result.add(lineCache.toArray(new String[lineCache.size()]));
+                    result.add(new ArrayList<>(lineCache));
                     lineCache.clear();
                 }
             } else {
@@ -114,7 +114,7 @@ public class CommandQueue implements Iterable<MPDCommand> {
             }
         }
         if (!lineCache.isEmpty()) {
-            result.add(lineCache.toArray(new String[lineCache.size()]));
+            result.add(new ArrayList<>(lineCache));
         }
         return result;
     }
@@ -240,7 +240,7 @@ public class CommandQueue implements Iterable<MPDCommand> {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String[]> sendSeparated(final MPDConnection mpdConnection)
+    public List<List<String>> sendSeparated(final MPDConnection mpdConnection)
             throws IOException, MPDException {
         return separatedQueueResults(send(mpdConnection, true));
     }

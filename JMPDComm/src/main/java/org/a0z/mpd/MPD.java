@@ -429,13 +429,13 @@ public class MPD {
         for (final Album album : albums) {
             commandQueue.add(getAlbumDetailsCommand(album));
         }
-        final List<String[]> response = commandQueue.sendSeparated(mConnection);
+        final List<List<String>> response = commandQueue.sendSeparated(mConnection);
 
         if (response.size() == albums.size()) {
             final AlbumBuilder albumBuilder = new AlbumBuilder();
 
             for (int i = 0; i < response.size(); i++) {
-                final String[] list = response.get(i);
+                final List<String> list = response.get(i);
                 final Album album = albums.get(i);
                 long duration = 0L;
                 long songCount = 0L;
@@ -693,7 +693,7 @@ public class MPD {
      */
     protected void fixAlbumArtists(final List<Album> albums) {
         if (albums != null && !albums.isEmpty()) {
-            List<String[]> albumArtists = null;
+            List<List<String>> albumArtists = null;
             try {
                 albumArtists = listAlbumArtists(albums);
             } catch (final IOException | MPDException e) {
@@ -707,20 +707,26 @@ public class MPD {
                 final AlbumBuilder albumBuilder = new AlbumBuilder();
                 int i = 0;
                 for (final Album album : albums) {
-                    final String[] aartists = albumArtists.get(i);
+                    final List<String> aartists = albumArtists.get(i);
+                    final int aartistsSize = aartists.size();
+                    String firstArtist;
 
-                    if (aartists.length > 0) {
+                    if (aartistsSize > 0) {
                         albumBuilder.setAlbum(album);
+                        Collections.sort(aartists); // make sure "" is the first one
+                        firstArtist = aartists.get(0);
 
-                        Arrays.sort(aartists); // make sure "" is the first one
-                        if (aartists[0] != null && !aartists[0].isEmpty()) {
+                        if (firstArtist != null && !firstArtist.isEmpty()) {
                             // album
-                            albumBuilder.setAlbumArtist(aartists[0]);
+                            albumBuilder.setAlbumArtist(firstArtist);
                             albums.set(i, albumBuilder.build(false));
                         } // do nothing if albumartist is ""
-                        if (aartists.length > 1) { // it's more than one album, insert
-                            for (int n = 1; n < aartists.length; n++) {
-                                albumBuilder.setAlbumArtist(aartists[n]);
+
+                        if (aartists.size() > 1) { // it's more than one album, insert
+                            final ListIterator<String> iterator = aartists.listIterator(1);
+
+                            while (iterator.hasNext()) {
+                                albumBuilder.setAlbumArtist(iterator.next());
                                 splitAlbums.add(albumBuilder.build(false));
                             }
                         }
@@ -1202,10 +1208,10 @@ public class MPD {
         return response;
     }
 
-    public List<String[]> listAlbumArtists(final List<Album> albums)
+    public List<List<String>> listAlbumArtists(final List<Album> albums)
             throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue(albums.size());
-        final List<String[]> response;
+        final List<List<String>> responses;
         List<String[]> albumArtists = null;
 
         for (final Album album : albums) {
@@ -1223,19 +1229,20 @@ public class MPD {
                     AbstractMusic.TAG_ALBUM, album.getName());
         }
 
-        response = commandQueue.sendSeparated(mConnection);
-        if (response.size() == albums.size()) {
-            for (int i = 0; i < response.size(); i++) {
-                for (int j = 0; j < response.get(i).length; j++) {
-                    response.get(i)[j] = response.get(i)[j].substring("AlbumArtist: ".length());
-                }
+        responses = commandQueue.sendSeparated(mConnection);
+        if (responses.size() == albums.size()) {
+            final ListIterator<List<String>> iterator = responses.listIterator();
+
+            while (iterator.hasNext()) {
+                final List<String> response = iterator.next();
+                Tools.parseResponse(response, AbstractMusic.RESPONSE_ALBUM_ARTIST);
+                iterator.set(response);
             }
-            albumArtists = response;
         } else {
             Log.warning(TAG, "Response and album size differ when listing album artists.");
         }
 
-        return albumArtists;
+        return responses;
     }
 
     /**
@@ -1408,15 +1415,15 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String[]> listArtists(final List<Album> albums, final boolean useAlbumArtist)
+    public List<List<String>> listArtists(final List<Album> albums, final boolean useAlbumArtist)
             throws IOException, MPDException {
-        final List<String[]> result;
+        final List<List<String>> result;
 
         if (albums == null) {
             result = Collections.emptyList();
         } else {
 
-            final List<String[]> responses = listArtistsCommand(albums, useAlbumArtist);
+            final List<List<String>> responses = listArtistsCommand(albums, useAlbumArtist);
             result = new ArrayList<>(responses.size());
             ArrayList<String> albumResult = null;
             final int artistLength;
@@ -1427,7 +1434,7 @@ public class MPD {
                 artistLength = "Artist: ".length();
             }
 
-            for (final String[] response : responses) {
+            for (final List<String> response : responses) {
                 if (albumResult != null) {
                     albumResult.clear();
                 }
@@ -1437,13 +1444,13 @@ public class MPD {
 
                     if (albumResult == null) {
                         /** Give the array list an approximate size. */
-                        albumResult = new ArrayList<>(album.length() * response.length);
+                        albumResult = new ArrayList<>(album.length() * response.size());
                     }
 
                     albumResult.add(name);
                 }
 
-                result.add(albumResult.toArray(new String[albumResult.size()]));
+                result.add(albumResult);
             }
         }
 
@@ -1480,7 +1487,7 @@ public class MPD {
         return response;
     }
 
-    private List<String[]> listArtistsCommand(final Iterable<Album> albums,
+    private List<List<String>> listArtistsCommand(final Iterable<Album> albums,
             final boolean useAlbumArtist) throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
 
