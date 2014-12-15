@@ -38,6 +38,11 @@ public final class AlbumBuilder {
     private Artist mBuilderArtist;
 
     /**
+     * Storage for the date of the album, used to build an album.
+     */
+    private long mBuilderDate;
+
+    /**
      * Storage for the duration used, to build an album.
      */
     private long mBuilderDuration;
@@ -64,11 +69,6 @@ public final class AlbumBuilder {
     private long mBuilderSongCount;
 
     /**
-     * Storage for the date of the album, used to build an album.
-     */
-    private long mBuilderYear;
-
-    /**
      * This method builds a {@code Album} object based on the settings set by the methods.
      *
      * @param clearAfter Will clear the information in {@code this} prior to returning.
@@ -76,7 +76,7 @@ public final class AlbumBuilder {
      */
     public Album build(final boolean clearAfter) {
         final Album album = new Album(mBuilderName, mBuilderArtist, mBuilderHasAlbumArtist,
-                mBuilderSongCount, mBuilderDuration, mBuilderYear, mBuilderPath);
+                mBuilderSongCount, mBuilderDuration, mBuilderDate, mBuilderPath);
 
         if (clearAfter) {
             clear();
@@ -105,7 +105,7 @@ public final class AlbumBuilder {
         mBuilderName = null;
         mBuilderPath = null;
         mBuilderSongCount = 0L;
-        mBuilderYear = 0L;
+        mBuilderDate = 0L;
     }
 
     /**
@@ -120,7 +120,7 @@ public final class AlbumBuilder {
         mBuilderName = album.getName();
         mBuilderPath = album.getPath();
         mBuilderSongCount = album.getSongCount();
-        mBuilderYear = album.getYear();
+        mBuilderDate = album.getDate();
     }
 
     /**
@@ -219,6 +219,16 @@ public final class AlbumBuilder {
     }
 
     /**
+     * Sets the date of this album.
+     *
+     * @param date The date the album was published.
+     * @see #setSongDetails(long, String)
+     */
+    public void setDate(final long date) {
+        mBuilderDate = date;
+    }
+
+    /**
      * This sets the duration of the album.
      *
      * @param duration The duration of the album.
@@ -263,23 +273,13 @@ public final class AlbumBuilder {
      * This sets some album information based off the {@code Music} objects belonging to this
      * album.
      *
-     * @param year The year the album was published.
+     * @param date The Date the album was published.
      * @param path The path with which the album can be found.
      * @see #setPath(String)
-     * @see #setYear(long)
+     * @see #setDate(long)
      */
-    public void setSongDetails(final long year, final String path) {
+    public void setSongDetails(final long date, final String path) {
         mBuilderPath = path;
-        mBuilderYear = year;
-    }
-
-    /**
-     * Sets the year of this album.
-     *
-     * @param year The year the album was published.
-     * @see #setSongDetails(long, String)
-     */
-    public void setYear(final long year) {
-        mBuilderYear = year;
+        mBuilderDate = date;
     }
 }

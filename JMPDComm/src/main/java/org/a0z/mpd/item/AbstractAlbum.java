@@ -39,22 +39,12 @@ public abstract class AbstractAlbum extends Item {
 
     private final Artist mArtist;
 
-    private final long mDuration;
-
-    private final boolean mHasAlbumArtist;
-
-    private final String mName;
-
-    private final String mPath;
-
-    private final long mSongCount;
-
-    private final long mYear;
+    private final long mDate;
 
     /**
-     * This {@code Comparator} adds support for sorting by year to the default {@code comparator}.
+     * This {@code Comparator} adds support for sorting by date to the default {@code comparator}.
      */
-    public static final Comparator<AbstractAlbum> SORT_BY_YEAR = new Comparator<AbstractAlbum>() {
+    public static final Comparator<AbstractAlbum> SORT_BY_DATE = new Comparator<AbstractAlbum>() {
         /**
          * Compares the two specified objects to determine their relative ordering. The ordering
          * implied by the return value of this method for all possible pairs of
@@ -78,12 +68,12 @@ public abstract class AbstractAlbum extends Item {
         @Override
         public int compare(final AbstractAlbum lhs, final AbstractAlbum rhs) {
             int compare = 0;
-            final int leftYear = formattedYear(lhs.mYear);
-            final int rightYear = formattedYear(rhs.mYear);
+            final int leftDate = formattedDate(lhs.mDate);
+            final int rightDate = formattedDate(rhs.mDate);
 
-            if (leftYear < rightYear) {
+            if (leftDate < rightDate) {
                 compare = -1;
-            } else if (leftYear > rightYear) {
+            } else if (leftDate > rightDate) {
                 compare = 1;
             }
 
@@ -101,18 +91,18 @@ public abstract class AbstractAlbum extends Item {
          * @return The input date formatted to exactly 8 digits,
          * unless date is less than or equal to 0L.
          */
-        private int formattedYear(final long date) {
+        private int formattedDate(final long date) {
             final int result;
 
             if (date > 0L) {
                 final StringBuilder stringBuilder = new StringBuilder(8);
                 stringBuilder.append(date);
 
-                final int yearLength = stringBuilder.length();
+                final int dateLength = stringBuilder.length();
 
-                if (yearLength > 8) {
+                if (dateLength > 8) {
                     stringBuilder.setLength(8);
-                } else if (yearLength < 8) {
+                } else if (dateLength < 8) {
                     while (stringBuilder.length() < 8) {
                         stringBuilder.append('0');
                     }
@@ -126,13 +116,23 @@ public abstract class AbstractAlbum extends Item {
         }
     };
 
+    private final long mDuration;
+
+    private final boolean mHasAlbumArtist;
+
+    private final String mName;
+
+    private final String mPath;
+
+    private final long mSongCount;
+
     protected AbstractAlbum(final String name, final Artist artist, final boolean hasAlbumArtist,
-            final long songCount, final long duration, final long year, final String path) {
+            final long songCount, final long duration, final long date, final String path) {
         super();
         mName = name;
         mSongCount = songCount;
         mDuration = duration;
-        mYear = year;
+        mDate = date;
         mArtist = artist;
         mHasAlbumArtist = hasAlbumArtist;
         mPath = path;
@@ -182,7 +182,7 @@ public abstract class AbstractAlbum extends Item {
             final long[][] equalsLong = {
                     {mDuration, album.mDuration},
                     {mSongCount, album.mSongCount},
-                    {mYear, album.mYear}
+                    {mDate, album.mDate}
             };
 
             if (Tools.isNotEqual(equalsObjects) || Tools.isNotEqual(equalsLong) ||
@@ -202,6 +202,10 @@ public abstract class AbstractAlbum extends Item {
         return mArtist;
     }
 
+    public long getDate() {
+        return mDate;
+    }
+
     public long getDuration() {
         return mDuration;
     }
@@ -217,10 +221,6 @@ public abstract class AbstractAlbum extends Item {
 
     public long getSongCount() {
         return mSongCount;
-    }
-
-    public long getYear() {
-        return mYear;
     }
 
     public boolean hasAlbumArtist() {
@@ -246,7 +246,7 @@ public abstract class AbstractAlbum extends Item {
 
         result = 31 * result + (int) (mDuration ^ (mDuration >>> 32));
         result = 31 * result + (int) (mSongCount ^ (mSongCount >>> 32));
-        result = 31 * result + (int) (mYear ^ (mYear >>> 32));
+        result = 31 * result + (int) (mDate ^ (mDate >>> 32));
 
         return result;
     }

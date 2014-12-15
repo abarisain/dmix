@@ -127,7 +127,7 @@ public class AlbumsFragment extends BrowseFragment {
             mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, sortByYear, mIsCountDisplayed);
 
             if (sortByYear) {
-                Collections.sort((List<? extends Album>) mItems, Album.SORT_BY_YEAR);
+                Collections.sort((List<? extends Album>) mItems, Album.SORT_BY_DATE);
             }
 
             if (mGenre != null) { // filter albums not in genre

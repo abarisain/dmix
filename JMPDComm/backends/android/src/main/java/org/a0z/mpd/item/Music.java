@@ -99,7 +99,7 @@ public class Music extends AbstractMusic implements Parcelable {
                 .putLong(MediaMetadata.METADATA_KEY_DURATION, mTime)
                 .putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, (long) mTotalTracks)
                 .putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, (long) mTrack)
-                .putLong(MediaMetadata.METADATA_KEY_YEAR, album.getYear())
+                .putLong(MediaMetadata.METADATA_KEY_YEAR, album.getDate())
                 .putString(MediaMetadata.METADATA_KEY_ALBUM, album.getName())
                 .putString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST, mAlbumArtistName)
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, mArtistName)

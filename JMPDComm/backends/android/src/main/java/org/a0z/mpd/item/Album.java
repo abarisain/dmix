@@ -94,7 +94,7 @@ public class Album extends AbstractAlbum implements Parcelable {
         dest.writeInt(hasAlbumArtist);
         dest.writeLong(getSongCount());
         dest.writeLong(getDuration());
-        dest.writeLong(getYear());
+        dest.writeLong(getDate());
         dest.writeString(getPath());
     }
 }

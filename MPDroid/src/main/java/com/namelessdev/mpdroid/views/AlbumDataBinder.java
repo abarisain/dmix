@@ -110,11 +110,11 @@ public class AlbumDataBinder extends BaseDataBinder {
             info.append(artist.mainText());
         }
 
-        if (mUseYear && album.getYear() > 0L) {
+        if (mUseYear && album.getDate() > 0L) {
             if (info.length() != 0) {
                 info.append(SEPARATOR);
             }
-            info.append(Long.toString(album.getYear()));
+            info.append(Long.toString(album.getDate()));
         }
 
         if (songCount > 0L) {
