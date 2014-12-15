@@ -44,13 +44,9 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 
     private static final MPDApplication sApp = MPDApplication.getInstance();
 
-    @Override
-    public final void onReceive(final Context context, final Intent intent) {
-        final String action = intent.getAction();
+    private static boolean isMediaButton(final Intent intent, final String action) {
         final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-
-        Log.d(TAG, "Intent: " + intent + " received with context: " + context + " with action: "
-                + action);
+        boolean isHandled = true;
 
         if (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
                 Intent.ACTION_MEDIA_BUTTON.equals(action)) {
@@ -71,9 +67,27 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     MPDControl.run(MPDControl.ACTION_PREVIOUS);
                     break;
                 default:
+                    isHandled = false;
                     break;
             }
         } else {
+            isHandled = false;
+        }
+
+        return isHandled;
+    }
+
+    @Override
+    public final void onReceive(final Context context, final Intent intent) {
+        final String action = intent.getAction();
+        boolean isActionHandled;
+
+        Log.d(TAG, "Intent: " + intent + " received with context: " + context + " with action: "
+                + action);
+
+        isActionHandled = isMediaButton(intent, action);
+
+        if (!isActionHandled) {
             switch (action) {
                 case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
                     if (Tools.isServerLocalhost()) {
