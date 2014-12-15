@@ -324,8 +324,8 @@ public class MPDPlaylist {
      */
     public void removeAlbumById(final int songId) throws IOException, MPDException {
         // Better way to get artist of given songId?
-        String artist = "";
-        String album = "";
+        String artist = null;
+        String album = null;
         int num = 0;
         boolean usingAlbumArtist = true;
 
@@ -343,7 +343,9 @@ public class MPDPlaylist {
             }
         }
 
-        if (artist != null && album != null) {
+        if (artist == null || album == null) {
+            Log.warning(TAG, "songId not found in current cached playlist.");
+        } else {
             if (DEBUG) {
                 Log.debug(TAG, "Remove album " + album + " of " + artist);
             }
