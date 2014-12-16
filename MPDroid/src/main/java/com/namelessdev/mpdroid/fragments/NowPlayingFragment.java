@@ -639,7 +639,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * @return An intent to start the {@link com.namelessdev.mpdroid.library.SimpleLibraryActivity}.
      */
     private Intent simpleLibraryMusicItem(final int itemId) {
-        final Intent intent = new Intent(mActivity, SimpleLibraryActivity.class);
+        Intent intent = new Intent(mActivity, SimpleLibraryActivity.class);
 
         switch (itemId) {
             case POPUP_ALBUM:
@@ -654,10 +654,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             case POPUP_FOLDER:
                 final String path = mCurrentSong.getFullPath();
                 final String parent = mCurrentSong.getParent();
+
                 if (path == null || parent == null) {
-                    break;
+                    intent = null;
+                } else {
+                    intent.putExtra("folder", parent);
                 }
-                intent.putExtra("folder", parent);
                 break;
             default:
                 break;
