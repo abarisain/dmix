@@ -57,14 +57,6 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
     private static final String TAG = "PlaylistEditActivity";
 
-    private final DragSortListView.RemoveListener mRemoveListener
-            = new DragSortListView.RemoveListener() {
-        @Override
-        public void remove(final int which) {
-            // removePlaylistItem(which);
-        }
-    };
-
     private boolean mIsFirstRefresh = true;
 
     private boolean mIsPlayQueue = true;
