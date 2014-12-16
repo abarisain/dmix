@@ -107,29 +107,30 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         if (v.getId() == R.id.Remove) {
             int count = 0;
 
-            try {
-                final Collection<HashMap<String, Object>> copy = new ArrayList<>(mSongList);
+            final Collection<HashMap<String, Object>> copy = new ArrayList<>(mSongList);
 
-                final List<Integer> positions = new LinkedList<>();
-                for (final AbstractMap<String, Object> item : copy) {
-                    if (item.get("marked").equals(Boolean.TRUE)) {
-                        positions.add((Integer) item.get(AbstractMusic.RESPONSE_SONG_ID));
-                        count++;
-                    }
+            final List<Integer> positions = new LinkedList<>();
+            for (final AbstractMap<String, Object> item : copy) {
+                if (item.get("marked").equals(Boolean.TRUE)) {
+                    positions.add((Integer) item.get(AbstractMusic.RESPONSE_SONG_ID));
+                    count++;
                 }
+            }
 
+            try {
                 if (mIsPlayQueue) {
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
                 } else {
                     mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylist, positions);
                 }
-                if (copy.size() != mSongList.size()) {
-                    ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
-                }
-                Tools.notifyUser(R.string.removeCountSongs, count);
-            } catch (final Exception e) {
-                Log.e(TAG, "General Error.", e);
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to remove.", e);
             }
+
+            if (copy.size() != mSongList.size()) {
+                ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+            }
+            Tools.notifyUser(R.string.removeCountSongs, count);
             update();
         }
     }
