@@ -33,6 +33,7 @@ import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -99,7 +100,7 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Item item, final PlaylistFile playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(mIrAdded, item);

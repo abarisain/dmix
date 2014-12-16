@@ -29,6 +29,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -67,7 +68,7 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Item item, final PlaylistFile playlist) {
     }
 
     @Override
@@ -101,7 +102,7 @@ public class PlaylistsFragment extends BrowseFragment {
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new StoredPlaylistFragment().init(mItems.get(position).getName()),
+                new StoredPlaylistFragment().init((PlaylistFile) mItems.get(position)),
                 "stored_playlist");
     }
 
@@ -111,7 +112,7 @@ public class PlaylistsFragment extends BrowseFragment {
         switch (item.getItemId()) {
             case EDIT:
                 final Intent intent = new Intent(getActivity(), PlaylistEditActivity.class);
-                intent.putExtra(PlaylistFile.EXTRA, mItems.get((int) info.id).getName());
+                intent.putExtra(PlaylistFile.EXTRA, (Parcelable) mItems.get((int) info.id));
                 startActivity(intent);
                 return true;
 

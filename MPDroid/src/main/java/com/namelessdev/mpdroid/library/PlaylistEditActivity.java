@@ -63,7 +63,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
     private ListView mListView;
 
-    private String mPlaylistName = null;
+    private PlaylistFile mPlaylist;
 
     private final DragSortListView.DropListener mDropListener
             = new DragSortListView.DropListener() {
@@ -82,7 +82,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                 }
             } else {
                 try {
-                    mApp.oMPDAsyncHelper.oMPD.movePlaylistSong(mPlaylistName, from, to);
+                    mApp.oMPDAsyncHelper.oMPD.movePlaylistSong(mPlaylist, from, to);
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to rename a playlist.", e);
                 }
@@ -121,7 +121,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                 if (mIsPlayQueue) {
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
                 } else {
-                    mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylistName, positions);
+                    mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylist, positions);
                 }
                 if (copy.size() != mSongList.size()) {
                     ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
@@ -137,8 +137,8 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPlaylistName = getIntent().getStringExtra(PlaylistFile.EXTRA);
-        if (null != mPlaylistName && !mPlaylistName.isEmpty()) {
+        mPlaylist = getIntent().getParcelableExtra(PlaylistFile.EXTRA);
+        if (null != mPlaylist) {
             mIsPlayQueue = false;
         }
         setContentView(R.layout.playlist_editlist_activity);
@@ -149,7 +149,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         if (mIsPlayQueue) {
             setTitle(R.string.nowPlaying);
         } else {
-            setTitle(mPlaylistName);
+            setTitle(mPlaylist.getName());
         }
         update();
         mApp.oMPDAsyncHelper.addStatusChangeListener(this);
@@ -273,7 +273,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                 final MPDPlaylist playlist = mApp.oMPDAsyncHelper.oMPD.getPlaylist();
                 musics = playlist.getMusicList();
             } else {
-                musics = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylistName);
+                musics = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylist);
             }
             mSongList = new ArrayList<>();
             final int playingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();

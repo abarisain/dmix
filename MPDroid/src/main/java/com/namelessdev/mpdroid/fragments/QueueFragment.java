@@ -42,8 +42,8 @@ import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Directory;
-import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -426,7 +426,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             }
             ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
         } else if (item.getItemId() == R.id.PLM_Save) {
-            List<Item> playLists;
+            List<PlaylistFile> playLists;
             try {
                 playLists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
             } catch (final IOException | MPDException e) {

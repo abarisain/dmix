@@ -492,62 +492,67 @@ public class MPD {
         add(commandQueue, replace, play);
     }
 
-    public void addToPlaylist(final String playlistName, final Album album)
+    @SuppressWarnings("TypeMayBeWeakened")
+    public void addToPlaylist(final PlaylistFile playlist, final Album album)
             throws IOException, MPDException {
         if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
             final String[] artistPair = getAlbumArtistPair(album);
 
-            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     AbstractMusic.TAG_ALBUM, album.getName(), artistPair[0], artistPair[1]);
         } else {
-            addToPlaylist(playlistName, new ArrayList<>(getSongs(album)));
+            addToPlaylist(playlist, getSongs(album));
         }
     }
 
-    public void addToPlaylist(final String playlistName, final Artist artist)
+    @SuppressWarnings("TypeMayBeWeakened")
+    public void addToPlaylist(final PlaylistFile playlist, final Artist artist)
             throws IOException, MPDException {
         if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
-            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     AbstractMusic.TAG_ARTIST, artist.getName());
         } else {
-            addToPlaylist(playlistName, new ArrayList<>(getSongs(artist)));
+            addToPlaylist(playlist, getSongs(artist));
         }
     }
 
-    public void addToPlaylist(final String playlistName, final Collection<Music> musicCollection)
+    @SuppressWarnings("TypeMayBeWeakened")
+    public void addToPlaylist(final PlaylistFile playlist, final Collection<Music> musicCollection)
             throws IOException, MPDException {
         if (null != musicCollection && !musicCollection.isEmpty()) {
             final CommandQueue commandQueue = new CommandQueue();
 
             for (final Music music : musicCollection) {
                 commandQueue
-                        .add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName, music.getFullPath());
+                        .add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlist.getFullPath(),
+                                music.getFullPath());
             }
             commandQueue.send(mConnection);
         }
     }
 
-    public void addToPlaylist(final String playlistName, final FilesystemTreeEntry entry)
+    @SuppressWarnings("TypeMayBeWeakened")
+    public void addToPlaylist(final PlaylistFile playlist, final FilesystemTreeEntry entry)
             throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlistName,
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlist.getFullPath(),
                 entry.getFullPath());
     }
 
-    public void addToPlaylist(final String playlistName, final Genre genre)
+    public void addToPlaylist(final PlaylistFile playlist, final Genre genre)
             throws IOException, MPDException {
         if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
-            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlistName,
+            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     AbstractMusic.TAG_GENRE, genre.getName());
         } else {
             final Collection<Music> music = find(AbstractMusic.TAG_GENRE, genre.getName());
 
-            addToPlaylist(playlistName, music);
+            addToPlaylist(playlist, music);
         }
     }
 
-    public void addToPlaylist(final String playlistName, final Music music)
+    public void addToPlaylist(final PlaylistFile playlist, final Music music)
             throws IOException, MPDException {
-        addToPlaylist(playlistName, Collections.singletonList(music));
+        addToPlaylist(playlist, Collections.singletonList(music));
     }
 
     /**
@@ -997,10 +1002,11 @@ public class MPD {
         return mPlaylist;
     }
 
-    public List<Music> getPlaylistSongs(final String playlistName)
+    @SuppressWarnings("TypeMayBeWeakened")
+    public List<Music> getPlaylistSongs(final PlaylistFile playlist)
             throws IOException, MPDException {
         final String[] args = new String[1];
-        args[0] = playlistName;
+        args[0] = playlist.getFullPath();
 
         return genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
     }
@@ -1011,7 +1017,7 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<Item> getPlaylists() throws IOException, MPDException {
+    public List<PlaylistFile> getPlaylists() throws IOException, MPDException {
         return getPlaylists(false);
     }
 
@@ -1022,9 +1028,10 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<Item> getPlaylists(final boolean sort) throws IOException, MPDException {
+    public List<PlaylistFile> getPlaylists(final boolean sort)
+            throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
-        final List<Item> result = new ArrayList<>(response.size());
+        final List<PlaylistFile> result = new ArrayList<>(response.size());
         for (final String[] pair : Tools.splitResponse(response)) {
             if ("playlist".equals(pair[KEY])) {
                 if (null != pair[VALUE] && !STREAMS_PLAYLIST.equals(pair[VALUE])) {
@@ -1544,9 +1551,10 @@ public class MPD {
         return response;
     }
 
-    public void movePlaylistSong(final String playlistName, final int from, final int to)
+    @SuppressWarnings("TypeMayBeWeakened")
+    public void movePlaylistSong(final PlaylistFile playlist, final int from, final int to)
             throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_MOVE, playlistName,
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_MOVE, playlist.getFullPath(),
                 Integer.toString(from), Integer.toString(to));
     }
 
@@ -1618,26 +1626,29 @@ public class MPD {
     /**
      * Removes a list of tracks from a playlist file, by position.
      *
-     * @param playlistName The playlist file to remove tracks from.
-     * @param positions    The positions of the tracks to remove from the playlist file.
+     * @param playlist  The playlist file to remove tracks from.
+     * @param positions The positions of the tracks to remove from the playlist file.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void removeFromPlaylist(final String playlistName, final List<Integer> positions)
+    @SuppressWarnings("TypeMayBeWeakened")
+    public void removeFromPlaylist(final PlaylistFile playlist, final List<Integer> positions)
             throws IOException, MPDException {
         Collections.sort(positions, Collections.reverseOrder());
         final CommandQueue commandQueue = new CommandQueue(positions.size());
 
         for (final Integer position : positions) {
-            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName, position.toString());
+            commandQueue.add(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlist.getFullPath(),
+                    position.toString());
         }
 
         commandQueue.send(mConnection);
     }
 
-    public void removeFromPlaylist(final String playlistName, final Integer pos)
+    @SuppressWarnings("TypeMayBeWeakened")
+    public void removeFromPlaylist(final PlaylistFile playlist, final Integer pos)
             throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName,
+        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlist.getFullPath(),
                 Integer.toString(pos));
     }
 

@@ -45,7 +45,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     private static final String TAG = "StoredPlaylistFragment";
 
-    private String mPlaylistName;
+    private PlaylistFile mPlaylist;
 
     public StoredPlaylistFragment() {
         super(R.string.addSong, R.string.songAdded, AbstractMusic.TAG_TITLE);
@@ -66,7 +66,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Item item, final PlaylistFile playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(mIrAdded, item);
@@ -81,7 +81,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
             if (getActivity() == null) {
                 return;
             }
-            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylistName);
+            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylist);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
@@ -103,11 +103,11 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        return mPlaylistName;
+        return mPlaylist.getName();
     }
 
-    public StoredPlaylistFragment init(final String name) {
-        mPlaylistName = name;
+    public StoredPlaylistFragment init(final PlaylistFile playlist) {
+        mPlaylist = playlist;
         return this;
     }
 
@@ -120,7 +120,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            init(savedInstanceState.getString(PlaylistFile.EXTRA));
+            init((PlaylistFile) savedInstanceState.getParcelable(PlaylistFile.EXTRA));
         }
     }
 
@@ -153,7 +153,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
         switch (item.getItemId()) {
             case R.id.PLM_EditPL:
                 intent = new Intent(getActivity(), PlaylistEditActivity.class);
-                intent.putExtra(PlaylistFile.EXTRA, mPlaylistName);
+                intent.putExtra(PlaylistFile.EXTRA, mPlaylist);
                 startActivity(intent);
                 return true;
             default:
@@ -171,14 +171,14 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     @Override
     public void onSaveInstanceState(final Bundle outState) {
-        outState.putString(PlaylistFile.EXTRA, mPlaylistName);
+        outState.putParcelable(PlaylistFile.EXTRA, mPlaylist);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public String toString() {
-        if (mPlaylistName != null) {
-            return mPlaylistName;
+        if (mPlaylist != null) {
+            return mPlaylist.getName();
         } else {
             return getString(R.string.playlist);
         }

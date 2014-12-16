@@ -85,7 +85,7 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Item item, final PlaylistFile playlist) {
         try {
             final AbstractDirectory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {

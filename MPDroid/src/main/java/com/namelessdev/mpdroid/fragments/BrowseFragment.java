@@ -32,6 +32,7 @@ import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -130,7 +131,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     protected abstract void add(Item item, boolean replace, boolean play);
 
-    protected abstract void add(Item item, String playlist);
+    protected abstract void add(final Item item, final PlaylistFile playlist);
 
     private void addAndReplace(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
@@ -186,7 +187,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                                         mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                                             @Override
                                             public void run() {
-                                                add(mItems.get(id), name);
+                                                add(mItems.get(id), new PlaylistFile(name));
                                             }
                                         });
                                     }
@@ -201,7 +202,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                                 }
                             }).show();
         } else {
-            add(mItems.get(id), item.getTitle().toString());
+            add(mItems.get(id), new PlaylistFile(item.getTitle().toString()));
         }
     }
 
@@ -302,10 +303,10 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 item.setOnMenuItemClickListener(this);
 
                 try {
-                    final List<Item> playlists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
+                    final List<PlaylistFile> playlists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
 
                     if (null != playlists) {
-                        for (final Item pl : playlists) {
+                        for (final PlaylistFile pl : playlists) {
                             item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
                                     pl.getName());
                             item.setOnMenuItemClickListener(this);
@@ -389,12 +390,12 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                 }
                 break;
             default:
-                final String name = item.getTitle().toString();
+                final PlaylistFile playlist = new PlaylistFile(item.getTitle().toString());
                 final int id = item.getOrder();
                 mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                     @Override
                     public void run() {
-                        add(mItems.get(id), name);
+                        add(mItems.get(id), playlist);
                     }
                 });
                 break;

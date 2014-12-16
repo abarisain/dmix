@@ -27,6 +27,7 @@ import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -63,7 +64,7 @@ public class ArtistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Item item, final PlaylistFile playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
             if (isAdded()) {

@@ -25,6 +25,7 @@ import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.PlaylistFile;
 
 import android.support.annotation.StringRes;
 import android.util.Log;
@@ -52,7 +53,7 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Item item, final PlaylistFile playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Genre) item);
             Tools.notifyUser(mIrAdded, item);

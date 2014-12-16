@@ -24,6 +24,7 @@ import org.a0z.mpd.MPDCommand;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.PlaylistFile;
 import org.a0z.mpd.item.Stream;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -88,7 +89,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Item item, final PlaylistFile playlist) {
     }
 
     public void addEdit() {
