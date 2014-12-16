@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -96,6 +97,24 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
     @Override
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
+    }
+
+    private List<Music> getMusic() {
+        List<Music> musics;
+
+        if (mIsPlayQueue) {
+            final MPDPlaylist playlist = mApp.oMPDAsyncHelper.oMPD.getPlaylist();
+            musics = playlist.getMusicList();
+        } else {
+            try {
+                musics = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylist);
+            } catch (final IOException | MPDException e) {
+                Log.d(TAG, "Playlist update failure.", e);
+                musics = Collections.emptyList();
+            }
+        }
+
+        return musics;
     }
 
     @Override
@@ -268,44 +287,35 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
     protected void update() {
         // TODO: Preserve position!!!
-        try {
-            final List<Music> musics;
+        mSongList = new ArrayList<>();
+        final int playingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();
+        final int pos = null == mListView ? -1 : mListView.getFirstVisiblePosition();
+        final View view = null == mListView ? null : mListView.getChildAt(0);
+        final int top = null == view ? -1 : view.getTop();
+        int listPlayingId = 0;
+        int playlistPosition = 0;
+
+        // Copy list to avoid concurrent exception
+        for (final Music music : new ArrayList<>(getMusic())) {
+            final HashMap<String, Object> item = new HashMap<>();
+
             if (mIsPlayQueue) {
-                final MPDPlaylist playlist = mApp.oMPDAsyncHelper.oMPD.getPlaylist();
-                musics = playlist.getMusicList();
+                item.put(AbstractMusic.RESPONSE_SONG_ID, music.getSongId());
             } else {
-                musics = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylist);
+                item.put(AbstractMusic.RESPONSE_SONG_ID, playlistPosition);
             }
-            mSongList = new ArrayList<>();
-            final int playingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();
-            final int pos = null == mListView ? -1 : mListView.getFirstVisiblePosition();
-            final View view = null == mListView ? null : mListView.getChildAt(0);
-            final int top = null == view ? -1 : view.getTop();
-            int listPlayingId = 0;
-            int playlistPosition = 0;
 
-            // Copy list to avoid concurrent exception
-            for (final Music music : new ArrayList<>(musics)) {
-                final HashMap<String, Object> item = new HashMap<>();
-
-                if (mIsPlayQueue) {
-                    item.put(AbstractMusic.RESPONSE_SONG_ID, music.getSongId());
-                } else {
-                    item.put(AbstractMusic.RESPONSE_SONG_ID, playlistPosition);
-                }
-
-                playlistPosition++;
-                item.put(Artist.EXTRA, music.getArtist());
-                item.put(AbstractMusic.TAG_TITLE, music.getTitle());
-                item.put("marked", false);
-                if (mIsPlayQueue && music.getSongId() == playingID) {
-                    item.put("play", android.R.drawable.ic_media_play);
-                    listPlayingId = mSongList.size() - 1;
-                } else {
-                    item.put("play", 0);
-                }
-                mSongList.add(item);
+            playlistPosition++;
+            item.put(Artist.EXTRA, music.getArtist());
+            item.put(AbstractMusic.TAG_TITLE, music.getTitle());
+            item.put("marked", false);
+            if (mIsPlayQueue && music.getSongId() == playingID) {
+                item.put("play", android.R.drawable.ic_media_play);
+                listPlayingId = mSongList.size() - 1;
+            } else {
+                item.put("play", 0);
             }
+
             final ListAdapter songs = new SimpleAdapter(this, mSongList,
                     R.layout.playlist_editlist_item, new String[]{
                     "play", AbstractMusic.TAG_TITLE, AbstractMusic.TAG_ARTIST, "marked"
@@ -326,12 +336,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                     }
                 }
             }
-
-        } catch (final IOException | MPDException e) {
-            Log.d(TAG, "Playlist update failure.", e);
-
         }
-
     }
 
     @Override
