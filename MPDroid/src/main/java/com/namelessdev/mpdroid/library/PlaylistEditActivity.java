@@ -66,9 +66,9 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
     private boolean mIsPlayQueue = true;
 
-    private String mPlaylistName = null;
+    private ListView mListView;
 
-    private ListView listView;
+    private String mPlaylistName = null;
 
     private final DragSortListView.DropListener mDropListener
             = new DragSortListView.DropListener() {
@@ -129,7 +129,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                     mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylistName, positions);
                 }
                 if (copy.size() != mSongList.size()) {
-                    ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+                    ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
                 }
                 Tools.notifyUser(R.string.removeCountSongs, count);
             } catch (final Exception e) {
@@ -148,8 +148,8 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         }
         setContentView(R.layout.playlist_editlist_activity);
 
-        listView = (ListView) findViewById(android.R.id.list);
-        listView.setOnItemClickListener(this);
+        mListView = (ListView) findViewById(android.R.id.list);
+        mListView.setOnItemClickListener(this);
 
         if (mIsPlayQueue) {
             setTitle(R.string.nowPlaying);
@@ -159,7 +159,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         update();
         mApp.oMPDAsyncHelper.addStatusChangeListener(this);
 
-        final DragSortListView trackList = (DragSortListView) listView;
+        final DragSortListView trackList = (DragSortListView) mListView;
         trackList.setOnCreateContextMenuListener(this);
         trackList.setDropListener(mDropListener);
 
@@ -200,7 +200,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             item.put("marked", true);
         }
 
-        ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+        ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
     }
 
     @Override
@@ -261,7 +261,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                     song.put("play", 0);
                 }
             }
-            final SimpleAdapter adapter = (SimpleAdapter) listView.getAdapter();
+            final SimpleAdapter adapter = (SimpleAdapter) mListView.getAdapter();
             if (adapter != null) {
                 adapter.notifyDataSetChanged();
             }
@@ -280,8 +280,8 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             }
             mSongList = new ArrayList<>();
             final int playingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();
-            final int pos = null == listView ? -1 : listView.getFirstVisiblePosition();
-            final View view = null == listView ? null : listView.getChildAt(0);
+            final int pos = null == mListView ? -1 : mListView.getFirstVisiblePosition();
+            final View view = null == mListView ? null : mListView.getChildAt(0);
             final int top = null == view ? -1 : view.getTop();
             int listPlayingId = 0;
             int playlistPosition = 0;
@@ -313,16 +313,16 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                     R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox
             });
 
-            if (listView != null) {
-                listView.setAdapter(songs);
+            if (mListView != null) {
+                mListView.setAdapter(songs);
                 if (mIsFirstRefresh) {
                     mIsFirstRefresh = false;
                     if (listPlayingId > 0) {
-                        listView.setSelection(listPlayingId);
+                        mListView.setSelection(listPlayingId);
                     }
                 } else {
                     if (-1 != pos && -1 != top) {
-                        listView.setSelectionFromTop(pos, top);
+                        mListView.setSelectionFromTop(pos, top);
                     }
                 }
             }

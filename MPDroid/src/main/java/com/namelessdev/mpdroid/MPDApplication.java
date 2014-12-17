@@ -336,6 +336,14 @@ public class MPDApplication extends Application implements
         return result;
     }
 
+    public final boolean hasGooglePlayDeathWarningBeenDisplayed() {
+        return mSettings.getBoolean("googlePlayDeathWarningShown", false);
+    }
+
+    public final boolean hasGooglePlayThankYouBeenDisplayed() {
+        return mSettings.getBoolean("googlePlayThankYouShown", false);
+    }
+
     public final boolean isInSimpleMode() {
         return mSettings.getBoolean("simpleMode", false);
     }
@@ -398,14 +406,6 @@ public class MPDApplication extends Application implements
     public final boolean isTabletUiEnabled() {
         return getResources().getBoolean(R.bool.isTablet)
                 && mSettings.getBoolean("tabletUI", true);
-    }
-
-    public final boolean hasGooglePlayDeathWarningBeenDisplayed() {
-        return mSettings.getBoolean("googlePlayDeathWarningShown", false);
-    }
-
-    public final boolean hasGooglePlayThankYouBeenDisplayed() {
-        return mSettings.getBoolean("googlePlayThankYouShown", false);
     }
 
     @SuppressLint("CommitPrefEdits")

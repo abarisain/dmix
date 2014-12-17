@@ -47,6 +47,8 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
 
     private final AudioManager mAudioManager;
 
+    private final Handler mServiceHandler;
+
     /** A flag used to inform the RemoteControlClient that a buffering event is taking place. */
     private boolean mIsMediaPlayerBuffering = false;
 
@@ -66,8 +68,6 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
 
     /** The RemoteControlClient Seekbar handled by the {@code RemoteControlClientSeekBarHandler}. */
     private RemoteControlSeekBarHandler mSeekBar = null;
-
-    private final Handler mServiceHandler;
 
     RemoteControlClientHandler(final MPDroidService serviceContext, final Handler serviceHandler) {
         super();

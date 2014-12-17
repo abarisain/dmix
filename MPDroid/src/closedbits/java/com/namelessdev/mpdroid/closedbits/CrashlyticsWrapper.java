@@ -22,11 +22,11 @@ import android.content.Context;
 
 public class CrashlyticsWrapper {
 
-    public static void start(Context context) {
-        Crashlytics.start(context);
-    }
-
     public static void logException(final Exception exception) {
         Crashlytics.logException(exception);
+    }
+
+    public static void start(Context context) {
+        Crashlytics.start(context);
     }
 }

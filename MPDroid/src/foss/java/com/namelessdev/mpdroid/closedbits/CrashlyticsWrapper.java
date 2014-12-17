@@ -21,11 +21,11 @@ import android.content.Context;
 @SuppressWarnings("ALL")
 public class CrashlyticsWrapper {
 
-    public static void start(final Context context) {
+    public static void logException(final Exception exception) {
         // Stub
     }
 
-    public static void logException(final Exception exception) {
+    public static void start(final Context context) {
         // Stub
     }
 }

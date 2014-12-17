@@ -477,12 +477,14 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
             new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.gpThanksTitle))
                     .setMessage(getString(R.string.gpThanksMessage))
-                    .setNegativeButton(getString(R.string.gpThanksOkButton), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialogInterface, final int i) {
-                            mApp.markGooglePlayThankYouAsRead();
-                        }
-                    })
+                    .setNegativeButton(getString(R.string.gpThanksOkButton),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(final DialogInterface dialogInterface,
+                                        final int i) {
+                                    mApp.markGooglePlayThankYouAsRead();
+                                }
+                            })
                     .setCancelable(false)
                     .show();
         }

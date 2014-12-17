@@ -632,42 +632,6 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         return intent != null;
     }
 
-    /**
-     * This method handles any simple library activity item ids which handle music items.
-     *
-     * @param itemId The itemId to attempt to handle.
-     * @return An intent to start the {@link com.namelessdev.mpdroid.library.SimpleLibraryActivity}.
-     */
-    private Intent simpleLibraryMusicItem(final int itemId) {
-        Intent intent = new Intent(mActivity, SimpleLibraryActivity.class);
-
-        switch (itemId) {
-            case POPUP_ALBUM:
-                intent.putExtra("album", mCurrentSong.getAlbumAsAlbum());
-                break;
-            case POPUP_ALBUM_ARTIST:
-                intent.putExtra("artist", mCurrentSong.getAlbumArtistAsArtist());
-                break;
-            case POPUP_ARTIST:
-                intent.putExtra("artist", mCurrentSong.getArtistAsArtist());
-                break;
-            case POPUP_FOLDER:
-                final String path = mCurrentSong.getFullPath();
-                final String parent = mCurrentSong.getParent();
-
-                if (path == null || parent == null) {
-                    intent = null;
-                } else {
-                    intent.putExtra("folder", parent);
-                }
-                break;
-            default:
-                break;
-        }
-
-        return intent;
-    }
-
     @Override
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
@@ -958,6 +922,42 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else {
             mSongRating.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * This method handles any simple library activity item ids which handle music items.
+     *
+     * @param itemId The itemId to attempt to handle.
+     * @return An intent to start the {@link com.namelessdev.mpdroid.library.SimpleLibraryActivity}.
+     */
+    private Intent simpleLibraryMusicItem(final int itemId) {
+        Intent intent = new Intent(mActivity, SimpleLibraryActivity.class);
+
+        switch (itemId) {
+            case POPUP_ALBUM:
+                intent.putExtra("album", mCurrentSong.getAlbumAsAlbum());
+                break;
+            case POPUP_ALBUM_ARTIST:
+                intent.putExtra("artist", mCurrentSong.getAlbumArtistAsArtist());
+                break;
+            case POPUP_ARTIST:
+                intent.putExtra("artist", mCurrentSong.getArtistAsArtist());
+                break;
+            case POPUP_FOLDER:
+                final String path = mCurrentSong.getFullPath();
+                final String parent = mCurrentSong.getParent();
+
+                if (path == null || parent == null) {
+                    intent = null;
+                } else {
+                    intent.putExtra("folder", parent);
+                }
+                break;
+            default:
+                break;
+        }
+
+        return intent;
     }
 
     private void startPosTimer(final long start, final long total) {
