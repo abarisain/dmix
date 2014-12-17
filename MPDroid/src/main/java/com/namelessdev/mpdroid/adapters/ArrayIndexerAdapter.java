@@ -112,7 +112,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
             final Item element = items.get(i);
             final String sorted = element.sortText();
 
-            if (sorted.isEmpty()) {
+            if (sorted == null || sorted.isEmpty()) {
                 unknownPos = i; // save position
             } else {
                 mAlphaIndexer.put(sorted.substring(0, 1).toUpperCase(), i);
