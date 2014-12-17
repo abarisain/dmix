@@ -1064,11 +1064,16 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 !status.isState(MPDStatus.STATE_STOPPED)) {
 
             final char[] separator = {' ', '|', ' '};
-            final String fileExtension = Tools.getExtension(mCurrentSong.getFullPath());
+            final String fullPath = mCurrentSong.getFullPath();
             final long bitRate = status.getBitrate();
             final int bitsPerSample = status.getBitsPerSample();
             final int sampleRate = status.getSampleRate();
+            String fileExtension = null;
             optionalTrackInfo = new StringBuilder(40);
+
+            if (fullPath != null) {
+                fileExtension = Tools.getExtension(fullPath);
+            }
 
             /**
              * Check each individual bit of info, the sever can give
