@@ -162,6 +162,18 @@ public class CommandQueue implements Iterable<MPDCommand> {
     }
 
     /**
+     * Add a one argument command in a loop until the arguments are exhausted.
+     *
+     * @param command Command to add to the queue.
+     * @param args    The args to add each, singularly, to the command queue.
+     */
+    public void add(final String command, final Iterable<String> args) {
+        for (final String arg : args) {
+            add(command, arg);
+        }
+    }
+
+    /**
      * Add a command to a command to the {@code CommandQueue}.
      *
      * @param command Command to add to the queue.
