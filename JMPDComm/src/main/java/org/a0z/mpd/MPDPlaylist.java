@@ -34,7 +34,7 @@ import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -131,17 +131,6 @@ public class MPDPlaylist {
 
     static MPDCommand loadCommand(final String file) {
         return new MPDCommand(MPD_CMD_PLAYLIST_LOAD, file);
-    }
-
-    static CommandQueue removeByIndexCommand(final int... songs) {
-        Arrays.sort(songs);
-        final CommandQueue commandQueue = new CommandQueue();
-
-        for (int i = songs.length - 1; i >= 0; i--) {
-            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(songs[i]));
-        }
-
-        return commandQueue;
     }
 
     /**
@@ -350,7 +339,7 @@ public class MPDPlaylist {
             if (DEBUG) {
                 Log.debug(TAG, "Remove album " + album + " of " + artist);
             }
-            final CommandQueue commandQueue = new CommandQueue();
+            final List<Integer> integers = new ArrayList<>();
 
             /** Don't allow the list to change before we've computed the CommandList. */
             synchronized (mList) {
@@ -362,15 +351,14 @@ public class MPDPlaylist {
                                 !usingAlbumArtist && artist.equals(track.getArtistName());
 
                         if (songIsArtist || songIsAlbumArtist) {
-                            final String songID = Integer.toString(track.getSongId());
-                            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, songID);
-                            num++;
+                            integers.add(track.getPos());
                         }
                     }
                 }
             }
+            num = integers.size() + 1;
 
-            commandQueue.send(mConnection);
+            removeByIndex(integers);
         }
         if (DEBUG) {
             Log.debug(TAG, "Removed " + num + " songs");
@@ -385,7 +373,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void removeById(final int... songIds) throws IOException, MPDException {
-        final CommandQueue commandQueue = new CommandQueue();
+        final CommandQueue commandQueue = new CommandQueue(songIds.length);
 
         for (final int id : songIds) {
             commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
@@ -416,10 +404,25 @@ public class MPDPlaylist {
      * @param songs entries positions.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see #removeById(int[])
      */
     void removeByIndex(final int... songs) throws IOException, MPDException {
-        removeByIndexCommand(songs).send(mConnection);
+        final CommandQueue commandQueue = new CommandQueue();
+        commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Tools.sequentialToRange(songs));
+        commandQueue.send(mConnection);
+    }
+
+
+    /**
+     * Removes entries from playlist.
+     *
+     * @param songs entries positions.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    void removeByIndex(final List<Integer> songs) throws IOException, MPDException {
+        final CommandQueue commandQueue = new CommandQueue();
+        commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Tools.sequentialToRange(songs));
+        commandQueue.send(mConnection);
     }
 
     /**

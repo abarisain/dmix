@@ -376,7 +376,7 @@ public class MPD {
 
         /** Finally, clean up the last playing song. */
         if (replace && isPlaying && !isConsume) {
-            commandQueue.add(MPDPlaylist.removeByIndexCommand(0));
+            commandQueue.add(MPDPlaylist.MPD_CMD_PLAYLIST_REMOVE, "0");
 
         }
 
