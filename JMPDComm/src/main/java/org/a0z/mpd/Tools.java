@@ -33,6 +33,7 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -41,6 +42,8 @@ public final class Tools {
     public static final int KEY = 0;
 
     public static final int VALUE = 1;
+
+    private static final String TAG = "Tools";
 
     private Tools() {
         super();
@@ -208,6 +211,123 @@ public final class Tools {
         if (response instanceof ArrayList) {
             ((ArrayList<String>) response).trimToSize();
         }
+    }
+
+    /**
+     * This method converts a list of integers into a list of MPD protocol command argument ranges.
+     * This can be a win when there are numbers in sequence which can be converted into numbered
+     * ranges and sent in fewer commands. The disadvantage to this is that order has to be
+     * sacrificed.
+     *
+     * @param integers A list of integers to convert to numbered range strings..
+     * @return A collection of numbered range strings.
+     * @see #sequentialToRange(int...)
+     */
+    public static List<String> sequentialToRange(final List<Integer> integers) {
+        final ListIterator<Integer> iterator = integers.listIterator(integers.size());
+        final List<String> ranges = new ArrayList<>();
+        final StringBuilder stringBuilder = new StringBuilder(10);
+        boolean inSequenceRange = false;
+        int startRange = -1;
+
+        Collections.sort(integers);
+
+        while (iterator.hasPrevious()) {
+            final Integer integer = iterator.previous();
+            Integer nextInteger = null;
+
+            /** Avoid out of bounds. */
+            if (iterator.hasPrevious()) {
+                /** Store the next integer in the iteration. */
+                nextInteger = integers.get(iterator.previousIndex());
+            }
+
+            /** Specifies whether the next integer can be added to a range. */
+            if (nextInteger != null && integer.equals(nextInteger + 1)) {
+                if (!inSequenceRange) {
+                    startRange = integer;
+                }
+                inSequenceRange = true;
+            } else {
+                if (inSequenceRange) {
+                    /** Range complete, add it to the store. */
+                    stringBuilder.append(integer);
+                    stringBuilder.append(':');
+                    /**
+                     * The start range (the end number) is +1 on the
+                     * MPD playlist range per the protocol.
+                     */
+                    stringBuilder.append(startRange + 1);
+                    ranges.add(stringBuilder.toString());
+                    stringBuilder.setLength(0);
+                } else {
+                    /** No range, add it to the store. */
+                    ranges.add(integer.toString());
+                }
+                inSequenceRange = false;
+            }
+        }
+
+        return ranges;
+    }
+
+    /**
+     * This method converts a list of integers into a list of MPD protocol command argument ranges.
+     * This can be a win when there are numbers in sequence which can be converted into numbered
+     * ranges and sent in fewer commands. The disadvantage to this is that order has to be
+     * sacrificed.
+     *
+     * @param integers A list of integers to convert to numbered range strings..
+     * @return A collection of numbered range strings.
+     * @see #sequentialToRange(java.util.List)
+     */
+    public static List<String> sequentialToRange(final int... integers) {
+        final List<String> ranges = new ArrayList<>();
+        final StringBuilder stringBuilder = new StringBuilder(10);
+        boolean inSequenceRange = false;
+        int startRange = -1;
+
+        Arrays.sort(integers);
+
+        for (int i = integers.length - 1; i >= 0; i--) {
+            final int integer = integers[i];
+            final int nextInteger;
+
+            if (i == 0) {
+                /** Avoid out of bounds. */
+                nextInteger = -1;
+            } else {
+                /** Store the next integer in the iteration. */
+                nextInteger = integers[i - 1];
+            }
+
+            /** Specifies whether the next integer can be added to a range. */
+            if (nextInteger != -1 && integer == nextInteger + 1) {
+                if (!inSequenceRange) {
+                    startRange = integer;
+                }
+                inSequenceRange = true;
+            } else {
+                if (inSequenceRange) {
+                    /** Range complete, add it to the store. */
+                    stringBuilder.append(integer);
+                    stringBuilder.append(':');
+                    /**
+                     * The start range (the end number) is +1 on the
+                     * MPD playlist range per the protocol.
+                     */
+                    stringBuilder.append(startRange + 1);
+                    ranges.add(stringBuilder.toString());
+                    stringBuilder.setLength(0);
+                } else {
+                    /** No range, add it to the store. */
+                    ranges.add(Integer.toString(integer));
+                }
+                inSequenceRange = false;
+            }
+        }
+
+        return ranges;
     }
 
     /**
