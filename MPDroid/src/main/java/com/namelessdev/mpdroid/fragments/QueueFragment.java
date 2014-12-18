@@ -366,13 +366,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 }
                 break;
             case R.id.PLCX_removeAlbumFromPlaylist:
-                if (DEBUG) {
-                    Log.d(TAG, "Remove Album " + mPopupSongID);
-                }
-                QueueControl.run(QueueControl.REMOVE_ALBUM_BY_ID, mPopupSongID);
-                if (isAdded()) {
-                    Tools.notifyUser(R.string.deletedSongFromPlaylist);
-                }
+                removeAlbumById();
                 break;
             case R.id.PLCX_goToArtist:
                 music = getPlaylistItemSong(mPopupSongID);
@@ -530,6 +524,31 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                     final View view = mList.getChildAt(i - start);
                     mList.getAdapter().getView(i, view, mList);
                 }
+            }
+        }
+    }
+
+    private void removeAlbumById() {
+        if (DEBUG) {
+            Log.d(TAG, "Remove Album " + mPopupSongID);
+        }
+
+        final AbstractPlaylistMusic track = getPlaylistItemSong(mPopupSongID);
+        final String albumName = track.getAlbumName();
+        String artistName = track.getAlbumArtistName();
+
+        if (artistName == null || artistName.isEmpty()) {
+            artistName = track.getAlbumArtistName();
+        }
+
+        if (albumName == null && artistName == null) {
+            if (isAdded()) {
+                Tools.notifyUser(R.string.albumRemoveError);
+            }
+        } else {
+            QueueControl.run(QueueControl.REMOVE_ALBUM_BY_ID, mPopupSongID);
+            if (isAdded()) {
+                Tools.notifyUser(R.string.removeAlbumFromPlaylist);
             }
         }
     }

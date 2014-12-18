@@ -195,6 +195,7 @@
     <string name="enableRating">Show rating bar</string>
     <string name="startStreaming">Start Streaming</string>
     <string name="stopStreaming">Stop Streaming</string>
+    <string name="albumRemoveError">Could not remove album, either artist or album name unavailable</string>
 
     <string name="behavior">Phone Behavior</string>
     <string name="pauseOnPhoneStateChange">Pause playback</string>

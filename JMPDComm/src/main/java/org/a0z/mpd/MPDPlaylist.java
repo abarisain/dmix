@@ -305,7 +305,8 @@ public class MPDPlaylist {
     }
 
     /**
-     * Removes album of given ID from playlist.
+     * Removes album of given ID from playlist. Album and artist name must be available for this
+     * method.
      *
      * @param songId entries positions.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -313,55 +314,47 @@ public class MPDPlaylist {
      * @see #removeById(int[])
      */
     public void removeAlbumById(final int songId) throws IOException, MPDException {
-        // Better way to get artist of given songId?
-        String artist = null;
-        String album = null;
-        int num = 0;
-        boolean usingAlbumArtist = true;
+        final List<Integer> matchingPositions = new ArrayList<>();
+        final Music currentTrack = mList.getById(songId);
+        final String albumName = currentTrack.getAlbumName();
+        final boolean usingAlbumArtist;
+        String artistName = currentTrack.getAlbumArtistName();
 
-        synchronized (mList) {
-            for (final Music song : mList) {
-                if (song.getSongId() == songId) {
-                    artist = song.getAlbumArtistName();
-                    if (artist == null || artist.isEmpty()) {
-                        usingAlbumArtist = false;
-                        artist = song.getArtistName();
-                    }
-                    album = song.getAlbumName();
-                    break;
-                }
-            }
-        }
-
-        if (artist == null || album == null) {
-            Log.warning(TAG, "songId not found in current cached playlist.");
+        if (artistName == null || artistName.isEmpty()) {
+            artistName = currentTrack.getArtistName();
+            usingAlbumArtist = false;
         } else {
-            if (DEBUG) {
-                Log.debug(TAG, "Remove album " + album + " of " + artist);
-            }
-            final List<Integer> integers = new ArrayList<>();
+            usingAlbumArtist = true;
+        }
 
-            /** Don't allow the list to change before we've computed the CommandList. */
-            synchronized (mList) {
-                for (final Music track : mList) {
-                    if (album.equals(track.getAlbumName())) {
-                        final boolean songIsAlbumArtist =
-                                usingAlbumArtist && artist.equals(track.getAlbumArtistName());
-                        final boolean songIsArtist =
-                                !usingAlbumArtist && artist.equals(track.getArtistName());
+        if (albumName == null && artistName == null) {
+            throw new IllegalStateException(
+                    "Cannot call removeAlbumById() without either a artist name or album name.");
+        }
 
-                        if (songIsArtist || songIsAlbumArtist) {
-                            integers.add(track.getPos());
-                        }
+        if (DEBUG) {
+            Log.debug(TAG, "Remove album " + albumName + " of " + artistName);
+        }
+
+        /** Don't allow the list to change before we've computed the CommandList. */
+        synchronized (mList) {
+            for (final Music track : mList) {
+                if (Tools.equals(albumName, track.getAlbumName())) {
+                    final boolean songIsAlbumArtist = usingAlbumArtist &&
+                            Tools.equals(artistName, track.getAlbumArtistName());
+                    final boolean songIsArtist = !usingAlbumArtist &&
+                            Tools.equals(artistName, track.getArtistName());
+
+                    if (songIsArtist || songIsAlbumArtist) {
+                        matchingPositions.add(track.getPos());
                     }
                 }
             }
-            num = integers.size() + 1;
-
-            removeByIndex(integers);
         }
+
+        removeByIndex(matchingPositions);
         if (DEBUG) {
-            Log.debug(TAG, "Removed " + num + " songs");
+            Log.debug(TAG, "Removed " + (matchingPositions.size() + 1) + " songs");
         }
     }
 
