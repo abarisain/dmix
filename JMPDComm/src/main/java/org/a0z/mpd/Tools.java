@@ -50,6 +50,30 @@ public final class Tools {
     }
 
     /**
+     * Simple integer comparison. The result
+     * should be equivalent to Object.compare().
+     *
+     * @param lhs First value to compare to the second.
+     * @param rhs Second value to compare to the first.
+     * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0 if lhs &gt; rhs.
+     */
+    public static int compare(final int lhs, final int rhs) {
+        final int result;
+
+        if (lhs == rhs) {
+            result = 0;
+        } else {
+            if (lhs < rhs) {
+                result = -1;
+            } else {
+                result = 1;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Convert byte array to hex string.
      *
      * @param data Target data array.
@@ -75,6 +99,18 @@ public final class Tools {
         }
 
         return buffer.toString();
+    }
+
+    /**
+     * Null-safe equivalent of {@code a.equals(b)}. The result
+     * should be equivalent to Object.equals().
+     */
+    public static boolean equals(final Object a, final Object b) {
+        if (a == null) {
+            return b == null;
+        } else {
+            return a.equals(b);
+        }
     }
 
     public static String getExtension(final String path) {
