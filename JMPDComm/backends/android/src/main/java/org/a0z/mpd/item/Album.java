@@ -35,7 +35,7 @@ import android.os.Parcelable;
  *
  * @see org.a0z.mpd.item.AbstractAlbum For generic {@code Album} code.
  */
-public class Album extends AbstractAlbum implements Parcelable {
+public class Album extends AbstractAlbum<Album> implements Parcelable {
 
     public static final Creator<Album> CREATOR = new Creator<Album>() {
         @Override

@@ -32,7 +32,7 @@ package org.a0z.mpd.item;
  *
  * @see org.a0z.mpd.item.AbstractAlbum For generic {@code Album} code.
  */
-public class Album extends AbstractAlbum {
+public class Album extends AbstractAlbum<Album> {
 
     protected Album(final String name, final Artist artist, final boolean hasAlbumArtist,
             final long songCount, final long duration, final long year, final String path) {
