@@ -40,7 +40,7 @@ import java.util.Comparator;
  *
  * @author Felipe Gustavo de Almeida
  */
-abstract class AbstractMusic<T extends Music> extends Item implements FilesystemTreeEntry {
+abstract class AbstractMusic<T extends Music> extends Item<Music> implements FilesystemTreeEntry {
 
     /**
      * Similar to the default {@code Comparable} for the Music class, but it compares without
@@ -448,43 +448,37 @@ abstract class AbstractMusic<T extends Music> extends Item implements Filesystem
      * A positive integer if this instance is greater than {@code another};
      * 0 if this instance has the same order as {@code another}.
      */
-    private int compareTo(final Item another, final boolean withTrackNumber) {
-        int compareResult = 0;
+    private int compareTo(final Item<Music> another, final boolean withTrackNumber) {
+        final AbstractMusic<Music> om = (AbstractMusic<Music>) another;
 
-        if (another instanceof Music) {
-            final T om = (T) another;
+        /** songId overrides every other sorting method. It's used for playlists/queue. */
+        int compareResult = compareIntegers(true, mSongId, om.mSongId);
 
-            /** songId overrides every other sorting method. It's used for playlists/queue. */
-            compareResult = compareIntegers(true, mSongId, om.mSongId);
-
-            if (withTrackNumber) {
-                if (compareResult == 0) {
-                    /** Order by the disc number. */
-                    compareResult = compareIntegers(true, mDisc, om.mDisc);
-                }
-
-                if (compareResult == 0) {
-                    /** Order by track number. */
-                    compareResult = compareIntegers(true, mTrack, om.mTrack);
-                }
+        if (withTrackNumber) {
+            if (compareResult == 0) {
+                /** Order by the disc number. */
+                compareResult = compareIntegers(true, mDisc, om.mDisc);
             }
 
             if (compareResult == 0) {
-                /** Order by song title (getTitle() fallback on file names). */
-                compareResult = compareString(getTitle(), om.getTitle());
+                /** Order by track number. */
+                compareResult = compareIntegers(true, mTrack, om.mTrack);
             }
+        }
 
-            if (compareResult == 0) {
-                /** Order by name (this is helpful for streams). */
-                compareResult = compareString(mName, om.mName);
-            }
+        if (compareResult == 0) {
+            /** Order by song title (getTitle() fallback on file names). */
+            compareResult = compareString(getTitle(), om.getTitle());
+        }
 
-            if (compareResult == 0) {
-                /** As a last resort, order by the full path. */
-                compareResult = compareString(mFullPath, om.mFullPath);
-            }
-        } else {
-            compareResult = super.compareTo(another);
+        if (compareResult == 0) {
+            /** Order by name (this is helpful for streams). */
+            compareResult = compareString(mName, om.mName);
+        }
+
+        if (compareResult == 0) {
+            /** As a last resort, order by the full path. */
+            compareResult = compareString(mFullPath, om.mFullPath);
         }
 
         return compareResult;
@@ -499,7 +493,7 @@ abstract class AbstractMusic<T extends Music> extends Item implements Filesystem
      * 0 if this instance has the same order as {@code another}.
      */
     @Override
-    public int compareTo(final Item another) {
+    public int compareTo(final Item<Music> another) {
         return compareTo(another, true);
     }
 

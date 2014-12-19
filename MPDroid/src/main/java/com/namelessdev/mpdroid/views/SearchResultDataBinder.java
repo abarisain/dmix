@@ -21,7 +21,6 @@ import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 
 import android.content.Context;
@@ -72,7 +71,7 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
             formattedResult1 = music.getTitle();
             formattedResult2 = join(music.getAlbumName(), music.getArtistName());
         } else if (item instanceof Artist) {
-            formattedResult1 = ((Item) item).mainText();
+            formattedResult1 = ((Artist) item).mainText();
         } else if (item instanceof Album) {
             final Album album = (Album) item;
             final Artist artist = album.getArtist();

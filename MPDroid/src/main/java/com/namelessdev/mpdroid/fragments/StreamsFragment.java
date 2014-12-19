@@ -76,7 +76,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final boolean replace, final boolean play) {
+    protected void add(final Item<?> item, final boolean replace, final boolean play) {
         try {
             final Stream stream = (Stream) item;
             mApp.oMPDAsyncHelper.oMPD.addStream(
@@ -89,7 +89,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final PlaylistFile playlist) {
+    protected void add(final Item<?> item, final PlaylistFile playlist) {
     }
 
     public void addEdit() {

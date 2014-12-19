@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 /**
  * Represents a playlist in the database
  */
-abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item
+abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item<PlaylistFile>
         implements FilesystemTreeEntry {
 
     protected static final String TAG = "PlaylistFile";

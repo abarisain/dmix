@@ -34,13 +34,13 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-public abstract class Item implements Comparable<Item> {
+public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
 
     /*
      * Merge item lists, for example received by album artist and artist
      * requests. Sorted lists required!
      */
-    public static <T extends Item> List<T> merged(final List<T> albumArtists,
+    public static <T extends Item<T>> List<T> merged(final List<T> albumArtists,
             final List<T> artists) {
         int jStart = albumArtists.size() - 1;
         // remove "" from albumArtists, because the Unknown
@@ -75,7 +75,7 @@ public abstract class Item implements Comparable<Item> {
      * 0 if this instance has the same order as {@code another}.
      */
     @Override
-    public int compareTo(final Item another) {
+    public int compareTo(final Item<T> another) {
         final int comparisonResult;
         final String sorted = sortText();
         final String anotherSorted = another.sortText();
@@ -96,7 +96,7 @@ public abstract class Item implements Comparable<Item> {
         return comparisonResult;
     }
 
-    public boolean doesNameExist(final Item o) {
+    public boolean doesNameExist(final Item<T> o) {
         boolean nameExists = false;
         final String name = getName();
 

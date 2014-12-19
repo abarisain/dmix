@@ -424,7 +424,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        final List<? extends Item> targetArray;
+        final List<? extends Item<?>> targetArray;
         switch (mPager.getCurrentItem()) {
             case 1:
                 targetArray = mAlbumResults;
@@ -540,7 +540,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
      * @param resultList    The List of results to enter into the ListView.
      * @param noResultsView The View to hide if there are no results.
      */
-    private void update(final ListView listView, final List<? extends Item> resultList,
+    private void update(final ListView listView, final List<? extends Item<?>> resultList,
             final View noResultsView) {
         final ListAdapter separatedListAdapter = new SeparatedListAdapter(this,
                 R.layout.search_list_item,

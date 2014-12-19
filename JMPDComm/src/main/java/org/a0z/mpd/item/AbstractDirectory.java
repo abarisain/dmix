@@ -49,7 +49,7 @@ import static org.a0z.mpd.Tools.VALUE;
  *
  * @author Felipe Gustavo de Almeida
  */
-public abstract class AbstractDirectory extends Item implements FilesystemTreeEntry {
+public abstract class AbstractDirectory extends Item<Directory> implements FilesystemTreeEntry {
 
     protected static final String TAG = "Directory";
 

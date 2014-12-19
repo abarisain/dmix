@@ -33,7 +33,7 @@ import java.util.List;
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
 //Thanks qlimax !
 
-public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
+public class ArrayAdapter extends android.widget.ArrayAdapter<Item<?>> {
 
     private static final int TYPE_DEFAULT = 0;
 
@@ -43,11 +43,11 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
 
     private final LayoutInflater mInflater;
 
-    private final List<Item> mItems;
+    private final List<Item<?>> mItems;
 
     public ArrayAdapter(final Context context, final ArrayDataBinder dataBinder,
-            final List<? extends Item> items) {
-        super(context, 0, (List<Item>) items);
+            final List<? extends Item<?>> items) {
+        super(context, 0, (List<Item<?>>) items);
         mDataBinder = dataBinder;
 
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -62,8 +62,8 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Item> {
     }
 
     public ArrayAdapter(final Context context, @LayoutRes final int textViewResourceId,
-            final List<? extends Item> items) {
-        super(context, textViewResourceId, (List<Item>) items);
+            final List<? extends Item<?>> items) {
+        super(context, textViewResourceId, (List<Item<?>>) items);
         mDataBinder = null;
 
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

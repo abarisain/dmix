@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /** This class is the generic base for the Artist items, abstracted for backend. */
-abstract class AbstractArtist<T extends Artist> extends Item {
+abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
 
     protected static final String TAG = "Artist";
 

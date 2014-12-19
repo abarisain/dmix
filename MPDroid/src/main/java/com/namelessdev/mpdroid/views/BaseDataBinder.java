@@ -131,15 +131,15 @@ abstract class BaseDataBinder implements ArrayDataBinder {
     public abstract int getLayoutId();
 
     @Override
-    public abstract boolean isEnabled(int position, List<? extends Item> items, Object item);
+    public abstract boolean isEnabled(int position, List<? extends Item<?>> items, Object item);
 
     @Override
     public abstract void onDataBind(Context context, View targetView,
-            AbstractViewHolder viewHolder, List<? extends Item> items,
+            AbstractViewHolder viewHolder, List<? extends Item<?>> items,
             Object item, int position);
 
     @Override
     public abstract View onLayoutInflation(Context context, View targetView,
-            List<? extends Item> items);
+            List<? extends Item<?>> items);
 
 }

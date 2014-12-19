@@ -43,7 +43,7 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final boolean replace, final boolean play) {
+    protected void add(final Item<?> item, final boolean replace, final boolean play) {
         try {
             mApp.oMPDAsyncHelper.oMPD.add((Genre) item, replace, play);
             Tools.notifyUser(mIrAdded, item);
@@ -53,7 +53,7 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final PlaylistFile playlist) {
+    protected void add(final Item<?> item, final PlaylistFile playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Genre) item);
             Tools.notifyUser(mIrAdded, item);

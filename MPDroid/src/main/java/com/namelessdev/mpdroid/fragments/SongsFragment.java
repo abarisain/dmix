@@ -88,7 +88,7 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final boolean replace, final boolean play) {
+    protected void add(final Item<?> item, final boolean replace, final boolean play) {
         final Music music = (Music) item;
         try {
             mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
@@ -99,7 +99,7 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final PlaylistFile playlist) {
+    protected void add(final Item<?> item, final PlaylistFile playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(mIrAdded, item);
@@ -131,7 +131,7 @@ public class SongsFragment extends BrowseFragment {
             Music song;
             boolean differentArtists = false;
             String lastArtist = null;
-            for (final Item item : mItems) {
+            for (final Item<?> item : mItems) {
                 song = (Music) item;
                 if (lastArtist == null) {
                     lastArtist = song.getArtistName();
@@ -152,7 +152,7 @@ public class SongsFragment extends BrowseFragment {
         AlbumInfo albumInfo = null;
         boolean differentArtists = false;
 
-        for (final Item item : mItems) {
+        for (final Item<?> item : mItems) {
             song = (Music) item;
             if (albumInfo == null) {
                 albumInfo = new AlbumInfo(song);
@@ -201,7 +201,7 @@ public class SongsFragment extends BrowseFragment {
     private String getTotalTimeForTrackList() {
         Music song;
         long totalTime = 0;
-        for (final Item item : mItems) {
+        for (final Item<?> item : mItems) {
             song = (Music) item;
             if (song.getTime() > 0) {
                 totalTime += song.getTime();
@@ -411,7 +411,7 @@ public class SongsFragment extends BrowseFragment {
             mApp.oMPDAsyncHelper.execAsync(new Runnable() {
                 @Override
                 public void run() {
-                    add((Item) parent.getAdapter().getItem(position), false, false);
+                    add((Item<?>) parent.getAdapter().getItem(position), false, false);
                 }
             });
         }

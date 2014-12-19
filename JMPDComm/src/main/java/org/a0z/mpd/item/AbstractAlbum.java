@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /** This class is the generic base for the Album items, abstracted for backend. */
-abstract class AbstractAlbum<T extends Album> extends Item {
+abstract class AbstractAlbum<T extends Album> extends Item<Album> {
 
     static final String TAG = "Album";
 
@@ -140,15 +140,11 @@ abstract class AbstractAlbum<T extends Album> extends Item {
     }
 
     @Override
-    public boolean doesNameExist(final Item o) {
+    public boolean doesNameExist(final Item<Album> o) {
         final boolean result;
 
-        if (o instanceof AbstractAlbum) {
-            final AbstractAlbum a = (AbstractAlbum) o;
-            result = mName.equals(a.mName) && mArtist.doesNameExist(a.mArtist);
-        } else {
-            result = false;
-        }
+        final AbstractAlbum<Album> a = (AbstractAlbum<Album>) o;
+        result = mName.equals(a.mName) && mArtist.doesNameExist(a.mArtist);
 
         return result;
     }

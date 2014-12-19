@@ -30,7 +30,7 @@ package org.a0z.mpd.item;
 import org.a0z.mpd.Tools;
 
 /** This class is the generic base for the Genre items, abstracted for backend. */
-abstract class AbstractGenre<T extends Genre> extends Item {
+abstract class AbstractGenre<T extends Genre> extends Item<Genre> {
 
     protected static final String TAG = "Genre";
 

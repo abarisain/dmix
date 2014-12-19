@@ -41,7 +41,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     private final String[] mSections;
 
     public ArrayIndexerAdapter(final Context context, final ArrayDataBinder dataBinder,
-            final List<? extends Item> items) {
+            final List<? extends Item<?>> items) {
         super(context, dataBinder, items);
 
         // in this HashMap we will store here the positions for the sections
@@ -50,7 +50,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     }
 
     public ArrayIndexerAdapter(final Context context, @LayoutRes final int textViewResourceId,
-            final List<? extends Item> items) {
+            final List<? extends Item<?>> items) {
         super(context, textViewResourceId, items);
 
         // in this HashMap we will store here the positions for the sections
@@ -102,14 +102,14 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         return mSections.clone();
     }
 
-    private String[] init(final List<? extends Item> items) {
+    private String[] init(final List<? extends Item<?>> items) {
         final String[] sections;
 
         // here is the tricky stuff
         final int size = items.size();
         int unknownPos = -1; // "Unknown" item
         for (int i = size - 1; i >= 0; i--) {
-            final Item element = items.get(i);
+            final Item<?> element = items.get(i);
             final String sorted = element.sortText();
 
             if (sorted == null || sorted.isEmpty()) {

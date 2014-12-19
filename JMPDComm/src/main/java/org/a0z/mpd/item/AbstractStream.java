@@ -33,7 +33,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
-abstract class AbstractStream<T extends Stream> extends Item {
+abstract class AbstractStream<T extends Stream> extends Item<Stream> {
 
     protected static final String TAG = "Stream";
 

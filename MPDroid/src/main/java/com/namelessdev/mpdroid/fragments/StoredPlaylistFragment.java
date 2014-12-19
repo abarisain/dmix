@@ -52,7 +52,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final boolean replace, final boolean play) {
+    protected void add(final Item<?> item, final boolean replace, final boolean play) {
         final Music music = (Music) item;
         try {
             mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
@@ -65,7 +65,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final PlaylistFile playlist) {
+    protected void add(final Item<?> item, final PlaylistFile playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
             Tools.notifyUser(mIrAdded, item);
@@ -139,7 +139,7 @@ public class StoredPlaylistFragment extends BrowseFragment {
         mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
-                add((Item) parent.getAdapter().getItem(position), mApp.isInSimpleMode(),
+                add((Item<?>) parent.getAdapter().getItem(position), mApp.isInSimpleMode(),
                         mApp.isInSimpleMode());
             }
         });

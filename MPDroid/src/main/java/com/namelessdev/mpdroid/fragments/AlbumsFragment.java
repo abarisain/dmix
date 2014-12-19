@@ -100,7 +100,7 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final boolean replace, final boolean play) {
+    protected void add(final Item<?> item, final boolean replace, final boolean play) {
         try {
             mApp.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
             Tools.notifyUser(mIrAdded, item);
@@ -110,7 +110,7 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final PlaylistFile playlist) {
+    protected void add(final Item<?> item, final PlaylistFile playlist) {
         try {
             mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Album) item);
             Tools.notifyUser(mIrAdded, item);

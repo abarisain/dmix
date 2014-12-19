@@ -31,10 +31,10 @@ public interface ArrayDataBinder {
 
     int getLayoutId();
 
-    boolean isEnabled(int position, List<? extends Item> items, Object item);
+    boolean isEnabled(int position, List<? extends Item<?>> items, Object item);
 
     void onDataBind(Context context, View targetView, AbstractViewHolder viewHolder,
-            List<? extends Item> items, Object item, int position);
+            List<? extends Item<?>> items, Object item, int position);
 
-    View onLayoutInflation(Context context, View targetView, List<? extends Item> items);
+    View onLayoutInflation(Context context, View targetView, List<? extends Item<?>> items);
 }

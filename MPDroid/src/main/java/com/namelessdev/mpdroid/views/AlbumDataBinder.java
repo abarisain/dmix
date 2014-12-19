@@ -71,7 +71,7 @@ public class AlbumDataBinder extends BaseDataBinder {
     }
 
     @Override
-    public boolean isEnabled(final int position, final List<? extends Item> items,
+    public boolean isEnabled(final int position, final List<? extends Item<?>> items,
             final Object item) {
         return true;
     }
@@ -98,7 +98,7 @@ public class AlbumDataBinder extends BaseDataBinder {
 
     @Override
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, final List<? extends Item> items,
+            final AbstractViewHolder viewHolder, final List<? extends Item<?>> items,
             final Object item, final int position) {
         final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
         final Album album = (Album) item;
@@ -149,7 +149,7 @@ public class AlbumDataBinder extends BaseDataBinder {
 
     @Override
     public View onLayoutInflation(final Context context, final View targetView,
-            final List<? extends Item> items) {
+            final List<? extends Item<?>> items) {
         return setViewVisible(targetView, R.id.albumCover, mEnableCache);
     }
 }

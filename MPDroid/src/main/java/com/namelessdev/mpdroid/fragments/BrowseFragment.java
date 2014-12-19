@@ -100,7 +100,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     final int mIrAdded;
 
-    protected List<? extends Item> mItems = null;
+    protected List<? extends Item<?>> mItems = null;
 
     protected int mJobID = -1;
 
@@ -127,9 +127,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         setHasOptionsMenu(false);
     }
 
-    protected abstract void add(Item item, boolean replace, boolean play);
+    protected abstract void add(final Item<?> item, final boolean replace, final boolean play);
 
-    protected abstract void add(final Item item, final PlaylistFile playlist);
+    protected abstract void add(final Item<?> item, final PlaylistFile playlist);
 
     private void addAndReplace(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
