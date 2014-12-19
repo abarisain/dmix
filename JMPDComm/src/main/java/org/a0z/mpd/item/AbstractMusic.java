@@ -554,7 +554,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         }
 
         if (result == 0) {
-            result = Integer.compare(lhs, rhs);
+            result = Tools.compare(lhs, rhs);
         }
 
         return result;
