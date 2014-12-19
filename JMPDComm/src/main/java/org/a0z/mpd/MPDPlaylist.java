@@ -29,9 +29,9 @@ package org.a0z.mpd;
 
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.MusicBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -198,7 +198,7 @@ public class MPDPlaylist {
      */
     private Collection<Music> getFullPlaylist() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPD_CMD_PLAYLIST_LIST);
-        return AbstractMusic.buildMusicFromList(response, false);
+        return MusicBuilder.buildMusicFromList(response, false);
     }
 
     /**
@@ -290,7 +290,7 @@ public class MPDPlaylist {
                 final List<String> response =
                         mConnection.sendCommand(MPD_CMD_PLAYLIST_CHANGES,
                                 Integer.toString(mLastPlaylistVersion));
-                final Collection<Music> changes = Music.buildMusicFromList(response, false);
+                final Collection<Music> changes = MusicBuilder.buildMusicFromList(response, false);
 
                 try {
                     mList.manipulate(changes, mpdStatus.getPlaylistLength());

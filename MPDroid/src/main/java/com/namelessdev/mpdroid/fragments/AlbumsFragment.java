@@ -28,11 +28,11 @@ import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
 
 import android.annotation.SuppressLint;
@@ -82,7 +82,7 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     public AlbumsFragment(final Artist artist, final Genre genre) {
-        super(R.string.addAlbum, R.string.albumAdded, AbstractMusic.TAG_ALBUM);
+        super(R.string.addAlbum, R.string.albumAdded, Music.TAG_ALBUM);
         init(artist, genre);
     }
 

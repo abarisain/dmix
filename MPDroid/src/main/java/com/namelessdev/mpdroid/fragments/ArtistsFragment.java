@@ -22,11 +22,11 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
 
 import android.content.SharedPreferences;
@@ -48,7 +48,7 @@ public class ArtistsFragment extends BrowseFragment {
     private Genre mGenre = null;
 
     public ArtistsFragment() {
-        super(R.string.addArtist, R.string.artistAdded, AbstractMusic.TAG_ARTIST);
+        super(R.string.addArtist, R.string.artistAdded, Music.TAG_ARTIST);
     }
 
     @Override

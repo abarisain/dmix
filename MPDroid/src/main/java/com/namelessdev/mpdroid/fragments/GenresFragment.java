@@ -21,10 +21,10 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Genre;
 import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
 
 import android.support.annotation.StringRes;
@@ -39,7 +39,7 @@ public class GenresFragment extends BrowseFragment {
     private static final String TAG = "GenresFragment";
 
     public GenresFragment() {
-        super(R.string.addGenre, R.string.genreAdded, AbstractMusic.TAG_GENRE);
+        super(R.string.addGenre, R.string.genreAdded, Music.TAG_GENRE);
     }
 
     @Override

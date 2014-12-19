@@ -38,7 +38,6 @@ import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Directory;
@@ -267,7 +266,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                     positions = new int[mList.getCheckedItemCount()];
                     for (int i = 0; i < count && j < positions.length; i++) {
                         if (checkedItems.get(i)) {
-                            positions[j] = ((AbstractMusic) adapter.getItem(i)).getSongId();
+                            positions[j] = ((Music) adapter.getItem(i)).getSongId();
                             j++;
                         }
                     }
@@ -275,7 +274,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                     positions = new int[mList.getCount() - mList.getCheckedItemCount()];
                     for (int i = 0; i < count && j < positions.length; i++) {
                         if (!checkedItems.get(i)) {
-                            positions[j] = ((AbstractMusic) adapter.getItem(i)).getSongId();
+                            positions[j] = ((Music) adapter.getItem(i)).getSongId();
                             j++;
                         }
                     }
@@ -334,7 +333,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     public void onListItemClick(final ListView l, final View v, final int position, final long id) {
         super.onListItemClick(l, v, position, id);
 
-        final int song = ((AbstractMusic) l.getAdapter().getItem(position)).getSongId();
+        final int song = ((Music) l.getAdapter().getItem(position)).getSongId();
 
         QueueControl.run(QueueControl.SKIP_TO_ID, song);
     }

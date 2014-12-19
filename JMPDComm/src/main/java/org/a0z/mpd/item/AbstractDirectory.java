@@ -379,7 +379,7 @@ public abstract class AbstractDirectory extends Item implements FilesystemTreeEn
                     // clear immediately when we're parsing a playlist or a directory
                     lineCache.add(line);
 
-                    final Music music = AbstractMusic.build(lineCache);
+                    final Music music = MusicBuilder.build(lineCache);
                     fileEntries.put(music.getFilename(), music);
 
                     lineCache.clear();

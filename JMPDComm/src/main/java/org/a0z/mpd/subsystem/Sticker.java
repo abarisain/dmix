@@ -35,6 +35,7 @@ import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.item.MusicBuilder;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -313,7 +314,7 @@ public class Sticker {
     private Map<String, Music> getMusicPair(final Collection<String> response)
             throws IOException, MPDException {
         final List<String> musicResponse = getMusicCommand(response).send(mConnection);
-        final List<Music> musicList = Music.buildMusicFromList(musicResponse, false);
+        final List<Music> musicList = MusicBuilder.buildMusicFromList(musicResponse, false);
         final Map<String, Music> musicPair = new HashMap<>(musicList.size());
 
         for (final Music music : musicList) {

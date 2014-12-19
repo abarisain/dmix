@@ -38,7 +38,7 @@ import android.os.Parcelable;
  *
  * @see org.a0z.mpd.item.AbstractMusic For generic {@code Music} code.
  */
-public class Music extends AbstractMusic implements Parcelable {
+public class Music extends AbstractMusic<Music> implements Parcelable {
 
     public static final Creator<Music> CREATOR = new Creator<Music>() {
         @Override

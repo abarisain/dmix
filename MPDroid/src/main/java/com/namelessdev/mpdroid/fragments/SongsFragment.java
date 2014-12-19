@@ -28,7 +28,6 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.AbstractMusic;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Item;
@@ -85,7 +84,7 @@ public class SongsFragment extends BrowseFragment {
     private PopupMenu mCoverPopupMenu;
 
     public SongsFragment() {
-        super(R.string.addSong, R.string.songAdded, AbstractMusic.TAG_TITLE);
+        super(R.string.addSong, R.string.songAdded, Music.TAG_TITLE);
     }
 
     @Override

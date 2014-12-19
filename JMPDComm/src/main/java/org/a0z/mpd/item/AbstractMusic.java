@@ -27,18 +27,10 @@
 
 package org.a0z.mpd.item;
 
-import org.a0z.mpd.Log;
 import org.a0z.mpd.Tools;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
-
-import static org.a0z.mpd.Tools.KEY;
-import static org.a0z.mpd.Tools.VALUE;
 
 /**
  * Class representing a generic track entry in playlist, abstracted for backend. This item is
@@ -48,14 +40,14 @@ import static org.a0z.mpd.Tools.VALUE;
  *
  * @author Felipe Gustavo de Almeida
  */
-public abstract class AbstractMusic extends Item implements FilesystemTreeEntry {
+abstract class AbstractMusic<T extends Music> extends Item implements FilesystemTreeEntry {
 
     /**
      * Similar to the default {@code Comparable} for the Music class, but it compares without
      * taking disc and track numbers into account.
      */
-    public static final Comparator<AbstractMusic> COMPARE_WITHOUT_TRACK_NUMBER =
-            new Comparator<AbstractMusic>() {
+    public static final Comparator<AbstractMusic<Music>> COMPARE_WITHOUT_TRACK_NUMBER =
+            new Comparator<AbstractMusic<Music>>() {
                 /**
                  * Compares the two specified objects to determine their relative ordering. The
                  * ordering implied by the return value of this method for all possible pairs of
@@ -77,7 +69,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
                  * @throws ClassCastException if objects are not of the correct type.
                  */
                 @Override
-                public int compare(final AbstractMusic lhs, final AbstractMusic rhs) {
+                public int compare(final AbstractMusic<Music> lhs, final AbstractMusic<Music> rhs) {
                     int compare = 0;
 
                     if (lhs != null) {
@@ -213,19 +205,14 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     public static final String TAG_TRACK = "track";
 
     /**
-     * The maximum number of key/value pairs for a music item response.
+     * This integer is used to detect integers that were unset during construction.
      */
-    private static final int MUSIC_ATTRIBUTES = 30;
+    static final int UNDEFINED_INT = -1;
 
     /**
      * The log identifier for this class.
      */
     private static final String TAG = "Music";
-
-    /**
-     * This integer is used to detect integers that were unset during construction.
-     */
-    private static final int UNDEFINED_INT = -1;
 
     /**
      * This field is storage for the name of the artist of the album this track was published on.
@@ -329,7 +316,7 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
 
     }
 
-    AbstractMusic(final AbstractMusic music) {
+    AbstractMusic(final T music) {
         this(music.mAlbumName, music.mAlbumArtistName, music.mArtistName, music.mComposerName,
                 music.mDate, music.mDisc, music.mFullPath, music.mGenreName, music.mName,
                 music.mSongId, music.mSongPos, music.mTime, music.mTitle, music.mTotalTracks,
@@ -357,176 +344,6 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         mSongId = songId;
         mSongPos = songPos;
         mName = name;
-    }
-
-    /**
-     * Builds a {@code Music} object from a subset of the
-     * media server response to a music listing command.
-     *
-     * @param response A music listing command response.
-     * @return A Music object.
-     * @see #buildMusicFromList(java.util.Collection, boolean)
-     */
-    static Music build(final Collection<String> response) {
-        String albumName = null;
-        String artistName = null;
-        String albumArtistName = null;
-        String composerName = null;
-        String fullPath = null;
-        int disc = UNDEFINED_INT;
-        long date = -1L;
-        String genreName = null;
-        long time = -1L;
-        String title = null;
-        int totalTracks = UNDEFINED_INT;
-        int track = UNDEFINED_INT;
-        int songId = UNDEFINED_INT;
-        int songPos = UNDEFINED_INT;
-        String name = null;
-
-        for (final String[] pair : Tools.splitResponse(response)) {
-
-            switch (pair[KEY]) {
-                case RESPONSE_ALBUM:
-                    albumName = pair[VALUE];
-                    break;
-                case RESPONSE_ALBUM_ARTIST:
-                    albumArtistName = pair[VALUE];
-                    break;
-                case RESPONSE_ARTIST:
-                    artistName = pair[VALUE];
-                    break;
-                case RESPONSE_COMPOSER:
-                    composerName = pair[VALUE];
-                    break;
-                case RESPONSE_DATE:
-                    date = parseDate(pair[VALUE]);
-                    break;
-                case RESPONSE_DISC:
-                    final int discIndex = pair[VALUE].indexOf('/');
-
-                    try {
-                        if (discIndex == -1) {
-                            disc = Integer.parseInt(pair[VALUE]);
-                        } else {
-                            disc = Integer.parseInt(pair[VALUE].substring(0, discIndex));
-                        }
-                    } catch (final NumberFormatException e) {
-                        Log.warning(TAG, "Not a valid disc number.", e);
-                    }
-                    break;
-                case RESPONSE_FILE:
-                    fullPath = pair[VALUE];
-                    if (!fullPath.isEmpty() && fullPath.contains("://")) {
-                        final int pos = fullPath.indexOf('#');
-                        if (pos > 1) {
-                            name = fullPath.substring(pos + 1, fullPath.length());
-                            fullPath = fullPath.substring(0, pos);
-                        }
-                    }
-                    break;
-                case RESPONSE_GENRE:
-                    genreName = pair[VALUE];
-                    break;
-                case RESPONSE_NAME:
-                    /**
-                     * This name might already be assigned to the URL fragment identifier.
-                     */
-                    if (name == null) {
-                        name = pair[VALUE];
-                    }
-                    break;
-                case RESPONSE_SONG_ID:
-                    try {
-                        songId = Integer.parseInt(pair[VALUE]);
-                    } catch (final NumberFormatException e) {
-                        Log.error(TAG, "Not a valid song ID.", e);
-                    }
-                    break;
-                case RESPONSE_SONG_POS:
-                    try {
-                        songPos = Integer.parseInt(pair[VALUE]);
-                    } catch (final NumberFormatException e) {
-                        Log.error(TAG, "Not a valid song position.", e);
-                    }
-                    break;
-                case RESPONSE_TIME:
-                    try {
-                        time = Long.parseLong(pair[VALUE]);
-                    } catch (final NumberFormatException e) {
-                        Log.error(TAG, "Not a valid time number.", e);
-                    }
-                    break;
-                case RESPONSE_TITLE:
-                    title = pair[VALUE];
-                    break;
-                case RESPONSE_TRACK:
-                    final int trackIndex = pair[VALUE].indexOf('/');
-
-                    try {
-                        if (trackIndex == -1) {
-                            track = Integer.parseInt(pair[VALUE]);
-                        } else {
-                            track = Integer.parseInt(pair[VALUE].substring(0, trackIndex));
-                            totalTracks = Integer.parseInt(pair[VALUE].substring(trackIndex + 1));
-                        }
-                    } catch (final NumberFormatException e) {
-                        Log.warning(TAG, "Not a valid track number.", e);
-                    }
-                    break;
-                default:
-                    /**
-                     * Ignore everything else, there are a lot of
-                     * uninteresting blocks the server might send.
-                     */
-                    break;
-            }
-        }
-
-        return new Music(albumName, albumArtistName, artistName, composerName, date, disc, fullPath, genreName, name,
-                songId, songPos, time, title, totalTracks, track);
-    }
-
-    /**
-     * Builds a {@code Music} object from a media
-     * server response to a music listing command.
-     *
-     * @param response A music listing command response.
-     * @return A Music object.
-     * @see #build(java.util.Collection)
-     */
-    public static List<Music> buildMusicFromList(final Collection<String> response,
-            final boolean sort) {
-        final Collection<String> lineCache = new ArrayList<>(MUSIC_ATTRIBUTES);
-        final int size = response.size();
-        final List<Music> result;
-
-        /** This list can be pretty sizable, it's good to give a low estimate of it's size. */
-        if (size > MUSIC_ATTRIBUTES) {
-            result = new ArrayList<>(size / MUSIC_ATTRIBUTES);
-        } else {
-            result = new ArrayList<>(0);
-        }
-
-        for (final String line : response) {
-            if (line.startsWith(RESPONSE_FILE)) {
-                if (!lineCache.isEmpty()) {
-                    result.add(build(lineCache));
-                    lineCache.clear();
-                }
-            }
-            lineCache.add(line);
-        }
-
-        if (!lineCache.isEmpty()) {
-            result.add(build(lineCache));
-        }
-
-        if (sort) {
-            Collections.sort(result);
-        }
-
-        return result;
     }
 
     /**
@@ -588,35 +405,6 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     }
 
     /**
-     * This method parses the date MPD protocol response by removing all non-digit characters then
-     * parsing it as a long.
-     *
-     * @param dateResponse The date MPD protocol response.
-     * @return The parsed date.
-     */
-    public static long parseDate(final CharSequence dateResponse) {
-        final int length = dateResponse.length();
-        final StringBuilder sb = new StringBuilder(length);
-        long resultDate = -1L;
-
-        for (int i = 0; i < length; i++) {
-            final char c = dateResponse.charAt(i);
-
-            if (Character.isDigit(c)) {
-                sb.append(c);
-            }
-        }
-
-        try {
-            resultDate = Long.parseLong(sb.toString());
-        } catch (final NumberFormatException e) {
-            Log.warning(TAG, "Not a valid date.", e);
-        }
-
-        return resultDate;
-    }
-
-    /**
      * This method takes seconds and converts it into HH:MM:SS
      *
      * @param totalSeconds Seconds to convert to a string.
@@ -663,8 +451,8 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
     private int compareTo(final Item another, final boolean withTrackNumber) {
         int compareResult = 0;
 
-        if (another instanceof AbstractMusic) {
-            final AbstractMusic om = (AbstractMusic) another;
+        if (another instanceof Music) {
+            final T om = (T) another;
 
             /** songId overrides every other sorting method. It's used for playlists/queue. */
             compareResult = compareIntegers(true, mSongId, om.mSongId);
@@ -733,7 +521,9 @@ public abstract class AbstractMusic extends Item implements FilesystemTreeEntry 
         }
 
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            final AbstractMusic music = (AbstractMusic) o;
+            /** This has to be the same due to the class check above. */
+            //noinspection unchecked
+            final T music = (T) o;
 
             final Object[][] equalsObjects = {
                     {mAlbumName, music.mAlbumName},
