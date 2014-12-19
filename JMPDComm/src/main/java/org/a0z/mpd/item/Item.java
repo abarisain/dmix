@@ -30,6 +30,7 @@ package org.a0z.mpd.item;
 import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -42,16 +43,9 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
      */
     public static <T extends Item<T>> List<T> merged(final List<T> albumArtists,
             final List<T> artists) {
+        removeUnknown(albumArtists);
+
         int jStart = albumArtists.size() - 1;
-        // remove "" from albumArtists, because the Unknown
-        // AlbumArtist would fall back to an Artist, the "Unknown"
-        // Entry must come from the Artists.
-        for (int j = jStart; j >= 0; j--) { // album artists
-            if (albumArtists.get(j).getName().equals("")) {
-                albumArtists.remove(j);
-                jStart--;
-            }
-        }
         for (int i = artists.size() - 1; i >= 0; i--) { // artists
             for (int j = jStart; j >= 0; j--) { // album artists
                 if (albumArtists.get(j).doesNameExist(artists.get(i))) {
@@ -64,6 +58,24 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         artists.addAll(albumArtists);
         Collections.sort(artists);
         return artists;
+    }
+
+    /**
+     * Removes any unknown entries from a list.
+     *
+     * @param items The items to search for an unknown item.
+     */
+    private static <T extends Item<T>> void removeUnknown(final List<T> items) {
+        final ListIterator<T> iterator = items.listIterator(items.size());
+
+        // remove "" from items, because the Unknown
+        // AlbumArtist would fall back to an Artist, the "Unknown"
+        // Entry must come from the Artists.
+        while (iterator.hasPrevious()) {
+            if (iterator.previous().isUnknown()) {
+                iterator.remove();
+            }
+        }
     }
 
     /**
