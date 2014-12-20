@@ -287,15 +287,15 @@ public class MPD {
      */
     public void add(final FilesystemTreeEntry music, final boolean replace, final boolean play)
             throws IOException, MPDException {
-        final CommandQueue commandQueue = new CommandQueue();
-
         if (music instanceof PlaylistFile) {
-            commandQueue.add(MPDPlaylist.loadCommand(music.getFullPath()));
+            add((PlaylistFile) music, replace, play);
         } else {
-            commandQueue.add(MPDPlaylist.addCommand(music.getFullPath()));
-        }
+            final CommandQueue commandQueue = new CommandQueue();
 
-        add(commandQueue, replace, play);
+            commandQueue.add(MPDPlaylist.addCommand(music.getFullPath()));
+
+            add(commandQueue, replace, play);
+        }
     }
 
     /**
@@ -338,7 +338,7 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public void add(final CommandQueue commandQueue, final boolean replace,
+    private void add(final CommandQueue commandQueue, final boolean replace,
             final boolean playAfterAdd) throws IOException, MPDException {
         int playPos = 0;
         final boolean isPlaying = mStatus.isState(MPDStatus.STATE_PLAYING);
