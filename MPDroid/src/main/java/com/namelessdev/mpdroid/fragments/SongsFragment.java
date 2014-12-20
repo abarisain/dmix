@@ -207,7 +207,7 @@ public class SongsFragment extends BrowseFragment {
                 totalTime += song.getTime();
             }
         }
-        return Music.timeToString(totalTime);
+        return org.a0z.mpd.Tools.timeToString(totalTime);
     }
 
     public SongsFragment init(final Album al) {

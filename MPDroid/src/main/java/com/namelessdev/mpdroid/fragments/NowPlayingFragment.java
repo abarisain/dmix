@@ -1177,8 +1177,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mTrackTime.setText(Music.timeToString(elapsedTime));
-                mTrackTotalTime.setText(Music.timeToString(totalTrackTime));
+                mTrackTime.setText(Tools.timeToString(elapsedTime));
+                mTrackTotalTime.setText(Tools.timeToString(totalTrackTime));
             }
         });
     }

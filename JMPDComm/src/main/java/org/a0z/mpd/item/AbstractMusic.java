@@ -405,41 +405,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     }
 
     /**
-     * This method takes seconds and converts it into HH:MM:SS
-     *
-     * @param totalSeconds Seconds to convert to a string.
-     * @return Returns time formatted from the {@code totalSeconds} in format HH:MM:SS.
-     */
-    public static String timeToString(final long totalSeconds) {
-        final String result;
-        final long secondsInHour = 3600L;
-        final long secondsInMinute = 60L;
-        final long hours;
-        final long minutes;
-        long seconds;
-
-        if (totalSeconds < 0L) {
-            seconds = 0L;
-        } else {
-            seconds = totalSeconds;
-        }
-
-        hours = seconds / secondsInHour;
-        seconds -= secondsInHour * hours;
-
-        minutes = seconds / secondsInMinute;
-        seconds -= minutes * secondsInMinute;
-
-        if (hours == 0) {
-            result = String.format("%02d:%02d", minutes, seconds);
-        } else {
-            result = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-        }
-
-        return result;
-    }
-
-    /**
      * Defines a natural order to this object and another.
      *
      * @param another         The other object to compare this to.
@@ -688,7 +653,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The duration of the track formatted as HH:MM:SS.
      */
     public CharSequence getFormattedTime() {
-        return timeToString(mTime);
+        return Tools.timeToString(mTime);
     }
 
     /**

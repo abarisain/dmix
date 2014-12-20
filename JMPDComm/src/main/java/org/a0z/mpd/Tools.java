@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.TimeUnit;
 
 public final class Tools {
 
@@ -404,6 +405,29 @@ public final class Tools {
 
         /** Skip ': ' */
         result[1] = line.substring(delimiterIndex + 2);
+
+        return result;
+    }
+
+    /**
+     * This method takes seconds and converts it into HH:MM:SS
+     *
+     * @param totalSeconds Seconds to convert to a string.
+     * @return Returns time formatted from the {@code totalSeconds} in format HH:MM:SS.
+     */
+    public static String timeToString(final long totalSeconds) {
+        final long hours = TimeUnit.SECONDS.toHours(totalSeconds);
+        final long minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) -
+                TimeUnit.SECONDS.toHours(totalSeconds) * 60L;
+        final long seconds = TimeUnit.SECONDS.toSeconds(totalSeconds) -
+                TimeUnit.SECONDS.toMinutes(totalSeconds) * 60L;
+        final String result;
+
+        if (hours == 0) {
+            result = String.format("%02d:%02d", minutes, seconds);
+        } else {
+            result = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        }
 
         return result;
     }
