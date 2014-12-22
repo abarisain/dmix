@@ -149,6 +149,47 @@ public final class Tools {
     }
 
     /**
+     * Gets a beginning and an end range of to a server response.
+     *
+     * @param response The server response to parse.
+     * @param key      The key to the beginning/end of a sub-list.
+     * @return A two int array. The first int is the beginning range which matched the key
+     * parameter. The second number is one int beyond the end of the range (List.subList()
+     * compatible). If no range is found, an empty list will be returned.
+     */
+    public static Collection<int[]> getRanges(final Collection<String> response, final String key) {
+        /** Initialize the range after the capacity is known. */
+        Collection<int[]> ranges = null;
+        int iterator = 0;
+        int beginIndex = 0;
+
+        for (final String line : response) {
+            if (key.equals(line.substring(0, line.indexOf(':'))) && iterator != beginIndex) {
+                if (ranges == null) {
+                    final int capacity = response.size() / (iterator - beginIndex);
+                    ranges = new ArrayList<>(capacity);
+                }
+                ranges.add(new int[]{beginIndex, iterator});
+                beginIndex = iterator;
+            }
+
+            iterator++;
+        }
+
+        if (ranges == null) {
+            if (beginIndex == iterator) {
+                ranges = Collections.emptyList();
+            } else {
+                ranges = Collections.singletonList(new int[]{beginIndex, response.size()});
+            }
+        } else {
+            ranges.add(new int[]{beginIndex, response.size()});
+        }
+
+        return ranges;
+    }
+
+    /**
      * This method iterates through a 3 dimensional array to check each two element inner array
      * for equality of it's inner objects with the isNotEqual(object, object) method.
      *
