@@ -278,10 +278,10 @@ public class CommandQueue implements Iterable<MPDCommand> {
      * @return A string to be parsed by either {@code send()} or {@code sendSeparated()}.
      */
     private String toString(final boolean separated) {
-        final String result;
+        final StringBuilder stringBuilder;
 
         if (mCommandQueue.size() == 1) {
-            final StringBuilder stringBuilder = new StringBuilder(mCommandQueue.get(0).toString());
+            stringBuilder = new StringBuilder(mCommandQueue.get(0).toString());
             final int newlineStart =
                     stringBuilder.indexOf(String.valueOf(MPDCommand.MPD_CMD_NEWLINE));
 
@@ -290,25 +290,21 @@ public class CommandQueue implements Iterable<MPDCommand> {
              * In reference MPD implementation 0.19+, a newline alone disconnects.
              */
             stringBuilder.setLength(newlineStart);
-
-            result = stringBuilder.toString();
         } else {
-            final StringBuilder commandString = new StringBuilder(mCommandQueueStringLength);
+            stringBuilder = new StringBuilder(mCommandQueueStringLength);
             if (separated) {
-                commandString.append(MPD_CMD_START_BULK_OK);
+                stringBuilder.append(MPD_CMD_START_BULK_OK);
             } else {
-                commandString.append(MPD_CMD_START_BULK);
+                stringBuilder.append(MPD_CMD_START_BULK);
             }
-            commandString.append(MPDCommand.MPD_CMD_NEWLINE);
+            stringBuilder.append(MPDCommand.MPD_CMD_NEWLINE);
 
             for (final MPDCommand command : mCommandQueue) {
-                commandString.append(command);
+                stringBuilder.append(command);
             }
-            commandString.append(MPD_CMD_END_BULK);
-
-            result = commandString.toString();
+            stringBuilder.append(MPD_CMD_END_BULK);
         }
 
-        return result;
+        return stringBuilder.toString();
     }
 }
