@@ -585,16 +585,17 @@ public abstract class MPDConnection {
         private List<String> read() throws MPDException, IOException {
             final List<String> result = new ArrayList<>();
             final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
+            boolean validResponse = false;
 
-            boolean serverDataRead = false;
             for (String line = in.readLine(); line != null; line = in.readLine()) {
-                serverDataRead = true;
 
                 if (line.startsWith(MPD_RESPONSE_OK)) {
+                    validResponse = true;
                     break;
                 }
 
                 if (line.startsWith(MPD_RESPONSE_ERR)) {
+                    validResponse = true;
                     if (isNonfatalACK(line)) {
                         break;
                     }
@@ -604,7 +605,7 @@ public abstract class MPDConnection {
                 result.add(line);
             }
 
-            if (!serverDataRead) {
+            if (!validResponse) {
                 // Close socket if there is no response...
                 // Something is wrong (e.g. MPD shutdown..)
                 throw new EOFException("Connection lost");
