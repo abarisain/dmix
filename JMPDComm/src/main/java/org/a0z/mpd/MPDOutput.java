@@ -31,6 +31,7 @@ import org.a0z.mpd.exception.InvalidResponseException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;
@@ -93,22 +94,12 @@ public class MPDOutput {
         return new MPDOutput(name, id, enabled.booleanValue());
     }
 
-    public static Collection<MPDOutput> buildOutputsFromList(final Iterable<String> response) {
-        final Collection<MPDOutput> result = new ArrayList<>();
-        final Collection<String> lineCache = new ArrayList<>(3);
+    public static Collection<MPDOutput> buildOutputsFromList(final List<String> response) {
+        final Collection<int[]> ranges = Tools.getRanges(response, CMD_ID);
+        final Collection<MPDOutput> result = new ArrayList<>(ranges.size());
 
-        for (final String line : response) {
-            if (line.startsWith(CMD_ID)) {
-                if (!lineCache.isEmpty()) {
-                    result.add(build(lineCache));
-                    lineCache.clear();
-                }
-            }
-            lineCache.add(line);
-        }
-
-        if (!lineCache.isEmpty()) {
-            result.add(build(lineCache));
+        for (final int[] range : ranges) {
+            result.add(build(response.subList(range[0], range[1])));
         }
 
         return result;
