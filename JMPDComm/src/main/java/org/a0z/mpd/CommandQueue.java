@@ -281,7 +281,17 @@ public class CommandQueue implements Iterable<MPDCommand> {
         final String result;
 
         if (mCommandQueue.size() == 1) {
-            result = mCommandQueue.get(0).toString();
+            final StringBuilder stringBuilder = new StringBuilder(mCommandQueue.get(0).toString());
+            final int newlineStart =
+                    stringBuilder.indexOf(String.valueOf(MPDCommand.MPD_CMD_NEWLINE));
+
+            /**
+             * Since this is a MPDCommand extraction, there will be a newline.
+             * In reference MPD implementation 0.19+, a newline alone disconnects.
+             */
+            stringBuilder.setLength(newlineStart);
+
+            result = stringBuilder.toString();
         } else {
             final StringBuilder commandString = new StringBuilder(mCommandQueueStringLength);
             if (separated) {
