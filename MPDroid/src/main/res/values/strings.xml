@@ -228,6 +228,7 @@
     <string name="goToCurrent">Go to current song</string>
     <string name="otherCover">Download another image</string>
     <string name="resetCover">Reset image</string>
+    <string name="noSendActionReceiver">No activity found to handle action send.</string>
 
     <string name="actionSongSelected">1 song selected</string>
     <string name="actionSongsSelected">%s songs selected</string>

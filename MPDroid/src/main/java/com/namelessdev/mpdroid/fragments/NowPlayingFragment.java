@@ -38,6 +38,7 @@ import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.Music;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -74,6 +75,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.namelessdev.mpdroid.tools.Tools.notifyUser;
 
 public class NowPlayingFragment extends Fragment implements StatusChangeListener,
         TrackPositionListener, OnSharedPreferenceChangeListener, OnMenuItemClickListener,
@@ -779,7 +782,11 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 final Intent intent = new Intent(Intent.ACTION_SEND, null);
                 intent.putExtra(Intent.EXTRA_TEXT, getShareString());
                 intent.setType("text/plain");
-                startActivity(intent);
+                try {
+                    startActivity(intent);
+                } catch (final ActivityNotFoundException ignored) {
+                    notifyUser(R.string.noSendActionReceiver);
+                }
                 break;
             default:
                 result = isSimpleLibraryItem(itemId);
