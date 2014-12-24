@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.PhoneStateReceiver;
 import com.namelessdev.mpdroid.R;
 
 import org.a0z.mpd.MPD;
@@ -24,7 +25,11 @@ import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Music;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -40,6 +45,13 @@ public final class MPDControl {
     public static final long INVALID_LONG = -5L;
 
     private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private static final SharedPreferences SETTINGS = PreferenceManager
+            .getDefaultSharedPreferences(APP);
+
+    private static final boolean DEBUG = false;
+
+    private static final String ERROR_MESSAGE = "Failed to send a simple MPD command.";
 
     private static final String TAG = "MPDControl";
 
@@ -80,6 +92,9 @@ public final class MPDControl {
     public static final String ACTION_VOLUME_STEP_UP = FULLY_QUALIFIED_NAME + "VOLUME_STEP_UP";
 
     public static final String ACTION_RATING_SET = FULLY_QUALIFIED_NAME + "SET_RATING";
+
+    public static final String ACTION_PAUSE_FOR_CALL = FULLY_QUALIFIED_NAME
+            + "ACTION_PAUSE_FOR_CALL";
 
     private static final int VOLUME_STEP = 5;
 
@@ -179,6 +194,63 @@ public final class MPDControl {
             final boolean internalMPD) {
         new Thread(new Runnable() {
 
+            /**
+             * This method is called if pause during call is active with a user
+             * configuration setting requesting pause while a call is taking place.
+             */
+            private void pauseForCall() {
+                if (shouldPauseForCall()) {
+                    try {
+                        mpd.pause();
+                        SETTINGS.edit().putBoolean(PhoneStateReceiver.PAUSED_MARKER, true).commit();
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, ERROR_MESSAGE, e);
+                    }
+                }
+
+                if (SETTINGS.getBoolean(PhoneStateReceiver.PAUSING_MARKER, false)) {
+                    SETTINGS.edit().putBoolean(PhoneStateReceiver.PAUSING_MARKER, false).commit();
+                }
+            }
+
+            /**
+             * This method factors in several circumstances to whether
+             * or not to pause the media server for a telephony activity.
+             *
+             * @return True if the media server should be paused, false otherwise.
+             */
+            private boolean shouldPauseForCall() {
+                final TelephonyManager telephonyManager =
+                        (TelephonyManager) APP.getSystemService(Context.TELEPHONY_SERVICE);
+                final boolean isPlaying =
+                        APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatus.STATE_PLAYING);
+                boolean result = false;
+
+                /**
+                 * We need to double check the telephony state, the connection
+                 * may have taken longer than the telephony is active.
+                 */
+                if (telephonyManager.getCallState() != TelephonyManager.CALL_STATE_IDLE &&
+                        isPlaying) {
+                    if (APP.isLocalAudible()) {
+
+                        if (DEBUG) {
+                            Log.d(TAG, "App is local audible.");
+                        }
+
+                        result = true;
+                    } else {
+                        result = SETTINGS.getBoolean(PhoneStateReceiver.PAUSE_DURING_CALL, false);
+
+                        if (DEBUG) {
+                            Log.d(TAG, PhoneStateReceiver.PAUSE_DURING_CALL + ": " + result);
+                        }
+                    }
+                }
+
+                return result;
+            }
+
             private void blockForConnection() {
                 int loopIterator = 50; /** Give the connection 5 seconds, tops. */
                 final long blockTimeout = 100L;
@@ -229,12 +301,8 @@ public final class MPDControl {
                                 mpd.pause();
                             }
                             break;
-                        case ACTION_TOGGLE_PLAYBACK:
-                            if (mpd.getStatus().isState(MPDStatus.STATE_PLAYING)) {
-                                mpd.pause();
-                            } else {
-                                mpd.play();
-                            }
+                        case ACTION_PAUSE_FOR_CALL:
+                            pauseForCall();
                             break;
                         case ACTION_PLAY:
                             mpd.play();
@@ -262,6 +330,13 @@ public final class MPDControl {
                         case ACTION_SINGLE:
                             mpd.setSingle(!mpd.getStatus().isSingle());
                             break;
+                        case ACTION_TOGGLE_PLAYBACK:
+                            if (mpd.getStatus().isState(MPDStatus.STATE_PLAYING)) {
+                                mpd.pause();
+                            } else {
+                                mpd.play();
+                            }
+                            break;
                         case ACTION_TOGGLE_RANDOM:
                             mpd.setRandom(!mpd.getStatus().isRandom());
                             break;
@@ -283,7 +358,7 @@ public final class MPDControl {
                             break;
                     }
                 } catch (final IOException | MPDException e) {
-                    Log.w(TAG, "Failed to send a simple MPD command.", e);
+                    Log.w(TAG, ERROR_MESSAGE, e);
                 } finally {
                     if (internalMPD) {
                         APP.removeConnectionLock(this);
