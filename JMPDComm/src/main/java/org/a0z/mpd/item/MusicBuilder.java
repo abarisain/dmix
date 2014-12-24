@@ -40,19 +40,14 @@ import static org.a0z.mpd.Tools.VALUE;
 
 public final class MusicBuilder {
 
-    private MusicBuilder() {
-        super();
-    }
-
-    /**
-     * The maximum number of key/value pairs for a music item response.
-     */
-    private static final int MUSIC_ATTRIBUTES = 30;
-
     /**
      * The class log identifier.
      */
     private static final String TAG = "MusicBuilder";
+
+    private MusicBuilder() {
+        super();
+    }
 
     /**
      * Builds a {@code Music} object from a subset of the
@@ -60,7 +55,7 @@ public final class MusicBuilder {
      *
      * @param response A music listing command response.
      * @return A Music object.
-     * @see #buildMusicFromList(java.util.Collection, boolean)
+     * @see #buildMusicFromList(java.util.List, boolean)
      */
     static Music build(final Collection<String> response) {
         String albumName = null;
@@ -190,31 +185,12 @@ public final class MusicBuilder {
      * @return A Music object.
      * @see #build(java.util.Collection)
      */
-    public static List<Music> buildMusicFromList(final Collection<String> response,
-            final boolean sort) {
-        final Collection<String> lineCache = new ArrayList<>(MUSIC_ATTRIBUTES);
-        final int size = response.size();
-        final List<Music> result;
+    public static List<Music> buildMusicFromList(final List<String> response, final boolean sort) {
+        final Collection<int[]> ranges = Tools.getRanges(response, AbstractMusic.RESPONSE_FILE);
+        final List<Music> result = new ArrayList<>(ranges.size());
 
-        /** This list can be pretty sizable, it's good to give a low estimate of it's size. */
-        if (size > MUSIC_ATTRIBUTES) {
-            result = new ArrayList<>(size / MUSIC_ATTRIBUTES);
-        } else {
-            result = new ArrayList<>(0);
-        }
-
-        for (final String line : response) {
-            if (line.startsWith(AbstractMusic.RESPONSE_FILE)) {
-                if (!lineCache.isEmpty()) {
-                    result.add(build(lineCache));
-                    lineCache.clear();
-                }
-            }
-            lineCache.add(line);
-        }
-
-        if (!lineCache.isEmpty()) {
-            result.add(build(lineCache));
+        for (final int[] range : ranges) {
+            result.add(build(response.subList(range[0], range[1])));
         }
 
         if (sort) {
