@@ -105,7 +105,9 @@ public class CommandQueue implements Iterable<MPDCommand> {
 
         for (final String line : lines) {
             if (line.equals(MPD_CMD_BULK_SEP)) { // new part
-                if (!lineCache.isEmpty()) {
+                if (lineCache.isEmpty()) {
+                    result.add(Collections.<String>emptyList());
+                } else {
                     result.add(new ArrayList<>(lineCache));
                     lineCache.clear();
                 }
