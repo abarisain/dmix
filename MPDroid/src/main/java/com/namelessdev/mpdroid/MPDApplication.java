@@ -279,7 +279,7 @@ public class MPDApplication extends Application implements
             if (mAlertDialog.isShowing()) {
                 try {
                     mAlertDialog.dismiss();
-                } catch (final IllegalArgumentException ignored) {
+                } catch (final IllegalArgumentException | IllegalStateException ignored) {
                     // We don't care, it has already been destroyed
                 }
             }
