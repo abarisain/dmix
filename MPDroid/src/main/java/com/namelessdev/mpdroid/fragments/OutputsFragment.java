@@ -84,7 +84,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                     } else {
                         mpd.disableOutput(output.getId());
                     }
-                } catch (final IOException | MPDException e) {
+                } catch (final IOException | IllegalStateException | MPDException e) {
                     Log.e(TAG, "Failed to modify output.", e);
                 }
                 final Activity activity = getActivity();
