@@ -248,8 +248,6 @@ public class MPDApplication extends Application implements
             // dismiss possible dialog
             dismissAlertDialog();
 
-            oMPDAsyncHelper.disconnect();
-
             if (mCurrentActivity != null && !mConnectionLocks.isEmpty()) {
                 try {
                     // are we in the settings activity?
