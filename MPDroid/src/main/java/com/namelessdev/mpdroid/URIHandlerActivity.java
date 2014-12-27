@@ -23,7 +23,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
-public class URIHandlerActivity extends FragmentActivity {
+public class URIHandlerActivity extends MPDroidActivities.MPDroidActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
