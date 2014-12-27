@@ -147,15 +147,15 @@ public abstract class MPDConnection {
         final MPDCommand mpdCommand = new MPDCommand(Reflection.CMD_ACTION_COMMANDS);
         final CommandResult commandResult = processCommand(mpdCommand);
 
+        if (!commandResult.isHeaderValid()) {
+            throw new IOException("Failed initial connection.");
+        }
+
         synchronized (mAvailableCommands) {
             final List<String> response = commandResult.getResult();
             Tools.parseResponse(response, Reflection.CMD_RESPONSE_COMMANDS);
             mAvailableCommands.clear();
             mAvailableCommands.addAll(response);
-        }
-
-        if (!commandResult.isHeaderValid()) {
-            throw new IOException("Failed initial connection.");
         }
 
         mIsConnected = true;
