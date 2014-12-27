@@ -28,6 +28,7 @@
         <attr name="listItemHandle" format="reference" />
         <attr name="nowPlayingPrimaryTextColor" format="color" />
         <attr name="cardPrimaryTextColor" format="color" />
+        <attr name="cardBackground" format="color" />
         <attr name="listItemHorizontalSeparatorColor" format="color" />
         <attr name="nowPlayingSliderBackgroundColor" format="color" />
         <attr name="repeatDisabled" format="reference" />
@@ -40,7 +41,6 @@
         <attr name="prevIcon" format="reference" />
         <attr name="nextIcon" format="reference" />
         <attr name="volumeIcon" format="reference" />
-        <attr name="cardBackground" format="reference" />
         <attr name="playQueueIcon" format="reference" />
         <attr name="overflowButton" format="reference" />
     </declare-styleable>

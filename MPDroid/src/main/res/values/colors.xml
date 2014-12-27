@@ -20,6 +20,8 @@
     <color name="nowplaying_secondary_text">#ff868686</color>
     <color name="card_primary_text">#ffffffff</color>
     <color name="card_primary_text_light">#ff000000</color>
+    <color name="card_background_color">#292929</color>
+    <color name="card_background_color_light">#ffffff</color>
     <color name="compatactionbar_separator">#22ffffff</color>
     <color name="list_item_horizontal_separator">#33FFFFFF</color>
     <color name="list_item_horizontal_separator_light">#FFD3D3D3</color>

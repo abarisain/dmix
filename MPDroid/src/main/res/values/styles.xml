@@ -50,6 +50,7 @@
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text</item>
+        <item name="cardBackground">@color/card_background_color</item>
         <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color
         </item>
         <item name="repeatDisabled">@drawable/ic_media_repeat</item>
@@ -62,7 +63,6 @@
         <item name="prevIcon">@drawable/ic_media_previous</item>
         <item name="nextIcon">@drawable/ic_media_next</item>
         <item name="volumeIcon">@drawable/ic_action_volume</item>
-        <item name="cardBackground">@drawable/card_dark</item>
         <item name="playQueueIcon">@drawable/ic_action_play_queue</item>
         <item name="overflowButton">@android:style/Widget.Holo.ActionButton.Overflow</item>
         <item name="android:windowBackground">@color/nowplaying_background</item>
@@ -88,6 +88,7 @@
         <item name="android:textColorPrimary">@android:color/black</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text_light</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text_light</item>
+        <item name="cardBackground">@color/card_background_color_light</item>
         <item name="nowPlayingSliderBackgroundColor">
             @color/nowplaying_slider_background_color_light
         </item>
@@ -101,7 +102,6 @@
         <item name="prevIcon">@drawable/ic_media_previous_light</item>
         <item name="nextIcon">@drawable/ic_media_next_light</item>
         <item name="volumeIcon">@drawable/ic_action_volume_light</item>
-        <item name="cardBackground">@drawable/card_light</item>
         <item name="playQueueIcon">@drawable/ic_action_play_queue_light</item>
         <item name="overflowButton">@android:style/Widget.Holo.Light.ActionButton.Overflow</item>
     </style>
