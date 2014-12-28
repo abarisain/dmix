@@ -145,7 +145,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
         mCoverHelper.addCoverDownloadListener(coverArtListener);
 
 
-        mCoverArt.setOnClickListener(new OnClickListener() {
+        view.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View view) {
                 Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
