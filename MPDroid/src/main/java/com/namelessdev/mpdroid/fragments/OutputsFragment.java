@@ -42,6 +42,8 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
 
     private static final String TAG = "OutputsFragment";
 
+    public static final String EXTRA = "Outputs";
+
     private final MPDApplication mApp = MPDApplication.getInstance();
 
     private ArrayList<MPDOutput> mOutputs;

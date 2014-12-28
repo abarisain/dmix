@@ -19,10 +19,12 @@ package com.namelessdev.mpdroid.fragments;
 import com.astuetz.PagerSlidingTabStrip;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.library.ILibraryTabActivity;
+import com.namelessdev.mpdroid.SettingsActivity;
+import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -32,6 +34,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -71,10 +74,7 @@ public class LibraryFragment extends Fragment {
     @Override
     public void onAttach(final Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof ILibraryTabActivity)) {
-            throw new RuntimeException(
-                    "Error : LibraryFragment can only be attached to an activity implementing ILibraryTabActivity");
-        }
+
         mActivity = activity;
         mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
         if (mViewPager != null) {
@@ -105,6 +105,32 @@ public class LibraryFragment extends Fragment {
         final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
         toolbar.inflateMenu(R.menu.mpd_searchmenu);
+        toolbar.inflateMenu(R.menu.mpd_main_menu);
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(final MenuItem menuItem) {
+                final Activity activity = getActivity();
+                if (activity != null) {
+                    switch (menuItem.getItemId()) {
+                        case R.id.menu_search:
+                            activity.onSearchRequested();
+                            return true;
+                        case R.id.menu_outputs:
+                            final Intent outputIntent = new Intent(activity,
+                                    SimpleLibraryActivity.class);
+                            outputIntent.putExtra(OutputsFragment.EXTRA, "1");
+                            startActivity(outputIntent);
+                            return true;
+                        case R.id.menu_settings:
+                            final Intent settingsIntent = new Intent(activity,
+                                    SettingsActivity.class);
+                            startActivity(settingsIntent);
+                            return true;
+                    }
+                }
+                return false;
+            }
+        });
 
         return view;
     }

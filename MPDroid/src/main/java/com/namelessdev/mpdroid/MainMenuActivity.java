@@ -19,12 +19,9 @@ package com.namelessdev.mpdroid;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
-import com.namelessdev.mpdroid.fragments.QueueFragment;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
-import com.namelessdev.mpdroid.library.ILibraryTabActivity;
-import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.AlertDialog;
@@ -58,12 +55,9 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import java.util.Collections;
-import java.util.List;
-
 public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implements
         ActionBar.OnNavigationListener,
-        ILibraryFragmentActivity, ILibraryTabActivity, OnBackStackChangedListener,
+        ILibraryFragmentActivity, OnBackStackChangedListener,
         PopupMenu.OnMenuItemClickListener {
 
     private static final boolean DEBUG = false;
@@ -75,8 +69,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     private static final String FRAGMENT_TAG_OUTPUTS = "outputs";
 
     private static final int SETTINGS = 5;
-
-    private static final List<String> TAB_LIST;
 
     private static final String TAG = "MainMenuActivity";
 
@@ -107,17 +99,9 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     private TextView mTextView;
 
     static {
-        // Get the list of the currently visible tabs
-        TAB_LIST = LibraryTabsUtil.getCurrentLibraryTabs();
-
         final StrictMode.ThreadPolicy policy =
                 new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-    }
-
-    @Override
-    public List<String> getTabList() {
-        return Collections.unmodifiableList(TAB_LIST);
     }
 
     private ListView initializeDrawerList() {
@@ -140,59 +124,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         return drawerList;
-    }
-
-    private ActionBarDrawerToggle initializeDrawerToggle() {
-
-        // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setCustomView(mTextView);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setDisplayShowCustomEnabled(true);
-
-        final ArrayAdapter<CharSequence> actionBarAdapter = new ArrayAdapter<>(
-                actionBar.getThemedContext(),
-                android.R.layout.simple_spinner_item);
-        for (final String tab : TAB_LIST) {
-            actionBarAdapter.add(getText(LibraryTabsUtil.getTabTitleResId(tab)));
-        }
-
-        actionBarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        actionBar.setListNavigationCallbacks(actionBarAdapter, this);
-
-        /**
-         * @param Activity activity
-         * @param DrawerLayout
-         * @param drawerImageRes nav drawer icon to replace 'Up' caret
-         * @param openDrawerContentDescRes "open drawer" description
-         * @param closeDrawerContentDescRes "close drawer" description
-         */
-        return new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open,
-                R.string.drawer_close) {
-
-            /**
-             * Called when a drawer has settled in a completely closed
-             * state.
-             */
-            @Override
-            public void onDrawerClosed(final View drawerView) {
-                refreshActionBarTitle();
-            }
-
-            /**
-             * Called when a drawer has settled in a completely open
-             * state.
-             */
-            @Override
-            public void onDrawerOpened(final View drawerView) {
-                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                actionBar.setDisplayShowCustomEnabled(true);
-                mTextView.setText(R.string.app_name);
-            }
-        };
     }
 
     private LibraryFragment initializeLibraryFragment() {
@@ -307,10 +238,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        mDrawerToggle = initializeDrawerToggle();
-
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerList = initializeDrawerList();
 
         mFragmentManager = getSupportFragmentManager();
@@ -428,13 +355,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     }
 
     @Override
-    protected void onPostCreate(final Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
-    }
-
-    @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
         // Reminder: Never disable buttons that are shown as actionbar actions here.
         super.onPrepareOptionsMenu(menu);
@@ -472,15 +392,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         super.onStop();
 
         mApp.unsetActivity(this);
-    }
-
-    @Override
-    public void pageChanged(final int position) {
-        final ActionBar actionBar = getSupportActionBar();
-        if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY
-                && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
-            actionBar.setSelectedNavigationItem(position);
-        }
     }
 
     @Override
