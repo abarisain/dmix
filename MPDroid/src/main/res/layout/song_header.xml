@@ -53,7 +53,7 @@
         android:layout_below="@+id/albumCoverFrame"
         android:layout_marginRight="32dp"
         android:layout_marginTop="-32dp"
-        android:src="?attr/playIcon"
+        android:src="@drawable/ic_media_play_light"
         fab:fab_colorNormal="@color/fab_color"
         fab:fab_colorPressed="@color/fab_color_pressed"
         fab:fab_colorRipple="@color/fab_color_ripple" />
