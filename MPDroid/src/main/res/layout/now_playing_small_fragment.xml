@@ -21,6 +21,7 @@
     android:orientation="horizontal">
 
     <RelativeLayout
+        android:id="@+id/songInfoLayout"
         android:layout_width="0dip"
         android:layout_height="48dip"
         android:layout_weight="1">
