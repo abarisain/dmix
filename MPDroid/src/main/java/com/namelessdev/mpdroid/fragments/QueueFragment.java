@@ -753,7 +753,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 final int firstVisibleElementIndex = mList.getFirstVisiblePosition();
                 final View firstVisibleItem = mList.getChildAt(0);
                 final int firstVisiblePosition;
-                final ArrayAdapter songs = new QueueAdapter(mActivity, R.layout.playlist_queue_item,
+                final ArrayAdapter songs = new QueueAdapter(mActivity, R.layout.queue_list_item,
                         newSongList
                 );
 
@@ -820,7 +820,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
             if (convertView == null) {
                 view = LayoutInflater.from(getContext()).inflate(
-                        R.layout.playlist_queue_item, parent, false);
+                        R.layout.queue_list_item, parent, false);
                 viewHolder = new PlayQueueViewHolder();
                 viewHolder.mArtist = (TextView) view.findViewById(android.R.id.text2);
                 viewHolder.mTitle = (TextView) view.findViewById(android.R.id.text1);
