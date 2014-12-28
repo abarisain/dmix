@@ -56,9 +56,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implements
-        ActionBar.OnNavigationListener,
-        ILibraryFragmentActivity, OnBackStackChangedListener,
-        PopupMenu.OnMenuItemClickListener {
+        ILibraryFragmentActivity {
 
     private static final boolean DEBUG = false;
 
@@ -74,56 +72,16 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
     private int mBackPressExitCount;
 
-    private DisplayMode mCurrentDisplayMode;
-
-    private DrawerLayout mDrawerLayout;
-
-    private ListView mDrawerList;
-
-    private ActionBarDrawerToggle mDrawerToggle;
-
     private Handler mExitCounterReset = new Handler();
 
     private FragmentManager mFragmentManager;
 
     private LibraryFragment mLibraryFragment;
 
-    private View mLibraryRootFrame;
-
-    private int mOldDrawerPosition = 0;
-
-    private OutputsFragment mOutputsFragment;
-
-    private View mOutputsRootFrame;
-
-    private TextView mTextView;
-
     static {
         final StrictMode.ThreadPolicy policy =
                 new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-    }
-
-    private ListView initializeDrawerList() {
-        final ListView drawerList = (ListView) findViewById(R.id.left_drawer);
-        final DrawerItem[] drawerItems = {
-                new DrawerItem(getString(R.string.libraryTabActivity),
-                        DrawerItem.Action.ACTION_LIBRARY),
-
-                new DrawerItem(getString(R.string.outputs), DrawerItem.Action.ACTION_OUTPUTS),
-
-                new DrawerItem(getString(R.string.settings), DrawerItem.Action.ACTION_SETTINGS)
-        };
-
-        // Set the adapter for the list view
-        drawerList.setAdapter(new ArrayAdapter<>(this,
-                R.layout.drawer_list_item, drawerItems));
-        drawerList.setItemChecked(mOldDrawerPosition, true);
-
-        // Set the list's click listener
-        drawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        return drawerList;
     }
 
     private LibraryFragment initializeLibraryFragment() {
@@ -141,39 +99,9 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         return fragment;
     }
 
-    private OutputsFragment initializeOutputsFragment() {
-        OutputsFragment fragment =
-                (OutputsFragment) mFragmentManager.findFragmentByTag(FRAGMENT_TAG_OUTPUTS);
-
-        if (fragment == null) {
-            fragment = new OutputsFragment();
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.replace(R.id.outputs_root_frame, fragment, FRAGMENT_TAG_OUTPUTS);
-            ft.commit();
-        }
-
-        return fragment;
-    }
-
-    private TextView initializeTextView() {
-        final LayoutInflater inflater = (LayoutInflater) getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-        final TextView textView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
-
-        textView.setFocusable(true);
-        textView.setFocusableInTouchMode(true);
-        textView.setSelected(true);
-        textView.requestFocus();
-
-        return textView;
-    }
-
     @Override
     public void onBackPressed() {
-        if (mCurrentDisplayMode != DisplayMode.MODE_LIBRARY) {
-            switchMode(DisplayMode.MODE_LIBRARY);
-        } else if (mFragmentManager.getBackStackEntryCount() > 0) {
+        if (mFragmentManager.getBackStackEntryCount() > 0) {
             super.onBackPressed();
         } else {
             final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -191,17 +119,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
                 finish();
             }
         }
-    }
-
-    @Override
-    public void onBackStackChanged() {
-        refreshActionBarTitle();
-    }
-
-    @Override
-    public void onConfigurationChanged(final Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -231,36 +148,12 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
         setContentView(R.layout.main_activity_nagvigation);
 
-        mTextView = initializeTextView();
-
-        mLibraryRootFrame = findViewById(R.id.library_root_frame);
-        mOutputsRootFrame = findViewById(R.id.outputs_root_frame);
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        mDrawerList = initializeDrawerList();
-
         mFragmentManager = getSupportFragmentManager();
-        mFragmentManager.addOnBackStackChangedListener(this);
 
         mLibraryFragment = initializeLibraryFragment();
-        mOutputsFragment = initializeOutputsFragment();
-
-        if (savedInstanceState == null) {
-            switchMode(DisplayMode.MODE_LIBRARY);
-        } else {
-            switchMode((DisplayMode) savedInstanceState.getSerializable(EXTRA_DISPLAY_MODE));
-        }
 
         /** Reset the persistent override when the application is reset. */
         mApp.setPersistentOverride(false);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
-        return true;
     }
 
     @Override
@@ -320,33 +213,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     }
 
     @Override
-    public boolean onMenuItemClick(final MenuItem item) {
-        return onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(final int itemPosition, final long itemId) {
-        mLibraryFragment.setCurrentItem(itemPosition, true);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        final boolean itemHandled = mDrawerToggle.onOptionsItemSelected(item);
-
-        // Handle item selection
-        if (!itemHandled) {
-            switch (item.getItemId()) {
-                case R.id.menu_search:
-                    onSearchRequested();
-                    break;
-            }
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     protected void onPause() {
         if (DEBUG) {
             unregisterReceiver(MPDConnectionHandler.getInstance());
@@ -369,12 +235,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
             registerReceiver(MPDConnectionHandler.getInstance(),
                     new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(final Bundle outState) {
-        outState.putSerializable(EXTRA_DISPLAY_MODE, mCurrentDisplayMode);
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -408,116 +268,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         ft.addToBackStack(label);
         ft.setBreadCrumbTitle(title);
         ft.commit();
-    }
-
-    /**
-     * Navigation Drawer helpers
-     */
-
-    private void refreshActionBarTitle() {
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowCustomEnabled(true);
-
-        if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            if (mCurrentDisplayMode == DisplayMode.MODE_OUTPUTS) {
-                mTextView.setText(R.string.outputs);
-            }
-        } else if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY) {
-            int fmStackCount = 0;
-
-            if (mFragmentManager != null) {
-                fmStackCount = mFragmentManager.getBackStackEntryCount();
-            }
-
-            if (fmStackCount > 0) {
-                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                mTextView.setText(mFragmentManager.getBackStackEntryAt(fmStackCount - 1)
-                        .getBreadCrumbTitle());
-            } else {
-                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-                actionBar.setDisplayShowCustomEnabled(false);
-            }
-        }
-    }
-
-    /** Swaps fragments in the main content view */
-    void switchMode(final DisplayMode newMode) {
-        mCurrentDisplayMode = newMode;
-        switch (mCurrentDisplayMode) {
-            case MODE_LIBRARY:
-                mLibraryRootFrame.setVisibility(View.VISIBLE);
-                mOutputsRootFrame.setVisibility(View.GONE);
-                break;
-            case MODE_OUTPUTS:
-                mLibraryRootFrame.setVisibility(View.GONE);
-                mOutputsRootFrame.setVisibility(View.VISIBLE);
-                mOutputsFragment.refreshOutputs();
-                break;
-        }
-        refreshActionBarTitle();
-    }
-
-    public enum DisplayMode {
-        MODE_LIBRARY,
-        MODE_OUTPUTS
-    }
-
-    private static class DrawerItem {
-
-        private final Action mAction;
-
-        private final String mLabel;
-
-        DrawerItem(final String label, final Action action) {
-            super();
-            mLabel = label;
-            mAction = action;
-        }
-
-        @Override
-        public String toString() {
-            return mLabel;
-        }
-
-        private enum Action {
-            ACTION_LIBRARY,
-            ACTION_OUTPUTS,
-            ACTION_SETTINGS
-        }
-    }
-
-    private class DrawerItemClickListener implements AdapterView.OnItemClickListener {
-
-        @Override
-        public void onItemClick(final AdapterView<?> parent, final View view, final int position,
-                final long id) {
-            mDrawerLayout.closeDrawer(mDrawerList);
-
-            switch (((DrawerItem) parent.getItemAtPosition(position)).mAction) {
-                case ACTION_LIBRARY:
-                    // If we are already on the library, pop the whole stack.
-                    // Acts like an "up" button
-                    if (mCurrentDisplayMode == DisplayMode.MODE_LIBRARY) {
-                        final int fmStackCount = mFragmentManager.getBackStackEntryCount();
-                        if (fmStackCount > 0) {
-                            mFragmentManager.popBackStack(null,
-                                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                        }
-                    }
-                    switchMode(DisplayMode.MODE_LIBRARY);
-                    break;
-                case ACTION_OUTPUTS:
-                    switchMode(DisplayMode.MODE_OUTPUTS);
-                    break;
-                case ACTION_SETTINGS:
-                    mDrawerList.setItemChecked(mOldDrawerPosition, true);
-                    final Intent intent = new Intent(MainMenuActivity.this, SettingsActivity.class);
-                    startActivityForResult(intent, SETTINGS);
-                    break;
-            }
-            mOldDrawerPosition = position;
-        }
     }
 
 }
