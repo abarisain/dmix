@@ -17,6 +17,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="false"
@@ -45,6 +46,15 @@
             android:visibility="invisible" />
     </FrameLayout>
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
     <com.melnykov.fab.FloatingActionButton
         android:id="@+id/album_menu"
         android:layout_width="64dp"
@@ -53,7 +63,7 @@
         android:layout_below="@+id/albumCoverFrame"
         android:layout_marginRight="32dp"
         android:layout_marginTop="-32dp"
-        android:src="@drawable/ic_media_play_light"
+        android:src="@drawable/ic_media_play"
         fab:fab_colorNormal="@color/fab_color"
         fab:fab_colorPressed="@color/fab_color_pressed"
         fab:fab_colorRipple="@color/fab_color_ripple" />
