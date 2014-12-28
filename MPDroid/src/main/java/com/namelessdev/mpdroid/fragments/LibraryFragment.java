@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
@@ -29,9 +30,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.List;
 
 public class LibraryFragment extends Fragment {
 
@@ -49,7 +53,7 @@ public class LibraryFragment extends Fragment {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    ILibraryTabActivity mActivity = null;
+    Activity mActivity = null;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
@@ -71,7 +75,7 @@ public class LibraryFragment extends Fragment {
             throw new RuntimeException(
                     "Error : LibraryFragment can only be attached to an activity implementing ILibraryTabActivity");
         }
-        mActivity = (ILibraryTabActivity) activity;
+        mActivity = activity;
         mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
         if (mViewPager != null) {
             mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -82,18 +86,26 @@ public class LibraryFragment extends Fragment {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.library_tabs_fragment, container, false);
-        mViewPager = (ViewPager) view;
+        mViewPager = (ViewPager) view.findViewById(R.id.pager);
         if (mSectionsPagerAdapter != null) {
             mViewPager.setAdapter(mSectionsPagerAdapter);
         }
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        /*mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(final int position) {
                 if (mActivity != null) {
                     mActivity.pageChanged(position);
                 }
             }
-        });
+        });*/
+
+        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) view.findViewById(R.id.tabs);
+        tabs.setViewPager(mViewPager);
+
+        final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.app_name);
+        toolbar.inflateMenu(R.menu.mpd_searchmenu);
+
         return view;
     }
 
@@ -109,19 +121,22 @@ public class LibraryFragment extends Fragment {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+        private List<String> currentTabs;
+
         public SectionsPagerAdapter(final FragmentManager fm) {
             super(fm);
+            currentTabs = LibraryTabsUtil.getCurrentLibraryTabs();
         }
 
         @Override
         public int getCount() {
-            return mActivity.getTabList().size();
+            return currentTabs.size();
         }
 
         @Override
         public Fragment getItem(final int i) {
             final Fragment fragment;
-            final String tab = mActivity.getTabList().get(i);
+            final String tab = currentTabs.get(i);
 
             switch (tab) {
                 case LibraryTabsUtil.TAB_ALBUMS:
@@ -154,6 +169,13 @@ public class LibraryFragment extends Fragment {
             }
 
             return fragment;
+        }
+
+        @Override
+        public CharSequence getPageTitle(final int position) {
+            final String tab = currentTabs.get(position);
+
+            return mActivity.getResources().getString(LibraryTabsUtil.getTabTitleResId(tab));
         }
     }
 }

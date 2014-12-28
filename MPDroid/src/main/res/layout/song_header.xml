@@ -53,7 +53,7 @@
         android:minHeight="?attr/actionBarSize"
         android:background="@android:color/transparent"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <com.melnykov.fab.FloatingActionButton
         android:id="@+id/album_menu"
