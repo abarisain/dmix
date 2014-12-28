@@ -243,6 +243,9 @@ public class SongsFragment extends BrowseFragment {
         mList = (AbsListView) view.findViewById(R.id.list);
         registerForContextMenu(mList);
         mList.setOnItemClickListener(this);
+        if (mList instanceof ListView) {
+            ((ListView) mList).setDivider(null);
+        }
 
         mLoadingView = view.findViewById(R.id.loadingLayout);
         mLoadingTextView = (TextView) view.findViewById(R.id.loadingText);
