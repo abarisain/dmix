@@ -206,7 +206,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         super.onCreateView(inflater, container, savedInstanceState);
 
         mRootView = container;
-        final View view = inflater.inflate(R.layout.playlist_activity, container, false);
+        final View view = inflater.inflate(R.layout.queue_fragment, container, false);
         mSearchView = (SearchView) view.findViewById(R.id.search);
         mSearchView.setOnQueryTextListener(new OnQueryTextListener() {
 
