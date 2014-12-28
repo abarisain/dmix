@@ -40,8 +40,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.app.NavUtils;
 import android.support.v4.widget.PopupMenuCompat;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -84,6 +86,8 @@ public class SongsFragment extends BrowseFragment<Music> {
     TextView mHeaderAlbum;
 
     TextView mHeaderInfo;
+
+    Toolbar mToolbar;
 
     PopupMenu mPopupMenu;
 
@@ -247,6 +251,7 @@ public class SongsFragment extends BrowseFragment<Music> {
             mHeaderArtist = (TextView) view.findViewById(R.id.tracks_artist);
             mHeaderAlbum = (TextView) view.findViewById(R.id.tracks_album);
             mHeaderInfo = (TextView) view.findViewById(R.id.tracks_info);
+            mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
             mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
             mAlbumMenu = (ImageButton) view.findViewById(R.id.album_menu);
         } else {
@@ -254,9 +259,38 @@ public class SongsFragment extends BrowseFragment<Music> {
             mHeaderArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
             mHeaderAlbum = (TextView) headerView.findViewById(R.id.tracks_album);
             mHeaderInfo = (TextView) headerView.findViewById(R.id.tracks_info);
+            mToolbar = (Toolbar) headerView.findViewById(R.id.toolbar);
             mCoverArt = (ImageView) headerView.findViewById(R.id.albumCover);
             mCoverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
             mAlbumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
+        }
+
+        if (mToolbar != null) {
+            mToolbar.inflateMenu(R.menu.mpd_searchmenu);
+            mToolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final Activity a = getActivity();
+                    if (a != null) {
+                        a.onBackPressed();
+                    }
+                }
+            });
+            mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(final MenuItem menuItem) {
+                    switch (menuItem.getItemId()) {
+                        case R.id.menu_search:
+                            final Activity a = getActivity();
+                            if (a != null) {
+                                a.onSearchRequested();
+                            }
+                            return true;
+                    }
+                    return false;
+                }
+            });
         }
 
         mCoverArtListener = new AlbumCoverDownloadListener(mCoverArt, mCoverArtProgress, false) {
