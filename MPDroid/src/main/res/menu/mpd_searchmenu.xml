@@ -19,6 +19,6 @@
         android:id="@+id/menu_search"
         android:icon="@drawable/ic_action_search"
         android:orderInCategory="2"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/search" />
 </menu>
